@@ -1,6 +1,6 @@
 {
   "paper_id": "P036",
-  "retrieved_at": "2026-10-25T22:05:35.864325+00:00",
+  "retrieved_at": "2026-10-25T22:32:55.480360+00:00",
   "legal_source": "public primary author/publisher repository",
   "review_credit": false,
   "primary_url": "https://arxiv.org/abs/2601.09163",
@@ -94,6 +94,9 @@
       "Robotic foundation models trained on large-scale manipulation datasets have shown promise in learning generalist policies, but they often overfit to specific viewpoints, robot arms, and especially parallel-jaw grippers due to dataset biases. To address this limitation, we propose Cross-Embodiment Interface (\\CEI), a framework for cross-embodiment learning that enables the transfer of demonstrations across different robot arm and end-effector morphologies. \\CEI introduces the concept of \\textit{functional similarity}, which is quantified using Directional Chamfer Distance. Then it aligns robot trajectories through gradient-based optimization, followed by synthesizing observations and actions for unseen robot arms and end-effectors. In experiments, \\CEI transfers data and policies from a Franka Panda robot to \\textbf{16} different embodiments across \\textbf{3} tasks in simulation, and supports bidirectional transfer between a UR5+AG95 gripper robot and a UR5+Xhand robot across \\textbf{6} real-world tasks, achieving an average transfer ratio of 82.4\\%. Finally, we demonstrate that \\CEI can also be extended with spatial generalization and multimodal motion generation capabilities using our proposed techniques. Project website: https://cross-embodiment-interface.github.io/"
     ]
   },
-  "error_type": "ValueError",
-  "error": "Full text exceeds configured download limit"
+  "fulltext_sha256": "faa8c5e14e005893c988eb9ea1720fe61c4e0f3c46e4701c5fb9988d8c5962be",
+  "pages": 8,
+  "extracted_characters": 40815,
+  "cache_key": "P036/fulltext.pdf",
+  "extraction": "pypdf"
 }

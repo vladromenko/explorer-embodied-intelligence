@@ -37,7 +37,7 @@
       "data_license": "PRIVATE_LOCAL_EVIDENCE",
       "changes_and_reason": "Original deterministic accounting and symbolic planning helpers; no claim of a novel learned skill-memory algorithm. Missing evidence stays unknown and simulation results are never pooled with physical results.",
       "verification": {
-        "paper_read": false,
+        "paper_read": true,
         "code_inspected": true,
         "installed": false,
         "software_tested": true,
@@ -51,7 +51,10 @@
           "scope": "deterministic scientific accounting and symbolic planning only"
         }
       ],
-      "hardware_run_ids": []
+      "hardware_run_ids": [],
+      "paper_review_evidence": [
+        "research/literature/reviews/P130.json"
+      ]
     }
   ]
 }

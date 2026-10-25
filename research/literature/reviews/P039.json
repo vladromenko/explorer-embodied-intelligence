@@ -1,0 +1,68 @@
+{
+  "deep_review": true,
+  "problem": "Small real-world imitation datasets often fail under disturbances; synthetic scenes need geometry, articulation and transfer procedures that preserve real task structure.",
+  "contribution": "RialTo reconstructs real scenes, transfers a visualpolicy into privileged simulation through inverse distillation, robustifies withRL and distills back to deployable perception while co-training realdata.",
+  "algorithm": "Scan/cut/annotate scene geometry and articulation; train a visualpolicy from about15real demonstrations; execute it in simulation to collect successful state-labelled trajectories; bootstrapPPOwith imitationloss; distill the robust statepolicy to sensoryobservations plus original realdata.",
+  "observations": "Real/student point-cloud observations and robot state; simulationRLuses privileged object/joint poses. Privileged state is discarded from the deployable sensorypolicy.",
+  "actions": "Robot end-effector controls under the simulator/robot controllercontract; observation/action trajectories are preserved across the inverse-distillationstage.",
+  "embodiment_and_data": "Real reconstructed rigid/articulated scenes and manipulation tasks including shelf placement and in-the-wild household interactions; not a validated deformable-sock model.",
+  "experiments": "Compare original imitation to reconstructed-sceneRLrobustification, distractortraining, inverse-distillation choices and nonexpert reconstruction workflow; evaluate physical taskoutcomes rather than geometryscreenshots.",
+  "baselines": "Real-world imitation and pipeline/component ablations, including training with or without distractors and alternative supervision sources.",
+  "quantitative_result": {
+    "source": "PDFp10TableII",
+    "task": "Mug on shelf testedwithdistractors",
+    "without_distractor_training": "30±15%",
+    "with_distractor_training": "70±15%",
+    "trial_denominator": "NOT_EXTRACTED",
+    "note": "Source's limitedtasksetup, not anExplorertransfer result."
+  },
+  "limitations": "Geometry needs manual articulation/physics annotation; reconstruction does not measure everydynamic parameter. The paper studies mostly quasistatic rigid scenes and reports roughly2days end-to-end training pertask, a bottleneck for continuallearning. Exactdynamics matter more for fastcontact/deformables.",
+  "code_and_license": {
+    "repo": "https://github.com/real-to-sim-to-real/RialToPolicyLearning",
+    "commit": "9556a9340830e0ad7e2c8ee38c81a0ee9b43e844",
+    "code_license": "UNKNOWN_NOT_AUTOMATICALLY_REUSABLE",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "Reuse the conceptual realgeometry→simulation→perceptionparity approach, preserving measured versus estimated modelparameters. Existing CAD can support anengineeringpilot, but does not validate contactphysics or a socktask. Avoid promising thefulloriginalstack onNX.",
+  "decision": "COMPARE",
+  "algorithm_detail": "Inverse distillation executes the real visualpolicy in simulation where privilegedstate is available, producing paired sensory/state demonstrations without inventing real stateobservations. Sparse-rewardRLplusBCloss constrains exploration before a second sensorydistillation with realdata co-training.",
+  "integration_contract": "Hash scene assets, transforms, articulation and estimatedphysicalparameters; separate real/sim/deriveddataset lineage. Freeze deployable observationfeatures and reject any worldstate leakage. Record reconstruction uncertainty anddistillation/executor mismatches.",
+  "license_evidence": "Official repository identity/head verified; GitHub metadata returns no recognizedlicense. Do not infer reusepermission from publicvisibility. Copied code requires license clarification or an independent attributedimplementation.",
+  "required_experiments": "Asset/hash andkinematicchecks; perturbation-controlledsimrollouts; state-to-visualindependent eval; realdata/simdata ablation; resourceprofiling; separate physicalvalidation of contactanddeformables afteroperatorapproval.",
+  "difference_from_explorer": "Digitaltwins andreal→sim→real robustification alreadyexist. Explorer must measure a new evidence-grounded selection/adaptation/retention rule rather than rename thispipeline.",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "§III-A/B",
+      "supports": "fourstagepipeline andscene assumptions"
+    },
+    {
+      "page": 5,
+      "section": "Fig3/§III-C",
+      "supports": "inversedistillation"
+    },
+    {
+      "page": 6,
+      "section": "§III-C1/C2",
+      "supports": "privilegedstate andPPOplusBCloss"
+    },
+    {
+      "page": 10,
+      "section": "TableII/§V-A",
+      "supports": "distractorcomparison"
+    },
+    {
+      "page": 11,
+      "section": "§VII",
+      "supports": "quasistatic/deformable/resource limitations"
+    }
+  ],
+  "paper_id": "P039",
+  "source_sha256": "db7e57f6b298b535e912df1098c33669ffd4366935ea60c422cd161b1e0797ce",
+  "primary_url": "https://arxiv.org/abs/2403.03949",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

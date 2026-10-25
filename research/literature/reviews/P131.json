@@ -1,0 +1,58 @@
+{
+  "deep_review": true,
+  "problem": "Build a growing skill library that supports new manipulation tasks while retaining performance on previous tasks under restricted historical demonstration access.",
+  "contribution": "LOTUS combines continual skill discovery with hierarchical imitation learning and experience replay; a meta-controller selects skills and latent subgoals from an expanding library.",
+  "algorithm": "Segment demonstrations temporally using DINOv2 feature similarity, pool segment features and form initial spectral clusters using silhouette-selected cluster count. Assign incoming segments to existing clusters above a silhouette threshold or add a new skill. Finetune skill policies and a hierarchical meta-controller with exemplar replay.",
+  "observations": "Workspace and wrist-camera image histories, proprioception, BERT task-language embeddings and latent subgoals; DINOv2 features are used for discovery.",
+  "actions": "Task-space manipulation commands from goal-conditioned skill policies; transformer/GMM heads model multimodal actions. Meta-controller predicts a skill index and subgoal, not actuator-safe instructions.",
+  "embodiment_and_data": "LIBERO-OBJECT10tasks, GOAL10 and50selected kitchen tasks; real MUTEX50tasks with25base tasks followed by5stages of5tasks. Real base tasks use30demonstrations, incoming tasks10; retain5demonstrations per task.",
+  "experiments": "Simulation20trials/task repeated over3randomseeds; compares full method, replay-free variant and discovery/vision-backbone ablations. Real-robot evaluation reports aggregate lifelong metrics; per-task real evaluation denominators not extracted from examined main text.",
+  "baselines": "Sequential finetuning, flat experience replay, adapted BUDS, LOTUS-ft without replay; CLIP/R3M versus DINOv2 discovery features; no-new-skill ablation.",
+  "quantitative_result": {
+    "value": "LIBERO-OBJECT AUC LOTUS65.0±3.0 versus ER49.0±2.0; NBT11.0±1.0 versus24.0±0.0, mean±standard error over3seeds,20trials/task. These are aggregate success-derived percentage metrics.",
+    "location": "PDF p6 TableI and experiment text",
+    "caveat": "The paper's FWT definition p3 uses completed-stage diagonal performance, unlike LIBERO's epoch-averaged learning-curve FWT; matching names do not ensure matching formulas."
+  },
+  "limitations": "Requires expert teleoperation and retention of previous demonstrations; memory burden grows with thousands of tasks. Skill similarity/clustering thresholds and finite maximum skill-index capacity matter. A learned library does not automatically establish zero-shot composition on unseen tasks or another robot.",
+  "code_and_license": "Primary paper retrieved and read. Executable code pin and code license were not verified in this review; implementation reuse requires a separate audit.",
+  "hardware_adaptation": "Use as an explicit continual skill-composition baseline only after recording actual skill policies, checkpoints and replay budget. Explorer's symbolic BFS skill composition is engineering glue, not an implementation of LOTUS's learned cVAE meta-controller.",
+  "decision": "COMPARE",
+  "algorithm_detail": "The goal-conditioned low-level policy jointly learns an encoder for look-ahead image subgoals. The high-level cVAE is trained from cluster skill labels and subgoal embeddings; logits for uncreated skills are masked to negative infinity before softmax. Existing skills use new partitions plus stored exemplars, and the replay buffer retains partition membership.",
+  "integration_contract": "Store each skill's policy checkpoint, embodiment/action/camera contract, data partition and pre/postconditions. Track whether a sequence is a symbolic proposed plan, trained hierarchical policy, simulator execution or physical execution. Keep replay-budget and cluster-version metadata.",
+  "license_evidence": "Code license UNKNOWN; primary paper is not permission to copy an uninspected implementation.",
+  "required_experiments": "Matched flat replay versus hierarchical composition with equal demonstrations/memory; no-new-skills and no-replay ablations; held-out task combinations; all-prior-task retention after each update; real per-task attempted/success/unknown counts and intervention costs.",
+  "difference_from_explorer": "Growing skill libraries, replay and meta-controller composition already exist. A task graph that returns skill IDs is useful scaffolding but does not reproduce learned hierarchical lifelong manipulation.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "III-IV",
+      "supports": "Problem, metrics, factorization and discovery"
+    },
+    {
+      "page": 4,
+      "section": "IV",
+      "supports": "Incremental clustering and partition replay"
+    },
+    {
+      "page": 5,
+      "section": "IV-B/V-A",
+      "supports": "Subgoal controller and masked logits"
+    },
+    {
+      "page": 6,
+      "section": "TableI/V",
+      "supports": "Denominators, baselines and numeric results"
+    },
+    {
+      "page": 7,
+      "section": "VI continuation",
+      "supports": "Demonstration and memory limitations"
+    }
+  ],
+  "paper_id": "P131",
+  "source_sha256": "150ebaa87d207930853ef55ccaa1caba82e85bd76cf9dd1de5f0564ef06a8d16",
+  "primary_url": "https://arxiv.org/abs/2311.02058",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

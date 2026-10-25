@@ -1,0 +1,65 @@
+{
+  "deep_review": true,
+  "problem": "Collecting more repetitive demonstrations may not improve single-task generalization to genuinely new objects and environments.",
+  "contribution": "A controlled real-world scaling study separates environment diversity, object diversity and repetitions, then proposes a task-dependent data-collection strategy.",
+  "algorithm": "TrainDiffusionPolicy on datasets parameterized by environmentcountM, objectcountN and repetitionsK. Evaluate on unseen environments/objects, fit empirical scaling relationships and test a collectionstrategy; this is an empirical scaling result, not a guarantee for arbitrary tasks.",
+  "observations": "UMI-collected visual demonstrations with pose/trajectory reconstruction; trained visuomotor observations depend on thechosen policy/cameras.",
+  "actions": "UMI gripper trajectories mapped into robot motion through thepolicyinterface;SLAMvalidity and temporalalignment are prerequisites.",
+  "embodiment_and_data": "RealPourWater andMouseArrangement scaling tasks, with additionalFoldTowels andUnplugCharger verification. Demonstrations span many real scenes and object instances; about90%collectedUMIdemonstrations were valid according to thepaper.",
+  "experiments": "VaryM,N,K, compare novel-object/novel-environment generalization, randomized policyrollout order with matched initialconditions, and visualencoder/actionhead scaling andfine-tuning choices.",
+  "baselines": "Dataset-size/diversity conditions and architecture/fine-tuning alternatives; repetitions and diversity are separated rather than simply comparing total framecounts.",
+  "quantitative_result": {
+    "source": "PDFp9Fig7 discussion",
+    "finding": "For the studiedM16,N64 setting, performance plateaus near800trainingdemonstrations; for8/16/32environment-objectpairs, saturation is reported near400/800/1600demonstrations.",
+    "scope": "Task-specific empiricaltrend, not a universal50demonstrationrule.",
+    "unverified_prediction": "Page8predicts1191pairs for0.99normalizedMouseArrangement score and explicitly leaves verification to futurework."
+  },
+  "limitations": "Single-taskILscaling does not establish language/task-level generalization or cross-embodiment transfer. Powerlaw extrapolations beyond observeddata are predictions. UMI failures in texture-poor scenes and incomplete valid demonstrations affect usabledata.",
+  "code_and_license": {
+    "repo": "NO_OFFICIAL_CODE_VERIFIED_IN_THIS_REVIEW",
+    "code_license": "NOT_AUDITED",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "Use diversity-aware teachingguidance and session/object provenance. A smallNX baseline can test saturation locally without reproducing a largeencoder; never promise broadgeneralization from a few repeatedepisodes.",
+  "decision": "ADAPT",
+  "algorithm_detail": "The study independently varies diverse environment/object coverage and within-condition demonstrations, so a powerlaw with diversity is not evidence of a powerlaw with framecount. Matchedinitialconditions and randomized policyselection reduce evaluatorbias; normalizedscore is distinct from binarysuccess.",
+  "integration_contract": "Dataset manifests need environment, objectinstance, session, repetition andvalidity fields. Protocols must define unseenobjects/scenes before collection and keep policyselection away from finaltest conditions.",
+  "license_evidence": "PrimaryICLR2025/arXivfulltext inspected; no officialcode or data/modellicense audit completed. Published collectionideas may inform protocol design, but no code reuse rights are inferred.",
+  "required_experiments": "Smallpilot measuring repeatversusdiversity effects under equalvalid-episode budgets; separate heldoutobject/scene splits; report invalidcapture rate andactual independentattempt counts; keep extrapolated trends labeledpredictions.",
+  "difference_from_explorer": "Diversity-aware collection and scaling are already studied. Explorer's H1must disentangle sourcecompatibility from simply adding more scenes, objects orcompute.",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "§3",
+      "supports": "M/N/Kdefinition,UMIvalidity anddata source"
+    },
+    {
+      "page": 5,
+      "section": "Evaluation/§4.1",
+      "supports": "randomizedmatchedrollouts andtasks"
+    },
+    {
+      "page": 8,
+      "section": "§4.2-4.3",
+      "supports": "diversityscaling andunverified1191pair prediction"
+    },
+    {
+      "page": 9,
+      "section": "Fig7/§5",
+      "supports": "saturation andtask-dependentcollectionrecommendation"
+    },
+    {
+      "page": 10,
+      "section": "§6-7",
+      "supports": "architectureeffects andlimitations"
+    }
+  ],
+  "paper_id": "P017",
+  "source_sha256": "e3ee296bdf1b34dde4816d36207a0b2b496c66ab352299702e9efc8187e7ec07",
+  "primary_url": "https://arxiv.org/abs/2410.18647",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

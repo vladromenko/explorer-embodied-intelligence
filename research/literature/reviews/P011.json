@@ -1,0 +1,67 @@
+{
+  "deep_review": true,
+  "problem": "Offline actor-critic methods can overestimate unsupported actions and choose policies that exploit function-approximation errors.",
+  "contribution": "ConservativeQ-Learning adds a criticregularizer to learn pessimistic value estimates and improve offline policies without explicitly fitting a behavior-policy constraint.",
+  "algorithm": "PenalizeQunder a selected actiondistribution and offset with dataset-actionQalongsideBellman error. Practical entropy/log-sum-exp and alternative variants modifySACorQ-learning critic updates; the penalty can be dual-tuned.",
+  "observations": "Offline benchmark states orAtari pixels; observations are dataset- and implementation-specific.",
+  "actions": "Continuous actions for actor-critic and discrete actions forQR-DQN-style variants; these are separate implementations.",
+  "embodiment_and_data": "D4RL gym,AntMaze,Adroit andKitchen plus restrictedAtari replay subsets; noROSMASTER/SO101physical validation is provided.",
+  "experiments": "Measure normalized returns over4seeds, test complex offline data distributions, sparse manipulation/maze tasks and low-dataAtari; examine predicted conservative values against actualreturns.",
+  "baselines": "SAC,BC,BEAR,BRACvariants andQR-DQN/REM for discrete tasks;CQLvariants differ in importance-weighting stability.",
+  "quantitative_result": {
+    "source": "PDFp8Table2",
+    "metric": "D4RLantmaze-medium-play normalizedscore averagedacross4seeds",
+    "CQL_H": 61.2,
+    "BC": 0.0,
+    "BEAR": 0.0,
+    "note": "Sourcebenchmarkreturn; not measuredtargetrobotperformance."
+  },
+  "limitations": "The tighter theorem bounds expectedpolicyvalue, not every state-actionQpointwise, and relies on sampling/approximation assumptions. Conservative estimates are not a collisionavoidance or gripforce guarantee. Penalty and importance-sampling variance affect high-dimensionalactions.",
+  "code_and_license": {
+    "repo": "NO_OFFICIAL_CODE_VERIFIED_IN_THIS_REVIEW",
+    "code_license": "NOT_AUDITED",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "Use as an offlinebaseline only after reward labels and actioncontracts are defensible; avoid adding a heavysecondlearner before theworkingACTpath. Treat measuredphysical outcomes separately from learnedvalue bounds.",
+  "decision": "COMPARE",
+  "algorithm_detail": "Equation1 gives a looser pointwise pessimistic form;Equation2 adds a datasetQmaximization term that tightens expectedpolicyvalue but neednot preserve pointwisebounds. Actor-critic and discreteQvariants share regularizationprinciples, not identical actioninterfaces.",
+  "integration_contract": "Bind CQLvariant, penalty/dualupdate settings, sampled-action proposal, rewardscaling and terminationsemantics to eachcheckpoint. Preserve source-domain provenance when mixing simulation andphysicaltransitions.",
+  "license_evidence": "PrimaryNeurIPS/arXivfulltext read; no officialcode or code/model/data license audit completed for thisreview. A mathematicalbaseline may be compared only through an attributed, licensedimplementation.",
+  "required_experiments": "OfflineBC/IQL/CQL comparison on the same valid split andcompute; predictedvalue-versus-independentreturn calibration; penaltyablation; dataset-support andcross-embodiment actioncompatibility checks.",
+  "difference_from_explorer": "Pessimistic offlineRL is published priorwork, not a new evidencegroundedmemory or diagnosticmethod. Explorer must isolate its additional sourcecompatibility/adaptation claims.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "§3.1Equations1-2",
+      "supports": "criticregularizer"
+    },
+    {
+      "page": 4,
+      "section": "Theorem3.2/§3.2",
+      "supports": "expectedversuspointwisebound andassumptions"
+    },
+    {
+      "page": 6,
+      "section": "§4Algorithm1",
+      "supports": "practicalactor-critic/Qvariants"
+    },
+    {
+      "page": 8,
+      "section": "Tables1-2",
+      "supports": "four-seedbenchmarks andnumericcomparison"
+    },
+    {
+      "page": 9,
+      "section": "Analysis",
+      "supports": "valueversusreturnevaluation"
+    }
+  ],
+  "paper_id": "P011",
+  "source_sha256": "2bae51a0b45635ab714df39446cd656a9f4f1c503f512d6d0ce1eec3198d1716",
+  "primary_url": "https://arxiv.org/abs/2006.04779",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

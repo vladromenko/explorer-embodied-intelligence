@@ -1,0 +1,65 @@
+{
+  "deep_review": true,
+  "problem": "Simulation policies fail physically because perception, embodiment, dynamics and controller gaps coexist; naive fine-tuning on sparse human corrections can damage a useful base policy.",
+  "contribution": "TRANSIC trains a deployable student through action-space distillation and learns a gated residual policy from online human corrections.",
+  "algorithm": "Train a privileged RLteacher with operational-space control, record its joint behavior and distill a point-cloud student into joint-position control. Fit a residual to pre/post-intervention state differences and a gate deciding when to apply that correction while preserving thebase.",
+  "observations": "Teacher privileged simulator state; student synthetic/real point clouds and proprioception, with matched point-cloud feature regularization. A visualRGBstudent is a different adaptation, not exactTRANSIC replication.",
+  "actions": "Teacher operational-space actions are relabelled to joint-position targets; residuals represent human correction differences, with discrete gripper semantics treated separately.",
+  "embodiment_and_data": "FurnitureBench manipulation: stabilize, reach/grasp, insert andscrew. Respectively20/100/90/17real correction trajectories yield62/434/489/58correction events.",
+  "experiments": "Real-robot evaluation uses20trials per condition with varied initial object/robot poses; compare sim-to-real gaps, correction budget, gating and base-policy preservation, and demonstrate longer composed assemblies.",
+  "baselines": "Direct transfer, domain randomization/data augmentation,BC/IQL fine-tuning,HG-DAgger/IWR andreal-onlyBC/BC-RNN/IQL.",
+  "quantitative_result": {
+    "value": "NOT_EXTRACTED",
+    "location": "PDFp6Fig4 andAppendixTableA.XI",
+    "reason": "Comparisons and20trialprotocol examined; exact per-taskbar values were notdigitized."
+  },
+  "limitations": "Human synchronization and point-cloud calibration are prerequisites; unsafe naive deployment is explicitly rejected. Simulation controller fidelity, limitedcorrections and asset coverage constraintransfer. Broad real-world robustness is not a guarantee for another robot.",
+  "code_and_license": {
+    "repo": "https://github.com/transic-robot/transic",
+    "commit": "9af4ff7a392d9b033bb3a05d16f1aaa1aa2472d6",
+    "code_license": "MIT",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "Adapt teacher/student action parity and correction provenance. Do not install the full simulationstack or assume theNano/SO101 supports its controller. AnRGB-onlycompactACTbaseline must be explicitly recorded as a different implementation choice.",
+  "decision": "ADAPT",
+  "algorithm_detail": "Student training combines behavior-cloning likelihood with aligned point-cloud feature regularization. The residual learns generalized pre/post-state differences, while a learned gate controls intervention; keeping baseandresidual separate limits destructive full-policyupdates. Teacher/controlleraction relabeling is fundamental to parity.",
+  "integration_contract": "Store requested/accepted/dispatched actions, pre/post-correction states, takeover indicators, sourcepolicy, point-cloud/camera registration and actionmapping. Only actually measured states may be called jointfeedback; command estimates remain explicit.",
+  "license_evidence": "OfficialGitHub metadata identifiesMIT at thepinnedhead. Sourceinstallation, weights/data rights andNX/hardware execution were not audited, so no fullupstreamparity is asserted.",
+  "required_experiments": "Teacher/student executor parity; no privilegedobservation leakage; correctionrouting; full-finetune versus gatedresidual retention; identifiedsimfaultablation; independent outcomes under matchedtargetdata andresources.",
+  "difference_from_explorer": "Simteachers, visualstudents and gatedhumanrepair are published priorwork. Explorer needs a separately tested evidence-memory, cross-embodiment or diagnosis result.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "Fig2/§2.2",
+      "supports": "privilegedteacher andpointcloudstudent"
+    },
+    {
+      "page": 4,
+      "section": "§2.2-2.4",
+      "supports": "actiondistillation,residualtargets andgate"
+    },
+    {
+      "page": 5,
+      "section": "§3.1",
+      "supports": "correctioncounts,baselines and20trials"
+    },
+    {
+      "page": 6,
+      "section": "§3.2/Figs4-5",
+      "supports": "comparison andgapdiagnostics"
+    },
+    {
+      "page": 8,
+      "section": "Relatedwork/scope",
+      "supports": "physicalgapcategories andconstraints"
+    }
+  ],
+  "paper_id": "P038",
+  "source_sha256": "b445a54c4e6ce51af8a3552c22db90c44c3808332ea321388e5659b5a6149c1d",
+  "primary_url": "https://arxiv.org/abs/2405.10315",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

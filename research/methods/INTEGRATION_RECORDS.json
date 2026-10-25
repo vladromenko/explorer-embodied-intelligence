@@ -1,0 +1,322 @@
+{
+  "schema_version": "1.0",
+  "activation_status": "PENDING_ROOT_INTEGRATION",
+  "instructions": "Merge these records into active METHOD_REGISTRY.yaml only together with their real source modules and registered method IDs in module docstrings. Add matching CODE_PROVENANCE.csv entries. This file is proposed integration metadata, not an assertion that these paths exist in the research-only worktree.",
+  "verified_at": "2026-10-26",
+  "additional_scientific_module_globs": [
+    "shared/explorer_shared/kinematics.py",
+    "shared/explorer_shared/handover.py",
+    "00-control-center/src/explorer/simulation.py",
+    "00-control-center/src/explorer/transfer.py"
+  ],
+  "methods": [
+    {
+      "method_id": "PPO_SB3_2_9",
+      "implementation_id": "IMPL-SB3-PPO-PILOT-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/pilot.py:run_pilot",
+      "implementation_type": "ADAPTED",
+      "paper_ids": [
+        "P008"
+      ],
+      "sources": [
+        {
+          "url": "https://arxiv.org/abs/1707.06347",
+          "role": "PPO clipped-surrogate algorithm"
+        },
+        {
+          "url": "https://github.com/DLR-RM/stable-baselines3/tree/8908708f10c8ff29759c67f55c8acb56cab27463",
+          "role": "Official v2.9.0 package revision; unmodified optimizer called through public API"
+        }
+      ],
+      "upstream_repo": "https://github.com/DLR-RM/stable-baselines3",
+      "upstream_commit": "8908708f10c8ff29759c67f55c8acb56cab27463",
+      "code_license": "MIT",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Wrap official SB3 PPO in a fixed-base CAD reach task; privileged simulator-state teacher. Actual optimization, changed weights, checkpoint reload and independent development rollouts were executed.",
+      "verification": {
+        "paper_read": true,
+        "code_inspected": true,
+        "installed": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "run_id": "default-pilot-v1",
+          "path": "research/experiments/default-pilot-v1/result.json",
+          "scope": "Mac CPU development reach test; six evaluation seeds disjoint from training/imitation; not sealed final evaluation or physical evidence",
+          "result_sha256": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60"
+        }
+      ],
+      "hardware_run_ids": [],
+      "package": "stable-baselines3==2.9.0"
+    },
+    {
+      "method_id": "ACT_LEROBOT_0_6_1",
+      "implementation_id": "IMPL-LEROBOT-ACT-PILOT-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/student.py:train_and_evaluate_act",
+      "implementation_type": "ADAPTED",
+      "paper_ids": [
+        "P001"
+      ],
+      "sources": [
+        {
+          "url": "https://arxiv.org/abs/2304.13705",
+          "role": "ACT chunked-action CVAE policy"
+        },
+        {
+          "url": "https://github.com/huggingface/lerobot/tree/7e241bd630a3719a56157a497ce5d08f244784f1/src/lerobot/policies/act",
+          "role": "Official ACTPolicy/config files; exact installed SHA256 matches verified primary revision"
+        }
+      ],
+      "upstream_repo": "https://github.com/huggingface/lerobot",
+      "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
+      "code_license": "Apache-2.0",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Call official ACTPolicy with compact configuration and ResNet18. Explorer supplies NPZ episode chunks and explicit RGB preprocessing. Student observes overview RGB and command estimate; not privileged simulator state. Actual updates and save/reload were tested, with development success2/6 preserved.",
+      "verification": {
+        "paper_read": true,
+        "code_inspected": true,
+        "installed": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "run_id": "default-pilot-v1",
+          "path": "research/experiments/default-pilot-v1/result.json",
+          "scope": "Mac CPU development reach test; six evaluation seeds disjoint from training/imitation; not sealed final evaluation or physical evidence",
+          "result_sha256": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60"
+        }
+      ],
+      "hardware_run_ids": [],
+      "package": "lerobot==0.6.1",
+      "source_sha256": {
+        "modeling_act.py": "a6c1a49c5daafa513b9abee9b986205d327e25c70ed13623ab2e6c0ab6b1f577",
+        "configuration_act.py": "35a60c0dd3c811b137b5eb035bdbd40d40e2c24ba0cda61756052e6e1c829282"
+      },
+      "dependency_exception": "Torch2.14.1/torchvision0.29.1 outside LeRobot declared bounds; execution tested for this path only, no framework-wide compatibility claim"
+    },
+    {
+      "method_id": "EXPLORER_CAD_MUJOCO",
+      "implementation_id": "IMPL-CAD-REACH-FIXTURE-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/pilot.py:ReachEnv",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://github.com/google-deepmind/mujoco/tree/800a109a4bdd02cb60404d565db4ae16fb04a53b",
+          "role": "MuJoCo3.17.0 engine, Apache2.0 dependency"
+        }
+      ],
+      "upstream_repo": "https://github.com/google-deepmind/mujoco",
+      "upstream_commit": "800a109a4bdd02cb60404d565db4ae16fb04a53b",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Use twenty checksum-verified legacy ROSMASTER CAD meshes in an explicit fixed-base reach fixture. Static geometry hashes do not validate contact dynamics, inertias, calibration or physical safety.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "run_id": "default-pilot-v1",
+          "path": "research/experiments/default-pilot-v1/result.json",
+          "scope": "Mac CPU development reach test; six evaluation seeds disjoint from training/imitation; not sealed final evaluation or physical evidence",
+          "result_sha256": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60"
+        }
+      ],
+      "hardware_run_ids": [],
+      "upstream_code_license": "Apache-2.0",
+      "cad_mesh_license": "NOT_ESTABLISHED_IN_THIS_AUDIT"
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-PILOT-DATA-ADAPTER-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/student.py:EpisodeChunks",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://huggingface.co/docs/lerobot/main/lerobot-dataset-v3",
+          "role": "Dataset schema context; pilot NPZ adapter is not an assertion of LeRobotDataset v3 compliance"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Episode-chunk indexing, RGB preprocessing and model invocation are engineering adapters, not a substitute learned policy or a novel imitation-learning algorithm.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "run_id": "default-pilot-v1",
+          "path": "research/experiments/default-pilot-v1/result.json",
+          "scope": "Mac CPU development reach test; six evaluation seeds disjoint from training/imitation; not sealed final evaluation or physical evidence",
+          "result_sha256": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "SO101_URDF_FK_IK",
+      "implementation_id": "IMPL-SO101-KINEMATICS-001",
+      "function_or_module": "shared/explorer_shared/kinematics.py:URDFChain",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://github.com/TheRobotStudio/SO-ARM100/tree/a758567c3978dfeefe282ede0500085a48fe8f78/Simulation/SO101",
+          "role": "Official SO101 calibrated URDF geometry; Apache2.0. New joint zero is midrange, gripper0closed100open is not encoded in URDF."
+        }
+      ],
+      "upstream_repo": "https://github.com/TheRobotStudio/SO-ARM100",
+      "upstream_commit": "a758567c3978dfeefe282ede0500085a48fe8f78",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Read official URDF transforms and compute FK/bounded numerical IK. Imported geometry uses upstream Apache2.0; solver and frame bookkeeping are known engineering baselines, not new robot learning.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "1222977",
+          "path": "04-cross-embodiment-transfer/docs/PILOT_VALIDATION_20261026.json",
+          "scope": "24-point virtual reference;22reachable, position-only IK; no source policy execution, orientation constraint, collision check or physical action",
+          "reported_tests": "20 unit/integration tests; four deterministic handover protocol cases"
+        }
+      ],
+      "hardware_run_ids": [],
+      "urdf_sha256": "3a65d2d35e68a8d2f0c2cc176d19b884506543c93ba72980145b80abe276022c",
+      "upstream_asset_license": "Apache-2.0",
+      "calibration_scope": "Official geometry only; physical trigger/aperture/frame calibration unmeasured"
+    },
+    {
+      "method_id": "OBJECT_RELATIVE_RETARGET",
+      "implementation_id": "IMPL-OBJECT-RELATIVE-REGISTRATION-001",
+      "function_or_module": "shared/explorer_shared/kinematics.py:ObjectRegistration",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://github.com/TheRobotStudio/SO-ARM100/tree/a758567c3978dfeefe282ede0500085a48fe8f78/Simulation/SO101",
+          "role": "Official SO101 calibrated URDF geometry; Apache2.0. New joint zero is midrange, gripper0closed100open is not encoded in URDF."
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Compose declared object-relative rigid transforms and solve robot-specific IK. Virtual registration and position-only targets are explicitly labelled; a reachable solution is not collision-safe physical policy transfer.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "1222977",
+          "path": "04-cross-embodiment-transfer/docs/PILOT_VALIDATION_20261026.json",
+          "scope": "24-point virtual reference;22reachable, position-only IK; no source policy execution, orientation constraint, collision check or physical action",
+          "reported_tests": "20 unit/integration tests; four deterministic handover protocol cases"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "HANDOVER_VERIFIED_FSM",
+      "implementation_id": "IMPL-NO-ACTUATOR-HANDOVER-FSM-001",
+      "function_or_module": "shared/explorer_shared/handover.py:HandoverFSM",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [
+        "P124"
+      ],
+      "sources": [
+        {
+          "url": "https://doi.org/10.1007/s10514-025-10201-y",
+          "role": "Handover planning and object-slip failure context; not copied code or release-safety proof"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "A deterministic evidence-gated handover protocol state machine with no actuator IO. Synthetic oracle evidence validates protocol transitions only and cannot authorize physical release.",
+      "verification": {
+        "paper_read": true,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "1222977",
+          "path": "04-cross-embodiment-transfer/docs/PILOT_VALIDATION_20261026.json",
+          "scope": "24-point virtual reference;22reachable, position-only IK; no source policy execution, orientation constraint, collision check or physical action",
+          "reported_tests": "20 unit/integration tests; four deterministic handover protocol cases"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "LELAB_CHECKPOINT_IMPORT",
+      "implementation_id": "IMPL-LELAB-SCHEMA-INSPECTION-001",
+      "function_or_module": "00-control-center/src/explorer/transfer.py:inspect_lerobot_source",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://github.com/huggingface/leLab/tree/9b5afaee33baa1d773e499937564f3831d25de22",
+          "role": "Primary schema/dependency inspection: Python>=3.12, LeRobotv0.6.0; meta/info.json dataset discovery"
+        }
+      ],
+      "upstream_repo": "https://github.com/huggingface/leLab",
+      "upstream_commit": "9b5afaee33baa1d773e499937564f3831d25de22",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Inspect dataset/checkpoint metadata and explicit compatibility fields; metadata discovery alone does not prove checkpoint processor, normalization or runtime executability on LeRobot0.6.1.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "1222977",
+          "path": "04-cross-embodiment-transfer/docs/PILOT_VALIDATION_20261026.json",
+          "scope": "24-point virtual reference;22reachable, position-only IK; no source policy execution, orientation constraint, collision check or physical action",
+          "reported_tests": "20 unit/integration tests; four deterministic handover protocol cases"
+        }
+      ],
+      "hardware_run_ids": [],
+      "upstream_code_license": "UNKNOWN_IN_THIS_RECORD",
+      "runtime_import_qualified": false
+    }
+  ]
+}

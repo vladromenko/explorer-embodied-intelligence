@@ -1,6 +1,6 @@
 {
   "paper_id": "P077",
-  "retrieved_at": "2026-10-25T22:06:14.158628+00:00",
+  "retrieved_at": "2026-10-25T22:32:58.795898+00:00",
   "legal_source": "public primary author/publisher repository",
   "review_credit": false,
   "primary_url": "https://arxiv.org/abs/2601.18323",
@@ -97,6 +97,9 @@
       "The vision-language-action (VLA) paradigm has enabled powerful robotic control by leveraging vision-language models, but its reliance on large-scale, high-quality robot data limits its generalization. Generative world models offer a promising alternative for general-purpose embodied AI, yet a critical gap remains between their pixel-level plans and physically executable actions. To this end, we propose the Tool-Centric Inverse Dynamics Model (TC-IDM). By focusing on the tool's imagined trajectory as synthesized by the world model, TC-IDM establishes a robust intermediate representation that bridges the gap between visual planning and physical control. TC-IDM extracts the tool's point cloud trajectories via segmentation and 3D motion estimation from generated videos. Considering diverse tool attributes, our architecture employs decoupled action heads to project these planned trajectories into 6-DoF end-effector motions and corresponding control signals. This plan-and-translate paradigm not only supports a wide range of end-effectors but also significantly improves viewpoint invariance. Furthermore, it exhibits strong generalization capabilities across long-horizon and out-of-distribution tasks, including interacting with deformable objects. In real-world evaluations, the world model with TC-IDM achieves an average success rate of 61.11 percent, with 77.7 percent on simple tasks and 38.46 percent on zero-shot deformable object tasks. It substantially outperforms end-to-end VLA-style baselines and other inverse dynamics models."
     ]
   },
-  "error_type": "ValueError",
-  "error": "Full text exceeds configured download limit"
+  "fulltext_sha256": "a5a3c5596023e9a32f371573698da91a66caf480dfdd3ee79df395608162b28f",
+  "pages": 15,
+  "extracted_characters": 56983,
+  "cache_key": "P077/fulltext.pdf",
+  "extraction": "pypdf"
 }

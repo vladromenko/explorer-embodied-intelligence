@@ -1,0 +1,64 @@
+{
+  "deep_review": true,
+  "problem": "Visuomotor policies tied to a specific robot's action and observation spaces are difficult to transfer across different kinematic structures.",
+  "contribution": "LEGATO uses a shared handheld grasping tool/interface, motion-invariant trajectory regularization and constrained low-level motion retargeting.",
+  "algorithm": "Train a high-level recurrent visual policy from tool demonstrations with trajectory likelihood, DHB motion-invariant loss and gripper classification. Retarget desired tool motion through prioritized Jacobian constraints and eSNS/QP-style velocity-level limits.",
+  "observations": "Egocentric stereo camera features and recent policy actions expressed through the common grasping-tool interface.",
+  "actions": "Desired handheld-tool trajectories inSE3 and discrete grasping actions at10Hz, subsequently mapped to embodiment-specific joint/whole-body motion.",
+  "embodiment_and_data": "Simulation Abstract, Panda, Spot, GR1 and GoogleRobot embodiments, plus real deployments using the common tool; lid closing, cup shelving and ladle reorganization.",
+  "experiments": "Compare representation regularization, demonstration embodiment and deployment morphology with consistent initial robot states and randomized object poses. Simulation success is evaluated on50trials per reported setting.",
+  "baselines": "BC-RNN, DiffusionPolicy and LEGATO with onlySE3 trajectory supervision, isolating the invariant regularizer from the common interface.",
+  "quantitative_result": {
+    "value": "NOT_EXTRACTED",
+    "location": "PDFp6Fig6",
+    "reason": "The50trial comparison and aggregate margins were examined, but individual plot bar values were not digitized."
+  },
+  "limitations": "A physically shared gripper/tool reduces both contact and observation differences; Explorer's different grippers do not automatically satisfy this assumption. Fixed-base workspace and tracking/IK errors reduce transfer, especially on large-motion tasks.",
+  "code_and_license": {
+    "repo": "NO_OFFICIAL_CODE_VERIFIED_IN_THIS_REVIEW",
+    "code_license": "NOT_AUDITED",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "Use constrained FK/IK as a known baseline and evaluate an object/tool-relative effect representation separately. Admit only poses achievable by the actual ROSMASTER joint count and limits; do not force arbitrary6DoF targets onto an underactuated arm.",
+  "decision": "COMPARE",
+  "algorithm_detail": "DHB invariants regularize predicted gripper motion rather than directly generate it. Low-level priorities track tool pose then posture bias, while inequality constraints cover joint position/velocity/acceleration and Cartesian/collision limits. The policy and constrained realization are distinct components.",
+  "integration_contract": "Bind tool/camera transforms, metricSE3 conventions, grasp semantics, target kinematic chain, reachability and velocity/acceleration bounds. Record retargeting residuals and rejected targets rather than silently clipping them.",
+  "license_evidence": "Primary RA-L/arXiv full text read; no official code/license verified, so an attributed independent FK/IK baseline must not be described as reused LEGATO implementation.",
+  "required_experiments": "FK/IK round-trip and unreachable-pose tests; shared-gripper versus different-gripper scope analysis; same-scene target-only comparison; SE3 versus invariant/effect ablation with equal data; independent physical outcome after supervised approval.",
+  "difference_from_explorer": "Common task-space interfaces and retargeting are prior work. The proposed evidence-grounded reuse mechanism needs gains beyond a numerical IK mapping.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "Fig3/§III",
+      "supports": "policy interface and invariant representation"
+    },
+    {
+      "page": 4,
+      "section": "Equations1-3",
+      "supports": "QP/eSNS constraints and priorities"
+    },
+    {
+      "page": 5,
+      "section": "Equations4-5/§IV",
+      "supports": "training loss and experimental questions"
+    },
+    {
+      "page": 6,
+      "section": "Fig6/§IV-B",
+      "supports": "50trial protocol and tasks"
+    },
+    {
+      "page": 7,
+      "section": "Results",
+      "supports": "morphology/workspace limitations"
+    }
+  ],
+  "paper_id": "P034",
+  "source_sha256": "17d22e85ad2531dacfb4667e1f1bfbeb32b4fd85a38d0584fe8e39d3872892ad",
+  "primary_url": "https://arxiv.org/abs/2411.03682",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

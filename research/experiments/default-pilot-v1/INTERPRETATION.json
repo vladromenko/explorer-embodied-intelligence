@@ -1,0 +1,24 @@
+{
+  "evidence_scope": "Mac CPU engineering development evaluation, fixed-base three-active-joint CAD reach",
+  "training_steps": 4096,
+  "act_updates": 120,
+  "evaluation_attempts_per_policy": 6,
+  "no_motion_successes": 0,
+  "ppo_successes": 6,
+  "act_successes": 2,
+  "evaluation_role": "DEVELOPMENT; seeds disjoint from training/imitation, not final sealed evaluation",
+  "physical_motion": false,
+  "sock_manipulation": false,
+  "jetson_qualification": false,
+  "claims_not_supported": [
+    "sample-efficient physical learning",
+    "safe contact or grasp",
+    "cross-embodiment transfer",
+    "statistically established method advantage"
+  ],
+  "imported_legacy_execution_flags_are_live_permission": false,
+  "source_sha256": {
+    "result.json": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60",
+    "provenance.json": "248c1276b9bd8de0900c6a9a76d734e488dac9500a33b74064e3b705187a9177"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "deep_review": true,
+  "problem": "Measure learning and forgetting when a manipulation policy encounters sequential tasks with incomplete access to past demonstrations.",
+  "contribution": "LIBERO defines a procedural task-generation framework and controlled task suites for spatial, object, goal and longer-horizon transfer, with lifelong-learning algorithms and multiple policy architectures.",
+  "algorithm": "Generate language, scene layouts and PDDL goals from behavior templates. Train behavior-cloned policies sequentially, comparing experience replay, EWC and PackNet to sequential finetuning and multitask references. Evaluate success-based forward transfer, negative backward transfer and area-under-curve metrics.",
+  "observations": "Workspace/wrist images, robot proprioception and task-language embeddings; temporal backbones aggregate partially observed history.",
+  "actions": "Continuous end-effector actions sampled from a GMM head; not direct cross-embodiment joint copying.",
+  "embodiment_and_data": "Simulation benchmark; 130 standardized tasks: three 10-task controlled suites plus LIBERO-100 split into90 short and10 long tasks. Provides50 human-teleoperated demonstrations per task.",
+  "experiments": "Compares ResNet-RNN, ResNet-Transformer and ViT-Transformer across task suites and lifelong algorithms. Investigates task ordering, language embeddings and offline pretraining; source outcomes are simulated task successes, not physical transfer.",
+  "baselines": "Sequential finetuning, multitask learning, experience replay, EWC and PackNet. Multitask access is a reference with different historical-data access, not an equal-memory sequential method.",
+  "quantitative_result": {
+    "value": "LIBERO-GOAL ResNet-T: PackNet NBT0.06±0.01 versus ER0.34±0.02; AUC0.75±0.01 versus0.49±0.02. Means and standard errors over3seeds.",
+    "location": "PDF p7 Table1; metric definitions p6 Eq3",
+    "meaning": "NBT/AUC aggregate success-derived metrics, not single-trial success probabilities or physical rates."
+  },
+  "limitations": "A simulator benchmark with a fixed action space and common embodiment does not establish physical or cross-embodiment lifelong learning. Checkpoint selection uses the best evaluated current-task epoch, affecting metric interpretation. Neural architecture and task ordering materially affect conclusions; pretraining can harm downstream learning.",
+  "code_and_license": "Official Lifelong-Robot-Learning/LIBERO metadata verified: MIT, master commit8f1084e3132a39270c3a13ebe37270a43ece2a01. Repository metadata inspected; no core benchmark source execution is claimed by this review.",
+  "hardware_adaptation": "Reuse evaluation structure, task-by-task retention matrices and controlled shifts. Record camera/robot/action schemas and physical-session splits independently. Small Explorer tests are not LIBERO scores unless the actual benchmark/task versions are run.",
+  "decision": "REUSE",
+  "algorithm_detail": "The paper FWT averages eleven success measurements across epochs0..50; NBT averages performance loss across subsequent learning stages; AUC combines learning-curve transfer with later retention. These differ from final-stage signed BWT and max-past forgetting. Best-current-task checkpoint selection is part of the published metric protocol.",
+  "integration_contract": "Store checkpoint-by-task-by-epoch attempted/success/unknown counts and task order. Name exact formulas in each protocol. Explorer's retention_metrics reports final BWT/forgetting and must not relabel these as LIBERO NBT/FWT without implementing the published formulas.",
+  "license_evidence": "GitHub primary repository metadata returned MIT and exact pinned master revision; see UPSTREAM_AUDIT.json. Dataset assets and downstream dependencies require their own license checks.",
+  "required_experiments": "At least sequential-finetune versus fixed-budget replay across multiple task orders with matched demonstration counts; frozen evaluations of every prior task after each task; disclose memory/compute/checkpoint selection and uncertainty, plus untouched final sessions.",
+  "difference_from_explorer": "Task retention and controlled evaluation are established prior art. Explorer's domain-separated ledger and deployment constraints are engineering design until supported by measured ablations.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "2",
+      "supports": "Sequential problem formulation"
+    },
+    {
+      "page": 5,
+      "section": "4.2-4.4",
+      "supports": "Suites, algorithms, architectures"
+    },
+    {
+      "page": 6,
+      "section": "5.1 Eq3",
+      "supports": "Exact metric definitions and checkpoint selection"
+    },
+    {
+      "page": 7,
+      "section": "Table1",
+      "supports": "Three-seed numeric comparison"
+    },
+    {
+      "page": 10,
+      "section": "7",
+      "supports": "Simulation scope and future directions"
+    }
+  ],
+  "paper_id": "P130",
+  "source_sha256": "ff7d943e2eb37760df684f3ae2931a5a35ef8ea465bd387e62afe49507b8e414",
+  "primary_url": "https://arxiv.org/abs/2306.03310",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

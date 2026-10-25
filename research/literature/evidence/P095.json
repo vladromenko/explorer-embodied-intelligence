@@ -1,6 +1,6 @@
 {
   "paper_id": "P095",
-  "retrieved_at": "2026-10-25T22:06:42.502875+00:00",
+  "retrieved_at": "2026-10-25T22:33:02.692112+00:00",
   "legal_source": "public primary author/publisher repository",
   "review_credit": false,
   "primary_url": "https://arxiv.org/abs/2604.26848",
@@ -95,6 +95,9 @@
       "Robotic manipulation requires reasoning about future spatial-temporal interactions and geometric constraints, yet existing Vision-Language-Action (VLA) policies often leave predictive representation weakly coupled with action execution, causing failures in tasks requiring precise spatial-temporal coordination. We propose STARRY, a world-model-enhanced action-generation policy that aligns spatial-temporal prediction and action generation by jointly denoising future spatial-temporal latents and actions through a unified diffusion process. To bridge 2D visual tokens and 3D metric control, STARRY introduces Geometry-Aware Selective Attention Modulation (GASAM), which converts predicted depth and end-effector geometry into token-aligned weights for selective action-attention modulation. On RoboTwin 2.0, STARRY achieves 93.82% / 93.30% average success under Clean and Randomized settings across 50 bimanual tasks. Real-world experiments show that STARRY improves average success from 42.5% to 70.8% compared with $\\pi_{0.5}$. These results demonstrate the effectiveness of action-centric spatial-temporal world modeling for spatially and temporally demanding robotic manipulation."
     ]
   },
-  "error_type": "UnicodeEncodeError",
-  "error": "'utf-8' codec can't encode characters in position 7765-7766: surrogates not allowed"
+  "fulltext_sha256": "a5f6be9dccd2b649b5042a0d10fe887d0c0b1502ccdef3f2a55ef56885efd94f",
+  "pages": 19,
+  "extracted_characters": 57024,
+  "cache_key": "P095/fulltext.pdf",
+  "extraction": "pypdf"
 }

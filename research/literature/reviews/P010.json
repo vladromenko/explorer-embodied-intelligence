@@ -1,0 +1,67 @@
+{
+  "deep_review": true,
+  "problem": "OfflineRL must propagate reward through suboptimal trajectory fragments without exploiting unsupported action values.",
+  "contribution": "ImplicitQ-Learning performs multi-step dynamic programming using only dataset actions, then extracts a policy by advantage-weighted regression.",
+  "algorithm": "Fit a value function to an upper expectile of dataset-actionQvalues. RegressQto reward plus next-stateV, separating action variability from lucky stochastic transitions. Extract a policy with exponentially advantage-weighted behavior cloning.",
+  "observations": "Dataset states inD4RL locomotion,AntMaze,Adroit andKitchen; no robotic camera representation is intrinsic to the method.",
+  "actions": "Continuous dataset actions; value learning avoids sampling out-of-distribution actions, and policy extraction fits action likelihoods.",
+  "embodiment_and_data": "OfflineMuJoCo/maze/manipulation benchmarks plus a controlled stochasticmaze illustration and subsequent online fine-tuning.",
+  "experiments": "Test multi-step trajectory stitching, compare offline normalized returns and measure improvement after1milliononline steps; runtime is reported onGTX1080, notNX.",
+  "baselines": "BC,top10%BC,DecisionTransformer,AWAC,one-stepRL,TD3+BC andCQL, with dataset/version-dependent comparisons.",
+  "quantitative_result": {
+    "source": "PDFp8Table1",
+    "metric": "D4RLantmaze-large-diverse-v0 normalizedscore",
+    "IQL": 47.5,
+    "CQL": 14.9,
+    "seed_count": "NOT_EXTRACTED",
+    "note": "Not a physical robot successpercentage."
+  },
+  "limitations": "Improvement remains limited by dataset support and valid reward/transition semantics. Expectile and advantage-temperature choices matter; a large learnedQis not independent outcome evidence.",
+  "code_and_license": {
+    "repo": "NO_OFFICIAL_CODE_VERIFIED_IN_THIS_REVIEW",
+    "code_license": "NOT_AUDITED",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "COMPARE only if meaningful reward-labelled offline transitions exist. Failed and intervention episodes can supportRLanalysis, but should not be indiscriminately relabelled as expertBCtargets.",
+  "decision": "COMPARE",
+  "algorithm_detail": "SeparateVexpectile regression prevents high targets caused only by lucky next-state stochasticity;Quses an ordinary squaredBellman residual. Policy extraction is weighted regression, distinct from critic max-action querying and from unconditional replay of successful demonstrations.",
+  "integration_contract": "Immutable dataset/reward-model versions, proper terminal/truncated flags, dataset-supported action semantics and train-only normalizers are required. Compare offline and online phases with separately counted interactions.",
+  "license_evidence": "PrimaryarXivPDF andmethods/tables examined; no upstream sourcecode license or execution was verified, so no code reusepermission is inferred.",
+  "required_experiments": "Offline reward/transition audit; equal-dataBC/CQLcomparison; action-support checks; independent closed-loop evaluation with fresh seeds; target-only versus transferred-data ablation under matchedtargetdata.",
+  "difference_from_explorer": "Already learns from suboptimal offline data through dynamic programming; this does not create a causaldiagnostic or cross-robot effectsrepresentation by itself.",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "§4.1-4.2",
+      "supports": "expectile andin-support objective"
+    },
+    {
+      "page": 5,
+      "section": "Equations5-7/Algorithm1",
+      "supports": "separateV/Qandpolicyextraction"
+    },
+    {
+      "page": 7,
+      "section": "§5.1-5.2",
+      "supports": "stochasticmaze andbenchmarks"
+    },
+    {
+      "page": 8,
+      "section": "Table1",
+      "supports": "normalizedscores andcomparisonconditions"
+    },
+    {
+      "page": 9,
+      "section": "§5.3",
+      "supports": "separateonlinefine-tuning"
+    }
+  ],
+  "paper_id": "P010",
+  "source_sha256": "b135fecfc6685b5ac88c5d41d2f78db8da03ce3e47c8e1152cb1f77a1ffa59ee",
+  "primary_url": "https://arxiv.org/abs/2110.06169",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

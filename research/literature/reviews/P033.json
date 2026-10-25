@@ -1,0 +1,66 @@
+{
+  "deep_review": true,
+  "problem": "Portable human demonstrations need robot-compatible motion, timing and visual observations before they can train deployable manipulation policies.",
+  "contribution": "UMI combines a handheld gripper, matched wrist-camera views, visual-inertial motion recovery, relative action trajectories and measured latency alignment.",
+  "algorithm": "Collect gripper trajectories and width, filter for target kinematic feasibility, train a diffusion policy on synchronized observations, and execute only future-valid action samples after compensating observation, inference and actuator delay.",
+  "observations": "Matched fisheye wrist RGB, relative end-effector history and gripper width; bimanual policies additionally use relative inter-gripper pose in a shared map.",
+  "actions": "A timed sequence of end-effector poses relative to the current pose at each policy query, plus continuous gripper width. This differs from per-step delta integration and global absolute coordinates.",
+  "embodiment_and_data": "Portable handheld grippers deployed on multiple arms; real cup arrangement, dynamic tossing, bimanual cloth folding and long-horizon dish washing.",
+  "experiments": "Matched-initialization task tests, latency/representation ablations, cross-embodiment and environment generalization, collection throughput and motion-capture tracking accuracy.",
+  "baselines": "Alternative camera/action/latency representations, teleoperation collection and policy ablations; compare task outcomes rather than assuming a handheld interface is equivalent to bare-hand video.",
+  "quantitative_result": {
+    "source": "PDFp7§V-A",
+    "cup_arrangement": "20/20 test cases from305demonstrations by2demonstrators",
+    "predicate": "Cup upright on saucer, handle within15degrees of target direction",
+    "scope": "Narrow specified task setup, not universal transfer."
+  },
+  "limitations": "Kinematic infeasibility is filtered rather than solved universally. VisualSLAM requires texture; target gripper/camera geometry must match the demonstration interface. An overhead-only camera does not inherit UMI's matched-wrist observation assumptions.",
+  "code_and_license": {
+    "repo": "https://github.com/real-stanford/universal_manipulation_interface",
+    "commit": "d095ba9590df789df5189eea5ee7e431689038a6",
+    "code_license": "MIT",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "Adapt relative trajectories, capture-time interpolation and stale-action rejection, but measure actual Pi/NX/Nano latency. Keep explicit hand-eye/object registration for Explorer's different grippers and camera placement.",
+  "decision": "ADAPT",
+  "algorithm_detail": "Each action chunk uses one current gripper frame, avoiding accumulated deltas. Observation streams are aligned to the delayed camera timestamp; actions already obsolete after total pipeline delay are discarded. Bimanual relative pose comes from a common scene map, not an uncalibrated pair of camera images.",
+  "integration_contract": "Store per-stream capture timestamps, clock domain/uncertainty, measured input/execution delays, pose frame, metric units, gripper calibration and feasible workspace. Recheck these bindings after changing a camera or robot profile.",
+  "license_evidence": "Official repository metadata identifies MIT at the pinned commit. No model/dataset license or source-code execution was audited, so timing concepts are adapted without claiming upstream hardware parity.",
+  "required_experiments": "Measure p50/p95/p99 observation-to-dispatch and execution delay under camera load; reject expired chunks; pose/width round-trip and workspace tests; matched source/target scene evaluation; supervised physical validation after approval.",
+  "difference_from_explorer": "UMI already provides transferable relative action interfaces and latency matching. Explorer must test additional skill memory, cross-gripper effects and independent outcome/retention mechanisms.",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "HD1-HD2",
+      "supports": "matched wrist-camera assumptions"
+    },
+    {
+      "page": 5,
+      "section": "HD5-HD6/Fig5",
+      "supports": "continuous width and feasibility filtering"
+    },
+    {
+      "page": 6,
+      "section": "PD1-PD2",
+      "supports": "latency matching and relative trajectories"
+    },
+    {
+      "page": 7,
+      "section": "§V-A",
+      "supports": "data count, predicate and20test cases"
+    },
+    {
+      "page": 11,
+      "section": "§VII-VIII",
+      "supports": "tracking benchmark and limitations"
+    }
+  ],
+  "paper_id": "P033",
+  "source_sha256": "a9452cbaf9f5d2a77d5f8b631632fa7f45ae4bbc32400be1cc939b91a36e1609",
+  "primary_url": "https://arxiv.org/abs/2402.10329",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

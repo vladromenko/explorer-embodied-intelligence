@@ -1,0 +1,62 @@
+{
+  "deep_review": true,
+  "problem": "Joint actions and native proprioception entangle task interaction with the morphology of the source embodiment.",
+  "contribution": "KITE separates an embodiment-agnostic interaction policy from kinematics-trained embodiment-specific decoders using a latent contact-intent interface.",
+  "algorithm": "Encode sparse world-frame surface contact locations/normals into a permutation-invariant latent intent. Jointly learn intent encoding and decoder bank from synthetic kinematic examples; freeze them and train a source-task imitation policy predicting latent intents from observations and previous intent.",
+  "observations": "Task observations plus previous latent intent rather than source-native joint state; target decoders additionally condition on target configuration.",
+  "actions": "Shared latent intent, decoded into target goal joint configuration; target kinematics are available during pretraining even when target-task demonstrations are absent.",
+  "embodiment_and_data": "Parallel gripper, dexterous hands and composite tool embodiments; object placing, keyboard pressing, bottle pumping and nut rotating. Simulation demonstrations include2400grasping/scripted objectplacing trajectories and800for several other tasks.",
+  "experiments": "Cross-embodiment transfer, adding a new decoder, target-demonstration ablation and initial-pose perturbations; realWuji transfer uses10trials per task. Nut rotation's reported percentage is a normalized rotation ratio, not a binary episode fraction.",
+  "baselines": "Joint/retargeting and policy alternatives plus OracleIntent/decoder diagnostics; compare target-task demonstration additions separately from access to target kinematics.",
+  "quantitative_result": {
+    "source": "PDFp7TablesIII-IV",
+    "real_objects_placing": "80% of10trials",
+    "real_bottle_pumping": "60% of10trials",
+    "decoder_diagnostic": "OracleIntent placing falls from85%base to57%after30cm shift",
+    "scope": "Source paper's specified embodiments, not SO101-to-ROSMASTER validation."
+  },
+  "limitations": "Decoder training is local around perturbed configurations and does not ensure arbitrary initialization or reachable intent. Contact extraction depends on object/surface geometry. The authorpage says code forthcoming; no installable implementation was verified.",
+  "code_and_license": {
+    "repo": "NO_OFFICIAL_CODE_AVAILABLE_ON_INSPECTED_AUTHOR_PAGE",
+    "author_page": "https://kite-manip.github.io/",
+    "code_license": "UNKNOWN",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "Treat as a close conceptual competitor. An initial Explorer object-relative FK/IK baseline is not KITE replication; learned intent/decoders require accurate meshes, contact models, synthetic data and separate target validation.",
+  "decision": "COMPARE",
+  "algorithm_detail": "The intent interface carries sparsecontact points and normals with variablecardinality, compressed by a setencoder. Contact-relevant joint masks prevent synthetic targets from imposing arbitrary changes on uninvolved joints. Source trajectories are transformed throughFK to persistent selected surface points, including approach frames.",
+  "integration_contract": "Version mesh/kinematic and object registration inputs, surface-contact selection, latent encoder and every targetdecoder together. Explicitly label target-kinematics access and absence/presence of task demonstrations. Reject unreachable or out-of-domain initializations.",
+  "license_evidence": "PrimaryarXivPDF and authorpage were inspected; authorpage exposes Code soon, so there is no verified code/model license or execution evidence. An independent baseline cannot be labeled upstream reuse.",
+  "required_experiments": "Kinematic synthesis sanitychecks; decoder heldoutpose tests; contact/geometric uncertainty; matched target-only and FK/IK baselines; smallN intervals; separate binarysuccess versus rotation-ratio metrics; supervised hardwarevalidation only after safety admission.",
+  "difference_from_explorer": "The contactintent/kinematicdecoder split is already published. Explorer must isolate a different tested mechanism in evidence management, transfer/adaptation, retention or diagnosis instead of claiming this split as new.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "§IV-A/B/Equations1-2",
+      "supports": "contactintent interface"
+    },
+    {
+      "page": 4,
+      "section": "§IV-B/C/Equations3-4",
+      "supports": "synthetictraining andpolicyinputs"
+    },
+    {
+      "page": 5,
+      "section": "Training/evaluation protocols",
+      "supports": "data counts andnonbinaryrotationmetric"
+    },
+    {
+      "page": 7,
+      "section": "TablesIII-IV/§V-D/E",
+      "supports": "10trials,perturbationlimits andrealtransfer"
+    }
+  ],
+  "paper_id": "P035",
+  "source_sha256": "b1911f5bc28be3fd683a6194e5d2075f86dead3566098047f7f2f6d388f7a83e",
+  "primary_url": "https://arxiv.org/abs/2606.22113",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

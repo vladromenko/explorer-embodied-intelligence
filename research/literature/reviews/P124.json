@@ -1,0 +1,58 @@
+{
+  "deep_review": true,
+  "problem": "Choose compatible giver and receiver grasps and a mutually reachable exchange pose for robot-to-robot object handover.",
+  "contribution": "A learning-free geometric/probabilistic grasp detector based on locally fitted superquadrics, followed by reachability-aware grasp-pair and exchange-pose selection.",
+  "algorithm": "Initialize multiple ellipsoids using K-means partitions and an additional whole-cloud initialization; fit hidden superquadrics with a mixture/outlier model and optimization-based Gibbs sampling. Rank parallel-jaw grasp candidates using geometry/contact/center-of-mass criteria. Select collision-compatible grasp pairs and an exchange pose maximizing reachable receiver grasps using precomputed 6D reachability SDFs.",
+  "observations": "Fused object point clouds from two calibrated depth sensors, known gripper geometry and robot reachability maps. Assumes an initially planar supporting surface and reconstructs missing bottom geometry.",
+  "actions": "Giver grasp, exchange pose and receiver grasp pose. Low-level execution and physical release behavior are distinct from the geometric planner.",
+  "embodiment_and_data": "Real experiments use two Franka arms and depth cameras; grasp detection uses two Azure Kinects, handover uses Primesense RGB-D and L515. No learned training dataset is needed. Implemented in Python on Ryzen 9 5950X.",
+  "experiments": "Isolated and packed-scene grasp tests and a handover test with six objects, five initial-position attempts per object, total 30 handovers. Handover success requires the receiver to remove the object from the giver workspace.",
+  "baselines": "Published RIMEDNet results on two objects; these are not a matched rerun on the same six-object protocol. Grasp comparisons use additional methods; individual numeric grasp results were not extracted in this review.",
+  "quantitative_result": {
+    "value": "Handover HSR 83.3% over 30 trials; the exact integer success numerator is not printed in the examined table. RIMEDNet object-specific reported rates 74.4% and 66.3% use a different object set.",
+    "location": "PDF p12 Section5.2 denominator and p13 Table3",
+    "comparability": "Cross-paper object/protocol mismatch; not evidence of Explorer performance."
+  },
+  "limitations": "Relative object movement in the giver invalidates the receiver grasp computed before pickup and causes drops. Assumes rigid geometric representations, uniform-density center-of-mass approximation, calibrated depth and two capable arms. Physical passing optimization is future work despite an executed handover pipeline; planning success is not a verified release-safety argument.",
+  "code_and_license": "Primary article and fulltext verified. Executable source repository and code license were not established in this review; do not copy implementation under an assumed article license.",
+  "hardware_adaptation": "Use as a planning baseline and motivation for observing object movement during handover. SO-101/ROSMASTER grippers, arm DOFs, calibration and RGB-only observability differ. Require independent grip/ownership evidence before any giver release; geometric reachability alone cannot authorize motion.",
+  "decision": "COMPARE",
+  "algorithm_detail": "The superquadric fitter treats much of the cloud as outliers so several initializations recover local graspable parts. The exchange selector transforms receiver candidate grasps by the giver/object pose and queries the receiver SDF. Reachability SDFs omit some dynamic inter-arm collision checks, so these need a separate check.",
+  "integration_contract": "Inputs: calibrated object cloud, explicit giver/object/receiver transforms, measured gripper widths and robot-specific reachability model. Outputs: ranked pose pairs with frame IDs and separate collision/reachability validity. Never convert these directly into a release command.",
+  "license_evidence": "Code license UNKNOWN; article DOI and publisher PDF are archival references, not an executable-code grant.",
+  "required_experiments": "Matched object/pose trials against a simpler object-relative geometric baseline; rigid-versus-slip perturbations; failed grasp and receiver-observation ablations; report attempted handovers, drops, interventions, unknown outcomes and full release evidence separately.",
+  "difference_from_explorer": "Explorer's no-actuator handover FSM is engineering glue, not this paper's grasp planner, physical validation or a novel handover method.",
+  "evidence_locations": [
+    {
+      "page": 5,
+      "section": "3.1-3.2",
+      "supports": "Mixture fitting and gripper model"
+    },
+    {
+      "page": 8,
+      "section": "4",
+      "supports": "Calibrated depth and handover selection"
+    },
+    {
+      "page": 10,
+      "section": "5",
+      "supports": "Hardware and reachability map"
+    },
+    {
+      "page": 12,
+      "section": "5.2",
+      "supports": "30-trial protocol and slip failure"
+    },
+    {
+      "page": 13,
+      "section": "Table3/Conclusion",
+      "supports": "HSR and physical-passing limitation"
+    }
+  ],
+  "paper_id": "P124",
+  "source_sha256": "26e6ebd22f830d9766d7ed66afbcc031c3e62ac5f845853918b6c38067b82af2",
+  "primary_url": "https://doi.org/10.1007/s10514-025-10201-y",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

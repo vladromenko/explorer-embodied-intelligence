@@ -39,7 +39,7 @@ class MetadataParser(HTMLParser):
             self.meta.setdefault(key, []).append(row["content"])
 
 
-def fetch(url: str, maximum=40 * 1024 * 1024) -> bytes:
+def fetch(url: str, maximum=100 * 1024 * 1024) -> bytes:
     request = urllib.request.Request(url, headers={"User-Agent": "ExplorerResearch/0.1 (private scientific literature audit)"})
     with urllib.request.urlopen(request, timeout=45) as response:
         data = response.read(maximum + 1)
@@ -88,7 +88,8 @@ def retrieve(paper: dict, cache: Path, evidence_dir: Path) -> dict:
         path.write_bytes(data)
         from pypdf import PdfReader
         reader = PdfReader(path)
-        pages = [{"page": i + 1, "text": page.extract_text() or ""} for i, page in enumerate(reader.pages)]
+        pages = [{"page": i + 1, "text": (page.extract_text() or "").encode("utf-16", "surrogatepass").decode("utf-16", "replace")}
+                 for i, page in enumerate(reader.pages)]
         (directory / "pages.json").write_text(json.dumps(pages, ensure_ascii=False))
         (directory / "fulltext.txt").write_text("\n\n".join(f"[PDF PAGE {p['page']}]\n{p['text']}" for p in pages))
         total_chars = sum(len(p["text"]) for p in pages)

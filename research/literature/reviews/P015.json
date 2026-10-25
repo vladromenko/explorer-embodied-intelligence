@@ -1,0 +1,70 @@
+{
+  "deep_review": true,
+  "problem": "Offline policy learning results on machine-generated data do not necessarily predict performance on temporally correlated, variable-quality human demonstrations.",
+  "contribution": "A systematic robomimic study and public learning resource spanning data source/quality, temporal models, observations, hyperparameters, model selection and dataset size.",
+  "algorithm": "Compare established imitation and offlineRL learners under controlled data/observation variations; strong recurrentBC captures human temporal correlations, while several batchRLmethods struggle on human data despite performance on machine mixtures.",
+  "observations": "Low-dimensional robot/object state and image observations, including wrist views; crop/randomization choices are varied explicitly.",
+  "actions": "Task-specific robot control targets from machine policies or human teleoperation, with binary completion rewards forRLcomparisons.",
+  "embodiment_and_data": "SimulatedLift,Can,Square,Transport andToolHang datasets from machine, proficient-human and multi-human sources. RealFranka datasets contain200trajectories each forLift,Can andToolHang.",
+  "experiments": "Three-seed simulation studies compare quality mixtures, image/state settings, architecture, dataset fractions and checkpoint selection. Real experiments report the finalcheckpoint over30rollouts without real-world hyperparameter tuning.",
+  "baselines": "BC,BC-RNN,BCQ,CQL,HBC andIRIS; methods with temporal structure are strong human-data baselines, so an intentionallyweak feedforwardBC would be insufficient.",
+  "quantitative_result": {
+    "source": "PDFp8§4.7",
+    "real_final_checkpoint_success_percent": {
+      "Lift": 96.7,
+      "Can": 73.3,
+      "ToolHang": 3.3
+    },
+    "rollouts_per_task": 30,
+    "demonstrations_per_real_task": 200,
+    "note": "Simulation tables select maximum online checkpoint performance; this is different from final/validation-loss selection."
+  },
+  "limitations": "Choosing the best online-tested checkpoint is impractical for physical evaluation and risks reuse of evaluation evidence. Lower validation imitationloss can mis-rank real performance; data and wrist-view benefits are task-dependent.",
+  "code_and_license": {
+    "repo": "https://github.com/ARISE-Initiative/robomimic",
+    "code_license": "NOT_AUDITED_IN_THIS_REVIEW",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "Use the study to design robust human-data splits, temporal baselines and teaching guidance. Keep failed trajectories for analysis/RL with truthful labels rather than treating all operator actions as expertBCtargets.",
+  "decision": "COMPARE",
+  "algorithm_detail": "This is an empirical design study, not a newly named learner. Its paired success/failure diagnostic and multi-human quality subsets distinguish offlineRL limitations from mere lack of trajectory variety; temporalBC and imageaugmentation choices are meaningful comparison factors.",
+  "integration_contract": "Preserve operator/session IDs, sourcequality, actual target actions and camera preprocessing. Fit normalization ontrain only. Maintain separate development checkpoint selection and a never-retuned sealedtest.",
+  "license_evidence": "The primarypaper and public repository pointer were verified. No model/data/source license audit is asserted; projectsiteP016 is a duplicatepointer, not anotherpaper.",
+  "required_experiments": "ACT and strong recurrentBC on matched demonstrations; session/object splits; camera/augmentation ablation; validation-loss versus development-outcome selection; retain every sealedattempt and report all failures.",
+  "difference_from_explorer": "Dataset curation and a multi-human recordingGUI are prior engineering/scientific subjects. Explorer must substantiate its additional sourcecompatibility, transfer and retention mechanism independently.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "Table1/Challenges",
+      "supports": "sourcequality andtemporalbaselines"
+    },
+    {
+      "page": 4,
+      "section": "Table2/§3.2",
+      "supports": "paired/qualitydatasets anddata sources"
+    },
+    {
+      "page": 5,
+      "section": "§3.3",
+      "supports": "three-seedevaluation andmaximumcheckpointselection"
+    },
+    {
+      "page": 7,
+      "section": "§4.4-4.6",
+      "supports": "hyperparameters andselectiondifficulty"
+    },
+    {
+      "page": 8,
+      "section": "§4.7",
+      "supports": "realdata counts and30trial outcomes"
+    }
+  ],
+  "paper_id": "P015",
+  "source_sha256": "18283ff9cbb9645de4ccf32ca2de472f452e89761287e7ed578e3a1066bea5f1",
+  "primary_url": "https://arxiv.org/abs/2108.03298",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}
