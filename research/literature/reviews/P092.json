@@ -1,0 +1,81 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P092",
+  "source_sha256": "306052a624f97d0048d716d9bdc2e03cd72669a001b42a5511ea9bb6a8ec2620",
+  "primary_url": "https://arxiv.org/abs/2602.22010",
+  "verified_title": "World Guidance: World Modeling in Condition Space for Action Generation",
+  "problem": "Future-image prediction can waste capacity on irrelevant appearance, while coarse latent actions can omit control detail. The policy needs compact predictive guidance that it can obtain from present observations at deployment.",
+  "contribution": "WoG learns a compact future-condition encoder with privileged future observations during initial action training, then distills the condition into a current-observation VLM while retaining action supervision. Deployment uses current observations only.",
+  "algorithm": "Frozen DINOv2 plus SigLIP or Wan VAE encode future frames; a Q-Former compresses them into16 query tokens with32 dimensions each. StageI injects this guidance into a rectified-flow action head. StageII freezes the future encoder and aligns current VLM queries to its targets while predicting actions without future inputs. Human videos can supervise condition prediction only, with optional action-labeled human training.",
+  "observations": "One current RGB image and language at inference. Four future frames over16 action steps are training targets. Physical inference uses overhead D435 RGB only; an installed L515 is unused. A VAE teacher does not supply measured depth or contact feedback.",
+  "actions": "Predict16 steps and execute the first8 before querying under the cited Maniunicon strategy. Labeled human actions are relative wrist-pose deltas plus mapped aperture; they are not directly robot-joint commands.",
+  "embodiment_and_data": "UR5 with Robotiq2F85 and RTX4090 workstation. Real datasets contain100 pick/place,100 microwave and200 towel demonstrations. OXE training uses100k+50k steps, batch1024; real fine-tuning30epochs, batch512. Human extension uses1920h/650k trajectories, including220h with action labels. An additional120 UMI trajectories per relevant task enter final fine-tuning.",
+  "experiments": "SIMPLER GoogleRobot and WidowX closed-loop RGB evaluation uses DINO+SigLIP; hardware uses DINO+VAE. Real ID/background/light/novel-object tests use20 trials per method/task as stated; exact allocation to each OOD condition is not separately clarified. Towel starts pre-folded into an isosceles triangle; success means aligning bottom corners within5cm, rather than a complete unrestricted folding sequence.",
+  "baselines": "UniVLA, VPP and matched-backbone vanilla VLA/no-stageII-condition-supervision ablations. Simulation also includes pi0, pi0FAST, OpenVLA, GR00T, Moto, VITA, DeFI and ViPRA. Encoder variants differ between experiments.",
+  "quantitative_result": {
+    "simulation": "PDFp6 Tables1–2:defaultGoogleoverall69.4%;WidowXcomplete-task63.5% versusViPRA62.5%, while graspaverage85.4% is separate. PDFp7 DINO+VAEGoogle70.9% butWidowX58.4%; no universal best encoder.",
+    "physical": "PDFp10 Table7:IDtowel60% versusVPP45%, light-shift35%,noveltowel50%;n20/method/task protocol. Microwave100%,pick/place60%. These are narrowly defined tasks, including5cm corner tolerance.",
+    "human_transfer": "PDFp11 Table9:unlabeledhumanvideo raisespick/place60→70 but LOWERS IDtowel60→50. Adding220haction-labeledhuman data gives65%towel. AdditionalUMI data raisespick/place60→85 andtowel60→80; reported42%/33% are relative improvements, not percentage-point gains."
+  },
+  "limitations": "The derivation assumes deterministic environmental coupling. Stochastic contact and partial observation are not resolved by condition compression; spatially sensitive stacking/drawer tasks remain weak. Human-video transfer is not uniformly beneficial. The narrow towel criterion does not establish a sock task. Exact simulation trial counts and NX latency/memory are NOT_EXTRACTED.",
+  "code_and_license": "No pinned implementation, checkpoint license or teacher/data terms inspected; no execution. Teacher and OXE citations do not establish reuse rights.",
+  "hardware_adaptation": "ADAPT compact future-condition supervision to a present-observation ACT policy, using held-out actual episodes. Single-RGB inference is closer to the Pi overview setup than three-camera WAMs, but UR5 Cartesian controls differ from SO101/M3 joints. Preserve measured state/action basis and camera identity; test human-video augmentation separately for rigid objects and cloth. Existing controller settings remain unchanged.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "3.1",
+      "supports": "Condition-factorization anddeterministic assumption"
+    },
+    {
+      "page": 4,
+      "section": "3.2–3.3",
+      "supports": "Privilegedfuturetrainingthenpresent-onlydistillation"
+    },
+    {
+      "page": 6,
+      "section": "Tables1–2",
+      "supports": "SIMPLERsuccessversusgraspmetrics"
+    },
+    {
+      "page": 8,
+      "section": "5.1",
+      "supports": "Demonstrationsandnarrowtowelcriterion"
+    },
+    {
+      "page": 9,
+      "section": "Platform/Protocols",
+      "supports": "UR5,D435,4090and20trialprotocol"
+    },
+    {
+      "page": 10,
+      "section": "Tables7–8",
+      "supports": "ID/OODphysicalresultsandstageablation"
+    },
+    {
+      "page": 11,
+      "section": "Table9/5.5",
+      "supports": "Humanvideo harmscloth;UMIimprovement"
+    },
+    {
+      "page": 13,
+      "section": "AppendixA",
+      "supports": "16×32conditionrepresentation"
+    },
+    {
+      "page": 14,
+      "section": "C.2",
+      "supports": "16predicted/8executedactions"
+    },
+    {
+      "page": 15,
+      "section": "C.4",
+      "supports": "1920hhumanvideoand220hactionlabels"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P095",
+  "source_sha256": "a5f6be9dccd2b649b5042a0d10fe887d0c0b1502ccdef3f2a55ef56885efd94f",
+  "primary_url": "https://arxiv.org/abs/2604.26848",
+  "verified_title": "STARRY: Spatial-Temporal Action-Centric World Modeling for Robotic Manipulation",
+  "problem": "Appearance-only future modeling can miss the metric geometry of grasps, handovers and placement. Generic token attention need not emphasize regions near the end-effector.",
+  "contribution": "Joint spatial-temporal world/action denoising with an explicit future-depth/EE geometry expert and Geometry-Aware Selective Attention Modulation (GASAM) applied only to action-to-video attention.",
+  "algorithm": "Compose calibrated multiview RGB-D and projected historical EE trajectories into a shared layout. Wan-based world and action experts jointly denoise future latents/actions while Qwen-VL supplies semantics. A geometry expert predicts depth/EE positions; unproject depth into metric3D, compute distances, map them monotonically to weights and add weighted log-bias to action attention. Train flow objectives plus depth, pose and geometric-weight losses.",
+  "observations": "Three calibrated RGB-D views, camera parameters, current pose, EE/action history and language. A single RGB overview does not satisfy this sensor contract, and predicted geometry must retain its provenance.",
+  "actions": "14D state/action configuration with16-step chunks,8 predicted video frames and10 denoising steps. Robot-specific control semantics remain required; attention modulation does not enforce kinematics or contact forces.",
+  "embodiment_and_data": "Hierarchical web, human, simulation, geometry and multi-robot data, then RoboTwin50tasks with50 clean and500 randomized demos/task. Physical ARXR5 uses3tasks with50 demos/task. Appendix specifies8A100-80G workers, roughly one week for40kstep/batch256 fine-tuning; pretraining scales to more workers.",
+  "experiments": "RoboTwin clean/randomized joint training for40ksteps and crossed representation/GASAM ablations. Physical handover vegetables, tidying a box and shaking/placing a bottle:20 rollouts/task/method, scored at nested stages. Stage2 builds on stage1; six percentages are not six independent datasets.",
+  "baselines": "pi0.5, X-VLA, Motus and LingBot-VA, with GO-1/pi0 in the appendix. Controlled ablation crosses action-only, appearance-only and full spatial-temporal prediction with modulation enabled/disabled. Geometry inputs and pretraining are not uniformly matched across published baselines.",
+  "quantitative_result": {
+    "simulation": "PDFp7 Table2:93.82%clean/93.30%randomizedversusLingBot92.93/91.55;simulationevaluationtrialdenominator NOT_EXTRACTED. PDFp9 Table4:fullSTrandomized88.82→93.30withGASAM;appearance-only85.80→86.96;action-only64.96→75.88.",
+    "physical": "PDFp8 Table3:stage2success70/65/60% versuspi0.5 40/35/25%,n20/task/method (14/13/12versus8/7/5author-successes). Theheadline70.8%averagesbothstages;fullstage2average65.0%,not70.8%. Stage1andstage2scoresarecorrelated."
+  },
+  "limitations": "Depth/EE prediction errors can misdirect attention; spatial saliency does not guarantee forces or collision behavior. Exact distance kernel/modulation choices and depth-failure handling need source verification. Three RGB-D views and A100 resources differ substantially from Pi C920. Three two-stage rigid-object tasks establish no cloth/sock result or NX latency.",
+  "code_and_license": "No source commit, weights, license files or dataset terms audited; no execution. Backbone citations supply no independent license evidence.",
+  "hardware_adaptation": "COMPARE geometry-informed attention offline with available Nano RGB-D only after verifying intrinsics, extrinsics and metric depth. Pi RGB cannot silently replace three RGB-D views. Preserve actual frame/state provenance, separately tag predicted depth and map the14D schema to the calibrated target. Existing controller settings remain unchanged.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "3.1",
+      "supports": "RGB-D/camera/poseinputsandfourmodules"
+    },
+    {
+      "page": 4,
+      "section": "3.2",
+      "supports": "Projectedtrajectoryspatial-temporalcomposition"
+    },
+    {
+      "page": 5,
+      "section": "3.3/Eqs4–7",
+      "supports": "Futuregeometry,distanceweightsandlogattentionbias"
+    },
+    {
+      "page": 6,
+      "section": "3.4",
+      "supports": "Geometriclossandtrainingstages"
+    },
+    {
+      "page": 7,
+      "section": "Table2/4.1",
+      "supports": "RoboTwintrainingandaverages"
+    },
+    {
+      "page": 8,
+      "section": "Table3/4.2",
+      "supports": "Real20trialnestedstageoutcomes"
+    },
+    {
+      "page": 9,
+      "section": "Table4",
+      "supports": "Representation/GASAMablations"
+    },
+    {
+      "page": 13,
+      "section": "A.2",
+      "supports": "8A100computerequirements"
+    },
+    {
+      "page": 16,
+      "section": "Table5",
+      "supports": "14D,16steps,threecamerasand10denoisingsteps"
+    },
+    {
+      "page": 17,
+      "section": "Algorithm1",
+      "supports": "Predictedgeometryandtraining-onlygroundtruthsupervision"
+    }
+  ]
+}

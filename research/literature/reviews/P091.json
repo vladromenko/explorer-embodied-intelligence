@@ -1,0 +1,71 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P091",
+  "source_sha256": "12eac2e5cd9812e23f337f94ddd8081f8805532d9904658d366952cabc46faa1",
+  "primary_url": "https://arxiv.org/abs/2602.17259",
+  "verified_title": "FRAPPE: Infusing World Modeling into Generalist Policies via Multiple Future Representation Alignment",
+  "problem": "Action-only fine-tuning can discard useful predictive visual knowledge; full future-video generation is expensive and action-free human videos cannot directly supervise robot commands.",
+  "contribution": "Add future-representation prefixes to RDT, first align a single stream with a distilled teacher, then use multiple prefix/LoRA experts supervised by distinct frozen vision encoders and aggregate latent actions through a router.",
+  "algorithm": "RDT denoises action chunks while learned prefixes predict encoded future observations. Full-parameter mid-training uses an86M Theia variant; post-training freezes the shared backbone and trains prefixes/LoRAs against CLIP,DINOv2 andViT teachers. Gating weights mix expert latent actions through a shared MLP, with load-balancing regularization and0.1 smoothing. Action-free videos omit action loss. No full future images are generated at deployment.",
+  "observations": "Current multiview RGB from SigLIP, language fromT5, proprioception, control frequency and diffusion time. Future teacher features are training-only. Default alignment horizon8steps and layer21/28; teacher ensemble has different semantic/geometric biases.",
+  "actions": "RDT continuous embodiment-specific chunks through a shared action decoder; exact hardware action units and executed chunk length NOT_EXTRACTED. Teacher feature predictions are not motor state or a verified physical world simulator.",
+  "embodiment_and_data": "Official pretrainedRDT-1B, plus a130M scale experiment. Simulation uses8RoboTwin tasks,50Easy demonstrations/task. Real bimanualAgileX has6DoF arms/grippers,overview andtwo wristcameras,25demos/variation or100long-horizon demos. Human-data experiments use5robot demos/object,50task-specific human trajectories and10k unrelated videos; appendix also describes a100856-video TASTE-Rob epoch costing96h on8H100.",
+  "experiments": "Simulation fine-tunes20ksteps on2H100, split15k mid/5k post,100evaluations/task/setting. Physical basic tasks40trials/task; long-horizon20trials. Two-task controlled studies compare full fine-tuning,prefixes,LoRA and stage order; H100 tests report inference memory/latency.130M comparison covers4tasks, not the full suite.",
+  "baselines": "RDT,DiffusionPolicy,VPP,pi0,pi0.5 and controlled training variants. A matched total20kstep budget isolates stage choices, while different teacher computation and parallel streams still add cost.",
+  "quantitative_result": {
+    "simulation": "PDFp7 Table1:57.5%Easy/25.5%Hard versusRDT47.4/15.1 across8tasks×100trials/setting. This is not all50RoboTwin tasks. PDFp8 Table2 two-task average52.3 versusRDT39.8; post-training without necessary full mid-training can be worse thanbaseline.",
+    "physical": "PDFp9:complete three-subtask long-horizon task20%=4/20 versusRDT0/20. Basic-task chart exact values NOT_EXTRACTED; no invented all-task aggregate.",
+    "compute": "PDFp8 Table3 onH100:post-training5steps0.235s and8.0GB versusRDT0.214s/3.7GB;3steps0.173s but score48.5 versus52.3. Parameter-efficient training does not imply unchanged inference memory."
+  },
+  "limitations": "Hard-setting success remains25.5%; physical long-horizon success is4/20. Parallel expert inference more than doubles reported memory. Human videos have viewpoint/domain constraints and do not label executable actions. Eq3 defines a cosine similarity while total loss adds it positively; the intended alignment-loss sign/distance convention should be resolved in source before reproduction. Teacher alignment and router balance do not establish contact dynamics or uncertainty calibration.",
+  "code_and_license": "No pinned implementation,checkpoint license or teacher/data terms inspected; no execution. RDT and teacher citations are not sufficient rights evidence.",
+  "hardware_adaptation": "ADAPT a compact policy's training-only future-feature auxiliary target and compare with the existing ACT pilot at identical data budgets. The130M experiment is a useful size direction, but no NX latency/memory result exists. Start with one teacher to measure actual gain/cost before a parallel ensemble; map calibrated measured joint state and real image timestamps explicitly. This review changes no controller settings.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3.1–3.2",
+      "supports": "RDT/action loss and future prefixes"
+    },
+    {
+      "page": 5,
+      "section": "Eqs2–7",
+      "supports": "Teacher experts,router,alignment sign and smoothing"
+    },
+    {
+      "page": 6,
+      "section": "Mid-training/Setup",
+      "supports": "Teacher distillation,8tasks and20kstep protocol"
+    },
+    {
+      "page": 7,
+      "section": "Table1",
+      "supports": "Simulation metrics"
+    },
+    {
+      "page": 8,
+      "section": "Tables2–3",
+      "supports": "Training-stage necessity andH100 inference tradeoff"
+    },
+    {
+      "page": 9,
+      "section": "5.1–5.2",
+      "supports": "Hardware,demonstrations and20trial long-horizon success"
+    },
+    {
+      "page": 10,
+      "section": "5.3",
+      "supports": "Action-free loss and human/robot data budgets"
+    },
+    {
+      "page": 15,
+      "section": "AppendixA–B",
+      "supports": "Alignment hyperparameters and human-data compute"
+    }
+  ]
+}

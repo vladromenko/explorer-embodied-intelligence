@@ -1,0 +1,61 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P094",
+  "source_sha256": "4eea24883dcc4d8a5c0f760870f501baabb07db4eb65e5fd6c3b4b500601be8d",
+  "primary_url": "https://arxiv.org/abs/2603.16666",
+  "verified_title": "Fast-WAM: Do World Action Models Need Test-time Future Imagination?",
+  "problem": "World/action models conflate gains from video supervision during training with gains from explicit future imagination during inference. Controlled comparisons are needed to justify the runtime cost.",
+  "contribution": "Fast-WAM retains video co-training but removes future tokens at inference, comparing matched joint-generation, video-then-IDM and no-video-loss variants. It tests where world supervision helps, without proving that imagination never helps.",
+  "algorithm": "Wan2.2-5B video DiT plus1B action expert share MoT attention. Future video and action tokens separately read clean current-frame features; action tokens cannot read future tokens, and current anchors read no targets. Joint flow matching trains both objectives. Inference encodes clean current latents once and denoises actions10steps without instantiating future latents.",
+  "observations": "Language and current multiview RGB composed into one image. Action inference has the same observational information path during training and deployment. The backbone remains large after removing future decoding.",
+  "actions": "32-step continuous chunks, with9 training video frames after4-fold temporal subsampling. Exact physical control units, frequency and executed steps per query are NOT_EXTRACTED.",
+  "embodiment_and_data": "LIBERO2000 demonstrations, RoboTwin2500 clean plus25000 randomized demonstrations, and60HOURS of GalaxeaR1Lite towel-fold teleoperation. No embodied pretraining means no broad robot pretraining before target tasks; general Wan video initialization remains.",
+  "experiments": "LIBERO2000 trials across40 tasks after20k training steps. RoboTwin100 trials/task/condition after30k steps. Physical models train30k steps and report eventual success given sufficient time plus completion duration, permitting corrections/repeated attempts. Physical evaluation n and numerical fold criterion are NOT_EXTRACTED. All latencies use RTX5090DV2-32GB.",
+  "baselines": "Published pi0/pi0.5, Motus and LingBot-VA results plus matched Fast-WAM-Joint, Fast-WAM-IDM and no-video-co-training variants. The matched variants better isolate training versus inference effects than differently pretrained published baselines.",
+  "quantitative_result": {
+    "simulation": "PDFp7 Table1:RoboTwin91.8%average versusjoint90.6,IDM91.3,no-video83.8;100trials/task/condition. PDFp8 Table2:LIBERO97.6%versusjoint98.5,IDM98.0,no-video93.5;2000trials. ExplicitimaginationhasasmalladvantageonLIBERO,not auniversalloss.",
+    "physical": "PDFpp8–9/Fig4:pretrainedpi0.5hasbestfoldingsuccessandshortesttime;no-videoablation10%eventualsuccess. Exactotherphysicalgraphvaluesandtrialdenominators NOT_EXTRACTED,so no fabricatedper-attemptsuccessclaims.",
+    "latency": "PDFp9 Fig4:Fast190msversusjoint580msandIDM810ms onRTX5090DV2;policyqualitycomparisonmustalsoconsidertargetdata60h andrecoverytime."
+  },
+  "limitations": "One physical task with60h target data and eventual completion does not establish general cloth/sock skill or first-attempt reliability. Missing physical trial counts/criteria limit confidence. Matched results favor representation co-training but do not remove the possible need for planning in other tasks. A6B model and32GB GPU timings do not qualify edge deployment.",
+  "code_and_license": "No pinned source, checkpoint or dataset license audited; no execution. Wan initialization and cited baselines do not establish compatible derivative rights.",
+  "hardware_adaptation": "ADAPT training-only future supervision to a compact ACT/RDT experiment with identical actual episodes and held-out complete-task rollouts. This tests the central lesson without requiring video generation at runtime. Any6B deployment still needs NX memory/latency measurements. Preserve existing controller settings and report observation age separately from action-chunk throughput.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3.1–3.2",
+      "supports": "Training/inferencefactorizationandcleanframeanchor"
+    },
+    {
+      "page": 5,
+      "section": "Mask/objective",
+      "supports": "Noaction-to-futureattentionandjointtrainingloss"
+    },
+    {
+      "page": 6,
+      "section": "3.3/4.1–4.2",
+      "supports": "Controlledvariants,6Bsizeand5090Dlatencyhardware"
+    },
+    {
+      "page": 7,
+      "section": "Table1/Real-worldsetup",
+      "supports": "RoboTwinmetrics,60hdataandeventualcompletion"
+    },
+    {
+      "page": 8,
+      "section": "Table2/4.3",
+      "supports": "LIBEROcontrolledcomparisonandpi0.5physicaladvantage"
+    },
+    {
+      "page": 9,
+      "section": "Fig4",
+      "supports": "190/580/810msand10%no-videoablation"
+    }
+  ]
+}

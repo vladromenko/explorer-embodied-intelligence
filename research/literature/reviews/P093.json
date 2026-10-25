@@ -1,0 +1,86 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P093",
+  "source_sha256": "64f21b940ff2ee1bccf4e1e7910dc22c207c0cb87ba4e6e16456610c5606b9cd",
+  "primary_url": "https://arxiv.org/abs/2603.10448",
+  "verified_title": "DiT4DiT: Jointly Modeling Video Dynamics and Actions for Generalizable Robot Control",
+  "problem": "Static VLM features can omit fine motion cues; fully denoising future video is expensive and may overspecialize action features to one imagined outcome.",
+  "contribution": "Jointly train video and action DiTs with distinct generation, feature-extraction and action diffusion times. Condition control on intermediate visual features from a single backbone pass rather than completed future video.",
+  "algorithm": "Cosmos-Predict2.5-2B and a causal VAE supply hidden features, default layer18. A GR00T-derived action DiT cross-attends to these features and proprioception. Train joint video/action flow losses with frozen VAE/text encoder. Video time is uniform, action time is complement-Beta, and feature time is described as fixed; Algorithm1 instead samples feature time. Inference uses one feature pass plus action denoising; full video generation is optional.",
+  "observations": "Language embeddings from Cosmos-Reason1, current RGB and proprioception. Physical G1 uses a head-mounted D435i; single-view self-occlusion is acknowledged. A fresh Gaussian future latent remains an input even with a selected feature time, so fixed time alone does not make features deterministic.",
+  "actions": "16-step chunks; appendix pads action dimension32 and state dimension64 with masks. Real embodiment has16DoF, while simulated GR1 has29DoF including hands/waist. These are not direct SO101/M3 interfaces.",
+  "embodiment_and_data": "LIBERO1693 filtered episodes and GR1 tabletop24000 demonstrations across24 tasks. Physical G1 training uses241450 simulated GR1 pretraining episodes followed by1400 real demos,200/task. Benchmark 'from scratch' means no external ACTION data; pretrained Cosmos video weights remain. Configuration lists32 GPUs and100k steps.",
+  "experiments": "Four LIBERO suites and RoboCasa24tasks with50 rollouts/task=1200. Seven physical tasks have20 independent trials each=140, plus category/object/quantity shifts. Matched Qwen3DiT uses the same action head and pipeline. Layer/denoising/joint-training ablations include representation plots; t-SNE and silhouette scores are not physical outcomes.",
+  "baselines": "GR00T-N1.5/N1.6, parameter-matched Qwen3DiT and published LIBERO methods. Robot pretraining differs from the authors' simulated prior; several individual RoboCasa tasks favor baselines despite the improved average.",
+  "quantitative_result": {
+    "simulation": "PDFp10 Table1:LIBERO98.6%versusQwen3DiT96.6%;exacttotalLIBEROevaluationn NOT_EXTRACTED. PDFp11 Table2:RoboCasa50.8%versusQwen36.2 andGR00TN1.5 41.8,50rollouts×24tasks.",
+    "physical": "PDFpp11–12:flower75%=15/20 versusGR00T25%=5/20;cupstack60%versus25%,spoon40%versus15%,drawer90%,boxpacking50%,n20/task. These donot evaluateclothfolding.",
+    "latency": "PDFp15 Table3:2.2Breportedtrainableparameters and6Hz onA100 versusQwen9Hz/GR00T13Hz. Appendixp20 describesphysicalinferenceonRTX4090;identical6Hz on4090/NX isnotestablished."
+  },
+  "limitations": "Fixed feature-time prose conflicts with random time in Algorithm1. 'From scratch' still uses general video pretraining. One egocentric view and absent tactile/force inputs limit contact observability. Temporal feature clusters do not identify contact dynamics. Large backbones and GPU training require separate edge validation.",
+  "code_and_license": "No pinned implementation, weights, data terms or license files audited; no execution. Cosmos, Qwen and GR00T components have independent terms.",
+  "hardware_adaptation": "COMPARE a single-pass predictive visual encoder with compact ACT under actual Pi occlusions. Preserve calibrated joint schemas and causal frame/state/action timestamps. A100/4090 frequencies do not qualify16GB NX. Existing controller configuration remains unchanged.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 5,
+      "section": "4.1–4.2",
+      "supports": "Cosmosinitializationandflowdefinitions"
+    },
+    {
+      "page": 7,
+      "section": "4.3/Algorithm1",
+      "supports": "Jointlossandfixedversusrandomfeaturetimediscrepancy"
+    },
+    {
+      "page": 8,
+      "section": "4.4",
+      "supports": "Onepassactionconditioningversusoptionalvideogeneration"
+    },
+    {
+      "page": 10,
+      "section": "Table1/Setup",
+      "supports": "Meaningoffromscratchandphysicaltrialcounts"
+    },
+    {
+      "page": 11,
+      "section": "Table2",
+      "supports": "RoboCasaresultsand50trialprotocol"
+    },
+    {
+      "page": 12,
+      "section": "Fig5",
+      "supports": "Physicaltasksuccesses"
+    },
+    {
+      "page": 14,
+      "section": "Ablation",
+      "supports": "Layer18andone-passfeaturechoice"
+    },
+    {
+      "page": 15,
+      "section": "Table3",
+      "supports": "A100deploymentfrequency"
+    },
+    {
+      "page": 19,
+      "section": "Table4",
+      "supports": "Action/statepaddingandtrainingconfiguration"
+    },
+    {
+      "page": 20,
+      "section": "A.2–A.3",
+      "supports": "Datasetcounts,hardwareand4090inference"
+    },
+    {
+      "page": 21,
+      "section": "A.4",
+      "supports": "Singleviewocclusionlimitations"
+    }
+  ]
+}
