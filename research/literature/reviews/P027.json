@@ -1,0 +1,52 @@
+{
+  "problem": "Pretrain robot-relevant action priors from videos without ground-truth robot action labels, then adapt them to executable robot controls.",
+  "contribution": "LAPA learns discrete latent actions through future-frame reconstruction, trains a VLM to predict them and replaces the latent output head for supervised robot-action finetuning.",
+  "algorithm": "An inverse encoder observes current/future frames and produces VQ-VAE/NSVQ code sequences; a cross-attention decoder reconstructs the future. Label videos with these latent actions, predict them from image/language, then finetune actual-action outputs with the vision encoder frozen.",
+  "observations": "Video frame pairs for latent discovery; present image and language for the policy. Future frames belong to training supervision, not deployable current observations.",
+  "actions": "Pretraining codebook tokens are not executable controls. Downstream action-labelled finetuning is necessary to establish the robot-specific head and processor contract.",
+  "embodiment_and_data": "Language Table and SIMPLER simulation, three Franka real tasks, robot video mixtures and Something-SomethingV2human videos. Source real setup mentions150labelled trajectories; pretraining data/context must remain separate.",
+  "experiments": "Cross-task/environment/embodiment transfer, robot-versus-human-video pretraining and latent-space analysis. Generated closed-loop images in Figure7 use the learned decoder, not physical action execution.",
+  "baselines": "Scratch, UniPi, VPT, action-labelled VLA and OpenVLA. Action-labelled pretraining has different supervision; pretrained models are not compared solely by backbone architecture.",
+  "quantitative_result": {
+    "value": "Language Table cross-task unseen: LAPA54.8±9.1% versusVPT60.8±6.6% and action-VLA58.8±6.6%; in-domain seen LAPA62.0±8.7% versusaction-VLA77.0±3.5%. Source means±standard error; not universal superiority or physical task rates.",
+    "location": "PDF p6 Table1"
+  },
+  "limitations": "Weaker fine-grained grasp generation, latency and limited action-labelled finetuning; camera motion can be encoded in latent actions. Qualitative latent semantics and generated object disappearance are not verified physical effects.",
+  "code_and_license": "Primary fulltext examined, executable implementation/base-model/data licenses not audited. No LAPA or generated-world execution on Explorer is claimed.",
+  "hardware_adaptation": "Useful video-pretraining reference only with a real target action head and measured deployment evidence. Preserve future-frame supervision boundaries, latent-versus-motor semantics and separate generated/replayed/physical outcomes.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3.1-3.2",
+      "supports": "Quantization and latent pretraining"
+    },
+    {
+      "page": 5,
+      "section": "4.1",
+      "supports": "Benchmarks and executable finetuning"
+    },
+    {
+      "page": 6,
+      "section": "Table1",
+      "supports": "Numerical comparison"
+    },
+    {
+      "page": 8,
+      "section": "4.5",
+      "supports": "Human videos and grasp limits"
+    },
+    {
+      "page": 10,
+      "section": "Figure7/6",
+      "supports": "Generated rollouts and limitations"
+    }
+  ],
+  "paper_id": "P027",
+  "source_sha256": "efab4f379e1a30ef7be36c87885c2c509d880ee9578f4cfdcc20d9321c93dce9",
+  "primary_url": "https://arxiv.org/abs/2410.11758",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

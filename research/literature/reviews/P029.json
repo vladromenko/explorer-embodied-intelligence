@@ -1,0 +1,62 @@
+{
+  "problem": "Transfer actionable manipulation guidance from human RGBD video to a robot without matching robot-action labels.",
+  "contribution": "General Flow predicts language-conditioned3Dquery-point trajectories, serving as an embodiment-independent post-grasp affordance consumed by a geometric robot controller.",
+  "algorithm": "Extract3Dflow labels from HOI4D geometry or tracked RGBD human-object points. A CLIP-conditioned PointNeXt/cVAE predicts normalized relative point trajectories and scale, with trajectory/scale/KL/accumulation losses. Use predicted near-gripper point flow and SVD/ICP alignment for closed-loop robot transforms.",
+  "observations": "Calibrated RGBD scene point clouds, text, query points and robot segmentation; the demonstrated D455/Franka system has metric depth, unlike a plain RGB overview camera.",
+  "actions": "Predicted3Dpoint flow is not a joint command. A heuristic geometric/impedance controller converts it into end-effector motion after manual task/grasp initialization.",
+  "embodiment_and_data": "Human RGBD/HOI4D supervision; real Franka tests cover18tasks across6scenes. Training/test flow split80/10/10has no identical object instances; most robot-test categories/tasks were seen in training, and ToyCar/Safe instances are not novel.",
+  "experiments": "Flow ADE/FDE prediction and separate real post-grasp tasks,10trials each. Assays articulated/rigid/soft objects, segmentation, grasp manner and direction. Manual initial positioning is explicitly required.",
+  "baselines": "ResNet/R3M/ViT, VAT-MART, PointNeXt and ScaleFlow sizes for prediction; physical downstream comparisons have their own setup. Prediction centimeters do not imply robot task completion.",
+  "quantitative_result": {
+    "value": "Physical post-grasp Table2 totals146/180=81%(rounded), but drawer open-grasp3/10 and open-pull4/10 expose failures. These are manually initialized post-grasp trials, not autonomous end-to-end acquisition. ScaleFlow-L test ADE3.55cm/FDE4.70cm is a separate prediction metric.",
+    "location": "PDF p7 Table2/protocol; p4 Table1"
+  },
+  "limitations": "Limited data diversity/cVAE capacity, manual grasping and an ICP heuristic constrain contact-rich tasks. RGBD calibration and object segmentation are prerequisites. Claimed broad representation support does not demonstrate arbitrary unseen categories or fully autonomous grasp acquisition.",
+  "code_and_license": "Paper lists multiple inherited codebases; independent code/data/dependency-license audit and local execution were not performed. Do not assume one paper-level license covers every component.",
+  "hardware_adaptation": "Compare object-relative guidance as context after establishing metric depth/frames and target controller validity. It cannot be reproduced from uncalibrated RGB plus guessed force. Keep manual initialization and partial pipeline scope visible in evaluation.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "2/3",
+      "supports": "Flow representation"
+    },
+    {
+      "page": 4,
+      "section": "3.1-3.2/Table1",
+      "supports": "Labels/model/prediction metric"
+    },
+    {
+      "page": 5,
+      "section": "3.3-3.4",
+      "supports": "Losses and split"
+    },
+    {
+      "page": 6,
+      "section": "4.1",
+      "supports": "RGBD and geometric policy"
+    },
+    {
+      "page": 7,
+      "section": "4.2/Table2",
+      "supports": "Rawcounts and manual initialization"
+    },
+    {
+      "page": 25,
+      "section": "I",
+      "supports": "Model/data limits"
+    },
+    {
+      "page": 26,
+      "section": "I/J",
+      "supports": "Manual grasp and heuristic/controller dependencies"
+    }
+  ],
+  "paper_id": "P029",
+  "source_sha256": "d7308ab8fcc64a8676638577979b8b553f9e7f1f6d67b10de1f8936f4c8f5a47",
+  "primary_url": "https://arxiv.org/abs/2401.11439",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

@@ -1,0 +1,57 @@
+{
+  "problem": "Retain large-VLM semantic conditioning while producing robot actions fast enough for changing scenes.",
+  "contribution": "HiRT separates a slower asynchronously refreshed VLM latent from a lightweight policy processing fresh image context.",
+  "algorithm": "InstructBLIP/Q-Former/LLM features are pooled into a cached latent. Condition the faster visual/action policy via FiLM, cross-attention and MAP prefix tokens. Train with randomly delayed visual context to tolerate stale latents, LoRA VLM adaptation and continuous-regression/discrete-status losses.",
+  "observations": "Wrist/third-person image histories, task instruction and a possibly stale semantic latent. Fast observation updates are distinct from the slower language-model update rate.",
+  "actions": "Relative end-effector or continuous joint actions plus discrete end-effector status; target control representation must be specified for each robot.",
+  "embodiment_and_data": "MetaWorld20tasks×50demos, Franka-Kitchen5tasks×100demos and2000physical Franka trajectories across4skills.",
+  "experiments": "Simulation20attempts/task in MetaWorld and100in Kitchen; real tasks20attempts each. Dynamic targets move roughly1cm/s, with seen/unseen objects and distractors; ablations remove image context or conditioning.",
+  "baselines": "Diffusion Policy, RT-1 and a local Vanilla-VLA reimplementation of RT-2. The local reimplementation is not the original web-scale RT-2 checkpoint.",
+  "quantitative_result": {
+    "value": "Dynamic table reports HiRT75%average versusVanilla-VLA48%; inference benchmark9.8Hz versus4.1Hz. Table2 time6.18s is explicitly measured on corresponding quasi-static scenes, not moving-object completion duration. Static real average70.0% trailsVanilla-VLA71.3%.",
+    "location": "PDF p6 Table1/setup, p7 Table2 and explanation"
+  },
+  "limitations": "Cached semantic latents can be stale despite training augmentation; tests do not include fast-flying targets or rapid posture adjustment. Faster inference does not uniformly improve static performance or prove safe reaction times.",
+  "code_and_license": "Primary architecture and protocols examined; exact source revision, model rights and execution were not audited. No local HiRT reproduction is claimed.",
+  "hardware_adaptation": "Relevant dual-rate architecture reference, requiring explicit semantic-latent age, fresh images and controller timing. Benchmark end-to-end NX latency and stop behavior rather than substituting source processing Hz for physical control bandwidth.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "3",
+      "supports": "Hierarchical design"
+    },
+    {
+      "page": 4,
+      "section": "3.2.1",
+      "supports": "VLM latent"
+    },
+    {
+      "page": 5,
+      "section": "3.2.2/3.3",
+      "supports": "Conditioning, asynchronous cache and training"
+    },
+    {
+      "page": 6,
+      "section": "4.1/Table1",
+      "supports": "Data, denominators and static result"
+    },
+    {
+      "page": 7,
+      "section": "4.3/Table2",
+      "supports": "Dynamic results and time caveat"
+    },
+    {
+      "page": 8,
+      "section": "4.4/5",
+      "supports": "Ablations and limited dynamics"
+    }
+  ],
+  "paper_id": "P028",
+  "source_sha256": "e3083aa063f6502b54e82206ea8e86f968de2c14bab5e158e546a3577b33462a",
+  "primary_url": "https://arxiv.org/abs/2410.05273",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}
