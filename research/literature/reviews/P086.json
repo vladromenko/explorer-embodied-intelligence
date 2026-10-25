@@ -1,0 +1,76 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P086",
+  "source_sha256": "f0b6d8aad562ddd7ba69e803c218e5d146ecfcee7fbcef4d833c05da40d6abaf",
+  "primary_url": "https://arxiv.org/abs/2604.06168",
+  "verified_title": "Action Images: End-to-End Policy Learning via Multiview Video Generation",
+  "problem": "Abstract low-dimensional actions have weak spatial alignment with video priors, while converting generated motion back to metric control usually requires another learned inverse model.",
+  "contribution": "Render7D EE pose/gripper commands as multiview RGB heatmaps, allowing a video generator to predict observation and action videos in one representation; decode control geometrically using calibrated cameras.",
+  "algorithm": "Convert EE pose into position,up andnormal3Dpoints; project each into one RGB channel as a Gaussian, with binary gripper state in low-intensity blue background. Train masked flow matching for joint generation, action-conditioned video, video-to-action and video-only modes. Recover2D centroids, sample depth along a main-view ray, maximize side-view response, and reconstruct orientation from the3D axes. Camera Plücker embeddings condition generation.",
+  "observations": "Language, initial multiview RGB and intrinsics/extrinsics; no online replanning in primary policy evaluation. Some uncalibrated data uses VGGT camera estimates; a metric scale anchor for safe physical reuse cannot be assumed from monocular geometry.",
+  "actions": "7D absolute EE position/orientation plus binary gripper, decoded from generated action images. This is Cartesian pose plus gripper, not a seven-joint arm command. Geometric decoder requires multiple views and valid camera projection; optional supervised MLP decoder is a separate stronger variant.",
+  "embodiment_and_data": "DROID80k trajectories/two views; RLBench180k/four views with Robot-Colosseum augmentation; BridgeV2~30k used video-only because action/camera alignment is missing. Mixture20%Bridge/50%RLBench/30%DROID. Real zero-shot xArm uses unseen embodiment/objects/environment; held-out RLBench tasks remove only their RLBench examples, not all possible other-dataset occurrences.",
+  "experiments": "Primary task success uses one-trial open-loop prediction, with nine zero-shot simulation/real tasks and nine in-domain RLBench tasks. Video metrics evaluate held-out videos; action reconstruction metrics are RLBench-only. Optional MLP and backbone/system optimizations are separate experiments. Training appendix reports32A100×100ksteps.",
+  "baselines": "MV-DiffusionPolicy, camera-augmentedpi0.5, MolmoAct lifted multiview trajectories, and reproduced TesserAct/Cosmos-Policy on the authors' backbone/data. These are adaptations, not necessarily original official baseline checkpoints/configurations. Video-only comparisons include Cosmos-Predict, Tora, TAPIR andCoTracker.",
+  "quantitative_result": {
+    "control": "PDF p11 Table2: real zero-shot PlaceCup40%,PickToy20%,PickTissue15%,CloseDrawer45%,CloseBox10%; exact trial denominators NOT_EXTRACTED and not inferred from5-point increments. PDF p12 Table3: in-domain mean20.6% geometric decoder versus36.7% with extra supervised action head.",
+    "reconstruction": "PDF p12 Table4:3D error12.2×10^-3 versusTesserAct19.0×10^-3 on RLBench; dimensional unit is NOT_EXTRACTED, so not described as millimeters.",
+    "compute": "PDF p17 Table7: optimized5B variant2.3s for164 frames on8H100; approximately71 generated FPS is video throughput, not71Hz closed-loop control. Main text namesWan2.2; appendixp16 namesWan2.1-I2V-14B, while timing table names5B. Model-size/version inconsistency is unresolved."
+  },
+  "limitations": "Real success is modest, open-loop and denominator-uncertain. Reconstruction degrades with camera/scale errors, low resolution and ray discretization; raw reconstructed axes need geometric validity checks before an IK consumer. Eq7 uses background<0.25, while exactly encoded binary gripper1 puts background at0.25, potentially emptying the averaging set: an implementation boundary case to verify, not an observed executed failure. Learned-head gains show geometric decoding is not uniformly precise. Generated room examples and point-cloud trajectories do not establish real hardware success.",
+  "code_and_license": "No pinned upstream code, model weights, license files or execution audited. Paper citations and apparent release intent do not establish reuse permissions; code/model/data terms UNKNOWN.",
+  "hardware_adaptation": "COMPARE offline as a representation/decoder study. Pi's single overview camera lacks the required calibrated second view; M3/SO101 Cartesian reachability and binary/continuous gripper conventions need explicit adapters. First round-trip known feasible poses through rendered heatmaps and check metric errors, open/closed boundary behavior and rotation orthogonality. No evidence supports running the reported multi-H100 video model on NX at control rate.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 5,
+      "section": "3.1/Eq1",
+      "supports": "Three semantic points from7D pose"
+    },
+    {
+      "page": 6,
+      "section": "Eqs2–6",
+      "supports": "Calibrated projection and blue-channel gripper coding"
+    },
+    {
+      "page": 7,
+      "section": "3.2/Eqs7–8",
+      "supports": "Background threshold and heatmap centroid"
+    },
+    {
+      "page": 8,
+      "section": "Eq9/3.3",
+      "supports": "Ray triangulation and pose reconstruction"
+    },
+    {
+      "page": 10,
+      "section": "Table1/4.1",
+      "supports": "Training data and one-trial open-loop protocol"
+    },
+    {
+      "page": 11,
+      "section": "Table2",
+      "supports": "Real zero-shot scores and baseline adaptations"
+    },
+    {
+      "page": 12,
+      "section": "Tables3–4",
+      "supports": "Optional head improvement and reconstruction metrics"
+    },
+    {
+      "page": 16,
+      "section": "Implementation details",
+      "supports": "14B training claim and32A100 setup"
+    },
+    {
+      "page": 17,
+      "section": "Table7",
+      "supports": "5B timing,8H100 and generated-frame throughput"
+    }
+  ]
+}

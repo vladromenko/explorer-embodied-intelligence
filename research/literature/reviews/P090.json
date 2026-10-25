@@ -1,0 +1,81 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P090",
+  "source_sha256": "691d30709ce69fbd23c4366b41d30dc06ce5b3b406e36afa3f813e7c09b43cd0",
+  "primary_url": "https://arxiv.org/abs/2602.09849",
+  "verified_title": "BagelVLA: Enhancing Long-Horizon Manipulation via Interleaved Vision-Language-Action Generation",
+  "problem": "A global task description does not explicitly identify the next subtask or its visual outcome; fully generating future images before action prediction introduces substantial latency and distribution shift.",
+  "contribution": "Interleave textual subtask selection,keyframe forecasting and action generation in a three-expert model initialized fromBAGEL. ResidualFlowGuidance(RFG) starts visual flow from noise centered on the current image, letting action inference reuse a single visual expert step's KV context.",
+  "algorithm": "Understanding and generation experts have7B parameters each; a2B action transformer uses SigLIP2 and FLUX VAE features. Optimize text cross-entropy and dual flow-matching losses. Compare fully denoised, jointly denoised and single-step visual conditioning. Default RFG uses initial visual noise centered on the current image latent. Pretrain language and visual dynamics with human, robot and VQA data, then fine-tune all experts on actions and subtask annotations. Async execution reuses visual/language KV while updating proprioception.",
+  "observations": "Global instruction, current multiview RGB, optional proprioception and generated subtask context. Real evaluation uses overview and two wrist views; CALVIN omits proprioception. Generated keyframes are intermediate predictions, not camera evidence.",
+  "actions": "Continuous chunks via the2B action expert. Appendix configurations use CALVIN10steps, RoboTwin16 sampled every3steps (effective horizon48), and real24steps. The speed illustration instead cites48-step chunks; actuator command throughput and fresh-image decision frequency must be distinguished.",
+  "embodiment_and_data": "Real Aloha-AgileX14DoF bimanual platform:3000 basic and1500 long-horizon demonstrations with manual subtask/keyframe annotations. Pretraining uses human EgoDex, public robot data and VQA with Seed-1.5-VL synthetic annotations. Main-text and appendix recipes conflict:2.98M versus2.56M VQA and75k versus4.5k self-collected episodes. Pretraining uses64A800 GPUs for20ksteps; real fine-tuning uses32A800 for50ksteps.",
+  "experiments": "CALVIN ABC-to-D evaluates1000 chains of5tasks. RoboTwin evaluates50tasks with100trials/condition after training on2500 clean demonstrations, then tests clean and randomized scenes. Physical basic tasks have20trials/task. Two long-horizon families, ordered blocks and arithmetic-symbol placement, vary three difficulties and compare task success with motion-trend planning accuracy. Ablations remove text/keyframes or change dual-flow conditioning.",
+  "baselines": "pi0, RDT, UP-VLA, VPP and variants without textual planning or keyframes. Matched action data is stated for physical comparisons; model size, pretraining and auxiliary annotations differ.",
+  "quantitative_result": {
+    "simulation": "PDFp8 Table1: CALVIN mean completed chain4.405/5 versus VPP4.329 and UP-VLA4.078; RoboTwin75.26% clean and20.87% randomized, versus54.00/19.20 without textual planning. A large domain-randomization drop remains.",
+    "physical": "PDFp9 Table2: basic mean75.5% versus pi0 65.0 and VPP59.5, n20/task. PDFp10 Table3: ordered-block mean73.3% versus pi0 40.0; arithmetic63.3% versus31.7. Planning accuracy95%/85% is a separate motion-trend judgment over20 intermediate states, exceeding actual task completion.",
+    "latency": "PDFp11 Table4: single-view A800 timings,20 measurements, RFG1.23s/chunk and CALVIN3.600 versus fully denoised6.04s/2.480. PDFp8 claims1.2s per48-step chunk on RTX5090 and40Hz action throughput, or72Hz asynchronous throughput. Neither establishes40/72 independent decisions from fresh camera frames per second."
+  },
+  "limitations": "Main/appendix data recipes and real chunk lengths conflict. The16B total expert weights and large GPU training budget limit edge feasibility even when one expert is active per denoising step. Randomized simulation success remains20.87%. Textual/motion planning accuracy does not establish precise grasp execution. Real tasks cover rigid objects, tools, toy watering and blocks rather than verified cloth/sock folding. Cached visual context can be stale; observation age is not quantified.",
+  "code_and_license": "No upstream code, checkpoint license, training-data terms or pinned revision audited; no execution. A published architecture does not establish an available licensed deployment.",
+  "hardware_adaptation": "COMPARE the decomposition into a textual subgoal, clearly tagged visual forecast and compact ACT action skill. Evaluate planning and physical success separately. A16B FP16 model needs approximately32GB for weights alone before encoders/caches; one active expert does not make the resident model ready for16GB NX. Any compact adaptation needs its own camera/action schema, training budget and latency measurements, without changing existing controller configuration.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3.1–3.2",
+      "supports": "Interleaved factorization and expert initialization"
+    },
+    {
+      "page": 6,
+      "section": "3.3",
+      "supports": "Dual-flow conditioning"
+    },
+    {
+      "page": 7,
+      "section": "RFG/3.4",
+      "supports": "Current-frame-centered noise and annotation pipeline"
+    },
+    {
+      "page": 8,
+      "section": "Table1/Inference",
+      "supports": "Simulation metrics and chunk-throughput speed claims"
+    },
+    {
+      "page": 9,
+      "section": "Table2",
+      "supports": "Physical basic-task trial counts and mean score"
+    },
+    {
+      "page": 10,
+      "section": "Table3",
+      "supports": "Long-horizon success versus planning accuracy"
+    },
+    {
+      "page": 11,
+      "section": "Table4",
+      "supports": "A800 latency and conditioning ablation"
+    },
+    {
+      "page": 18,
+      "section": "Table5/AppendixC",
+      "supports": "Expert sizes and pretraining-recipe conflicts"
+    },
+    {
+      "page": 19,
+      "section": "AppendixD",
+      "supports": "GPU counts, trial counts and real24-step chunks"
+    },
+    {
+      "page": 20,
+      "section": "F.1",
+      "supports": "Physical task definitions and camera/embodiment setup"
+    }
+  ]
+}

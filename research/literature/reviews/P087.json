@@ -1,0 +1,86 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P087",
+  "source_sha256": "d8802a311ff9db058bf8f25cb5ccc03711e32b11cd5f02a1759324ddb3cfbd71",
+  "primary_url": "https://arxiv.org/abs/2508.05635",
+  "verified_title": "Genie Envisioner: A Unified World Foundation Platform for Robotic Manipulation",
+  "problem": "Robotic world representation, executable policy learning and action-conditioned evaluation are fragmented; generic video fidelity metrics poorly establish task-relevant physical behavior.",
+  "contribution": "The paper is the full Genie Envisioner platform, not a standalone paper titled GE-Act: GE-Base supplies multiview sparse-memory video priors, GE-Act adds a160M action decoder, GE-Sim conditions generated video on controls, and EWMBench evaluates robotic video alignment.",
+  "algorithm": "GE-Base adapts2B LTX-Video/COSMOS2 using three views, sparse historical frames and selected cross-view attention blocks. GE-Act mirrors visual DiT depth with a smaller action branch and cross-attends to cached visual features. Slow-fast mode uses one visual denoising step and five action steps. GE-Sim projects EE pose into pose images plus temporal motion-delta tokens; it is a neural video simulator, not a rigid-body/contact solver.",
+  "observations": "Language, head and two wrist RGB views, sparse historical frames and optionally robot state. Low-frequency alignment uses5Hz video; action prediction30Hz. New-embodiment adaptation changes learned visual distribution and action head.",
+  "actions": "GE-Act predicts54-step30Hz chunks. Precise GE-Act control units are insufficiently specified here: introductory prose says torque trajectories, while GE-Sim explicitly conditions on14D bimanual Cartesian pose+gripper. Do not silently equate these representations.",
+  "embodiment_and_data": "GE-Base pretrains on AgiBot-World-Beta~1M episodes/2967h:7days×32A100 plus3days×32A100 low-frequency alignment. Action pretraining3days×16A100. New Agilex tasks use250demos/~1h PER TASK; DualFranka cloth folding250demos/~1h. Crucially, a NEW action head is trained from scratch for each new embodiment rather than directly reusing AgiBot controls.",
+  "experiments": "AgiBot five household/industrial tasks compare stepwise SR with end-to-end E2E that allows repeated substep attempts. Stable red-cylinder/cup ablation uses305training demos/40ksteps. Cross-embodiment cloth/box folding and four RoboTwin tasks use supervised adaptation. EWMBench selects10 held-out tasks×100videos, each4–10annotated subactions; trajectory scores choose the best of3 generated samples by reference-distance.",
+  "baselines": "UniVLA, GR00TN1,pi0 and GO-1 depending on embodiment; matched task-specific data but differing initialization and adaptation. World-video models includeKling,Hailuo,OpenSora,LTX,COSMOS. GE-Sim variants compare LTX/COSMOS, not learned-video versus identified contact physics.",
+  "quantitative_result": {
+    "physical": "PDF p12 Table1: GE-Base initialization plus task video adaptation/state gives E2E0.89 and stepwiseSR0.76 versus0.81/0.64 without video adaptation; exact physical evaluation n NOT_EXTRACTED. E2E permits recovery attempts (p11), so it is not per-step first-attempt success.",
+    "latency": "PDF p10:54 actions generated in200ms onRTX4090, using one cached visual step/five action steps; not an NX measurement.",
+    "simulation_proxy": "PDF p21 Table2:GE-SimPSNR19.9LTX/20.7COSMOS, dynamic score0.78/0.85; these are generated-video metrics, not executed task success. EWMBench best-of3 trajectory selection (p19) is optimistic relative to one deployed prediction."
+  },
+  "limitations": "Few-shot means250demonstrations/task plus extensive embodied pretraining and retraining the control head. Physical evaluation denominators/confidence intervals are not extracted, and E2E allows retries. EWMBench relies on learned detectors,VLM judgments, references and partial human validation; logical video correctness does not establish force/contact accuracy. Pretraining stays on one robot corpus; parallel-jaw tabletop tasks do not establish whole-body/mobile or dexterous control.",
+  "code_and_license": "PDF p4 promises code, models and benchmark open-sourcing upon publication. Actual release state, commit and licenses NOT_AUDITED; no execution. A promise is not verified available software.",
+  "hardware_adaptation": "ADAPT sparse real-frame memory and cached-feature compact action heads as separately tested ideas. Existing ACT remains an appropriate comparison. Three camera views,30Hz action conventions and the4090 latency do not match the overview-only Pi station. GE-Sim can provide clearly labeled synthetic visuals for research, but cannot replace Explorer's CAD-based MuJoCo geometry or serve as actual camera/physical-success evidence.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "2.1",
+      "supports": "Platform identity, sparse-memory and release promise"
+    },
+    {
+      "page": 5,
+      "section": "2.1–2.2",
+      "supports": "2B backbones,three views and corpus"
+    },
+    {
+      "page": 6,
+      "section": "Training stages",
+      "supports": "Pretraining compute and frequency alignment"
+    },
+    {
+      "page": 8,
+      "section": "3.1",
+      "supports": "160M action head and cross-attention"
+    },
+    {
+      "page": 10,
+      "section": "3.3",
+      "supports": "4090 latency and54-step chunks"
+    },
+    {
+      "page": 11,
+      "section": "Evaluation protocols",
+      "supports": "Stepwise versusE2E with repeated attempts"
+    },
+    {
+      "page": 12,
+      "section": "Table1",
+      "supports": "Physical ablation numbers and305 training demonstrations"
+    },
+    {
+      "page": 13,
+      "section": "4.1–4.2",
+      "supports": "New action head and250demos/task"
+    },
+    {
+      "page": 16,
+      "section": "5.1",
+      "supports": "Pose-image and motion-delta neural simulator"
+    },
+    {
+      "page": 19,
+      "section": "6.1–6.2",
+      "supports": "Benchmark size andbest-of3 trajectory selection"
+    },
+    {
+      "page": 23,
+      "section": "Limitations",
+      "supports": "Single-corpus,embodiment and proxy-evaluation limits"
+    }
+  ]
+}

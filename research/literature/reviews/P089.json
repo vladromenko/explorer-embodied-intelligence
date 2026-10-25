@@ -1,0 +1,76 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P089",
+  "source_sha256": "57bd993b298765c005fc143e2550243cecb1e76c0682653634a85d34045b0442",
+  "primary_url": "https://arxiv.org/abs/2601.21998",
+  "verified_title": "Causal World Modeling for Robot Control",
+  "problem": "Autoregressive video/action policies need real feedback and temporal context, but asynchronously reusing stale imagined states can compound visual drift and ignore newly observed execution errors.",
+  "contribution": "LingBot-VA couples5B video and350M action streams under chunk-causal teacher forcing, uses partial video denoising and variable chunk sizes, and refreshes asynchronous forecasts through a forward-dynamics pass conditioned on actual recent observations and currently executing controls.",
+  "algorithm": "Wan2.2-5B causal VAE tokens and action embeddings interleave at4actions/video frame. Separate-width transformer streams share cross-modal attention. Initialize action weights by interpolating video weights with variance scaling. Train flow-matching dynamics+inverse losses with50% noisy visual-history augmentation. The async pipeline receives real observations, predicts consequences of the current action, then uses that refreshed forecast to generate the next action chunk.",
+  "observations": "Language, camera history and action history; deployed async context is explicitly truncated to recent actual observation/executed/current chunks, despite broader claims of full persistent history. Command history encodes nominal configuration, which must not be mistaken for measured joint feedback.",
+  "actions": "Universal30D dual-arm representation: perarm7D EE pose/quaternion+7padded joints+gripper. Target-data quantile normalization; differing robot dimensions are padded. Fourfold denser actions than video. This redundant representation still requires a consistent calibrated robot-specific consumer.",
+  "embodiment_and_data": "~16000h fromAgibot,RoboMind,InternData-A1,OXE,UMI,RoboCOIN andinternal data,90/10splits.5.3B total parameters and1.4T pretraining tokens. Real six tasks use50demos/task; RoboTwin2500clean+25000randomized demos. Exact physical arm model and hardware inference GPU NOT_EXTRACTED.",
+  "experiments": "RoboTwin50tasks,LIBEROfour suites with1500evaluations/suite across3seeds. Physical long-horizon,precision andcloth/pants tasks report author binary success alongside per-stage progress, with per-trial appendices. Memory tests count six wipes and search two boxes; robustness of long-history claims must consider the actual truncated async context. Ablations compare naive async,FDM-groundedasync,baseline andWan initialization.",
+  "baselines": "pi0.5 in physical experiments;pi0,X-VLA,Motus and other published VLA results in simulation. Some baseline results are adopted from prior papers rather than uniformly re-executed. Pretraining,architecture and observation-memory differences accompany performance differences.",
+  "quantitative_result": {
+    "simulation": "PDF p13 Table1:RoboTwin92.93%easy/91.55%hard versusMotus88.7/87.0. PDF p14 Table2:LIBERO98.5%average with1500trials/suite.",
+    "asynchronous": "PDF p15 Table3:baseline92.9%,FDM-groundedasync90.4%,naiveasync74.3%easy; horizon3 naive32.9 versusgrounded85.6. This supports grounding over naiveasync but does not show identical performance tobaseline. Text reports~2×task-speed benefit; hardware latency/denominator NOT_EXTRACTED.",
+    "cloth": "PDF p28 TableS4:n20/method, author-labeled shirt-fold successes7/20(35%)versuspi0.5 6/20(30%), but mean progress48.8%versus62.9%, contrary to the all-metrics superiority prose. Some author-labeled successes receive5/6stagepoints; these labels are not identical to attaining everyrubricpoint."
+  },
+  "limitations": "Temporal causal masking is not identified causal physics. Generated future trajectories and commanded state history may diverge from physical contact/slip. Async grounding helps but still loses2.5points versusbaseline. Shirt-fold data contradict blanket superiority across bothmetrics. Protocol details also vary: partial denoise stop0.5 inalgorithm versus0.6 implementation; variableK[1,8]illustration versus[1,4]implementation, and physical fine-tuning500steps versusgeneric1000/3000 guidance. Memory-box evaluation always tests a left-box target, limiting distributional evidence.",
+  "code_and_license": "No pinned repository/implementation,model ordataset license verified; no execution. The review binds only the actual primary PDF and its evidence, not an assumed ready package.",
+  "hardware_adaptation": "ADAPT the software lesson of grounding queued forecasts on actual timestamped feedback; evaluate stale-frame/jitter behavior offline before changing any execution path. Preserve existing controller settings.30D padded EE/joint outputs cannot be sent directly to SO101/M3.5.3B memory/runtime and the source's unspecified hardware do not establish NX feasibility; tactile/force feedback is future work rather than a capability already supplied.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 5,
+      "section": "3.2",
+      "supports": "Chunk-causal world modeling"
+    },
+    {
+      "page": 7,
+      "section": "3.3",
+      "supports": "Scaled initialization,variablechunks and noisy-history augmentation"
+    },
+    {
+      "page": 8,
+      "section": "3.4",
+      "supports": "Async context truncation and stale forecasts"
+    },
+    {
+      "page": 9,
+      "section": "Algorithm2",
+      "supports": "Actual-feedback FDM grounding"
+    },
+    {
+      "page": 10,
+      "section": "4.1–4.2",
+      "supports": "30D action schema,16000h and5.3B architecture"
+    },
+    {
+      "page": 13,
+      "section": "Table1",
+      "supports": "Simulation setup and result"
+    },
+    {
+      "page": 15,
+      "section": "Table3",
+      "supports": "Async accuracy tradeoff"
+    },
+    {
+      "page": 16,
+      "section": "4.5.2",
+      "supports": "Memory task distribution"
+    },
+    {
+      "page": 28,
+      "section": "TableS4",
+      "supports": "Exact20trial cloth successes,partial scores and contrary baseline comparison"
+    }
+  ]
+}

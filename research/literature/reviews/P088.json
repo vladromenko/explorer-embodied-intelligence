@@ -1,0 +1,71 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P088",
+  "source_sha256": "4f9be253165cbb3567f56d23d200ba93bda1242195e579abaac987ea37cc264f",
+  "primary_url": "https://arxiv.org/abs/2512.13030",
+  "verified_title": "Motus: A Unified Latent Action World Model",
+  "problem": "VLM understanding and video dynamics priors are usually isolated, while heterogeneous videos lack compatible robot action labels.",
+  "contribution": "An8B mixture-of-transformers joins video, understanding and action experts; independently noised video/actions enable five inference distributions. A flow-derived14D latent action provides weakly supervised motion pretraining across human/robot data.",
+  "algorithm": "Wan2.2-5B video expert,Qwen3-VL-2B understanding expert and separate action/understanding adapters share joint attention. Train independent-time rectified-flow objectives. DPFlow optical flow is reconstructed by aDC-AE; four512D tokens project to14D latent action, with90% unlabeled and10% real-action-supervised data, alignment+KL losses. Stages train video dynamics, latent-action experts, then target controls. Dense actions/sparsevideo use6:1 temporal sampling.",
+  "observations": "Language, present RGB and platform-dependent proprioception; action chunks48@30Hz andvideo8@5Hz in general config. RoboTwin uses16-step chunks. IDM mode explicitly observes future frames, unlike the current-observation-only regression baselines described in its appendix.",
+  "actions": "Robot-specific continuous controls after target-robot fine-tuning.14D latent action dimensionality is a learned representation, not guaranteed physical joint semantics or a universal actuator interface. Mode choice determines whether actions,video or both are sampled/conditioned.",
+  "embodiment_and_data": "RoboTwin27500 trajectories,230949EgoDex,728209Agibot plus RDT/RoboMind,1000task-agnostic examples and2000in-house target examples. Real tasks use100training trajectories/task on AC-One andAgilex-Aloha-2. Pretraining/fine-tuning budgets roughly8000+10000+400GPUh (GPU model not extracted).",
+  "experiments": "Fifty-task RoboTwin clean/randomized joint training,40kfine-tuning steps and100evaluations/task. Hardware scores grant subgoal credit; detailed tables give actual counts: towel20trials/platform,fourperfive towel types; several other tasks10 or20trials. Additional modes are tested with reconstruction/MSE metrics and VLA versusjoint policy success.",
+  "baselines": "pi0.5,X-VLA,from-scratch andvideo-stage-only variants. Real comparison is mostlypi0.5. IDM baselines ResNet18/DINOv2+MLP are described as taking current observation only, so their MSE comparison confounds the future information available to Motus IDM.",
+  "quantitative_result": {
+    "simulation": "PDF p7 Table2:88.66%clean/87.02%randomized versusX-VLA72.80/72.84 andpi0.5 42.98/43.84,100trials/task. Figure6's from-scratch clean77.56 disagrees withTable2's72.8; do not use that ablation effect as reconciled.",
+    "physical": "PDF p8 Table3 averages partial scores63.22%AC-One/59.30%Agilex versus14.79/48.60pi0.5. Critically p19 Tables15–16 show Motus COMPLETE towel-fold success0/20 on BOTH platforms despite partial scores14.5% and39%; pi0.5 completes1/20 onAgilex. AC-One cube placement20/20 is a different rigid-object task.",
+    "modes": "PDF p14 Table8:randomized VLA83.90% versusjoint87.02%. Table7 IDM MSE0.014 on100samples versus0.044/0.122, with unequal described observability. These are not physical control successes."
+  },
+  "limitations": "Aggregate partial scores conceal zero complete towel folds. Gains are not universal: Agilex oven34versuspi0.5 36 andkeyboard80versusscratch85. Flow compression can retain camera/background motion;14D matching does not by itself prove embodied action alignment. Heavy expert stack and extensive pretraining are not edge-ready evidence. Some claims of all-task improvement and clean ablation numbers conflict with tables.",
+  "code_and_license": "No pinned source, weights or license audit and no execution. Foundation-model/data citations do not grant derivative reuse; terms UNKNOWN.",
+  "hardware_adaptation": "COMPARE offline latent-flow auxiliary supervision and independent-noise mode selection.8B FP16 weights alone approach16GB before encoders/VAE/caches, so NX feasibility is unproven. Use calibrated measured SO101/M3 state/action schemas rather than treating14D latents as motor commands. Paper's own complete-fold0/20 means it cannot substantiate a ready cloth/sock manipulation skill.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "4.1",
+      "supports": "Tri-expert attention and independent-time objectives"
+    },
+    {
+      "page": 5,
+      "section": "4.2",
+      "supports": "DPFlow latent action and90/10 weak supervision"
+    },
+    {
+      "page": 7,
+      "section": "Table2/5.3",
+      "supports": "Simulation protocol and hardware partial-score definition"
+    },
+    {
+      "page": 8,
+      "section": "Tables3–5",
+      "supports": "Physical aggregate scores and subgoal distributions"
+    },
+    {
+      "page": 14,
+      "section": "Tables7–8",
+      "supports": "IDM observability comparison andVLA/joint modes"
+    },
+    {
+      "page": 16,
+      "section": "Table11",
+      "supports": "8B scale and sampling"
+    },
+    {
+      "page": 17,
+      "section": "Tables12–13",
+      "supports": "Data quantities andGPUhours"
+    },
+    {
+      "page": 19,
+      "section": "Tables15–16",
+      "supports": "Zero complete towel folds and exact trial counts"
+    }
+  ]
+}
