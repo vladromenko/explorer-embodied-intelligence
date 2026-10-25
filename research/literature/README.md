@@ -19,3 +19,9 @@ No result in this directory establishes performance of Explorer. Such a claim ne
 ## Integrating reviewed batches
 
 After merging per-paper review files, run `python research/literature/tools/registry.py --ingest-reviews --export-csv > research/literature/REVIEW_STATUS.json`. Ingestion validates every source hash and explicit review boolean before atomically changing earned statuses. An invalid review leaves the registry unchanged. Retrieval never creates review credit. The checker verifies accounting consistency, not the semantic quality or completeness of a human/agent reading.
+
+## Completed review acceptance
+
+The validated registry contains 102 unique substantive fulltext reviews, including 35 technical deep reviews, bound to 130 retrieved primary PDFs. Original candidate seed 129 remains preserved; the expanded catalog has 135 candidates / 134 unique identities, with P016 explicitly excluded as the P015 duplicate. QUALITY_AUDIT.json verifies every reviewed PDF byte hash and all 677 page locators; these mechanical checks do not certify semantic review quality.
+
+Original-source code inspection flags total 3 (ACT, Diffusion Policy, UniVLA); original-author-repository execution remains 0. Actual maintained SB3 PPO and official LeRobot ACT executions, configuration changes and checkpoint evidence are recorded separately in methods/METHOD_REGISTRY.yaml and experiments/. Code/model/data licenses and physical qualification remain separate fields.

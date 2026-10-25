@@ -15,6 +15,14 @@ def setup_root(tmp_path):
         target = tmp_path / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / relative, target)
+    # Isolate the checker invariant from unrelated integrated application modules.
+    registry_path = tmp_path / "research/methods/METHOD_REGISTRY.yaml"
+    document = json.loads(registry_path.read_text())
+    document["methods"] = [entry for entry in document["methods"] if entry["method_id"] == "ENG-EVAL-001"]
+    registry_path.write_text(json.dumps(document))
+    csv_path = tmp_path / "research/methods/CODE_PROVENANCE.csv"
+    lines = csv_path.read_text().splitlines()
+    csv_path.write_text("\n".join([lines[0], *[line for line in lines[1:] if ",ENG-EVAL-001," in line]]) + "\n")
     return tmp_path
 
 

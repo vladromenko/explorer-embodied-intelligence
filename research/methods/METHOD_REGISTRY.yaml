@@ -5,7 +5,13 @@
     "01-autonomous-learning/src/**/*.py",
     "shared/learning/**/*.py",
     "04-cross-embodiment-transfer/src/**/*.py",
-    "05-cooperative-handover/src/**/*.py"
+    "05-cooperative-handover/src/**/*.py",
+    "shared/explorer_shared/kinematics.py",
+    "shared/explorer_shared/handover.py",
+    "00-control-center/src/explorer/simulation.py",
+    "00-control-center/src/explorer/transfer.py",
+    "00-control-center/src/explorer/*.py",
+    "shared/explorer_shared/*.py"
   ],
   "methods": [
     {
@@ -55,6 +61,938 @@
       "paper_review_evidence": [
         "research/literature/reviews/P130.json"
       ]
+    },
+    {
+      "method_id": "PPO_SB3_2_9",
+      "implementation_id": "IMPL-SB3-PPO-PILOT-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/pilot.py:run_pilot",
+      "implementation_type": "ADAPTED",
+      "paper_ids": [
+        "P008"
+      ],
+      "sources": [
+        {
+          "url": "https://arxiv.org/abs/1707.06347",
+          "role": "PPO clipped-surrogate algorithm"
+        },
+        {
+          "url": "https://github.com/DLR-RM/stable-baselines3/tree/8908708f10c8ff29759c67f55c8acb56cab27463",
+          "role": "Official v2.9.0 package revision; unmodified optimizer called through public API"
+        }
+      ],
+      "upstream_repo": "https://github.com/DLR-RM/stable-baselines3",
+      "upstream_commit": "8908708f10c8ff29759c67f55c8acb56cab27463",
+      "code_license": "MIT",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Wrap official SB3 PPO in a fixed-base CAD reach task; privileged simulator-state teacher. Actual optimization, changed weights, checkpoint reload and independent development rollouts were executed.",
+      "verification": {
+        "paper_read": true,
+        "code_inspected": true,
+        "installed": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "run_id": "default-pilot-v1",
+          "path": "research/experiments/default-pilot-v1/result.json",
+          "scope": "Mac CPU development reach test; six evaluation seeds disjoint from training/imitation; not sealed final evaluation or physical evidence",
+          "result_sha256": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60"
+        }
+      ],
+      "hardware_run_ids": [],
+      "package": "stable-baselines3==2.9.0"
+    },
+    {
+      "method_id": "ACT_LEROBOT_0_6_1",
+      "implementation_id": "IMPL-LEROBOT-ACT-PILOT-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/student.py:train_and_evaluate_act",
+      "implementation_type": "ADAPTED",
+      "paper_ids": [
+        "P001"
+      ],
+      "sources": [
+        {
+          "url": "https://arxiv.org/abs/2304.13705",
+          "role": "ACT chunked-action CVAE policy"
+        },
+        {
+          "url": "https://github.com/huggingface/lerobot/tree/7e241bd630a3719a56157a497ce5d08f244784f1/src/lerobot/policies/act",
+          "role": "Official ACTPolicy/config files; exact installed SHA256 matches verified primary revision"
+        }
+      ],
+      "upstream_repo": "https://github.com/huggingface/lerobot",
+      "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
+      "code_license": "Apache-2.0",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Call official ACTPolicy with compact configuration and ResNet18. Explorer supplies NPZ episode chunks and explicit RGB preprocessing. Student observes overview RGB and command estimate; not privileged simulator state. Actual updates and save/reload were tested, with development success2/6 preserved.",
+      "verification": {
+        "paper_read": true,
+        "code_inspected": true,
+        "installed": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "run_id": "default-pilot-v1",
+          "path": "research/experiments/default-pilot-v1/result.json",
+          "scope": "Mac CPU development reach test; six evaluation seeds disjoint from training/imitation; not sealed final evaluation or physical evidence",
+          "result_sha256": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60"
+        }
+      ],
+      "hardware_run_ids": [],
+      "package": "lerobot==0.6.1",
+      "source_sha256": {
+        "modeling_act.py": "a6c1a49c5daafa513b9abee9b986205d327e25c70ed13623ab2e6c0ab6b1f577",
+        "configuration_act.py": "35a60c0dd3c811b137b5eb035bdbd40d40e2c24ba0cda61756052e6e1c829282"
+      },
+      "dependency_exception": "Torch2.14.1/torchvision0.29.1 outside LeRobot declared bounds; execution tested for this path only, no framework-wide compatibility claim"
+    },
+    {
+      "method_id": "EXPLORER_CAD_MUJOCO",
+      "implementation_id": "IMPL-CAD-REACH-FIXTURE-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/pilot.py:ReachEnv",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://github.com/google-deepmind/mujoco/tree/800a109a4bdd02cb60404d565db4ae16fb04a53b",
+          "role": "MuJoCo3.17.0 engine, Apache2.0 dependency"
+        }
+      ],
+      "upstream_repo": "https://github.com/google-deepmind/mujoco",
+      "upstream_commit": "800a109a4bdd02cb60404d565db4ae16fb04a53b",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Use twenty checksum-verified legacy ROSMASTER CAD meshes in an explicit fixed-base reach fixture. Static geometry hashes do not validate contact dynamics, inertias, calibration or physical safety.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "run_id": "default-pilot-v1",
+          "path": "research/experiments/default-pilot-v1/result.json",
+          "scope": "Mac CPU development reach test; six evaluation seeds disjoint from training/imitation; not sealed final evaluation or physical evidence",
+          "result_sha256": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60"
+        }
+      ],
+      "hardware_run_ids": [],
+      "upstream_code_license": "Apache-2.0",
+      "cad_mesh_license": "NOT_ESTABLISHED_IN_THIS_AUDIT"
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-PILOT-DATA-ADAPTER-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/student.py:EpisodeChunks",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://huggingface.co/docs/lerobot/main/lerobot-dataset-v3",
+          "role": "Dataset schema context; pilot NPZ adapter is not an assertion of LeRobotDataset v3 compliance"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Episode-chunk indexing, RGB preprocessing and model invocation are engineering adapters, not a substitute learned policy or a novel imitation-learning algorithm.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "run_id": "default-pilot-v1",
+          "path": "research/experiments/default-pilot-v1/result.json",
+          "scope": "Mac CPU development reach test; six evaluation seeds disjoint from training/imitation; not sealed final evaluation or physical evidence",
+          "result_sha256": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "SO101_URDF_FK_IK",
+      "implementation_id": "IMPL-SO101-KINEMATICS-001",
+      "function_or_module": "shared/explorer_shared/kinematics.py:URDFChain",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://github.com/TheRobotStudio/SO-ARM100/tree/a758567c3978dfeefe282ede0500085a48fe8f78/Simulation/SO101",
+          "role": "Official SO101 calibrated URDF geometry; Apache2.0. New joint zero is midrange, gripper0closed100open is not encoded in URDF."
+        }
+      ],
+      "upstream_repo": "https://github.com/TheRobotStudio/SO-ARM100",
+      "upstream_commit": "a758567c3978dfeefe282ede0500085a48fe8f78",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_VIRTUAL_REFERENCE; UPSTREAM_URDF_APACHE_2_0",
+      "changes_and_reason": "Read official URDF transforms and compute FK/bounded numerical IK. Imported geometry uses upstream Apache2.0; solver and frame bookkeeping are known engineering baselines, not new robot learning.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "1222977",
+          "path": "04-cross-embodiment-transfer/docs/PILOT_VALIDATION_20261026.json",
+          "scope": "24-point virtual reference;22reachable, position-only IK; no source policy execution, orientation constraint, collision check or physical action",
+          "reported_tests": "20 unit/integration tests; four deterministic handover protocol cases"
+        }
+      ],
+      "hardware_run_ids": [],
+      "urdf_sha256": "3a65d2d35e68a8d2f0c2cc176d19b884506543c93ba72980145b80abe276022c",
+      "upstream_asset_license": "Apache-2.0",
+      "calibration_scope": "Official geometry only; physical trigger/aperture/frame calibration unmeasured"
+    },
+    {
+      "method_id": "OBJECT_RELATIVE_RETARGET",
+      "implementation_id": "IMPL-OBJECT-RELATIVE-REGISTRATION-001",
+      "function_or_module": "shared/explorer_shared/kinematics.py:ObjectRegistration",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://github.com/TheRobotStudio/SO-ARM100/tree/a758567c3978dfeefe282ede0500085a48fe8f78/Simulation/SO101",
+          "role": "Official SO101 calibrated URDF geometry; Apache2.0. New joint zero is midrange, gripper0closed100open is not encoded in URDF."
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_VIRTUAL_REFERENCE; UPSTREAM_URDF_APACHE_2_0",
+      "changes_and_reason": "Compose declared object-relative rigid transforms and solve robot-specific IK. Virtual registration and position-only targets are explicitly labelled; a reachable solution is not collision-safe physical policy transfer.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "1222977",
+          "path": "04-cross-embodiment-transfer/docs/PILOT_VALIDATION_20261026.json",
+          "scope": "24-point virtual reference;22reachable, position-only IK; no source policy execution, orientation constraint, collision check or physical action",
+          "reported_tests": "20 unit/integration tests; four deterministic handover protocol cases"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "HANDOVER_VERIFIED_FSM",
+      "implementation_id": "IMPL-NO-ACTUATOR-HANDOVER-FSM-001",
+      "function_or_module": "shared/explorer_shared/handover.py:HandoverFSM",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [
+        "P124"
+      ],
+      "sources": [
+        {
+          "url": "https://doi.org/10.1007/s10514-025-10201-y",
+          "role": "Handover planning and object-slip failure context; not copied code or release-safety proof"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_SYNTHETIC_PROTOCOL_TEST_FIXTURES",
+      "changes_and_reason": "A deterministic evidence-gated handover protocol state machine with no actuator IO. Synthetic oracle evidence validates protocol transitions only and cannot authorize physical release.",
+      "verification": {
+        "paper_read": true,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "1222977",
+          "path": "04-cross-embodiment-transfer/docs/PILOT_VALIDATION_20261026.json",
+          "scope": "24-point virtual reference;22reachable, position-only IK; no source policy execution, orientation constraint, collision check or physical action",
+          "reported_tests": "20 unit/integration tests; four deterministic handover protocol cases"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "LELAB_CHECKPOINT_IMPORT",
+      "implementation_id": "IMPL-LELAB-SCHEMA-INSPECTION-001",
+      "function_or_module": "00-control-center/src/explorer/transfer.py:inspect_lerobot_source",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://github.com/huggingface/leLab/tree/9b5afaee33baa1d773e499937564f3831d25de22",
+          "role": "Primary schema/dependency inspection: Python>=3.12, LeRobotv0.6.0; meta/info.json dataset discovery"
+        }
+      ],
+      "upstream_repo": "https://github.com/huggingface/leLab",
+      "upstream_commit": "9b5afaee33baa1d773e499937564f3831d25de22",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_METADATA_INSPECTION_ONLY",
+      "data_license": "OWNER_PROVIDED_ARTIFACT_RIGHTS_NOT_RELICENSED",
+      "changes_and_reason": "Inspect dataset/checkpoint metadata and explicit compatibility fields; metadata discovery alone does not prove checkpoint processor, normalization or runtime executability on LeRobot0.6.1.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "1222977",
+          "path": "04-cross-embodiment-transfer/docs/PILOT_VALIDATION_20261026.json",
+          "scope": "24-point virtual reference;22reachable, position-only IK; no source policy execution, orientation constraint, collision check or physical action",
+          "reported_tests": "20 unit/integration tests; four deterministic handover protocol cases"
+        }
+      ],
+      "hardware_run_ids": [],
+      "upstream_code_license": "UNKNOWN_IN_THIS_RECORD",
+      "runtime_import_qualified": false
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-LEROBOT-DATASET-EXPORT-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/dataset_export.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://huggingface.co/docs/lerobot/main/lerobot-dataset-v3",
+          "role": "Dataset schema context; pilot NPZ adapter is not an assertion of LeRobotDataset v3 compliance"
+        }
+      ],
+      "upstream_repo": "https://github.com/huggingface/lerobot",
+      "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "OWNER_RECORDED_DATA_OR_LOCAL_TEST_FIXTURES; SOURCE_RIGHTS_RETAINED",
+      "changes_and_reason": "Export source NPZ episodes into official LeRobotDataset v3 and verify RGB, states, actions, timestamps and episode boundaries by reading them back. This is serialization validation, not policy success.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "9a54fe4",
+          "result": "17 simulation/recorded-path tests passed, reported by execution agent; root integration revalidation remains necessary",
+          "scope": "Official v3 export12episodes/167frames read back;6Dstation fixture ACT2updates and checkpoint reload; no physical action"
+        }
+      ],
+      "hardware_run_ids": [],
+      "upstream_code_license": "Apache-2.0"
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-RECORDED-ACT-TRAINING-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/recorded_training.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://huggingface.co/docs/lerobot/main/lerobot-dataset-v3",
+          "role": "Dataset schema context; pilot NPZ adapter is not an assertion of LeRobotDataset v3 compliance"
+        }
+      ],
+      "upstream_repo": "https://github.com/huggingface/lerobot",
+      "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "OWNER_RECORDED_DATA_OR_LOCAL_TEST_FIXTURES; SOURCE_RIGHTS_RETAINED",
+      "changes_and_reason": "Train actual official ACTPolicy from recorded data through explicit station/action contracts, with changed weights and save/reload checks. No synthetic simulator call substitutes for recorded-data training; optimizer execution alone does not establish task quality.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "9a54fe4",
+          "result": "17 simulation/recorded-path tests passed, reported by execution agent; root integration revalidation remains necessary",
+          "scope": "Official v3 export12episodes/167frames read back;6Dstation fixture ACT2updates and checkpoint reload; no physical action"
+        }
+      ],
+      "hardware_run_ids": [],
+      "upstream_code_license": "Apache-2.0"
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-RECORDED-STATION-ADAPTER-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/station_adapter.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://huggingface.co/docs/lerobot/main/lerobot-dataset-v3",
+          "role": "Dataset schema context; pilot NPZ adapter is not an assertion of LeRobotDataset v3 compliance"
+        }
+      ],
+      "upstream_repo": "https://github.com/huggingface/lerobot",
+      "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "OWNER_RECORDED_DATA_OR_LOCAL_TEST_FIXTURES; SOURCE_RIGHTS_RETAINED",
+      "changes_and_reason": "Adapt station-specific observation and action shapes and explicit semantics. Shape compatibility alone does not verify calibration, hardware feedback or processor correctness.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "9a54fe4",
+          "result": "17 simulation/recorded-path tests passed, reported by execution agent; root integration revalidation remains necessary",
+          "scope": "Official v3 export12episodes/167frames read back;6Dstation fixture ACT2updates and checkpoint reload; no physical action"
+        }
+      ],
+      "hardware_run_ids": [],
+      "upstream_code_license": "Apache-2.0"
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GLUE-APP-001",
+      "function_or_module": "00-control-center/src/explorer/app.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/",
+          "role": "Standard-library application/runtime interfaces; no upstream research code copied"
+        },
+        {
+          "url": "https://fastapi.tiangolo.com/",
+          "role": "Imported HTTP application framework"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVENTS_AND_OBSERVATIONS",
+      "changes_and_reason": "Authenticated FastAPI routes and local operator UI integration; presents durable device/job/evidence state without claiming a new learning algorithm.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "date": "2026-10-26",
+          "result": "Root reports52base/node/research/transfer/handover tests passed before latest recorded-trainer filter change",
+          "scope": "Selected software paths only; no whole-branch coverage or physical safety/task qualification",
+          "evidence_source": "Integrator status; integrated suite rerun required after current source changes"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GLUE-CLI-001",
+      "function_or_module": "00-control-center/src/explorer/cli.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/",
+          "role": "Standard-library application/runtime interfaces; no upstream research code copied"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVENTS_AND_OBSERVATIONS",
+      "changes_and_reason": "Administrative startup/status/backup CLI; process orchestration and configuration handling are engineering glue.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "date": "2026-10-26",
+          "result": "Root reports52base/node/research/transfer/handover tests passed before latest recorded-trainer filter change",
+          "scope": "Selected software paths only; no whole-branch coverage or physical safety/task qualification",
+          "evidence_source": "Integrator status; integrated suite rerun required after current source changes"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GLUE-CONFIG-001",
+      "function_or_module": "00-control-center/src/explorer/config.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/",
+          "role": "Standard-library application/runtime interfaces; no upstream research code copied"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVENTS_AND_OBSERVATIONS",
+      "changes_and_reason": "Load environment/local configuration and resolve project paths; no learning or physical inference is claimed.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "date": "2026-10-26",
+          "result": "Root reports52base/node/research/transfer/handover tests passed before latest recorded-trainer filter change",
+          "scope": "Selected software paths only; no whole-branch coverage or physical safety/task qualification",
+          "evidence_source": "Integrator status; integrated suite rerun required after current source changes"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GLUE-JOB-RUNNER-001",
+      "function_or_module": "00-control-center/src/explorer/job_runner.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/",
+          "role": "Standard-library application/runtime interfaces; no upstream research code copied"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVENTS_AND_OBSERVATIONS",
+      "changes_and_reason": "Run isolated recording/import/training jobs and preserve results; a completed job is distinct from task success.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "date": "2026-10-26",
+          "result": "Root reports52base/node/research/transfer/handover tests passed before latest recorded-trainer filter change",
+          "scope": "Selected software paths only; no whole-branch coverage or physical safety/task qualification",
+          "evidence_source": "Integrator status; integrated suite rerun required after current source changes"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GLUE-SCHEDULER-001",
+      "function_or_module": "00-control-center/src/explorer/scheduler.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/",
+          "role": "Standard-library application/runtime interfaces; no upstream research code copied"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVENTS_AND_OBSERVATIONS",
+      "changes_and_reason": "Durable resource and worker scheduling, not an online robot learning or safety certification algorithm.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "date": "2026-10-26",
+          "result": "Root reports52base/node/research/transfer/handover tests passed before latest recorded-trainer filter change",
+          "scope": "Selected software paths only; no whole-branch coverage or physical safety/task qualification",
+          "evidence_source": "Integrator status; integrated suite rerun required after current source changes"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GLUE-SIMULATION-001",
+      "function_or_module": "00-control-center/src/explorer/simulation.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/",
+          "role": "Standard-library application/runtime interfaces; no upstream research code copied"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVENTS_AND_OBSERVATIONS",
+      "changes_and_reason": "Dispatch registered simulator/recorded-training implementations and persist actual job results; algorithm provenance belongs to the invoked methods.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "date": "2026-10-26",
+          "result": "Root reports52base/node/research/transfer/handover tests passed before latest recorded-trainer filter change",
+          "scope": "Selected software paths only; no whole-branch coverage or physical safety/task qualification",
+          "evidence_source": "Integrator status; integrated suite rerun required after current source changes"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GLUE-STORE-001",
+      "function_or_module": "00-control-center/src/explorer/store.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/",
+          "role": "Standard-library application/runtime interfaces; no upstream research code copied"
+        },
+        {
+          "url": "https://www.sqlite.org/wal.html",
+          "role": "WAL transaction/persistence semantics"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVENTS_AND_OBSERVATIONS",
+      "changes_and_reason": "SQLite WAL event/job/artifact persistence and backup; transaction/accounting behavior is engineering infrastructure.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "date": "2026-10-26",
+          "result": "Root reports52base/node/research/transfer/handover tests passed before latest recorded-trainer filter change",
+          "scope": "Selected software paths only; no whole-branch coverage or physical safety/task qualification",
+          "evidence_source": "Integrator status; integrated suite rerun required after current source changes"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GLUE-CONTRACTS-001",
+      "function_or_module": "shared/explorer_shared/contracts.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/",
+          "role": "Standard-library application/runtime interfaces; no upstream research code copied"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVENTS_AND_OBSERVATIONS",
+      "changes_and_reason": "Explicit command/measurement/frame/time contracts and finite-value validation; no novel controller or inferred physical state.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "date": "2026-10-26",
+          "result": "Root reports52base/node/research/transfer/handover tests passed before latest recorded-trainer filter change",
+          "scope": "Selected software paths only; no whole-branch coverage or physical safety/task qualification",
+          "evidence_source": "Integrator status; integrated suite rerun required after current source changes"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GLUE-HAILO-OBSERVER-001",
+      "function_or_module": "shared/explorer_shared/hailo_observer.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/",
+          "role": "Standard-library application/runtime interfaces; no upstream research code copied"
+        },
+        {
+          "url": "project-file:shared/perception/PROVENANCE.md",
+          "role": "Owner-provided source origin, exact original SHA256 and separate device-smoke scope"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "LOCAL_HEF_LICENSE_NOT_AUDITED",
+      "data_license": "PRIVATE_LOCAL_EVENTS_AND_OBSERVATIONS",
+      "changes_and_reason": "Adapt owner-provided HailoRT5 inference, letterbox/NMS and session-local IoU association. Boxes/track IDs are estimates and do not establish grip force, object possession or task completion.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "date": "2026-10-26",
+          "result": "Root reports52base/node/research/transfer/handover tests passed before latest recorded-trainer filter change",
+          "scope": "Selected software paths only; no whole-branch coverage or physical safety/task qualification",
+          "evidence_source": "Integrator status; integrated suite rerun required after current source changes"
+        }
+      ],
+      "hardware_run_ids": [],
+      "owner_source_sha256": "a6a316d8589525505a15d363b61902745ce0012941d477de48a8823df07874af",
+      "device_smoke_scope": "Historical synthetic blank-image Hailo10Hexecution, not detection accuracy or physical task success"
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GLUE-LEGACY-BRIDGE-001",
+      "function_or_module": "shared/explorer_shared/legacy_bridge.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/",
+          "role": "Standard-library application/runtime interfaces; no upstream research code copied"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVENTS_AND_OBSERVATIONS",
+      "changes_and_reason": "HTTP/file adapter to the existing robot gateway; expose source-state semantics rather than treating command estimates as measurements.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "date": "2026-10-26",
+          "result": "Root reports52base/node/research/transfer/handover tests passed before latest recorded-trainer filter change",
+          "scope": "Selected software paths only; no whole-branch coverage or physical safety/task qualification",
+          "evidence_source": "Integrator status; integrated suite rerun required after current source changes"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GLUE-NODE-AGENT-001",
+      "function_or_module": "shared/explorer_shared/node_agent.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/",
+          "role": "Standard-library application/runtime interfaces; no upstream research code copied"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVENTS_AND_OBSERVATIONS",
+      "changes_and_reason": "Authenticated camera ownership, durable frame/recording delivery and explicitly requested station-control transport; does not establish learned-task success.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "date": "2026-10-26",
+          "result": "Root reports52base/node/research/transfer/handover tests passed before latest recorded-trainer filter change",
+          "scope": "Selected software paths only; no whole-branch coverage or physical safety/task qualification",
+          "evidence_source": "Integrator status; integrated suite rerun required after current source changes"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GLUE-OUTBOX-001",
+      "function_or_module": "shared/explorer_shared/outbox.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/",
+          "role": "Standard-library application/runtime interfaces; no upstream research code copied"
+        },
+        {
+          "url": "https://www.sqlite.org/wal.html",
+          "role": "WAL transaction/persistence semantics"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVENTS_AND_OBSERVATIONS",
+      "changes_and_reason": "SQLite WAL durable/idempotent event delivery across reconnects; retry semantics are application infrastructure.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "date": "2026-10-26",
+          "result": "Root reports52base/node/research/transfer/handover tests passed before latest recorded-trainer filter change",
+          "scope": "Selected software paths only; no whole-branch coverage or physical safety/task qualification",
+          "evidence_source": "Integrator status; integrated suite rerun required after current source changes"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GLUE-SO101-STATION-001",
+      "function_or_module": "shared/explorer_shared/so101_station.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/",
+          "role": "Standard-library application/runtime interfaces; no upstream research code copied"
+        },
+        {
+          "url": "https://github.com/huggingface/lerobot/tree/7e241bd630a3719a56157a497ce5d08f244784f1/src/lerobot/motors/feetech",
+          "role": "Official0.6.1Feetech API consumed by station adapter"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVENTS_AND_OBSERVATIONS",
+      "changes_and_reason": "Call official LeRobot Feetech buses with original registered calibrations and explicit role/clock/action contracts. Read-only12motor register matching is separate from physical control, learned skill or safety qualification.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "date": "2026-10-26",
+          "result": "Root reports52base/node/research/transfer/handover tests passed before latest recorded-trainer filter change",
+          "scope": "Selected software paths only; no whole-branch coverage or physical safety/task qualification",
+          "evidence_source": "Integrator status; integrated suite rerun required after current source changes"
+        }
+      ],
+      "hardware_run_ids": [],
+      "upstream_code_license": "Apache-2.0",
+      "physical_probe_scope": "Root reports original calibrations matched all12read-only motor registers; no PID/limit/calibration writes. No autonomous physical task qualification is asserted."
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GLUE-STATION-RUNTIME-001",
+      "function_or_module": "00-control-center/src/explorer/station_runtime.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [
+        "P001"
+      ],
+      "sources": [
+        {
+          "url": "https://github.com/huggingface/lerobot/tree/7e241bd630a3719a56157a497ce5d08f244784f1/src/lerobot/policies/act",
+          "role": "Official ACTPolicy loaded through public API; algorithm provenance also recorded as ACT_LEROBOT_0_6_1"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/so101_station.py",
+          "role": "Explicit measured-state/calibration/epoch contracts for the station transport"
+        }
+      ],
+      "upstream_repo": "https://github.com/huggingface/lerobot",
+      "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "upstream_code_license": "Apache-2.0",
+      "model_license": "OWNER_LOCAL_CHECKPOINT_RIGHTS_RETAINED",
+      "data_license": "OWNER_RECORDED_DATA; SOURCE_RIGHTS_RETAINED",
+      "changes_and_reason": "Validate source/checkpoint/calibration/normalization agreement and run CPU ACT inference through an existing station API, including shadow mode and bounded explicit execution. This adapter does not establish task completion or physical safety. Newly appeared during final source audit; runtime tests not yet independently confirmed here.",
+      "verification": {
+        "paper_read": true,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "scope": "Source inspection only at registry activation",
+          "result": "Fresh runtime module requires root integrated testing; no physical execution or scientific advantage inferred"
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

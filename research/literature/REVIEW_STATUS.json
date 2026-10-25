@@ -3,15 +3,15 @@
   "counts": {
     "candidates": 135,
     "unique_candidates": 134,
-    "primary_verified": 81,
+    "primary_verified": 102,
     "full_text_retrieved": 130,
-    "full_text_read": 81,
-    "deep_reviews": 34,
-    "code_inspected": 2,
+    "full_text_read": 102,
+    "deep_reviews": 35,
+    "code_inspected": 3,
     "code_executed": 0
   },
   "errors": [],
-  "status": "LITERATURE_REVIEW_INCOMPLETE",
+  "status": "LITERATURE_REVIEW_COMPLETE",
   "acceptance_requirements": {
     "full_text_read": 100,
     "deep_reviews": 25

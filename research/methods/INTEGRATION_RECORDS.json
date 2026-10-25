@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
-  "activation_status": "PENDING_ROOT_INTEGRATION",
-  "instructions": "Merge these records into active METHOD_REGISTRY.yaml only together with their real source modules and registered method IDs in module docstrings. Add matching CODE_PROVENANCE.csv entries. This file is proposed integration metadata, not an assertion that these paths exist in the research-only worktree.",
+  "activation_status": "ACTIVATED_FOR_INTEGRATED_CANONICAL_SOURCE",
+  "instructions": "These source-handoff records are now included in METHOD_REGISTRY.yaml. Use the active registry and CODE_PROVENANCE.csv for current mappings. Validation used integrated canonical source bytes; the research-only branch does not carry the application modules.",
   "verified_at": "2026-10-26",
   "additional_scientific_module_globs": [
     "shared/explorer_shared/kinematics.py",
@@ -187,7 +187,7 @@
       "upstream_commit": "a758567c3978dfeefe282ede0500085a48fe8f78",
       "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
       "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
-      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "data_license": "PRIVATE_VIRTUAL_REFERENCE; UPSTREAM_URDF_APACHE_2_0",
       "changes_and_reason": "Read official URDF transforms and compute FK/bounded numerical IK. Imported geometry uses upstream Apache2.0; solver and frame bookkeeping are known engineering baselines, not new robot learning.",
       "verification": {
         "paper_read": false,
@@ -225,7 +225,7 @@
       "upstream_commit": "NOT_APPLICABLE",
       "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
       "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
-      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "data_license": "PRIVATE_VIRTUAL_REFERENCE; UPSTREAM_URDF_APACHE_2_0",
       "changes_and_reason": "Compose declared object-relative rigid transforms and solve robot-specific IK. Virtual registration and position-only targets are explicitly labelled; a reachable solution is not collision-safe physical policy transfer.",
       "verification": {
         "paper_read": false,
@@ -262,7 +262,7 @@
       "upstream_commit": "NOT_APPLICABLE",
       "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
       "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
-      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "data_license": "PRIVATE_SYNTHETIC_PROTOCOL_TEST_FIXTURES",
       "changes_and_reason": "A deterministic evidence-gated handover protocol state machine with no actuator IO. Synthetic oracle evidence validates protocol transitions only and cannot authorize physical release.",
       "verification": {
         "paper_read": true,
@@ -296,8 +296,8 @@
       "upstream_repo": "https://github.com/huggingface/leLab",
       "upstream_commit": "9b5afaee33baa1d773e499937564f3831d25de22",
       "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
-      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
-      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "model_license": "NOT_APPLICABLE_METADATA_INSPECTION_ONLY",
+      "data_license": "OWNER_PROVIDED_ARTIFACT_RIGHTS_NOT_RELICENSED",
       "changes_and_reason": "Inspect dataset/checkpoint metadata and explicit compatibility fields; metadata discovery alone does not prove checkpoint processor, normalization or runtime executability on LeRobot0.6.1.",
       "verification": {
         "paper_read": false,
@@ -334,7 +334,7 @@
       "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
       "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
       "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
-      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "data_license": "OWNER_RECORDED_DATA_OR_LOCAL_TEST_FIXTURES; SOURCE_RIGHTS_RETAINED",
       "changes_and_reason": "Export source NPZ episodes into official LeRobotDataset v3 and verify RGB, states, actions, timestamps and episode boundaries by reading them back. This is serialization validation, not policy success.",
       "verification": {
         "paper_read": false,
@@ -369,7 +369,7 @@
       "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
       "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
       "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
-      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "data_license": "OWNER_RECORDED_DATA_OR_LOCAL_TEST_FIXTURES; SOURCE_RIGHTS_RETAINED",
       "changes_and_reason": "Train actual official ACTPolicy from recorded data through explicit station/action contracts, with changed weights and save/reload checks. No synthetic simulator call substitutes for recorded-data training; optimizer execution alone does not establish task quality.",
       "verification": {
         "paper_read": false,
@@ -404,7 +404,7 @@
       "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
       "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
       "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
-      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "data_license": "OWNER_RECORDED_DATA_OR_LOCAL_TEST_FIXTURES; SOURCE_RIGHTS_RETAINED",
       "changes_and_reason": "Adapt station-specific observation and action shapes and explicit semantics. Shape compatibility alone does not verify calibration, hardware feedback or processor correctness.",
       "verification": {
         "paper_read": false,
@@ -430,5 +430,6 @@
       "scientific_qualification_claimed": false,
       "reason": "Preserved snapshot only; imported components need registered wrapper/source hashes and no blanket qualification."
     }
-  ]
+  ],
+  "activation_note": "Records merged into active registry after source modules existed in the canonical integrated checkout. Source/registry checks must run together."
 }

@@ -63,6 +63,9 @@ def ingest_reviews(registry_path: Path) -> list[str]:
                 paper.update(primary_status="PRIMARY_VERIFIED", review_status="FULL_TEXT_REVIEWED",
                              review_path=str(review_path.relative_to(registry_path.parent)),
                              deep_review=review["deep_review"], decision=review["decision"])
+                if review.get("code_inspected") is True and review.get("code_inspection_scope"):
+                    paper["code_inspected"] = True
+                    paper["code_inspection_review_path"] = str(review_path.relative_to(registry_path.parent))
                 evidence_path = registry_path.parent / "evidence" / f"{paper['paper_id']}.json"
                 if evidence_path.is_file():
                     metadata = json.loads(evidence_path.read_text()).get("primary_metadata", {})

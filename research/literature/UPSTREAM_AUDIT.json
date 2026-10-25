@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "inspected_at": "2026-10-26",
-  "note": "Repository metadata and exact head reference verified. This alone is not source-code inspection or execution; model/data licenses remain distinct.",
+  "note": "Core source inspection is recorded only where code_inspected is true. Metadata lookup, model-card declarations and executable/hardware validation are separate activities.",
   "repositories": [
     {
       "repo": "https://github.com/tonyzhaozh/act",
@@ -119,6 +119,24 @@
       "commit_source": "https://api.github.com/repos/Lifelong-Robot-Learning/LIBERO/git/ref/heads/master",
       "code_inspected": false,
       "code_executed": false
+    },
+    {
+      "repo": "https://github.com/baaivision/UniVLA",
+      "commit": "a91ee5f269d7ad46d46635ee6481d2eb655b4af9",
+      "code_license": "NO_TOP_LEVEL_LICENSE_FOUND; BUNDLED_COMPONENT_APACHE_2_0",
+      "model_license": "MODEL_CARD_DECLARES_APACHE_2_0; NOT_EXECUTED",
+      "data_license": "NOT_AUDITED",
+      "metadata_source": "https://github.com/baaivision/UniVLA/tree/a91ee5f269d7ad46d46635ee6481d2eb655b4af9",
+      "code_inspected": true,
+      "code_executed": false,
+      "inspection_scope": [
+        "pretrain/fast/processing_action_tokenizer.py blobcbfb55b90c302fe34febc3ce375770eb4c2bbe3d",
+        "models/inference/inference_action.py blobf4c267666a78fdf2bafa1a90bd3589b934ad587e",
+        "models/tokenizer/action_tokenizer.py blobcbbf0963b2e2eb36c2e7b1f25bdcea6f5f847bcc",
+        "tools/real_aloha/pickle_generation_multitask_sepnorm.py blobe39ba90f32babeb8bad9ce0062e91106000d52f0",
+        "docs/aloha.md andcomponentlicense read"
+      ],
+      "license_note": "Website CC-BY-SA is scoped to website content; bundled component/model declarations do not establish a repository-wide source-code license."
     }
   ]
 }

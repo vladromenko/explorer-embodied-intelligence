@@ -1,16 +1,16 @@
 {
   "compiled": true,
-  "compiler": "desktop editor + independent pdflatex/BibTeX",
+  "compiler": "desktop editor plus independent pdflatex/BibTeX",
   "pages": 2,
   "author_metadata": "",
   "all_fonts_type1_embedded": true,
   "render_cache": "venues/rss2027/render/page-1.png,page-2.png",
-  "submission_ready": false,
   "source_sha256": {
-    "main.tex": "c603a03770c8c01a8aa09ed098f9d885af3c143fcee58887c3b42a52052d0c4f",
+    "main.tex": "77155d8e3f6c0c3a755ca3ff2e125ed2b424e467fdddb23912ae6b25bc11767a",
     "references.bib": "f93bffe5d75880c998621af3011cba6de9c2b3d6c543dcc0012ecb80011631bb",
     "IEEEtran.cls": "d63d4bf27f29603a733d06e27ba5fbb40488acf9d1d696354a88b886758f70a7"
   },
-  "pdf_sha256": "3771d6c21822d0e587820fe19fec319a18480281d707a5c5059f2709b969c3a5",
-  "render_reviewed": true
+  "pdf_sha256": "e64cc3d519b2d6fe57704b1a350a177df24a45abca542477819fef0cb02bf7bc",
+  "render_reviewed": true,
+  "submission_ready": false
 }

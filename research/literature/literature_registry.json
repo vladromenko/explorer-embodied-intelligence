@@ -26,7 +26,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware"
+      "primary_verified_title": "Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware",
+      "primary_versioned_url": "https://arxiv.org/abs/2304.13705v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2023/04/23"
     },
     {
       "paper_id": "P002",
@@ -52,7 +55,10 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "Diffusion Policy: Visuomotor Policy Learning via Action Diffusion"
+      "primary_verified_title": "Diffusion Policy: Visuomotor Policy Learning via Action Diffusion",
+      "primary_versioned_url": "https://arxiv.org/abs/2303.04137v5",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/03/14"
     },
     {
       "paper_id": "P003",
@@ -78,7 +84,9 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning"
+      "primary_verified_title": "A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning",
+      "primary_versioned_url": "https://proceedings.mlr.press/v15/ross11a.html",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative"
     },
     {
       "paper_id": "P004",
@@ -104,7 +112,9 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "ThriftyDAgger: Budget-Aware Novelty and Risk Gating for Interactive Imitation Learning"
+      "primary_verified_title": "ThriftyDAgger: Budget-Aware Novelty and Risk Gating for Interactive Imitation Learning",
+      "primary_versioned_url": "https://proceedings.mlr.press/v164/hoque22a.html",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative"
     },
     {
       "paper_id": "P005",
@@ -130,7 +140,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "SERL: A Software Suite for Sample-Efficient Robotic Reinforcement Learning"
+      "primary_verified_title": "SERL: A Software Suite for Sample-Efficient Robotic Reinforcement Learning",
+      "primary_versioned_url": "https://arxiv.org/abs/2401.16013v4",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/03/20"
     },
     {
       "paper_id": "P006",
@@ -156,7 +169,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "Precise and Dexterous Robotic Manipulation via Human-in-the-Loop Reinforcement Learning"
+      "primary_verified_title": "Precise and Dexterous Robotic Manipulation via Human-in-the-Loop Reinforcement Learning",
+      "primary_versioned_url": "https://arxiv.org/abs/2410.21845v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/03/20"
     },
     {
       "paper_id": "P007",
@@ -182,7 +198,10 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "Efficient Online Reinforcement Learning with Offline Data"
+      "primary_verified_title": "Efficient Online Reinforcement Learning with Offline Data",
+      "primary_versioned_url": "https://arxiv.org/abs/2302.02948v4",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2023/05/31"
     },
     {
       "paper_id": "P008",
@@ -208,7 +227,10 @@
       "decision": "REUSE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "Proximal Policy Optimization Algorithms"
+      "primary_verified_title": "Proximal Policy Optimization Algorithms",
+      "primary_versioned_url": "https://arxiv.org/abs/1707.06347v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2017/08/28"
     },
     {
       "paper_id": "P009",
@@ -234,7 +256,10 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor"
+      "primary_verified_title": "Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor",
+      "primary_versioned_url": "https://arxiv.org/abs/1801.01290v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2018/08/08"
     },
     {
       "paper_id": "P010",
@@ -260,7 +285,10 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "Offline Reinforcement Learning with Implicit Q-Learning"
+      "primary_verified_title": "Offline Reinforcement Learning with Implicit Q-Learning",
+      "primary_versioned_url": "https://arxiv.org/abs/2110.06169v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2021/10/12"
     },
     {
       "paper_id": "P011",
@@ -286,7 +314,10 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "Conservative Q-Learning for Offline Reinforcement Learning"
+      "primary_verified_title": "Conservative Q-Learning for Offline Reinforcement Learning",
+      "primary_versioned_url": "https://arxiv.org/abs/2006.04779v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2020/08/19"
     },
     {
       "paper_id": "P012",
@@ -311,7 +342,11 @@
       "review_path": "reviews/P012.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "AWAC: Accelerating Online Reinforcement Learning with Offline Datasets",
+      "primary_versioned_url": "https://arxiv.org/abs/2006.09359v6",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2021/04/24"
     },
     {
       "paper_id": "P013",
@@ -336,7 +371,11 @@
       "review_path": "reviews/P013.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Mastering Visual Continuous Control: Improved Data-Augmented Reinforcement Learning",
+      "primary_versioned_url": "https://arxiv.org/abs/2107.09645v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2021/07/20"
     },
     {
       "paper_id": "P014",
@@ -361,7 +400,11 @@
       "review_path": "reviews/P014.json",
       "decision": "REUSE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "D4RL: Datasets for Deep Data-Driven Reinforcement Learning",
+      "primary_versioned_url": "https://arxiv.org/abs/2004.07219v4",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2021/02/06"
     },
     {
       "paper_id": "P015",
@@ -387,7 +430,10 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "What Matters in Learning from Offline Human Demonstrations for Robot Manipulation"
+      "primary_verified_title": "What Matters in Learning from Offline Human Demonstrations for Robot Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2108.03298v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2021/09/25"
     },
     {
       "paper_id": "P016",
@@ -443,7 +489,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "Data Scaling Laws in Imitation Learning for Robotic Manipulation"
+      "primary_verified_title": "Data Scaling Laws in Imitation Learning for Robotic Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2410.18647v4",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/06/26"
     },
     {
       "paper_id": "P018",
@@ -468,7 +517,11 @@
       "review_path": "reviews/P018.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "OpenVLA: An Open-Source Vision-Language-Action Model",
+      "primary_versioned_url": "https://arxiv.org/abs/2406.09246v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/09/05"
     },
     {
       "paper_id": "P019",
@@ -493,7 +546,11 @@
       "review_path": "reviews/P019.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Octo: An Open-Source Generalist Robot Policy",
+      "primary_versioned_url": "https://arxiv.org/abs/2405.12213v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/05/26"
     },
     {
       "paper_id": "P020",
@@ -518,7 +575,11 @@
       "review_path": "reviews/P020.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "RT-1: Robotics Transformer for Real-World Control at Scale",
+      "primary_versioned_url": "https://arxiv.org/abs/2212.06817v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2023/08/11"
     },
     {
       "paper_id": "P021",
@@ -543,7 +604,11 @@
       "review_path": "reviews/P021.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control",
+      "primary_versioned_url": "https://arxiv.org/abs/2307.15818v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2023/07/28"
     },
     {
       "paper_id": "P022",
@@ -568,7 +633,11 @@
       "review_path": "reviews/P022.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "SmolVLA: A Vision-Language-Action Model for Affordable and Efficient Robotics",
+      "primary_versioned_url": "https://arxiv.org/abs/2506.01844v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/06/02"
     },
     {
       "paper_id": "P023",
@@ -593,7 +662,11 @@
       "review_path": "reviews/P023.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Fine-Tuning Vision-Language-Action Models: Optimizing Speed and Success",
+      "primary_versioned_url": "https://arxiv.org/abs/2502.19645v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/04/28"
     },
     {
       "paper_id": "P024",
@@ -618,7 +691,11 @@
       "review_path": "reviews/P024.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "TinyVLA: Towards Fast, Data-Efficient Vision-Language-Action Models for Robotic Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2409.12514v5",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/05/13"
     },
     {
       "paper_id": "P025",
@@ -643,7 +720,11 @@
       "review_path": "reviews/P025.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "RDT-1B: a Diffusion Foundation Model for Bimanual Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2410.07864v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/03/01"
     },
     {
       "paper_id": "P026",
@@ -668,7 +749,11 @@
       "review_path": "reviews/P026.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Scaling Proprioceptive-Visual Learning with Heterogeneous Pre-trained Transformers",
+      "primary_versioned_url": "https://arxiv.org/abs/2409.20537v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/09/30"
     },
     {
       "paper_id": "P027",
@@ -693,7 +778,11 @@
       "review_path": "reviews/P027.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Latent Action Pretraining from Videos",
+      "primary_versioned_url": "https://arxiv.org/abs/2410.11758v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/05/15"
     },
     {
       "paper_id": "P028",
@@ -718,7 +807,11 @@
       "review_path": "reviews/P028.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "HiRT: Enhancing Robotic Control with Hierarchical Robot Transformers",
+      "primary_versioned_url": "https://arxiv.org/abs/2410.05273v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/02/03"
     },
     {
       "paper_id": "P029",
@@ -743,7 +836,11 @@
       "review_path": "reviews/P029.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "General Flow as Foundation Affordance for Scalable Robot Learning",
+      "primary_versioned_url": "https://arxiv.org/abs/2401.11439v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/09/23"
     },
     {
       "paper_id": "P030",
@@ -757,18 +854,22 @@
       "authors": "Kwok, Jacky; Agia, Christopher; Sinha, Rohan; Foutter, Matt; Li, Shulu; Stoica, Ion; Mirhoseini, Azalia; Pavone, Marco",
       "year": "2025",
       "primary_url": "https://arxiv.org/abs/2506.17811",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "43ebed0cc8293890b81a8ddb240e30e791bc391093b75b3dc6d07fff772e9583",
       "fulltext_url": "https://arxiv.org/pdf/2506.17811",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P030.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "RoboMonkey: Scaling Test-Time Sampling and Verification for Vision-Language-Action Models",
+      "primary_versioned_url": "https://arxiv.org/abs/2506.17811v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/07/07"
     },
     {
       "paper_id": "P031",
@@ -782,18 +883,22 @@
       "authors": "Li, Peiyan; Chen, Yixiang; Wu, Hongtao; Ma, Xiao; Wu, Xiangnan; Huang, Yan; Wang, Liang; Kong, Tao; Tan, Tieniu",
       "year": "2025",
       "primary_url": "https://arxiv.org/abs/2506.07961",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "9076d1b5e3c4f746d9f1280b2d87cf6c761dc20b0ce6504edd28c00319bd9bf1",
       "fulltext_url": "https://arxiv.org/pdf/2506.07961",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P031.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "BridgeVLA: Input-Output Alignment for Efficient 3D Manipulation Learning with Vision-Language Models",
+      "primary_versioned_url": "https://arxiv.org/abs/2506.07961v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/10/14"
     },
     {
       "paper_id": "P032",
@@ -807,18 +912,22 @@
       "authors": "Embodiment Collaboration; O'Neill, Abby; Rehman, Abdul; Gupta, Abhinav; Maddukuri, Abhiram; Gupta, Abhishek; Padalkar, Abhishek; Lee, Abraham; Pooley, Acorn; Gupta, Agrim; Mandlekar, Ajay; Jain, Ajinkya; Tung, Albert; Bewley, Alex; Herzog, Alex; Irpan, Alex; Khazatsky, Alexander; Rai, Anant; Gupta, Anchit; Wang, Andrew; Kolobov, Andrey; Singh, Anikait; Garg, Animesh; Kembhavi, Aniruddha; Xie, Annie; Brohan, Anthony; Raffin, Antonin; Sharma, Archit; Yavary, Arefeh; Jain, Arhan; Balakrishna, Ashwin; Wahid, Ayzaan; Burgess-Limerick, Ben; Kim, Beomjoon; Schölkopf, Bernhard; Wulfe, Blake; Ichter, Brian; Lu, Cewu; Xu, Charles; Le, Charlotte; Finn, Chelsea; Wang, Chen; Xu, Chenfeng; Chi, Cheng; Huang, Chenguang; Chan, Christine; Agia, Christopher; Pan, Chuer; Fu, Chuyuan; Devin, Coline; Xu, Danfei; Morton, Daniel; Driess, Danny; Chen, Daphne; Pathak, Deepak; Shah, Dhruv; Büchler, Dieter; Jayaraman, Dinesh; Kalashnikov, Dmitry; Sadigh, Dorsa; Johns, Edward; Foster, Ethan; Liu, Fangchen; Ceola, Federico; Xia, Fei; Zhao, Feiyu; Frujeri, Felipe Vieira; Stulp, Freek; Zhou, Gaoyue; Sukhatme, Gaurav S.; Salhotra, Gautam; Yan, Ge; Feng, Gilbert; Schiavi, Giulio; Berseth, Glen; Kahn, Gregory; Yang, Guangwen; Wang, Guanzhi; Su, Hao; Fang, Hao-Shu; Shi, Haochen; Bao, Henghui; Amor, Heni Ben; Christensen, Henrik I; Furuta, Hiroki; Bharadhwaj, Homanga; Walke, Homer; Fang, Hongjie; Ha, Huy; Mordatch, Igor; Radosavovic, Ilija; Leal, Isabel; Liang, Jacky; Abou-Chakra, Jad; Kim, Jaehyung; Drake, Jaimyn; Peters, Jan; Schneider, Jan; Hsu, Jasmine; Vakil, Jay; Bohg, Jeannette; Bingham, Jeffrey; Wu, Jeffrey; Gao, Jensen; Hu, Jiaheng; Wu, Jiajun; Wu, Jialin; Sun, Jiankai; Luo, Jianlan; Gu, Jiayuan; Tan, Jie; Oh, Jihoon; Wu, Jimmy; Lu, Jingpei; Yang, Jingyun; Malik, Jitendra; Silvério, João; Hejna, Joey; Booher, Jonathan; Tompson, Jonathan; Yang, Jonathan; Salvador, Jordi; Lim, Joseph J.; Han, Junhyek; Wang, Kaiyuan; Rao, Kanishka; Pertsch, Karl; Hausman, Karol; Go, Keegan; Gopalakrishnan, Keerthana; Goldberg, Ken; Byrne, Kendra; Oslund, Kenneth; Kawaharazuka, Kento; Black, Kevin; Lin, Kevin; Zhang, Kevin; Ehsani, Kiana; Lekkala, Kiran; Ellis, Kirsty; Rana, Krishan; Srinivasan, Krishnan; Fang, Kuan; Singh, Kunal Pratap; Zeng, Kuo-Hao; Hatch, Kyle; Hsu, Kyle; Itti, Laurent; Chen, Lawrence Yunliang; Pinto, Lerrel; Fei-Fei, Li; Tan, Liam; Fan, Linxi \"Jim\"; Ott, Lionel; Lee, Lisa; Weihs, Luca; Chen, Magnum; Lepert, Marion; Memmel, Marius; Tomizuka, Masayoshi; Itkina, Masha; Castro, Mateo Guaman; Spero, Max; Du, Maximilian; Ahn, Michael; Yip, Michael C.; Zhang, Mingtong; Ding, Mingyu; Heo, Minho; Srirama, Mohan Kumar; Sharma, Mohit; Kim, Moo Jin; Irshad, Muhammad Zubair; Kanazawa, Naoaki; Hansen, Nicklas; Heess, Nicolas; Joshi, Nikhil J; Suenderhauf, Niko; Liu, Ning; Di Palo, Norman; Shafiullah, Nur Muhammad Mahi; Mees, Oier; Kroemer, Oliver; Bastani, Osbert; Sanketi, Pannag R; Miller, Patrick \"Tree\"; Yin, Patrick; Wohlhart, Paul; Xu, Peng; Fagan, Peter David; Mitrano, Peter; Sermanet, Pierre; Abbeel, Pieter; Sundaresan, Priya; Chen, Qiuyu; Vuong, Quan; Rafailov, Rafael; Tian, Ran; Doshi, Ria; Martín-Martín, Roberto; Baijal, Rohan; Scalise, Rosario; Hendrix, Rose; Lin, Roy; Qian, Runjia; Zhang, Ruohan; Mendonca, Russell; Shah, Rutav; Hoque, Ryan; Julian, Ryan; Bustamante, Samuel; Kirmani, Sean; Levine, Sergey; Lin, Shan; Moore, Sherry; Bahl, Shikhar; Dass, Shivin; Sonawani, Shubham; Tulsiani, Shubham; Song, Shuran; Xu, Sichun; Haldar, Siddhant; Karamcheti, Siddharth; Adebola, Simeon; Guist, Simon; Nasiriany, Soroush; Schaal, Stefan; Welker, Stefan; Tian, Stephen; Ramamoorthy, Subramanian; Dasari, Sudeep; Belkhale, Suneel; Park, Sungjae; Nair, Suraj; Mirchandani, Suvir; Osa, Takayuki; Gupta, Tanmay; Harada, Tatsuya; Matsushima, Tatsuya; Xiao, Ted; Kollar, Thomas; Yu, Tianhe; Ding, Tianli; Davchev, Todor; Zhao, Tony Z.; Armstrong, Travis; Darrell, Trevor; Chung, Trinity; Jain, Vidhi; Kumar, Vikash; Vanhoucke, Vincent; Guizilini, Vitor; Zhan, Wei; Zhou, Wenxuan; Burgard, Wolfram; Chen, Xi; Chen, Xiangyu; Wang, Xiaolong; Zhu, Xinghao; Geng, Xinyang; Liu, Xiyuan; Liangwei, Xu; Li, Xuanlin; Pang, Yansong; Lu, Yao; Ma, Yecheng Jason; Kim, Yejin; Chebotar, Yevgen; Zhou, Yifan; Zhu, Yifeng; Wu, Yilin; Xu, Ying; Wang, Yixuan; Bisk, Yonatan; Dou, Yongqiang; Cho, Yoonyoung; Lee, Youngwoon; Cui, Yuchen; Cao, Yue; Wu, Yueh-Hua; Tang, Yujin; Zhu, Yuke; Zhang, Yunchu; Jiang, Yunfan; Li, Yunshuang; Li, Yunzhu; Iwasawa, Yusuke; Matsuo, Yutaka; Ma, Zehan; Xu, Zhuo; Cui, Zichen Jeff; Zhang, Zichen; Fu, Zipeng; Lin, Zipeng",
       "year": "2023",
       "primary_url": "https://arxiv.org/abs/2310.08864",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "13f16aff5afdee583dc25b3c570e9bb0cf6baefb59b539928d919588cd8d9246",
       "fulltext_url": "https://arxiv.org/pdf/2310.08864",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P032.json",
+      "decision": "REUSE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Open X-Embodiment: Robotic Learning Datasets and RT-X Models",
+      "primary_versioned_url": "https://arxiv.org/abs/2310.08864v9",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/05/14"
     },
     {
       "paper_id": "P033",
@@ -844,7 +953,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "Universal Manipulation Interface: In-The-Wild Robot Teaching Without In-The-Wild Robots"
+      "primary_verified_title": "Universal Manipulation Interface: In-The-Wild Robot Teaching Without In-The-Wild Robots",
+      "primary_versioned_url": "https://arxiv.org/abs/2402.10329v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/03/06"
     },
     {
       "paper_id": "P034",
@@ -870,7 +982,10 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "LEGATO: Cross-Embodiment Imitation Using a Grasping Tool"
+      "primary_verified_title": "LEGATO: Cross-Embodiment Imitation Using a Grasping Tool",
+      "primary_versioned_url": "https://arxiv.org/abs/2411.03682v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/02/19"
     },
     {
       "paper_id": "P035",
@@ -896,7 +1011,10 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "KITE: Decoupling Kinematics and Interaction for Zero-Shot Cross-Embodiment Manipulation"
+      "primary_verified_title": "KITE: Decoupling Kinematics and Interaction for Zero-Shot Cross-Embodiment Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2606.22113v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/10/20"
     },
     {
       "paper_id": "P036",
@@ -910,18 +1028,22 @@
       "authors": "Wu, Tong; Li, Shoujie; Gong, Junhao; Guo, Changqing; Li, Xingting; Mu, Shilong; Ding, Wenbo",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2601.09163",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "faa8c5e14e005893c988eb9ea1720fe61c4e0f3c46e4701c5fb9988d8c5962be",
       "fulltext_url": "https://arxiv.org/pdf/2601.09163",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P036.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "CEI: A Unified Interface for Cross-Embodiment Visuomotor Policy Learning in 3D Space",
+      "primary_versioned_url": "https://arxiv.org/abs/2601.09163v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/01/14"
     },
     {
       "paper_id": "P037",
@@ -935,18 +1057,19 @@
       "authors": "Ge, Yiheng; Yan, Yongqi; Han, Mishuo; LI, Changxian; Ding, Zizhong; Li, Jiaxiang; Yang, Fan; Yang, Tianshuo; Shen, Tong; Ouyang, Changle; Shen, Weijie; Deng, Weiliang; Liu, Shuhao; Qi, Tian; Mu, Yao",
       "year": "2026",
       "primary_url": "https://openaccess.thecvf.com/content/CVPR2026W/GigaBrainChallenge/html/Ge_CrossZero_Zero-Shot_of_Unseen_Embodiment_Manipulation_via_Object-Centric_Hierarchical_Diffusion_CVPRW_2026_paper.html",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "fe6dbf0b0ff834b2a8654a585644fd601a828efe66985f4d949c7dacdf207432",
       "fulltext_url": "https://openaccess.thecvf.com/content/CVPR2026W/GigaBrainChallenge/papers/Ge_CrossZero_Zero-Shot_of_Unseen_Embodiment_Manipulation_via_Object-Centric_Hierarchical_Diffusion_CVPRW_2026_paper.pdf",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P037.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "CrossZero: Zero-Shot of Unseen Embodiment Manipulation via Object-Centric Hierarchical Diffusion Models"
     },
     {
       "paper_id": "P038",
@@ -972,7 +1095,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "TRANSIC: Sim-to-Real Policy Transfer by Learning from Online Correction"
+      "primary_verified_title": "TRANSIC: Sim-to-Real Policy Transfer by Learning from Online Correction",
+      "primary_versioned_url": "https://arxiv.org/abs/2405.10315v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/10/14"
     },
     {
       "paper_id": "P039",
@@ -1003,7 +1129,10 @@
           "source": "https://arxiv.org/abs/2403.03949"
         }
       ],
-      "primary_verified_title": "Reconciling Reality through Simulation: A Real-to-Sim-to-Real Approach for Robust Manipulation"
+      "primary_verified_title": "Reconciling Reality through Simulation: A Real-to-Sim-to-Real Approach for Robust Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2403.03949v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/11/24"
     },
     {
       "paper_id": "P040",
@@ -1017,18 +1146,22 @@
       "authors": "Fang, Kaipeng; Liang, Weiqing; Li, Yuyang; Zhang, Ji; Zeng, Pengpeng; Shen, Heng Tao; Song, Jingkuan; Gao, Lianli",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2601.19406",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "0f41b82f116ff485b665550604ac74408a05f00f663445a6465c62c519a6d370",
       "fulltext_url": "https://arxiv.org/pdf/2601.19406",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P040.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Sim-and-Human Co-training for Data-Efficient and Scene-Generalizable Bimanual Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2601.19406v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/09/17"
     },
     {
       "paper_id": "P041",
@@ -1054,7 +1187,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "Hindsight for Foresight: Unsupervised Structured Dynamics Models from Physical Interaction"
+      "primary_verified_title": "Hindsight for Foresight: Unsupervised Structured Dynamics Models from Physical Interaction",
+      "primary_versioned_url": "https://arxiv.org/abs/2008.00456v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2020/08/02"
     },
     {
       "paper_id": "P042",
@@ -1080,7 +1216,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "Learning to Act from Actionless Videos through Dense Correspondences"
+      "primary_verified_title": "Learning to Act from Actionless Videos through Dense Correspondences",
+      "primary_versioned_url": "https://arxiv.org/abs/2310.08576v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2023/10/12"
     },
     {
       "paper_id": "P043",
@@ -1106,7 +1245,10 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "NovaFlow: Zero-Shot Manipulation via Actionable Flow from Generated Videos"
+      "primary_verified_title": "NovaFlow: Zero-Shot Manipulation via Actionable Flow from Generated Videos",
+      "primary_versioned_url": "https://arxiv.org/abs/2510.08568v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/10/09"
     },
     {
       "paper_id": "P044",
@@ -1132,7 +1274,10 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "UniVLA: Learning to Act Anywhere with Task-centric Latent Actions"
+      "primary_verified_title": "UniVLA: Learning to Act Anywhere with Task-centric Latent Actions",
+      "primary_versioned_url": "https://arxiv.org/abs/2505.06111v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/11/03"
     },
     {
       "paper_id": "P045",
@@ -1158,7 +1303,10 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "DIAL: Decoupling Intent and Action via Latent World Modeling for End-to-End VLA"
+      "primary_verified_title": "DIAL: Decoupling Intent and Action via Latent World Modeling for End-to-End VLA",
+      "primary_versioned_url": "https://arxiv.org/abs/2603.29844v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/04/28"
     },
     {
       "paper_id": "P046",
@@ -1184,7 +1332,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "Identifying Habit, Physics, and Nuisance in Robot World Models"
+      "primary_verified_title": "Identifying Habit, Physics, and Nuisance in Robot World Models",
+      "primary_versioned_url": "https://arxiv.org/abs/2609.09210v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/09/06"
     },
     {
       "paper_id": "P047",
@@ -1210,7 +1361,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "BridgeData V2: A Dataset for Robot Learning at Scale"
+      "primary_verified_title": "BridgeData V2: A Dataset for Robot Learning at Scale",
+      "primary_versioned_url": "https://arxiv.org/abs/2308.12952v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/01/17"
     },
     {
       "paper_id": "P048",
@@ -1236,7 +1390,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "DROID: A Large-Scale In-The-Wild Robot Manipulation Dataset"
+      "primary_verified_title": "DROID: A Large-Scale In-The-Wild Robot Manipulation Dataset",
+      "primary_versioned_url": "https://arxiv.org/abs/2403.12945v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/04/22"
     },
     {
       "paper_id": "P049",
@@ -1262,7 +1419,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "RoboTwin 2.0: A Scalable Data Generator and Benchmark with Strong Domain Randomization for Robust Bimanual Robotic Manipulation"
+      "primary_verified_title": "RoboTwin 2.0: A Scalable Data Generator and Benchmark with Strong Domain Randomization for Robust Bimanual Robotic Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2506.18088v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/08/27"
     },
     {
       "paper_id": "P050",
@@ -1288,7 +1448,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "ALDER: Discovering the Laws of a World by Acting in It"
+      "primary_verified_title": "ALDER: Discovering the Laws of a World by Acting in It",
+      "primary_versioned_url": "https://arxiv.org/abs/2609.33728v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/09/27"
     },
     {
       "paper_id": "P051",
@@ -1314,7 +1477,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "World Action Verifier: Self-Improving World Models via Forward-Inverse Asymmetry"
+      "primary_verified_title": "World Action Verifier: Self-Improving World Models via Forward-Inverse Asymmetry",
+      "primary_versioned_url": "https://arxiv.org/abs/2604.01985v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/05/29"
     },
     {
       "paper_id": "P052",
@@ -1340,7 +1506,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "ENPIRE: Agentic Robot Policy Self-Improvement in the Real World"
+      "primary_verified_title": "ENPIRE: Agentic Robot Policy Self-Improvement in the Real World",
+      "primary_versioned_url": "https://arxiv.org/abs/2606.19980v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/09/20"
     },
     {
       "paper_id": "P053",
@@ -1366,7 +1535,10 @@
       "decision": "REUSE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "What Stops Recursive Self-Improvement in Robotics? Lessons from 123 Rounds of Agentic Skill Discovery"
+      "primary_verified_title": "What Stops Recursive Self-Improvement in Robotics? Lessons from 123 Rounds of Agentic Skill Discovery",
+      "primary_versioned_url": "https://arxiv.org/abs/2609.31760v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/09/23"
     },
     {
       "paper_id": "P054",
@@ -1391,7 +1563,11 @@
       "review_path": "reviews/P054.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "VLA-RFT: Vision-Language-Action Reinforcement Fine-tuning with Verified Rewards in World Simulators",
+      "primary_versioned_url": "https://arxiv.org/abs/2510.00406v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/10/01"
     },
     {
       "paper_id": "P055",
@@ -1416,7 +1592,11 @@
       "review_path": "reviews/P055.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "World-Env: Leveraging World Model as a Virtual Environment for VLA Post-Training",
+      "primary_versioned_url": "https://arxiv.org/abs/2509.24948v6",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/04/27"
     },
     {
       "paper_id": "P056",
@@ -1441,7 +1621,11 @@
       "review_path": "reviews/P056.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "World4RL: Diffusion World Models for Policy Refinement with Reinforcement Learning for Robotic Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2509.19080v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/03/19"
     },
     {
       "paper_id": "P057",
@@ -1466,7 +1650,11 @@
       "review_path": "reviews/P057.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "WMPO: World Model-based Policy Optimization for Vision-Language-Action Models",
+      "primary_versioned_url": "https://arxiv.org/abs/2511.09515v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/11/12"
     },
     {
       "paper_id": "P058",
@@ -1491,7 +1679,11 @@
       "review_path": "reviews/P058.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "World-Gymnast: Training Robots with Reinforcement Learning in a World Model",
+      "primary_versioned_url": "https://arxiv.org/abs/2602.02454v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/02/02"
     },
     {
       "paper_id": "P059",
@@ -1516,7 +1708,11 @@
       "review_path": "reviews/P059.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "RISE: Self-Improving Robot Policy with Compositional World Model",
+      "primary_versioned_url": "https://arxiv.org/abs/2602.11075v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/04/28"
     },
     {
       "paper_id": "P060",
@@ -1541,7 +1737,11 @@
       "review_path": "reviews/P060.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "VLAW: Iterative Co-Improvement of Vision-Language-Action Policy and World Model",
+      "primary_versioned_url": "https://arxiv.org/abs/2602.12063v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/02/15"
     },
     {
       "paper_id": "P061",
@@ -1566,7 +1766,11 @@
       "review_path": "reviews/P061.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "World-VLA-Loop: Closed-Loop Learning of Video World Model and VLA Policy",
+      "primary_versioned_url": "https://arxiv.org/abs/2602.06508v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/05/25"
     },
     {
       "paper_id": "P062",
@@ -1591,7 +1795,11 @@
       "review_path": "reviews/P062.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "PlayWorld: Learning Robot World Models from Autonomous Play",
+      "primary_versioned_url": "https://arxiv.org/abs/2603.09030v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/04/06"
     },
     {
       "paper_id": "P063",
@@ -1616,7 +1824,11 @@
       "review_path": "reviews/P063.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Towards Practical World Model-based Reinforcement Learning for Vision-Language-Action Models",
+      "primary_versioned_url": "https://arxiv.org/abs/2603.20607v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/03/21"
     },
     {
       "paper_id": "P064",
@@ -1641,7 +1853,11 @@
       "review_path": "reviews/P064.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "WorldGym: World Model as An Environment for Policy Evaluation",
+      "primary_versioned_url": "https://arxiv.org/abs/2506.00613v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/09/30"
     },
     {
       "paper_id": "P065",
@@ -1666,7 +1882,11 @@
       "review_path": "reviews/P065.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "WorldEval: World Model as Real-World Robot Policies Evaluator",
+      "primary_versioned_url": "https://arxiv.org/abs/2505.19017v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/05/25"
     },
     {
       "paper_id": "P066",
@@ -1692,7 +1912,10 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "TD-MPC2: Scalable, Robust World Models for Continuous Control"
+      "primary_verified_title": "TD-MPC2: Scalable, Robust World Models for Continuous Control",
+      "primary_versioned_url": "https://arxiv.org/abs/2310.16828v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/03/21"
     },
     {
       "paper_id": "P067",
@@ -1718,7 +1941,10 @@
       "decision": "ADAPT",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "DayDreamer: World Models for Physical Robot Learning"
+      "primary_verified_title": "DayDreamer: World Models for Physical Robot Learning",
+      "primary_versioned_url": "https://arxiv.org/abs/2206.14176v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2022/06/28"
     },
     {
       "paper_id": "P068",
@@ -1743,7 +1969,11 @@
       "review_path": "reviews/P068.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Learning Interactive Real-World Simulators",
+      "primary_versioned_url": "https://arxiv.org/abs/2310.06114v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/09/26"
     },
     {
       "paper_id": "P069",
@@ -1768,7 +1998,11 @@
       "review_path": "reviews/P069.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Zero-Shot Robotic Manipulation with Pretrained Image-Editing Diffusion Models",
+      "primary_versioned_url": "https://arxiv.org/abs/2310.10639v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2023/10/16"
     },
     {
       "paper_id": "P070",
@@ -1793,7 +2027,11 @@
       "review_path": "reviews/P070.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "GHIL-Glue: Hierarchical Control with Filtered Subgoal Images",
+      "primary_versioned_url": "https://arxiv.org/abs/2410.20018v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/10/26"
     },
     {
       "paper_id": "P071",
@@ -1818,7 +2056,11 @@
       "review_path": "reviews/P071.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Learning Universal Policies via Text-Guided Video Generation",
+      "primary_versioned_url": "https://arxiv.org/abs/2302.00111v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2023/11/20"
     },
     {
       "paper_id": "P072",
@@ -1843,7 +2085,11 @@
       "review_path": "reviews/P072.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Unleashing Large-Scale Video Generative Pre-training for Visual Robot Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2312.13139v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2023/12/21"
     },
     {
       "paper_id": "P073",
@@ -1868,7 +2114,11 @@
       "review_path": "reviews/P073.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "VidMan: Exploiting Implicit Dynamics from Video Diffusion Model for Effective Robot Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2411.09153v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/11/14"
     },
     {
       "paper_id": "P074",
@@ -1893,7 +2143,11 @@
       "review_path": "reviews/P074.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Video Prediction Policy: A Generalist Robot Policy with Predictive Visual Representations",
+      "primary_versioned_url": "https://arxiv.org/abs/2412.14803v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/05/04"
     },
     {
       "paper_id": "P075",
@@ -1918,7 +2172,11 @@
       "review_path": "reviews/P075.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Gen2Act: Human Video Generation in Novel Scenarios enables Generalizable Robot Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2409.16283v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/09/24"
     },
     {
       "paper_id": "P076",
@@ -1943,7 +2201,11 @@
       "review_path": "reviews/P076.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Grounding Video Models to Actions through Goal Conditioned Exploration",
+      "primary_versioned_url": "https://arxiv.org/abs/2411.07223v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/03/12"
     },
     {
       "paper_id": "P077",
@@ -1968,7 +2230,11 @@
       "review_path": "reviews/P077.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "TC-IDM: Grounding Video Generation for Executable Zero-shot Robot Motion",
+      "primary_versioned_url": "https://arxiv.org/abs/2601.18323v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/01/26"
     },
     {
       "paper_id": "P078",
@@ -1993,7 +2259,11 @@
       "review_path": "reviews/P078.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Say, Dream, and Act: Learning Video World Models for Instruction-Driven Robot Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2602.10717v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/02/11"
     },
     {
       "paper_id": "P079",
@@ -2018,7 +2288,11 @@
       "review_path": "reviews/P079.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Unified Video Action Model",
+      "primary_versioned_url": "https://arxiv.org/abs/2503.00200v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/04/24"
     },
     {
       "paper_id": "P080",
@@ -2043,7 +2317,11 @@
       "review_path": "reviews/P080.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Unified World Models: Coupling Video and Action Diffusion for Pretraining on Large Robotic Datasets",
+      "primary_versioned_url": "https://arxiv.org/abs/2504.02792v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/05/23"
     },
     {
       "paper_id": "P081",
@@ -2068,7 +2346,11 @@
       "review_path": "reviews/P081.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Unified Diffusion VLA: Vision-Language-Action Model via Joint Discrete Denoising Diffusion Process",
+      "primary_versioned_url": "https://arxiv.org/abs/2511.01718v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/03/25"
     },
     {
       "paper_id": "P082",
@@ -2093,7 +2375,11 @@
       "review_path": "reviews/P082.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Video Generators are Robot Policies",
+      "primary_versioned_url": "https://arxiv.org/abs/2508.00795v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/08/01"
     },
     {
       "paper_id": "P083",
@@ -2118,7 +2404,11 @@
       "review_path": "reviews/P083.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Cosmos Policy: Fine-Tuning Video Models for Visuomotor Control and Planning",
+      "primary_versioned_url": "https://arxiv.org/abs/2601.16163v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/01/22"
     },
     {
       "paper_id": "P084",
@@ -2143,7 +2433,11 @@
       "review_path": "reviews/P084.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "World Action Models are Zero-shot Policies",
+      "primary_versioned_url": "https://arxiv.org/abs/2602.15922v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/02/17"
     },
     {
       "paper_id": "P085",
@@ -2168,7 +2462,11 @@
       "review_path": "reviews/P085.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "GigaWorld-Policy: An Efficient Action-Centered World--Action Model",
+      "primary_versioned_url": "https://arxiv.org/abs/2603.17240v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/03/21"
     },
     {
       "paper_id": "P086",
@@ -2182,18 +2480,22 @@
       "authors": "Zhen, Haoyu; Gao, Zixian; Sun, Qiao; Zhao, Yilin; Yang, Yuncong; Du, Yilun; Guo, Pengsheng; Wang, Tsun-Hsuan; Qiao, Yi-Ling; Gan, Chuang",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2604.06168",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "f0b6d8aad562ddd7ba69e803c218e5d146ecfcee7fbcef4d833c05da40d6abaf",
       "fulltext_url": "https://arxiv.org/pdf/2604.06168",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P086.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Action Images: End-to-End Policy Learning via Multiview Video Generation",
+      "primary_versioned_url": "https://arxiv.org/abs/2604.06168v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/04/15"
     },
     {
       "paper_id": "P087",
@@ -2207,18 +2509,22 @@
       "authors": "Liao, Yue; Zhou, Pengfei; Huang, Siyuan; Yang, Donglin; Chen, Shengcong; Jiang, Yuxin; Hu, Yue; Cai, Jingbin; Liu, Si; Luo, Jianlan; Chen, Liliang; Yan, Shuicheng; Yao, Maoqing; Ren, Guanghui",
       "year": "2025",
       "primary_url": "https://arxiv.org/abs/2508.05635",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "d8802a311ff9db058bf8f25cb5ccc03711e32b11cd5f02a1759324ddb3cfbd71",
       "fulltext_url": "https://arxiv.org/pdf/2508.05635",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P087.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Genie Envisioner: A Unified World Foundation Platform for Robotic Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2508.05635v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/11/04"
     },
     {
       "paper_id": "P088",
@@ -2232,18 +2538,22 @@
       "authors": "Bi, Hongzhe; Tan, Hengkai; Xie, Shenghao; Wang, Zeyuan; Huang, Shuhe; Liu, Haitian; Zhao, Ruowen; Feng, Yao; Xiang, Chendong; Rong, Yinze; Zhao, Hongyan; Liu, Hanyu; Su, Zhizhong; Ma, Lei; Su, Hang; Zhu, Jun",
       "year": "2025",
       "primary_url": "https://arxiv.org/abs/2512.13030",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "4f9be253165cbb3567f56d23d200ba93bda1242195e579abaac987ea37cc264f",
       "fulltext_url": "https://arxiv.org/pdf/2512.13030",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P088.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Motus: A Unified Latent Action World Model",
+      "primary_versioned_url": "https://arxiv.org/abs/2512.13030v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/12/25"
     },
     {
       "paper_id": "P089",
@@ -2257,18 +2567,22 @@
       "authors": "Li, Lin; Zhang, Qihang; Luo, Yiming; Yang, Shuai; Wang, Ruilin; Han, Fei; Yu, Mingrui; Gao, Zelin; Xue, Nan; Zhu, Xing; Shen, Yujun; Xu, Yinghao",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2601.21998",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "57bd993b298765c005fc143e2550243cecb1e76c0682653634a85d34045b0442",
       "fulltext_url": "https://arxiv.org/pdf/2601.21998",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P089.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Causal World Modeling for Robot Control",
+      "primary_versioned_url": "https://arxiv.org/abs/2601.21998v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/03/22"
     },
     {
       "paper_id": "P090",
@@ -2282,18 +2596,22 @@
       "authors": "Hu, Yucheng; Zhang, Jianke; Luo, Yuanfei; Guo, Yanjiang; Chen, Xiaoyu; Sun, Xinshu; Feng, Kun; Lu, Qingzhou; Chen, Sheng; Zhang, Yangang; Li, Wei; Chen, Jianyu",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2602.09849",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "691d30709ce69fbd23c4366b41d30dc06ce5b3b406e36afa3f813e7c09b43cd0",
       "fulltext_url": "https://arxiv.org/pdf/2602.09849",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P090.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "BagelVLA: Enhancing Long-Horizon Manipulation via Interleaved Vision-Language-Action Generation",
+      "primary_versioned_url": "https://arxiv.org/abs/2602.09849v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/02/11"
     },
     {
       "paper_id": "P091",
@@ -2307,18 +2625,22 @@
       "authors": "Zhao, Han; Wang, Jingbo; Song, Wenxuan; Chen, Shuai; Liu, Yang; Wang, Yan; Li, Haoang; Wang, Donglin",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2602.17259",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "12eac2e5cd9812e23f337f94ddd8081f8805532d9904658d366952cabc46faa1",
       "fulltext_url": "https://arxiv.org/pdf/2602.17259",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P091.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "FRAPPE: Infusing World Modeling into Generalist Policies via Multiple Future Representation Alignment",
+      "primary_versioned_url": "https://arxiv.org/abs/2602.17259v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/02/19"
     },
     {
       "paper_id": "P092",
@@ -2332,18 +2654,22 @@
       "authors": "Su, Yue; Chen, Sijin; Shi, Haixin; Liu, Mingyu; Zhang, Zhengshen; Huang, Ningyuan; Zhong, Weiheng; Zhu, Zhengbang; Liu, Yuxiao; Liu, Xihui",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2602.22010",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "306052a624f97d0048d716d9bdc2e03cd72669a001b42a5511ea9bb6a8ec2620",
       "fulltext_url": "https://arxiv.org/pdf/2602.22010",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P092.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "World Guidance: World Modeling in Condition Space for Action Generation",
+      "primary_versioned_url": "https://arxiv.org/abs/2602.22010v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/02/25"
     },
     {
       "paper_id": "P093",
@@ -2357,18 +2683,22 @@
       "authors": "Ma, Teli; Zheng, Jia; Wang, Zifan; Jiang, Chunli; Cui, Andy; Liang, Junwei; Yang, Shuo",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2603.10448",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "64f21b940ff2ee1bccf4e1e7910dc22c207c0cb87ba4e6e16456610c5606b9cd",
       "fulltext_url": "https://arxiv.org/pdf/2603.10448",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P093.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "DiT4DiT: Jointly Modeling Video Dynamics and Actions for Generalizable Robot Control",
+      "primary_versioned_url": "https://arxiv.org/abs/2603.10448v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/03/22"
     },
     {
       "paper_id": "P094",
@@ -2382,18 +2712,22 @@
       "authors": "Yuan, Tianyuan; Dong, Zibin; Liu, Yicheng; Zhao, Hang",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2603.16666",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "4eea24883dcc4d8a5c0f760870f501baabb07db4eb65e5fd6c3b4b500601be8d",
       "fulltext_url": "https://arxiv.org/pdf/2603.16666",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P094.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Fast-WAM: Do World Action Models Need Test-time Future Imagination?",
+      "primary_versioned_url": "https://arxiv.org/abs/2603.16666v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/03/23"
     },
     {
       "paper_id": "P095",
@@ -2407,18 +2741,22 @@
       "authors": "Tian, Yuxuan; Jin, Yurun; Yu, Bin; Shi, Yukun; Wu, Hao; Liu, Chi Harold; Chen, Kai; Huang, Cong",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2604.26848",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "a5f6be9dccd2b649b5042a0d10fe887d0c0b1502ccdef3f2a55ef56885efd94f",
       "fulltext_url": "https://arxiv.org/pdf/2604.26848",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P095.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "STARRY: Spatial-Temporal Action-Centric World Modeling for Robotic Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2604.26848v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/05/01"
     },
     {
       "paper_id": "P096",
@@ -2432,18 +2770,22 @@
       "authors": "Li, Runze; Zhang, Hongyin; Jin, Junxi; Zeng, Qixin; Zhuang, Zifeng; Tang, Yiqi; Lyu, Shangke; Wang, Donglin",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2604.14732",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "92b6e0734fd8889edb5d492e4bbb0d68329e192abe14a383d754c36bd00432b9",
       "fulltext_url": "https://arxiv.org/pdf/2604.14732",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P096.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "World-Value-Action Model: Implicit Planning for Vision-Language-Action Systems",
+      "primary_versioned_url": "https://arxiv.org/abs/2604.14732v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2026/10/12"
     },
     {
       "paper_id": "P097",
@@ -2457,18 +2799,22 @@
       "authors": "Cheang, Chi-Lam; Chen, Guangzeng; Jing, Ya; Kong, Tao; Li, Hang; Li, Yifeng; Liu, Yuxiao; Wu, Hongtao; Xu, Jiafeng; Yang, Yichu; Zhang, Hanbo; Zhu, Minzhao",
       "year": "2024",
       "primary_url": "https://arxiv.org/abs/2410.06158",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "8b9bf7c3de182ce263ca65d103fc3a84aa0c70d13aa88f6b8dd5cdf5df2f5f3a",
       "fulltext_url": "https://arxiv.org/pdf/2410.06158",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P097.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "GR-2: A Generative Video-Language-Action Model with Web-Scale Knowledge for Robot Manipulation",
+      "primary_versioned_url": "https://arxiv.org/abs/2410.06158v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/10/08"
     },
     {
       "paper_id": "P098",
@@ -2482,18 +2828,22 @@
       "authors": "Zhang, Jianke; Guo, Yanjiang; Hu, Yucheng; Chen, Xiaoyu; Zhu, Xiang; Chen, Jianyu",
       "year": "2025",
       "primary_url": "https://arxiv.org/abs/2501.18867",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "9a68d42baab71262e90643a5c2d49f95565830e43b15fa953845a6c2b6013386",
       "fulltext_url": "https://arxiv.org/pdf/2501.18867",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P098.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "UP-VLA: A Unified Understanding and Prediction Model for Embodied Agent",
+      "primary_versioned_url": "https://arxiv.org/abs/2501.18867v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/06/26"
     },
     {
       "paper_id": "P099",
@@ -2507,18 +2857,22 @@
       "authors": "Zhang, Wenyao; Liu, Hongsi; Qi, Zekun; Wang, Yunnan; Yu, Xinqiang; Zhang, Jiazhao; Dong, Runpei; He, Jiawei; Lu, Fan; Wang, He; Zhang, Zhizheng; Yi, Li; Zeng, Wenjun; Jin, Xin",
       "year": "2025",
       "primary_url": "https://arxiv.org/abs/2507.04447",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "916d49a313c0246bfcd60bffba2e685e6432ae912f4b969fdbd3008437c3a44d",
       "fulltext_url": "https://arxiv.org/pdf/2507.04447",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P099.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge",
+      "primary_versioned_url": "https://arxiv.org/abs/2507.04447v3",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/08/26"
     },
     {
       "paper_id": "P100",
@@ -2532,18 +2886,23 @@
       "authors": "Wang, Yuqi; Li, Xinghang; Wang, Wenxuan; Zhang, Junbo; Li, Yingyan; Chen, Yuntao; Wang, Xinlong; Zhang, Zhaoxiang",
       "year": "2025",
       "primary_url": "https://arxiv.org/abs/2506.19850",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
-      "deep_review": false,
-      "code_inspected": false,
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
+      "deep_review": true,
+      "code_inspected": true,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "0e1672e95ecead2b5ec283273adab20ae33d2c48411ceedd7ff725a052c7486a",
       "fulltext_url": "https://arxiv.org/pdf/2506.19850",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P100.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "code_inspection_review_path": "reviews/P100.json",
+      "primary_verified_title": "Unified Vision-Language-Action Model",
+      "primary_versioned_url": "https://arxiv.org/abs/2506.19850v1",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/06/24"
     },
     {
       "paper_id": "P101",
@@ -3150,7 +3509,10 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "Autonomous learning-free grasping and robot-to-robot handover of unknown objects"
+      "primary_verified_title": "Autonomous learning-free grasping and robot-to-robot handover of unknown objects",
+      "primary_versioned_url": "https://link.springer.com/article/10.1007/s10514-025-10201-y",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2025/06/28"
     },
     {
       "paper_id": "P125",
@@ -3301,7 +3663,10 @@
       "decision": "REUSE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning"
+      "primary_verified_title": "LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning",
+      "primary_versioned_url": "https://arxiv.org/abs/2306.03310v2",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2023/10/14"
     },
     {
       "paper_id": "P131",
@@ -3327,7 +3692,10 @@
       "decision": "COMPARE",
       "duplicate_of": "",
       "correction_notes": [],
-      "primary_verified_title": "LOTUS: Continual Imitation Learning for Robot Manipulation Through Unsupervised Skill Discovery"
+      "primary_verified_title": "LOTUS: Continual Imitation Learning for Robot Manipulation Through Unsupervised Skill Discovery",
+      "primary_versioned_url": "https://arxiv.org/abs/2311.02058v4",
+      "version_url_evidence": "Primary HTML metadata; cached PDF SHA256 is authoritative",
+      "primary_metadata_update_date": "2024/11/23"
     },
     {
       "paper_id": "P132",
