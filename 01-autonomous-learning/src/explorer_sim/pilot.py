@@ -2,6 +2,7 @@
 
 This is an engineering reach experiment with a simulated base fixture. It does
 not establish sock manipulation, contact calibration or physical transfer.
+Methods: PPO_SB3_2_9, EXPLORER_CAD_MUJOCO, ENGINEERING_GLUE.
 """
 from __future__ import annotations
 

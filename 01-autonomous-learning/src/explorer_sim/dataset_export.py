@@ -2,6 +2,7 @@
 
 The official writer creates every parquet/metadata file. Source episodes stay
 unchanged. Command estimates are not relabelled as measured joint positions.
+Methods: ACT_LEROBOT_0_6_1, ENGINEERING_GLUE.
 """
 from __future__ import annotations
 
@@ -23,13 +24,18 @@ def load_episode(manifest_path, descriptor, manifest):
     if not path.is_relative_to(directory) or not path.is_file() or sha(path) != descriptor["sha256"]:
         raise ValueError("Source episode path/checksum mismatch")
     with np.load(path, allow_pickle=False) as source:
-        if "command9" not in source or "state" not in source or "rgb" not in source:
+        action_key = "action_native" if "action_native" in source else "command9"
+        if action_key not in source or "state" not in source or "rgb" not in source:
             raise ValueError("ACT needs synchronized RGB, command-state and action labels; camera-only recording is insufficient")
-        rgb, state_normalized, action = source["rgb"].copy(), source["state"].copy(), source["command9"].copy()
+        rgb, state_normalized, action = source["rgb"].copy(), source["state"].copy(), source[action_key].copy()
         normalization = manifest.get("action_normalization", {"low": LOW.tolist(), "high": HIGH.tolist()})
         low, high = np.asarray(normalization["low"], np.float32), np.asarray(normalization["high"], np.float32)
-        state = source["state_command9"].copy() if "state_command9" in source else (state_normalized + 1) * .5 * (high - low) + low
+        if "state_native" in source:
+            state = source["state_native"].copy()
+        else:
+            state = source["state_command9"].copy() if "state_command9" in source else (state_normalized + 1) * .5 * (high - low) + low
         reward = source["reward"].copy() if "reward" in source else np.zeros(len(rgb), np.float32)
+        timestamps = {name: source[name].copy() for name in ("frame_monotonic_ns", "state_monotonic_ns", "action_monotonic_ns") if name in source}
     count = len(rgb)
     if not count or rgb.dtype != np.uint8 or rgb.ndim != 4 or rgb.shape[-1] != 3:
         raise ValueError("Expected nonempty uint8 NHWC RGB episode")
@@ -37,10 +43,16 @@ def load_episode(manifest_path, descriptor, manifest):
         raise ValueError("State/action/frame alignment mismatch")
     if not np.isfinite(state).all() or not np.isfinite(action).all() or not np.isfinite(reward).all():
         raise ValueError("Nonfinite episode labels")
-    if len(state) > 1 and not np.allclose(state[1:], action[:-1], atol=1e-4):
+    if manifest.get("state_basis", "command_estimate") == "measured_state":
+        if len(timestamps) != 3 or not manifest.get("clock_domain"):
+            raise ValueError("Measured-state episodes need one explicit clock domain and frame/state/action timestamps")
+        frame_time, state_time, action_time = [timestamps[name] for name in ("frame_monotonic_ns", "state_monotonic_ns", "action_monotonic_ns")]
+        if any(value.shape != (count,) or not np.issubdtype(value.dtype, np.integer) or np.any(value < 0) for value in timestamps.values()) or np.any(frame_time > state_time) or np.any(state_time > action_time) or np.any(np.diff(action_time) <= 0):
+            raise ValueError("Causal mismatch in measured frame/state/action timestamps")
+    elif len(state) > 1 and not np.allclose(state[1:], action[:-1], atol=1e-4):
         raise ValueError("Causal mismatch: observation command-state must precede its action")
     return {"path": path, "rgb": rgb, "state": state.astype(np.float32),
-            "action": action.astype(np.float32), "reward": reward.astype(np.float32)}
+            "action": action.astype(np.float32), "reward": reward.astype(np.float32), "timestamps": timestamps}
 
 
 def validate_splits(manifest):
@@ -52,6 +64,11 @@ def validate_splits(manifest):
         for key in ("id:" + identity, "sha256:" + descriptor["sha256"]):
             if key in seen and seen[key] != split:
                 raise ValueError("Source episode overlaps dataset splits")
+            seen[key] = split
+        for frame_id in descriptor.get("frame_source_ids", []):
+            key = "frame:" + descriptor.get("clock_domain", manifest.get("clock_domain", "")) + ":" + frame_id
+            if key in seen and seen[key] != split:
+                raise ValueError("Source camera frame overlaps dataset splits")
             seen[key] = split
         episodes.append({"episode_index": index, "source_episode_id": identity,
                          "source_sha256": descriptor["sha256"], "split": split,
@@ -102,6 +119,10 @@ def export_lerobot_v3(manifest_path, target_dir, repo_id=None):
                 "action": {"dtype": "float32", "shape": (action_dim,), "names": names},
                 "next.reward": {"dtype": "float32", "shape": (1,), "names": None},
                 "next.done": {"dtype": "bool", "shape": (1,), "names": None}}
+    has_timestamps = all(len(source["timestamps"]) == 3 for source in source_episodes)
+    if has_timestamps:
+        for name in ("frame_monotonic_ns", "state_monotonic_ns", "action_monotonic_ns"):
+            features["timestamp.source_" + name] = {"dtype": "int64", "shape": (1,), "names": None}
     dataset = LeRobotDataset.create(repo_id, fps=fps, features=features, root=target_dir,
                                     robot_type="rosmaster_m3_cad_reach_pilot" if manifest.get("source") == "real_mujoco_ppo_rollouts" else "explorer_recorded_robot",
                                     use_videos=False, image_writer_processes=0, image_writer_threads=0,
@@ -109,10 +130,14 @@ def export_lerobot_v3(manifest_path, target_dir, repo_id=None):
     try:
         for source in source_episodes:
             for index in range(len(source["rgb"])):
-                dataset.add_frame({IMAGE_KEY: source["rgb"][index], "observation.state": source["state"][index],
+                frame = {IMAGE_KEY: source["rgb"][index], "observation.state": source["state"][index],
                     "action": source["action"][index], "next.reward": np.asarray([source["reward"][index]], np.float32),
                     "next.done": np.asarray([index == len(source["rgb"]) - 1], bool),
-                    "task": manifest.get("task", "Reach the visible green target with the gripper; base fixed")})
+                    "task": manifest.get("task", "Reach the visible green target with the gripper; base fixed")}
+                if has_timestamps:
+                    frame.update({"timestamp.source_" + name: np.asarray([values[index]], np.int64)
+                                  for name, values in source["timestamps"].items()})
+                dataset.add_frame(frame)
             dataset.save_episode()
     finally:
         dataset.finalize()
@@ -120,12 +145,18 @@ def export_lerobot_v3(manifest_path, target_dir, repo_id=None):
                   "official_writer": "lerobot.datasets.lerobot_dataset.LeRobotDataset", "lerobot_version": "0.6.1",
                   "created_wall_utc": utc(), "repo_id": repo_id, "use_videos": False,
                   "source_manifest_path": str(manifest_path), "source_manifest_sha256": original_manifest_sha,
-                  "state_basis": "command_estimate", "action_basis": "applied_command_endpoint",
-                  "joint_measurements_claimed": False, "fps": fps, "fps_basis": fps_basis,
+                  "state_basis": manifest.get("state_basis", "command_estimate"),
+                  "action_basis": manifest.get("action_basis", "applied_command_endpoint"),
+                  "action_names": names, "action_units": manifest.get("action_units", ["degrees"] * 6 + ["m/s", "m/s", "rad/s"]),
+                  "action_normalization": manifest.get("action_normalization"), "clock_domain": manifest.get("clock_domain"),
+                  "source_calibration_metadata": manifest.get("source_calibration_metadata"),
+                  "joint_measurements_claimed": manifest.get("state_basis") == "measured_state", "fps": fps, "fps_basis": fps_basis,
                   "episodes": split_map, "source_npz_immutable": True,
                   "files_sha256": {str(path.relative_to(target_dir)): sha(path)
                                    for path in sorted(target_dir.rglob("*")) if path.is_file()},
                   "finalize_called": True, "uploaded_to_hub": False}
+    provenance.update(native_monotonic_timestamps_preserved=has_timestamps,
+                      official_timestamp_basis="nominal decision FPS grid; native event times stored separately when present")
     write_json(provenance_path, provenance)
     return verify_lerobot_v3(target_dir, repo_id, manifest_path, source_episodes, provenance)
 
@@ -162,6 +193,10 @@ def verify_lerobot_v3(target_dir, repo_id, manifest_path, source_episodes=None, 
                 raise ValueError("Official image readback differs")
             if not np.isclose(float(item["timestamp"]), frame_index / provenance["fps"], atol=1e-5):
                 raise ValueError("Official readback timestamp differs")
+            if provenance.get("native_monotonic_timestamps_preserved"):
+                for name, values in source["timestamps"].items():
+                    if int(item["timestamp.source_" + name]) != int(values[frame_index]):
+                        raise ValueError("Native recording timestamp readback differs")
             index += 1
         if sha(source["path"]) != manifest["episodes"][episode_index]["sha256"]:
             raise ValueError("Source NPZ changed during export")
@@ -172,6 +207,7 @@ def verify_lerobot_v3(target_dir, repo_id, manifest_path, source_episodes=None, 
               "image_only": True, "finalize_called": True, "official_readback_passed": True,
               "all_frame_state_action_image_checks_passed": True, "causal_alignment_checked": True,
               "source_splits_preserved": True, "source_npz_immutable": True,
+              "native_monotonic_timestamps_preserved": provenance.get("native_monotonic_timestamps_preserved", False),
               "source_manifest_sha256": provenance["source_manifest_sha256"],
               "provenance_sha256": sha(target_dir / "explorer_provenance.json"), "uploaded_to_hub": False}
     write_json(target_dir.parent / (target_dir.name + "-readback.json"), report)

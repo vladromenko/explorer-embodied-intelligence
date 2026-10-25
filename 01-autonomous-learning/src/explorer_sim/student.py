@@ -2,6 +2,7 @@
 
 No model implementation is copied or substituted. The NPZ episode adapter and
 explicit preprocessing are Explorer glue; checkpoint save/reload is official.
+Methods: ACT_LEROBOT_0_6_1, ENGINEERING_GLUE.
 """
 import importlib.metadata
 from pathlib import Path
@@ -62,7 +63,7 @@ def observation_batch(env, image_size, device):
             "observation.state": torch.from_numpy(env.student_state()[None]).to(device)}
 
 
-def train_and_evaluate_act(env, evaluation_env, folder, settings, manifest, seeds, update):
+def make_act_policy(settings, state_dim=9, action_dim=9):
     version = importlib.metadata.version("lerobot")
     if version != "0.6.1":
         raise ImportError(f"This pilot verifies official lerobot==0.6.1; found {version}")
@@ -74,17 +75,19 @@ def train_and_evaluate_act(env, evaluation_env, folder, settings, manifest, seed
     device = settings["device"]
     config = ACTConfig(device=device, input_features={
         IMAGE_KEY: PolicyFeature(type=FeatureType.VISUAL, shape=(3, settings["image_size"], settings["image_size"])),
-        "observation.state": PolicyFeature(type=FeatureType.STATE, shape=(9,))},
-        output_features={"action": PolicyFeature(type=FeatureType.ACTION, shape=(9,))},
+        "observation.state": PolicyFeature(type=FeatureType.STATE, shape=(state_dim,))},
+        output_features={"action": PolicyFeature(type=FeatureType.ACTION, shape=(action_dim,))},
         normalization_mapping={name: NormalizationMode.IDENTITY for name in ("VISUAL", "STATE", "ACTION")},
         chunk_size=settings["chunk_size"], n_action_steps=1, temporal_ensemble_coeff=None,
         dim_model=128, n_heads=4, dim_feedforward=512, n_encoder_layers=2,
         n_decoder_layers=1, n_vae_encoder_layers=2, latent_dim=16,
         use_vae=True, kl_weight=.1, pretrained_backbone_weights=None,
         optimizer_lr=3e-4, optimizer_lr_backbone=1e-4, push_to_hub=False)
-    policy = ACTPolicy(config).to(device)
-    initial_digest = state_digest(policy)
-    samples = EpisodeChunks(folder / "dataset", manifest, settings["chunk_size"])
+    return ACTPolicy(config).to(device)
+
+
+def optimize_act(policy, samples, settings, folder, update, progress_start=.60, progress_end=.85):
+    device, config = settings["device"], policy.config
     loader = DataLoader(samples, batch_size=min(settings["batch_size"], len(samples)), shuffle=True,
                         num_workers=0, generator=torch.Generator().manual_seed(settings["seed"]))
     optimizer = torch.optim.AdamW(policy.get_optim_params(), lr=config.optimizer_lr, weight_decay=1e-4)
@@ -109,27 +112,51 @@ def train_and_evaluate_act(env, evaluation_env, folder, settings, manifest, seed
         if (step + 1) % 10 == 0 or step + 1 == settings["act_steps"]:
             write_json(folder / "act_training.json", {"losses": losses, "device": device,
                        "elapsed_s": time.monotonic() - started, "official_implementation": "lerobot.policies.act.ACTPolicy"})
-            update(.60 + .25 * (step + 1) / settings["act_steps"], "optimizing_official_lerobot_act")
+            update(progress_start + (progress_end - progress_start) * (step + 1) / settings["act_steps"], "optimizing_official_lerobot_act")
+    return optimizer, losses, started
+
+
+def save_reload_act(policy, optimizer, folder, preprocessing, check_batch, device):
     checkpoint = folder / "student_act"
     policy.eval()
     policy.save_pretrained(checkpoint, push_to_hub=False)
     torch.save(optimizer.state_dict(), folder / "act_optimizer.pt")
-    preprocessing = {"schema_version": 1, "image_key": IMAGE_KEY, "rgb_layout": "NCHW",
-                     "rgb_scale": "uint8 / 255", "mean": [.485, .456, .406], "std": [.229, .224, .225],
-                     "state_basis": "command_estimate", "state_low": LOW.tolist(), "state_high": HIGH.tolist(),
-                     "state_transform": "2*(state-low)/(high-low)-1", "action_transform": "same fixed endpoint normalization",
-                     "privileged_target_xyz_in_actor": False, "temporal_ensembling": False,
-                     "chunk_execution_steps": 1, "pilot_active_action_indices": [0, 1, 2]}
     write_json(checkpoint / "explorer_preprocessing.json", preprocessing)
-    reloaded = ACTPolicy.from_pretrained(checkpoint, local_files_only=True, strict=True).to(device).eval()
-    evaluation_env.reset(seed=settings["seed"] + 9999)
-    batch = observation_batch(evaluation_env, settings["image_size"], device)
+    reloaded = type(policy).from_pretrained(checkpoint, local_files_only=True, strict=True).to(device).eval()
     with torch.inference_mode():
-        expected = policy.predict_action_chunk(batch)
-        actual = reloaded.predict_action_chunk(batch)
+        expected = policy.predict_action_chunk(check_batch)
+        actual = reloaded.predict_action_chunk(check_batch)
     reload_error = float((actual - expected).abs().max().cpu())
     if reload_error > 1e-6:
         raise RuntimeError("Official ACT checkpoint reload mismatch")
+    return reloaded, checkpoint, reload_error
+
+
+def preprocessing_config(low=LOW, high=HIGH, active_indices=(0, 1, 2)):
+    return {"schema_version": 1, "image_key": IMAGE_KEY, "rgb_layout": "NCHW",
+                     "rgb_scale": "uint8 / 255", "mean": [.485, .456, .406], "std": [.229, .224, .225],
+                     "state_basis": "command_estimate", "state_low": low.tolist(), "state_high": high.tolist(),
+                     "state_transform": "2*(state-low)/(high-low)-1", "action_transform": "same fixed endpoint normalization",
+                     "privileged_target_xyz_in_actor": False, "temporal_ensembling": False,
+                     "chunk_execution_steps": 1, "pilot_active_action_indices": list(active_indices)}
+
+
+def framework_info():
+    framework = {name: importlib.metadata.version(name) for name in ("torch", "torchvision")}
+    outside_bounds = Version(framework["torch"].split("+")[0]) >= Version("2.12") or Version(framework["torchvision"].split("+")[0]) >= Version("0.27")
+    return {"framework_versions": framework,
+            "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds" if outside_bounds else "Torch/torchvision versions lie within LeRobot 0.6.1 declared bounds"}
+
+
+def train_and_evaluate_act(env, evaluation_env, folder, settings, manifest, seeds, update):
+    device = settings["device"]
+    policy = make_act_policy(settings)
+    initial_digest = state_digest(policy)
+    samples = EpisodeChunks(folder / "dataset", manifest, settings["chunk_size"])
+    optimizer, losses, started = optimize_act(policy, samples, settings, folder, update)
+    evaluation_env.reset(seed=settings["seed"] + 9999)
+    batch = observation_batch(evaluation_env, settings["image_size"], device)
+    reloaded, checkpoint, reload_error = save_reload_act(policy, optimizer, folder, preprocessing_config(), batch, device)
     episodes = []
     for seed in seeds:
         _, initial = evaluation_env.reset(seed=seed)
@@ -149,11 +176,9 @@ def train_and_evaluate_act(env, evaluation_env, folder, settings, manifest, seed
         update(.85 + .1 * len(episodes) / len(seeds), "evaluating_reloaded_rgb_act")
     evaluation = summarize(episodes)
     write_json(folder / "act_evaluation.json", evaluation)
-    framework = {name: importlib.metadata.version(name) for name in ("torch", "torchvision")}
-    outside_bounds = Version(framework["torch"].split("+")[0]) >= Version("2.12") or Version(framework["torchvision"].split("+")[0]) >= Version("0.27")
     return {"status": "trained_and_simulation_evaluated", "trained": True,
-            "algorithm": "official LeRobot ACT", "lerobot_version": version,
-            "official_module": ACTPolicy.__module__, "optimizer_steps": len(losses),
+            "algorithm": "official LeRobot ACT", "lerobot_version": importlib.metadata.version("lerobot"),
+            "official_module": type(policy).__module__, "optimizer_steps": len(losses),
             "weights_changed": initial_digest != state_digest(policy),
             "parameter_count": sum(parameter.numel() for parameter in policy.parameters()),
             "device": device, "checkpoint_dir": str(checkpoint),
@@ -162,5 +187,4 @@ def train_and_evaluate_act(env, evaluation_env, folder, settings, manifest, seed
             "evaluation": evaluation, "losses_first_last": [losses[0]["loss"], losses[-1]["loss"]],
             "rgb_inputs": [IMAGE_KEY], "state_basis": "command_estimate",
             "privileged_state_in_actor": False, "elapsed_s": time.monotonic() - started,
-            "framework_versions": framework,
-            "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds" if outside_bounds else "Torch/torchvision versions lie within LeRobot 0.6.1 declared bounds"}
+            **framework_info()}
