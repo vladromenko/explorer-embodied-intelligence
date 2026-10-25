@@ -557,7 +557,8 @@ document.addEventListener("submit", async (event) => {
 document.querySelector("#stop-button").addEventListener("click", async () => {
   const button = document.querySelector("#stop-button"); button.disabled = true;
   keyboard.keys.clear(); keyboard.paused = true;
-  await stopStation(true);
+  // Dispatch both STOP paths immediately, even if one node is unreachable.
+  void stopStation(true);
   try { const result = await post("/api/stop"); toast(result.robot_error ? `Задачи остановлены. Запрос STOP роботу не подтверждён: ${result.robot_error}` : "Запрос STOP передан штатному управлению робота. Задачи Explorer останавливаются.", Boolean(result.robot_error)); await refresh(true); }
   catch (error) { toast(error.message, true); }
   finally { button.disabled = false; }

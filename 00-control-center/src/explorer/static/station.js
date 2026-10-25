@@ -99,12 +99,15 @@ document.addEventListener("change", (event) => { if (event.target.id === "statio
 document.addEventListener("submit", async (event) => {
   if (event.target.id !== "station-record-form") return;
   event.preventDefault();
+  if (stationLab.busy) return;
   if (!stationFresh() || !stationLab.present || stationLab.status?.mode !== "teleoperation") { toast("Сначала включите повторение движений, находясь рядом с руками.", true); return; }
   try { await stationOperation("record/start", { name: stationLab.name.trim() || "Показ SO-101", project_id: stationProject() }, "Записываем измеренные движения, команды и камеру."); } catch (_) { /* Displayed by stationOperation. */ }
 });
 document.addEventListener("click", async (event) => {
   const button = event.target.closest("button"); if (!button || button.disabled) return;
   const action = button.dataset.action;
+  if (stationLab.busy && (button.dataset.stationOutcome || (action?.startsWith("station-") && action !== "station-stop"))) return;
+  if (["station-start", "station-recenter"].includes(action) || button.dataset.stationOutcome) button.disabled = true;
   try {
     if (action === "station-stop") { await stopStation(); return; }
     if (action === "station-start") {
