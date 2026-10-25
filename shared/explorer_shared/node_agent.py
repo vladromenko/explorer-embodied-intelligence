@@ -1,0 +1,724 @@
+"""Read-only Explorer node HTTP agent. There is deliberately no actuator API.
+
+Pi owns one camera capture. Nano observes the existing controller's files;
+it neither imports ROS nor opens its cameras or serial ports.
+"""
+from __future__ import annotations
+
+import argparse
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+import fcntl
+import hashlib
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import json
+import os
+from pathlib import Path
+import re
+import secrets
+import shutil
+import signal
+import socket
+import tarfile
+import threading
+import time
+from urllib.error import HTTPError, URLError
+from urllib.parse import unquote, urlsplit
+from urllib.request import Request, urlopen
+import uuid
+
+
+MAX_JPEG_BYTES = 10 * 1024 * 1024
+MAX_BODY_BYTES = 16384
+ID_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,79}\Z")
+
+
+def wall_utc(timestamp=None):
+    return datetime.fromtimestamp(time.time() if timestamp is None else timestamp,
+                                  timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def canonical_bytes(value):
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"),
+                      allow_nan=False).encode("utf-8")
+
+
+def write_json(path, value):
+    path = Path(path)
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    with temporary.open("wb") as output:
+        output.write(canonical_bytes(value))
+        output.flush()
+        os.fsync(output.fileno())
+    temporary.replace(path)
+
+
+def file_sha256(path):
+    with Path(path).open("rb") as source:
+        return hashlib.file_digest(source, "sha256").hexdigest()
+
+
+@dataclass(frozen=True)
+class Frame:
+    frame_id: str
+    jpeg: bytes
+    wall_utc: str
+    monotonic_ns: int
+    width: int
+    height: int
+    timestamp_basis: str = "host_receive_estimate"
+    source_wall_utc: str | None = None
+    bgr: object = field(default=None, repr=False, compare=False)
+
+    def metadata(self):
+        return {"frame_id": self.frame_id, "wall_utc": self.wall_utc,
+                "monotonic_ns": self.monotonic_ns, "width": self.width,
+                "height": self.height, "timestamp_basis": self.timestamp_basis,
+                "source_wall_utc": self.source_wall_utc,
+                "exposure_timestamp_available": False}
+
+
+class CameraSource:
+    def __init__(self, camera_id, label, stale_s=2.0):
+        self.camera_id, self.label, self.stale_s = camera_id, label, stale_s
+        self.lock = threading.Lock()
+        self.stop_event = threading.Event()
+        self.frame = None
+        self.error = None
+        self.thread = None
+        self.counter = 0
+        self.session_id = uuid.uuid4().hex[:12]
+
+    def latest(self):
+        with self.lock:
+            frame = self.frame
+        return frame if frame and (time.monotonic_ns() - frame.monotonic_ns) / 1e9 <= self.stale_s else None
+
+    def publish(self, jpeg, width, height, *, bgr=None, source_wall_utc=None,
+                monotonic_ns=None, timestamp_basis="host_receive_estimate"):
+        if len(jpeg) > MAX_JPEG_BYTES or not jpeg.startswith(b"\xff\xd8") or not jpeg.endswith(b"\xff\xd9"):
+            raise ValueError("Invalid or oversized JPEG")
+        self.counter += 1
+        frame = Frame(f"{self.camera_id}:{self.session_id}:{self.counter}", jpeg, wall_utc(),
+                      time.monotonic_ns() if monotonic_ns is None else monotonic_ns,
+                      width, height, timestamp_basis, source_wall_utc, bgr)
+        with self.lock:
+            self.frame, self.error = frame, None
+
+    def metadata(self):
+        frame = self.latest()
+        return {"id": self.camera_id, "label": self.label, "available": frame is not None,
+                "frame": frame.metadata() if frame else None,
+                "error": self.error if self.error else (None if frame else "no_fresh_frame"),
+                "stale_after_s": self.stale_s, "physical_motion": False}
+
+    def start(self):
+        self.thread = threading.Thread(target=self._capture, name=self.camera_id, daemon=True)
+        self.thread.start()
+
+    def close(self):
+        self.stop_event.set()
+        if self.thread:
+            self.thread.join(timeout=5)
+
+
+class OpenCVCamera(CameraSource):
+    def __init__(self, device, lock_path, width=640, height=480, fps=15):
+        super().__init__("pi-overview", "Общий вид стола · Raspberry Pi")
+        self.device, self.lock_path = str(device), Path(lock_path)
+        self.width, self.height, self.fps = width, height, min(30, max(1, fps))
+
+    def _capture(self):
+        cap, owner = None, None
+        try:
+            import cv2
+            self.lock_path.parent.mkdir(parents=True, exist_ok=True)
+            owner = self.lock_path.open("a")
+            fcntl.flock(owner, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            while not self.stop_event.is_set():
+                try:
+                    if cap is None:
+                        cap = cv2.VideoCapture(self.device, cv2.CAP_V4L2)
+                        if not cap.isOpened():
+                            raise RuntimeError("Camera could not be opened")
+                        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+                        cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
+                        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
+                        cap.set(cv2.CAP_PROP_FPS, self.fps)
+                        cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+                    ok, image = cap.read()
+                    received_ns = time.monotonic_ns()
+                    if not ok or image is None:
+                        raise RuntimeError("Camera returned no frame")
+                    ok, jpeg = cv2.imencode(".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, 80])
+                    if not ok:
+                        raise RuntimeError("JPEG encoding failed")
+                    self.publish(jpeg.tobytes(), image.shape[1], image.shape[0],
+                                 bgr=image, monotonic_ns=received_ns)
+                except Exception as exc:
+                    self.error = type(exc).__name__
+                    if cap is not None:
+                        cap.release()
+                        cap = None
+                    self.stop_event.wait(2)
+        except Exception as exc:
+            self.error = type(exc).__name__
+        finally:
+            if cap is not None:
+                cap.release()
+            if owner:
+                owner.close()
+
+
+class LegacyFileCamera(CameraSource):
+    """Reads an existing controller artifact; never owns a V4L2 device."""
+    def __init__(self, frame_path, status_path, stale_s=2.0):
+        super().__init__("nano-rgbd", "Камера действующего Explorer · Jetson Nano", stale_s)
+        self.frame_path, self.status_path = Path(frame_path), Path(status_path)
+        self.status_available = False
+        self.status_age_s = None
+
+    def _capture(self):
+        previous = None
+        while not self.stop_event.is_set():
+            try:
+                before = self.frame_path.stat()
+                stamp = (before.st_mtime_ns, before.st_size)
+                if before.st_size > MAX_JPEG_BYTES:
+                    raise ValueError("Oversized legacy frame")
+                age_s = time.time() - before.st_mtime
+                if age_s < -5:
+                    raise ValueError("Legacy frame has a future timestamp")
+                age_s = max(0.0, age_s)
+                if stamp != previous and age_s <= self.stale_s:
+                    jpeg = self.frame_path.read_bytes()
+                    after = self.frame_path.stat()
+                    if (after.st_mtime_ns, after.st_size) == stamp:
+                        from io import BytesIO
+                        from PIL import Image
+                        with Image.open(BytesIO(jpeg)) as image:
+                            width, height = image.size
+                        self.publish(jpeg, width, height,
+                                     monotonic_ns=time.monotonic_ns() - int(age_s * 1e9),
+                                     source_wall_utc=wall_utc(before.st_mtime),
+                                     timestamp_basis="legacy_file_mtime_estimate")
+                        previous = stamp
+                if age_s > self.stale_s:
+                    self.error = "legacy_frame_stale"
+                self.status_available = False
+                if self.status_path.exists() and self.status_path.stat().st_size < 1024 * 1024:
+                    status = json.loads(self.status_path.read_text())
+                    self.status_age_s = max(0.0, time.time() - self.status_path.stat().st_mtime)
+                    self.status_available = isinstance(status, dict) and self.status_age_s <= 5
+            except Exception as exc:
+                self.error = type(exc).__name__
+            self.stop_event.wait(0.05)
+
+    def metadata(self):
+        return {**super().metadata(), "source": "existing_controller_file",
+                "legacy_status_available": self.status_available,
+                "legacy_status_age_s": self.status_age_s,
+                "camera_identity_verified": False}
+
+
+def discover_serial(root=Path("/dev/serial/by-id")):
+    """Only directory/symlink metadata. Never imports pyserial or opens a port."""
+    devices = []
+    for path in sorted(Path(root).glob("*")):
+        devices.append({"id": path.name, "path": str(path), "device": str(path.resolve()),
+                        "role": "unassigned", "servo_bus_opened": False,
+                        "servo_model_verified": False, "positions_available": False})
+    return devices
+
+
+def discover_calibrations(roots):
+    result = []
+    for root in roots:
+        for path in sorted(Path(root).glob("**/*.json")):
+            try:
+                if path.is_file() and path.stat().st_size <= 1024 * 1024:
+                    data = json.loads(path.read_text())
+                    if isinstance(data, dict):
+                        result.append({"id": path.stem, "path": str(path), "sha256": file_sha256(path),
+                                       "format": "unverified_json", "motor_names": sorted(data)[:32],
+                                       "verified_on_connected_hardware": False})
+            except (OSError, ValueError):
+                pass
+    return result[:100]
+
+
+class EventDelivery:
+    def __init__(self, node_id, state_dir, central_url=None, ingest_token=None, outbox=None):
+        if outbox is None:
+            from .outbox import EventOutbox
+            outbox = EventOutbox(Path(state_dir) / "outbox.sqlite3")
+        self.outbox, self.node_id = outbox, node_id
+        self.central_url, self.ingest_token = central_url, ingest_token
+        self.clock_domain = f"{node_id}:{Path('/proc/sys/kernel/random/boot_id').read_text().strip()}" if Path('/proc/sys/kernel/random/boot_id').exists() else f"{node_id}:{uuid.uuid4()}"
+        self.stop_event = threading.Event()
+        self.thread = None
+        self.error = None
+
+    def emit(self, payload, *, run_id=None, project_id=None):
+        event_id = str(uuid.uuid4())
+        event = {"event_id": event_id, "node_id": self.node_id, "run_id": run_id,
+                 "project_id": project_id, "schema_version": 1, "wall_utc": wall_utc(),
+                 "monotonic_ns": time.monotonic_ns(), "clock_domain": self.clock_domain,
+                 "payload": payload, "sha256": hashlib.sha256(canonical_bytes(payload)).hexdigest()}
+        self.outbox.append(event_id, event)
+        return event_id
+
+    def start(self):
+        if self.central_url and self.ingest_token:
+            self.thread = threading.Thread(target=self._work, name="event-outbox", daemon=True)
+            self.thread.start()
+
+    def deliver_once(self):
+        if not self.central_url or not self.ingest_token:
+            return 0
+        delivered = 0
+        for item in self.outbox.pending(limit=25):
+            if self.stop_event.is_set():
+                break
+            request = Request(self.central_url.rstrip("/") + "/api/events", data=canonical_bytes(item["payload"]),
+                              headers={"Authorization": "Bearer " + self.ingest_token,
+                                       "Content-Type": "application/json"}, method="POST")
+            try:
+                with urlopen(request, timeout=5) as response:
+                    if 200 <= response.status < 300:
+                        self.outbox.acknowledge(item["event_id"])
+                        delivered += 1
+                    else:
+                        raise RuntimeError("NX rejected an event")
+            except HTTPError as exc:
+                exc.close()
+                raise
+        return delivered
+
+    def _work(self):
+        delay = 1
+        while not self.stop_event.is_set():
+            try:
+                count = self.deliver_once()
+                self.error, delay = None, 1
+                self.stop_event.wait(0.1 if count else 2)
+            except (OSError, HTTPError, URLError, RuntimeError):
+                self.error = "delivery_pending"
+                self.stop_event.wait(delay)
+                delay = min(60, delay * 2)
+
+    def close(self):
+        self.stop_event.set()
+        if self.thread:
+            self.thread.join(timeout=6)
+
+
+class RecordingManager:
+    def __init__(self, root, sources, emit, max_duration_s=300, sample_hz=5,
+                 max_bytes=1024 * 1024 * 1024):
+        self.root, self.sources, self.emit = Path(root), sources, emit
+        self.root.mkdir(parents=True, exist_ok=True)
+        self.max_duration_s, self.sample_hz = max_duration_s, min(10, max(1, sample_hz))
+        self.max_bytes = max_bytes
+        self.lock = threading.Lock()
+        self.active = None
+        self.stop_event = threading.Event()
+        self.thread = None
+        self._recover()
+
+    def _recover(self):
+        for path in self.root.glob("*/manifest.json"):
+            try:
+                manifest = json.loads(path.read_text())
+                if manifest.get("state") == "recording":
+                    manifest.update(state="interrupted", error="agent_restarted", completed_wall_utc=wall_utc())
+                    write_json(path, manifest)
+                    self._archive_and_emit(path.parent, manifest)
+            except (OSError, ValueError, KeyError):
+                pass
+
+    def _archive_and_emit(self, directory, manifest):
+        archive = directory / "recording.tar"
+        with tarfile.open(archive.with_suffix(".tmp"), "w") as bundle:
+            bundle.add(directory / "manifest.json", arcname="manifest.json")
+            for item in manifest["frames"]:
+                bundle.add(directory / item["file"], arcname=item["file"])
+        archive.with_suffix(".tmp").replace(archive)
+        self.emit({"kind": "recording.finished", "recording_id": manifest["recording_id"],
+                   "camera_id": manifest["camera_id"], "state": manifest["state"],
+                   "frame_count": len(manifest["frames"]), "manifest_sha256": file_sha256(directory / "manifest.json"),
+                   "archive_sha256": file_sha256(archive), "archive_bytes": archive.stat().st_size,
+                   "artifact_location": "node_local", "camera_only": True},
+                  run_id=manifest["recording_id"], project_id=manifest.get("project_id"))
+
+    def close(self):
+        self.stop_event.set()
+        if self.thread:
+            self.thread.join(timeout=10)
+
+    def start(self, camera_id, duration_s, recording_id, project_id=None):
+        if not isinstance(recording_id, str) or not ID_PATTERN.fullmatch(recording_id):
+            raise ValueError("Invalid recording_id")
+        if isinstance(duration_s, bool) or not isinstance(duration_s, (int, float)) or not 0 < duration_s <= self.max_duration_s:
+            raise ValueError("duration_s is outside the allowed range")
+        if camera_id not in self.sources or self.sources[camera_id].latest() is None:
+            raise LookupError("Camera has no fresh frame")
+        with self.lock:
+            directory = self.root / recording_id
+            if directory.exists():
+                return self.get(recording_id)
+            if self.active:
+                raise RuntimeError("A camera recording is already active")
+            if shutil.disk_usage(self.root).free < 256 * 1024 * 1024:
+                raise RuntimeError("Insufficient local storage")
+            directory.mkdir(mode=0o700)
+            manifest = {"schema_version": 1, "recording_id": recording_id, "camera_id": camera_id,
+                        "project_id": project_id, "state": "recording", "created_wall_utc": wall_utc(),
+                        "requested_duration_s": duration_s, "sample_hz": self.sample_hz,
+                        "camera_only": True, "motion_commands": 0, "joint_measurements_available": False,
+                        "calibration_verified": False, "format": "jpeg_sequence", "frames": [],
+                        "timestamp_basis": "host_receive_estimate", "exposure_timestamp_available": False}
+            write_json(directory / "manifest.json", manifest)
+            self.active = recording_id
+            self.thread = threading.Thread(target=self._record, args=(directory, manifest, duration_s),
+                                           name="camera-recording", daemon=True)
+            self.thread.start()
+        return manifest
+
+    def _record(self, directory, manifest, duration_s):
+        source = self.sources[manifest["camera_id"]]
+        begin, previous, total, gaps = time.monotonic(), None, 0, 0
+        try:
+            while time.monotonic() - begin < duration_s and not self.stop_event.is_set():
+                frame = source.latest()
+                if frame and frame.frame_id != previous:
+                    if shutil.disk_usage(self.root).free < 256 * 1024 * 1024 + len(frame.jpeg) * 2:
+                        raise RuntimeError("Local storage reserve reached")
+                    total += len(frame.jpeg)
+                    if total > self.max_bytes:
+                        raise RuntimeError("Recording size limit reached")
+                    name = f"{len(manifest['frames']):06d}.jpg"
+                    target = directory / name
+                    with target.open("wb") as output:
+                        output.write(frame.jpeg)
+                        output.flush()
+                        os.fsync(output.fileno())
+                    manifest["frames"].append({**frame.metadata(), "file": name,
+                                               "sha256": hashlib.sha256(frame.jpeg).hexdigest(), "bytes": len(frame.jpeg)})
+                    manifest["timestamp_basis"] = frame.timestamp_basis
+                    previous = frame.frame_id
+                    write_json(directory / "manifest.json", manifest)
+                elif frame is None:
+                    gaps += 1
+                self.stop_event.wait(1 / self.sample_hz)
+            state = "completed" if manifest["frames"] and gaps == 0 else "partial"
+            manifest.update(state="interrupted" if self.stop_event.is_set() else state,
+                            elapsed_s=time.monotonic() - begin, camera_gap_samples=gaps,
+                            total_frame_bytes=total, completed_wall_utc=wall_utc())
+        except Exception as exc:
+            manifest.update(state="failed", error=type(exc).__name__, completed_wall_utc=wall_utc())
+        finally:
+            write_json(directory / "manifest.json", manifest)
+            try:
+                self._archive_and_emit(directory, manifest)
+            finally:
+                with self.lock:
+                    self.active = None
+
+    def get(self, recording_id):
+        if not ID_PATTERN.fullmatch(recording_id):
+            raise ValueError("Invalid recording_id")
+        path = self.root / recording_id / "manifest.json"
+        if not path.is_file():
+            raise LookupError("Recording not found")
+        return json.loads(path.read_text())
+
+    def download_path(self, recording_id):
+        self.get(recording_id)
+        path = self.root / recording_id / "recording.tar"
+        if not path.is_file():
+            raise LookupError("Recording archive is not ready")
+        return path
+
+
+class NodeAgent:
+    def __init__(self, node_id, mode, state_dir, token, *, sources=None, delivery=None,
+                 central_url=None, ingest_token=None, calibration_dirs=(), camera_device=None,
+                 legacy_dir=Path("/home/vlad/Explorer/data"), hailo_model=None):
+        if mode not in ("pi", "nano"):
+            raise ValueError("mode must be pi or nano")
+        if not token or len(token) < 16:
+            raise ValueError("EXPLORER_NODE_TOKEN must contain at least 16 characters")
+        self.node_id, self.mode, self.token = node_id, mode, token
+        self.state_dir = Path(state_dir)
+        self.state_dir.mkdir(parents=True, mode=0o700, exist_ok=True)
+        self.delivery = delivery or EventDelivery(node_id, self.state_dir, central_url, ingest_token)
+        self.sources = sources if sources is not None else ({"pi-overview": OpenCVCamera(
+            camera_device or "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D4EA612F-video-index0",
+            self.state_dir / "camera-capture.lock")} if mode == "pi" else {"nano-rgbd": LegacyFileCamera(
+                Path(legacy_dir) / "frame-raw.jpg", Path(legacy_dir) / "status.json")})
+        self.calibration_dirs = calibration_dirs
+        self.recordings = RecordingManager(self.state_dir / "recordings", self.sources, self.delivery.emit)
+        self.stream_slots = threading.BoundedSemaphore(3)
+        self.observer = None
+        if mode == "pi" and hailo_model and "pi-overview" in self.sources:
+            from .hailo_observer import HailoObserver
+            self.observer = HailoObserver(self.sources["pi-overview"], hailo_model, self.delivery.emit)
+
+    def start(self):
+        for source in self.sources.values():
+            source.start()
+        self.delivery.start()
+        if self.observer:
+            self.observer.start()
+
+    def close(self):
+        self.recordings.close()
+        if self.observer:
+            self.observer.close()
+        for source in self.sources.values():
+            source.close()
+        self.delivery.close()
+
+    def cameras(self):
+        cameras = [source.metadata() for source in self.sources.values()]
+        if self.mode == "nano":
+            cameras.append({"id": "nano-logitech", "label": "Logitech · Jetson Nano",
+                            "available": False, "error": "not_found_in_audited_live_sources"})
+        return cameras
+
+    def inventory(self):
+        serial = discover_serial()
+        calibrations = discover_calibrations(self.calibration_dirs)
+        observer = self.observer.snapshot() if self.observer else {"available": False, "state": "not_configured"}
+        cameras = self.cameras()
+        return {"schema_version": 1, "node_id": self.node_id, "hostname": socket.gethostname(),
+                "wall_utc": wall_utc(), "monotonic_ns": time.monotonic_ns(), "clock_domain": self.delivery.clock_domain,
+                "hardware": {"architecture": os.uname().machine, "hailo_device_present": Path("/dev/hailo0").exists()},
+                "cameras": cameras, "serial_devices": serial, "calibrations": calibrations,
+                "perception": observer,
+                "capabilities": {"physical_motion": False, "servo_bus_access": False,
+                                 "serial_discovery": True, "joint_measurements": False,
+                                 "calibration_verified": False, "arm_roles_assigned": False,
+                                 "camera_preview": any(camera["available"] for camera in cameras),
+                                 "camera_only_recording": True, "hailo_detection": observer["available"],
+                                 "durable_event_outbox": True, "vlm": False},
+                "errors": (["so101_roles_unassigned", "so101_calibration_unverified"] if self.mode == "pi" else [])
+                          + ([self.delivery.error] if self.delivery.error else [])}
+
+
+def make_handler(agent):
+    class Handler(BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
+        def log_message(self, *args):
+            pass
+
+        def _json(self, code, payload):
+            body = canonical_bytes(payload)
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
+
+        def _authenticated(self):
+            expected = "Bearer " + agent.token
+            provided = self.headers.get("Authorization", "")
+            return secrets.compare_digest(provided.encode(), expected.encode())
+
+        def do_GET(self):
+            path = unquote(urlsplit(self.path).path)
+            if path == "/health":
+                self._json(200, {"ok": True, "schema_version": 1, "node_id": agent.node_id,
+                                 "mode": agent.mode, "physical_motion": False})
+            elif not self._authenticated():
+                self._json(401, {"error": "unauthorized"})
+            else:
+                try:
+                    self._get(path)
+                except (ValueError, LookupError) as exc:
+                    self._json(404, {"error": str(exc)})
+                except (BrokenPipeError, ConnectionResetError):
+                    pass
+
+        def _get(self, path):
+            parts = path.strip("/").split("/")
+            if path == "/inventory":
+                self._json(200, agent.inventory())
+            elif path == "/cameras":
+                self._json(200, {"cameras": agent.cameras()})
+            elif len(parts) == 3 and parts[0] == "cameras" and parts[2] in ("snapshot", "stream"):
+                source = agent.sources.get(parts[1])
+                if not source:
+                    raise LookupError("Camera not found")
+                if parts[2] == "stream":
+                    self._stream(source)
+                else:
+                    frame = source.latest()
+                    if frame is None:
+                        self._json(503, {"error": "no_fresh_frame"})
+                    else:
+                        self.send_response(200)
+                        self.send_header("Content-Type", "image/jpeg")
+                        self.send_header("Content-Length", str(len(frame.jpeg)))
+                        self.send_header("Cache-Control", "no-store")
+                        self._frame_headers(frame)
+                        self.end_headers()
+                        self.wfile.write(frame.jpeg)
+            elif len(parts) in (2, 3) and parts[0] == "recordings":
+                if len(parts) == 2 or parts[2] == "manifest":
+                    self._json(200, agent.recordings.get(parts[1]))
+                elif parts[2] == "download":
+                    self._download(agent.recordings.download_path(parts[1]), parts[1])
+                else:
+                    raise LookupError("Endpoint not found")
+            else:
+                raise LookupError("Endpoint not found")
+
+        def _frame_headers(self, frame):
+            self.send_header("X-Frame-ID", frame.frame_id)
+            self.send_header("X-Wall-UTC", frame.wall_utc)
+            self.send_header("X-Monotonic-NS", str(frame.monotonic_ns))
+            self.send_header("X-Timestamp-Basis", frame.timestamp_basis)
+
+        def _stream(self, source):
+            if not agent.stream_slots.acquire(blocking=False):
+                self._json(429, {"error": "preview_client_limit"})
+                return
+            try:
+                if source.latest() is None:
+                    self._json(503, {"error": "no_fresh_frame"})
+                    return
+                self.connection.settimeout(5)
+                self.send_response(200)
+                self.send_header("Content-Type", "multipart/x-mixed-replace; boundary=frame")
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Connection", "close")
+                self.end_headers()
+                until, previous = time.monotonic() + 300, None
+                while time.monotonic() < until and not source.stop_event.is_set():
+                    frame = source.latest()
+                    if frame is None:
+                        break
+                    if frame.frame_id != previous:
+                        header = (f"--frame\r\nContent-Type: image/jpeg\r\nContent-Length: {len(frame.jpeg)}\r\n"
+                                  f"X-Frame-ID: {frame.frame_id}\r\nX-Wall-UTC: {frame.wall_utc}\r\n"
+                                  f"X-Monotonic-NS: {frame.monotonic_ns}\r\n"
+                                  f"X-Timestamp-Basis: {frame.timestamp_basis}\r\n\r\n").encode()
+                        self.wfile.write(header + frame.jpeg + b"\r\n")
+                        self.wfile.flush()
+                        previous = frame.frame_id
+                    source.stop_event.wait(0.1)
+            except (BrokenPipeError, ConnectionResetError, TimeoutError):
+                pass
+            finally:
+                self.close_connection = True
+                agent.stream_slots.release()
+
+        def _download(self, path, recording_id):
+            self.connection.settimeout(10)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/x-tar")
+            self.send_header("Content-Length", str(path.stat().st_size))
+            self.send_header("Content-Disposition", f'attachment; filename="{recording_id}.tar"')
+            self.send_header("X-Content-SHA256", file_sha256(path))
+            self.end_headers()
+            with path.open("rb") as source:
+                shutil.copyfileobj(source, self.wfile, length=128 * 1024)
+
+        def do_POST(self):
+            if not self._authenticated():
+                self.close_connection = True
+                self._json(401, {"error": "unauthorized"})
+                return
+            path = unquote(urlsplit(self.path).path)
+            if path != "/recordings":
+                self.close_connection = True
+                self._json(404, {"error": "Endpoint not found; no physical API is provided"})
+                return
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                if not 0 < length <= MAX_BODY_BYTES:
+                    raise ValueError("Invalid request body length")
+                payload = json.loads(self.rfile.read(length))
+                if not isinstance(payload, dict):
+                    raise ValueError("Expected a JSON object")
+                manifest = agent.recordings.start(payload.get("camera_id"), payload.get("duration_s"),
+                                                  payload.get("recording_id"), payload.get("project_id"))
+                self._json(202, manifest)
+            except (ValueError, TypeError) as exc:
+                self.close_connection = True
+                self._json(400, {"error": str(exc)})
+            except LookupError as exc:
+                self._json(503, {"error": str(exc)})
+            except RuntimeError as exc:
+                self._json(409, {"error": str(exc)})
+
+    return Handler
+
+
+class AgentHTTPServer(ThreadingHTTPServer):
+    daemon_threads = True
+    allow_reuse_address = True
+
+    def __init__(self, *args, **kwargs):
+        self.client_slots = threading.BoundedSemaphore(16)
+        super().__init__(*args, **kwargs)
+
+    def process_request(self, request, client_address):
+        if self.client_slots.acquire(blocking=False):
+            try:
+                super().process_request(request, client_address)
+            except Exception:
+                self.client_slots.release()
+                raise
+        else:
+            self.shutdown_request(request)
+
+    def process_request_thread(self, request, client_address):
+        try:
+            super().process_request_thread(request, client_address)
+        finally:
+            self.client_slots.release()
+
+    def get_request(self):
+        connection, address = super().get_request()
+        connection.settimeout(10)
+        return connection, address
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--mode", choices=("pi", "nano"), required=True)
+    parser.add_argument("--node-id")
+    parser.add_argument("--bind", default="0.0.0.0")
+    parser.add_argument("--port", type=int)
+    parser.add_argument("--state-dir", type=Path, default=Path.home() / ".local/share/explorer-node")
+    parser.add_argument("--legacy-dir", type=Path, default=Path("/home/vlad/Explorer/data"))
+    parser.add_argument("--camera-device")
+    parser.add_argument("--calibration-dir", action="append", type=Path, default=[])
+    parser.add_argument("--central-url", default=os.environ.get("EXPLORER_CENTRAL_URL"))
+    parser.add_argument("--hailo-model", default="/usr/share/hailo-models/yolov8m_h10.hef")
+    parser.add_argument("--no-hailo", action="store_true")
+    args = parser.parse_args(argv)
+    agent = NodeAgent(args.node_id or args.mode, args.mode, args.state_dir,
+                      os.environ.get("EXPLORER_NODE_TOKEN"), central_url=args.central_url,
+                      ingest_token=os.environ.get("EXPLORER_INGEST_TOKEN"),
+                      calibration_dirs=args.calibration_dir, camera_device=args.camera_device,
+                      legacy_dir=args.legacy_dir, hailo_model=None if args.no_hailo else args.hailo_model)
+    server = AgentHTTPServer((args.bind, args.port or (8091 if args.mode == "pi" else 8092)), make_handler(agent))
+    signal.signal(signal.SIGTERM, lambda *_: threading.Thread(target=server.shutdown, daemon=True).start())
+    agent.start()
+    try:
+        server.serve_forever(poll_interval=0.5)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.server_close()
+        agent.close()
+
+
+if __name__ == "__main__":
+    main()
