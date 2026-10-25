@@ -36,6 +36,8 @@ class Store:
                 raise ValueError('Event field missing: ' + key)
         if body['schema_version'] != 1 or digest(body['payload']) != body['sha256']:
             raise ValueError('Event schema/hash mismatch')
+        if not isinstance(body['payload'], dict):
+            raise ValueError('Event payload must be an object')
         serialized = canonical(body).decode()
         with self.connect() as db:
             old = db.execute('SELECT body FROM events WHERE event_id=?', (body['event_id'],)).fetchone()

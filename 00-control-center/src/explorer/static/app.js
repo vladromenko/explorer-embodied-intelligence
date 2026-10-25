@@ -281,7 +281,7 @@ function keyboardPanel() {
 }
 function episodePanel() {
   const teaching = model.robot.teaching || {}; const active = teaching.active; const last = teaching.last;
-  return `<section class="panel"><div class="panel-heading"><div><h2>Полноценный показ ROSMASTER</h2><p>Команды, одометрия, камера и этапы штатной записи</p></div>${badge(active ? "running" : "not_started")}</div><div class="panel-body">${active ? `<p class="form-description">Идёт запись: ${esc(text(active.name, active.id || "показ"))}. Завершите показ и отметьте наблюдавшийся результат.</p><div class="episode-outcomes"><button class="button primary" data-episode-outcome="success" type="button">Задача выполнена</button><button class="button secondary" data-episode-outcome="failure" type="button">Не получилось</button><button class="button secondary" data-episode-outcome="unknown" type="button">Результат неясен</button></div><p class="form-hint">Оценка оператора сохраняется отдельно от независимой проверки навыка.</p>` : `<form id="episode-form"><div class="form-field"><label for="episode-name">Название задачи</label><input id="episode-name" name="name" value="${esc(model.robot.episodeName)}" maxlength="120" required placeholder="Например: подвести захват к предмету"></div><button type="submit" class="button primary" style="margin-top:16px">${icon("record")}Начать полный показ</button><p class="form-hint">Запись использует существующий формат робота. Она не запускает автоматическое воспроизведение.</p></form>`}${last ? `<div class="episode-last"><span class="status-dot good"></span>Последний показ сохранён${last.outcome ? ` · ${esc({ success: "отмечен успех", failure: "отмечена неудача", unknown: "результат неясен" }[last.outcome] || last.outcome)}` : ""}</div>` : ""}${array(teaching.record_errors).length ? `<p class="form-error">${esc(teaching.record_errors.map(reasonText).join(". "))}</p>` : ""}</div></section>`;
+  return `<section class="panel"><div class="panel-heading"><div><h2>Полноценный показ ROSMASTER</h2><p>Команды, одометрия, камера и этапы штатной записи</p></div>${badge(active ? "running" : "not_started")}</div><div class="panel-body">${active ? `<p class="form-description">Идёт запись: ${esc(text(active.name, active.id || "показ"))}. Завершите показ и отметьте наблюдавшийся результат.</p><div class="episode-outcomes"><button class="button primary" data-episode-outcome="success" type="button">Задача выполнена</button><button class="button secondary" data-episode-outcome="failure" type="button">Не получилось</button><button class="button secondary" data-episode-outcome="unknown" type="button">Результат неясен</button></div><p class="form-hint">Оценка оператора сохраняется отдельно от независимой проверки навыка.</p>` : `<form id="episode-form"><div class="form-field"><label for="episode-name">Название задачи</label><input id="episode-name" name="name" value="${esc(model.robot.episodeName)}" maxlength="80" required placeholder="Например: подвести захват к предмету"></div><button type="submit" class="button primary" style="margin-top:16px">${icon("record")}Начать полный показ</button><p class="form-hint">Запись использует существующий формат робота. Она не запускает автоматическое воспроизведение.</p></form>`}${last ? `<div class="episode-last"><span class="status-dot good"></span>Последний показ сохранён${last.outcome ? ` · ${esc({ success: "отмечен успех", failure: "отмечена неудача", unknown: "результат неясен" }[last.outcome] || last.outcome)}` : ""}</div>` : ""}${array(teaching.record_errors).length ? `<p class="form-error">${esc(teaching.record_errors.map(reasonText).join(". "))}</p>` : ""}</div></section>`;
 }
 
 async function loadRobot() {
@@ -319,8 +319,11 @@ async function startKeyboard() {
 }
 async function setArmMode(mode) {
   if (!keyboard.active || !["cartesian", "joint"].includes(mode)) return;
-  keyboard.keys.clear(); await sendKeyboard();
+  const wasPaused = keyboard.paused; keyboard.paused = true; keyboard.keys.clear();
+  while (keyboard.busy) await new Promise((resolve) => setTimeout(resolve, 5));
+  await post("/api/robot/teleop/input", { source: "keyboard", keys: [], observing: true, arm_mode: keyboard.mode });
   await post("/api/robot/teleop/mode", { source: "keyboard", mode }); keyboard.mode = mode;
+  keyboard.paused = wasPaused;
   model.forceRender = true; render();
 }
 
@@ -562,6 +565,7 @@ document.querySelector("#logout-button").addEventListener("click", async () => {
 window.addEventListener("popstate", () => { if (keyboard.active && path() !== "/experiments/02") stopKeyboard(true); model.forceRender = true; render(); });
 window.addEventListener("blur", () => { if (keyboard.active) stopKeyboard(true); });
 window.addEventListener("pagehide", () => { if (keyboard.active) stopKeyboard(true); });
+document.addEventListener("focusin", (event) => { if (keyboard.active && event.target.closest("input,select,textarea,[contenteditable=true]")) stopKeyboard(true); });
 document.addEventListener("keydown", async (event) => {
   if (!keyboard.active || activeProject()?.id !== "02" || dialog.open || event.target.closest("input,select,textarea,[contenteditable=true]")) return;
   const scheme = model.robot.controls?.keyboard || {};
@@ -587,9 +591,9 @@ setInterval(() => { if (!document.hidden) refresh(); }, 5000);
 setInterval(() => { if (keyboard.active && !keyboard.paused && !document.hidden) sendKeyboard(); }, 100);
 setInterval(async () => {
   const active = model.robot.teaching?.active;
-  if (active?.session && activeProject()?.id === "02" && !document.hidden && cameraLoaded && !episodeLeaseBusy) {
+  if ((active?.session || active?.id) && activeProject()?.id === "02" && !document.hidden && cameraLoaded && !episodeLeaseBusy) {
     episodeLeaseBusy = true;
-    try { await post("/api/robot/teaching/mobile/lease", { session: active.session, observing: true }); }
+    try { await post("/api/robot/teaching/mobile/lease", { session: active.session || active.id, observing: true }); }
     catch (error) { model.robot.error = error.message; }
     finally { episodeLeaseBusy = false; }
   }

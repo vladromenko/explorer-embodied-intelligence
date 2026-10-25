@@ -41,7 +41,12 @@ def main():
         config = load()
         store = Store(config['data_dir'])
         if args.command == 'status':
-            print(json.dumps(dict(url=config['public_url'], nodes=store.nodes(), jobs=store.jobs(10), skills=len(store.skills())), ensure_ascii=False, indent=2))
+            print('Explorer: ' + config['public_url'])
+            for node in config['nodes']:
+                seen = store.nodes().get(node['id'], {}).get('last_seen', 0)
+                print(node['name'] + ': ' + ('online' if time.time() - seen < 20 else 'offline'))
+            jobs = store.jobs(100)
+            print('Заданий: ' + str(len(jobs)) + '; моделей: ' + str(len(store.skills())))
         if args.command == 'login-url':
             ticket = secrets.token_urlsafe(32)
             with store.connect() as db:

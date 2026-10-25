@@ -450,6 +450,10 @@ class NodeAgent:
         if not token or len(token) < 16:
             raise ValueError("EXPLORER_NODE_TOKEN must contain at least 16 characters")
         self.node_id, self.mode, self.token = node_id, mode, token
+        self.legacy_bridge = None
+        if mode == "nano":
+            from .legacy_bridge import LegacyBridge
+            self.legacy_bridge = LegacyBridge(Path(legacy_dir).parent)
         self.state_dir = Path(state_dir)
         self.state_dir.mkdir(parents=True, mode=0o700, exist_ok=True)
         self.delivery = delivery or EventDelivery(node_id, self.state_dir, central_url, ingest_token)
@@ -532,7 +536,8 @@ def make_handler(agent):
             path = unquote(urlsplit(self.path).path)
             if path == "/health":
                 self._json(200, {"ok": True, "schema_version": 1, "node_id": agent.node_id,
-                                 "mode": agent.mode, "physical_motion": False})
+                                 "mode": agent.mode, "physical_motion": agent.mode == "nano",
+                                 "controller_settings_changed": False})
             elif not self._authenticated():
                 self._json(401, {"error": "unauthorized"})
             else:
@@ -545,7 +550,10 @@ def make_handler(agent):
 
         def _get(self, path):
             parts = path.strip("/").split("/")
-            if path == "/inventory":
+            if path.startswith("/legacy/") and agent.legacy_bridge is not None:
+                code, payload = agent.legacy_bridge.request(path.removeprefix("/legacy/"))
+                self._json(code, payload)
+            elif path == "/inventory":
                 self._json(200, agent.inventory())
             elif path == "/cameras":
                 self._json(200, {"cameras": agent.cameras()})
@@ -634,7 +642,8 @@ def make_handler(agent):
                 self._json(401, {"error": "unauthorized"})
                 return
             path = unquote(urlsplit(self.path).path)
-            if path != "/recordings":
+            legacy = path.startswith("/legacy/") and agent.legacy_bridge is not None
+            if path != "/recordings" and not legacy:
                 self.close_connection = True
                 self._json(404, {"error": "Endpoint not found; no physical API is provided"})
                 return
@@ -645,9 +654,13 @@ def make_handler(agent):
                 payload = json.loads(self.rfile.read(length))
                 if not isinstance(payload, dict):
                     raise ValueError("Expected a JSON object")
-                manifest = agent.recordings.start(payload.get("camera_id"), payload.get("duration_s"),
-                                                  payload.get("recording_id"), payload.get("project_id"))
-                self._json(202, manifest)
+                if legacy:
+                    code, result = agent.legacy_bridge.request(path.removeprefix("/legacy/"), payload)
+                    self._json(code, result)
+                else:
+                    manifest = agent.recordings.start(payload.get("camera_id"), payload.get("duration_s"),
+                                                      payload.get("recording_id"), payload.get("project_id"))
+                    self._json(202, manifest)
             except (ValueError, TypeError) as exc:
                 self.close_connection = True
                 self._json(400, {"error": str(exc)})

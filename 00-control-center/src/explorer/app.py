@@ -145,6 +145,10 @@ def research_status():
               'scientific_status': 'UNTESTED_HYPOTHESIS', 'venue': 'NOT_CONFIRMED'}
     if metrics.exists():
         result.update(json.loads(metrics.read_text()))
+    review_status = base / 'REVIEW_STATUS.json'
+    if review_status.exists():
+        result.update(json.loads(review_status.read_text()).get('counts', {}))
+        result['deep_reviewed'] = result.get('deep_reviews', 0)
     registry = base / 'literature_registry.csv'
     if registry.exists():
         with registry.open() as stream:
@@ -318,11 +322,33 @@ def sim_frame(job_id: str):
 
 
 @app.post('/api/stop')
-def stop():
+async def stop():
     for job in STORE.jobs():
         if job['status'] in ('running', 'queued', 'paused'):
             STORE.update_job(job['id'], status='cancel_requested')
-    return {'ok':True, 'scope':'Explorer software jobs. Existing manual robot STOP remains in the onboard control panel.'}
+    node = next(node for node in CONFIG['nodes'] if node['id'] == 'nano')
+    try:
+        response = await CLIENT.post('http://' + node['host'] + ':' + str(node['port']) + '/legacy/control',
+            headers={'Authorization':'Bearer ' + node['token']}, json={'op':'stop'})
+        response.raise_for_status()
+        return {'ok':True, 'scope':'Existing ROSMASTER STOP and Explorer jobs', 'robot':response.json()}
+    except httpx.HTTPError:
+        return JSONResponse({'ok':False,'scope':'Explorer jobs stopped; onboard STOP delivery not confirmed'}, 503)
+
+
+@app.api_route('/api/robot/{path:path}', methods=['GET','POST'])
+async def robot_proxy(path: str, request: Request):
+    from explorer_shared.legacy_bridge import GET_PATHS, POST_PATHS
+    if path not in (GET_PATHS if request.method == 'GET' else POST_PATHS):
+        raise HTTPException(404, 'Existing operation not available')
+    node = next(node for node in CONFIG['nodes'] if node['id'] == 'nano')
+    url = 'http://' + node['host'] + ':' + str(node['port']) + '/legacy/' + path
+    try:
+        response = await CLIENT.request(request.method, url, headers={'Authorization':'Bearer ' + node['token']},
+            **({'json':await request.json()} if request.method == 'POST' else {}))
+        return JSONResponse(response.json(), response.status_code)
+    except httpx.HTTPError:
+        raise HTTPException(503, 'Onboard control interface is unavailable')
 
 
 @app.get('/{path:path}')
