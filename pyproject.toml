@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "explorer-embodied-intelligence"
+version = "0.1.0"
+requires-python = ">=3.11,<3.14"
+dependencies = ["fastapi>=0.115,<1", "uvicorn>=0.32,<1", "numpy>=2,<3", "pillow>=11,<13", "httpx>=0.28,<1", "pyyaml>=6,<7", "psutil>=6,<8"]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10"]
+simulation = ["mujoco>=3.3,<4", "gymnasium>=1,<2", "stable-baselines3>=2.6,<3"]
+
+[project.scripts]
+explorerctl = "explorer.cli:main"
+
+[tool.setuptools]
+packages = ["explorer", "explorer_shared"]
+package-dir = {explorer="00-control-center/src/explorer", explorer_shared="shared/explorer_shared"}
+
+[tool.setuptools.package-data]
+explorer = ["static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "01-autonomous-learning/tests", "05-cooperative-handover/tests"]
