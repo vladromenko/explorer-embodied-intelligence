@@ -1,0 +1,5 @@
+name = "lerobot-teaching"
+project_id = "03"
+dependencies = ["explorer_shared.kinematics", "numpy"]
+physical_io = false
+method_ids = ["SO101_URDF_FK_IK", "OBJECT_RELATIVE_RETARGET"]

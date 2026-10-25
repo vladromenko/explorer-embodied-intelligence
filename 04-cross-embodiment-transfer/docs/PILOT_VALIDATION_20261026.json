@@ -1,0 +1,55 @@
+{
+  "scope": "kinematic_virtual_transfer",
+  "source_type": "virtual_joint_reference_not_learned_policy",
+  "source_policy_executed": false,
+  "physical_execution": false,
+  "physical_skill_success_not_tested": true,
+  "collision_check_performed": false,
+  "orientation_constrained": false,
+  "position_tolerance_m": 0.001,
+  "point_count": 24,
+  "reachable_count": 22,
+  "unsupported_points": [
+    6,
+    7
+  ],
+  "median_position_error_m": 0.0003016262858707351,
+  "max_position_error_m": 0.0011089798987850294,
+  "raw_joint_copy_virtual_baseline": {
+    "valid_points": 24,
+    "median_position_error_m": 0.02289699846982899,
+    "scope": "illustrative raw-joint baseline only; no claim against published transfer methods"
+  },
+  "elapsed_s": 0.3258486249833368,
+  "source_joint_names": [
+    "shoulder_pan",
+    "shoulder_lift",
+    "elbow_flex",
+    "wrist_flex",
+    "wrist_roll"
+  ],
+  "target_joint_names": [
+    "arm1_Joint",
+    "arm2_Joint",
+    "arm3_Joint",
+    "arm4_Joint",
+    "arm5_Joint"
+  ],
+  "source_urdf_sha256": "3a65d2d35e68a8d2f0c2cc176d19b884506543c93ba72980145b80abe276022c",
+  "target_urdf_sha256": "9ee94f15a2473ba04c84c552bae47f7dd2bd734b8b3700f3fe25d752c3eace4b",
+  "source_revision": "a758567c3978dfeefe282ede0500085a48fe8f78",
+  "registration_provenance": "virtual_declared",
+  "gripper_transfer": "not_attempted_separate_measured_aperture_calibration_required",
+  "method_status": "KNOWN_BASELINE_ENGINEERING_GLUE",
+  "hypotheses_status": "UNTESTED_HYPOTHESIS",
+  "method_ids": [
+    "SO101_URDF_FK_IK",
+    "OBJECT_RELATIVE_RETARGET",
+    "LELAB_CHECKPOINT_IMPORT"
+  ],
+  "artifact_sha256": {
+    "kinematic_trajectories.npz": "a2cffa840104039df494cd329ecca3b8b40a3916586fa9d52a6ab7732c8c5d2e",
+    "transfer_errors.csv": "10407fbef1bca867e293c1060dc688d2b2e7d2cf4358a87ca46534cbe876708f",
+    "frame.jpg": "9a3b465ba5ae621b3879202791087f586c4b0a026421dc256659e90811049f50"
+  }
+}

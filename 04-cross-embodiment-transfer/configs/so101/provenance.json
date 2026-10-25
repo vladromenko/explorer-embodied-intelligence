@@ -1,0 +1,25 @@
+{
+  "repository": "https://github.com/TheRobotStudio/SO-ARM100",
+  "revision": "a758567c3978dfeefe282ede0500085a48fe8f78",
+  "license": "Apache-2.0",
+  "scope": "Official URDF kinematics only; referenced visual/collision meshes are not vendored here.",
+  "files": {
+    "so101_new_calib.urdf": {
+      "source_url": "https://raw.githubusercontent.com/TheRobotStudio/SO-ARM100/a758567c3978dfeefe282ede0500085a48fe8f78/Simulation/SO101/so101_new_calib.urdf",
+      "sha256": "3a65d2d35e68a8d2f0c2cc176d19b884506543c93ba72980145b80abe276022c"
+    },
+    "so101_leader_new_calib.urdf": {
+      "source_url": "https://raw.githubusercontent.com/TheRobotStudio/SO-ARM100/a758567c3978dfeefe282ede0500085a48fe8f78/Simulation/SO101/so101_leader_new_calib.urdf",
+      "sha256": "bc947e2fea65dfc91b0fc40e4cff0c01c6bf426687995937e62e2b0f41122db5"
+    },
+    "README.md": {
+      "source_url": "https://raw.githubusercontent.com/TheRobotStudio/SO-ARM100/a758567c3978dfeefe282ede0500085a48fe8f78/Simulation/SO101/README.md",
+      "sha256": "c6df213e471e4573ba6384cb957e9eee9644f5d671272f98f67d28866333f747"
+    },
+    "LICENSE": {
+      "source_url": "https://raw.githubusercontent.com/TheRobotStudio/SO-ARM100/a758567c3978dfeefe282ede0500085a48fe8f78/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    }
+  },
+  "gripper_warning": "LeRobot 0=closed,100=open is not represented by this URDF revolute gripper; measured aperture mapping is separate."
+}

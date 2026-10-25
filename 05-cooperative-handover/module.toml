@@ -1,0 +1,5 @@
+name = "cooperative-handover"
+project_id = "05"
+dependencies = ["explorer_shared.handover", "explorer.transfer"]
+physical_io = false
+method_ids = ["HANDOVER_VERIFIED_FSM"]

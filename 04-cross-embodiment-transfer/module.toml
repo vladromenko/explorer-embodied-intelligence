@@ -1,0 +1,5 @@
+name = "cross-embodiment-transfer"
+project_id = "04"
+dependencies = ["explorer.transfer", "explorer_shared.kinematics", "numpy", "pillow"]
+physical_io = false
+method_ids = ["SO101_URDF_FK_IK", "OBJECT_RELATIVE_RETARGET", "LELAB_CHECKPOINT_IMPORT"]

@@ -1,0 +1,6 @@
+{
+  "ARM_ONLY": {"base_source": "zero_requested_velocity", "retargeting": "object_relative_fk_ik", "gripper": "separate_measured_aperture_calibration"},
+  "MOBILE_MANIPULATION": {"base_source": "existing_operator_keyboard", "retargeting": "object_relative_fk_ik", "gripper": "separate_measured_aperture_calibration"},
+  "physical_calibration_status": "NOT_VERIFIED_BY_THIS_MODULE",
+  "controller_settings_modified": false
+}

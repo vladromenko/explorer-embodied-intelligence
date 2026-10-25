@@ -1,0 +1,1 @@
+Implementation: `00-control-center/src/explorer/transfer.py`, shared FK/IK: `shared/explorer_shared/kinematics.py`. Keeping one implementation avoids separate robot drivers and inconsistent geometry copies.

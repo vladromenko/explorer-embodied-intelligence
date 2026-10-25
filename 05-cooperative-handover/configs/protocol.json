@@ -1,0 +1,1 @@
+{"schema_version":1,"states":["PREPARE","ROSMASTER_HOLDING","OFFER","SO101_APPROACH","RECEIVER_GRASP_CHECK","RELEASE_AUTHORIZED","RELEASE","CONFIRM_TRANSFER","SO101_FINISH","FAULT","SAFE_STOP"],"receiver_hold_evidence":"independent_measurement_or_operator_confirmation","timer_authorizes_release":false,"closed_joint_command_is_hold_evidence":false,"physical_io":false}
