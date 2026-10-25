@@ -1,0 +1,71 @@
+{
+  "paper_id": "P050",
+  "deep_review": true,
+  "problem": "Recover explicit dynamical equations beyond an initial library using costly interventions, while refusing predictions unsupported by independent evidence.",
+  "contribution": "ALDER separates structural law proposals, numerical coefficient fitting, disagreement-driven active queries and protected admission. Primary PDF title is ALDER: Discovering the Laws of a World by Acting in It; tested robot tasks are simulated, not physical autonomous discovery.",
+  "algorithm": "A typed bounded expression grammar defines executable response laws. An agent proposes structure, a harness fits coefficients on public evidence, and a verifier admits or rejects it. Prediction disagreement among refitted public candidates, diversity and interaction cost select feasible experiments; their observed counterexamples support structural revision. Admission freezes the law or the run refuses after its budget.",
+  "observations": "Given task state and force signals: relative poses and velocities, commanded pulls, joint positions/velocities and simulator joint force. Protected admission/shift/test observations and unqueried outcomes are withheld from the proposing agent.",
+  "actions": "Discovery queries choose allowed initial states, pulls, horizons and optional motion preludes. Downstream control numerically inverts an admitted joint-force model under fixed low-level control; the same bounded Brent solver and evaluation budget are used for compared models.",
+  "embodiment_and_data": "NovelLaw 60 cases; 59 ODEBase systems; ManiSkill PullCubeTool/PushT; RoboCasa OpenDrawer/OpenDoor with PandaOmron, 20 Hz controller, four reached grasp states and ten seeds times four mechanics families per task. State/force access and no rendering in RoboCasa are material assumptions.",
+  "experiments": "Separate public fit/query evidence, protected admission and final control probes. RoboCasa has 40 worlds per task, two passive trajectories/world, up to six queries, 19/24 admission probes, and 20 disjoint control probes; numerical inverse extension evaluates 640 targets per task. An additional fixed-candidate 182-case study uses equal eight-query budgets and retrospective sustained-identification cost.",
+  "baselines": "One-shot, revision-only and random-query agents with shared grammar/fitter/admission; fixed libraries, SINDy and MLP; selector passive/random/geometric/parameter uncertainty; RoboCasa nominal/passive law/matched two-layer 32-unit MLP. ODEBase published comparisons are explicitly not matched in backbone or interaction budget; parameter/outcome oracles remain references.",
+  "quantitative_result": "Table 1A PDF p6: NovelLaw functional recovery ALDER 85.0% versus one-shot 43.3%, revision-only 75.0%, random-query 85.0%; shifted NMSE 5.58e-3 versus random 9.15e-3. Table 2 p8: Drawer inverse-control success 100.0±0.0% versus matched MLP 96.9±2.4%; Door 100.0±0.0% versus 99.5±1.1%, ten seeds averaging four families. Table 3B p9: estimated-force channel admits 0.0% and obtains 0.0% all-target control success. Conditional RMSE must be reported with coverage. Table 14 p21 relative finite-candidate success is a different metric from absolute inverse-control success.",
+  "limitations": "Prespecified state representation/operator grammar; short simulated interactions; exact force reference is crucial, motion-estimated force fails admission. Candidate agreement can reflect shared errors and repeated verifier reuse can overfit. Admission proves tested prediction scope, not unique physical law identification. Rejected proposals and refusals stay in recovery/control denominators.",
+  "code_and_license": "Paper describes isolated proposal repositories and evaluation harness but no repository license was independently inspected. Paper, code and data licenses remain NOT_AUDITED. No code inspected or executed for this review.",
+  "hardware_adaptation": "ADAPT the ledger, separate data roles, public-only selector and refusal protocol for calibrated low-dimensional dynamics experiments. Current SO101/ROSMASTER camera/joint signals do not establish the required force observability. No exact-force or physical control-performance claim; do not change controller settings to imitate the paper.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 5,
+      "section": "3.2-3.3",
+      "supports": "candidate selection, public-only evidence, protected admission and inverse control"
+    },
+    {
+      "page": 8,
+      "section": "4.3 Table 2",
+      "supports": "simulated robot setup and absolute inverse-control results"
+    },
+    {
+      "page": 9,
+      "section": "Table 3, 4.4-5",
+      "supports": "coverage, force-estimation failure and limitations"
+    },
+    {
+      "page": 12,
+      "section": "A.1.1-A.1.2 Algorithm 1",
+      "supports": "scope of admission and isolated discovery loop"
+    },
+    {
+      "page": 20,
+      "section": "A.4.1-A.4.2",
+      "supports": "fixed controller, reached initial states, separated budgets and probes"
+    },
+    {
+      "page": 21,
+      "section": "A.4.2 Table 14",
+      "supports": "different relative/absolute success definitions and Brent budget"
+    },
+    {
+      "page": 23,
+      "section": "A.5.2",
+      "supports": "motion-estimated force stress-test protocol"
+    },
+    {
+      "page": 27,
+      "section": "A.6.3-A.7",
+      "supports": "backbone robustness, matched statistics and resource costs"
+    }
+  ],
+  "algorithm_detail": "Linear-in-coefficient squared-error laws use ridge regression; bounded nonlinear coefficients use logistic reparameterization, gradient optimization, restarts and clipping. Typed grammar independently checks arity, variables, bounds, size and execution; protected arithmetic floors division/base and clips exponentials. Structural revision may add missing variables/operators/compositions, unlike refitting alone. Selector disagreement is an information-gain proxy, not an exact MI computation. Admission checks error against a reference, complexity, numerical stability and shift robustness; protected numeric scores never enter agent context. Brent inverse control allows at most 48 model evaluations and prescribed horizons 11,17,7; actual execution follows action selection.",
+  "integration_contract": "Input: typed expression AST, declared observable variables/units, public episode IDs, grammar version, query constraints and fixed budgets. Output: fitted law with provenance and validation scope or refusal, plus public diagnostics. Keep protected admission objects outside agent-readable files and never expose query-pool outcomes before selection. Every candidate/model call records failure, refusal, coverage and consumed budget.",
+  "license_evidence": "NOT_AUDITED: no primary code/data license text inspected. Do not infer a reuse license from arXiv availability or an executable-method description.",
+  "required_experiments": "Before any hardware adaptation, quantify which force/state channels actually exist; validate sensor error and observability. Use fixed held-out initial conditions and physics shifts, compare random selection at equal query cost, report conditional error plus admission coverage and all-target success, audit leakage by changing hidden pool outcomes, and retain all invalid/refused runs. Simulated exact-force reproduction is separate from physical feasibility.",
+  "difference_from_explorer": "Explorer's current object-relative URDF transfer and handover state machine are geometry/protocol engineering; neither discovers force laws. ALDER does not supply SO101/ROSMASTER calibration, reset scripts, visual state estimation or a tested physical dynamics model.",
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "59ba21f26e716d6c334df00e9903ffa0d1d887b9cb2aa1c510833015fd04fa3b",
+  "primary_url": "https://arxiv.org/abs/2609.33728",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

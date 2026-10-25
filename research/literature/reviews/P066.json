@@ -1,0 +1,71 @@
+{
+  "paper_id": "P066",
+  "deep_review": true,
+  "problem": "Make latent model-based continuous-control RL robust across tasks and scalable to multitask datasets without per-task hyperparameter tuning.",
+  "contribution": "TD-MPC2 is a decoder-free control-centric world model with SimNorm, distributional reward/value regression, an ensemble critic, maximum-entropy policy prior and sampled MPC. Full-text title/authors match the ICLR2024 primary paper; broad multitask experiments are simulation, not physical cross-robot deployment.",
+  "algorithm": "Encode observation/task embedding; predict latent transition, reward and terminal value; train joint-embedding consistency plus reward/TD cross-entropy. MPPI-style local trajectory search mixes random proposals with policy-prior trajectories, bootstraps terminal Q and warm-starts from the previous plan; execute only the first action before replanning.",
+  "observations": "Primarily proprioceptive simulator state, with a shallow image encoder for ten visual DMControl tasks. Learned task IDs condition encoder/dynamics/reward/Q/prior; they are not natural-language instructions. Different-dimensional state/action vectors are zero-padded and invalid action dimensions masked.",
+  "actions": "Continuous task-specific simulator controls, up to39 dimensions. Masks apply both in policy training/inference and planner sampling. Multitask padding does not align the physical semantics of joint or Cartesian actions across new embodiments.",
+  "embodiment_and_data": "104 online-control tasks across DMControl, Meta-World, ManiSkill2 and MyoSuite. Multitask80-task corpus has545M transitions from replay of240 single-task agents (random through expert), including50Meta-World plus30DMControl tasks. Models1M to317M; default single-task5M and batch256.",
+  "experiments": "Online curves use three seeds with95%CIs; compare sample efficiency/asymptotic performance, scaling, ablations and ten held-out-task adaptation. Few-shot full-model finetuning uses initially empty replay,20k online steps and19M model pretrained on70 tasks. AppendixE discloses semantically selected source-task embedding initialization and no alternate pairing tests.",
+  "baselines": "SAC, DreamerV3, original TD-MPC; visual CURL/DrQ-v2. SAC/TD-MPC can use task-specific hyperparameters and batch512, DreamerV3 UTD512 versus TD-MPC2 defaultUTD1; training budgets and implementations matter. Ablate actor/planning, normalization, discrete regression and ensemble sizes.",
+  "quantitative_result": "Table1 PDFp7:80-task normalized scores1M16.0,5M49.5,19M57.1,48M68.0,317M70.6, approximate training3.7/4.2/5.3/12/33 RTX3090GPU-days. Figure8 p7:held-out10-task score47.0 finetuned versus24.0 fromscratch after20k steps,3seeds. Figure9 p8:19M multitask policy-only42.2 versus planning+policy54.2 normalized score; do not report these as physical success percentages.",
+  "limitations": "Rewards and task identities are given; few-shot effectiveness depends on task pairing. Data545M transitions and33GPU-days largest model exceed casual NX training scope. Visual results are a separate ten-task experiment. Discrete actions and zero-shot novel physical embodiment control remain open. Reward misspecification and model exploitation can cause unintended actions.",
+  "code_and_license": "Paper publicly links https://tdmpc2.com and reports300+checkpoints/data/code; this review did not independently inspect repository/model/data license texts or execute them. Public availability does not establish identical reuse rights for each artifact.",
+  "hardware_adaptation": "COMPARE a small state-based TD-MPC2 baseline against current PPO/SAC in actual simulator action schema. Consider compact latent planning only after measured target action mapping, rewards, timing and dynamics validation. Do not copy padded source action heads to SO101/ROSMASTER or change their controller settings.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "3.1",
+      "supports": "decoder-free components and task conditioning"
+    },
+    {
+      "page": 4,
+      "section": "Equations3-6",
+      "supports": "objectives, SimNorm, Q ensemble and MPC"
+    },
+    {
+      "page": 5,
+      "section": "3.3-4",
+      "supports": "padding/masking and task domains"
+    },
+    {
+      "page": 6,
+      "section": "Baselines",
+      "supports": "algorithm/training-budget differences"
+    },
+    {
+      "page": 7,
+      "section": "Table1 Figure8",
+      "supports": "compute scaling and finetuning metrics"
+    },
+    {
+      "page": 8,
+      "section": "Figure9-10",
+      "supports": "ablations and image-only subset"
+    },
+    {
+      "page": 9,
+      "section": "5",
+      "supports": "discrete-action/generalization limitations and reward/model risks"
+    },
+    {
+      "page": 24,
+      "section": "AppendixE Table7",
+      "supports": "semantic initialization and task-dependent few-shot scope"
+    }
+  ],
+  "algorithm_detail": "Five jointly conditioned components use MLP+LayerNorm+Mish. Latents partition into fixed-size softmax simplices (SimNorm). Reward and value targets use soft labels in a log-transformed discrete representation. Five Q-functions use minimum of two random EMA targets. The maximum-entropy prior is updated without changing encoder/dynamics via its own objective; value magnitude is normalized with moving statistics. MPPI optimizes a time-dependent diagonal Gaussian, bootstraps terminal value, samples prior-guided trajectories and shifts prior plans forward.",
+  "integration_contract": "Specify observation order/units, normalized action bounds, per-task masks, task-ID map, reward definition, temporal spacing and terminal/truncation semantics. Save model/replay schema and RNG/config hashes. Separate simulation normalized scores, task success and hardware outcomes; benchmark planner latency on NX with realistic batch/horizon before any physical inference.",
+  "license_evidence": "NOT_AUDITED for code, weights and datasets individually. Paper link and release claim alone are not licensing evidence.",
+  "required_experiments": "Replicate small state-control baseline with matched environment steps/seeds and wall-clock budget; compare model-free control, planning-only/prior-only and SimNorm ablations. Evaluate held-out starts/dynamics, invalid-action masks, reward errors and model exploitation; measure NX memory/inference deadline. Any physical experiment requires real calibrated schema and evidence beyond the simulator results.",
+  "difference_from_explorer": "Existing geometry-only object-relative transfer is not a trained TD-MPC2 world model; current PPO pilot and hardware demonstrations do not supply545M simulator transitions or reward/generalist pretraining. This paper offers a baseline algorithm, not an already executable cross-embodiment checkpoint.",
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "99832c555b66665ad1e26cd48e75ea9dda4f3750175b993e7ed5b8dfe399b9e0",
+  "primary_url": "https://arxiv.org/abs/2310.16828",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

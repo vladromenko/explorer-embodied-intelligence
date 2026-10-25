@@ -1,0 +1,81 @@
+{
+  "paper_id": "P052",
+  "deep_review": true,
+  "problem": "Enable repeatable physical policy improvement by giving coding agents reliable reset, rollout and outcome-verification interfaces instead of treating code generation itself as robot research progress.",
+  "contribution": "ENPIRE is a two-stage harness: humans help construct and validate immutable environment/reset/reward APIs, then agents modify policy/training code from real rollout feedback. Parallel identical stations share hypotheses through Git. Primary PDF is the September 2026 v2 of ENPIRE: Agentic Robot Policy Self-Improvement in the Real World.",
+  "algorithm": "EN establishes task interfaces and feedback using demonstrations/human critique; PIRE then alternates policy refinement, physical rollouts, logged reward analysis and hypothesis selection. Agents may combine procedural skills, BC and offline/online RL. Distributed agents run asynchronously and merge useful recipes; environment APIs remain immutable during policy search.",
+  "observations": "Top-down and two wrist RGB-D streams, robot proprioception and task-dependent force/torque estimates; GPU insertion adds a side RGB-D camera. Pin verification fuses visual alignment, insertion height and estimated force, and zip-tie verification uses two views to reduce single-view false positives.",
+  "actions": "Policies issue joint targets at 30 Hz through the provided controller; lower-level YAM tracking is 100 Hz. Agents edit training/policy code and invoke reset/rollout APIs. The paper's existing bounded-force grippers and fixed control setup are hardware features, not settings transferable to SO101.",
+  "embodiment_and_data": "Eight identical bimanual YAM stations, each two 6-DoF CAN arms with a 1-DoF gripper and an RTX5090 32GB/128GB RAM workstation. Real Push-T, pin insertion, GPU insertion and zip-tie cutting; simulation PushT and RoboCasa365. Disk-finalized episodes retain action-source labels and route human/manual data separately from online RL data.",
+  "experiments": "Compares agent backbones/harnesses, heuristic and gradient-based policy improvement, and fleet sizes 1/4/8. Human-guided environment construction precedes autonomous PIRE. Main success metric permits eight feedback-conditioned retries within one rollout, unlike independent one-shot precision. Pin target is 50 consecutive successful episodes. Simplified Push-T vision ablations use relaxed success regions and 10-degree orientation tolerance.",
+  "baselines": "Codex GPT-5.5 xhigh, Claude Code Opus4.7 High and Kimi K2.6; pin comparison to PLD-RL human-in-loop recipe; RoboCasa GR00T N1.5 and zero-shot CaP-X; native vision versus callable-image-understanding versus no visual access on simplified Push-T. Compute/fleet and training recipe can differ, so identify the comparison when citing gains.",
+  "quantitative_result": "PDF p7 section3.3 reports one-to-eight stations reduces Push-T time to normalized score1 from roughly5h to2h, and pin time to near-perfect success from >1.5h to about40min. These are stated approximate curve results, not a paired confidence interval. Figure2 p2 and appendix B.6 p20 attribute +10.8 percentage points to BC regularization in an example idea tree. Page5/A.2 p16 reward implementation latency budget is under150ms. Exact final task-by-task success denominators are NOT_EXTRACTED; do not interpret abstract99% as single-attempt success across all tasks.",
+  "limitations": "Substantial one-time human work is needed for validated reset/reward/environment construction; the immutable interfaces and force-capable YAM system are prerequisites. Resource utilization is incomplete; larger fleets reduce per-robot utilization and increase token cost superlinearly. Eight retries conflate precision with recovery. Reward-design held-out snapshots may be inspected for failures during development, so separate a fresh final audit. Provided PDF code snippets2/3 appear to repeat a generic prompt rather than executable implementations.",
+  "code_and_license": "Primary PDF p1 links https://github.com/NVlabs/ENPIRE and research.nvidia.com/labs/gear/enpire. Repository, model and data licenses were not independently inspected. Copyright on PDF is NVIDIA2026, all rights reserved; it does not establish a code/data license. No code inspected or executed.",
+  "hardware_adaptation": "ADAPT the immutable episode interface, finalized directories, action-source provenance, hypothesis ledger and independently assessed visual outcome verifier. NX16GB/SO101/ROSMASTER are materially different from each32GB5090 station and CAN torque-capable YAM. Keep existing controller settings; camera-only demonstrations remain unvalidated for outcome, grasp force and autonomous reset until supported by actual evidence.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "2.1",
+      "supports": "human-guided fixed environment construction and verification"
+    },
+    {
+      "page": 5,
+      "section": "2.1-2.2",
+      "supports": "immutable Gym interfaces, reset and policy refinement"
+    },
+    {
+      "page": 6,
+      "section": "3",
+      "supports": "task metric including eight retries and agent variants"
+    },
+    {
+      "page": 7,
+      "section": "3.1-3.4",
+      "supports": "real-versus-simulation difficulty and fleet speed comparison"
+    },
+    {
+      "page": 9,
+      "section": "4",
+      "supports": "utilization and superlinear token-cost limitations"
+    },
+    {
+      "page": 16,
+      "section": "A.2",
+      "supports": "human demonstrations, held-out reward development and latency"
+    },
+    {
+      "page": 18,
+      "section": "B.1-B.2",
+      "supports": "session isolation, summary-only transfer and hardware"
+    },
+    {
+      "page": 19,
+      "section": "Table1 B.3-B.5",
+      "supports": "compute, rates and actual low-level force-capable setup"
+    },
+    {
+      "page": 20,
+      "section": "B.5-B.6 C.1",
+      "supports": "finalized episode/data-source mixing and relaxed ablation conditions"
+    },
+    {
+      "page": 21,
+      "section": "C.3-D.1",
+      "supports": "vision ablations and privileged APIs removed in canonical simulation"
+    }
+  ],
+  "algorithm_detail": "Each station's FastAPI supports separately identifiable rollout buffers; Git carries code/results across a decentralized fleet. Human feedback first establishes reset/reward; the agent then owns a streamlined writable learning codebase and chooses BC, RL or procedural hybrids. SERL-style deployment/actor/learner processes use finalized disk episodes; RL transitions enter online replay and human/manual labels enter demonstration replay. Explicit markdown summaries transfer research experience to a new task after raw trajectories/checkpoints/transient logs are removed. Canonical simulation removes state-leaking/oracle/repeated-reset APIs.",
+  "integration_contract": "Represent environment version, task/reset/verifier versions, episode ID, action source per step, synchronized camera timestamps, policy commit and immutable evaluation configuration. Grant a policy experiment only supported rollout interfaces; finalized episode boundary gates replay ingestion. Report one-attempt success, retry-conditioned rollout success, reset failures and verifier false positives separately; store old failed hypotheses and compute/token/wall-clock cost.",
+  "license_evidence": "Paper copyright text inspected, repository license NOT_AUDITED; no permission inferred for code, model weights or camera data. API principles may be independently implemented with citations.",
+  "required_experiments": "Offline label verifier on fresh held-out success/failure videos including occlusion; compare latency and false positives across available views. Measure reset success and human intervention separately. Reproduce a low-cost single-station baseline with fixed episodes and policy versions before parallel optimization; compare recipes under equal interaction/time budgets, preserve all failures, and evaluate on fresh task configurations after selection.",
+  "difference_from_explorer": "Explorer currently offers one ROSMASTER plus SO101 arms with real legacy control and camera recording, not a validated eight-station autonomous-reset RL laboratory. Adopting a logging/hypothesis interface does not establish ENPIRE performance, force sensing or automatic manipulation reliability.",
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "b5c0c25ee0abe0c7c251b2f751b6ecb18345f5c6e11af55979262dda86c70f5a",
+  "primary_url": "https://arxiv.org/abs/2606.19980",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

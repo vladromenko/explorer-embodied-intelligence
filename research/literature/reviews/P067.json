@@ -1,0 +1,66 @@
+{
+  "paper_id": "P067",
+  "deep_review": true,
+  "problem": "Determine whether latent world-model actor-critic learning can reduce real physical interaction enough to learn locomotion, manipulation and navigation directly on robots without a simulator.",
+  "contribution": "DayDreamer applies DreamerV2 to four physical platforms with asynchronous learning/action collection and multimodal sensor fusion, keeping one algorithm/hyperparameter setting. It is an empirical real-world baseline, not a new physics-verified safety or universal manipulation method.",
+  "algorithm": "A replay-trained recurrent state-space model fuses sensors into stochastic discrete latents, reconstructs observations and predicts reward. Actor/critic train on imagined latent trajectories with lambda returns, entropy regularization and a slow critic target; actor/critic gradients do not alter the world model. The actor thread operates while a separate learner updates the networks.",
+  "observations": "Task dependent: A1 joint angles/orientation/angular velocity; UR5 joint/gripper/EEproprioception plus third-personRGB; XArm adds depth; Sphero top-downRGB only and recurrent history for heading ambiguity.",
+  "actions": "A1 motor-angle targets20Hz through existingPD and a Butterworth command filter; UR5 discrete Cartesian increments/gripper toggle2Hz with task-specific Z and gripper automation; XArm same discrete scheme~0.5Hz; Sphero continuous motor torque2Hz. These action restrictions are part of experimental design.",
+  "embodiment_and_data": "UnitreeA1, UR5 with three balls/two bins, low-cost7DoFXArm with a soft object tethered to its gripper by string, SpheroOllie. All learn from physical replay; robot-specific dense/sparse rewards and task setups are given. Humans relocate A1 at space boundaries and baselines may require untangling interventions.",
+  "experiments": "Four different physical tasks and task-appropriate algorithm baselines. Quadruped curve is a single training run with variability within time bins, not independent-run confidence. Pick-place human reference is3operators20min each. XArm initial experiments occur after sundown; sunrise robustness is additional online adaptation rather than zero-shot visual invariance.",
+  "baselines": "SAC for state-based A1; Rainbow for discrete visual arm tasks and PPO additionallyUR5; joystick human operators for pick/place; DrQv2 for continuous visual Sphero. Sphero DrQv2 is similar, so do not claim world models uniformly dominate.",
+  "quantitative_result": "Figure4/PDFp5-6:A1 learns roll/stand/walk in~1h and adapts to pushes with~10min extra training. UR5section3.2/p6:2.5objects/min after8h. XArmsection3.3/p7:3.1objects/min after10h under tethered single-object setup. Sphero/p7:average normalized goal distance0.15 after2h, similarDrQv2. AppendixA/p13:XArm sunrise performance initially drops and recovers in~5h; not immediate lighting invariance.",
+  "limitations": "Many hardware-hours cause wear/intervention/repair; small physical studies do not establish multi-seed reliability or every baseline's asymptotic ceiling. Task-specific engineered rewards/action restrictions matter. Partial gripper closure is a grasp proxy, not independent object retention proof. Decoded imagination can change object appearance; XArm string changes the task and contact dynamics.",
+  "code_and_license": "Paper builds on officialDreamerV2 and links https://danijar.com/daydreamer, announcing infrastructure release. Code, model and dataset license texts were not independently inspected; no code executed. Distinguish method citation from an audited reusable implementation.",
+  "hardware_adaptation": "ADAPT asynchronous episode/learner interfaces and a small replay/model baseline in simulation. On current hardware, camera/proprioception availability, grasp verification, physical reset and action rate must be established empirically. Keep existing controller configuration; do not infer force control or continuous unattended learning from this paper.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "2 Figure3",
+      "supports": "RSSM sensor fusion and actor/learner split"
+    },
+    {
+      "page": 4,
+      "section": "Behavior learning",
+      "supports": "lambda-return objective and gradient separation"
+    },
+    {
+      "page": 5,
+      "section": "Figure4 3.1",
+      "supports": "single-run statistics, control/filter and manual space-boundary intervention"
+    },
+    {
+      "page": 6,
+      "section": "3.2 Figure5",
+      "supports": "UR5 reward/action restrictions and physical result"
+    },
+    {
+      "page": 7,
+      "section": "3.3-3.4",
+      "supports": "XArm tether and Sphero baseline comparability"
+    },
+    {
+      "page": 8,
+      "section": "5 Limitations",
+      "supports": "wear, intervention and training-duration limits"
+    },
+    {
+      "page": 13,
+      "section": "AppendicesA-B",
+      "supports": "sunrise recovery and imperfect decoded imagination"
+    }
+  ],
+  "algorithm_detail": "DreamerV2 discrete stochastic RSSM posterior uses current sensor observation and previous latent/action; a prior predicts future latent without observations. Reconstruction supplies rich representation supervision; reward predictor approximates given physical rewards. Latent imaginary rollouts train a critic using recursively mixed lambda returns and an actor with reparameterization gradients for continuous controls or Reinforce for discrete controls. Entropy supports exploration; learner runs without rate limiting while inference meets hardware deadlines.",
+  "integration_contract": "Record synchronized multimodal observations, actual executed actions and robot-specific reward source, timestamps, episode termination and human interventions. Separate actor checkpoint versions from replay-producing policy versions. Maintain a stable calibrated action interface and explicit observation schema; output model predictions are hypotheses, not real camera or success evidence.",
+  "license_evidence": "NOT_AUDITED: no source license for implementation, trained weights or robot recordings was inspected. Project URL is a source pointer, not proof of blanket reuse permissions.",
+  "required_experiments": "Start with simulator reproduction and matched model-free baseline; test asynchronous checkpoint updates and missing/delayed sensors. Evaluate fresh lighting/initial states, record all human resets and intervention time, audit grasp/outcome proxies against independent video labels, measure NX train/inference contention. Report independent physical runs before general reliability claims.",
+  "difference_from_explorer": "Explorer has synchronized camera recording and legacy operational control but does not yet constitute a Dreamer-trained policy/reward/reset system. Paper's UR5 restricted action loop, XArm tether and A1 protective setup cannot be silently generalized to SO101/ROSMASTER tasks.",
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "2ee10ae0961bef97ca522bb7ee5b7514e7a918a637dedad569b572b18bccb35e",
+  "primary_url": "https://arxiv.org/abs/2206.14176",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

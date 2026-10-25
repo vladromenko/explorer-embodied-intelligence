@@ -1,0 +1,61 @@
+{
+  "paper_id": "P042",
+  "deep_review": false,
+  "problem": "Infer robot actions from RGB video demonstrations without action annotations, while handling heterogeneous demonstration embodiments.",
+  "contribution": "AVDC synthesizes task-conditioned videos, estimates dense frame correspondences and recovers rigid3D motion using initial depth, then uses existing robot primitives. Verified primary title is Learning to Act from Actionless Videos through Dense Correspondences.",
+  "algorithm": "A CLIP-text/first-frame-conditioned factorized spatial-temporal U-Net diffusion model predicts8frames. GMFlow estimates adjacent-frame correspondences; initialRGBD and intrinsics lift segmented points to3D. Optimize anSE3transform to minimize tracked2D reprojection error. Compose object motion with a grasp/contact transform and position-control subgoals, replanning when motion<1mm for15steps.",
+  "observations": "InitialRGBD, calibrated intrinsics, language goal and target object mask; later predicted frames need no depth. Object motion assumes fixed camera/rigid object; navigation instead assumes static scene and inverts estimated scene transforms. Main Meta-World experiments give ground-truth object masks.",
+  "actions": "Off-the-shelf grasp/contact and robot position-control/IK primitives execute predicted object transforms; navigation maps camera transforms to MoveForward/RotateLeft/RotateRight/Done. Geometry recovers a motion target, not force or guaranteed feasible grasp.",
+  "embodiment_and_data": "Meta-World11tasks3cameras5demos each=165videos; iTHOR12object-navigation tasks; VisualPusher human videos transferred to simulated robot pushing; Bridge33,078WidowX demonstrations; realFrankaPanda/RealsenseD435 with20in-domain human demonstrations for finetuning dueFOV/domain differences.",
+  "experiments": "Meta-World evaluates3camera poses times25trials/task with randomized starts; navigation20episodes/object. Human-pusher transfer40runs is simulation. Real setup assumes top grasps without object reorientation;10scene configurations, detailed success counts NOT_EXTRACTED from appendixH.3.",
+  "baselines": "BC-Scratch/BC-R3M and UniPi learned inverse dynamics receive action labels unavailable toAVDC. Variants direct-flow diffusion, no replanning and full pipeline compare effects of two-stage video/flow prediction and replanning.",
+  "quantitative_result": "Table1 PDFp7:overallMeta-World success43.1% fullAVDC versus19.6% noreplan,16.2%BC-Scratch,15.4%BC-R3M,6.1%UniPi; eachtask75trials. Table2p8:iTHOR31.3% versus2.1%/0.4%BC. Section4.4p8 human-to-simulated-pusher90% of40runs. These do not establish zero-shot real-robot success; realPanda model was finetuned20human demonstrations(p9).",
+  "limitations": "Occlusion, flow errors, rapid illumination or large motions break correspondences; low image resolution amplifies3Derror. Grasp/contact selection remains embodiment-specific and force is unavailable inRGB. Rigid-object/fixed-camera assumptions exclude many deformable/contact cases. Main masks are privileged and real execution needs calibration/depth.",
+  "code_and_license": "Primary project https://flow-diffusion.github.io announces open-source modeling. Repository, weights and source-data licenses NOT_AUDITED; no code inspected/executed. Bridge/actionless video availability alone does not license arbitrary recordings.",
+  "hardware_adaptation": "ADAPT correspondence-to-object-frame transform and explicit calibrated grasp composition as a future measured baseline. Current URDFobject-relative transfer is only the geometric component; no trainedvideo/GMFlow/depthpipeline is claimed. Needs camera intrinsics/extrinsics, actualdepth and validatedgrasp primitive; no rawaction-head reuse.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "3.1",
+      "supports": "8frame diffusion architecture"
+    },
+    {
+      "page": 4,
+      "section": "3.2-3.3",
+      "supports": "flow/initial-depth reprojection formulation"
+    },
+    {
+      "page": 5,
+      "section": "3.3-4.1",
+      "supports": "action primitives, replanning and label asymmetry"
+    },
+    {
+      "page": 6,
+      "section": "4.2",
+      "supports": "privileged masks and trial protocol"
+    },
+    {
+      "page": 7,
+      "section": "Table1 FailureModes",
+      "supports": "results and correspondence failures"
+    },
+    {
+      "page": 8,
+      "section": "4.4-4.5",
+      "supports": "human transfer is simulated and Bridge setup"
+    },
+    {
+      "page": 9,
+      "section": "4.5-5",
+      "supports": "20demo real-world finetuning, topgrasp restriction and limits"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "678d6b56c8acf054a0af49c287534c43ad7b0a7ffb3f00153512a1d41b3df540",
+  "primary_url": "https://arxiv.org/abs/2310.08576",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}
