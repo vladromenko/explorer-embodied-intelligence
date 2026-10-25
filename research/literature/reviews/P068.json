@@ -1,0 +1,56 @@
+{
+  "paper_id": "P068",
+  "deep_review": false,
+  "problem": "Learn a single interactive video simulator from heterogeneous image/video/robot data to generate training experience for downstream agents.",
+  "contribution": "UniSim combines language and available low-level controls as action conditioning and autoregressively predicts video segments. Applications include hindsight goal labeling and model-based reinforcement learning, with separate qualitative realrobot demonstrations and simulated numerical evaluation.",
+  "algorithm": "Convert simulator controls,robotdata,humanactivities,panoramacamera shifts andimagecaptions toT5/text-plus-control embeddings. Train5.6BvideoU-Netdiffusion with recent-frame history concatenated tofuture noise and classifier-free actionguidance. Autoregressive segments simulate extended interaction. Relabel generated multistep trajectories with finalimagegoals; train PaLM-E/PaLIpolicies andREINFORCE using learned steps-to-completion reward.",
+  "observations": "Recentvideo history, language or discretized continuous controls; finiteframes omit previousactions/recurrentglobalstate. Staticimagecaptions treated asactions and tasklabels are imperfect stand-ins for physicalcontrols.",
+  "actions": "Language instructions and known robot controls such asLanguageTabledeltaXY. Real language-policy pipeline recovers motorcommands through a trainedinversemodel. Unified embeddings do not identify unseenrobotjoint semantics.",
+  "embodiment_and_data": "Bridge/RTrobotdata,LanguageTable,HabitatHM3D,Ego4D,EPICKITCHENS,SomethingSomething,Matterport andLAION-styleimage data. Primarilyfourrobotmorphologies;modeltraining512TPUv3×20days. Hindsightdata10kgenerated3–5instructiontrajectories.",
+  "experiments": "Historyconditioning,data/domainablations,LanguageTablelonghorizonhindsight,REINFORCE andvideocaptioning. Realrobotexecutionillustrated, but quantitativepolicy tables are qualitativelyjudged simulatedrollouts; do not reclassify them as measuredhardware rates.",
+  "baselines": "VLMBCshort-horizontraining versus simulatorhindsight;VLABC versus simulatorRL;captioning nofinetune/realvideo/syntheticvideo. DomainID helpslow-dataIDgeneration but hurtscross-domaingeneralization.",
+  "quantitative_result": "Table2 PDFp7 simulatedRDG(allblocks)0.34±0.13 hindsight versus0.07±0.11BC over5runs. Table3p7 simulated48-task success0.81RL versus0.58BC,pointingtasks0.71versus0.12;assessedqualitativelyfromgeneratedrollouts. These are not physicalsuccesscounts. Table1p5 recent4frameFVD211.3 versusoneframe315.69.",
+  "limitations": "Impossibleactions causehallucinations instead ofrefusal;finitehistory losesoccludedobjectmemory;unseenmorphologygeneralizationlimited. Visualsimulationcannotdistinguishforcesholdingastaticcup. Largecompute,proprietarypretraining/dataandqualitativehardwareevidence constrainreproduction.",
+  "code_and_license": "Primarypaperfulltextinspected;independentcode/checkpoint/data licensesNOT_AUDITED. Mixedwebandrobotdata havedistinctrights; no codeinspected/executed.",
+  "hardware_adaptation": "COMPARE history/hindsight baselines in simulation, andREUSE distinctionbetweenvisualsimulationandforcestate. No model-based physical authorization, handoverreleaseorrobustnessclaim follows from UniSimvideos. NX16GB trainingparityunsupported; needtargetdata/actioncalibration.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "2.1-2.2",
+      "supports": "heterogeneousdata andunifiedcondition"
+    },
+    {
+      "page": 4,
+      "section": "2.2 Architecture",
+      "supports": "history,diffusion andTPUcost"
+    },
+    {
+      "page": 6,
+      "section": "3.2 4.1",
+      "supports": "domainIDtradeoff andhindsightsetup"
+    },
+    {
+      "page": 7,
+      "section": "Tables2-3",
+      "supports": "simulatedversusqualitativereal-evaluationdistinction"
+    },
+    {
+      "page": 8,
+      "section": "4.2",
+      "supports": "REINFORCE andqualitativerobotdeployment"
+    },
+    {
+      "page": 9,
+      "section": "6",
+      "supports": "hallucination,memory,morphologyandvisual-onlylimits"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "956d21809f36cc107c82b3a32177ea555cacf032b3bde014fed1b958bc09c295",
+  "primary_url": "https://arxiv.org/abs/2310.06114",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

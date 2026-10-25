@@ -1,0 +1,51 @@
+{
+  "paper_id": "P070",
+  "deep_review": false,
+  "problem": "Make low-level goal policies robust to synthetic-image artifacts and prevent generated subgoals from drifting away from the language task.",
+  "contribution": "GHIL-Glue adds a learned subgoal-progress filter and independently randomized current/goal image augmentation. It improves the interface of existing SuSIE/UniPi hierarchies without replacing their robot-specific action policies.",
+  "algorithm": "Train BCEclassifierf(current,goal,instruction) on successfulforwardpairs;negatives usewronginstruction,wronggoal and reversedtime. Sample4–8subgoals/videos andselecthighestprogressscore. Desynchronizecrop/colorjitter between current/goalimages forboth classifierandlowpolicy tosimulate generated-imageartifacts. FilterUniPivideosbyfinalframe.",
+  "observations": "CurrentRGB,language,generatedgoal orvideo; trainingfromBridge/filteredhumanvideo androbotactions forlowpolicy. Progressfilterusesnoactionlabels butisnot anachievability orforceverifier.",
+  "actions": "Existing SuSIEgoalconditioneddiffusionpolicy orUniPiinversemodel actions;4–8candidate generation costin additiontopolicyinference. Differentgoal/modelartifacts requiretargettraining,equallyapplying augmentationcouldcorruptgeometryif notmeasured.",
+  "embodiment_and_data": "CALVINFrankaABCtrain/Dheldout;WidowX250Bridgephysical4tasks/scenes.45klanguage+15kactiononlyrobottrajectories and75kfilteredSomethingSomethingvideos. SuSIEsubgoals20stepsahead;UniPi16frames; mainCALVINresultsaveraged4randomseeds andphysical30trials/task.",
+  "experiments": "ComparebaseSuSIE/UniPi, filtering-only, augmentation-only andfullmethod; flatLCBC andOpenVLA. Individualcomponentgains differstronglybyhierarchy:filteralonebarelyhelpsSuSIE untilartifactrobustnessisadded.",
+  "baselines": "SuSIEandUniPireimplementation,LCBCdiffusion,OpenVLA. OriginalUniPiunavailable;genmodel/data/lowpolicycontext differ. Futureworkexplicitlyproposesfilteringbyactualgoalreachability,so currentprogressfiltercannotbeclaimed toensureit.",
+  "quantitative_result": "TableI PDFp6 CALVINaveragechainlengthSuSIE2.94→3.69,UniPi1.02→1.56;SuSIEfilter-only2.96,aug-only3.51. TableIIphysicalcountsbase65/120 versusfull84/120 (+15.83pp,~29.2%relativetobase). Prose54→70%callsit23%relative,an arithmetic mismatch; retainrawcounts. Negativeopendrawer22/30full versusOpenVLA23/30.",
+  "limitations": "Taskprogressdoesnotguaranteereachability orphysicalcontactvalidity. Candidatefiltercanrejectgooddiverseplans orselectplausibleunreachablegoals; learnedclassifiererror andgenerationcostremain. Physicaltestfour tasks andrelativegainarithmetic inproseisuncertain. No freshhardwareimplementationinthisreview.",
+  "code_and_license": "Independentcode/model/datalicensesNOT_AUDITED;no codeinspected/executed. SuSIE/UniPi/Bridge/humanvideocomponentskeepseparateprovenance.",
+  "hardware_adaptation": "ADAPT independentlyaugmentedstate/goaltraining andthree-negativeprogressclassification inasimulationdataset when available. KeepgeometricIKresidualsandactualoutcomeverificationseparatefromprogressscores. CurrentSO101/ROSMASTERhasnottrainedthisclassifier;nocontrollersettingschanges.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "IV-A",
+      "supports": "three-negativeprogressfilter"
+    },
+    {
+      "page": 4,
+      "section": "IV-B",
+      "supports": "desynchronizedaugmentation"
+    },
+    {
+      "page": 5,
+      "section": "V-A/B",
+      "supports": "data,model/candidatebudgets andbaselines"
+    },
+    {
+      "page": 6,
+      "section": "TablesI-II",
+      "supports": "exactchainlengths,physicalcountsandprosearithmeticmismatch"
+    },
+    {
+      "page": 7,
+      "section": "VI",
+      "supports": "goalachievabilityfilterremainsfuturework"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "da16d7cbe3ba5c0572aff451dfbee4a3d3fc96de3b01b9cb6381b37147d28696",
+  "primary_url": "https://arxiv.org/abs/2410.20018",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

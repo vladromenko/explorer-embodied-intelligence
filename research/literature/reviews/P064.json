@@ -1,0 +1,56 @@
+{
+  "paper_id": "P064",
+  "deep_review": false,
+  "problem": "Estimate robot policy rankings without manually rebuilding a simulator or running every comparison on hardware.",
+  "contribution": "WorldGym is a diffusion-forcing action-conditioned video environment with variable prediction horizons matched to policy chunks and a VLM outcome judge. It is explicitly a proxy whose agreement must be established on actual paired trials.",
+  "algorithm": "Latent DiT uses causal temporal attention, per-frame linear action embeddings in timestep/AdaLN conditioning, clipwise action dropout and classifier-free action guidance. Initialize from real first frame, alternate policy chunks with generated next frames and estimate success via MonteCarlo rollouts plus GPT4o. Optional partial-credit criteria differ from binary completion.",
+  "observations": "Image history and low-level action chunks; task instruction for policy/reward. Prior OXE observation/action conventions and camera distributions determine coverage. No direct force/contact state is measured by video simulation.",
+  "actions": "Variable-length policy chunks with one future frame per action; action embedding must retain each source embodiment's conventions. Supporting known morphologies does not establish calibrated unseen-arm transfer.",
+  "embodiment_and_data": "OXE trajectories include Bridge,RT1,VIOLA,BerkeleyUR5. Main paired policy evaluation reuses recorded initial frames from17OpenVLA Bridge tasks,10trials/task/policy forRT1X,Octo,OpenVLA. Edited-image and altered-language tests create model-onlyOOD evaluations.",
+  "experiments": "Replay held-out action sequences, single-action-dimension sweeps, real-versus-modeled policy success, known-version/checkpoint rankings and OODdistractors. Rankings by training-step/validationloss are indirect evidence; edited OOD estimates lack matched physical validation in main experiments.",
+  "baselines": "RT1X,Octo,OpenVLA,earlier/smaller variants; video UniPi and diffusion DexVLA checkpoints. These compare evaluator consistency, not policy training gains. Real-world reference trials are reused from another study, not newly executed by this review.",
+  "quantitative_result": "Figure4 PDFp5-6 Pearson per-task success correlationr0.78,p<.001. Real/model means RT1X18.5/15.6%,Octo20.0/23.8%,OpenVLA70.6/67.4%; claimed average absolute discrepancy~3.3percentagepoints. Figure13p9 edited-distractor model-onlyOpenVLA67.4→39.4%; this is not observed physical degradation.",
+  "limitations": "Correlation and mean rank agreement do not calibrate every task or certify physical safety. Learned visual reward and video dynamics can share hallucination errors; known ranking confirmation may be weak on novel failures. OOD and force-sensitive interactions remain unsupported without real data. Conclusion acknowledges not all emulated interactions are realistic.",
+  "code_and_license": "Independent code/model/OXE license audit not performed;GPT4o image use and source camera data require separate consideration. No code inspected/executed.",
+  "hardware_adaptation": "ADAPT paired evaluation reports with actual versus model counts, correlations, absolute errors and failure-mode coverage. Use modeled rollouts for prioritization only until actualSO101/ROSMASTERcalibration and paired tests exist; generated frames cannot replace camera evidence for physical authorization or receiver hold.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "3.1",
+      "supports": "world-model architecture and iterative evaluator"
+    },
+    {
+      "page": 4,
+      "section": "3.1.2-3.2",
+      "supports": "variable horizons,VLM reward and replay"
+    },
+    {
+      "page": 5,
+      "section": "Figure4 4.1",
+      "supports": "paired correlations"
+    },
+    {
+      "page": 6,
+      "section": "4.1",
+      "supports": "17tasks10trials and mean comparisons"
+    },
+    {
+      "page": 7,
+      "section": "4.2-4.3",
+      "supports": "indirect known rankings and model-onlyOOD"
+    },
+    {
+      "page": 9,
+      "section": "Figure13 6",
+      "supports": "distractor estimates and realism limitation"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "81ac9b9109a60c39b5c739dcd0484750f4d9c29e70f87666601076993ab8dd24",
+  "primary_url": "https://arxiv.org/abs/2506.00613",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

@@ -1,0 +1,61 @@
+{
+  "paper_id": "P069",
+  "deep_review": false,
+  "problem": "Generalize language-guided manipulation to novel objects/scenes by using pretrained image editing for intermediate goals rather than directly producing low-level actions.",
+  "contribution": "SuSIE independently trains a language-conditioned subgoalimage editor and an image-goal-conditioned robotpolicy, transferring semanticpretraining while keeping localcontrol grounded in actualrobotactions. Zero-shot refers to heldout tasks/scenes on supportedembodiment, not an untrainednewarm.",
+  "algorithm": "Fine-tuneInstructPix2Pix on current/futureframe pairs sampled in a task-dependent futurewindow using robotplusactionlesshumanvideo. Goal-conditionedBC trains diffusionactionpolicy on robot/actiondata withfuturegoals. At runtime regenerateone subgoal everykteststeps and executeclosed-loop goalpolicy towardit; four-actionchunks aretemporallyaveraged.",
+  "observations": "RGB256x256,currentimage/language forplanner,currentimage/subgoal forlowpolicy. HumanSomethingSomething isfilteredforfixedcamera/manipulation. Lowpolicy receivesactualrobotaction supervision; videoonlydata cannotreplace it.",
+  "actions": "WidowX250Bridge actionconvention orCALVINFrankacontrol; targetgoaldecoder embodiesrobot-specificcapabilities. A plausible subgoal canremain unreachable orrequireunobservedgrasp/contactstrategy.",
+  "embodiment_and_data": "Bridge~60ktrajectories(45klanguage/15kactiononly) plus~75kfilteredhumanclips. Physical9tasks/3sceneswithseen/unseenobjects/backgrounds;CALVINtrainABCtestD with34tasktypes andfive-instructionchains. Noactionsfromheldouttargettaskscenesused, but sharedrobot skillsarepretrained.",
+  "experiments": "Comparesemanticgeneralization, lowlevelprecision versusoraclefinalgoalGCBC, imagepretraining andhumanvideo co-training. CALVIN uses360timesteps perchain. Realtrialdenominator NOT_EXTRACTED frominspectedmain tables; rawprobabilitiesaregiven withoutconfidenceintervals.",
+  "baselines": "LCBC,MOO withprivilegedgroundtruth testboundingboxes,RT2X55Bwithmoredata; UniPireimplementedbecauseoriginalproprietaryinitialization unavailable. OracleGCBC usesrealcompletedtaskgoal butdifferentlongergoalhorizon,sohierarchycomparison includes horizontrainingdifference.",
+  "quantitative_result": "Table1 PDFp8 CALVINfive-instructionchain success0.26SuSIE vs0.06LCBC and0.04reimplementedUniPi. Table2realSceneBaverage0.50versus0.20LCBC/0.00RT2X;SceneC0.88versus0.75RT2X. NegativeTable3p9 eggplantinpot0.7SuSIEvs1.0oracleGCBC. Table4p10 toothpastehumanmix0.6vs0.7Bridgeonly,soaddedvideodoesnotimproveeverytask.",
+  "limitations": "Generatedgoalscanhallucinate;lowpolicyisboundedbyrobotdata andgraspaccuracy. Modelhasnosignedforce/contactconstraintorindependentoutcomeverifier. Humanvideoselectionandpretrainedimageknowledgeaffecttransfer; baseline reimplementations andsmallphysicalscene suiteconstraincausalclaims.",
+  "code_and_license": "Independentrepository,InstructPix2Pixweights,Bridge/humanvideolicenseauditsnotperformed. No codeinspected/executed; availablepaper isnotblanketpermissionforallcomponents.",
+  "hardware_adaptation": "COMPARE image-subgoalpolicytoobject-relativegeometricplans aftertargetdataset exists. Need actualSO101/ROSMASTERactionsandcalibration; do not transferrawWidowXactionhead orpresent generatedgoals aslivecameras. Retainindependentphysicalsuccess/receiverhold checks.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "4.1",
+      "supports": "subgoaltraininganddatapartition"
+    },
+    {
+      "page": 5,
+      "section": "4.2-4.3",
+      "supports": "GCBC,replanning,chunks andresolution"
+    },
+    {
+      "page": 6,
+      "section": "5.1",
+      "supports": "Bridge/humanvideos andphysicalscenes"
+    },
+    {
+      "page": 7,
+      "section": "Comparisons",
+      "supports": "privilegedMOO,reimplementedUniPi,CALVINprotocol"
+    },
+    {
+      "page": 8,
+      "section": "Tables1-2",
+      "supports": "simulationandphysicalresults"
+    },
+    {
+      "page": 9,
+      "section": "Table3",
+      "supports": "oraclecomparisonandnegativecase"
+    },
+    {
+      "page": 10,
+      "section": "Table4 5.4",
+      "supports": "pretraining/videoablationsandnegativecase"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "791d1df5c0da1cd65d1799fe5ef9b55c5c9887f060875b024aa34f0dbb37f9bd",
+  "primary_url": "https://arxiv.org/abs/2310.10639",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}
