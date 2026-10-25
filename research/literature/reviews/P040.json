@@ -1,0 +1,57 @@
+{
+  "problem": "Combine simulation kinematic priors with human-video visual priors before adapting a bimanual manipulation policy using limited real-robot demonstrations.",
+  "contribution": "SimHum co-trains task-aligned simulation and human data through source-specific action/vision adaptors around a shared diffusion-transformer policy, then recombines real-vision and robot-action modules for finetuning.",
+  "algorithm": "Human44Dhand-pose and robot actions use separate encoders/decoders; simulation/human images use source adaptors. Optimize a mixture-weighted diffusion objective through batch composition, then keep the human-stream visual adaptor and simulation-trained robot-action modules for end-to-end real finetuning.",
+  "observations": "Task-aligned camera images and robot/human state representations. Source robot and simulator use identical URDFs; self-collected human views are deliberately aligned with the robot head camera, not unconstrained internet clips.",
+  "actions": "Source-specific robot controls versus44Dhuman wrist/fingertip coordinates. Human pose labels are training targets and cannot be sent directly to a robot actuator interface.",
+  "embodiment_and_data": "Four bimanual tabletop tasks. Per task500simulated and500human demonstrations, plus80real episodes for every compared method. Human data spans12scenarios; source collection factors include objects, distractors, lights, backgrounds and initial positions.",
+  "experiments": "Per configuration ID40trials and OOD20trials per task, with held-out visual factors outside source data/randomization. Main cells are single trained policies with trial-level standard errors; separate second-seed checks are mentioned. Ablations test adaptors, pose loss, mixture ratio and data scales.",
+  "baselines": "Real-only, human-pretrained and simulation-pretrained variants with matched architecture/final real data. Collection-time studies exclude simulation generation from charged budgets, so they are not total compute/energy/wall-clock cost comparisons.",
+  "quantitative_result": {
+    "value": "Main four-task OOD average62.5% with80real episodes/task,53.7percentage points above Real-only. Separate StackBowlsTwo ablation reports75.0±9.7% versus40.0±11.0% without vision adaptors. Trial standard errors are not uncertainty across many independent training seeds.",
+    "location": "PDF p9 Conclusion; p8 Table1; p6 Evaluation Protocol"
+  },
+  "limitations": "Same task set across sources and deliberately aligned URDF/views restrict claims of arbitrary embodiment/video transfer. Four tabletop tasks do not cover wild manipulation, humanoid/mobile domains or a general foundation-policy recipe. Remaining contact timing and coordination errors motivate additional feedback.",
+  "code_and_license": "Primary fulltext/appendix references examined; executable source, human-data permissions and code/model licenses not independently audited. No local SimHum implementation or physical result is claimed.",
+  "hardware_adaptation": "Relevant to the proposed simulation/human/robot study only after real kinematic/camera contracts and measurable actions are established. An overview-only Pi camera and unmeasured controller state do not automatically satisfy the source alignment assumptions; report all acquisition and compute budgets separately.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3.2-3.3",
+      "supports": "Alignment assumptions and modular sources"
+    },
+    {
+      "page": 5,
+      "section": "3.4/4.1",
+      "supports": "Mixture/reassembly and exact data counts"
+    },
+    {
+      "page": 6,
+      "section": "Evaluation protocol/Baselines",
+      "supports": "Splits, trials and uncertainty unit"
+    },
+    {
+      "page": 7,
+      "section": "Figure5",
+      "supports": "Simulation excluded from collection budget"
+    },
+    {
+      "page": 8,
+      "section": "Table1/4.5",
+      "supports": "Ablation values and mixture sensitivity"
+    },
+    {
+      "page": 9,
+      "section": "5/Limitations",
+      "supports": "Main result and restricted scope"
+    }
+  ],
+  "paper_id": "P040",
+  "source_sha256": "0f41b82f116ff485b665550604ac74408a05f00f663445a6465c62c519a6d370",
+  "primary_url": "https://arxiv.org/abs/2601.19406",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

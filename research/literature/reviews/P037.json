@@ -1,0 +1,52 @@
+{
+  "problem": "Separate morphology-independent manipulation intentions from robot-specific kinematic execution for cross-embodiment transfer.",
+  "contribution": "CrossZero combines object-masked multi-view point clouds and shared end-effector diffusion with a separately adapted end-effector-to-joint diffusion module.",
+  "algorithm": "Mask robot points, encode1024RGBXYZpoints with PointNet and fuse end-effector state. Train chunked first-level diffusion with an auxiliary object-pose loss. Train a second diffusion on end-effector/current-joint inputs using demonstration pairs in-domain or simulator-generated traditional-IK pairs for new robots.",
+  "observations": "Multi-view calibrated RGBD/object masks, end-effector state and current joints; the second stage is embodiment-specific and is not inferred from an image alone.",
+  "actions": "First stage predicts16Dend-effector sequences; second generates morphology-specific joint sequences. Predict8actions and execute5 per rollout chunk according to the source setup.",
+  "embodiment_and_data": "RoboTwin simulation, aloha-agilex/franka-panda/ur5-wsg,200episodes across two training embodiments. New-robot IK module uses50episodes explicitly described as evaluation data; no physical validation is reported.",
+  "experiments": "Leave-one-embodiment-out simulated tasks, masked/full/multiview/pose ablations and in/out-of-domain joint-decoder adaptation. Main text describes8tasks but principal table lists7task groups; baseline view descriptions are also inconsistent and require code clarification.",
+  "baselines": "Full-Single-P/DP3-style baseline, shared object-centric ee policy with traditional IK and learned-IK variant. This changes representation/view/auxiliary objectives as well as decoder architecture.",
+  "quantitative_result": {
+    "value": "Unseen-franka TurnSwitch: first-level Obj-Multi-POK32% versus learned-IK variant22%, while reported chunk time12.44→1.93s. Faster decoding is not uniform quality improvement. Source defines t_chunk as total time to execute5action steps, not isolated network latency; evaluation episode count was not extracted.",
+    "location": "PDF p7 Table4; p6 Section4.1 timing definition"
+  },
+  "limitations": "The full adapted system is not training-free zero-shot: target-specific IK distillation uses50episodes, and disjointness from final evaluation is not established in examined text. Only discrete simulated embodiments tested; systematic physical validation and uncertainty adaptation are future work.",
+  "code_and_license": "Primary method/evaluation examined; executable source and code/model/dataset rights not audited, no local CrossZero execution claimed.",
+  "hardware_adaptation": "Use the conceptual separation of task-space intent and robot-specific execution, with explicit adaptation data/splits. The source8×RTX4090setup, measured-state requirements and depth pipeline do not establish feasibility or zero-shot physical transfer on Explorer hardware.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "3.1-3.2",
+      "supports": "Object mask and first-stage loss"
+    },
+    {
+      "page": 4,
+      "section": "3.3/Fig2",
+      "supports": "Robot-specific joint decoder"
+    },
+    {
+      "page": 5,
+      "section": "Fig3/Table1",
+      "supports": "IK-generated target adaptation"
+    },
+    {
+      "page": 6,
+      "section": "4.1",
+      "supports": "Data, compute,50target episodes and timing"
+    },
+    {
+      "page": 7,
+      "section": "Table4/5",
+      "supports": "Negative quality tradeoff and simulation-only limits"
+    }
+  ],
+  "paper_id": "P037",
+  "source_sha256": "fe6dbf0b0ff834b2a8654a585644fd601a828efe66985f4d949c7dacdf207432",
+  "primary_url": "https://openaccess.thecvf.com/content/CVPR2026W/GigaBrainChallenge/html/Ge_CrossZero_Zero-Shot_of_Unseen_Embodiment_Manipulation_via_Object-Centric_Hierarchical_Diffusion_CVPRW_2026_paper.html",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

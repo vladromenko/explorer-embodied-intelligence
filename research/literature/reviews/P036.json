@@ -1,0 +1,57 @@
+{
+  "problem": "Transfer demonstrations between arms/end-effectors with different morphology while preserving task-relevant interaction geometry.",
+  "contribution": "CEI defines functional surface point/normal sets, aligns their trajectories with Directional Chamfer Distance and synthesizes target proprioception and point-cloud observations for policy learning.",
+  "algorithm": "Transform finger-pad surface points/normals through FK; optimize target joint slices sequentially for geometric/directional similarity. Generate next-joint-position actions, remove source-robot cloud points and add sampled target meshes, then downsample to1024points for training/inference consistency.",
+  "observations": "Measured proprioception, calibrated point clouds and source/target geometry. Mesh contact similarity does not observe tactile force or stable object ownership.",
+  "actions": "Target next-joint positions with closed-loop execution until the measured configuration reaches the target; this feedback assumption is stronger than sending an unverified command estimate.",
+  "embodiment_and_data": "Three simulation tasks across16arm/end-effector combinations; real AG95↔Xhand transfers over6tasks,25source demonstrations per task direction subset and10evaluation trials/task.",
+  "experiments": "Geometry replay, learned-policy augmentation ablations, bidirectional physical transfer and spatial/multimodal synthesis. Dataset duplication is used for timing measurements and does not create independent demonstrations.",
+  "baselines": "Binary manual specification, no/inference-augmentation removals and synthesis-time comparisons with MimicGen/DemoGen. MimicGen timing includes an estimated20smanual reset and is not a measured identical execution pipeline.",
+  "quantitative_result": {
+    "value": "Real TableV target successes42/60=70%; source51/60=85%; reported transfer ratio82.4% is target/source, not an82.4%absolute task success rate. InsertFlower target2/10 versus source4/10 exposes slip/contact limitations.",
+    "location": "PDF p6 TableV and ratio definition; p7 TableVI timing protocol"
+  },
+  "limitations": "Visual/kinematic geometry cannot detect unstable contact reliably; source explicitly motivates tactile feedback. Contact-rich stacking degrades sharply. Current validated interface is point-cloud based; RGB extension and large-scale use remain future/preliminary.",
+  "code_and_license": "Primary algorithm, tables and assumptions read; source implementation, TorchSDF/dependency licenses and execution were not audited. No CEI reproduction is claimed.",
+  "hardware_adaptation": "A strong comparison for geometry-based transfer after measured joint feedback, calibrated clouds and gripper functional surfaces exist. Explorer's URDF FK/object-relative IK is simpler engineering glue and must not be presented as this full policy/data-synthesis algorithm.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "IV/Fig2/Eq1",
+      "supports": "Functional surfaces and DCD"
+    },
+    {
+      "page": 4,
+      "section": "Observation/action generation/V",
+      "supports": "Feedback/cloud contracts"
+    },
+    {
+      "page": 5,
+      "section": "VI-A",
+      "supports": "Contact-rich failures and source demos"
+    },
+    {
+      "page": 6,
+      "section": "TableV/VI-B",
+      "supports": "Raw counts and normalized transfer ratio"
+    },
+    {
+      "page": 7,
+      "section": "TableVI",
+      "supports": "Duplicated timing datasets and estimated reset"
+    },
+    {
+      "page": 8,
+      "section": "VIII",
+      "supports": "Visual-kinematic/tactile limitation"
+    }
+  ],
+  "paper_id": "P036",
+  "source_sha256": "faa8c5e14e005893c988eb9ea1720fe61c4e0f3c46e4701c5fb9988d8c5962be",
+  "primary_url": "https://arxiv.org/abs/2601.09163",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}
