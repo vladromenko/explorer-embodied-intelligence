@@ -3,10 +3,10 @@
   "counts": {
     "candidates": 135,
     "unique_candidates": 134,
-    "primary_verified": 21,
+    "primary_verified": 36,
     "full_text_retrieved": 130,
-    "full_text_read": 21,
-    "deep_reviews": 21,
+    "full_text_read": 36,
+    "deep_reviews": 30,
     "code_inspected": 2,
     "code_executed": 0
   },

@@ -25,7 +25,8 @@
       "review_path": "reviews/P001.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware"
     },
     {
       "paper_id": "P002",
@@ -50,7 +51,8 @@
       "review_path": "reviews/P002.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Diffusion Policy: Visuomotor Policy Learning via Action Diffusion"
     },
     {
       "paper_id": "P003",
@@ -75,7 +77,8 @@
       "review_path": "reviews/P003.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning"
     },
     {
       "paper_id": "P004",
@@ -100,7 +103,8 @@
       "review_path": "reviews/P004.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "ThriftyDAgger: Budget-Aware Novelty and Risk Gating for Interactive Imitation Learning"
     },
     {
       "paper_id": "P005",
@@ -125,7 +129,8 @@
       "review_path": "reviews/P005.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "SERL: A Software Suite for Sample-Efficient Robotic Reinforcement Learning"
     },
     {
       "paper_id": "P006",
@@ -150,7 +155,8 @@
       "review_path": "reviews/P006.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Precise and Dexterous Robotic Manipulation via Human-in-the-Loop Reinforcement Learning"
     },
     {
       "paper_id": "P007",
@@ -175,7 +181,8 @@
       "review_path": "reviews/P007.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Efficient Online Reinforcement Learning with Offline Data"
     },
     {
       "paper_id": "P008",
@@ -200,7 +207,8 @@
       "review_path": "reviews/P008.json",
       "decision": "REUSE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Proximal Policy Optimization Algorithms"
     },
     {
       "paper_id": "P009",
@@ -225,7 +233,8 @@
       "review_path": "reviews/P009.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor"
     },
     {
       "paper_id": "P010",
@@ -250,7 +259,8 @@
       "review_path": "reviews/P010.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Offline Reinforcement Learning with Implicit Q-Learning"
     },
     {
       "paper_id": "P011",
@@ -275,7 +285,8 @@
       "review_path": "reviews/P011.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Conservative Q-Learning for Offline Reinforcement Learning"
     },
     {
       "paper_id": "P012",
@@ -375,7 +386,8 @@
       "review_path": "reviews/P015.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "What Matters in Learning from Offline Human Demonstrations for Robot Manipulation"
     },
     {
       "paper_id": "P016",
@@ -430,7 +442,8 @@
       "review_path": "reviews/P017.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Data Scaling Laws in Imitation Learning for Robotic Manipulation"
     },
     {
       "paper_id": "P018",
@@ -830,7 +843,8 @@
       "review_path": "reviews/P033.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Universal Manipulation Interface: In-The-Wild Robot Teaching Without In-The-Wild Robots"
     },
     {
       "paper_id": "P034",
@@ -855,7 +869,8 @@
       "review_path": "reviews/P034.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "LEGATO: Cross-Embodiment Imitation Using a Grasping Tool"
     },
     {
       "paper_id": "P035",
@@ -880,7 +895,8 @@
       "review_path": "reviews/P035.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "KITE: Decoupling Kinematics and Interaction for Zero-Shot Cross-Embodiment Manipulation"
     },
     {
       "paper_id": "P036",
@@ -955,7 +971,8 @@
       "review_path": "reviews/P038.json",
       "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "TRANSIC: Sim-to-Real Policy Transfer by Learning from Online Correction"
     },
     {
       "paper_id": "P039",
@@ -985,7 +1002,8 @@
           "reason": "Seedindexedtitle differs from actual primarytitle; verifiedtitle is Reconciling Reality through Simulation: A Real-to-Sim-to-Real Approach for Robust Manipulation.",
           "source": "https://arxiv.org/abs/2403.03949"
         }
-      ]
+      ],
+      "primary_verified_title": "Reconciling Reality through Simulation: A Real-to-Sim-to-Real Approach for Robust Manipulation"
     },
     {
       "paper_id": "P040",
@@ -1024,18 +1042,19 @@
       "authors": "Nematollahi, Iman; Mees, Oier; Hermann, Lukas; Burgard, Wolfram",
       "year": "2020",
       "primary_url": "https://arxiv.org/abs/2008.00456",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
-      "deep_review": false,
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
+      "deep_review": true,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "4ff8badaad1a2112687bcbfb7a862b55fe39521b70534e11cb6228a49ab7403f",
       "fulltext_url": "https://arxiv.org/pdf/2008.00456",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P041.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Hindsight for Foresight: Unsupervised Structured Dynamics Models from Physical Interaction"
     },
     {
       "paper_id": "P042",
@@ -1049,18 +1068,19 @@
       "authors": "Ko, Po-Chen; Mao, Jiayuan; Du, Yilun; Sun, Shao-Hua; Tenenbaum, Joshua B.",
       "year": "2023",
       "primary_url": "https://arxiv.org/abs/2310.08576",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "678d6b56c8acf054a0af49c287534c43ad7b0a7ffb3f00153512a1d41b3df540",
       "fulltext_url": "https://arxiv.org/pdf/2310.08576",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P042.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Learning to Act from Actionless Videos through Dense Correspondences"
     },
     {
       "paper_id": "P043",
@@ -1074,18 +1094,19 @@
       "authors": "Li, Hongyu; Sun, Lingfeng; Hu, Yafei; Ta, Duy; Barry, Jennifer; Konidaris, George; Fu, Jiahui",
       "year": "2025",
       "primary_url": "https://arxiv.org/abs/2510.08568",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "d522d89f00c9b494bd4675ec8f003932026a3c7f957ebcf0defb8a7c2b659c13",
       "fulltext_url": "https://arxiv.org/pdf/2510.08568",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P043.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "NovaFlow: Zero-Shot Manipulation via Actionable Flow from Generated Videos"
     },
     {
       "paper_id": "P044",
@@ -1099,18 +1120,19 @@
       "authors": "Bu, Qingwen; Yang, Yanting; Cai, Jisong; Gao, Shenyuan; Ren, Guanghui; Yao, Maoqing; Luo, Ping; Li, Hongyang",
       "year": "2025",
       "primary_url": "https://arxiv.org/abs/2505.06111",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "1b8551db322a0e31514601d9d84879f85a5c391e4911e40752ea9df7567196f5",
       "fulltext_url": "https://arxiv.org/pdf/2505.06111",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P044.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "UniVLA: Learning to Act Anywhere with Task-centric Latent Actions"
     },
     {
       "paper_id": "P045",
@@ -1124,18 +1146,19 @@
       "authors": "Chen, Yi; Ge, Yuying; Zhou, Hui; Ding, Mingyu; Ge, Yixiao; Liu, Xihui",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2603.29844",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "1cce55737d1c72062d069f33443a93a3e7dabf0042b0b63c3cae8ee8b0d44146",
       "fulltext_url": "https://arxiv.org/pdf/2603.29844",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P045.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "DIAL: Decoupling Intent and Action via Latent World Modeling for End-to-End VLA"
     },
     {
       "paper_id": "P046",
@@ -1149,18 +1172,19 @@
       "authors": "Hang, Jinting; Cai, Zhenhui",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2609.09210",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
-      "deep_review": false,
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
+      "deep_review": true,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "d6bfe3d771dc2fb03fc5bb82ff77e5888df830a424af266cff32668d7ce25949",
       "fulltext_url": "https://arxiv.org/pdf/2609.09210",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P046.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Identifying Habit, Physics, and Nuisance in Robot World Models"
     },
     {
       "paper_id": "P047",
@@ -1174,18 +1198,19 @@
       "authors": "Walke, Homer; Black, Kevin; Lee, Abraham; Kim, Moo Jin; Du, Max; Zheng, Chongyi; Zhao, Tony; Hansen-Estruch, Philippe; Vuong, Quan; He, Andre; Myers, Vivek; Fang, Kuan; Finn, Chelsea; Levine, Sergey",
       "year": "2023",
       "primary_url": "https://arxiv.org/abs/2308.12952",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
-      "deep_review": false,
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
+      "deep_review": true,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "aa5fdac48bf9122b22f88150d45575cb0685f2a2f761ca6fc570be743022819b",
       "fulltext_url": "https://arxiv.org/pdf/2308.12952",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P047.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "BridgeData V2: A Dataset for Robot Learning at Scale"
     },
     {
       "paper_id": "P048",
@@ -1199,18 +1224,19 @@
       "authors": "Khazatsky, Alexander; Pertsch, Karl; Nair, Suraj; Balakrishna, Ashwin; Dasari, Sudeep; Karamcheti, Siddharth; Nasiriany, Soroush; Srirama, Mohan Kumar; Chen, Lawrence Yunliang; Ellis, Kirsty; Fagan, Peter David; Hejna, Joey; Itkina, Masha; Lepert, Marion; Ma, Yecheng Jason; Miller, Patrick Tree; Wu, Jimmy; Belkhale, Suneel; Dass, Shivin; Ha, Huy; Jain, Arhan; Lee, Abraham; Lee, Youngwoon; Memmel, Marius; Park, Sungjae; Radosavovic, Ilija; Wang, Kaiyuan; Zhan, Albert; Black, Kevin; Chi, Cheng; Hatch, Kyle Beltran; Lin, Shan; Lu, Jingpei; Mercat, Jean; Rehman, Abdul; Sanketi, Pannag R; Sharma, Archit; Simpson, Cody; Vuong, Quan; Walke, Homer Rich; Wulfe, Blake; Xiao, Ted; Yang, Jonathan Heewon; Yavary, Arefeh; Zhao, Tony Z.; Agia, Christopher; Baijal, Rohan; Castro, Mateo Guaman; Chen, Daphne; Chen, Qiuyu; Chung, Trinity; Drake, Jaimyn; Foster, Ethan Paul; Gao, Jensen; Guizilini, Vitor; Herrera, David Antonio; Heo, Minho; Hsu, Kyle; Hu, Jiaheng; Irshad, Muhammad Zubair; Jackson, Donovon; Le, Charlotte; Li, Yunshuang; Lin, Kevin; Lin, Roy; Ma, Zehan; Maddukuri, Abhiram; Mirchandani, Suvir; Morton, Daniel; Nguyen, Tony; O'Neill, Abigail; Scalise, Rosario; Seale, Derick; Son, Victor; Tian, Stephen; Tran, Emi; Wang, Andrew E.; Wu, Yilin; Xie, Annie; Yang, Jingyun; Yin, Patrick; Zhang, Yunchu; Bastani, Osbert; Berseth, Glen; Bohg, Jeannette; Goldberg, Ken; Gupta, Abhinav; Gupta, Abhishek; Jayaraman, Dinesh; Lim, Joseph J; Malik, Jitendra; Martín-Martín, Roberto; Ramamoorthy, Subramanian; Sadigh, Dorsa; Song, Shuran; Wu, Jiajun; Yip, Michael C.; Zhu, Yuke; Kollar, Thomas; Levine, Sergey; Finn, Chelsea",
       "year": "2024",
       "primary_url": "https://arxiv.org/abs/2403.12945",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
-      "deep_review": false,
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
+      "deep_review": true,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "9e40a9c934ce78ea315d2c05593d60f9e18edf6dcd3785cd66439518965c3b07",
       "fulltext_url": "https://arxiv.org/pdf/2403.12945",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P048.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "DROID: A Large-Scale In-The-Wild Robot Manipulation Dataset"
     },
     {
       "paper_id": "P049",
@@ -1224,18 +1250,19 @@
       "authors": "Chen, Tianxing; Chen, Zanxin; Chen, Baijun; Cai, Zijian; Liu, Yibin; Li, Zixuan; Liang, Qiwei; Lin, Xianliang; Ge, Yiheng; Gu, Zhenyu; Deng, Weiliang; Guo, Yubin; Nian, Tian; Xie, Xuanbing; Chen, Qiangyu; Su, Kailun; Xu, Tianling; Liu, Guodong; Hu, Mengkang; Gao, Huan-ang; Wang, Kaixuan; Liang, Zhixuan; Qin, Yusen; Yang, Xiaokang; Luo, Ping; Mu, Yao",
       "year": "2025",
       "primary_url": "https://arxiv.org/abs/2506.18088",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
-      "deep_review": false,
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
+      "deep_review": true,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "316ae82a97968e1a2d88540665401645a190d2699d7d8652e8fc0053ba609bda",
       "fulltext_url": "https://arxiv.org/pdf/2506.18088",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P049.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "RoboTwin 2.0: A Scalable Data Generator and Benchmark with Strong Domain Randomization for Robust Bimanual Robotic Manipulation"
     },
     {
       "paper_id": "P050",
@@ -1249,18 +1276,19 @@
       "authors": "Cao, Teng; Deng, Yu; Delfosse, Quentin; Kersting, Kristian",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2609.33728",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
-      "deep_review": false,
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
+      "deep_review": true,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "59ba21f26e716d6c334df00e9903ffa0d1d887b9cb2aa1c510833015fd04fa3b",
       "fulltext_url": "https://arxiv.org/pdf/2609.33728",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P050.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "ALDER: Discovering the Laws of a World by Acting in It"
     },
     {
       "paper_id": "P051",
@@ -1274,18 +1302,19 @@
       "authors": "Liu, Yuejiang; Feng, Fan; Kong, Lingjing; Lu, Weifeng; Tang, Jinzhou; Zhang, Kun; Murphy, Kevin; Finn, Chelsea; Du, Yilun",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2604.01985",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "32c90fb254a0a6078305b9036966a78f2e0ba3cfea8ee57f736cea73214d49a7",
       "fulltext_url": "https://arxiv.org/pdf/2604.01985",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P051.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "World Action Verifier: Self-Improving World Models via Forward-Inverse Asymmetry"
     },
     {
       "paper_id": "P052",
@@ -1299,18 +1328,19 @@
       "authors": "Xiao, Wenli; Xie, Jia; Zhang, Tonghe; Lin, Haotian; Fu, Letian \"Max\"; Xue, Haoru; Lu, Jalen; Yang, Yi; Dai, Cunxi; Wang, Zi; Wu, Jimmy; Wang, Guanzhi; Sastry, S. Shankar; Goldberg, Ken; Fan, Linxi \"Jim\"; Zhu, Yuke; Shi, Guanya",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2606.19980",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
-      "deep_review": false,
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
+      "deep_review": true,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "b5c0c25ee0abe0c7c251b2f751b6ecb18345f5c6e11af55979262dda86c70f5a",
       "fulltext_url": "https://arxiv.org/pdf/2606.19980",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P052.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "ENPIRE: Agentic Robot Policy Self-Improvement in the Real World"
     },
     {
       "paper_id": "P053",
@@ -1324,18 +1354,19 @@
       "authors": "Wang, Jiaming",
       "year": "2026",
       "primary_url": "https://arxiv.org/abs/2609.31760",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
       "deep_review": false,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "87e6c476e4df162bc50eb9346be6ebccfbbcea21889c11caed24d7806bf2a92c",
       "fulltext_url": "https://arxiv.org/pdf/2609.31760",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P053.json",
+      "decision": "REUSE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "What Stops Recursive Self-Improvement in Robotics? Lessons from 123 Rounds of Agentic Skill Discovery"
     },
     {
       "paper_id": "P054",
@@ -1649,18 +1680,19 @@
       "authors": "Hansen, Nicklas; Su, Hao; Wang, Xiaolong",
       "year": "2023",
       "primary_url": "https://arxiv.org/abs/2310.16828",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
-      "deep_review": false,
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
+      "deep_review": true,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "99832c555b66665ad1e26cd48e75ea9dda4f3750175b993e7ed5b8dfe399b9e0",
       "fulltext_url": "https://arxiv.org/pdf/2310.16828",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P066.json",
+      "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "TD-MPC2: Scalable, Robust World Models for Continuous Control"
     },
     {
       "paper_id": "P067",
@@ -1674,18 +1706,19 @@
       "authors": "Wu, Philipp; Escontrela, Alejandro; Hafner, Danijar; Goldberg, Ken; Abbeel, Pieter",
       "year": "2022",
       "primary_url": "https://arxiv.org/abs/2206.14176",
-      "primary_status": "PRIMARY_METADATA_RETRIEVED",
-      "review_status": "NOT_REVIEWED",
-      "deep_review": false,
+      "primary_status": "PRIMARY_VERIFIED",
+      "review_status": "FULL_TEXT_REVIEWED",
+      "deep_review": true,
       "code_inspected": false,
       "code_executed": false,
       "fulltext_status": "RETRIEVED",
       "fulltext_sha256": "2ee10ae0961bef97ca522bb7ee5b7514e7a918a637dedad569b572b18bccb35e",
       "fulltext_url": "https://arxiv.org/pdf/2206.14176",
-      "review_path": "",
-      "decision": "UNDECIDED",
+      "review_path": "reviews/P067.json",
+      "decision": "ADAPT",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "DayDreamer: World Models for Physical Robot Learning"
     },
     {
       "paper_id": "P068",
@@ -3116,7 +3149,8 @@
       "review_path": "reviews/P124.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "Autonomous learning-free grasping and robot-to-robot handover of unknown objects"
     },
     {
       "paper_id": "P125",
@@ -3266,7 +3300,8 @@
       "review_path": "reviews/P130.json",
       "decision": "REUSE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning"
     },
     {
       "paper_id": "P131",
@@ -3291,7 +3326,8 @@
       "review_path": "reviews/P131.json",
       "decision": "COMPARE",
       "duplicate_of": "",
-      "correction_notes": []
+      "correction_notes": [],
+      "primary_verified_title": "LOTUS: Continual Imitation Learning for Robot Manipulation Through Unsupervised Skill Discovery"
     },
     {
       "paper_id": "P132",

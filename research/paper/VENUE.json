@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "target_status": "WORKING_TARGET",
+  "venue": "Robotics: Science and Systems2027",
+  "selection_basis": "Official Dec4 deadline exactly matches user recalled robotics deadline; user did not independently recall the venue name. Root adopted as working target.",
+  "verified_date": "2026-10-26",
+  "official_cfp": "https://roboticsconference.org/information/cfp/",
+  "cfp_sha256": "2faf76186f192271db0ee3b025ef48d11c026edd2a73bd4cc99e866505a19e70",
+  "cfp_cache_key": "venues/rss2027/cfp.html",
+  "stage1": {
+    "deadline": "2026-12-04T23:59:00-12:00",
+    "deadline_moscow": "2026-12-05T14:59:00+03:00",
+    "maximum_pages": 6,
+    "maximum_content_pages": 5,
+    "reference_pages": 1,
+    "preliminary_or_missing_experiments_allowed": true,
+    "supplementary_accepted": false,
+    "anonymized": true
+  },
+  "stage2_final_paper_deadline": "2027-04-16T23:59:00-12:00",
+  "conference_dates": "2027-07-06/2027-07-11",
+  "location": "Athens, Greece",
+  "official_template_url": "https://roboticsconference.org/docs/paper-template-latex.tar.gz",
+  "template_archive_sha256": "ffc8b8053bd218ba9be4c93a569de4c2f36c7f70ae8d2245c747611bed697271",
+  "vendored_class": {
+    "path": "research/paper/IEEEtran.cls",
+    "version": "1.7a2007/03/05, exactly as served by official current template",
+    "sha256": "d63d4bf27f29603a733d06e27ba5fbb40488acf9d1d696354a88b886758f70a7",
+    "license": "LPPL-1.3",
+    "modified": false
+  },
+  "submission_ready": false,
+  "other_verified_candidate": {
+    "venue": "HRI2027 Late Breaking Reports",
+    "deadline": "2026-12-08T23:59:00-12:00",
+    "official_source": "https://humanrobotinteraction.org/2027/"
+  }
+}

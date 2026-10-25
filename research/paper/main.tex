@@ -1,28 +1,81 @@
-\documentclass[11pt]{article}
+\documentclass[conference]{IEEEtran}
+\usepackage{times}
 \usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage[margin=1in]{geometry}
-\usepackage{hyperref}
-\title{Explorer: Evidence-Grounded Acquisition, Transfer and Composition of Embodied Skills}
-\author{Author information to be confirmed before submission}
-\date{Research draft, 26 October 2026}
+\usepackage[numbers]{natbib}
+\usepackage{multicol}
+\usepackage[bookmarks=true,hidelinks]{hyperref}
+\hypersetup{pdfauthor={},pdftitle={Testing Evidence-Constrained Skill Updates on Low-Cost Robots},pdfsubject={},pdfkeywords={}}
 \begin{document}
+\title{Testing Evidence-Constrained Skill Updates on Low-Cost Robots}
+\author{Author Names Omitted for Anonymous Review}
 \maketitle
 \begin{abstract}
-This document records a research design for a distributed low-cost robot learning platform. The proposed program studies acquisition from simulation and demonstrations, cross-embodiment adaptation, lifelong retention, diagnosis and cooperative handover. It contains no claim of completed physical experiments or confirmed scientific novelty. Results will be populated only from independently evaluated runs with artifact hashes and frozen protocols.
+A deployed robot can report a completed command without observing its intended world effect. This distinction becomes consequential when demonstrations, simulator rollouts and execution feedback update a shared skill library. We propose to study whether explicitly tracking observation limits, provenance and independent validation improves the reliability of skill updates under a fixed acquisition budget. The system separates proposed plans, executed actions and verified outcomes, and attaches robot-specific contracts to each skill. We describe falsifiable comparisons for acquisition, retention and transfer, together with an implemented accounting and provenance layer. A small simulated reaching pilot exercises actual policy optimization, checkpoint reload and disjoint development rollouts. It provides engineering evidence, while physical learning, robust transfer and the central reliability hypothesis remain untested.
 \end{abstract}
-\section{Problem and contribution boundaries}
-An integrated platform, a reproducible evaluation resource and a novel learning algorithm are distinct contributions. Evidence-grounded skill memory is a working research hypothesis. Published action-chunking, correction, transferable representation and continual-skill methods must be compared before making novelty claims.
-\section{System and evidence model}
-The central Jetson maintains durable events, jobs and immutable artifact references; robot-side controllers retain local safety authority. A skill artifact records conditions, expected world effects, compatible action contracts, source lineage, uncertainty and independent validation scope. Command estimates and measured states are never conflated.
-\section{Experimental design}
-Five connected studies investigate simulation learning, direct demonstrations, leader-arm teaching, cross-embodiment transfer and handover. Train/development/sealed evaluation sessions are disjoint. Baseline revisions, success predicates, exclusions and trial ordering are frozen before evaluation. Unknown outcomes, failures and interventions remain visible.
-\section{Results status}
-No experimental result is asserted in this draft. Numeric tables and plots must be generated from registered trial records, with run identifiers and verified source hashes. Simulation outcomes will be reported separately from physical validation. A successful test of software accounting does not establish a learned robotic skill.
-\section{Limitations and required physical validation}
-Hardware calibration, actuator feedback, contact observability, safe workspace and supervised trial approval constrain physical interpretation. A camera or language model cannot certify grip force. Limited local compute may prevent reproducing large published baselines; any alternative must be identified and measured honestly.
-\section{Reproducibility}
-The repository retains protocols, provenance mappings and legal source metadata. Private videos and checkpoints remain outside Git. The literature review is incomplete until its validated registry records at least 100 unique full-text reviews and 25 technical deep reviews. The intended venue, deadline, format and anonymization requirements remain unconfirmed.
-\bibliographystyle{plain}
+\IEEEpeerreviewmaketitle
+
+\section{Problem and relationship to prior work}
+Consider a low-cost manipulation system with heterogeneous arms, an overview camera, distributed compute and incomplete actuator feedback. A command estimate is an intended joint configuration; it is not a measurement of joint state, object pose or grip force. An apparently successful replay can therefore become an incorrect training label or an invalid reusable skill.
+
+Our research question is whether \emph{evidence-constrained update acceptance}, relative to outcome-threshold acceptance, reduces unsupported skill promotions without sacrificing verified task completion under a matched interaction budget. This is a systems and evaluation hypothesis; scientific novelty of the proposed combination is not established by integration alone.
+
+Action chunking and generative imitation are established approaches \citep{act,diffusion}. Interactive imitation addresses distribution shift \citep{dagger}. PPO is an established simulation optimizer \citep{ppo}. Sequential manipulation benchmarks and hierarchical skill libraries already study retention, replay and composition \citep{libero,lotus}. We use these as explicit algorithmic and evaluation references. A symbolic skill graph is not a reproduction of a learned hierarchical controller, and geometric retargeting is not evidence of cross-embodiment policy transfer.
+
+\section{Evidence-constrained update protocol}
+\subsection{Records and interfaces}
+Each candidate skill has a checkpoint digest, source-data lineage, action representation, joint order, units, coordinate frames, compatible robot and observation contract. Each episode records the protocol version, acquisition session, time domain, commands, available measurements, intervention events and evidence references. Outcomes are \textsc{success}, \textsc{failure} or \textsc{unknown}. Simulation, offline replay and physical execution belong to separate domains.
+
+The proposed acceptance predicate is
+\begin{equation}
+ A = C_{\rm schema}\wedge C_{\rm source}\wedge C_{\rm sensor}
+     \wedge C_{\rm local}\wedge C_{\rm eval}.
+\end{equation}
+The schema predicate checks action and frame compatibility. Source checks bind algorithms, data and checkpoint lineage. Sensor checks require the observations needed by the task's success predicate, including freshness and clock compatibility. Local checks require controller-side constraints and a valid execution authority. Evaluation checks apply preregistered criteria to independent outcomes. A missing prerequisite cannot be substituted by a confident language-model description.
+
+The accounting and provenance checks are implemented; general automatic skill promotion under this complete predicate is a proposed experimental treatment. The protocol never equates a software test, simulated oracle or predicted outcome with physical validation.
+
+\subsection{Acquisition, retention and composition}
+The acquisition pipeline can train a privileged-state simulation teacher and an image-conditioned imitation student. The transfer interface converts explicit object-relative targets through robot-specific kinematics. It must report unreachable or unconstrained targets. Validity requires additional collision, calibration and contact checks before physical interpretation.
+
+A skill graph stores declared preconditions and effects. Symbolic composition returns a candidate sequence only. Executed composition requires separate task-level validation; individual validated skills do not imply a validated sequence. After every learned-task update, a retention matrix records performance on all earlier tasks. Missing evaluations remain missing.
+
+A handover protocol further separates receiver readiness, object-hold evidence and giver release. A closed-gripper command or elapsed timer does not establish receiver ownership. Current protocol fixtures exercise software transitions and have no actuator interface.
+
+\section{Evaluation design}
+The central comparison holds demonstrations, permitted interactions, policy family, compute and evaluation sessions fixed. The control accepts updates using a predefined outcome threshold. The treatment adds evidence-contract checks. Both retain all attempted updates, refusals, interventions and unknown outcomes in the record. The principal outcomes are verified completion, unsupported promotions, interaction cost and retained prior-task performance.
+
+We specify five linked hypotheses: (H1) simulation pretraining improves acquisition efficiency; (H2) measured demonstrations improve robustness relative to simulation alone; (H3) a leader-arm interface reduces teaching cost under matched task quality; (H4) object-relative adaptation improves valid transfer relative to a declared geometric reference; and (H5) explicit handover evidence reduces premature release requests. These are hypotheses, not completed findings. The first study should isolate evidence acceptance; the others define later stress tests rather than five simultaneous novelty claims.
+
+Training, development and final evaluation are split by acquisition session as well as episode. Final task objects and scenes are held out where the hypothesis requires generalization. Baseline revision, task order, success predicate, exclusions, checkpoint selection and comparison budget are frozen before the final evaluation. Repeated rollouts from one checkpoint are not independent training seeds.
+
+For each task we report attempted, confirmed-success, failed and unknown counts. With $S$ confirmed successes, $U$ unknown outcomes and $N$ valid attempts, the outcome identification interval is $[S/N,(S+U)/N]$. This is not a confidence interval. Conditional binomial intervals for known outcomes are separately labelled and do not remove missing-outcome uncertainty. Retention reports final-stage signed backward transfer and max-past forgetting; these are not silently renamed as LIBERO's learning-curve metrics \citep{libero}.
+
+Planned controls include no motion, fixed-data behavioral cloning, sequential finetuning and fixed-budget replay, with a robot-specific geometric reference for transfer. Only controls actually executed are reported as results. Large published model scores are contextual references, not locally reproduced baselines.
+
+\section{Preliminary engineering evidence}
+An executed fixed-base reaching pilot uses twenty checksum-verified CAD meshes with MuJoCo 3.17. Only three simulated arm joints are active. Success requires the grasp-center site to remain within $25\,\mathrm{mm}$ of its target for three consecutive decision steps, within a 60-step episode. The PPO teacher uses privileged simulator state. The official LeRobot 0.6.1 ACT student uses rendered overview RGB and a command estimate, with a compact ResNet-18 configuration.
+
+PPO performs 4096 environment steps; ACT performs 120 optimizer updates from 12 outcome-labelled teacher rollouts, ten successful. Changed weights and checkpoint save/reload were verified. Six common evaluation seeds are disjoint from training and imitation episodes. They are development seeds, already inspected while implementing the system.
+\begin{table}[t]
+\centering
+\caption{Recorded simulation development rollouts. These counts exercise the training path and do not test the central hypothesis.}
+\begin{tabular}{lrr}
+\hline
+Policy & Confirmed successes & Attempts\\
+\hline
+No motion & 0 & 6\\
+PPO privileged-state teacher & 6 & 6\\
+Official ACT RGB student & 2 & 6\\
+\hline
+\end{tabular}
+\end{table}
+The teacher and student have different observations and training objectives, so their rates do not isolate an algorithmic advantage. The small sample, single development training seed and simple reach predicate cannot establish manipulation competence, contact safety or sample efficiency. This desktop-CPU run does not qualify Jetson GPU execution. A tested dependency-version exception also remains outside full framework qualification.
+
+\section{Limitations and falsification criteria}
+No physical task-success or physical-transfer result is reported here. The overview camera cannot certify grip force, and imported kinematics do not establish calibrated dynamics. A successful IK solve does not check collision or orientation unless those constraints were included. Failures to observe a task effect must remain visible rather than being converted to positive labels.
+
+The central hypothesis is weakened if the treatment only increases refusals without improving verified completion or unsupported-promotion rates at matched cost. It is falsified for the tested setting if its measured reliability advantage disappears under the frozen comparisons and uncertainty analysis. Retention and composition benefits must survive task-order and held-out-sequence tests. Negative results are informative only with the attempted trials, resource budget and observation limits preserved.
+
+\bibliographystyle{plainnat}
 \bibliography{references}
 \end{document}
