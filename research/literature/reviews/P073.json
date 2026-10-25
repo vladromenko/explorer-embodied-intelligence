@@ -1,0 +1,56 @@
+{
+  "paper_id": "P073",
+  "deep_review": false,
+  "problem": "Exploit video-diffusion temporal representations for action prediction without the latency of generating full videos at every control step.",
+  "contribution": "VidMan first learns video prediction, then adapts intermediate features into a supervised implicit inverse-action policy with layer-wise adapters. It uses one video-backbone pass at maximal noise and a smaller iterative action diffusion head.",
+  "algorithm": "Initialize OpenSora16x256x256; train twohistory/twofuture-frame generation on robot videos with channel-concatenated history and text. In stage2 insert gated attention/FFN adapters with learned action queries after each backboneblock. Fix video timestepK=1000 and use pure future noise; no video denoising loop. Decode action queries with100-step diffusion actionhead; stage2 action-only objective outperforms joint frame/actiontraining.",
+  "observations": "Stage1third-personRGB;stage2third-person+wrist and optionalproprioception. Four-frame sampling interval3 is a tuned design. Prediction features encode learned priors, not measured future states or independently verified dynamics.",
+  "actions": "Target EEFpose/gripper controls;12actionsteps forOXE and10forCALVIN. Requires target action supervision; pretrained features do not calibrate motorjoints or gripper polarity.",
+  "embodiment_and_data": "25selectedOXEdatasets frommulti-institutioncorpus plusCALVINABC→D. Offline action evaluationBridge,TacoPlay,CableRouting,AutolabUR5. Inspected main experiments establish simulation andofflineprediction, not a physical robot deployment success rate.",
+  "experiments": "CALVINfive-instructionchain evaluation;offlineXYZ/Euler accuracy andMSE;pretraining,stage2objective,adapter andframeintervalablations. Paper describesXYZaccuracy with'radians' wording, a dimensional inconsistency; do not interpret it as a physical positional tolerance without implementation inspection.",
+  "baselines": "GR1,RoboFlamingo,SuSIE,RT1,3Dpolicies;RT1X/Octo andGPT-stylevariant forofflineprediction. Inputs and full/language-only trainingdata vary. 3Dmodels use depth/extrinsics unavailable toRGBmethods.",
+  "quantitative_result": "Table1 PDFp7 CALVINavgchain3.42VidMan versus3.06GR1 and3.35 3DDiffuserActor;five-task46.7%. Table2p8 action-only3.42 versusco-train2.70;OXEpretraining3.42,Ego4D3.29,none2.89. Page9 prose saysEgo4D'decreased'0.13 despite positive comparison to2.89;table suggestsdecreaseonlyrelativeOXE. Table3p9 interval3bestaction/chain whileFID/FVDworsentointerval3,showingvisualmetric mismatch.",
+  "limitations": "Offlineactionaccuracy andsimulatedchainlength donot establish physicalsuccess orcontactforcefidelity. Videoandactionpriorsmayfailat novelviews/dynamics; temporalinterval tuned. Baseline/data/input differences and metric-definition wording require caution. 'Implicit inverse dynamics' is an architectural interpretation rather than an identified physicalinverse law.",
+  "code_and_license": "Independent code/OpenSora weights/OXE licenses NOT_AUDITED;no codeinspected/executed. Later models' descriptions do not substitute for pinned implementation compatibility.",
+  "hardware_adaptation": "COMPARE frozen temporalencoder plus target-trainedactiondecoder againststaticencoder baseline. Evaluateactualcamera/actiontiming andNXlatency separately;no pretrainedSO101head orphysicalpolicy admitted by thisreview. Keep controller configuration unchanged.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "4.1 Figure2",
+      "supports": "videopredictionstage"
+    },
+    {
+      "page": 5,
+      "section": "4.2",
+      "supports": "onepassadapter andactiondiffusion"
+    },
+    {
+      "page": 6,
+      "section": "5.1",
+      "supports": "data,inputs,chunks andoffline metricwording"
+    },
+    {
+      "page": 7,
+      "section": "Table1",
+      "supports": "simulation-onlycomparative results"
+    },
+    {
+      "page": 8,
+      "section": "Table2",
+      "supports": "objective/pretrainingablations"
+    },
+    {
+      "page": 9,
+      "section": "Table3 5.3",
+      "supports": "frameinterval andproseambiguity"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "5bcbd6c282c62dd6823e1e674a2942319651ba9aa37f9d3922a1aaa91a9b0373",
+  "primary_url": "https://arxiv.org/abs/2411.09153",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

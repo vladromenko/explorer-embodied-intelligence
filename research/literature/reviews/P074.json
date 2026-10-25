@@ -1,0 +1,56 @@
+{
+  "paper_id": "P074",
+  "deep_review": false,
+  "problem": "Use future-oriented visual representations for generalist robot control while maintaining practical inference frequency.",
+  "contribution": "Video Prediction Policy(VPP) specializes a video foundationmodel on manipulation videos, freezes it as a one-pass predictive encoder, and learns a VideoFormer/actiondiffusion decoder. Its first-pass features are predictive representations, not actual frames of future physical execution.",
+  "algorithm": "Add CLIP language crossattention to1.5BSVD and train16frame256x256prediction onhuman,robot anddownstreamvideos. FreezeTVP. Concatenate currentimage withmaximal-noisefutureinput, takeoneforwardpass, interpolate/stackupsamplinglayerfeatures. VideoFormer aggregates spatial/temporal/multiviewtokens;DiT actiondiffusion head produces10stepchunks. Eachcamerafuture ispredictedindependently.",
+  "observations": "Third-person andwristRGB plusinstruction; actiontrainingusesactualtargetrobotlabels. Predictivefeature visualizations arequalitative andindependentcameraencoding doesnot enforce calibrated3Dcrossviewconsistency.",
+  "actions": "Task-specificdiffusionactions onFrankaPanda andXArm/XHand12DoFdexterousplatform; targetactionspace requires its ownsuperviseddecoder. NewSO101/ROSMASTERmorphology isnot evaluated.",
+  "embodiment_and_data": "193,690human/179,074robottrajectories plusdownstreamvideos forTVP. CALVINABC→D,50MetaWorldtasks50demos/task. RealPanda2000trajectories30+tasks;XArmhand4000trajectories100+tasks incltooluse.8A1002–3daysTVPtraining,4A1006–12hpolicytraining;7–10Hz measured onRTX4090,notNX.",
+  "experiments": "Simulationheldoutscene,10%annotateddata,encoder/layer/VideoFormer/dataablations;physicalseen/unseenobject/backgroundcategories andtools. Real200+Panda/500+handrollouts total; exactper-categorydenominators NOT_EXTRACTED frommainaggregate table. Manycomparisonnumbers sourcedfrompriorpapers ratherthanuniform reruns.",
+  "baselines": "GR1,VidMan,SuSIE,DP,RT1,Flamingo,3Dmethods; matchedrepresentationablationsStableVAE,VC1,Voltron. VideoFormerremovalchangesbothfeaturesandlatency,sointerpret architecturalgain accordingly.",
+  "quantitative_result": "Table1 PDFp5 CALVINavgchain4.33 andfive-task.769 versusVidMan3.42/.467;10%ABC3.25. Table4p7 removingdownstreamCalvinvideo reduces4.33→3.31,removinginternetdata4.33→3.97;latency~140ms versus~450mswithoutVideoFormer on4090. Table5p8 physicalPandaunseen.73,XHandunseen.60,tooluse.68; these areaggregatephysicalrates,notper-taskguarantees.",
+  "limitations": "Requires significanttargetdata anddownstreamvideoadaptation; performancecannotbeattributedonly tointernetpriors. Frozenpredictorcanhallucinate ormisrepresentcontact; noindependentforce/outcomeverification. Cross-paperbaselines andaggregatedphysicaldenominatorslimit uncertaintyestimation. Consumer4090frequency doesnotestablishNXmemory/latencyparity.",
+  "code_and_license": "Independentcode,SVD/CLIP/modelweights anddatasetlicenseauditsnotperformed. No codeinspected/executed;sourceavailabilitynotinferredfromarchitecturedescription.",
+  "hardware_adaptation": "COMPAREone-passfeatureswithinactualNXtimingbudget, usingtarget-trainedactiondecoder andfreshheldoutscenes. Currentobject-relativeFK/IKisnotVPP; preservecalibration/gripperconventions andlegacycontrollers. Generatedpredictivefeaturesmustneverreplaceactualcamera/receiverhold evidence.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "4.1",
+      "supports": "SVDspecialization andfrozenencoder"
+    },
+    {
+      "page": 4,
+      "section": "4.2",
+      "supports": "onepassfeatures,independentviews andVideoFormer"
+    },
+    {
+      "page": 5,
+      "section": "Tables1-2 TrainingDetails",
+      "supports": "simulationresults andtrainingdata"
+    },
+    {
+      "page": 6,
+      "section": "PolicyRollout/Comparisons",
+      "supports": "compute,4090frequency andcross-paperbaselines"
+    },
+    {
+      "page": 7,
+      "section": "Tables3-4",
+      "supports": "representation/architecture/dataablations"
+    },
+    {
+      "page": 8,
+      "section": "5.3 Table5",
+      "supports": "physicalplatformdata,trialtotalsandrates"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "7a6d966b78a205efe0943e9188f16ec33e470526da1066df5406922fafb4f0d6",
+  "primary_url": "https://arxiv.org/abs/2412.14803",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

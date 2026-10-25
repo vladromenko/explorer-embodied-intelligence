@@ -1,0 +1,56 @@
+{
+  "paper_id": "P071",
+  "deep_review": false,
+  "problem": "Separate language/video planning from environment-specific action generation to share task knowledge across different control tasks.",
+  "contribution": "UniPi instantiates the Unified Predictive Decision Process with a first-frame/text-conditioned video planner and a separately trained inverse dynamics decoder. A universal visual interface reduces representation differences but does not remove the need for robot-specific action supervision.",
+  "algorithm": "Train diffusion video generation with explicit first-frame context tiled across every future frame; synthesize coarse temporal plans then temporal-super-resolve. T5 encodes instructions and classifier-free guidance controls conditioning. Train a small inverse model independently from labeled transitions. Paper experiments execute inferred action sequence open-loop for computational efficiency, although closed-loop regeneration is discussed as possible.",
+  "observations": "Initial image and task text for planner; generated adjacent frames for action decoder. Planning datasets need video/task pairs and decoder needs actual actions. Web video priors encode plausible visual behavior, not force or calibrated reachability.",
+  "actions": "Task-specific continuous joint/control actions inferred from video; inverse model can be trained on smaller/suboptimal simulator data. Video generation alone does not command a new robot embodiment.",
+  "embodiment_and_data": "Scripted block-coloring/placement and multitask simulation,200k videos per setting with70/30instruction split; ten train/three test tasks for transfer. Real-domain study usesBridge7.2kvideo-text pairs80/20split plus14Mvideo-text/60Mimage-text/LAION400Mpretraining. Original large pretrained initialization is not independently reproduced here.",
+  "experiments": "Combinatorial simulation task completion, first-frame/tiling/hierarchy ablations, multienvironment task transfer and real-domain video generation. Real-domain Table4 success is a final-frame classifier judgment on generated videos, not actual hardware rollouts. No measured physical deployment success is established in inspected main experiments.",
+  "baselines": "State/Image TransformerBC,ImageTrajectoryTransformer and action-spaceDiffuser with sharedT5 conditions; video model from scratch versus internetpretraining. Baselines use continuous actions rather than preprogrammed pick/place primitives.",
+  "quantitative_result": "Table1 PDFp6 novel place60.1±3.9%,relation46.1±3.0%UniPi versus13.2±4.1/9.1±2.5ImageTT. Table3p8 heldout placebowl51.6±3.6%,packobject75.5±3.1%,packpair45.7±3.7%. Table4p9 generated-video success77.1%pretrained versus72.6%scratch; explicitly a classifier proxy, not physicalsuccess.",
+  "limitations": "Open-loop execution accumulates errors; plausible video can be physically inconsistent or beyond inverse-model support. Real-domain video scores do not validate embodied execution. Web-scale initialization/data and target-specific inverse actions limit reproducibility and novel-robot claims. Language replaces explicit reward specification but cannot prove task validity.",
+  "code_and_license": "Primary project https://universal-policy.github.io/ . Independent implementation/checkpoint and constituent dataset license audits not performed; no code inspected/executed. Proprietary pretrained model availability should not be assumed from later reimplementations.",
+  "hardware_adaptation": "COMPARE video-plan/inverse-decoder abstraction against a small calibrated simulation baseline; preserve actual action labels and IK feasibility. Current SO101/ROSMASTER transfer is geometry engineering, not a UniPi policy. Generated-video success never qualifies as observed physical or handover success.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "2.2",
+      "supports": "UPDP abstraction and offline action data"
+    },
+    {
+      "page": 4,
+      "section": "3.1",
+      "supports": "first-frame tiling"
+    },
+    {
+      "page": 5,
+      "section": "3.1-3.2",
+      "supports": "temporal hierarchy and actual open-loop execution"
+    },
+    {
+      "page": 6,
+      "section": "4.1 Table1",
+      "supports": "split/data and combinatorial results"
+    },
+    {
+      "page": 8,
+      "section": "4.2-4.3 Table3",
+      "supports": "transfer and real-domain video setup"
+    },
+    {
+      "page": 9,
+      "section": "Table4",
+      "supports": "generated-video success proxy"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "5ded462cfcad30a6317610a4f991d3c1eca7826cbe208dbd9929c3837529708e",
+  "primary_url": "https://arxiv.org/abs/2302.00111",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

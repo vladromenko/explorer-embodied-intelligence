@@ -1,0 +1,46 @@
+{
+  "paper_id": "P075",
+  "deep_review": false,
+  "problem": "Transfer motion knowledge from web-scale human video generation to robot tasks with novel objects and motion patterns.",
+  "contribution": "Gen2Act pairs generated human demonstrations with actual robot trajectories and trains a closed-loop video-conditioned translator, aided by point-track prediction losses. It needs robotactiondata and a supportedtargetcontroller despitezero-shothumanvideogeneration.",
+  "algorithm": "Use fixedVideoPoet togeneratehumanvideo frominitialscene/instruction. Encodegeneratedvideo andrecentrobotobservations viaViT andseparatePerceiverresamplers into64tokens each. Offlinepointtracksextractedfrombothvideos superviseauxiliarytracktransformers;BCactionhead predicts256bindiscretizedchunks. Trackheads aretraining-only. Forlongtasksregeneratehumanvideofromactuallastimage aftereachstage, ratherthanusinginitialscene forever.",
+  "observations": "Current/recentrobotRGB andgeneratedhumanvideo; tracksfromoff-the-shelfmodel arepseudolabels,nottrue3Dcontactmotion. Minimalcameramotionandplausiblehumanmanipulation arerequired. No explicitobject-graspframeorforceestimator.",
+  "actions": "End-effectorcontrol onmobilemanipulator withcomplianttwofingergripper at3Hz. Robotmanuallypositionedacrossoffice/kitchen/labscenes andarmresetbeforetasks toavoidcameraocclusion; this isnot autonomousnavigation or arbitrarynewembodimentcontrol.",
+  "embodiment_and_data": "ExistingRT1-styleoffline robotdemonstrations pluspairedhuman/robotVid2Robotdata andautomaticallygeneratedhumanvideo pairs. Additional~400diverseteleoptrajectories areanaugmentationexperiment,notentiretrainingcorpus. Exactinitialcorpuscount NOT_EXTRACTED inmaintext.",
+  "experiments": "Mild/standard/object-type/motion-typegeneralization definedrelative torobotdata, assuminggenerativewebpriorsmayalreadycovernovelties. Comparelanguagepolicy,goalimagepolicy,realvideoconditioning andwithouttrackloss. Long-horizon4activities3stages evaluatedfiveactualtrials/activity withcumulativeprefixsuccess.",
+  "baselines": "RT1,RT1-GC,Vid2Robot,Gen2Actwithouttrackprediction,plusco-trainingvariant. Sharedrobotdata supports comparison,butVideoPoet/webpretraining/externaltrackersareadditionalknowledgeandnotfreecollection.",
+  "quantitative_result": "TableI PDFp5 Gen2ActMG83%,G67%,OTG58%,MTG30%,average60%;withouttrack83/58/50/5%,average49%. TableIIp6 makingcoffee40/20/20%stageprefixsuccess over5trials,sofinaltask1/5notreliableroutine. TableIIIadditional~400teleop raisesmean60→64%,MTG30→35%;mostnovelmotioncasesstillfail.",
+  "limitations": "Generatedimplausiblehumanmotion predictsphysicalfailure especiallyoutside robotdatasupport;dexteroushandgenerationlimited. Needtargettranslationdata; manualreset/placement andsmall5triallonghorizonstudyrestrictautonomyclaims. Recoverypolicyforintermediatefailure isfuturework. Video plausibilitydoesnotprovephysicalgrasp/forcegeometry.",
+  "code_and_license": "Independentcode,VideoPoetcheckpoint,trackingmodelandrobot/human-datalicensesNOT_AUDITED. No codeinspected/executed; fixedgenerativemodel availability/executableparity notassumed.",
+  "hardware_adaptation": "ADAPTpairedcamera/actionprovenance andmotionrepresentationexperimentsbeforetarget-policytraining. Acalibratedobject-relativeSO101/ROSMASTERadapter maycomplementmotioncues,butdoesnotperformGen2Acttranslation orinherititsresults. Preserveactualclosed-loopimages andindependentsuccess/receiverhold evidence; no controllerchanges.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "III-A/B",
+      "supports": "generatedhuman/robotpairinganddatarequirements"
+    },
+    {
+      "page": 4,
+      "section": "III-C/D",
+      "supports": "features,auxiliarytracks,BC andstagechaining"
+    },
+    {
+      "page": 5,
+      "section": "IV-A/B TableI",
+      "supports": "generalizationdefinitions,3Hzhardware/resetandresults"
+    },
+    {
+      "page": 6,
+      "section": "TablesII-III IV-F/H V",
+      "supports": "five-trialprefixmetrics,additional400dataandfailures/limits"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "5d48dce0af6dc2a77904099c7454955c381c2e387ae38ed4acb6493bbcbd0295",
+  "primary_url": "https://arxiv.org/abs/2409.16283",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}
