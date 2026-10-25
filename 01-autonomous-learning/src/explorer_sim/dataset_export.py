@@ -35,6 +35,8 @@ def load_episode(manifest_path, descriptor, manifest):
         else:
             state = source["state_command9"].copy() if "state_command9" in source else (state_normalized + 1) * .5 * (high - low) + low
         reward = source["reward"].copy() if "reward" in source else np.zeros(len(rgb), np.float32)
+        grid = source["grid_monotonic_ns"].copy() if "grid_monotonic_ns" in source else None
+        source_indices = source["source_sample_index"].copy() if "source_sample_index" in source else None
         timestamps = {name: source[name].copy() for name in ("frame_monotonic_ns", "state_monotonic_ns", "action_monotonic_ns") if name in source}
     count = len(rgb)
     if not count or rgb.dtype != np.uint8 or rgb.ndim != 4 or rgb.shape[-1] != 3:
@@ -43,16 +45,39 @@ def load_episode(manifest_path, descriptor, manifest):
         raise ValueError("State/action/frame alignment mismatch")
     if not np.isfinite(state).all() or not np.isfinite(action).all() or not np.isfinite(reward).all():
         raise ValueError("Nonfinite episode labels")
-    if manifest.get("state_basis", "command_estimate") == "measured_state":
+    resampling = manifest.get("resampling", {})
+    held_samples = resampling.get("method") == "causal_previous_sample_hold"
+    if manifest.get("state_basis", "command_estimate") == "measured_state" or held_samples:
         if len(timestamps) != 3 or not manifest.get("clock_domain"):
             raise ValueError("Measured-state episodes need one explicit clock domain and frame/state/action timestamps")
         frame_time, state_time, action_time = [timestamps[name] for name in ("frame_monotonic_ns", "state_monotonic_ns", "action_monotonic_ns")]
-        if any(value.shape != (count,) or not np.issubdtype(value.dtype, np.integer) or np.any(value < 0) for value in timestamps.values()) or np.any(frame_time > state_time) or np.any(state_time > action_time) or np.any(np.diff(action_time) <= 0):
+        if any(value.shape != (count,) or not np.issubdtype(value.dtype, np.integer) or np.any(value < 0) for value in timestamps.values()) or np.any(frame_time > state_time) or np.any(state_time > action_time):
+            raise ValueError("Causal mismatch in measured frame/state/action timestamps")
+        if held_samples:
+            period = 1e9 / manifest["fps"]
+            if (grid is None or source_indices is None or grid.shape != (count,) or source_indices.shape != (count,)
+                    or not np.issubdtype(grid.dtype, np.integer) or not np.issubdtype(source_indices.dtype, np.integer)
+                    or np.any(source_indices < 0) or np.any(np.diff(source_indices) < 0)
+                    or np.any(grid < 0) or np.any(np.diff(grid) <= 0) or np.any(np.diff(action_time) < 0)
+                    or np.any(action_time > grid) or np.any(grid - action_time > 3 * period)
+                    or not np.allclose(np.diff(grid), period, rtol=0, atol=1)
+                    or source_indices.tolist() != descriptor.get("source_indices")):
+                raise ValueError("Causal resampling needs a nominal increasing grid and past native samples")
+        elif np.any(np.diff(action_time) <= 0):
             raise ValueError("Causal mismatch in measured frame/state/action timestamps")
     elif len(state) > 1 and not np.allclose(state[1:], action[:-1], atol=1e-4):
         raise ValueError("Causal mismatch: observation command-state must precede its action")
     return {"path": path, "rgb": rgb, "state": state.astype(np.float32),
-            "action": action.astype(np.float32), "reward": reward.astype(np.float32), "timestamps": timestamps}
+            "action": action.astype(np.float32), "reward": reward.astype(np.float32), "timestamps": timestamps,
+            "grid_monotonic_ns": grid, "source_sample_index": source_indices}
+
+
+def _validate_retained_originals(manifest_path, manifest):
+    directory = Path(manifest_path).resolve().parent
+    for name, digest in manifest.get("source_files_sha256", {}).items():
+        artifact = (directory / name).resolve()
+        if not artifact.is_relative_to(directory) or not artifact.is_file() or sha(artifact) != digest:
+            raise ValueError("Retained native source artifact checksum mismatch")
 
 
 def validate_splits(manifest):
@@ -87,6 +112,7 @@ def export_lerobot_v3(manifest_path, target_dir, repo_id=None):
     manifest = json.loads(manifest_path.read_text())
     if manifest.get("format") not in ("explorer_npz_episode_v1", "explorer_robot_episode_v1"):
         raise ValueError("A synchronized, action-labelled Explorer episode manifest is required")
+    _validate_retained_originals(manifest_path, manifest)
     split_map = validate_splits(manifest)
     if not manifest.get("episodes"):
         raise ValueError("Dataset contains no episodes")
@@ -123,6 +149,10 @@ def export_lerobot_v3(manifest_path, target_dir, repo_id=None):
     if has_timestamps:
         for name in ("frame_monotonic_ns", "state_monotonic_ns", "action_monotonic_ns"):
             features["timestamp.source_" + name] = {"dtype": "int64", "shape": (1,), "names": None}
+    has_grid = all(source["grid_monotonic_ns"] is not None for source in source_episodes)
+    if has_grid:
+        features["timestamp.conversion_grid_monotonic_ns"] = {"dtype": "int64", "shape": (1,), "names": None}
+        features["provenance.source_sample_index"] = {"dtype": "int64", "shape": (1,), "names": None}
     dataset = LeRobotDataset.create(repo_id, fps=fps, features=features, root=target_dir,
                                     robot_type="rosmaster_m3_cad_reach_pilot" if manifest.get("source") == "real_mujoco_ppo_rollouts" else "explorer_recorded_robot",
                                     use_videos=False, image_writer_processes=0, image_writer_threads=0,
@@ -137,6 +167,9 @@ def export_lerobot_v3(manifest_path, target_dir, repo_id=None):
                 if has_timestamps:
                     frame.update({"timestamp.source_" + name: np.asarray([values[index]], np.int64)
                                   for name, values in source["timestamps"].items()})
+                if has_grid:
+                    frame["timestamp.conversion_grid_monotonic_ns"] = np.asarray([source["grid_monotonic_ns"][index]], np.int64)
+                    frame["provenance.source_sample_index"] = np.asarray([source["source_sample_index"][index]], np.int64)
                 dataset.add_frame(frame)
             dataset.save_episode()
     finally:
@@ -155,7 +188,9 @@ def export_lerobot_v3(manifest_path, target_dir, repo_id=None):
                   "files_sha256": {str(path.relative_to(target_dir)): sha(path)
                                    for path in sorted(target_dir.rglob("*")) if path.is_file()},
                   "finalize_called": True, "uploaded_to_hub": False}
-    provenance.update(native_monotonic_timestamps_preserved=has_timestamps,
+    provenance.update(causal_resampling=manifest.get("resampling"), conversion_grid_preserved=has_grid,
+                      source_original_files_sha256=manifest.get("source_files_sha256", {}),
+                      native_monotonic_timestamps_preserved=has_timestamps,
                       official_timestamp_basis="nominal decision FPS grid; native event times stored separately when present")
     write_json(provenance_path, provenance)
     return verify_lerobot_v3(target_dir, repo_id, manifest_path, source_episodes, provenance)
@@ -169,6 +204,7 @@ def verify_lerobot_v3(target_dir, repo_id, manifest_path, source_episodes=None, 
     if sha(manifest_path) != provenance["source_manifest_sha256"]:
         raise ValueError("Source manifest changed during conversion")
     manifest = json.loads(manifest_path.read_text())
+    _validate_retained_originals(manifest_path, manifest)
     source_episodes = source_episodes or [load_episode(manifest_path, item, manifest) for item in manifest["episodes"]]
     for name, digest in provenance["files_sha256"].items():
         path = target_dir / name
@@ -197,6 +233,9 @@ def verify_lerobot_v3(target_dir, repo_id, manifest_path, source_episodes=None, 
                 for name, values in source["timestamps"].items():
                     if int(item["timestamp.source_" + name]) != int(values[frame_index]):
                         raise ValueError("Native recording timestamp readback differs")
+            if provenance.get("conversion_grid_preserved"):
+                if int(item["timestamp.conversion_grid_monotonic_ns"]) != int(source["grid_monotonic_ns"][frame_index]) or int(item["provenance.source_sample_index"]) != int(source["source_sample_index"][frame_index]):
+                    raise ValueError("Conversion grid/source sample readback differs")
             index += 1
         if sha(source["path"]) != manifest["episodes"][episode_index]["sha256"]:
             raise ValueError("Source NPZ changed during export")
@@ -208,6 +247,7 @@ def verify_lerobot_v3(target_dir, repo_id, manifest_path, source_episodes=None, 
               "all_frame_state_action_image_checks_passed": True, "causal_alignment_checked": True,
               "source_splits_preserved": True, "source_npz_immutable": True,
               "native_monotonic_timestamps_preserved": provenance.get("native_monotonic_timestamps_preserved", False),
+              "conversion_grid_preserved": provenance.get("conversion_grid_preserved", False),
               "source_manifest_sha256": provenance["source_manifest_sha256"],
               "provenance_sha256": sha(target_dir / "explorer_provenance.json"), "uploaded_to_hub": False}
     write_json(target_dir.parent / (target_dir.name + "-readback.json"), report)

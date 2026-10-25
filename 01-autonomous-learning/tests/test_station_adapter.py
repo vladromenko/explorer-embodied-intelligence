@@ -91,14 +91,172 @@ def test_training_requires_action_labelled_inputs_before_starting_any_pilot(tmp_
     assert not (tmp_path / "jobs").exists()
 
 
+def change_native_offsets(path, source, offsets_ms):
+    for index, offset in enumerate(offsets_ms):
+        timestamp = 1_000_000_000 + offset * 1_000_000
+        source["samples"][index]["frame"]["monotonic_ns"] = timestamp
+        source["samples"][index]["state_monotonic_ns"] = timestamp + 10_000_000
+        source["samples"][index]["action_monotonic_ns"] = timestamp + 20_000_000
+    write_json(path, source)
+
+
+def test_jitter_uses_only_past_samples_and_retains_every_native_input(tmp_path):
+    path, source = station_fixture(tmp_path / "source")
+    change_native_offsets(path, source, [0, 140, 210, 310])
+    digest = sha(path)
+    target = tmp_path / "converted"
+    manifest = convert_station_episode(path, target)
+    descriptor = manifest["episodes"][0]
+    assert descriptor["source_indices"] == [0, 0, 1, 2]  # Future index 1 is closer to grid slot 1, but unavailable.
+    loaded = load_episode(target / "manifest.json", descriptor, manifest)
+    np.testing.assert_array_equal(loaded["state"][:, 0], [0, 0, 1, 2])
+    np.testing.assert_array_equal(loaded["action"][:, 0], [4, 4, 5, 6])
+    assert np.all(loaded["timestamps"]["action_monotonic_ns"] <= loaded["grid_monotonic_ns"])
+    assert loaded["timestamps"]["action_monotonic_ns"][0] == loaded["timestamps"]["action_monotonic_ns"][1]
+    assert manifest["resampling"]["applied"]
+    assert manifest["resampling"]["segments"][0]["dropped_source_indices"] == [3]
+    with np.load(target / "source_originals/native_samples.npz") as original:
+        np.testing.assert_array_equal(original["state_native"][:, 0], [0, 1, 2, 3])
+        np.testing.assert_array_equal(original["action_monotonic_ns"], [sample["action_monotonic_ns"] for sample in source["samples"]])
+    for item in manifest["source_files"]:
+        assert sha(target / item["retained_file"]) == item["sha256"]
+    assert sha(path) == sha(target / "source_originals/manifest.json") == digest
+    assert "not new measurements" in manifest["resampling"]["hold_semantics"]
+
+
+def test_long_gaps_split_episodes_without_changing_outcome_or_sealed_split(tmp_path):
+    path, source = station_fixture(tmp_path / "source", split="sealed_test")
+    source["outcome"] = {"outcome": "failure", "source": "operator"}
+    change_native_offsets(path, source, [0, 100, 900, 1000])
+    target = tmp_path / "converted"
+    manifest = convert_station_episode(path, target)
+    assert len(manifest["episodes"]) == 2
+    assert manifest["resampling"]["applied"] and manifest["resampling"]["segmented"]
+    assert manifest["resampling"]["original_count"] == manifest["resampling"]["converted_count"] == 4
+    assert manifest["resampling"]["gaps"][0]["gap_ns"] == 800_000_000
+    assert [item["source_indices"] for item in manifest["episodes"]] == [[0, 1], [2, 3]]
+    for descriptor in manifest["episodes"]:
+        assert descriptor["split"] == "sealed_test" and descriptor["outcome"] == source["outcome"]
+        loaded = load_episode(target / "manifest.json", descriptor, manifest)
+        assert np.array_equal(np.diff(loaded["grid_monotonic_ns"]), [100_000_000])
+    assert convert_station_episode(path, target) == manifest
+    assert not manifest["physical_success_inferred"]
+
+
+@pytest.mark.parametrize("outcome", ["failure", "unknown"])
+def test_non_success_outcomes_remain_exact_labels(tmp_path, outcome):
+    path, source = station_fixture(tmp_path / "source", split="sealed_test")
+    source["outcome"] = outcome
+    change_native_offsets(path, source, [0, 140, 900, 1010])
+    manifest = convert_station_episode(path, tmp_path / "converted")
+    assert all(item["outcome"] == outcome and item["split"] == "sealed_test" for item in manifest["episodes"])
+    assert not manifest["physical_success_inferred"]
+
+
+def test_uniform_conversion_preserves_native_times_values_and_all_artifact_hashes(tmp_path):
+    path, source = station_fixture(tmp_path / "source")
+    target = tmp_path / "converted"
+    manifest = convert_station_episode(path, target)
+    assert manifest["resampling"]["applied"] is False
+    loaded = load_episode(target / "manifest.json", manifest["episodes"][0], manifest)
+    np.testing.assert_array_equal(loaded["grid_monotonic_ns"], [sample["action_monotonic_ns"] for sample in source["samples"]])
+    np.testing.assert_array_equal(loaded["state"], [sample["state"] for sample in source["samples"]])
+    for name, digest in manifest["source_files_sha256"].items():
+        assert sha(target / name) == digest
+    assert convert_station_episode(path, target) == manifest
+
+
+def test_future_native_action_cannot_be_hidden_by_conversion_grid(tmp_path):
+    path, source = station_fixture(tmp_path / "source")
+    change_native_offsets(path, source, [0, 140, 210, 310])
+    target = tmp_path / "converted"
+    manifest = convert_station_episode(path, target)
+    descriptor = manifest["episodes"][0]
+    episode_path = target / descriptor["file"]
+    with np.load(episode_path) as episode:
+        values = {key: episode[key].copy() for key in episode.files}
+    values["action_monotonic_ns"][1] = values["grid_monotonic_ns"][1] + 1
+    np.savez_compressed(episode_path, **values)
+    descriptor["sha256"] = sha(episode_path)
+    with pytest.raises(ValueError, match="Causal resampling"):
+        load_episode(target / "manifest.json", descriptor, manifest)
+
+
+def test_retry_preserves_partial_target_and_rebuilds_atomically(tmp_path):
+    path, _ = station_fixture(tmp_path / "source")
+    target = tmp_path / "converted"
+    target.mkdir()
+    (target / "episode_0000.npz").write_bytes(b"interrupted-original")
+    manifest = convert_station_episode(path, target)
+    remnants = list(tmp_path.glob("converted.incomplete-*"))
+    assert len(remnants) == 1
+    assert (remnants[0] / "episode_0000.npz").read_bytes() == b"interrupted-original"
+    assert convert_station_episode(path, target) == manifest
+    assert not list(tmp_path.glob(".converted.converting-*"))
+
+
+def test_failed_conversion_never_publishes_partial_target(tmp_path):
+    path, _ = station_fixture(tmp_path / "source")
+    target = tmp_path / "converted"
+    with patch("explorer_sim.station_adapter._write_segment", side_effect=RuntimeError("disk failure fixture")):
+        with pytest.raises(RuntimeError, match="disk failure"):
+            convert_station_episode(path, target)
+    assert not target.exists()
+    assert not list(tmp_path.glob(".converted.converting-*"))
+    assert convert_station_episode(path, target)["episodes"]
+
+
+def test_idempotence_verifies_second_segment_not_only_first(tmp_path):
+    path, source = station_fixture(tmp_path / "source")
+    change_native_offsets(path, source, [0, 100, 900, 1000])
+    target = tmp_path / "converted"
+    manifest = convert_station_episode(path, target)
+    second = target / manifest["episodes"][1]["file"]
+    second.write_bytes(b"corrupt-second-segment")
+    with pytest.raises(ValueError, match="checksum"):
+        convert_station_episode(path, target)
+    assert second.read_bytes() == b"corrupt-second-segment"
+
+
+def test_idempotence_verifies_all_retained_native_files(tmp_path):
+    path, _ = station_fixture(tmp_path / "source")
+    target = tmp_path / "converted"
+    manifest = convert_station_episode(path, target)
+    retained = target / manifest["source_files"][-1]["retained_file"]
+    retained.write_bytes(b"changed-original-copy")
+    with pytest.raises(ValueError, match="checksum"):
+        convert_station_episode(path, target)
+    assert retained.read_bytes() == b"changed-original-copy"
+
+
+def test_completed_conversion_is_not_overwritten_for_other_source(tmp_path):
+    path, source = station_fixture(tmp_path / "source")
+    target = tmp_path / "converted"
+    manifest = convert_station_episode(path, target)
+    source["outcome"] = "unknown"
+    write_json(path, source)
+    with pytest.raises(ValueError, match="different source"):
+        convert_station_episode(path, target)
+    assert sha(target / manifest["episodes"][0]["file"]) == manifest["episodes"][0]["sha256"]
+
+
 @pytest.mark.skipif(os.environ.get("EXPLORER_RUN_SIM_INTEGRATION") != "1", reason="Official dataset/ACT integration")
-def test_official_six_dimensional_export_and_training_without_mujoco_execution(tmp_path):
-    source_path, _ = station_fixture(tmp_path / "source")
+@pytest.mark.parametrize("irregular", [False, True])
+def test_official_six_dimensional_export_and_training_without_mujoco_execution(tmp_path, irregular):
+    source_path, source = station_fixture(tmp_path / "source")
+    source["outcome"] = "success"
+    source["outcome_label_source"] = "software_fixture_not_physical_test"
+    write_json(source_path, source)
+    if irregular:
+        change_native_offsets(source_path, source, [0, 140, 210, 310])
     manifest = convert_station_episode(source_path, tmp_path / "converted")
     report = export_lerobot_v3(tmp_path / "converted/manifest.json", tmp_path / "lerobot_v3")
     assert report["official_readback_passed"]
     provenance = json.loads((tmp_path / "lerobot_v3/explorer_provenance.json").read_text())
     assert provenance["native_monotonic_timestamps_preserved"]
+    assert provenance["conversion_grid_preserved"]
+    assert provenance["causal_resampling"]["applied"] == irregular
+    assert provenance["source_original_files_sha256"] == manifest["source_files_sha256"]
 
     class Store:
         root = tmp_path / "training"

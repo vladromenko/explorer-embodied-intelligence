@@ -3,7 +3,12 @@
 Reads existing images, measured states and accepted/dispatched actions only;
 there are no motor, camera capture, network or calibration write operations.
 """
+import fcntl
 import json
+import os
+import shutil
+import tempfile
+import uuid
 from pathlib import Path
 
 import numpy as np
@@ -35,7 +40,7 @@ def convert_station_episode(source_manifest_path, target_dir):
     if low.shape != (dimension,) or high.shape != low.shape or not np.isfinite(low).all() or not np.isfinite(high).all() or np.any(high <= low):
         raise ValueError("Explicit finite normalization ranges are required")
     fps = source.get("fps")
-    if isinstance(fps, bool) or not isinstance(fps, (int, float)) or not np.isfinite(fps) or fps <= 0:
+    if isinstance(fps, bool) or not isinstance(fps, (int, float)) or not np.isfinite(fps) or fps <= 0 or fps > 1e9:
         raise ValueError("Recording decision FPS is required")
     states, actions, frame_times, state_times, action_times, frames = [], [], [], [], [], []
     domains = set()
@@ -67,58 +72,169 @@ def convert_station_episode(source_manifest_path, target_dir):
         action_times.append(at)
     if len(domains) != 1 or np.any(np.diff(action_times) <= 0):
         raise ValueError("An episode must remain in one boot clock with increasing actions")
-    decision_deltas = np.diff(action_times) / 1e9
-    if len(decision_deltas) and not np.allclose(decision_deltas, 1 / fps, rtol=.25, atol=.01):
-        raise ValueError("Irregular decision intervals need explicit resampling before a fixed-FPS dataset")
-    if target.exists():
-        existing = target / "manifest.json"
-        if existing.is_file():
-            saved = json.loads(existing.read_text())
-            if saved.get("source_manifest_sha256") == source_digest and sha(target / saved["episodes"][0]["file"]) == saved["episodes"][0]["sha256"]:
-                return saved
-        raise ValueError("Conversion target already exists; source data will not be overwritten")
-    target.mkdir(parents=True)
-    rgb_path, npz_path = target / ".rgb-memory.npy", target / "episode_0000.npz"
-    rgb = None
+    states, actions = np.asarray(states), np.asarray(actions)
+    times = {"frame_monotonic_ns": np.asarray(frame_times, np.int64),
+             "state_monotonic_ns": np.asarray(state_times, np.int64),
+             "action_monotonic_ns": np.asarray(action_times, np.int64)}
+    segments, gaps = _causal_segments(times["action_monotonic_ns"], fps)
+    if source_path.is_relative_to(target) or any(path.resolve().is_relative_to(target) for path, _ in frames):
+        raise ValueError("Conversion target cannot contain the original source files")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with (target.parent / ("." + target.name + ".conversion.lock")).open("a") as owner:
+        fcntl.flock(owner.fileno(), fcntl.LOCK_EX)
+        if target.exists():
+            existing = _completed_conversion(target, source_digest)
+            if existing is not None:
+                return existing
+            # Incomplete outputs are retained for inspection rather than overwritten.
+            target.rename(target.with_name(target.name + ".incomplete-" + uuid.uuid4().hex))
+        staging = Path(tempfile.mkdtemp(prefix="." + target.name + ".converting-", dir=target.parent))
+        try:
+            result = _write_conversion(staging, source_path, source_digest, source, frames, states,
+                                       actions, times, low, high, segments, gaps, next(iter(domains)))
+            if sha(source_path) != source_digest:
+                raise ValueError("Source station manifest changed during conversion")
+            write_json(staging / "manifest.json", result)
+            os.rename(staging, target)
+            return result
+        finally:
+            if staging.exists():
+                shutil.rmtree(staging)
+
+
+def _causal_segments(action_times, fps):
+    """Anchor each grid at its first native action; never interpolate future data."""
+    period = 1e9 / fps
+    cuts = (np.flatnonzero(np.diff(action_times) > 3 * period) + 1).tolist()
+    bounds = [0, *cuts, len(action_times)]
+    segments, gaps = [], []
+    for start, end in zip(bounds[:-1], bounds[1:]):
+        native = action_times[start:end]
+        count = int(np.floor((int(native[-1]) - int(native[0])) / period)) + 1
+        grid = native[0] + np.rint(np.arange(count) * period).astype(np.int64)
+        grid = grid[grid <= native[-1]]
+        selected = np.searchsorted(native, grid, side="right") - 1 + start
+        segments.append({"start": start, "end": end, "grid": grid, "selected": selected})
+        if start:
+            gaps.append({"previous_source_index": start - 1, "next_source_index": start,
+                         "gap_ns": int(action_times[start] - action_times[start - 1]),
+                         "threshold_ns": 3 * period})
+    return segments, gaps
+
+
+def _completed_conversion(target, source_digest):
+    path = target / "manifest.json"
+    if not path.is_file():
+        return None
     try:
-        with Image.open(frames[0][0]) as image:
-            shape = (image.height, image.width, 3)
-        rgb = np.lib.format.open_memmap(rgb_path, mode="w+", dtype=np.uint8, shape=(len(samples), *shape))
-        for index, (path, descriptor) in enumerate(frames):
-            if sha(path) != descriptor["sha256"]:
-                raise ValueError("Source frame changed during conversion")
-            with Image.open(path) as image:
-                image = image.convert("RGB")
-                if (image.height, image.width, 3) != shape:
-                    raise ValueError("Station image resolution changed within episode")
-                rgb[index] = np.asarray(image)
+        saved = json.loads(path.read_text())
+    except (ValueError, UnicodeError):
+        return None
+    if not isinstance(saved, dict):
+        return None
+    descriptors = saved.get("episodes")
+    if not isinstance(descriptors, list) or not descriptors:
+        return None
+    if saved.get("source_manifest_sha256") != source_digest:
+        raise ValueError("Conversion target belongs to different source data; it will not be overwritten")
+    artifacts = {item["file"]: item["sha256"] for item in descriptors}
+    artifacts.update(saved.get("source_files_sha256", {}))
+    for name, digest in artifacts.items():
+        artifact = (target / name).resolve()
+        if not artifact.is_relative_to(target) or not artifact.is_file() or sha(artifact) != digest:
+            raise ValueError("Completed conversion artifact checksum mismatch; existing data retained")
+    return saved
+
+
+def _write_conversion(staging, source_path, source_digest, source, frames, states, actions,
+                      times, low, high, segments, gaps, domain):
+    originals = staging / "source_originals"
+    (originals / "frames").mkdir(parents=True)
+    shutil.copyfile(source_path, originals / "manifest.json")
+    if sha(originals / "manifest.json") != source_digest:
+        raise ValueError("Source station manifest changed while retaining the original")
+    artifacts = {"source_originals/manifest.json": source_digest}
+    source_files, shape = [], None
+    for index, (path, descriptor) in enumerate(frames):
+        suffix = path.suffix.lower() if path.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff") else ".image"
+        retained = originals / "frames" / (f"{index:06d}" + suffix)
+        shutil.copyfile(path, retained)
+        if sha(retained) != descriptor["sha256"] or sha(path) != descriptor["sha256"]:
+            raise ValueError("Source frame changed during conversion")
+        with Image.open(retained) as image:
+            frame_shape = (image.height, image.width, 3)
+        if shape is not None and shape != frame_shape:
+            raise ValueError("Station image resolution changed within recording")
+        shape = frame_shape
+        relative = str(retained.relative_to(staging))
+        artifacts[relative] = descriptor["sha256"]
+        source_files.append({"source_path": str(path.resolve()), "retained_file": relative,
+                             "sha256": descriptor["sha256"], "source_frame_id": descriptor["frame_id"]})
+    native_path = originals / "native_samples.npz"
+    np.savez_compressed(native_path, state_native=states, action_native=actions, **times)
+    artifacts[str(native_path.relative_to(staging))] = sha(native_path)
+    episode_id, split = source["episode_id"], source.get("split", "train")
+    episodes, segment_metadata = [], []
+    for index, segment in enumerate(segments):
+        selected, grid = segment["selected"], segment["grid"]
+        npz_path = staging / f"episode_{index:04d}.npz"
+        _write_segment(npz_path, staging, source_files, selected, grid, shape, states, actions, times, low, high)
+        identities = [frames[i][1]["frame_id"] for i in selected]
+        episodes.append({"id": episode_id if len(segments) == 1 else episode_id + f"-segment-{index:04d}",
+                         "source_episode_id": episode_id, "file": npz_path.name, "sha256": sha(npz_path),
+                         "frames": len(selected), "split": split, "outcome": source.get("outcome"),
+                         "outcome_label_source": source.get("outcome_label_source"),
+                         "outcome_scope": "Original recording label; segments are not independently evaluated",
+                         "clock_domain": domain, "frame_source_ids": identities,
+                         "source_indices": selected.tolist(), "grid_start_monotonic_ns": int(grid[0]),
+                         "grid_end_monotonic_ns": int(grid[-1])})
+        segment_metadata.append({"episode_file": npz_path.name, "start_source_index": segment["start"],
+                                 "end_source_index_exclusive": segment["end"],
+                                 "original_count": segment["end"] - segment["start"],
+                                 "converted_count": len(selected), "source_indices": selected.tolist(),
+                                 "dropped_source_indices": sorted(set(range(segment["start"], segment["end"])) - set(selected.tolist()))})
+    all_selected = np.concatenate([item["selected"] for item in segments])
+    all_grid = np.concatenate([item["grid"] for item in segments])
+    unchanged = np.array_equal(all_selected, np.arange(len(frames))) and np.array_equal(all_grid, times["action_monotonic_ns"])
+    result = {"schema_version": 1, "conversion_version": 2, "format": "explorer_robot_episode_v1",
+              "dataset_id": "station-" + episode_id, "source": "station_demonstration", "created_wall_utc": utc(),
+              "source_manifest_sha256": source_digest, "source_manifest_path": str(source_path),
+              "source_files": source_files, "source_files_sha256": artifacts,
+              "source_calibration_metadata": {key: value for key, value in source.items() if "calibrat" in key.lower()},
+              "action_names": source["action_names"], "action_units": source["action_units"],
+              "action_normalization": {"low": low.tolist(), "high": high.tolist()},
+              "state_basis": source["state_basis"], "action_basis": source["action_basis"], "clock_domain": domain,
+              "fps": source["fps"], "contains_physical_recordings": True,
+              "joint_measurements_claimed": source["state_basis"] == "measured_state", "physical_success_inferred": False,
+              "task": source.get("task", "Imitate the recorded robot demonstration"),
+              "frame_source_ids": [frame["frame_id"] for _, frame in frames],
+              "timestamp_uncertainty": "Host receive/read/dispatch timestamps; exposure and motor application time are not measured",
+              "resampling": {"method": "causal_previous_sample_hold", "applied": not unchanged or len(segments) > 1,
+                  "values_resampled": not unchanged, "segmented": len(segments) > 1,
+                  "grid_basis": "Nominal FPS grid anchored to first native action per segment; not actual sensor capture or motor application times",
+                  "hold_semantics": "Only the most recent fully dispatched past sample is selected. Reused state and command values are held estimates between native reads, not new measurements.",
+                  "gap_threshold_periods": 3, "original_count": len(frames), "converted_count": len(all_selected),
+                  "gaps": gaps, "segments": segment_metadata,
+                  "all_native_samples_retained": "source_originals/native_samples.npz"},
+              "episodes": episodes, "method_ids": ["ENGINEERING_GLUE"]}
+    return result
+
+
+def _write_segment(path, staging, source_files, selected, grid, shape, states, actions, times, low, high):
+    rgb_path, rgb = path.with_suffix(".rgb-memory.npy"), None
+    try:
+        rgb = np.lib.format.open_memmap(rgb_path, mode="w+", dtype=np.uint8, shape=(len(selected), *shape))
+        for index, source_index in enumerate(selected):
+            with Image.open(staging / source_files[source_index]["retained_file"]) as image:
+                rgb[index] = np.asarray(image.convert("RGB"))
         rgb.flush()
-        states, actions = np.asarray(states), np.asarray(actions)
-        np.savez_compressed(npz_path, rgb=rgb, state_native=states, action_native=actions,
-                            state=2 * (states - low) / (high - low) - 1,
-                            action=2 * (actions - low) / (high - low) - 1,
-                            frame_monotonic_ns=np.asarray(frame_times, np.int64),
-                            state_monotonic_ns=np.asarray(state_times, np.int64),
-                            action_monotonic_ns=np.asarray(action_times, np.int64))
+        selected_states, selected_actions = states[selected], actions[selected]
+        np.savez_compressed(path, rgb=rgb, state_native=selected_states, action_native=selected_actions,
+                            state=2 * (selected_states - low) / (high - low) - 1,
+                            action=2 * (selected_actions - low) / (high - low) - 1,
+                            grid_monotonic_ns=grid, source_sample_index=selected,
+                            **{name: values[selected] for name, values in times.items()})
     finally:
         if rgb is not None:
             del rgb
         rgb_path.unlink(missing_ok=True)
-    if sha(source_path) != source_digest:
-        raise ValueError("Source station manifest changed during conversion")
-    result = {"schema_version": 1, "format": "explorer_robot_episode_v1", "dataset_id": "station-" + episode_id,
-              "source": "station_demonstration", "created_wall_utc": utc(), "source_manifest_sha256": source_digest,
-              "source_manifest_path": str(source_path), "source_calibration_metadata": {
-                  key: value for key, value in source.items() if "calibrat" in key.lower()},
-              "action_names": names, "action_units": units, "action_normalization": {"low": low.tolist(), "high": high.tolist()},
-              "state_basis": source["state_basis"], "action_basis": source["action_basis"], "clock_domain": next(iter(domains)),
-              "fps": fps, "contains_physical_recordings": True, "joint_measurements_claimed": source["state_basis"] == "measured_state",
-              "physical_success_inferred": False, "task": source.get("task", "Imitate the recorded robot demonstration"),
-              "frame_source_ids": [frame["frame_id"] for _, frame in frames],
-              "timestamp_uncertainty": "Host receive/read/dispatch timestamps; exposure and motor application time are not measured",
-              "episodes": [{"id": episode_id, "source_episode_id": episode_id, "file": npz_path.name, "sha256": sha(npz_path),
-                            "frames": len(samples), "split": split, "outcome": source.get("outcome"),
-                            "clock_domain": next(iter(domains)), "frame_source_ids": [frame["frame_id"] for _, frame in frames]}],
-              "method_ids": ["ENGINEERING_GLUE"]}
-    write_json(target / "manifest.json", result)
-    return result
