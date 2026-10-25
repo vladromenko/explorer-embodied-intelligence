@@ -56,5 +56,12 @@
         "research/literature/reviews/P130.json"
       ]
     }
+  ],
+  "preserved_legacy_exclusions": [
+    {
+      "glob": "01-autonomous-learning/src/legacy/**/*.py",
+      "scientific_qualification_claimed": false,
+      "reason": "Preserved historical snapshot, not newly qualified learning methods. Every imported component used by a claimed experiment still requires a registered wrapper and explicit source hashes, scope and limitations. Newly developed scientific code must remain outside this exclusion."
+    }
   ]
 }

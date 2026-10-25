@@ -63,6 +63,16 @@ def ingest_reviews(registry_path: Path) -> list[str]:
                 paper.update(primary_status="PRIMARY_VERIFIED", review_status="FULL_TEXT_REVIEWED",
                              review_path=str(review_path.relative_to(registry_path.parent)),
                              deep_review=review["deep_review"], decision=review["decision"])
+                evidence_path = registry_path.parent / "evidence" / f"{paper['paper_id']}.json"
+                if evidence_path.is_file():
+                    metadata = json.loads(evidence_path.read_text()).get("primary_metadata", {})
+                    if metadata.get("citation_title"):
+                        paper["primary_verified_title"] = metadata["citation_title"][0]
+                    if metadata.get("og:url"):
+                        paper["primary_versioned_url"] = metadata["og:url"][0]
+                        paper["version_url_evidence"] = "Primary HTML metadata; cached PDF SHA256 is authoritative"
+                    if metadata.get("citation_online_date"):
+                        paper["primary_metadata_update_date"] = metadata["citation_online_date"][0]
                 promoted.append(paper["paper_id"])
     if errors:
         raise ValueError("; ".join(errors))

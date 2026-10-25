@@ -31,3 +31,26 @@ def test_hardware_tested_claim_requires_physical_run_ids(tmp_path):
     document["methods"][0]["verification"]["hardware_tested"] = True
     path.write_text(json.dumps(document))
     assert any("hardware run IDs" in error for error in provenance.check(root))
+
+
+def test_preserved_legacy_exclusion_does_not_hide_explicit_audit(tmp_path):
+    root = setup_root(tmp_path)
+    path = root / '01-autonomous-learning/src/legacy/model.py'
+    path.parent.mkdir(parents=True)
+    path.write_text('"""Historical unqualified code."""\n')
+    errors = provenance.check(root, ['01-autonomous-learning/src/legacy/model.py'])
+    assert any('no provenance record' in error for error in errors)
+
+
+def test_registered_module_cannot_use_legacy_exclusion_to_skip_header_check(tmp_path):
+    root = setup_root(tmp_path)
+    path = root / '01-autonomous-learning/src/legacy/model.py'
+    path.parent.mkdir(parents=True)
+    path.write_text('"""Historical unqualified code."""\n')
+    registry_path = root / 'research/methods/METHOD_REGISTRY.yaml'
+    document = json.loads(registry_path.read_text())
+    record = dict(document['methods'][0], implementation_id='LEGACY-FIXTURE',
+                  function_or_module='01-autonomous-learning/src/legacy/model.py')
+    document['methods'].append(record)
+    registry_path.write_text(json.dumps(document))
+    assert any('docstring' in error for error in provenance.check(root))

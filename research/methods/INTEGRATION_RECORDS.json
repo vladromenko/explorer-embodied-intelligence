@@ -317,6 +317,118 @@
       "hardware_run_ids": [],
       "upstream_code_license": "UNKNOWN_IN_THIS_RECORD",
       "runtime_import_qualified": false
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-LEROBOT-DATASET-EXPORT-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/dataset_export.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://huggingface.co/docs/lerobot/main/lerobot-dataset-v3",
+          "role": "Dataset schema context; pilot NPZ adapter is not an assertion of LeRobotDataset v3 compliance"
+        }
+      ],
+      "upstream_repo": "https://github.com/huggingface/lerobot",
+      "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Export source NPZ episodes into official LeRobotDataset v3 and verify RGB, states, actions, timestamps and episode boundaries by reading them back. This is serialization validation, not policy success.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "9a54fe4",
+          "result": "17 simulation/recorded-path tests passed, reported by execution agent; root integration revalidation remains necessary",
+          "scope": "Official v3 export12episodes/167frames read back;6Dstation fixture ACT2updates and checkpoint reload; no physical action"
+        }
+      ],
+      "hardware_run_ids": [],
+      "upstream_code_license": "Apache-2.0"
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-RECORDED-ACT-TRAINING-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/recorded_training.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://huggingface.co/docs/lerobot/main/lerobot-dataset-v3",
+          "role": "Dataset schema context; pilot NPZ adapter is not an assertion of LeRobotDataset v3 compliance"
+        }
+      ],
+      "upstream_repo": "https://github.com/huggingface/lerobot",
+      "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Train actual official ACTPolicy from recorded data through explicit station/action contracts, with changed weights and save/reload checks. No synthetic simulator call substitutes for recorded-data training; optimizer execution alone does not establish task quality.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "9a54fe4",
+          "result": "17 simulation/recorded-path tests passed, reported by execution agent; root integration revalidation remains necessary",
+          "scope": "Official v3 export12episodes/167frames read back;6Dstation fixture ACT2updates and checkpoint reload; no physical action"
+        }
+      ],
+      "hardware_run_ids": [],
+      "upstream_code_license": "Apache-2.0"
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-RECORDED-STATION-ADAPTER-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/station_adapter.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://huggingface.co/docs/lerobot/main/lerobot-dataset-v3",
+          "role": "Dataset schema context; pilot NPZ adapter is not an assertion of LeRobotDataset v3 compliance"
+        }
+      ],
+      "upstream_repo": "https://github.com/huggingface/lerobot",
+      "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_OR_RANDOM_INITIALIZATION",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Adapt station-specific observation and action shapes and explicit semantics. Shape compatibility alone does not verify calibration, hardware feedback or processor correctness.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "9a54fe4",
+          "result": "17 simulation/recorded-path tests passed, reported by execution agent; root integration revalidation remains necessary",
+          "scope": "Official v3 export12episodes/167frames read back;6Dstation fixture ACT2updates and checkpoint reload; no physical action"
+        }
+      ],
+      "hardware_run_ids": [],
+      "upstream_code_license": "Apache-2.0"
+    }
+  ],
+  "preserved_legacy_exclusions": [
+    {
+      "glob": "01-autonomous-learning/src/legacy/**/*.py",
+      "scientific_qualification_claimed": false,
+      "reason": "Preserved snapshot only; imported components need registered wrapper/source hashes and no blanket qualification."
     }
   ]
 }

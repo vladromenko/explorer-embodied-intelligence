@@ -71,6 +71,15 @@ def check(root: Path, explicit_paths: list[str] | None = None) -> list[str]:
         for pattern in registry.get("scientific_module_globs", []):
             paths.update(str(path.relative_to(root)) for path in root.glob(pattern)
                          if path.is_file() and path.suffix == ".py" and "tests" not in path.parts and path.name != "__init__.py")
+        for exclusion in registry.get("preserved_legacy_exclusions", []):
+            if not exclusion.get("reason") or exclusion.get("scientific_qualification_claimed") is not False:
+                errors.append("A preserved legacy exclusion needs a reason and explicit absence of scientific qualification")
+            else:
+                paths.difference_update(str(path.relative_to(root)) for path in root.glob(exclusion["glob"])
+                                        if path.is_file())
+    # Registered modules always receive header checks, even outside discovery globs
+    # or inside a preserved snapshot. An exclusion cannot qualify a legacy method.
+    paths.update(by_path)
     for filename in sorted(paths):
         path = root / filename
         if path.is_file() and path.suffix == ".py":
