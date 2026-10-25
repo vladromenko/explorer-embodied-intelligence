@@ -1,0 +1,56 @@
+{
+  "paper_id": "P060",
+  "deep_review": false,
+  "problem": "Improve contact-rich policies while correcting the optimistic bias of world models trained mainly on successful demonstrations.",
+  "contribution": "VLAW alternates fresh physical rollout collection, world/reward adaptation, synthetic success selection and flow-policy regression. It explicitly measures interaction outcomes in addition to video fidelity, making failure coverage central to the method.",
+  "algorithm": "Initialize pi0.5/Ctrl-World; append actual policy successes/failures and co-train world model withDROID. Fine-tune Qwen3VL4B reward on first-round outcome labels and filter generated trajectories by yes-token probability. Update policy on successful real plus imagined episodes using flow matching. Binary success weighting is described as an approximation to regularized advantage-weighted RL, not a complete policy-gradient method.",
+  "observations": "Two third-person and one wrist camera with robot action sequences; sparse success label assigned at each real reset. Wrist video metrics and event-level confusion are separate evaluations. World-model outputs remain hypotheses even after adaptation.",
+  "actions": "DROID FrankaPanda/Robotiq action convention; pi0.5 flow chunks. No new morphology/action-head conversion is provided. Synthetic rollout starts are sampled from actual observed trajectories.",
+  "embodiment_and_data": "Five real categories:stacking,book opening,whiteboard erasing,scooping,drawing.25expert demonstrations/category for policy warmstart; each of2rounds adds50real rollouts/category,50k world-model updates,500synthetic trajectories/category and2kpolicy steps,batch256. Actual target collection cost is material.",
+  "experiments": "Compare pretrained/expert-only/online-adapted video replay on256five-second wrist clips;50interaction clips get success/failure confusion matrix. Compare filtered realBC andDSRL at equal50real-rollout/category budget. Drawing ablates synthetic quantity and real-success inclusion.",
+  "baselines": "Ctrl-World,expert-only finetuned model; filteredBC andDSRL with matched online count. Policy iteration uses different refined-policy data each round; it is not pure offline improvement with no new physical data.",
+  "quantitative_result": "Table1 PDFp6 event confusion expert-onlyTP28,FN2,TN9,FP11 versuswithonlineTP26,FN4,TN19,FP1 over50clips: false positives improve while false negatives worsen. Figure9p8 drawing first-round22%base,46%real-only,50%synthetic-only,60%halfsynthetic+real,68%fullmix. Figure7p7 mean labels46base,50DSRL,64/75filteredBCrounds,74/86VLAWrounds; exact physical evaluation denominator NOT_EXTRACTED.",
+  "limitations": "Five task categories only; quality depends on local online data and reward threshold. Success filtering can propagate model/reward bias and discard useful failures for policy training. Interaction confusion still has errors; visual similarity is insufficient. High synthetic volume and broadDROID co-training costs should be accounted for.",
+  "code_and_license": "Independent repository, weights and data-license inspection not performed; Ctrl-World/pi0.5/Qwen/DROID rights are separate. No code inspected/executed.",
+  "hardware_adaptation": "ADAPT event-level real-versus-predicted confusion logging and typed success/failure datasets. Small independent target experiments should compare real-only and mixed data under identical collection budgets. Neither current geometry adapter nor recorded camera demonstration is a VLAW-trained model; keep controllers unchanged.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "4",
+      "supports": "alternating actual collection and model/policy update"
+    },
+    {
+      "page": 4,
+      "section": "4.1-4.3 Algorithm1",
+      "supports": "DROID regularization, reward threshold and success regression"
+    },
+    {
+      "page": 5,
+      "section": "5.1",
+      "supports": "physical platform and task categories"
+    },
+    {
+      "page": 6,
+      "section": "Table1 5.1-5.2",
+      "supports": "budgets and event-confusion counts"
+    },
+    {
+      "page": 7,
+      "section": "5.3 Figure7",
+      "supports": "matched real-rollout comparisons"
+    },
+    {
+      "page": 8,
+      "section": "Figure9 6",
+      "supports": "data ablations and five-category limit"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "34ba87492a0fca9d382c366a80884eef99bc1101d973bbbb64125ae78bedffb8",
+  "primary_url": "https://arxiv.org/abs/2602.12063",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

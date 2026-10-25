@@ -1,0 +1,56 @@
+{
+  "paper_id": "P061",
+  "deep_review": false,
+  "problem": "Train an action-conditioned world simulator that distinguishes near-success failures, rather than hallucinating completion after small action errors.",
+  "contribution": "World-VLA-Loop introduces SANS success/near-success data and jointly predicts video plus reward from Cosmos latents; actual policy feedback refines the model before another RL phase. Shared latent reward is an efficiency design, not independent verification.",
+  "algorithm": "Pretrain CosmosPredict2 on action-embedded SANS data; add MLP reward head to denoised DiT latents and optimize flow plus noise-weighted rewardMSE. Target finetune on success/failure episodes, then run modifiedOpenVLA-OFT GRPO in generated frames with thresholded rewards. Deploy policy to collect new failures/successes and restart world-model adaptation; reported next RL stages begin from baseSFT policy.",
+  "observations": "Initial camera frames, absolute6DoFEEF poses plus binary gripper action, future videos and stepwise success labels. Target Franka uses fixed third-personD435; action chunk24. Uncalibrated binary gripper state is not SO101 aperture mapping or evidence of retained object.",
+  "actions": "Seven-dimensional EEF/gripper action conditions mapped into DiT timestep embeddings; policy chunks24. No cross-embodiment low-level alignment is shown.",
+  "embodiment_and_data": "ManiSkill pretraining35kvideo-action pairs across23tasks; target~50success+50failure trajectories/task. Physical Franka pick/place-cup and push-cube; target policy uses~50successful episodes, with additional near-failure data for model. Reward/outcome tests50samples/task; physical policy test30rollouts/task.",
+  "experiments": "Video metrics, visual-success alignment, internal reward alignment and GRPO improvement versus SFT; oracleRL in LIBERO. Excludes long-horizonLIBERO100 due>300-frame drift. Figure4 real-task training curves are evaluated inside the learned world model, while Table3 is actual physical evaluation; must label them distinctly.",
+  "baselines": "SFT policy, LIBERO ground-truth oracle, model without near-success data/reward head, Qwen3VL8B visual judge. Internal-head comparison uses same generated frames and is not an independent physical ground-truth reward.",
+  "quantitative_result": "Table2 PDFp7 cup/push visual alignment90/84%, reward94/78%,50samples/task. Table3p8 actualcup13.3→36.7%,push26.7→40.0% after firstRL,30physicalrollouts; next iterationp8 reaches50.0/53.3%. Figure4 model-estimated curves must not be quoted as these physical rates. Table4p8 no-near-success real visual alignment54% versus90%full.",
+  "limitations": "Integrated reward/model can share errors; first iteration visibly reward-hacks an unstable pushing behavior(p9). Near-failure coverage and new physical feedback remain needed. Long autoregressive tasks unsupported; small physical2task study and threshold0.9 do not prove general reliability. Iterative dataset naming includesSUPA/SANS inconsistency in prose.",
+  "code_and_license": "Primary project https://showlab.github.io/World-VLA-Loop/ . Independent code/model/data license audit not performed. Cosmos and source datasets have separate terms; no code inspected/executed.",
+  "hardware_adaptation": "ADAPT explicit near-success labels and separate actual versus model-estimated curves. Add outcome-alignment reports only from paired real observations; do not treat shared model reward as handover-hold evidence. New target embodiment needs calibration/action schema and target data, without controller edits.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3.1 Figure3",
+      "supports": "SANS and feedback cycle"
+    },
+    {
+      "page": 5,
+      "section": "3.1-3.2",
+      "supports": "data counts, action modality and integrated reward loss"
+    },
+    {
+      "page": 6,
+      "section": "3.3 4.1",
+      "supports": "RL,chunk24 and physical setup"
+    },
+    {
+      "page": 7,
+      "section": "Tables1-2 4.3",
+      "supports": "alignment definitions and long-horizon exclusion"
+    },
+    {
+      "page": 8,
+      "section": "Table3 Figure4",
+      "supports": "physical rates versus model-evaluated curves"
+    },
+    {
+      "page": 9,
+      "section": "4.5",
+      "supports": "observed reward hacking and corrective real data"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "7fec3ba10f703027ea302f8a9752d398d6f562cbb0e99c0161d0044a8621ccc0",
+  "primary_url": "https://arxiv.org/abs/2602.06508",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

@@ -1,0 +1,61 @@
+{
+  "paper_id": "P063",
+  "deep_review": false,
+  "problem": "Reduce multi-view generation cost and compounding model error during VLA reinforcement fine-tuning.",
+  "contribution": "VLA-MBPO combines a Bagel unified multimodal dynamics/reward model, interleaved view decoding and short chunk-level branched rollouts. Primary title is Towards Practical World Model-based Reinforcement Learning for Vision-Language-Action Models; method name differs from title.",
+  "algorithm": "Tokenize continuous action chunks as vocabulary integers; predict future endpoint images and discounted chunk reward without intermediate frames. Generate head view then wrist view conditioned on predicted head image. Start1–4chunk rollouts from actual replay states, train flow-noise PPO/value head with chunk-discounted GAE. Short rollout bound trades model-error accumulation against policy/distribution error; assumes bounded rewards and defined total-variation errors.",
+  "observations": "Head/wrist images, instruction and aligned action chunks. Model not originally action-pretrained, so downstream task episodes are required. Reward and observation from same UMM can share mistakes.",
+  "actions": "Dataset-specific continuous actions discretized to0–256-styleinteger tokens; flow-policy denoising actions optimized withPPO. Integer mapping is not universal joint identity, calibration or tool geometry.",
+  "embodiment_and_data": "LIBERO four suites; offline50rollouts/task from pi0.5 withone-trajectorySFT,50evaluationepisodes/task. World-model benchmarkObject suite50training/10heldouttrajectories per task. PhysicalArxX5 cable/towel andGalaxyR1 cup/pen/wipe:50–100expertdemos plus50policyrollouts/task,50evaluation trials(30seen,20unseen).",
+  "experiments": "Multi-view video/reward fidelity, simulation success, physical seen/unseen and rollout horizon/sample-size ablations. Compared reward accuracy/F1 differ because of class imbalance; inspect both. Theory compares error-dependent bounds, not unconditional physical performance guarantees or proof that pessimism is never needed.",
+  "baselines": "Ctrl-World dynamics,Qwen3VL8B reward; UMM withoutpretraining/interleavedviews. PolicySFT,syntheticBC,matched-real-budgetpiRL andIDQL. Claim of sufficiently accurate model to omit conservative regularization is empirical within tested data, not a general theorem.",
+  "quantitative_result": "Table1 PDFp7 UMMrewardaccuracy98.4%,F1.861 versusnoIVD98.5%,F1.799; latency10 versusCtrlWorld21 in stated units. Table2p8 meanLIBERO85.9% versus76.8%SFT and82.6%piRL. Table3p9 Long one/two/fourchunks63.9/66.8/62.9%, fullhorizon52.8%, retaining degradation. Exact physical Figure5 rates NOT_EXTRACTED; protocol50trials/task is explicitp9.",
+  "limitations": "Sample generation still consumes large compute; target-data finetuning required, zero-shot world-model generalization remains future work. Chunk-skipping may hide intermediate contact errors. Joint dynamics/reward errors, partial observations and out-of-support actions remain concerns; theoreticalbound relies on errors not measured for new hardware.",
+  "code_and_license": "No independent code/model/data license inspection or code execution. Bagel/pi0.5/source data terms require individual checks. No zero-shotcheckpoint portability inferred.",
+  "hardware_adaptation": "ADAPT short branched simulation experiments and multiview timestamp contracts; compare one/two/fourchunks under equal generation budgets. Actual camera calibration and target action semantics are prerequisites. CurrentNXcamera recording is not a trained Bagelworldmodel; preservelegacycontroller settings.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3.1-3.3",
+      "supports": "action tokens, interleaved views and branched rollouts"
+    },
+    {
+      "page": 5,
+      "section": "Algorithm1 Equation4",
+      "supports": "collection/PPO and chunk reward"
+    },
+    {
+      "page": 6,
+      "section": "Theorems4.1-4.2",
+      "supports": "conditional error bound and horizon tradeoff"
+    },
+    {
+      "page": 7,
+      "section": "5.1 Table1",
+      "supports": "model evaluation and negative accuracy/F1 distinction"
+    },
+    {
+      "page": 8,
+      "section": "Table2",
+      "supports": "simulation rates"
+    },
+    {
+      "page": 9,
+      "section": "5.3 Table3",
+      "supports": "physicalprotocol andhorizonablation"
+    },
+    {
+      "page": 11,
+      "section": "Limitations",
+      "supports": "compute andtargetdata requirements"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "52f8b7560bc7e9de4f7c1de4ec4379e9e1eba3bd3aa671999cde4cf0615d59d4",
+  "primary_url": "https://arxiv.org/abs/2603.20607",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

@@ -1,0 +1,56 @@
+{
+  "paper_id": "P059",
+  "deep_review": false,
+  "problem": "Generate dense, failure-sensitive policy improvement signals for contact-rich multistage tasks without simulating entire terminal trajectories.",
+  "contribution": "RISE composes a controllable video dynamics model with a separately learned progress/TD value model, then trains an advantage-conditioned policy on imagined and real data. Physical data, expert demonstrations and human corrections remain essential anchors.",
+  "algorithm": "Adapt Genie Envisioner with action encoder, stronger context noise and task-centric batches. Initialize value backbone from pi0.5; warm up temporal progress regression then combine TD targets with terminal±1 labels. Score an action chunk by mean predicted future value minus current value. Condition pi0.5 on discretized advantage, propose actions at optimal advantage, relabel with learned evaluated advantage and flow-match proposed actions. Mix offline data and use EMA rollout policy; at most two consecutive imagined chunks limit compounding error.",
+  "observations": "Multiview images, language and task-specific action/state recordings; successful/failed rollouts and human corrective data. Progress value is learned from trajectory timing plus outcome labels and can inherit labeling or imagination bias.",
+  "actions": "Absolute joint control on dual AgileX arms described as7DoF. Advantage labels guide flow-policy actions; this is not an embodiment-agnostic executable motor representation. World/value models operate during training only, with no added deployment inference overhead.",
+  "embodiment_and_data": "Real dynamic conveyor brick sorting, backpack packing and box closing; AgibotWorld/Galaxea dynamics pretraining.16H100 GPUs7days pretraining,8H100 GPUs3days task adaptation, value training8GPUs1day; policy stages also8GPUs. Exact physical evaluation denominator NOT_EXTRACTED in inspected main text.",
+  "experiments": "Compare task success and stage scores, real/offline mixture, generated states/actions, task-centric batches, progress andTD losses. All ablations use difficult brick sorting. RECAP is ported to pi0.5 because originalpi0.6 is inaccessible; not an official checkpoint equivalence result.",
+  "baselines": "Pi0.5,DAgger,PPO,DSRL and reimplemented RECAP with close stated compute budgets. Real correction data vary by training regime, so inspect data composition before attributing all gain to imagination.",
+  "quantitative_result": "TableI PDFp6:RISE success85/85/95% across sorting/backpack/box versusRECAP50/40/60%. TableIIp7 offline ratio0.1 gives5%complete versus50%at0.6 and30%at0.9, showing sensitivity. TableVp7 real-task FVD full66.84 versus61.22 without task-centric batching is a negative metric despite improvedEPE0.54 versus0.68; do not repeat universal all-metric superiority.",
+  "limitations": "Rare transitions can remain physically implausible; learned value/reward may misrank. Nontrivial real data and tuned real/synthetic balance remain necessary. Compute cost is high and extends beyond policy training. Two-chunk imagination is explicitly limited; successful stage scores are not full task success or grasp verification.",
+  "code_and_license": "Primary project https://opendrivelab.com/RISE . Code, models and datasets licenses not independently inspected; pretrained GE/pi0.5/data rights remain separate. No code inspected/executed.",
+  "hardware_adaptation": "COMPARE short-chunk value scoring and retained real-data mixtures in simulation. A small NX pilot needs real target schema/outcome labels and measured memory cost; the reported H100 recipe is not runnable parity. Do not change legacy controllers or credit imagined value as physical completion.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "III-A",
+      "supports": "task-centric dynamics and separate value backbone"
+    },
+    {
+      "page": 5,
+      "section": "III-A/B/C",
+      "supports": "progress+TD, correction data and two-chunk loop"
+    },
+    {
+      "page": 6,
+      "section": "III-D IV TableI",
+      "supports": "compute, embodiment and real rates"
+    },
+    {
+      "page": 7,
+      "section": "TablesII-V",
+      "supports": "data sensitivity, ablations and negativeFVD"
+    },
+    {
+      "page": 8,
+      "section": "VII",
+      "supports": "imagination realism boundary"
+    },
+    {
+      "page": 9,
+      "section": "VII",
+      "supports": "real data and compute limitations"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "727d8112b18f0ff1ec796716c99b7b93597b3d4e79a157209b28550f71a97435",
+  "primary_url": "https://arxiv.org/abs/2602.11075",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}
