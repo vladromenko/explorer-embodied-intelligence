@@ -1,0 +1,84 @@
+{
+  "paper_id": "P049",
+  "deep_review": true,
+  "problem": "Synthetic bimanual datasets often lack robust task-code generation, rich environmental variability and embodiment-specific feasible grasp choices, undermining downstream generalization.",
+  "contribution": "RoboTwin2.0 couples MLLM program generation and simulator/VLM feedback with an annotated object library, five-axis domain randomization and embodiment-aware grasp candidates; it releases generator/data/benchmark resources.",
+  "algorithm": "Generate programs against a skill API, execute10trials per refinement, collect execution logs plus localized visual diagnoses, and repair up to five iterations. Sample object-affordance grasp poses with reachability-biased perturbations and parallel planning; randomize clutter,texture,light,table height and instructions for demonstration synthesis.",
+  "observations": "Simulation images,proprioception and structured execution results for generation; policy-specific RGB or point-cloud inputs and language. Object functional/grasp points are supplied annotations. Perfect point clouds and clean segmentation benefitDP3 and must not be treated as actual depth-camera observations.",
+  "actions": "Embodiment-specific bimanual manipulation through object-centric grasp/place APIs and motion planners, then low-level policy trajectories. The task API is richer than arbitrary joint-vector copying; it does not prove valid release semantics on an uninstrumented robot.",
+  "embodiment_and_data": "731objects/147categories,50bimanual tasks,100k+generated trajectories across Aloha-AgileX,Piper,Franka,UR5,ARX-X5. Assets mix in-houseRodin reconstructions,Objaverse andPartNet-Mobility. Real sim-to-real tests useCOBOT-Magic andRDT on four tasks.",
+  "experiments": "Code-generation feedback ablations on10tasks; grasp adaptation over50tasks/five embodiments; randomized-pretraining robustness; four-task real transfer with10real demos,1kvirtual trajectories or their mixture;50taskEasy/Hardbenchmark using50clean demos and100testrollouts per task.",
+  "baselines": "RoboTwin1.0/2.0 Vanilla,execution-feedback andmultimodal-feedback variants; no grasp adaptation; ACT,DP,DP3,RDT,Pi0; clean versus randomized synthetic pretraining; real-only versus mixed versus synthetic-only policies.",
+  "quantitative_result": {
+    "source": "PDF page10 Table4; real setup paragraph on same page",
+    "condition": "Unseen background and clutter, averaged over four real tasks",
+    "real_only_10_demo_success_percent": 9,
+    "real_10_plus_1k_synthetic_success_percent": 42,
+    "synthetic_only_1k_success_percent": 29.5,
+    "handover_caveat": "On HandoverBlock with seen background+clutter, mixed data achieves12% versus16%real-only; improvement is not universal. Trial denominator for this real table is NOT_EXTRACTED from examined text.",
+    "secondary": "PDF page8 Table1 ASR:63.9%RoboTwin1.0+MMfeedback versus71.3%RoboTwin2.0+MMfeedback; these are code-generation metrics, not physical handover success."
+  },
+  "limitations": "Requires accurate simulation/assets, annotated affordances and embodiment-specific planning. Strong variation still sharply reduces all benchmark policies; generated textures/asset sources have separate rights. VLM diagnoses are fallible and not independent force measurements. A scriptedclose-then-open handover example must not become physical release authorization onExplorer.",
+  "code_and_license": {
+    "repo": "https://github.com/robotwin-Platform/RoboTwin",
+    "project_url": "https://robotwin-platform.github.io",
+    "code_license": "NOT_AUDITED",
+    "model_data_asset_licenses": "NOT_AUDITED;Rodin,Objaverse,PartNetandgeneratedtextures require separate checks",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "ADAPT object-affordance annotations, reproducible domain randomization and benchmark splits. Start with small tasks in the actualROSMASTER geometry. The SAPIEN/CuRobo stack and largeVLAs are not presumed compatible or affordable onNX. SO-101 andROSMASTER are not among the validated five embodiment implementations.",
+  "decision": "ADAPT",
+  "algorithm_detail": "The generator uses DeepSeekV3 andMoonshotvision for synthesis/diagnosis; top5ASR explicitly selects best candidates and differs from averageASR. Candidate grasps accommodate workspace limitations rather than assuming the same approach for everyarm. AppendixE usesCuRobo; physical camera perturbations are additionally bounded to1cm in the reported sim-to-real setup.",
+  "integration_contract": "Retain task/program/seed/asset and embodiment provenance, separate simulator groundtruth from camera observations, declare each randomized factor and preserve failed attempts. Before any realhandovers, use independent receiver-hold evidence or operatorconfirmation rather than transplanting the paper's simple gripper script.",
+  "license_evidence": "The primarypaper links code/data and enumerates multiple external asset sources; no inspected repository/model/asset license is established by this review. Public availability is not a blanket grant for all meshes or pretrainedweights.",
+  "required_experiments": "Reproduce a small same-budget generator-feedback comparison; test clean/randomized data at equal trajectorycount; report every failedgeneration denominator; compare calibrated versus randomized realcamera shifts; measure target-model reachability and evaluate actual robot transfer separately from simulator success.",
+  "difference_from_explorer": "Automated bimanual data generation, visual diagnosis, code repair and heterogeneous grasp adaptation are existing components here. Explorer must justify any novelty in reusable memory/causal repair/verified cooperation against this stronger prior pipeline.",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "2.1/Figure3",
+      "supports": "10trial feedback loop and five-refinement termination"
+    },
+    {
+      "page": 5,
+      "section": "2.2",
+      "supports": "Five explicit randomization axes"
+    },
+    {
+      "page": 6,
+      "section": "2.3/3.1",
+      "supports": "Embodiment-aware grasping and asset provenance"
+    },
+    {
+      "page": 8,
+      "section": "Tables1–2",
+      "supports": "Generation metrics and heterogeneous-grasp effects"
+    },
+    {
+      "page": 10,
+      "section": "4.4/Table4",
+      "supports": "Realtraining conditions and nonuniform transfer results"
+    },
+    {
+      "page": 11,
+      "section": "4.5/Table5",
+      "supports": "Benchmark protocol and perfect-pointcloud caveat"
+    },
+    {
+      "page": 17,
+      "section": "AppendixE",
+      "supports": "CuRobo planning dependency"
+    },
+    {
+      "page": 18,
+      "section": "AppendixG",
+      "supports": "MLLM choices and metric denominators"
+    }
+  ],
+  "source_sha256": "316ae82a97968e1a2d88540665401645a190d2699d7d8652e8fc0053ba609bda",
+  "primary_url": "https://arxiv.org/abs/2506.18088",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

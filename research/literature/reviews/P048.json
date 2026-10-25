@@ -1,0 +1,78 @@
+{
+  "paper_id": "P048",
+  "deep_review": true,
+  "problem": "Generalizable manipulation requires task,scene,object,viewpoint and workspace diversity that small single-lab demonstrations do not supply, yet distributed collection must preserve reproducible sensor/control semantics.",
+  "contribution": "DROID provides a standardized portable Franka collection platform, distributed collection protocol, calibrated multiview data and language labels, with controlled evidence that scene diversity improves downstream policies.",
+  "algorithm": "Collect on a shared hardware stack, sample feasible tasks through a GUI, periodically change scenes/cameras/lighting and record provenance plus success labels. Evaluate language-conditioned diffusion policies by mixing in-domain data and externalDROID orOXE data50/50; compare same-size low-diversity and broad-scene subsets.",
+  "observations": "Three synchronized stereo camera streams:two exteriorZed2 and wristZedMini, plus proprioception, language and camera calibration. Policy experiments use two externalRGB views resized128x128, robot proprioception and frozenDistilBERT embeddings; stored calibration quality is not assumed perfect.",
+  "actions": "15Hz recordings in both joint and end-effector representations; evaluated policies predict absolute end-effector translation/rotation and gripper actions. A16step prediction horizon executes8steps before replanning, with2observation frames.",
+  "embodiment_and_data": "FrankaPanda7DoF+Robotiq2F85 on a movable desk, shared across18robots/13institutions,50collectors,564scenes/52buildings/86verb-based tasks.76k successful episodes are the headline count; roughly16k unsuccessful episodes are additionally released rather than counted as successful demos.",
+  "experiments": "Six tasks across four lab/office/household locations,50–150task demonstrations,10A/B rollouts per task-setting-method in bothID/OOD conditions. Same-size7362trajectory comparisons isolate scene diversity. AppendixF specifies that policy co-training used the first40k successful language-annotatedDROID trajectories available then, not necessarily the entire released76k.",
+  "baselines": "In-domain-only diffusion policy;50/50DROID co-training;50/50curatedOXE co-training;7362episodes from20dominant scenes versus7362diverse-scene episodes. Training architecture is matched across these comparisons.",
+  "quantitative_result": {
+    "source": "PDF page9 Figure8 caption; protocol page8",
+    "metric": "Absolute success-rate gain over next-best comparison, averaged across six tasks",
+    "in_distribution_percentage_points": 22,
+    "out_of_distribution_percentage_points": 17,
+    "conditions": "10rollouts per task-setting-method, reported standard error across tasks; do not reinterpret these as a22%relative gain or as zero-shot deployment on another robot.",
+    "data_condition": "AppendixF/page18 uses40k successful language-annotated trajectories for policy co-training."
+  },
+  "limitations": "The hardware morphology is standardized rather than genuinely heterogeneous. Main evaluation still uses50–150in-domain demonstrations and only10trials per setting. Success labels are collector judgments; scene counting and semantic parsing have proxy errors. Calibration refinement and camera distribution matter. No result directly establishes SO-101/ROSMASTER action compatibility or force-sensitive handover.",
+  "code_and_license": {
+    "project_url": "https://droid-dataset.github.io",
+    "data_license": "CC-BY4.0 explicitly stated on PDF pages2–3",
+    "code_license": "NOT_AUDITED",
+    "model_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "ADAPT calibrated episode provenance, unsuccessful-attempt retention, diversity prompts and equal-size scene ablations. SelectedDROID representation pretraining may be useful after action/processor audit, but do not train the full dataset onNX or equate Franka absoluteEEF control with ROSMASTER joint targets/body velocities.",
+  "decision": "ADAPT",
+  "algorithm_detail": "AppendixF uses ImageNetResNet50, frozenDistilBERT, an observation MLP and aU-Net diffusion head withDDIM. Batch128,25ksteps and2/16/8observation/prediction/action horizons are specified; the difficultCookLentilsOOD setting uses50ksteps. SuccessfulDROID filtering differs from the broader released collection.",
+  "integration_contract": "Bind camera IDs, calibrations/quality, frame timestamps, collector/session/scene IDs, robot/control representation and language labels. Separate measured proprioception from action targets. Preserve unsuccessful attempts and exclude sealed evaluation scenes from data selection or calibration tuning.",
+  "license_evidence": "The paper explicitly releases the dataset underCC-BY4.0. That statement does not independently determine the software or pretrained-checkpoint license, which remains unaudited here.",
+  "required_experiments": "Audit a small actual dataset slice and calibration quality; test matched-no-cotrain/OXE/DROID mixtures; compare equal-size diverse versus repeated-scene subsets; validate temporal/chunk semantics and evaluate on independently heldoutExplorer scenes without claim of direct morphology transfer.",
+  "difference_from_explorer": "Distributed collection, standardized metadata and scene-diversity benefits already appear inDROID. Explorer's proposed multi-source memory/repair/cooperation must be evaluated beyond reproducing this data-management pattern.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "III/TableI",
+      "supports": "Dataset scope and explicitCC-BY4.0data release"
+    },
+    {
+      "page": 4,
+      "section": "III-A/B",
+      "supports": "Hardware,15Hz,unsuccessful episodes and protocol"
+    },
+    {
+      "page": 6,
+      "section": "IV",
+      "supports": "Diversity proxies and calibration/viewpoint context"
+    },
+    {
+      "page": 7,
+      "section": "V-A",
+      "supports": "Task-specific demonstration counts and policy input/action/horizon"
+    },
+    {
+      "page": 8,
+      "section": "V-B/C",
+      "supports": "A/B trial and same-size diversity comparisons"
+    },
+    {
+      "page": 9,
+      "section": "Figure8",
+      "supports": "Absolute22pp/17pp performance gains"
+    },
+    {
+      "page": 18,
+      "section": "AppendixF/TableII",
+      "supports": "40kactualtraining subset and architecture/hyperparameters"
+    }
+  ],
+  "source_sha256": "9e40a9c934ce78ea315d2c05593d60f9e18edf6dcd3785cd66439518965c3b07",
+  "primary_url": "https://arxiv.org/abs/2403.12945",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

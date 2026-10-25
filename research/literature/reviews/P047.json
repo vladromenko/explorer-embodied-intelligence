@@ -1,0 +1,87 @@
+{
+  "paper_id": "P047",
+  "deep_review": true,
+  "problem": "Robot datasets limited to a few scenes or tasks do not support open-vocabulary manipulation and cross-lab generalization, and are often evaluated with only one learner.",
+  "contribution": "BridgeDataV2 combines diverse low-cost-arm demonstrations, scripted pick-and-place trajectories and post-hoc language labels, and evaluates six offline-learning recipes plus size/diversity/model-capacity ablations.",
+  "algorithm": "The dataset is the contribution rather than a new optimizer. Goal-conditioned BC, diffusion BC, goal-conditioned ACT and contrastive RL use image goals; language BC and RT-1 use language. Collection presents many feasible tasks in each scene, randomizes cameras/objects/workspace every50trajectories and adds imperfect scripted repositioning data.",
+  "observations": "Stored640x480 camera observations at5Hz; availability of fixed RGB-D, randomized RGB and wrist views varies by episode. Evaluation uses only over-the-shoulder RGB:128x128 for most methods,320x256 for RT-1. Image-goal training samples future observations from the same trajectory.",
+  "actions": "7D:6D relative Cartesian end-effector motion plus discrete gripper open/close. These are not SO-101 or ROSMASTER joint-position actions. Teleoperation uses a VR controller.",
+  "embodiment_and_data": "WidowX250 setup;60,096 trajectories=50,365 human demonstrations+9,731 scripted trajectories,13skill groups,24environments and100+objects. Collection occurred at one institution; another lab provides a zero-shot evaluation with matching hardware.",
+  "experiments": "Seen-task evaluation, new objects/environments, cross-institution testing, encoder capacity, stratified dataset subsampling and equal-size skill-diversity comparison. Main policy tables use10trials per task; the3-versus13skill ablation uses20trials per policy.",
+  "baselines": "GCBC,D-GCBC,goal-conditioned ACT,CRL,LCBC,RT-1; BridgeV1+PTR versusV2; ResNet18/34/50 and three-versus13skills. Different image resolutions, histories and action distributions mean these tables are not a clean isolation of architecture alone.",
+  "quantitative_result": {
+    "source": "PDF page7 Tables2–3 and page8 Figure5",
+    "seen_task_mean_success": {
+      "GCBC": 0.49,
+      "D_GCBC": 0.49,
+      "ACT": 0.41,
+      "CRL": 0.42,
+      "LCBC": 0.23,
+      "RT1": 0.49
+    },
+    "unseen_task_mean_success": {
+      "GCBC": 0.6,
+      "ACT": 0.28,
+      "RT1": 0.5
+    },
+    "conditions": "10trials per task; eight seen and six unseen evaluation tasks. The roughly equal-size3skill versus13skill GCBC comparison reports0.30 versus0.65 on an unseen task with20trials per policy, not general physical success on every skill."
+  },
+  "limitations": "Mostly low-precision tasks, one collection institution and a single robot morphology; forceful/dynamic/precision-insertion behaviors are underrepresented. Camera/depth coverage is heterogeneous, language can be poorly grounded for unseen objects, and small evaluation denominators limit broad performance claims.",
+  "code_and_license": {
+    "project_url": "https://rail-berkeley.github.io/bridgedata/",
+    "code_license": "NOT_AUDITED",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false,
+    "evidence": "Paper describes public dataset/pretrained models, but this review does not infer licenses from availability."
+  },
+  "hardware_adaptation": "ADAPT the episode schema, source labels, scene diversity and balanced skill collection; use selected examples only after rights/schema audit. A WidowX7D Cartesian head cannot be loaded directly into ROSMASTER9D joint/body control. Model and camera resolution should be scaled to measuredNX budgets.",
+  "decision": "ADAPT",
+  "algorithm_detail": "AppendixB makes goals future-frame relabels, stacks observation/goal channels and uses standard image augmentations. ACT chunk size is reduced from100 at50Hz to5 at5Hz, so temporal semantics are central. Its reported training uses one2080Ti for3days; this is not a Jetson runtime estimate.",
+  "integration_contract": "Keep human versus scripted/suboptimal source type, per-episode sensor availability,5Hz timing, task/skill definitions, relative Cartesian frame and gripper convention explicit. Heldout scenes and sessions must remain disjoint; missing camera views must not be synthesized as recorded observations.",
+  "license_evidence": "No code/data license text was inspected; sourcepaper public-release statements alone do not establish redistribution or checkpoint rights.",
+  "required_experiments": "Reproduce a compact goal-conditioned baseline with identical action/camera/horizon settings; compare same-size diversity subsets; test cross-session and cross-scene generalization; audit domain shift and rights before any external-data import; independently validate physical outcomes after adaptation.",
+  "difference_from_explorer": "Broad skill datasets and positive transfer from diverse skills already exist here. Explorer must show explicit retained-skill, diagnosis or cross-embodiment effects beyond counting more episodes or adopting a similar recorder.",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3.1–3.3",
+      "supports": "Hardware,5Hz,collection protocol and skill definitions"
+    },
+    {
+      "page": 5,
+      "section": "3.3/4",
+      "supports": "Source counts and7D action contract"
+    },
+    {
+      "page": 6,
+      "section": "4–5.1",
+      "supports": "Six learning recipes and trial protocol"
+    },
+    {
+      "page": 7,
+      "section": "Tables2–3",
+      "supports": "Seen/unseen success comparisons"
+    },
+    {
+      "page": 8,
+      "section": "Table4/Figure5",
+      "supports": "Cross-lab and equal-size diversity ablations"
+    },
+    {
+      "page": 9,
+      "section": "6",
+      "supports": "Precision,force and embodiment limitations"
+    },
+    {
+      "page": 14,
+      "section": "AppendixB.3",
+      "supports": "ACT temporal-horizon and compute change"
+    }
+  ],
+  "source_sha256": "aa5fdac48bf9122b22f88150d45575cb0685f2a2f761ca6fc570be743022819b",
+  "primary_url": "https://arxiv.org/abs/2308.12952",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

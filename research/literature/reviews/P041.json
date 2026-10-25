@@ -1,0 +1,74 @@
+{
+  "paper_id": "P041",
+  "deep_review": true,
+  "problem": "Learn action-conditioned physical scene changes from robot interaction without supervised point correspondences or object masks, then use the model for short-horizon manipulation planning.",
+  "contribution": "Hind4sight jointly predicts object-part masks and rigid 3D motion, ties projected flow to RGB consistency, and adds an inverse poke predictor. It avoids the external correspondence supervision required by SE3-Nets.",
+  "algorithm": "A Siamese point-cloud encoder feeds forward and inverse models. The forward branch blends K SE(3)-transformed point sets using soft masks. Chamfer distance, edge-aware regularization and photometric warping supervise the next cloud/image; inverse heatmaps predict poke start/end and align features. CEM searches action sequences using user-selected image-point distance and whole-scene Chamfer cost.",
+  "observations": "Before/after registered RGB-D point clouds and images from a fixed calibrated camera; projection uses camera intrinsics. The planner receives a desired goal cloud and manually marked object points.",
+  "actions": "A tabletop poke parameterized by planar target position and direction, not joint targets or arbitrary dexterous actions. The inverse action is represented by start/end spatial heatmaps.",
+  "embodiment_and_data": "200,000 Bullet interactions on four KIT objects; 40,000 real interactions with KUKA LBR iiwa, fixed Azure Kinect and 34 object types, with 3–7 objects inside a walled arena. Collection uses background subtraction and occupied/free grid cells rather than unconstrained exploration.",
+  "experiments": "Scene-flow prediction with controlled depth/data-association noise, 2D flow comparison, loss ablations, and CEM poking in simulation and on hardware. The planning examples move one to three objects; the paper does not establish general grasping or cross-robot transfer.",
+  "baselines": "Supervised SE3-Nets with corrupted point associations, a zero-motion predictor, FlowNet2 for 2D flow, and individual 2D/3D/inverse-objective ablations. Supervision/input differences must accompany comparisons.",
+  "quantitative_result": {
+    "source": "PDF page6 TableII; noise setup page5 and TableI",
+    "metric_as_labelled_by_paper": "Average per-point flow MSE (cm)",
+    "hind4sight": 1.63,
+    "supervised_se3_nets": 2.2,
+    "no_motion": 12.6,
+    "conditions": "Depth SD1cm and spurious correspondence within11x11 window with depth threshold±10cm; retain the paper's cm label rather than silently converting it into an RMSE.",
+    "additional": "TableIII page6 reports optical-flow AEE0.05 versus FlowNet2 0.11; inputs and supervision differ."
+  },
+  "limitations": "Small pokes expose manipulator dynamics more strongly than object mass/friction, acknowledged on pages7–8. Photometric constancy, rigid-part structure, camera geometry and the restricted arena are assumptions. Point-cloud prediction error and goal-distance plots do not prove contact/force awareness or safe autonomous execution on a new arm.",
+  "code_and_license": {
+    "project_url": "http://hind4sight.cs.uni-freiburg.de",
+    "code_license": "NOT_AUDITED",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false,
+    "evidence": "Paper page1 announces code/data at the project page; repository contents and separate usage rights were not examined for this review."
+  },
+  "hardware_adaptation": "ADAPT the object-centric prediction and dual RGB/3D consistency as a compact baseline using actual DaBai calibration. Begin with virtual or recorded short pushes; measure RGB-D alignment and depth-noise sensitivity. Do not treat the global-camera geometry or the KUKA poke API as available on ROSMASTER.",
+  "decision": "ADAPT",
+  "algorithm_detail": "The loss combines 3D Chamfer plus distance-transform smoothness, 2D photometric plus flow smoothness, and inverse-model action cross-entropy/feature consistency. Page4 uses Adam1e-4,50epochs,batch16 with loss weights1e5/1e3/1. The independent 3D loss becomes especially brittle under noisy depth, while the joint model constrains spurious correspondences.",
+  "integration_contract": "Store camera intrinsics/extrinsics, depth units, RGB-depth pairing, object/goal frames and the exact planar poke convention. Keep action_requested and actual scene change distinct. Pixel correspondences must not use future observations at online decision time; goal annotations are operator inputs, not autonomously inferred success.",
+  "license_evidence": "The examined primary paper links its project resources but provides no inspected software or dataset license. Public paper access is not a grant to redistribute unknown code/data.",
+  "required_experiments": "Reproduce flow metrics under the stated noise levels; match baseline supervision; compare RGB-only/depth-only/joint losses; test real depth artifacts and occlusions; validate actual closed-loop pushes independently before considering physical exploration.",
+  "difference_from_explorer": "This already supplies self-supervised action-conditioned object dynamics and planning. Explorer's reusable skill memory, diagnosis and handover would need distinct evidence beyond adding a registry around this model.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "III-A/B/C",
+      "supports": "Masked SE(3), planar action and Chamfer/photometric objectives"
+    },
+    {
+      "page": 4,
+      "section": "III-D–G",
+      "supports": "Smoothness, inverse model and training details"
+    },
+    {
+      "page": 5,
+      "section": "III-H/IV-A–C",
+      "supports": "CEM, dataset collection and noise evaluation"
+    },
+    {
+      "page": 6,
+      "section": "TablesI–III",
+      "supports": "Quantitative comparisons and loss ablations"
+    },
+    {
+      "page": 7,
+      "section": "IV-G/V",
+      "supports": "Goal-conditioned poking and limits of small-action dynamics"
+    },
+    {
+      "page": 8,
+      "section": "V continuation",
+      "supports": "Mass/friction identifiability limitation"
+    }
+  ],
+  "source_sha256": "4ff8badaad1a2112687bcbfb7a862b55fe39521b70534e11cb6228a49ab7403f",
+  "primary_url": "https://arxiv.org/abs/2008.00456",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

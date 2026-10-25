@@ -1,0 +1,74 @@
+{
+  "paper_id": "P046",
+  "deep_review": true,
+  "problem": "Teleoperation world models mix action-selection style, shared action-conditioned dynamics and camera/appearance changes; adapting an entangled predictor can corrupt dynamics rather than repair the relevant interface.",
+  "contribution": "An explicit causal factorization and intervention protocol distinguish operator habit, physics and visual nuisance, accompanied by freeze-versus-finetune-versus-scratch adaptation tests and negative boundary cases.",
+  "algorithm": "Factor actions as a=g(h,z,u), dynamics as z'=f(z,a), observations as o=r(z,c). Probe action substitutions at fixed state and appearance/viewpoint changes. Train joint-facing proprioceptive or pixel dynamics; freeze the shared readout while fitting a thin interface when exclusion assumptions hold. Combine physics likelihood and a habit prior to rank candidate past transitions.",
+  "observations": "ManiSkill StackCube latent/state variables; DROID/RH20T joint/action transitions; DROID exterior RGB with one training view and a second-view evaluation. Pixel predictions are supervised by current/next joints rather than video realism alone.",
+  "actions": "Recorded executed/commanded dataset actions under the paper's source conventions; controlled action shuffles, same-task user swaps, zero actions and deliberately scaled adaptation commands. Latent actions recovered from video are explicitly not equated with operator habit.",
+  "embodiment_and_data": "Simulation Physical Kernel on StackCube, public DROID and multi-operator RH20T offline corpora. Closed-loop success evidence is simulated; the paper explicitly leaves robot hardware deployment open.",
+  "experiments": "Interventions, low-shot adaptation, corrupted demos, multi-step prediction, cross-camera/appearance shifts, reverse ranking and a limited StackCube closed-loop check. Experiments also expose failed simulator-to-DROID frozen representations, coarse command interfaces, over-aggressive action hinges and weak cross-task style transfer.",
+  "baselines": "Frozen dynamics plus small interface, joint finetuning, scratch learning, entangled next-image prediction, correct/wrong habit priors, and an external DreamZero-style model with base/LoRA/kernel-bridge probes. External action-model probes are boundary experiments rather than the proposed method.",
+  "quantitative_result": {
+    "source": "PDF page4 TableIV and page3 StackCube closed-loop text",
+    "droid_three_seed_appearance_mse_ratio": "0.988±0.054",
+    "droid_second_camera_ratio": "1.42±0.06",
+    "droid_wrong_action_ratio": "9.5±3.7",
+    "stackcube_freeze_success": "0.22±0.09",
+    "stackcube_scratch_success": "0.10±0.07",
+    "conditions": "StackCube adaptation N=128, eight seeds, evaluation described as40episodes. DROID pixel quantities use seeds0,1,2. These diagnostics and simulation successes are not physical robot results.",
+    "caveat": "Page5 TableV is seed0; its N=32 freeze0.22 is not the three-seed0.194±0.018 mean reported elsewhere."
+  },
+  "limitations": "Causal exclusions depend on sufficiently informative state and on habit not directly changing physical parameters. Interventions are proxies; action sensitivity alone can be gamed by the training objective. Frozen simulator representations are weak on DROID, cross-camera change is harder than color jitter, cross-task habit results are inconclusive, and reverse scores are not reliable operator identification. No hardware validation is reported.",
+  "code_and_license": {
+    "repo": "NOT_CONFIRMED_IN_EXAMINED_PDF",
+    "code_license": "NOT_AUDITED",
+    "model_data_license": "DROID/RH20T rights require independent audit",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "ADAPT intervention-based diagnosis and frozen-interface ablations to logged SO-101 measurements first. ROSMASTER lacks measured arm readback, so a joint-facing target cannot be fabricated from its command estimate. Verify the actual downstream policy consumes the dynamics factor before attributing performance to it.",
+  "decision": "ADAPT",
+  "algorithm_detail": "The pixel model uses j_hat=probe(Enc(o)) and next-joint residual delta(Enc(o),a), plus a wrong-action hinge and optional appearance consistency. Training only latent consistency can collapse to action-insensitivity. Moderate hinges preserve adaptation; maximizing intervention ratios alone can harm low-shot performance. Thin-interface reuse is justified by an evaluated SCM, not a universal frozen-physics premise.",
+  "integration_contract": "Record actor/task identity separately from observed state, dispatched action and camera nuisance. Use session-disjoint splits; apply counterfactual action perturbations offline. Log intervention type and target metric. A new user/camera does not authorize changing physical calibration, and a failed interface does not imply the shared dynamics are wrong.",
+  "license_evidence": "The primary six-page PDF was examined through its method, tables and limitations; no software-license grant or audited code repository is established by that text. Offline corpus licenses remain separate.",
+  "required_experiments": "Action shuffle versus nuisance edits with true measured-state targets; freeze/finetune/scratch at equal shot budgets; evaluate both diagnostic ratio and actual adaptation error; test in-domain versus transplanted representations; include a downstream ablation that scrambles the supposedly used dynamics factor.",
+  "difference_from_explorer": "This is close prior work for selective repair and habit/physics/nuisance attribution. Explorer cannot claim that factorization or freeze-and-adapt prescription as new; its contribution would need broader retained-skill/embodiment/handover evaluation and actual validated use of diagnostic outcomes.",
+  "evidence_locations": [
+    {
+      "page": 1,
+      "section": "II, equations1–3",
+      "supports": "SCM and exclusion assumptions"
+    },
+    {
+      "page": 2,
+      "section": "III/IV",
+      "supports": "Joint-primary pixel model, reverse scoring and protocol"
+    },
+    {
+      "page": 3,
+      "section": "V/TableII",
+      "supports": "Closed-loop simulation check and negative transfer domain result"
+    },
+    {
+      "page": 4,
+      "section": "VI/VII,TableIV",
+      "supports": "Appearance/camera/action metrics and failure boundaries"
+    },
+    {
+      "page": 5,
+      "section": "TablesV–VI,IX",
+      "supports": "Seed-specific numbers and explicit hardware limitation"
+    },
+    {
+      "page": 6,
+      "section": "TableVII",
+      "supports": "External adapter probe ties base; not a strong transfer success"
+    }
+  ],
+  "source_sha256": "d6bfe3d771dc2fb03fc5bb82ff77e5888df830a424af266cff32668d7ce25949",
+  "primary_url": "https://arxiv.org/abs/2609.09210",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}
