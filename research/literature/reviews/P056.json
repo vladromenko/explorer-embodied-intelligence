@@ -1,0 +1,56 @@
+{
+  "paper_id": "P056",
+  "deep_review": false,
+  "problem": "Refine imitation policies using imagined rollouts without collecting additional physical interactions during the refinement stage.",
+  "contribution": "World4RL combines an EDM diffusion transition model, two-hot continuous-action conditioning, learned success classifier and PPO. Training data deliberately include expert, policy and random behavior to cover failures; offline refinement is distinct from initial data collection.",
+  "algorithm": "Pretrain BC policy and330M U-Net transition model on finite observation/action histories; map each action to nearest-bin interpolation weights (21bins example). ResNet18 reward classifier trains on success-labeled examples. Freeze learned environment and run PPO in generated observations; cap policy standard deviation to reduce OOD model exploitation. Ablate action representations and random-rollout coverage.",
+  "observations": "Visual context of four frames and aligned continuous actions; task-specific success labels. Initial physical observation begins autoregressive simulation. Learned visual success probability is not force sensing or a proof of correct contact dynamics.",
+  "actions": "Task-specific continuous controls with two-hot encoding and Gaussian policy. Encoding preserves interpolation within declared bins but does not align different embodiments or justify extrapolation beyond support.",
+  "embodiment_and_data": "Six Meta-World tasks, each50expert+150BC+30random trajectories of50steps. Real FrankaPanda tasks each50expert+50policy+50random trajectories;20 physical trials/task with fixed scene/start pose. World-model pretraining4 A80040GB GPUs20h; refinement one A800~6h/task.",
+  "experiments": "Video FVD/FID/LPIPS; simulated sparse-success policy comparison over3seeds; six real tasks versus BC/DP; variance-cap and random-data ablations. Offline TD-MPC2 is adapted to fixed-data setting, differing from its standard online formulation. Data counts differ across imitation/offline-RL/world-model baselines.",
+  "baselines": "BC/DP on50expert demonstrations;TD3+BC/IQL onexpert+policy data;IRASim/DiWA/adapted TD-MPC2 on230trajectories;Uni-O4/RLPD additionally collect online interactions. Keep these budgets visible when citing efficiency.",
+  "quantitative_result": "TableII PDFp6:Meta-World average67.5% versusBC51.5%,TD3+BC57.7%,TD-MPC2offline60.0%. TableIIIp7 physical20trials/task:average93.3% versusDP88.3% andBC68.3%; negative case put-bread-in16/20 versusDP18/20 retained. Fixed initial scene/pose limits generalization. Fig3 sample-efficiency bars omit30random trajectories despite world-model training description; do not quote10k as complete collection cost.",
+  "limitations": "Learned-model OOD behavior remains fragile; action variance cap and broad training coverage are important. Real tests use fixed starts and small denominators. Moderate image resolution/model capacity and reward-classifier bias constrain reliability. Video-quality gains are not equivalent to verified physical accuracy.",
+  "code_and_license": "Independent code/checkpoint/data license inspection not performed; no code executed. HIL-SERL protocol citation does not establish reuse rights for this implementation or robot recordings.",
+  "hardware_adaptation": "COMPARE a small learned environment under matched collection budgets in simulation. Preserve expert/policy/random provenance and include all acquisition cost. Physical SO101/ROSMASTER adaptation needs calibrated action bounds, outcome labels and measured runtime; current controller settings stay unchanged.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "III-B",
+      "supports": "classifier, two-hot encoding and data mixture"
+    },
+    {
+      "page": 4,
+      "section": "III-C Algorithm1",
+      "supports": "frozen-model PPO and OOD variance control"
+    },
+    {
+      "page": 5,
+      "section": "IV-A/B",
+      "supports": "data-budget differences and adapted TD-MPC2"
+    },
+    {
+      "page": 6,
+      "section": "TableII IV-C",
+      "supports": "simulation metrics, fixed real setup and sample-cost caveat"
+    },
+    {
+      "page": 7,
+      "section": "TableIII V",
+      "supports": "physical counts, negative task, compute and ablations"
+    },
+    {
+      "page": 8,
+      "section": "VI",
+      "supports": "resolution/model-capacity limits"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "939ff5ea644eb768d6822e864ebc5f3c57df959a5e515137215da4319515530a",
+  "primary_url": "https://arxiv.org/abs/2509.19080",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

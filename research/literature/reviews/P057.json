@@ -1,0 +1,56 @@
+{
+  "paper_id": "P057",
+  "deep_review": false,
+  "problem": "Use a visual learned environment to improve VLAs from failures at lower interaction cost than direct policy-gradient collection.",
+  "contribution": "WMPO aligns a pretrained video world model to actual base-policy behavior, adds action/frame conditioning and noisy context training, then applies on-policy GRPO in imagined pixels. Target policy rollouts remain required for environment/reward adaptation.",
+  "algorithm": "Replace OpenSora3D VAE with SDXL2D VAE; noise conditioning frames at50/1000diffusion steps and inject per-frame actions via AdaLN. Fine-tune on base-policy successes/failures. Train VideoMAE binary reward on terminal-success versus earlier/failure clips. Discretize action dimensions into256bins and use GRPO with asymmetric clipping, noKL and resampling of all-equal reward groups.",
+  "observations": "Recent RGB and instruction only in experiments; proprioception/wrist cameras omitted. World model takes four context frames plus eight-action chunk and produces eight future frames. Image-only MDP assumption leaves partially observed setups for future study.",
+  "actions": "OpenVLA-OFT modified token-probability action head; eight-step chunks. CobotMobileALOHA real target data are required; generated frames and action bins do not establish SO101 action semantics.",
+  "embodiment_and_data": "MimicGenCoffee/StackThree/ThreePieceAssembly/Square with300expert trajectories/task;128or1280base-policy rollouts for optimization. Physical square insertion uses CobotMobileALOHA,200expert plus128policy trajectories and30evaluation trials. Lifelong experiment collects new128-policy batches rather than improving without new environment feedback.",
+  "experiments": "Matched target-environment rollout budget versus direct online GRPO/offline DPO;128evaluation initialstates/task. Test position/background/texture disruptions and iterativeStackThree update. RewardF1>0.95 reported, but task/generalization scope and model-induced reward exploitation require separate checks.",
+  "baselines": "Supervised base, onlineGRPO and offlineDPO; DPO reuses stored trajectory preferences whereas WMPO generates additional imagined samples. Qualitative recovery/shorter successful trajectories are behavior analyses, not independent force/collision guarantees.",
+  "quantitative_result": "Table1 PDFp7 mean simulation success33.6%base;P128:GRPO33.2,DPO37.3,WMPO47.1%;P1280:37.1,42.4,57.6%. Table2p9 disruptionmean29.6%WMPO versus23.7%base, not high absolute reliability. Physicalp10:53%base,60%DPO,70%WMPO over30trials, rounded percentages; no multi-seed confidence supplied there.",
+  "limitations": "Behavior alignment depends on collected target rollouts; image-only Markov assumption and long autoregressive model error limit coverage. Learned success F1 is not proof of no reward hacking. Dynamic group resampling consumes extra compute and should be counted. Small physical single-task test does not establish cross-embodiment generality.",
+  "code_and_license": "Code/weights/data licenses not independently audited. OpenSora,SDXL,VideoMAE,OpenVLA and OXE each have distinct rights. No code inspected/executed.",
+  "hardware_adaptation": "COMPARE model-based fine-tuning against measured base policy after target episodes/independent reward labels exist. Log all generated/discarded groups, model versions and real collection cost. Keep observed physical outcomes separate from VideoMAE labels and preserve controller configuration.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3.1",
+      "supports": "image-only MDP and action chunks"
+    },
+    {
+      "page": 5,
+      "section": "3.2-3.3",
+      "supports": "VAE/action conditioning, behavior alignment and reward training"
+    },
+    {
+      "page": 6,
+      "section": "3.4",
+      "supports": "dynamic sampling and GRPO objective"
+    },
+    {
+      "page": 7,
+      "section": "4.1 Table1",
+      "supports": "dataset budgets and simulation results"
+    },
+    {
+      "page": 9,
+      "section": "Table2 4.5",
+      "supports": "OOD rates and renewed environment feedback"
+    },
+    {
+      "page": 10,
+      "section": "4.6",
+      "supports": "real embodiment,training data and30trials"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "1f3e88874bcb716ad0417347f9c6a73f1dd70c873e7872d3ceed6c57af2b7598",
+  "primary_url": "https://arxiv.org/abs/2511.09515",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

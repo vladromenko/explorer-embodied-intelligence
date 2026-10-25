@@ -1,0 +1,51 @@
+{
+  "paper_id": "P055",
+  "deep_review": false,
+  "problem": "Post-train VLAs in a visual world model while detecting completion early enough to avoid destructive actions after success.",
+  "contribution": "World-Env adds geometry-aware diffusion simulation, policy-rollout data augmentation and a supervised VLM-based completion head. It combines a learned environment with leave-one-out PPO optimization; 'physically consistent' is an architectural/empirical description, not a simulator correctness guarantee.",
+  "algorithm": "Map actions to next proprioception with kinematics and render an image-plane pose marker. Condition diffusion on marker, memory frames, VGGT geometry and CLIP features. Train on expert plus perturbed policy simulator rollouts. A frozen vision/LLM with BCE-trained reward head predicts completion probability; stop above0.5. Sample Laplace actions from VLA mean and learned scale; group leave-one-out terminal rewards drive clipped PPO.",
+  "observations": "RGB history, instruction and six-dimensional EEF pose plus gripper state; camera projection/kinematics needed for action maps. Reward head trains on per-frame success labels from actual LIBERO task criteria and policy rollouts. Semantic probability is not independent grasp or collision evidence.",
+  "actions": "Continuous robot actions modeled by factorized Laplace distributions; kinematic/projection semantics must match dataset embodiment. Only a single trajectory-wise reward is used at predicted termination or horizon despite step-wise probability evaluation.",
+  "embodiment_and_data": "LIBERO40tasks, five expert demonstrations per task for policy comparisons plus additional simulator exploration to train the world model. Four real tasks collect ten trajectories each for SFT/world-model adaptation. Exact real hardware and evaluation trial denominator NOT_EXTRACTED from inspected main text. Training uses8 H20 GPUs96GB each for~48h.",
+  "experiments": "Five-demo simulation comparisons, extra-data/reward-head ablations, dynamic termination and four real manipulation tasks. Termination comparison deliberately forces all baselines to full horizon while own method stops early, so isolate this changed evaluation condition from policy-learning gains.",
+  "baselines": "Pi0/Pi0FAST, OpenVLA, UniVLA, OpenVLA-OFT under stated five-demo restriction; simulator-based RIPT-VLA. Prompt-only binary VLM reward versus trainable continuous head and extra-data variants.",
+  "quantitative_result": "Table1 PDFp5:OpenVLA-OFT74.85% versus World-Env79.6%. Table4p8 under unavailable true termination:63.05% versus74.9%, with asymmetric stopping rules explicitly stated. Table3p7 real tasks baseline20/30/30/20% versus30/50/40/50%; evaluation denominator NOT_EXTRACTED. Table2p6:own Long57.8% versus RIPT58.4%, so gains are not universal.",
+  "limitations": "World simulator and reflector depend on diverse labeled data; generation bottlenecks slow optimization. Additional exploration is required before fixed-model learning. Biased or premature termination can masquerade as policy improvement; held-out false-positive/negative rates are needed. Small real experiment and missing denominator constrain precision.",
+  "code_and_license": "Code, model and data licenses NOT_AUDITED independently; VGGT/CLIP/VLM and source dataset rights are separate. No code inspected or executed.",
+  "hardware_adaptation": "ADAPT an independently evaluated completion/termination interface and retain true post-success state in logs. Build camera/kinematic action maps only from calibrated measured geometry, without changing controller settings. Camera confidence alone cannot validate receiver hold or physical action feasibility.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "4.1-4.2",
+      "supports": "projected action maps, geometry conditioning and additional exploration"
+    },
+    {
+      "page": 5,
+      "section": "4.2-4.3 Table1",
+      "supports": "BCE reward, terminal threshold and performance"
+    },
+    {
+      "page": 6,
+      "section": "4.3-4.4 Table2",
+      "supports": "Laplace/LOO PPO, compute and mixed baseline results"
+    },
+    {
+      "page": 7,
+      "section": "5.2 Table3",
+      "supports": "ten real training trajectories and reported rates"
+    },
+    {
+      "page": 8,
+      "section": "Table4 5.3-5.4",
+      "supports": "asymmetric stopping comparison, ablations and limits"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "a15da2cc851187cc84daef23e63b129731bcca9ffa739af6212498fb95914410",
+  "primary_url": "https://arxiv.org/abs/2509.24948",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

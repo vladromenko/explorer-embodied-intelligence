@@ -1,0 +1,61 @@
+{
+  "paper_id": "P054",
+  "deep_review": false,
+  "problem": "Fine-tune a pretrained flow-based VLA without repeatedly executing every policy update on physical hardware.",
+  "contribution": "VLA-RFT combines an action-conditioned autoregressive world simulator, stochastic flow-policy parameterization and group-relative optimization. Its 'verified' reward means reference-trajectory similarity, not independent verification of real task completion.",
+  "algorithm": "Pretrain a compact video tokenizer/138M LLaMA-style transition model and a VLA-Adapter policy offline. Add a learned Sigma Net to the flow head and sample Gaussian denoising transitions over ten Euler steps. Compare generated trajectories with reference trajectories using weighted L1 and LPIPS; group-center rewards and update flow/sigma parameters with clipped ratios, entropy and auxiliary flow-matching supervision. Final reward design compares both policy and reference actions rendered by the same model.",
+  "observations": "Initial image, language and proprioception; offline labeled action/image sequences. World model recursively predicts RGB conditioned on action history. Reward requires reference expert actions/frames; generated visual fidelity alone does not establish force/contact accuracy.",
+  "actions": "Seven-dimensional actions matching the training dataset and action chunks. Stochastic flow denoising likelihood is used during optimization; it does not define a calibrated target-robot interface.",
+  "embodiment_and_data": "LIBERO four simulated suites; model and policy both pretrained on task datasets. Experiments use four A800 GPUs. No physical robot evaluation is established in the inspected experiments.",
+  "experiments": "Compare150k-step supervised base with400 RFT iterations, standard suite success and object/goal/robot-state perturbations. Reward ablations compare direct action similarity, generated-versus-real images, and generated-versus-generated reference. WM metrics include MSE/PSNR/SSIM/LPIPS rather than physical validity tests.",
+  "baselines": "Base supervised VLA at30k and150k iterations; three reward definitions. This is chiefly a within-policy post-training comparison rather than a broad matched-budget physical RL benchmark.",
+  "quantitative_result": "Table2 PDFp8 gives86.6% base versus91.1% RFT, +4.5 percentage points after400 iterations. Adjacent prose p7 says91.3%/+4.7, inconsistent with the table and Table4p9; retain table value and flag discrepancy. Table4:action-only87.7%, direct image comparison87.1%, generated-reference91.1%. Table3p9 combined major perturbation34.0→37.0%, far below standard-suite average.",
+  "limitations": "Expert-similarity rewards constrain discovery beyond expert quality and can favor visually similar behavior. Learned-model capacity/support limits OOD reliability; model-based planning is not included. Reward is not independent of the simulator. Simulated task improvement does not establish physical force or grasp correctness; table/prose numerical inconsistency remains unresolved.",
+  "code_and_license": "Code, checkpoint and dataset license texts were not independently inspected; public paper availability is not a code/model license. No code inspected or executed.",
+  "hardware_adaptation": "COMPARE as a simulation-only post-training baseline after action schema and reference trajectories exist. Do not label imitation-distance reward as validated physical success; independently score real outcomes and model errors before applying policies to SO101/ROSMASTER. No controller changes implied.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3.1-3.2",
+      "supports": "action-conditioned autoregressive model"
+    },
+    {
+      "page": 5,
+      "section": "3.3",
+      "supports": "Sigma Net and flow likelihood"
+    },
+    {
+      "page": 6,
+      "section": "Algorithm1 Equations11-13",
+      "supports": "reference similarity reward and optimization"
+    },
+    {
+      "page": 7,
+      "section": "4.1-4.3 Table1",
+      "supports": "compute, model size and prose discrepancy"
+    },
+    {
+      "page": 8,
+      "section": "Table2",
+      "supports": "tabulated policy results"
+    },
+    {
+      "page": 9,
+      "section": "Tables3-4",
+      "supports": "perturbations and final reward design"
+    },
+    {
+      "page": 10,
+      "section": "Limitations",
+      "supports": "expert ceiling, world-model capacity and no planning"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "e7887f19a7167e18887c3e4199e9efe990681d94e4f8542ca1e4b2a32d6e97ca",
+  "primary_url": "https://arxiv.org/abs/2510.00406",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}
