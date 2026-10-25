@@ -154,17 +154,23 @@ def research_status():
         with registry.open() as stream:
             rows = list(csv.DictReader(stream))
         result['candidates'] = len(rows)
+    venue=ROOT/'research/paper/VENUE.json'
+    if venue.is_file():
+        target=json.loads(venue.read_text())
+        result.update(venue=target.get('venue'),venue_status=target.get('target_status'),deadline=target.get('stage1',{}).get('deadline_moscow'))
     return result
 
 
 def actions_required():
+    station=STORE.nodes().get('pi',{}).get('station') or {}
+    calibrated=len(station.get('roles',{}))==2
     return [
-        {'id':'calibration', 'title':'Сопоставить leader и follower и сохранить их калибровки', 'status':'NEEDS_INPUT',
-         'detail':'Два USB-контроллера обнаружены. Роли и калибровки SO-101 ещё не подтверждены.'},
+        {'id':'calibration', 'title':'Роли и исходные калибровки рук', 'status':'COMPLETED' if calibrated else 'CHECKING',
+         'detail':'Роли подтверждены по исходным калибровкам и регистрам подключённых двигателей.' if calibrated else 'Станция проверяет подключённые руки.'},
         {'id':'demonstrations', 'title':'Записать полные показы выбранной задачи', 'status':'NEEDS_DEMONSTRATIONS',
          'detail':'Видео без действий не считается экспертной демонстрацией. Мастер начинает с 3–5 технических эпизодов.'},
-        {'id':'venue', 'title':'Указать конференцию или CFP для статьи', 'status':'NEEDS_INPUT',
-         'detail':'Упомянутый декабрьский срок пока не связан с подтверждённым venue.'},
+        {'id':'venue', 'title':'Рабочая цель статьи: RSS 2027', 'status':'WORKING_TARGET',
+         'detail':'Первый срок 5 декабря в 14:59 по Москве. Название конференции пока принято как рабочая гипотеза.'},
         {'id':'disk', 'title':'Проверить содержимое внешнего APFS-диска перед подготовкой хранилища', 'status':'PENDING_IDENTIFICATION',
          'detail':'Пока используются свободные 180+ ГБ внутреннего NVMe. Внешний Samsung T5 не форматировался.'}]
 
@@ -199,10 +205,13 @@ def state():
             summary='Обучение и симуляция' if project_id == '01' else 'Готовится полный цикл опыта',
             blockers=['Физический результат пока не подтверждён'], latest_job=project_jobs[0] if project_jobs else None))
     disk = shutil.disk_usage(STORE.root)
-    return dict(schema_version=1, nodes=node_states(), experiments=experiments, jobs=jobs,
+    nodes=node_states()
+    operational=any(node.get('capabilities',{}).get('physical_motion') for node in nodes)
+    return dict(schema_version=1, nodes=nodes, experiments=experiments, jobs=jobs,
         skills=STORE.skills(), research=research_status(), storage={'free_bytes':disk.free,'total_bytes':disk.total,'root':str(STORE.root)},
-        admission={'physical_enabled':False, 'owner_authorization':'Разрешено владельцем при видимости на камере Pi либо подтверждённом присутствии',
-            'reasons':['Совместимые исполнительные адаптеры ещё проверяются. Настройки контроллера не изменяются.'], 'controller_settings_unchanged':True})
+        capabilities={'station_rollout':False},
+        admission={'physical_enabled':operational, 'owner_authorization':'Разрешено владельцем при видимости на камере Pi либо подтверждённом присутствии',
+            'reasons':['Доступность управления и результаты обучения показаны отдельно. Физическая проверка обученных навыков ещё не завершена.'], 'controller_settings_unchanged':True})
 
 
 @app.get('/api/research')
@@ -238,7 +247,7 @@ def jobs():
 @app.post('/api/jobs')
 async def create_job(request: Request):
     body = await request.json()
-    if body.get('kind') not in ('sim_pilot', 'train_act', 'virtual_transfer', 'handover_test') or body.get('project_id') not in TITLES:
+    if body.get('kind') not in ('sim_pilot', 'train_act', 'virtual_transfer', 'handover_test') or body.get('project_id') not in (*TITLES.keys(),'personal'):
         raise HTTPException(400, 'Unsupported job')
     config = body.get('config', {})
     if not isinstance(config, dict):
@@ -326,14 +335,18 @@ async def stop():
     for job in STORE.jobs():
         if job['status'] in ('running', 'queued', 'paused'):
             STORE.update_job(job['id'], status='cancel_requested')
-    node = next(node for node in CONFIG['nodes'] if node['id'] == 'nano')
-    try:
-        response = await CLIENT.post('http://' + node['host'] + ':' + str(node['port']) + '/legacy/control',
-            headers={'Authorization':'Bearer ' + node['token']}, json={'op':'stop'})
-        response.raise_for_status()
-        return {'ok':True, 'scope':'Existing ROSMASTER STOP and Explorer jobs', 'robot':response.json()}
-    except httpx.HTTPError:
-        return JSONResponse({'ok':False,'scope':'Explorer jobs stopped; onboard STOP delivery not confirmed'}, 503)
+    async def deliver(node):
+        path,payload=('/legacy/control',{'op':'stop'}) if node['id']=='nano' else ('/station/stop',{})
+        try:
+            response=await CLIENT.post('http://'+node['host']+':'+str(node['port'])+path,
+                headers={'Authorization':'Bearer '+node['token']},json=payload)
+            response.raise_for_status()
+            return node['id'],{'confirmed':True,'response':response.json()}
+        except httpx.HTTPError:
+            return node['id'],{'confirmed':False}
+    deliveries=dict(await asyncio.gather(*(deliver(node) for node in CONFIG['nodes'])))
+    confirmed=all(item['confirmed'] for item in deliveries.values())
+    return JSONResponse({'ok':confirmed,'scope':'ROSMASTER, SO-101 station and Explorer jobs','deliveries':deliveries},200 if confirmed else 503)
 
 
 @app.api_route('/api/robot/{path:path}', methods=['GET','POST'])
@@ -349,6 +362,26 @@ async def robot_proxy(path: str, request: Request):
         return JSONResponse(response.json(), response.status_code)
     except httpx.HTTPError:
         raise HTTPException(503, 'Onboard control interface is unavailable')
+
+
+@app.api_route('/api/station/{path:path}', methods=['GET','POST'])
+async def station_proxy(path: str, request: Request):
+    node = next(node for node in CONFIG['nodes'] if node['id']=='pi')
+    allowed_get = {'status','recordings'}
+    allowed_post = {'teleop/start','teleop/recenter','policy/start','stop','record/start','record/finish','action'}
+    if path not in (allowed_get if request.method=='GET' else allowed_post):
+        raise HTTPException(404)
+    try:
+        payload = await request.json() if request.method=='POST' else None
+        response = await CLIENT.request(request.method,'http://'+node['host']+':'+str(node['port'])+'/station/'+path,
+            headers={'Authorization':'Bearer '+node['token']},**({'json':payload} if payload is not None else {}))
+        result = response.json()
+        if path=='record/finish' and response.is_success:
+            existing=next((job for job in STORE.jobs() if job['kind']=='station_import' and job['config'].get('episode_id')==result['episode_id']),None)
+            result['import_job']=existing or STORE.create_job('station_import',result.get('project_id','personal'),{'episode_id':result['episode_id']})
+        return JSONResponse(result,response.status_code)
+    except httpx.HTTPError:
+        raise HTTPException(503,'SO-101 station interface is unavailable')
 
 
 @app.get('/{path:path}')

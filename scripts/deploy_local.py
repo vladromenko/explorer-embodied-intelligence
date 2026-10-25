@@ -107,14 +107,14 @@ After=network-online.target
 Type=simple
 Environment=PYTHONPATH=%h/.local/share/explorer/current/shared
 EnvironmentFile=%h/.config/explorer/node.env
-ExecStart=/usr/bin/python3 -m explorer_shared.node_agent --mode {mode} --node-id {mode} --port {port} --state-dir %h/.local/share/explorer/node-state
+ExecStart={python} -m explorer_shared.node_agent --mode {mode} --node-id {mode} --port {port} --state-dir %h/.local/share/explorer/node-state
 Restart=on-failure
 RestartSec=3
 TimeoutStopSec=20
 
 [Install]
 WantedBy=default.target
-'''.format(mode=node['id'],port=node['port'])
+'''.format(mode=node['id'],port=node['port'],python='%h/.local/share/explorer/servo-venv/bin/python' if node['id']=='pi' else '/usr/bin/python3')
             service(host,'explorer-observer',node_unit)
     print('Deployed. Existing ROSMASTER controller settings were not written or restarted.')
 

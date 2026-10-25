@@ -89,9 +89,13 @@ def train_recorded_act(store, job):
         raise ValueError("Convert station recordings to a synchronized Explorer episode manifest first")
     split_map = validate_splits(manifest)
     training = [item for item in manifest["episodes"] if item.get("split", "train") in ("train", "imitation_train", "training")]
+    excluded_outcomes=[]
+    if manifest.get('contains_physical_recordings'):
+        excluded_outcomes=[item.get('id') for item in training if item.get('outcome')!='success']
+        training=[item for item in training if item.get('outcome')=='success']
     development = [item for item in manifest["episodes"] if item.get("split") in ("development", "validation", "dev")]
     if not training:
-        raise ValueError("No training episodes; sealed test episodes are never used for fitting")
+        raise ValueError("No successful training demonstrations. Failed and unlabelled physical episodes remain available for analysis; sealed tests are never fitted.")
     settings = parameters({key: requested[key] for key in ("seed", "act_steps", "batch_size", "image_size", "chunk_size", "device") if key in requested})
     if settings["act_steps"] <= 0 or settings["device"] not in ("cpu", "cuda"):
         raise ValueError("ACT needs positive optimizer steps and an explicit supported device")
@@ -140,6 +144,7 @@ def train_recorded_act(store, job):
                   "method_ids": ["ACT_LEROBOT_0_6_1", "ENGINEERING_GLUE"], "simulator_executed": False,
                   "physical_io": False, "sealed_test_used": False, "training_source_count": len(training),
                   "development_source_count": len(development), "created_wall_utc": utc()}
+    provenance['excluded_nonexpert_physical_episode_ids']=excluded_outcomes
     write_json(folder / "provenance.json", provenance)
     policy = make_act_policy(settings, len(names), len(names))
     initial_digest, started = state_digest(policy), time.monotonic()

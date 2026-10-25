@@ -1,4 +1,5 @@
-"""KNOWN_BASELINE / ENGINEERING_GLUE: real geometric transfer and protocol tests.
+"""method_id: LELAB_CHECKPOINT_IMPORT
+KNOWN_BASELINE / ENGINEERING_GLUE: real geometric transfer and protocol tests.
 
 These jobs never communicate with motors. A virtual reference trajectory is not
 a learned SO-101 policy and protocol-test oracles are not physical evidence.

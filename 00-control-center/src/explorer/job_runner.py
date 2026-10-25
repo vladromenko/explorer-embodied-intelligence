@@ -55,6 +55,55 @@ def recording(store, job, config):
             local_original_retained=True, result_scope='Observation recording; not a trained physical skill')
 
 
+def station_import(store, job, config):
+    episode_id = job['config']['episode_id']
+    if not isinstance(episode_id,str) or len(episode_id)!=32 or any(c not in '0123456789abcdef' for c in episode_id):
+        raise ValueError('Invalid station episode ID')
+    node = next(node for node in config['nodes'] if node['id']=='pi')
+    with httpx.Client(timeout=60,trust_env=False) as client:
+        response = client.get('http://'+node['host']+':'+str(node['port'])+'/station/recordings/'+episode_id+'/download',
+            headers={'Authorization':'Bearer '+node['token']})
+        response.raise_for_status()
+    digest = hashlib.sha256(response.content).hexdigest()
+    if digest!=response.headers.get('X-Content-SHA256'):
+        raise ValueError('Station archive transfer hash mismatch')
+    artifact = store.root/'artifacts'/digest[:2]/(digest+'.tar')
+    artifact.parent.mkdir(parents=True,exist_ok=True)
+    if not artifact.exists() or hashlib.sha256(artifact.read_bytes()).hexdigest()!=digest:
+        temporary=artifact.with_suffix('.tmp')
+        with temporary.open('wb') as stream:
+            stream.write(response.content)
+            stream.flush()
+            os.fsync(stream.fileno())
+        temporary.replace(artifact)
+    destination = store.root/'episodes'/'station'/episode_id
+    marker=destination/'.archive-sha256'
+    if not marker.is_file() or marker.read_text().strip()!=digest:
+        stage=destination.with_name(episode_id+'.importing')
+        if stage.exists():
+            import shutil
+            shutil.rmtree(stage)
+        stage.mkdir(parents=True)
+        with tarfile.open(artifact) as archive:
+            archive.extractall(stage,filter='data')
+        (stage/'.archive-sha256').write_text(digest+'\n')
+        if destination.exists():
+            import shutil
+            shutil.rmtree(destination)
+        stage.replace(destination)
+    sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
+    from explorer_sim.station_adapter import convert_station_episode
+    from explorer_sim.dataset_export import export_lerobot_v3
+    target = store.root/'datasets'/('station-'+episode_id)
+    converted = convert_station_episode(destination/'manifest.json',target)
+    exported = export_lerobot_v3(target/'manifest.json',target/'lerobot_v3')
+    return dict(episode_id=episode_id,dataset_manifest=str(target/'manifest.json'),
+        source_archive_sha256=digest,source_manifest_sha256=converted['source_manifest_sha256'],
+        frames=sum(item['frames'] for item in converted['episodes']),state_basis=converted['state_basis'],
+        action_basis=converted['action_basis'],action_names=converted['action_names'],
+        lerobot_v3=exported,source_original_retained=True,physical_success_inferred=False)
+
+
 def main(job_id):
     config = load()
     store = Store(config['data_dir'])
@@ -66,9 +115,14 @@ def main(job_id):
     try:
         if job['kind'] == 'camera_recording':
             result = recording(store, job, config)
-        elif job['kind'] in ('sim_pilot', 'train_act'):
+        elif job['kind'] == 'station_import':
+            result = station_import(store,job,config)
+        elif job['kind'] == 'sim_pilot':
             from .simulation import run_sim_pilot
             result = run_sim_pilot(store, job, config)
+        elif job['kind'] == 'train_act':
+            from .simulation import run_train_act
+            result = run_train_act(store, job, config)
         elif job['kind'] in ('virtual_transfer', 'handover_test'):
             from .transfer import run_virtual_experiment
             result = run_virtual_experiment(store, job, config)

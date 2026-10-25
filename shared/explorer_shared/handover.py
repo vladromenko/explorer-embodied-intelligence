@@ -1,4 +1,5 @@
-"""ENGINEERING_GLUE: evidence-gated handover protocol, with no actuator IO."""
+"""method_id: HANDOVER_VERIFIED_FSM
+ENGINEERING_GLUE: evidence-gated handover protocol, with no actuator IO."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass

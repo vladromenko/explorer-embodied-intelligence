@@ -1,0 +1,14 @@
+{
+  "robots/so_follower/so101_follower.json": {
+    "source": "/Users/vladromenko/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+    "sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+    "destination": "explorer-pi:~/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+    "original_retained": true
+  },
+  "teleoperators/so_leader/so101_leader.json": {
+    "source": "/Users/vladromenko/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+    "sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+    "destination": "explorer-pi:~/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+    "original_retained": true
+  }
+}

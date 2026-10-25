@@ -1,4 +1,5 @@
-"""ENGINEERING_GLUE: URDF geometry and bounded numerical inverse kinematics.
+"""method_id: SO101_URDF_FK_IK / OBJECT_RELATIVE_RETARGET
+ENGINEERING_GLUE: URDF geometry and bounded numerical inverse kinematics.
 
 This module produces geometric solutions, never motor commands. URDF/CAD geometry
 and a successful IK solve do not establish physical calibration or collision safety.

@@ -1,7 +1,8 @@
-"""Read-only Explorer node HTTP agent. There is deliberately no actuator API.
+"""Explorer cameras, durable observations and explicitly requested station control.
 
 Pi owns one camera capture. Nano observes the existing controller's files;
-it neither imports ROS nor opens its cameras or serial ports.
+it neither imports ROS nor opens its cameras or serial ports. Pi optionally owns
+the original calibrated SO-101 buses; no calibration or motor settings are written.
 """
 from __future__ import annotations
 
@@ -461,10 +462,15 @@ class NodeAgent:
             camera_device or "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D4EA612F-video-index0",
             self.state_dir / "camera-capture.lock")} if mode == "pi" else {"nano-rgbd": LegacyFileCamera(
                 Path(legacy_dir) / "frame-raw.jpg", Path(legacy_dir) / "status.json")})
-        self.calibration_dirs = calibration_dirs
+        self.calibration_dirs = calibration_dirs or ([Path.home()/'.cache/huggingface/lerobot/calibration'] if mode=='pi' else [])
         self.recordings = RecordingManager(self.state_dir / "recordings", self.sources, self.delivery.emit)
         self.stream_slots = threading.BoundedSemaphore(3)
         self.observer = None
+        self.station = None
+        arms_configuration = Path.home() / '.config/explorer/arms.json'
+        if mode == "pi" and arms_configuration.exists():
+            from .so101_station import SO101Station
+            self.station = SO101Station(arms_configuration,self.state_dir,self.sources['pi-overview'])
         if mode == "pi" and hailo_model and "pi-overview" in self.sources:
             from .hailo_observer import HailoObserver
             self.observer = HailoObserver(self.sources["pi-overview"], hailo_model, self.delivery.emit)
@@ -475,8 +481,12 @@ class NodeAgent:
         self.delivery.start()
         if self.observer:
             self.observer.start()
+        if self.station:
+            self.station.start()
 
     def close(self):
+        if self.station:
+            self.station.close()
         self.recordings.close()
         if self.observer:
             self.observer.close()
@@ -494,16 +504,25 @@ class NodeAgent:
     def inventory(self):
         serial = discover_serial()
         calibrations = discover_calibrations(self.calibration_dirs)
+        station = self.station.status() if self.station else None
+        if station:
+            for item in serial:
+                for role,profile in station['roles'].items():
+                    if item['path']==profile['port']:
+                        item.update(role=role,servo_bus_opened=station['available'],servo_model_verified=True,
+                                    positions_available=bool(station['measurements']))
+            for item in calibrations:
+                item['verified_on_connected_hardware']=any(profile['calibration_sha256']==item['sha256'] for profile in station['roles'].values())
         observer = self.observer.snapshot() if self.observer else {"available": False, "state": "not_configured"}
         cameras = self.cameras()
         return {"schema_version": 1, "node_id": self.node_id, "hostname": socket.gethostname(),
                 "wall_utc": wall_utc(), "monotonic_ns": time.monotonic_ns(), "clock_domain": self.delivery.clock_domain,
                 "hardware": {"architecture": os.uname().machine, "hailo_device_present": Path("/dev/hailo0").exists()},
                 "cameras": cameras, "serial_devices": serial, "calibrations": calibrations,
-                "perception": observer,
-                "capabilities": {"physical_motion": False, "servo_bus_access": False,
-                                 "serial_discovery": True, "joint_measurements": False,
-                                 "calibration_verified": False, "arm_roles_assigned": False,
+                "perception": observer, "station": station,
+                "capabilities": {"physical_motion": bool(station and station['available']) or self.mode=='nano', "servo_bus_access": bool(station and station['available']),
+                                 "serial_discovery": True, "joint_measurements": bool(station and station['measurements']),
+                                 "calibration_verified": bool(station and len(station['roles'])==2), "arm_roles_assigned": bool(station and len(station['roles'])==2),
                                  "camera_preview": any(camera["available"] for camera in cameras),
                                  "camera_only_recording": True, "hailo_detection": observer["available"],
                                  "durable_event_outbox": True, "vlm": False},
@@ -547,10 +566,25 @@ def make_handler(agent):
                     self._json(404, {"error": str(exc)})
                 except (BrokenPipeError, ConnectionResetError):
                     pass
+                except FileNotFoundError:
+                    self._json(404,{'error':'Requested source file does not exist'})
+                except OSError as exc:
+                    self._json(503,{'error':str(exc)})
 
         def _get(self, path):
             parts = path.strip("/").split("/")
-            if path.startswith("/legacy/") and agent.legacy_bridge is not None:
+            if path.startswith('/station/') and agent.station is not None:
+                if path=='/station/status':
+                    self._json(200,agent.station.status())
+                elif path=='/station/recordings':
+                    self._json(200,{'recordings':agent.station.recordings()})
+                elif len(parts)==4 and parts[1]=='recordings' and parts[3]=='download':
+                    self._download(agent.station.archive(parts[2]),parts[2])
+                elif len(parts)==4 and parts[1]=='recordings' and parts[3]=='manifest':
+                    self._json(200,agent.station.manifest(parts[2]))
+                else:
+                    raise LookupError('Unknown station endpoint')
+            elif path.startswith("/legacy/") and agent.legacy_bridge is not None:
                 code, payload = agent.legacy_bridge.request(path.removeprefix("/legacy/"))
                 self._json(code, payload)
             elif path == "/inventory":
@@ -643,7 +677,8 @@ def make_handler(agent):
                 return
             path = unquote(urlsplit(self.path).path)
             legacy = path.startswith("/legacy/") and agent.legacy_bridge is not None
-            if path != "/recordings" and not legacy:
+            station = path.startswith('/station/') and agent.station is not None
+            if path != "/recordings" and not legacy and not station:
                 self.close_connection = True
                 self._json(404, {"error": "Endpoint not found; no physical API is provided"})
                 return
@@ -654,7 +689,9 @@ def make_handler(agent):
                 payload = json.loads(self.rfile.read(length))
                 if not isinstance(payload, dict):
                     raise ValueError("Expected a JSON object")
-                if legacy:
+                if station:
+                    self._json(200,agent.station.command(path.removeprefix('/station/'),payload))
+                elif legacy:
                     code, result = agent.legacy_bridge.request(path.removeprefix("/legacy/"), payload)
                     self._json(code, result)
                 else:
@@ -668,6 +705,8 @@ def make_handler(agent):
                 self._json(503, {"error": str(exc)})
             except RuntimeError as exc:
                 self._json(409, {"error": str(exc)})
+            except OSError as exc:
+                self._json(503, {"error": str(exc)})
 
     return Handler
 
