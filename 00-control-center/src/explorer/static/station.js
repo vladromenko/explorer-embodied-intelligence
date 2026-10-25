@@ -21,7 +21,7 @@ function stationSkills() {
 }
 function stationFresh() {
   const status = stationLab.status; const measured = status?.measurements;
-  return status?.available === true && Date.now() - stationLab.updatedAt < 3500 && ["leader", "follower"].every((role) => array(measured?.[role]).length === 6 && measured[role].every((value) => Number.isFinite(value))) && (number(status.measurement_age_ms) === null || status.measurement_age_ms < 3000);
+  return status?.available === true && typeof status.control_epoch === "string" && status.control_epoch.length > 0 && Date.now() - stationLab.updatedAt < 3500 && ["leader", "follower"].every((role) => array(measured?.[role]).length === 6 && measured[role].every((value) => Number.isFinite(value))) && (number(status.measurement_age_ms) === null || status.measurement_age_ms < 3000);
 }
 function stationMode() { return { idle: "Руки в ожидании", teleoperation: "Повторяем движения ведущей руки", policy: "Выполняется модель" }[stationLab.status?.mode] || "Получаем состояние рук"; }
 function stationValue(value) { return number(value) === null ? "—" : Number(value).toFixed(1); }
@@ -114,13 +114,13 @@ document.addEventListener("click", async (event) => {
       if (!stationFresh()) throw new Error("Ждём связь и свежие измерения рук.");
       const epoch = stationLab.interruptEpoch; stationLab.pendingControl = true;
       try {
-        await stationOperation("teleop/start", { observing: true, operator_present: true });
+        await stationOperation("teleop/start", { observing: true, operator_present: true, expected_control_epoch: stationLab.status.control_epoch });
         if (epoch !== stationLab.interruptEpoch || document.hidden || !document.hasFocus()) { await stopStation(true); return; }
         stationLab.present = true; stationLab.owned = true; toast("Повторение движений включено относительно текущей позы.");
       } finally { stationLab.pendingControl = false; model.forceRender = true; render(); }
       return;
     }
-    if (action === "station-recenter") { if (!stationLab.present || !stationFresh()) throw new Error("Сначала подтвердите присутствие рядом с подключёнными руками."); await stationOperation("teleop/recenter", { observing: true, operator_present: true }, "Текущие положения приняты за начало движения."); return; }
+    if (action === "station-recenter") { if (!stationLab.present || !stationFresh()) throw new Error("Сначала подтвердите присутствие рядом с подключёнными руками."); await stationOperation("teleop/recenter", { observing: true, operator_present: true, expected_control_epoch: stationLab.status.control_epoch }, "Текущие положения приняты за начало движения."); return; }
     if (button.dataset.stationOutcome) { const result = await stationOperation("record/finish", { outcome: button.dataset.stationOutcome }, "Показ сохранён. Переносим данные на Homebrain."); stationLab.lastEpisode = result; stationLab.importJob = result?.import_job?.id || ""; await stopStation(true); await refresh(true); return; }
     if (action === "station-train") {
       const imported = stationImports(stationProject()).find((job) => job.result.dataset_manifest === stationLab.manifest); if (!imported) throw new Error("Сначала дождитесь завершения переноса выбранного показа.");
@@ -133,7 +133,7 @@ document.addEventListener("click", async (event) => {
       if (model.state?.capabilities?.station_rollout !== true || !stationFresh() || !stationLab.present || !stationSkills().some((skill) => skill.id === stationLab.skill)) throw new Error("Выполнение этой модели пока недоступно.");
       const epoch = stationLab.interruptEpoch; stationLab.pendingControl = true; button.disabled = true;
       try {
-        const job = await post("/api/jobs", { kind: "station_rollout", project_id: stationProject(), config: { skill_id: stationLab.skill, duration_s: 10, observing: true, operator_present: true } }); stationLab.rolloutJob = job.id;
+        const job = await post("/api/jobs", { kind: "station_rollout", project_id: stationProject(), config: { skill_id: stationLab.skill, duration_s: 10, observing: true, operator_present: true, expected_control_epoch: stationLab.status.control_epoch } }); stationLab.rolloutJob = job.id;
         if (epoch !== stationLab.interruptEpoch || document.hidden || !document.hasFocus()) { await stopStation(true); return; }
         stationLab.owned = true; toast("Десятисекундная попытка поставлена в очередь."); await refresh(true);
       } finally { stationLab.pendingControl = false; }
