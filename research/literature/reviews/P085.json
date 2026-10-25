@@ -1,0 +1,82 @@
+{
+  "paper_id": "P085",
+  "source_sha256": "786a3e27a8bbe7e97f3a29020f78681d2a11a320f0a717dbe66930f7635c8ad4",
+  "primary_url": "https://arxiv.org/abs/2603.17240",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "verified_title": "GigaWorld-Policy: An Efficient Action-Centered World–Action Model",
+  "problem": "Joint world/action diffusion spends inference time generating long future-video sequences even when only action chunks are needed. Unrestricted cross-modal attention can make action prediction depend on future tokens that are unavailable when the video branch is omitted.",
+  "contribution": "A5B Wan2.2 world/action policy uses action-centered causal masking and large-scale embodied-video pretraining. Future-video prediction acts as training supervision but is optional at inference, allowing an action-only path and reusable context KV cache.",
+  "algorithm": "Current multiview observations and proprioception attend within their block; actions may attend to present observations/state but not future-video tokens; future video additionally attends to actions. Language enters through cross-attention. Train video-only on embodied data, then joint flow matching with action/video loss weights5/1. Predict48 action steps and sparse future images every12 steps; sample actions alone by default.",
+  "observations": "Language, proprioception and three RGB views (left/front/right) composed into one image and encoded by a shared VAE. Visual tokens use2D positions and state/action tokens1D temporal positions. Camera composition and viewpoint availability are part of the learned representation.",
+  "actions": "Continuous embodiment-specific48-step chunks. Real experiments use6DoF AgileX PiPER gripper arms; exact joint/Cartesian action dimensionality and physical control frequency NOT_EXTRACTED, so48steps cannot be converted into a claimed timing/deadline for Explorer.",
+  "embodiment_and_data": "Approximately10000h of public human/robot video (dataset table totals are estimates), including EgoDex/Ego4D/Agibot/OXE/DROID/RoboMind and others, followed by target task action supervision. RoboTwin2.0 trains on2500 clean plus25000 randomized demonstrations across50 tasks. Real data-efficiency figure varies5/25/50 demonstrations/task. Supplementp13 reports6000GPUh/batch256 for pretraining, but GPU model is NOT_EXTRACTED.",
+  "experiments": "RoboTwin50 tasks under clean/randomized scenes,100 test episodes/task, with clutter, lighting and table variations. Physical PiPER evaluation covers desk cleanup, QR scanning, sweeping and bowl stacking,20trials/task/method; each trial permits up to FIVE attempts. Real evaluation grants0.5 for grasp and0.5 for placement rather than uniformly binary task success. Additional ablations vary pretraining sources, future-frame stride and attention masking.",
+  "baselines": "pi0.5, GigaBrain-0, X-VLA, Motus and Cosmos-Policy. Simulation/physical baseline subsets differ. Causal-mask versus unrestricted self-attention has similar physical score; its principal structural advantage is permitting action-only inference without future-token leakage.",
+  "quantitative_result": {
+    "physical": "PDF p9 Table4: mean reported score0.83 versusMotus0.76/pi0.5 0.69/Cosmos0.58; per-task0.90/0.75/0.75/0.90, n20trials/task,80/method, with up to5attempts and partial credit. This is not83% first-attempt full-task completion.",
+    "latency": "PDF p8 Table3:A100 action-only inference360ms versusMotus3231ms (~9×); pi0.5 is225ms, so this is not the fastest policy overall. No NX timing measured.",
+    "simulation": "PDF p15 full Table8 gives ours0.86 clean/0.85 randomized versusMotus0.89/0.87 andpi0.5 0.43/0.44. Mainp8 Table2 prints ours0.87 clean instead of appendix0.86; preserve this discrepancy rather than manufacturing a precise aggregate.",
+    "ablations": "PDF pp10–11 Tables5–7: causal score0.83 versusunrestricted0.81; no pretraining0.45,video-init-only0.57,embodied-only0.73,both0.83. Table5 no-future row is0.60, while p11 prose says0.65 and derives0.18 gain; the table implies0.23. Figure7 matchespi0.5's50-demo score0.69 using5target demos, after large-scale pretraining."
+  },
+  "limitations": "Physical trials permit repeated attempts and partial scores; paper headings use success rate for both binary simulation and graded hardware evaluation. No confidence intervals or independent training-seed analysis were extracted. Several table/prose and main/appendix discrepancies affect exact effect sizes. The claimed sample efficiency concerns target-task demonstrations, not the10000h prerequisite. Future-frame PSNR/SSIM is visual reconstruction quality, not proof of grasp/contact dynamics. Fixed three-camera layouts,6DoF PiPER embodiment and A100 latency do not establish SO101/M3 or NX readiness.",
+  "code_and_license": "A paper-level method description and public-source dataset citations were examined; no pinned repository, code, released checkpoints or licenses were audited or executed. License and release availability UNKNOWN rather than inferred from paper publication.",
+  "hardware_adaptation": "ADAPT the causal factorization as an offline compact-policy experiment: train action prediction plus sparse future-observation supervision, then remove the future branch at inference. A5B backbone has substantial memory/runtime overhead beyond weights; benchmark any implementation on NX before a deployment claim. Retain existing Explorer controller settings, explicitly map actual state/action dimensions and camera order, and compare independent complete-task success against ACT.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3.1/Fig3",
+      "supports": "Action-centered world/action formulation"
+    },
+    {
+      "page": 5,
+      "section": "3.2/Fig4",
+      "supports": "Exact block attention restrictions and modality positions"
+    },
+    {
+      "page": 6,
+      "section": "Table1/3.3",
+      "supports": "Embodied-video scale and flow-matching objectives"
+    },
+    {
+      "page": 7,
+      "section": "3.4/Implementation details",
+      "supports": "Action-only inference,48-step chunks and graded physical metric"
+    },
+    {
+      "page": 8,
+      "section": "Tables2–3",
+      "supports": "Simulation results,A100 latency and up-to-five-attempt protocol"
+    },
+    {
+      "page": 9,
+      "section": "Table4/4.2–4.3",
+      "supports": "PiPER physical scores and training set sizes"
+    },
+    {
+      "page": 10,
+      "section": "Table5",
+      "supports": "No-future table value0.60 and future-stride study"
+    },
+    {
+      "page": 11,
+      "section": "Tables6–7/Figs7–8",
+      "supports": "Ablations,data-efficiency and0.65 prose inconsistency"
+    },
+    {
+      "page": 13,
+      "section": "SupplementA",
+      "supports": "6000GPUh pretraining"
+    },
+    {
+      "page": 15,
+      "section": "Table8",
+      "supports": "Full50-task simulation results and clean-mean discrepancy"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false
+}

@@ -1,0 +1,72 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P082",
+  "source_sha256": "b816cc80f0368c3ab09df906de831b47c93d7f78b9a19af1ff698ae26eaa8165",
+  "primary_url": "https://arxiv.org/abs/2508.00795",
+  "problem": "Use pretrained video generators as transferable policy representations instead of assuming generic VLM features or direct visual imitation capture action-relevant dynamics.",
+  "contribution": "Video Policy couples an SVD video U-Net to a diffusion action U-Net via intermediate denoising features. A two-stage video adaptation followed by an action head with stopped action gradients gives better results than joint end-to-end optimization. Video-only knowledge can transfer to tasks lacking action supervision, but those tasks still appear during video training.",
+  "algorithm": "Condition SVD on current VAE image latent and CLIP instruction. At each denoising iteration, a CNN adapter combines five hidden video features (layers9,14,17,20,23) into the1Daction-UNet conditioning vector. Train video denoising, freeze the video network and train action diffusion; compare with joint and unadapted-video ablations. Generation and action denoising remain coupled at inference.",
+  "observations": "Three RGB views: wrist and two scene cameras, concatenated into a25frame SVD-compatible sequence. RoboCasa predicts8frames/view plus padding; LIBERO uses two views with12frames/view. The real data also recordsT265pose, ArUcojaw aperture and load-cell force.",
+  "actions": "Simulation uses7D gripper Cartesian pose/opening. Real policy predicts relative gripper pose, relative jaw position and absolute grasp force over32steps; robot executes24at30Hz with impedance control. A force-based extra closing correction is applied when predicted force exceeds actual measured force by300grams; this is part of the executed system, not an unassisted video-only policy.",
+  "embodiment_and_data": "24RoboCasa and10LIBERO tasks. Main RoboCasa model uses50human demonstrations/task, with a separate300MimicGen variant. Real tests have5tasks and200handheld-gripper demonstrations/task using the same effector as robot execution. Only one physical embodiment is evaluated; no actual SO101/ROSMASTER transfer.",
+  "experiments": "RoboCasa50rollouts/task across5scenes; real table10rollouts/task for each of3generalization conditions. Study action/video objectives, prediction horizon and action supervision for half of tasks. Appendix clarifies the horizon study uses a different MimicGen-layout protocol from the standard all-OOD RoboCasa evaluation, so its curves should not be merged with the main table.",
+  "baselines": "3DA,DP3,ResNet/CLIP diffusion policy,GR00T,FPV,DP-VLA,UVA and LIBERO baselines. Some external baselines use300 or3000MimicGen demonstrations versus50human episodes for the main model. UVA and DP are adapted to three views; other results are taken from prior work. Comparison scope and data budgets therefore differ.",
+  "quantitative_result": {
+    "location": "PDFp5 Tables1-2; PDFp6 Table3; PDFp9 Table4",
+    "simulation": "RoboCasa mean0.63 with50human demos or0.66 with300MimicGen demos versusUVA0.50 andDP-VLA0.57;50rollouts/task. LIBERO10 mean0.94.",
+    "physical": "M&Ms-to-Cup8/10 varying positions,9/10 unseen objects,2/10 unseen backgrounds; StackCups3/10,2/10,2/10. These failures materially qualify the broad visual-generalization claim.",
+    "ablation": "Two-stage0.63 versusjoint0.57 andno-video-tuning0.09.",
+    "compute": "AppendixA.1/PDFp14: eightA100 GPUs for approximatelytwo weeks;25frames256x256 at30denoising steps require about9seconds onA100."
+  },
+  "limitations": "Video diffusion is explicitly a deployment bottleneck. Transparent objects, small-object localization under background shift and physically unrealistic future videos cause failures. Reported successes partly rely on impedance/force-corrected execution and a load cell unavailable on the current SO101/ROSMASTER grippers. A video predictor's good frames do not certify actual grasp forces or outcomes.",
+  "code_and_license": "Seed repository https://github.com/cvlab-columbia/videopolicy and paper resource references were not inspected for code, SVD weights, demonstration or dataset licenses. Those terms are NOT_AUDITED separately; no code executed.",
+  "hardware_adaptation": "ADAPT the training-time auxiliary-video/gradient-isolation ablation as an offline experiment, not the full SVD runtime. Nine-second A100 generation and eightA100 training make direct NX deployment implausible without substantial measured distillation. Current robots do not expose the paper's load-cell/impedance interface, so do not manufacture force labels or reproduce its closing correction by guessing servo positions.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "3.1-3.2",
+      "supports": "SVD/action architecture and intermediate features"
+    },
+    {
+      "page": 4,
+      "section": "3.3/4.1",
+      "supports": "Stopped action gradients and multi-camera training"
+    },
+    {
+      "page": 5,
+      "section": "Tables1-2/4.2",
+      "supports": "Benchmark counts, action schema and baselines"
+    },
+    {
+      "page": 6,
+      "section": "Table3/4.4",
+      "supports": "Training-objective ablation and data-budget differences"
+    },
+    {
+      "page": 7,
+      "section": "4.5",
+      "supports": "Physical demonstration sensors and200episodes/task"
+    },
+    {
+      "page": 9,
+      "section": "Table4/6",
+      "supports": "Physical trial results and acknowledged limits"
+    },
+    {
+      "page": 14,
+      "section": "AppendixA.1",
+      "supports": "Compute/runtime and changed horizon-study evaluation protocol"
+    },
+    {
+      "page": 19,
+      "section": "AppendixA.4",
+      "supports": "30Hz32/24step execution, force sensor and300gram correction"
+    }
+  ]
+}

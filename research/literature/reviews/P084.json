@@ -1,0 +1,104 @@
+{
+  "paper_id": "P084",
+  "source_sha256": "cb91d24a04717a6c77fd39594af7f3f85a05317b7078b0d9c8d8b4ddd932f483",
+  "primary_url": "https://arxiv.org/abs/2602.15922",
+  "full_text_examined": true,
+  "deep_review": true,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "verified_title": "World Action Models are Zero-shot Policies",
+  "problem": "Generalist policies can overfit repetitive action data and fail on unfamiliar tasks or environments. Video-model priors offer diverse motion knowledge, but joint video/action inference is expensive and autoregressive imagined histories drift from executed reality.",
+  "contribution": "DreamZero adapts a14B Wan image-to-video model into a chunk-autoregressive world/action policy, emphasizing diverse teleoperation, explicit replacement of imagined history with actual observations, video-only cross-embodiment co-training and a system/model optimization stack including DreamZero-Flash.",
+  "algorithm": "Joint flow matching denoises video and embodiment-specific action chunks with a shared diffusion time initially. Chunkwise teacher forcing and attention masks preserve temporal alignment; visual KV history is corrected with actual frames after execution. Flash later decouples noise schedules so actions can denoise while video remains noisy. Cached velocities, parallel CFG, compiled kernels and Blackwell-specific quantization reduce latency.",
+  "observations": "Language, current proprioception and multiview image context encoded by frozen text/image/VAE components. Multiple cameras concatenate into a video frame. Stateful visual history is approximately6s; tasks requiring memory were not explicitly evaluated. Actual observations, not predicted frames, refresh KV state.",
+  "actions": "Normalized relative joint-position chunks after idle-action filtering. AgiBot bimanual operation uses48 steps at30Hz=1.6s/chunk, with asynchronous action execution. Robot-specific encoders/decoders and calibrated joint conventions are still required. Output chunks are upsampled2×, Savitzky–Golay filtered(window21/order3), then downsampled in the reported deployment.",
+  "embodiment_and_data": "AgiBotG1 pretraining7193 diverse episodes/~500h across22 environments, mean4.4min and42.4 subtasks; separate DROID-Franka pretraining rather than a demonstrated single joint multi-embodiment model.14B DiT full fine-tuning100Ksteps/batch128, with text/image encoders and VAE frozen. Post-training uses33h shirt folding,12h fruit packing and40h table bussing. YAM/human transfer adds72 video-only trajectories of9 tasks,20/12min respectively, to the already heavily pretrained AgiBot model.",
+  "experiments": "AgiBot seen10 and unseen10 tasks:8 trials/task across4 robots=80/checkpoint/category, at geographically distinct sites with unseen objects. DROID20 seen+20 unseen-verb tasks,2 trials/task=80 total, scored both partial progress and binary completion. Task post-training uses10 rollouts/task; three downstream tasks have structured stage/item scores. Transfer co-trains10Ksteps on1:1 new-video/pretraining mix. New-embodiment YAM adaptation55 trajectories/11tasks/~30min is shown qualitatively, without an extracted quantitative trial denominator.",
+  "baselines": "GR00T N1.6 and pi0.5, initialized either from VLM weights without robot pretraining or official robot-pretrained checkpoints, then continued on identical embodiment data. Batch size and steps are matched, which does not erase backbone/pretraining/parameter-count differences. Ablations compare diverse/repetitive500h,5B/14B and bidirectional/autoregressive variants, at smaller50Kstep/batch32 budgets.",
+  "quantitative_result": {
+    "unseen_tasks": "PDF p14 Fig9: AgiBot39.5% average partial task progress versus16.3% best pretrained VLA, n80 rollouts/checkpoint. DROID unseen tasks49% progress and22.5% binary success versus GR00T31%/12.5% and pi0.5 33%/7.5%, n40 unseen rollouts/checkpoint. Task progress must not be presented as binary success.",
+    "transfer": "PDF p16 Table2:9-task progress38.3±7.6% base,54.3±10.4% human-video and55.4±9.5% YAM-video (reported standard errors). This9-task baseline excludes pulling-cart and is not the39.5%10-task figure.",
+    "flash": "PDF p17 Table3: table-bussing progress83±6.1% at4steps/350ms; naive1step52±10.2%; Flash1step74±10.1%/150ms. Prose calls74% success, but the table/protocol identify partial task progress; per-condition exact n is NOT_EXTRACTED beyond the10/task post-training protocol.",
+    "compute": "PDF pp9–10,18:38× final speedup and7Hz require2GB200s; NVFP4 is Blackwell-specific. A single-GPU naive14B chunk takes5.7s. These are not Jetson latency measurements.",
+    "ablation": "PDF p17 Table4:500h diverse50±6.3% versus repetitive33±4.2% PnP-Easy progress;14B50 versus5B21; bidirectional and AR both50, so the AR claim is speed/smoothness rather than a demonstrated mean-success gain."
+  },
+  "limitations": "Zero-shot means held-out tasks/environments after substantial robot/video training, not an untrained robot learning from a single prompt. Physical metrics predominantly grant partial credit; some unseen tasks remain weak. YAM transfer is morphologically close and its quantitative evaluation is absent here. A6s memory and no explicit memory-only tasks do not establish long-horizon reasoning. Sub-centimeter precision remains limited. TwoGB200 inference,14B weights and full-model training are incompatible with assuming an edge-ready policy. The claim that most failures stem from video error is qualitative, not causal isolation.",
+  "code_and_license": "Paper p11 footnote6 links https://github.com/dreamzero0/dreamzero and announces inference/checkpoint release; AgiBot dataset is only a planned release in that version. Repository revision, package code, model and data licenses were NOT_AUDITED; no code or checkpoint executed.",
+  "hardware_adaptation": "COMPARE as an offline research reference. A14B FP16 backbone alone is roughly28GB before encoders, VAE, caches or activations, exceeding16GB NX memory; the paper's NVFP4/2GB200 optimization cannot be assumed on Orin. Reuse the evaluation discipline, actual-frame history correction and diverse demonstration collection design; any smaller/distilled Explorer model must be labeled a separate experiment. SO101/M3 action spaces and reachability require their own state/action adapters, not direct reuse of AgiBot chunks.",
+  "decision": "COMPARE",
+  "algorithm_detail": "Shared-time joint flow matching learns velocity from Gaussian video/action noise toward clean chunks; clean earlier chunks are teacher-forced context. During inference generated video is discarded once execution observations arrive and actual VAE tokens update KV. Flash's main Eq5 specifies t_video=1−Beta(7,1), expectation0.125 in the paper's noise-to-data convention, while action time stays uniform. Algorithm1 line13 on PDFp22 instead prints direct Beta(7,1), the opposite bias; this mismatch was visually checked and must be resolved against upstream implementation before reproducing. CFG conditional/unconditional passes occupy separate GPUs; DiT caching and quantization approximate the baseline, unlike purely equivalent compiler optimizations.",
+  "integration_contract": "A hypothetical offline adapter takes timestamped images with camera/calibration identity, explicit measured-state basis, language, embodiment-specific joint schema and control period. It must carry actual-vs-imagined frame provenance, keep action normalization tied to training data and invalidate historical imagined tokens when real observations arrive. Export predictions as research artifacts for comparison; this review creates no motor, controller or network integration.",
+  "license_evidence": "NOT_AUDITED. The paper links an upstream repository, but no commit/license file or checkpoint/data terms were inspected.14B base Wan and derivative DreamZero rights require independent verification.",
+  "required_experiments": [
+    "Resolve the Flash Beta-complement discrepancy using a pinned upstream implementation and test the empirical timestep distribution.",
+    "Compare compact ACT and a world-supervised compact student with identical data, held-out objects and full-task completion; report partial progress separately.",
+    "Measure memory, end-to-end latency and chunk/observation alignment on NX for any proposed smaller model, without transferring GB200 figures.",
+    "Evaluate SO101/M3 adaptation with real measured joint state and independent reachability tests, then controlled cloth/contact trials; do not infer transfer from visually similar YAM grippers.",
+    "Test true memory-dependent and long-horizon tasks with recorded failure recovery, since the original6s history was not evaluated on memory-only problems."
+  ],
+  "difference_from_explorer": "DreamZero has hundreds of hours of diverse calibrated robot trajectories and14B server inference; Explorer currently has a smaller heterogeneous mobile/dual-arm platform with distinct calibration and limited demonstrated task data. DreamZero's sock-related unseen-task motivation does not constitute an evaluated Explorer sock-folding policy.",
+  "evidence_locations": [
+    {
+      "page": 6,
+      "section": "3.1/Fig4",
+      "supports": "Inputs, joint generation and actual observation refresh"
+    },
+    {
+      "page": 7,
+      "section": "3.1/Eqs1–3",
+      "supports": "Flow matching, chunking and teacher forcing"
+    },
+    {
+      "page": 8,
+      "section": "3.2.1–3.2.3",
+      "supports": "14B bottleneck,48×30Hz chunk and asynchronous execution"
+    },
+    {
+      "page": 9,
+      "section": "3.2.5",
+      "supports": "Flash complement-Beta formula and Blackwell quantization"
+    },
+    {
+      "page": 11,
+      "section": "4.1",
+      "supports": "7193 episodes,500h,100K training steps and release status"
+    },
+    {
+      "page": 12,
+      "section": "Evaluation protocol",
+      "supports": "Seen/unseen trial denominators and task definitions"
+    },
+    {
+      "page": 14,
+      "section": "Fig9",
+      "supports": "AgiBot partial progress and DROID binary success separated"
+    },
+    {
+      "page": 16,
+      "section": "Table2/Q5",
+      "supports": "Video transfer data and qualitative new-YAM adaptation"
+    },
+    {
+      "page": 17,
+      "section": "Tables3–4",
+      "supports": "Flash accuracy/latency and diversity/scale/architecture ablations"
+    },
+    {
+      "page": 18,
+      "section": "Discussion",
+      "supports": "2GB2007Hz and6s context limitations"
+    },
+    {
+      "page": 22,
+      "section": "Algorithm1 line13",
+      "supports": "Visually checked discrepancy between direct Beta pseudocode and complement-Beta main formula"
+    },
+    {
+      "page": 28,
+      "section": "G/H",
+      "supports": "DROID tasks and qualitative failure analysis"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false
+}

@@ -1,0 +1,93 @@
+{
+  "paper_id": "P083",
+  "source_sha256": "05696475c9b5481afbf88673a65f80a46cf3fb87a5755c1410e83d0f468cc6e0",
+  "primary_url": "https://arxiv.org/abs/2601.16163",
+  "full_text_examined": true,
+  "deep_review": true,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "verified_title": "Cosmos Policy: Fine-Tuning Video Models for Visuomotor Control and Planning",
+  "problem": "A pretrained video generator does not directly accept robot proprioception or produce executable action chunks and calibrated outcomes. Demonstration-only world/value models see predominantly successful behavior and can rank out-of-distribution action proposals incorrectly.",
+  "contribution": "Cosmos-Predict2-2B is fine-tuned through latent-frame injection without adding modality heads: the same diffusion backbone learns a policy, observation dynamics and empirical-return prediction. A second checkpoint trained on actual rollout outcomes supports best-of-N planning while the original checkpoint proposes actions.",
+  "algorithm": "Insert normalized repeated proprioception, flattened action chunks and scalar returns into VAE latent frames, alongside current/future multiview images. Conditioning masks select policy, world-model or value tasks, with initial batch allocation 50/25/25. Rollout refinement changes this to 10/45/45. Direct control jointly samples outputs and discards future/value outputs; planning autoregressively samples actions, future observations, then values and ranks proposals.",
+  "observations": "Language/T5-XXL embeddings, current measured joint/EE proprioception and camera images. Only current and chunk-end observations are used, not image history or a complete future video. ALOHA uses 14 joint angles, overhead plus two wrist cameras. The paper explicitly treats partially observed images/proprioception as approximate state.",
+  "actions": "Embodiment-specific normalized chunks: LIBERO16 steps all executed; RoboCasa32 predicted/16 executed; ALOHA50 joint commands at25Hz, all executed before querying. ALOHA controller frequency is deliberately reduced from50Hz; these are experimental choices, not Explorer controller settings.",
+  "embodiment_and_data": "LIBERO four suites,10 tasks each,50 demonstrations/task; RoboCasa24 tasks with50 human demonstrations/task; ALOHA two ViperX300S arms and185 demonstrations across language object placement80, shirt folding15, candy collection45 and ziploc45. Policy training filters failed demos while dynamics/value training includes them. Planner refinement uses648 real rollouts, including505 from evaluations of all five compared policies plus143 additional Cosmos ziploc rollouts.",
+  "experiments": "LIBERO500 trials/suite×3 seeds=6000; RoboCasa50 trials/task×24×3=3600. Every direct ALOHA method gets101 fixed initializations:30 placement,20 folding,25 candies,26 ziploc, with explicit ID/OOD splits and partial-completion rubrics. ALOHA comparisons match48h on8H100 for large models; DiffusionPolicy uses1H100. Planner tests two harder tasks after training on recorded successes and failures.",
+  "baselines": "DiffusionPolicy, Dita, pi0/pi0.5, OpenVLA-OFT(+), CogVLA, UniVLA, UVA, UWM, VideoPolicy, GR00T variants and FLARE. Simulation tables include published methods with unequal demonstration counts; physical methods receive the same185 demos and fixed initial states. Ablations remove auxiliaries, initialization and joint objectives; planner compares predicted-future V(s') with Q(s,a).",
+  "quantitative_result": {
+    "simulation": "PDF p8 Tables1–2:98.5% LIBERO average over6000 evaluations, versus97.4 CogVLA and97.1 OpenVLA-OFT; RoboCasa67.1% over3600 versus66.4 FLARE, with50 versus300 demos/task.",
+    "physical": "PDF p19 Table3 (visually checked), with p18 scoring: full-task average SCORE93.6/100 for Cosmos versus88.6 pi0.5; these are averages of partial-completion scores, not93.6% binary success. OOD scores favor pi0.5:92.5 versusCosmos89.3. Full ziploc score85.4 versus61.5; n26 each.",
+    "ablation": "PDF p22 Table5: bare action-only policy44.4% versus full67.1% RoboCasa, same3600-trial protocol; removing only value-training samples66.6%.",
+    "planning": "PDF p10 reports12.5-point average score increase on two challenging physical tasks; exact planning trial denominator NOT_EXTRACTED, so not treated as a confidence-qualified success-rate improvement.",
+    "compute": "PDF pp17,21–22: LIBERO48h on64H100, ALOHA48h on8H100. Direct ALOHA chunk generation0.95s on1H100 for2s execution; best-of8 planning4.9s on8H100, with3 futures and5 values/future."
+  },
+  "limitations": "Physical scores permit partial credit and do not establish complete sock-task success. Aggregate ALOHA improvement coexists with worse OOD average than pi0.5. Full2s open-loop chunks and H100 inference pauses limit dynamic interaction. Planner needs costly on-distribution successes/failures, and its648-example pool includes prior evaluation rollouts rather than being an untouched test set. Planning is shallow best-of-N; observation/value prediction is not identified contact physics or guaranteed calibration.",
+  "code_and_license": "Paper p11 states release of code, checkpoints and data through its project website. Source implementation, checkpoint terms, dependencies and dataset licenses were NOT_AUDITED here; no software was executed. A release statement is not license clearance.",
+  "hardware_adaptation": "COMPARE offline against the already implemented compact ACT/PPO pilot. Explore a small future-observation auxiliary head and outcome-trained value ranking only after collecting source-bound actual episodes; do not claim the2B model or8-H100 planner runs at the paper's latency on a16GB Jetson. Pi overview-only camera differs from ALOHA's three views, and Explorer/SO101 action dimensions, coordinate scales and calibration differ from14D ViperX commands.",
+  "decision": "COMPARE",
+  "algorithm_detail": "For a K×d action chunk, normalize each dimension to[-1,1], flatten, repeat into a latent volume and average repeats on extraction; scalar values are similarly repeated. Four identical copies/image align with the Wan VAE's temporal compression, after a blank initial frame. Training corruption uses70% original log-normal noise and30% uniform[1,85]; inference sigma_min4/sigma_max80 rather than original near-zero minimum. Return labels are Monte-Carlo discounted terminal outcomes. Planning keeps the original policy and a rollout-refined world/value checkpoint, samplesN8 actions,3 future observations/action and5 values/future, then majority-mean aggregates bimodal predictions.",
+  "integration_contract": "Offline input must contain timestamped actual camera frames, measured/declared-basis proprioception, an explicit joint/action schema, chunk timing, and episode outcomes. Fit normalization only on training episodes; preserve camera/frame IDs, source hashes and train/eval splits. Adapter outputs a typed predicted chunk and separately tagged synthetic observation/value; it cannot relabel generated images as camera evidence. An experiment must document whether inference overlaps execution, rather than silently changing existing Explorer controller timing.",
+  "license_evidence": "NOT_AUDITED. Primary paper release statement p11 does not establish the license of Cosmos base weights, derived policies, tokenizer or training corpora.",
+  "required_experiments": [
+    "Compare compact ACT with identical demonstration budget and camera views against ACT plus future-observation supervision, using held-out episode/object splits and independent full-task successes.",
+    "Train value/dynamics on genuine success and failure episodes separate from final evaluation; test calibration and ranking under dropped views, occlusion and shifted object positions.",
+    "Measure end-to-end inference, memory and completed-chunk timing on the actual NX before considering a direct-control role; H100 latency cannot be reused.",
+    "Report complete task success separately from per-stage score, especially bag opening, cloth grasp stability and repeated recovery."
+  ],
+  "difference_from_explorer": "Paper hardware is a calibrated14D bimanual platform with wrist views and large H100 training budgets. Explorer has different kinematics/camera coverage and currently demonstrated engineering pilots rather than an equivalent185-demo cloth dataset or validated long-horizon sock manipulation. The transferable idea is joint supervision plus outcome-based evaluation, not a ready hardware policy.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "Preliminaries",
+      "supports": "Cosmos2B, tokenizer and diffusion initialization"
+    },
+    {
+      "page": 5,
+      "section": "4.1–4.2",
+      "supports": "Latent injection, current/chunk-end state,50/25/25 objectives"
+    },
+    {
+      "page": 6,
+      "section": "4.3",
+      "supports": "Rollout refinement, two checkpoints and majority-mean best-of-N"
+    },
+    {
+      "page": 7,
+      "section": "5.1",
+      "supports": "Demonstrations, robot hardware,25Hz and101 physical trials"
+    },
+    {
+      "page": 8,
+      "section": "Tables1–2",
+      "supports": "Simulation success rates and denominators"
+    },
+    {
+      "page": 10,
+      "section": "5.3",
+      "supports": "648 rollouts and planning improvement; no extracted planning n"
+    },
+    {
+      "page": 17,
+      "section": "A.2.2–A.2.4",
+      "supports": "Training compute, chunk lengths and comparisons"
+    },
+    {
+      "page": 18,
+      "section": "A.3.2",
+      "supports": "ID/OOD trial counts and partial-credit rubric"
+    },
+    {
+      "page": 19,
+      "section": "Table3",
+      "supports": "Physical score93.6 and OOD89.3 versus92.5, visually checked"
+    },
+    {
+      "page": 22,
+      "section": "Table5/A.4.2",
+      "supports": "Auxiliary ablation and8H100 planning latency"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false
+}

@@ -1,0 +1,67 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P081",
+  "source_sha256": "1bbf37539f7fd261d4fe724a8e84d2acc7bf8b59a6dd48ccfe23c8d697fbdeed",
+  "primary_url": "https://arxiv.org/abs/2511.01718",
+  "problem": "Coordinate future-image reasoning and action generation while avoiding separate slow image/autoregressive-action decoding pipelines.",
+  "contribution": "UD-VLA places image and FAST action tokens in one discrete masked-denoising process, with causal cross-block attention but bidirectional attention within the future-image/action blocks. It adds prefix caching, token-range restrictions and confidence-based parallel unmasking.",
+  "algorithm": "Initialize from an Emu3-family pretrained VLM. Post-train future-image generation on videos, then jointly fine-tune image/action prediction with masked-token cross-entropy and lower weight for the much longer visual sequence. Absorbing-mask diffusion corrupts discrete tokens; at inference cosine scheduling and confidence ranking progressively unmask both modalities. Future-image tokens may inform actions, while action-to-future-image attention is prohibited.",
+  "observations": "Text and tokenized current RGB condition prediction; visual output is a generated future frame, not an actual future observation. Real setup has static Gemini336L and wristD435i images. VQ image tokens and FAST action tokens have modality-specific codebooks and boundary tokens.",
+  "actions": "Variable-length FAST-tokenized chunks decoded back to task-specific controls; real implementation uses chunk8. The concrete real hand/arm action-coordinate serialization is NOT_EXTRACTED; UR5e plus InspireRH56E2 is not equivalent to SO101 or ROSMASTER five-joint arms.",
+  "embodiment_and_data": "CALVINABCD→D evaluates500five-task chains; LIBERO uses4suites×10tasks×50rollouts. SimplerEnv uses the WidowX transfer benchmark. Physical data comprises200trajectories/category at15Hz for bowl stacking, block-to-box and towel folding (the PDF repeatedly calls the last category 'flipping towers'). Real training reports4H100GPUs,24h,9000steps,batch64.",
+  "experiments": "Compare attention masks, visual reconstruction target and joint versus independent diffusion; distinguish simulator task-chain length, simulator task success, generated-frame fidelity and physical seen/unseen tests. Physical text says30evaluations/method, but the exact allocation/denominator behind every bar is NOT_EXTRACTED.",
+  "baselines": "GR1,RoboFlamingo,MODE,MDT,UP-VLA,UniVLA for CALVIN; Octo,pi0FAST,MolmoAct,FlowVLA,DreamVLA and others for LIBERO; GR00TN1/UniVLA in real tests. Inputs and history differ, including a history-removed UniVLA variant for CALVIN. Reported SOTA comparisons are not a new matched rerun by Explorer.",
+  "quantitative_result": {
+    "location": "PDFp8 Tables2-3; PDFp9 Tables4,7",
+    "calvin": "Average completed chain length4.64/5 versus MDT4.52 andUP-VLA4.42 over500rollouts, not a96% physical success rate.",
+    "libero": "92.7% average, including Long89.6%, over500rollouts/suite.",
+    "decoding": "219.3tokens/s versus50.2autoregressive tokens/s in Table7; hardware for this exact throughput NOT_EXTRACTED and this is not controlHz.",
+    "inconsistency": "SimplerEnv Table4 reports62.5% forUD-VLA, while main prose says59.4% (matching the F1 row). Several baseline 'Overall' entries also do not equal their four visible task averages. Preserve the discrepancy rather than propagating59.4 as UD-VLA's measured result."
+  },
+  "limitations": "Future frames visibly lose arm/background detail. A blocked attention path is a modeling choice, not proof of causal physical correctness. Action quantization, actual control timing and camera shifts need direct deployment validation. Table/prose inconsistencies limit confidence in unqualified aggregate comparisons.",
+  "code_and_license": "Seed points to https://github.com/OpenHelix-Team/Unified-Diffusion-VLA. Code, model, tokenizer and each dataset license are NOT_AUDITED in this review; no software executed. The primary PDF identifies itself as an ICLR2026 conference paper, but repository release status is not inferred from that header.",
+  "hardware_adaptation": "COMPARE joint masked generation and attention-leakage ablations on small local models first. FourH100/24h real training is outside NX16GB scope. Any compact distilled actor must preserve exact FAST decoding, units, chunk timing and camera contract; Pi/Hailo cannot be assumed to run this VLM. Keep generated foresight distinct from real success evidence.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 5,
+      "section": "3.1/Equations1-7",
+      "supports": "Tokenization, hybrid attention and discrete process"
+    },
+    {
+      "page": 6,
+      "section": "3.2-3.3/Equation8",
+      "supports": "Training loss, post-training and prefix caching"
+    },
+    {
+      "page": 7,
+      "section": "4.1",
+      "supports": "Benchmark denominators"
+    },
+    {
+      "page": 8,
+      "section": "Tables2-3",
+      "supports": "CALVIN and LIBERO values"
+    },
+    {
+      "page": 9,
+      "section": "Tables4,7/4.4",
+      "supports": "SimplerEnv discrepancy, throughput and physical data"
+    },
+    {
+      "page": 15,
+      "section": "AppendixC",
+      "supports": "Actual UR5e/Inspire and camera embodiment"
+    },
+    {
+      "page": 16,
+      "section": "AppendixD",
+      "supports": "Physical training compute/chunk parameters"
+    }
+  ]
+}
