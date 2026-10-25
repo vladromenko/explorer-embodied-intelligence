@@ -48,6 +48,8 @@ const STATUS = {
   queued: ["В очереди", "neutral"], pending: ["Ожидает", "neutral"], running: ["В работе", "good"], active: ["В работе", "good"],
   paused: ["Пауза", "warn"], completed: ["Завершено", "good"], complete: ["Завершено", "good"], succeeded: ["Завершено", "good"],
   success: ["Завершено", "good"], failed: ["Ошибка", "bad"], error: ["Ошибка", "bad"], cancelled: ["Отменено", "neutral"], canceled: ["Отменено", "neutral"],
+  recording: ["Идёт запись", "good"], interrupted: ["Прервано", "warn"],
+  trained_offline_only: ["Обучено по записи", "neutral"],
   ready: ["Готово к запуску", "good"], available: ["Доступно", "good"], blocked: ["Нужна подготовка", "warn"], needs_setup: ["Нужна подготовка", "warn"],
   partial: ["Частично готово", "warn"], implemented: ["Подготовлено", "neutral"], not_started: ["Не запускался", "neutral"], offline: ["Нет связи", "neutral"],
   not_validated: ["Не проверено", "warn"], unvalidated: ["Не проверено", "warn"], validated: ["Проверено", "good"], awaiting_validation: ["Ожидает проверки", "warn"],
@@ -109,7 +111,7 @@ function toast(message, error = false) {
 }
 function path() { return window.location.pathname.replace(/\/$/, "") || "/"; }
 function activeProject() { return PROJECTS.find((project) => path() === `/experiments/${project.id}`); }
-function navigate(url) { if (keyboard.active && url !== "/experiments/02") stopKeyboard(true); if (path() !== url) history.pushState({}, "", url); render(); main.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); }
+function navigate(url) { if (path() !== url && (stationLab.owned || stationLab.present)) stopStation(true); if (keyboard.active && url !== "/experiments/02") stopKeyboard(true); if (path() !== url) history.pushState({}, "", url); render(); main.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); }
 
 function navigation() {
   const item = (href, label, symbol, ordinal) => `<a href="${href}" data-link class="nav-item ${path() === href ? "active" : ""}" ${path() === href ? 'aria-current="page"' : ""}>${ordinal ? `<span class="nav-number">${ordinal}</span>` : icon(symbol, "nav-icon")}<span>${label}</span></a>`;
@@ -217,7 +219,7 @@ function experimentsGrid() {
   return `<div class="experiment-grid">${PROJECTS.map((project) => { const state = experimentState(project.id); return `<a class="experiment-card" href="/experiments/${project.id}" data-link><div class="experiment-top"><span class="experiment-index">ОПЫТ ${project.id}</span>${icon(Number(project.id) === 1 ? "chip" : "robot", "nav-icon")}</div><h3>${esc(project.title)}</h3><p>${esc(project.brief)}</p><div class="experiment-bottom">${badge(state.status, "Ожидаем состояние")}<span class="experiment-arrow" aria-hidden="true">↗</span></div></a>`; }).join("")}</div>`;
 }
 const TERMINAL_JOBS = ["completed", "complete", "succeeded", "success", "failed", "error", "cancelled", "canceled"];
-function jobTitle(job) { return text(job.title, text(job.name, { sim_pilot: "Обучение в симуляции", camera_recording: "Запись наблюдения", recording: "Запись наблюдения", train: "Обучение модели", evaluation: "Оценка навыка" }[job.kind] || job.kind || "Исследовательская задача")); }
+function jobTitle(job) { return text(job.title, text(job.name, { sim_pilot: "Обучение в симуляции", camera_recording: "Запись наблюдения", recording: "Запись наблюдения", train: "Обучение модели", train_act: "Обучение ACT по показу", station_import: "Перенос показа SO-101", station_rollout: "Попытка модели SO-101", evaluation: "Оценка навыка" }[job.kind] || job.kind || "Исследовательская задача")); }
 function jobMetrics(job) {
   const metrics = job.metrics || job.result?.metrics || {};
   const list = [];
@@ -257,6 +259,7 @@ function simulationForm() {
   return `<section class="panel"><div class="panel-heading"><div><p class="eyebrow">Новый запуск</p><h2>Первый шаг в симуляции</h2></div></div><div class="panel-body"><p class="form-description">Пилотный запуск проверяет обучение достижению цели, сохранение модели и результатов.</p><form id="simulation-form"><div class="form-grid"><div class="form-field full"><label for="sim-task">Задача</label><select id="sim-task" name="task"><option value="reach">Достичь цели</option></select></div><div class="form-field"><label for="sim-updates">Шаги обучения</label><input id="sim-updates" name="updates" type="number" min="32" max="100000" step="32" value="${model.simDraft.updates}" required></div><div class="form-field"><label for="sim-seed">Вариант запуска</label><input id="sim-seed" name="seed" type="number" min="0" max="2147483647" step="1" value="${model.simDraft.seed}" required><small>Одинаковое число — для повторения условий</small></div></div><button class="button primary full" type="submit" id="start-simulation">${icon("play")}Запустить обучение</button><p class="form-hint">Задача выполняется на Homebrain. Кнопки паузы и отмены появятся в списке запусков.</p><p id="simulation-form-error" class="form-error" role="alert" hidden></p></form></div></section>`;
 }
 function experimentPage(project) {
+  if (["03", "04"].includes(project.id)) return stationPage(project.id);
   const state = experimentState(project.id);
   const jobs = model.jobs.filter((job) => projectId(job.project_id) === project.id);
   const action = project.id === "01" ? '<a href="#simulation-form" class="button primary">' + icon("play") + 'Новый запуск</a>' : '<button type="button" class="button primary" data-action="record" data-project="' + project.id + '">' + icon("record") + 'Записать наблюдение</button>';
@@ -381,9 +384,7 @@ function recordingsPanel(project) {
   const list = project ? model.recordings.filter((entry) => project === "personal" ? entry.project_id === "personal" : projectId(entry.project_id) === project) : model.recordings;
   return `<section class="panel"><div class="panel-heading"><div><h2>Сохранённые наблюдения</h2><p>Видео сцены — отдельный тип исследовательского материала</p></div><button type="button" class="button secondary small" data-action="record" ${project ? `data-project="${project}"` : ""}>${icon("record")}Записать</button></div><div class="panel-body">${list.length ? `<div class="recording-list">${list.slice(0, 12).map((entry) => `<article class="recording-row"><div><h3>${esc(text(entry.title, text(entry.id, entry.recording_id || "Наблюдение")))}</h3><p>${esc(cameraLabel(cameras().find((camera) => camera.id === (entry.camera_id || entry.config?.camera_id)) || { id: entry.camera_id || entry.config?.camera_id }))} · ${esc(dateTime(entry.created_at || entry.wall_utc || entry.created))}${number(defined(entry.duration_s, entry.config?.duration_s)) !== null ? ` · ${defined(entry.duration_s, entry.config?.duration_s)} с` : ""}</p><div class="recording-label">Запись камеры · обучающий эпизод не подтверждён</div></div>${badge(entry.status || "not_validated")}</article>`).join("")}</div>` : empty("Записей пока нет", "Сохраните короткое наблюдение с выбранной камеры. Готовая запись появится здесь.", "camera")}</div></section>`;
 }
-function labPage() {
-  return heading("Моя лаборатория SO-101", "Спокойно знакомьтесь с руками и данными. Это личная учебная среда, отдельная от пяти исследовательских опытов.", "Explorer / Практика", '<button class="button primary" type="button" data-action="record" data-project="personal">' + icon("record") + 'Записать наблюдение</button>') + `<section class="panel lesson-banner"><div><p class="eyebrow">Личная практика</p><h2>Понять движение.<br>Научиться показывать.</h2><p>Обе руки остаются подключёнными к Raspberry Pi. Рабочее место на Mac помогает наблюдать, сохранять материал и разбирать результат.</p></div><span class="lesson-count" aria-hidden="true">SO<br>101</span></section><div class="overview-grid"><div id="camera-slot"></div><div><article class="lesson-card"><p class="eyebrow">Первое знакомство / 01</p><h3>Увидеть рабочую сцену</h3><p>Выберите общий вид. Убедитесь, что в кадре видны обе руки, предмет и вся область предполагаемого движения.</p><a href="/infrastructure" data-link class="text-link">Посмотреть подключения →</a></article><article class="lesson-card"><p class="eyebrow">Практика / 02</p><h3>Сохранить понятный показ</h3><p>Выберите одно короткое действие. Чётко покажите начало и результат; камеру и предмет держите на месте.</p><button type="button" class="quiet-button text-link" data-action="record" data-project="personal" style="padding-left:0">Записать наблюдение →</button></article><article class="lesson-card"><p class="eyebrow">Разбор / 03</p><h3>Отделить наблюдение от навыка</h3><p>Видео помогает разобрать показ. Для обучения дополнительно нужны согласованные состояния суставов, действия и проверенная калибровка.</p></article></div></div><div class="spaced-section">${recordingsPanel("personal")}</div>`;
-}
+function labPage() { return stationPage("personal"); }
 
 function updateHeader() {
   const online = nodes().filter((node) => node.online === true).length; const total = nodes().length;
@@ -444,11 +445,13 @@ async function refresh(forceExtras = false) {
       model.lastExtras = Date.now();
     }
     if (activeProject()?.id === "02") await loadRobot();
+    if (stationRoute()) await pollStation(forceExtras);
   } catch (error) { model.error = error.message === "Failed to fetch" ? "Проверьте подключение к домашней сети." : error.message; }
   finally { model.refreshing = false; render(); }
 }
 
 function openRecord(project) {
+  if (stationLab.owned || stationLab.present || stationLab.pendingControl) stopStation(true);
   if (keyboard.active) stopKeyboard(true);
   record.step = 0; record.project = project === "personal" ? "personal" : projectId(project || activeProject()?.id) || "02";
   const ready = cameras().filter((camera) => camera.available !== false && camera.node_online !== false);
@@ -554,6 +557,7 @@ document.addEventListener("submit", async (event) => {
 document.querySelector("#stop-button").addEventListener("click", async () => {
   const button = document.querySelector("#stop-button"); button.disabled = true;
   keyboard.keys.clear(); keyboard.paused = true;
+  await stopStation(true);
   try { const result = await post("/api/stop"); toast(result.robot_error ? `Задачи остановлены. Запрос STOP роботу не подтверждён: ${result.robot_error}` : "Запрос STOP передан штатному управлению робота. Задачи Explorer останавливаются.", Boolean(result.robot_error)); await refresh(true); }
   catch (error) { toast(error.message, true); }
   finally { button.disabled = false; }
