@@ -459,7 +459,8 @@ def cleanup(home: Path, node: str, *, apply: bool = False) -> dict:
     write_private(destination / "manifest.json", json.dumps(manifest, indent=2).encode() + b"\n")
     sync_path(destination)
     sync_path(base)
-    receipt.update(removed_paths=0, shell_completion_changed=False, completed=False)
+    receipt.update(removed_paths=0, removed_paths_counts="fully_removed_candidates_only",
+                   shell_completion_changed=False, completed=False, in_progress=None)
     save_receipt(destination, receipt)
     try:
         for item in entries:
@@ -468,6 +469,8 @@ def cleanup(home: Path, node: str, *, apply: bool = False) -> dict:
         assert_inactive_units(plan)
         assert_no_consumers(plan)
         if plan["patch_shell"]:
+            receipt["in_progress"] = ".bashrc exact completion patch"
+            save_receipt(destination, receipt)
             with tarfile.open(archive, "r:gz") as bundle:
                 source = bundle.extractfile("payload/.bashrc")
                 if source is None:
@@ -476,11 +479,15 @@ def cleanup(home: Path, node: str, *, apply: bool = False) -> dict:
                     original = source.read()
             patch_completion(home, original, destination)
             receipt["shell_completion_changed"] = True
+            receipt["in_progress"] = None
             save_receipt(destination, receipt)
         for row in plan["candidates"]:
             if row["kind"] == "unit":
+                receipt["in_progress"] = row["relative"]
+                save_receipt(destination, receipt)
                 (home / row["relative"]).unlink()
                 receipt["removed_paths"] += 1
+                receipt["in_progress"] = None
                 save_receipt(destination, receipt)
         if any(row["kind"] == "unit" for row in plan["candidates"]):
             command(["systemctl", "--user", "daemon-reload"], "User service reload")
@@ -494,14 +501,22 @@ def cleanup(home: Path, node: str, *, apply: bool = False) -> dict:
                     repository = home / git_bundle["repository"]
                     if repository == path or path in repository.parents:
                         verify_git_sources(home, [git_bundle])
+                receipt["in_progress"] = row["relative"]
+                save_receipt(destination, receipt)
                 shutil.rmtree(path)
                 receipt["removed_paths"] += 1
+                receipt["in_progress"] = None
                 save_receipt(destination, receipt)
             elif row["kind"] == "launcher":
+                receipt["in_progress"] = row["relative"]
+                save_receipt(destination, receipt)
                 path.unlink()
                 receipt["removed_paths"] += 1
+                receipt["in_progress"] = None
                 save_receipt(destination, receipt)
     except (CleanupError, OSError, tarfile.TarError) as error:
+        receipt["possibly_partial_candidate"] = receipt["in_progress"]
+        save_receipt(destination, receipt)
         raise CleanupError("Cleanup stopped after archiving; inspect the private receipt", receipt) from error
     receipt["completed"] = True
     receipt["estimated_net_bytes_reclaimed"] = total_bytes - receipt["archive_bytes"] - receipt["git_bundle_bytes"]
