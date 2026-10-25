@@ -1,0 +1,56 @@
+{
+  "paper_id": "P043",
+  "deep_review": false,
+  "problem": "Translate pretrained video-model motion knowledge into real manipulation without task-specific robot demonstrations or learned robot action heads.",
+  "contribution": "NovaFlow uses calibrated3D object flow as an intermediate plan and an embodiment-specific geometric/dynamics executor. Primary title matches NovaFlow: Zero-Shot Manipulation via Actionable Flow from Generated Videos. Demonstration-free task execution does not mean every component is untrained: deformable execution uses trainedPhysTwin dynamics.",
+  "algorithm": "Generate candidate videos from initialRGBD/language, optionally goalimage. MegaSaM depth is median-scaled to measured initial depth; TAPIP3D tracks points; GroundedSAM2 isolates object trajectories. A VLM ranks flow visualizations. Rigid flow is fit with KabschSE3 then composed withGraspGen grasp transform and optimized joint trajectory. Deformable flow supplies correspondence cost for particle-dynamicsMPC.",
+  "observations": "Known intrinsics, actual initial depth, RGB and instruction; optional user/model-generated goal image. Real rigid/articulated setup usesD455; deformables use three synchronized cameras forPhysTwin. Generated geometry is fallible and live tracking is not part of demonstrated rigid open-loop executor.",
+  "actions": "Robot-specific Cartesian grasp/trajectory and joint optimization onFrankaRobotiq85 orSpot; constrained start/end/joint/collision terms are solved as costs withLevenbergMarquardt. Planned constraints do not guarantee successful collision-free physical tracking.",
+  "embodiment_and_data": "Six real tasks cover mughanging, blockinsertion, cup/saucer, watering, drawer and rope. Randomized object placement,10trials/task. Modular pretrainedWan2.1/Veo, depth/tracking/segmentation/grasp models and trained particle model have separate prerequisites/licenses.",
+  "experiments": "Compares demonstration-freeAVDC adapted to generated videos andVidBot, plusDP10/30demos andIDM30demos. Precision tasks can use goal images. Eight video candidates per trial are VLM-ranked, so selected execution success differs from success of one generated video. Runtime measured onH100, not embeddedGPU.",
+  "baselines": "AVDC(*) changes its normalpipeline;VidBot;DiffusionPolicy10/30taskdemos;UniPi-styleIDM trainedrealvideos but testedgeneratedvideos, a noted domainshift. Preserve these qualifications rather than claiming equal-data universal superiority.",
+  "quantitative_result": "Figure7 PDFp8:60trials→56flowsuccess→51graspsuccess→44tasksuccess, with2video/2tracking/5grasp/7execution failures. Table1p9 blockinsertionWan withgoal:46%valid generatedvideo and80%selectedflow task success;withoutgoal15%/40%;Veo no-goal75%/80%, eightvideo candidates/trial. Table2p9 totalVeo133s/Wan725s onH100; not realtimeNX inference.",
+  "limitations": "Open-loop rigid execution, occlusion/textureless tracking, hallucinated geometry, grasp slip and actual collisions/joint limits dominate failures. Deformable model needs training and multipleviews. Goalimage/rejectionbudget influences precision results. Small10trial tasks and pretrained-model dependence limit extrapolation.",
+  "code_and_license": "No repository/model/data license text was independently inspected. Wan,Veo,MegaSaM,TAPIP3D,SAM2,GraspGen andPhysTwin cannot be assigned one inferred license. No code inspected/executed.",
+  "hardware_adaptation": "COMPARE object-centric flow to measured object-relative URDF transfer. Need actualdepth/extrinsics, calibrated grasp geometry, collision model and attainabletrajectory;NX16GB performance is unproven. No cloudvideo generation or realactuation is implied by review; preserve currentcontroller.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3.1",
+      "supports": "depthcalibration, grounding and rejection"
+    },
+    {
+      "page": 5,
+      "section": "3.2.1",
+      "supports": "rigidKabsch/graspcomposition and openloop"
+    },
+    {
+      "page": 6,
+      "section": "3.2.2 4.1-4.2",
+      "supports": "trainedparticlemodel, trajectoryoptimization andcomponents"
+    },
+    {
+      "page": 7,
+      "section": "4.2-4.3",
+      "supports": "10trialtasks andbaselineadaptations"
+    },
+    {
+      "page": 8,
+      "section": "4.4 Figure7",
+      "supports": "realfailurefunnel"
+    },
+    {
+      "page": 9,
+      "section": "Tables1-2 4.5",
+      "supports": "goalconditioning,8candidatebudget,H100runtime andlimits"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "d522d89f00c9b494bd4675ec8f003932026a3c7f957ebcf0defb8a7c2b659c13",
+  "primary_url": "https://arxiv.org/abs/2510.08568",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

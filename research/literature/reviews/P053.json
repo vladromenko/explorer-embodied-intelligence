@@ -1,0 +1,61 @@
+{
+  "paper_id": "P053",
+  "deep_review": false,
+  "problem": "Explain why repeated agent-written skill fixes and added models can fail to produce end-to-end manipulation progress.",
+  "contribution": "A technicalreport analyzes one123-roundsimulated householdrobotimprovementrun. It distinguishes representabilityofevidence, expressibilityofrepairs and statisticalresolvabilityofgates, identifiessemanticdisplacement/frontierlock/harnessfailure, andproposes falsifiableimprovements ratherthanclaiming controlledbenchmarkgains.",
+  "algorithm": "Orchestratorcomposestypedskills; proposerreceivesfailuretraces/camerakeyframesandeditsskills; researchagentinstalls/probesproviders; routingrefitsfromcalls. Acceptanceusesexactfailure replay,freshpairedscenes andheldouttasks, latersealedstates/compositionchecks. Humansaloneeditinitialevaluationharness. SkillchainS=productconditionalstepreliabilities,requiringnoindependenceassumption.",
+  "observations": "Robotuseshead/wristRGBD andjointreadings; proposeralsoseesevaluator diagnosis andkeyframes. Evaluatorhasprivilegedsimstate. Targetvisibility,evaluatorsemantics, actuatorlayout/deadzones andrequestmemorywereoftenwrong; theseareanalysisfindingsnotassumedreliableobservations.",
+  "actions": "Agentchangesprogram/skill/providerwrappers androuting; physicaltests inpaperrefer toRoboCasasimulation,notrealhardware. Modelregistrationdoesnotmeanruntimeuse:finalelevenregisteredmodelswerenevercalledbydeployedrobot.",
+  "embodiment_and_data": "OnePandaOmronmobilemanipulatorinoneRoboCasakitchenlayout. FRIDGE~15steps, CABINET/SINKaddedlater, fourthcabinet-to-countertaskheldout. Four reusedseeds/task causedidenticalevidence. Agents/backbones changedtwicebyhumanchoice across123rounds.",
+  "experiments": "Longitudinalobservationalfailureaudit, noindependentreplicates/matchedbudgetbaselines/ablations. Archiveexaminesfirstfailureprefixes, acceptedchanges, registered/calledmodels, humanharnessrepairs andpairedreproduction; proposedD1-D12remediesarehypotheses withfuturefalsificationexperiments.",
+  "baselines": "Incumbentversuspatchpairedreplays/freshscenes, not acontrolledcomparisonofagentsoralgorithms. Raisingreasoningeffort/lateVLMgrounderchecksareanecdotal. Four-recorded-view7BVLMgroundingprobe isfeasibility,notgeneralbenchmarkperformance.",
+  "quantitative_result": "Figure1 PDFp3:57acceptedskillchanges and86registeredmodels;0FRIDGE/0CABINETtask successes,14SINKsuccesses mostlyaccidental. Figure5p7:113humanharnessrepairs,~twoperacceptedchange;per-taskprefixauditn224/232/230 forFRIDGE/CABINET/SINK. Theseactivitycountsdo notmeasuresuccessfulphysicalskills. Section10p10explicitlydisclaims causal effects andindependentreplication.",
+  "limitations": "Oneevolvingrun/simulator/layout;harness,providers andagentversionsconfoundedintime. Reusedfour-seeddata andadaptivegates overfit; accidentaldropscanpassnativeendcondition whileprogramfails. Proposeddesignrecommendationsuntested; capabilitydiagnosisdoesnotproveuniversalrecursiveimprovementlimits.",
+  "code_and_license": "TechnicalreportprimaryPDFinspected; repository/sourcearchive/model/datalicenseNOT_AUDITED. No codeinspected/executed. Externalproviderlicensesmustbechecked separatelybeforeintegration.",
+  "hardware_adaptation": "REUSE analyticaldistinctions andtypedexperimentstatus:tested-rejected,infrastructurefailure,untestable,pending,neverrun. Require actualroutingcalls andfreshoutcomebeforecreditingcapability; measureconditionalstepcoverage andcorrectchainexecution. Do notcountpaperreviews,commits,registeredskillsorvirtualframesasvalidatedphysicalsuccess.",
+  "decision": "REUSE",
+  "evidence_locations": [
+    {
+      "page": 2,
+      "section": "2 Table1",
+      "supports": "simulator,agentroles,privilegedjudge andchangingbackbones"
+    },
+    {
+      "page": 3,
+      "section": "3 Figure1",
+      "supports": "activitywithouttasksuccess"
+    },
+    {
+      "page": 6,
+      "section": "6 Equation1",
+      "supports": "conditionalchainattenuation/frontierlock"
+    },
+    {
+      "page": 7,
+      "section": "Figure5 6-7",
+      "supports": "prefixcoverage,humanrepairs andtaskversusprogramsuccess"
+    },
+    {
+      "page": 8,
+      "section": "7",
+      "supports": "evaluatorcapture,typedmemory andregistered-unusedmodels"
+    },
+    {
+      "page": 9,
+      "section": "8",
+      "supports": "proposednotyettesteddesignchanges"
+    },
+    {
+      "page": 10,
+      "section": "Table3 10",
+      "supports": "falsificationplans andobservationalstudylimits"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "87e6c476e4df162bc50eb9346be6ebccfbbcea21889c11caed24d7806bf2a92c",
+  "primary_url": "https://arxiv.org/abs/2609.31760",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

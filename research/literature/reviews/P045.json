@@ -1,0 +1,66 @@
+{
+  "paper_id": "P045",
+  "deep_review": false,
+  "problem": "Connect VLM semantic prediction to a reactive actionexpert without an optional future-feature shortcut or unstable jointtraining.",
+  "contribution": "DIAL uses predicted futurevisualfeatures as a differentiable intentbottleneck with dualwarmup followed by jointworld/actiontraining. Primary title/authorship match DIAL: Decoupling Intent and Action via Latent World Modeling for End-to-End VLA. Architecturalgrounding is an empiricalmodeldesign, not a proof of physicalcausalunderstanding.",
+  "algorithm": "Qwen2.5VL3B plus64learnedqueries predicts nativeViTfeatures16steps ahead usingMSE. SharedfrozenViT encodes currentstate;4layerfusion conditions16layerDiT flowmatching actionchunkdecoder withproprioception. Warmup independently trains futureprediction and inversepolicy usinggroundtruthfuturefeatures; secondstage usespredictedfeatures andbackpropagatesactionloss intoLLM whileViT/textembeddingsstayfrozen.",
+  "observations": "Instruction,currentRGB224x224,proprioception; pairedfutureRGB/actualactionchunks intraining. HumanEgoDexwristposes align to sharedEEFdimensions andotherdimensionsare padded; human nextstate isused asaction, anexplicitmappingassumption.",
+  "actions": "Simulation47Drepresentation=29jointcoordinates+18EEFposefeatures,but actualrobotcommand is29Djointspace. RealIRONrepresentation50Dadds3headDoF. Chunk16cross-embodimenttasks/50multistagecoordination. Representationalpadding isnot a calibratedSO101actionmapping.",
+  "embodiment_and_data": "RoboCasaGR1 tabletop24tasks50evaluationepisodes each; full24kdemonstrations1000/task160ktrainingsteps vsfewshot2400100/task40ksteps. EgoDex27,419basicpickplace and3205pour; realIRONR01-1.11uses120robottrajectories/task and32kproprietaryfactorypretraining plushumanmix forappropriate tasks.",
+  "experiments": "Evaluatepickplace/articulated,appearance/objectcombination/OODtypes andrealpickplace/pouring/handover/sweeping. Handoverandtoolcoordination use robotonlydata becausehumanmixlacksmatchingtasks. Decoupledfirsthalftrainingbudget matchesbaselines. Fullsuccess andpartialstageprogress reportedseparately inFigure12.",
+  "baselines": "DP,UWM,FLARE,GR00TN1.6;Qwen3StarVLAvariants; controlledQwen2.5frozen/finetuned/FLARE/SEER/extra-vision/DINOvariants. Strongestcomparisons holdbackbone/data/budgetfixed; broadpriorartdifferentbackbones.",
+  "quantitative_result": "Figure7 PDFp11 robot-onlyfullsimulationDIAL70.2% vsFLARE55.0%. Figure8p12 fewshot58.3% with100demos/task vsFLARE55%full1000/task. Figure9p13 humanmix improvespickplace56.0→60.8% butarticulated65.3→62.0%, a retainednegativecase. Figures10/11p14–15 realcross-embodiment77.5%ID/58.3%OOD versuswithoutwarmup57.5%/30.0%; exactphysicaltrialdenominators NOT_EXTRACTED. Figure12mixedsuccess/progressbarsmustnotbeconflated.",
+  "limitations": "Largepretrainingandproprietaryrobotdata hinderindependentreproduction; humanwristpaddingassumeskinematiccompatibility. Humanprior doesnotimproveeverytask. Predictedforesight/actionbottleneck hasnograsphold/collisionguarantee. TasklevelOOD isnot zero-shotnewembodimentcontrol; everyreal taskhas120targetdemos. Noformalindependentreleaseevidence forhandover isestablished.",
+  "code_and_license": "Primary project https://xpeng-robotics.github.io/dial . Repository/weightsandEgoDexlicensesNOT_AUDITED;proprietaryfactorydata cannotbeassumedavailable. No codeinspected/executed.",
+  "hardware_adaptation": "COMPARE future-featureconditioning andstrictschema/separateactiondecoderinsimulation. SO101/ROSMASTERhaveotherDoF,calibrationandgrippersemantics; requiretargetdata andtrainableadaptation. Keepverifiedreceiverholdevidence inhandoverprotocolregardlessofVLAfutureprediction.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 5,
+      "section": "3.2 Figure3",
+      "supports": "nativefuturesupervision"
+    },
+    {
+      "page": 6,
+      "section": "3.3-3.4",
+      "supports": "flowmatching andtwo-stagetraining"
+    },
+    {
+      "page": 7,
+      "section": "4.1.1",
+      "supports": "47Drepresentation,data andhumanalignment"
+    },
+    {
+      "page": 8,
+      "section": "4.1.2",
+      "supports": "realtrainingdata androbotonlycoordination"
+    },
+    {
+      "page": 11,
+      "section": "5.1 Figure7",
+      "supports": "fullsimulationresults"
+    },
+    {
+      "page": 12,
+      "section": "5.2 Figure8",
+      "supports": "controlledablations/fewshot"
+    },
+    {
+      "page": 13,
+      "section": "5.3 Figure9",
+      "supports": "positiveandnegativehumandataeffects"
+    },
+    {
+      "page": 15,
+      "section": "5.4 Figure12",
+      "supports": "warmup,realgeneralization andsuccess/progressdistinction"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "1cce55737d1c72062d069f33443a93a3e7dabf0042b0b63c3cae8ee8b0d44146",
+  "primary_url": "https://arxiv.org/abs/2603.29844",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

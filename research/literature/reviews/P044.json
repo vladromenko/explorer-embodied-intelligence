@@ -1,0 +1,61 @@
+{
+  "paper_id": "P044",
+  "deep_review": false,
+  "problem": "Learn transferable latent actions from heterogeneous actionless videos while reducing task-irrelevant visual motion, then adapt them to specific robot control spaces.",
+  "contribution": "Primary PDF title is Learning to Act Anywhere with Task-centric Latent Actions; UniVLA is the system name. Two-stage vector-quantized feature prediction separates task-irrelevant and task-centric codes; a7BVLM predicts compactcodes and a target-trained decoder maps them to actualactions.",
+  "algorithm": "DINOv2 pairedframefeatures at~1second spacing enter an inverse/forward latentaction model. Stage1 language-conditioned prediction trains task-irrelevantcodes; Stage2 freezes thatcodebook and introduces task-centriccodes withoutlanguage. Prismatic7B autoregressively predicts4codeindices. Posttraining uses visual-attention actiondecoder andLoRA with actionL1 plus next-codeprediction; previous4latenttokens enter nextprompt.",
+  "observations": "Currentthird-personRGB andinstruction; latentpretrainingfutureframepairs; targettrainingactualactions. Taskinstructions are often finegrained short-horizon, a relevant semantic prior. RealPiper camera isRGBD but onlyRGB used bypolicy.",
+  "actions": "Embodiment-specific supervised decoder produces variable actionchunks (12for realdeployment), not a universal motor interface. Latent temporalgranularity~1s and fixedcodebook|C|16 can mismatch finer tasks; newembodiments require grounded actionlabels/decodertraining.",
+  "embodiment_and_data": "OpenXmanipulation,GNMnavigation,Ego4Dhumanvideo; LIBERO40tasks50demonstrations each, excludedfrompretraining; realPiper7Dactionspace with20–80trajectories/task across4tasks. Training is960A100hours for statedpolicyrecipe and real10Hz measured onRTX4090.",
+  "experiments": "LIBERO supervised finetuning30k/40ksteps,batch128;500trials/suite averaged3seeds. R2Ruses10,819train/1,839val-unseen and oracle success(within3m at somepoint), not standard stop-success. Real4tasks plus lighting/distractor/novelobject tests use stageprogress and fullsuccess separately.",
+  "baselines": "LAPA reimplementedPrismatic7B;DP,Octo,MDT,OpenVLA,MaIL (somewristviews). RealDPsingle-task versusgeneralistsmultitask. NavigationNaVidhasfullvisualhistory and somebaseline100episodesubset. Do not treat alldata/inputs asidentical.",
+  "quantitative_result": "TableI PDFp6:LIBERO full95.2%,Bridgeonly92.5%,humanonly88.7%,OpenVLA76.5%. TableIIIp10:humanpretrainedtask-centric88.7%,Genie82.3%,task-irrelevant56.5%. TableIIp8 generalizationsuccess68.9%. Negativecasep8 towelDP53.3% versusUniVLA46.7% despitehigherUniVLAstageprogress. R2R47.1% is oracle success, not physicalnavigation success.",
+  "limitations": "Fixedlatentcodebook/temporalgranularity; mostlysinglearmtasks; dualarm/dexterouscontrol and zero-shotin-contextskillacquisition are futurework. Languagegranularityaffectsdecoupling. Latentrepresentationdoesnotprovablyidentifycausalfactors. Needs targetactiontraining andlargemodelcompute; averagegain hides negativefoldingcase.",
+  "code_and_license": "PDF links https://github.com/OpenDriveLab/UniVLA. Repositorycode,Prismatic/LLaMAderivedweights,OpenX/GNM/Ego4D rights were not independently audited. No codeinspected/executed; do notinfer sharedlicense.",
+  "hardware_adaptation": "COMPARE compactlatentrepresentationandtargetdecoder approach afteractualSO101/ROSMASTERdatasetactionsemantics are established. No rawactionheadtransfer or assumedgripperrangeidentity;NX16GB10Hzparityunproven. Currentgeometryadapter is not trainedUniVLA.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "III-A",
+      "supports": "pairedframes,DINOfeaturesandquantization"
+    },
+    {
+      "page": 4,
+      "section": "III-A/B",
+      "supports": "two-stagecodes,Prismatic7B andtrainingcost"
+    },
+    {
+      "page": 5,
+      "section": "III-C",
+      "supports": "targetdecoder,supervisedadaptation andhistory"
+    },
+    {
+      "page": 6,
+      "section": "IV-A1 TableI",
+      "supports": "supervisedLIBEROprotocol andresults"
+    },
+    {
+      "page": 8,
+      "section": "IV-A3 TableII",
+      "supports": "Piper20–80demos,negativefoldingcase,4090frequency"
+    },
+    {
+      "page": 10,
+      "section": "TablesIII-V",
+      "supports": "latentanddecoderablations"
+    },
+    {
+      "page": 11,
+      "section": "VI",
+      "supports": "fixedgranularity,languageandsinglearmlimits"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "1b8551db322a0e31514601d9d84879f85a5c391e4911e40752ea9df7567196f5",
+  "primary_url": "https://arxiv.org/abs/2505.06111",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}

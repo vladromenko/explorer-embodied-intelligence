@@ -1,0 +1,66 @@
+{
+  "paper_id": "P051",
+  "deep_review": false,
+  "problem": "Select interactions that expose action-conditioned world-model errors when plausible-looking video predictions ignore the given action.",
+  "contribution": "World Action Verifier combines a broad action-free subgoalprior with a sparse inversemodel and forwardmodel, exploiting forward/inverse learning asymmetry. This is exploration/dataacquisition in MiniGrid and robot simulators, not independent physicalsuccessverification.",
+  "algorithm": "SampleKplausiblefuturegoals, infercandidateactions from current/goal throughlearnedsparseIDM, rollforwardeachaction, rank goal/forwardpredictiondiscrepancy andexecutehighestmismatch; add actualenvironmenttransition andrefitforward/inversemodels. Reversingfromplausiblegoals avoidsstartingwithunreliable off-manifoldforwardpredictions.",
+  "observations": "Actionfreevideo pluslimitedactionlabeledtransitions; sparsemaskselectsactionrelevantfeatures. Assumed identifiable agent-centric slice remains onsupport underglobalnovelty; theory is linearGaussianOLSwithdimensionality/noise/sampleconditions, not universalIDMsuperiority.",
+  "actions": "Environmentqueries/trajectoryacquisition andunderlyingrobot-simulatoractions; sparseinverseprediction onlysuggestscandidateaction. Realenvironmentfeedback remains essential tocorrectmodel, so syntheticcycleconsistencyalonecannotcertify physicalreachability.",
+  "embodiment_and_data": "CustomMiniGridtaskswithcolorchangingfloors/6–14objects; RoboMimicLift/Can/Square andManiSkillPullCube/PokeCube/LiftPeg. Robotdata derivedfromexpert andimperfectdiffusionpolicycheckpoints; DreamerV3forwardmodel andCLAM-basedsparseIDM. No physicalrobottrial established.",
+  "experiments": "MiniGrid200seedtransitions plus3rounds100queries,5seeds;robotmodels200–1000trajectorywarmup plus200epochrefinement,3seeds,32frameMSE. OODCanvisualandmultiobject/mixedoptimality adaptationuses200targettrajectories. DownstreampolicyusesSAILORimaginationprotocol; notdirecthardwareevaluation.",
+  "baselines": "Random/RND,uncertainty,learningprogress,vanillaIDM andgroundtruthsuccessorOracle. Oraclerankingisnotavailableatselection. Theoryrequireslowinverseambiguity andunchangedagent-sideactionpatterns.",
+  "quantitative_result": "AppendixTable1 PDFp20,200training-samplecondition:Canpredictionerror18.2±0.5 WAV vs20.2±0.2 vanillaIDM,22.0±0.6Progress;Square26.0±0.3 vs29.8±0.7 and35.1±0.7;reportedmean±SE,3robotseeds,metric32frameobservationMSE. Page9 approximate22%downstreamOODrewardgain is anaggregateclaim, not22percentagepointphysicalsuccess. AppendixE.1p24~40GPUhours/environment vs~36baselines onL40S/H100resources.",
+  "limitations": "Threeinferencepasses increasecost; sparseinverse canfailifactionsareambiguous oragent-sidepatternsoutofsupport. Learnedsubgoalprior/IDM mayshareblindspots. Requiresrealenvironmentfeedback; complexlonghorizonself-improvementremainsunsolved. Episode/transitioncounts differbetweenmaintext andappendixMiniGrid; bindexactprotocolratherthanmixing them.",
+  "code_and_license": "No repository/model/data license text independently inspected; no codeinspected/executed. Do notinfer codeavailability orcommercialrights fromarXivoruseofDreamer/CLAM names.",
+  "hardware_adaptation": "ADAPT cycle-ranking asanoffline/simulationdata-selectiondiagnostic only. Calibratedactionunits/timestamps andindependentobservedoutcomes arerequired; camera-onlyrecordingswithoutactionlabels do nottrainreliableinversemodel. Keepphysicalreceiver-holdevidence separatefromlearnedcycleconsistency.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "2.1-2.2",
+      "supports": "semisupervisedsetting andverificationfactors"
+    },
+    {
+      "page": 4,
+      "section": "2.3 Algorithm1",
+      "supports": "reversecyclecandidate selection"
+    },
+    {
+      "page": 5,
+      "section": "3 Proposition3.1",
+      "supports": "restrictedlinearGaussiantheory"
+    },
+    {
+      "page": 7,
+      "section": "4.1.2-4.2",
+      "supports": "querybudgets,simulatedrobotdata"
+    },
+    {
+      "page": 8,
+      "section": "4.2.1-4.2.2",
+      "supports": "32frameMSE andOODadaptation"
+    },
+    {
+      "page": 20,
+      "section": "A.2 Table1",
+      "supports": "exacterrorresults"
+    },
+    {
+      "page": 23,
+      "section": "C-D",
+      "supports": "onsupportsparseverification assumptionsandcost"
+    },
+    {
+      "page": 24,
+      "section": "D E.1",
+      "supports": "environmentfeedbackrequirement andcompute"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false,
+  "source_sha256": "32c90fb254a0a6078305b9036966a78f2e0ba3cfea8ee57f736cea73214d49a7",
+  "primary_url": "https://arxiv.org/abs/2604.01985",
+  "full_text_examined": true,
+  "reviewer": "Codex transfer/research agent",
+  "reviewed_at": "2026-10-26"
+}
