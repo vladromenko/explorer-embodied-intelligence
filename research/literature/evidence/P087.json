@@ -1,0 +1,109 @@
+{
+  "paper_id": "P087",
+  "retrieved_at": "2026-10-25T22:06:28.087315+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2508.05635",
+  "fulltext_url": "https://arxiv.org/pdf/2508.05635",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2508.05635: Genie Envisioner: A Unified World Foundation Platform for Robotic Manipulation"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Genie Envisioner: A Unified World Foundation Platform for Robotic Manipulation"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2508.05635v3"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "We introduce Genie Envisioner (GE), a unified world foundation platform for robotic manipulation that integrates policy learning, evaluation, and simulation within a single video-generative framework. At its core, GE-Base is a large-scale, instruction-conditioned video diffusion model that captures the spatial, temporal, and semantic dynamics of real-world robotic interactions in a structured latent space. Built upon this foundation, GE-Act maps latent representations to executable action trajectories through a lightweight, flow-matching decoder, enabling precise and generalizable policy inference across diverse embodiments with minimal supervision. To support scalable evaluation and training, GE-Sim serves as an action-conditioned neural simulator, producing high-fidelity rollouts for closed-loop policy development. The platform is further equipped with EWMBench, a standardized benchmark suite measuring visual fidelity, physical consistency, and instruction-action alignment. Together, these components establish Genie Envisioner as a scalable and practical foundation for instruction-driven, general-purpose embodied intelligence. All code, models, and benchmarks will be released publicly."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Genie Envisioner: A Unified World Foundation Platform for Robotic..."
+    ],
+    "twitter:description": [
+      "We introduce Genie Envisioner (GE), a unified world foundation platform for robotic manipulation that integrates policy learning, evaluation, and simulation within a single video-generative..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Genie Envisioner: A Unified World Foundation Platform for Robotic Manipulation"
+    ],
+    "citation_author": [
+      "Liao, Yue",
+      "Zhou, Pengfei",
+      "Huang, Siyuan",
+      "Yang, Donglin",
+      "Chen, Shengcong",
+      "Jiang, Yuxin",
+      "Hu, Yue",
+      "Cai, Jingbin",
+      "Liu, Si",
+      "Luo, Jianlan",
+      "Chen, Liliang",
+      "Yan, Shuicheng",
+      "Yao, Maoqing",
+      "Ren, Guanghui"
+    ],
+    "citation_date": [
+      "2025/08/07"
+    ],
+    "citation_online_date": [
+      "2025/11/04"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2508.05635"
+    ],
+    "citation_arxiv_id": [
+      "2508.05635"
+    ],
+    "citation_abstract": [
+      "We introduce Genie Envisioner (GE), a unified world foundation platform for robotic manipulation that integrates policy learning, evaluation, and simulation within a single video-generative framework. At its core, GE-Base is a large-scale, instruction-conditioned video diffusion model that captures the spatial, temporal, and semantic dynamics of real-world robotic interactions in a structured latent space. Built upon this foundation, GE-Act maps latent representations to executable action trajectories through a lightweight, flow-matching decoder, enabling precise and generalizable policy inference across diverse embodiments with minimal supervision. To support scalable evaluation and training, GE-Sim serves as an action-conditioned neural simulator, producing high-fidelity rollouts for closed-loop policy development. The platform is further equipped with EWMBench, a standardized benchmark suite measuring visual fidelity, physical consistency, and instruction-action alignment. Together, these components establish Genie Envisioner as a scalable and practical foundation for instruction-driven, general-purpose embodied intelligence. All code, models, and benchmarks will be released publicly."
+    ]
+  },
+  "fulltext_sha256": "d8802a311ff9db058bf8f25cb5ccc03711e32b11cd5f02a1759324ddb3cfbd71",
+  "pages": 26,
+  "extracted_characters": 96166,
+  "cache_key": "P087/fulltext.pdf",
+  "extraction": "pypdf"
+}

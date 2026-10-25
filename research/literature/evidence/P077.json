@@ -1,0 +1,102 @@
+{
+  "paper_id": "P077",
+  "retrieved_at": "2026-10-25T22:06:14.158628+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2601.18323",
+  "fulltext_url": "https://arxiv.org/pdf/2601.18323",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2601.18323: TC-IDM: Grounding Video Generation for Executable Zero-shot Robot Motion"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "TC-IDM: Grounding Video Generation for Executable Zero-shot Robot Motion"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2601.18323v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "The vision-language-action (VLA) paradigm has enabled powerful robotic control by leveraging vision-language models, but its reliance on large-scale, high-quality robot data limits its generalization. Generative world models offer a promising alternative for general-purpose embodied AI, yet a critical gap remains between their pixel-level plans and physically executable actions.\n  To this end, we propose the Tool-Centric Inverse Dynamics Model (TC-IDM). By focusing on the tool's imagined trajectory as synthesized by the world model, TC-IDM establishes a robust intermediate representation that bridges the gap between visual planning and physical control.\n  TC-IDM extracts the tool's point cloud trajectories via segmentation and 3D motion estimation from generated videos. Considering diverse tool attributes, our architecture employs decoupled action heads to project these planned trajectories into 6-DoF end-effector motions and corresponding control signals.\n  This plan-and-translate paradigm not only supports a wide range of end-effectors but also significantly improves viewpoint invariance. Furthermore, it exhibits strong generalization capabilities across long-horizon and out-of-distribution tasks, including interacting with deformable objects.\n  In real-world evaluations, the world model with TC-IDM achieves an average success rate of 61.11 percent, with 77.7 percent on simple tasks and 38.46 percent on zero-shot deformable object tasks. It substantially outperforms end-to-end VLA-style baselines and other inverse dynamics models."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "TC-IDM: Grounding Video Generation for Executable Zero-shot Robot Motion"
+    ],
+    "twitter:description": [
+      "The vision-language-action (VLA) paradigm has enabled powerful robotic control by leveraging vision-language models, but its reliance on large-scale, high-quality robot data limits its..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "TC-IDM: Grounding Video Generation for Executable Zero-shot Robot Motion"
+    ],
+    "citation_author": [
+      "Mi, Weishi",
+      "Bao, Yong",
+      "Chi, Xiaowei",
+      "Ju, Xiaozhu",
+      "Qin, Zhiyuan",
+      "Ge, Kuangzhi",
+      "Tang, Kai",
+      "Jia, Peidong",
+      "Zhang, Shanghang",
+      "Tang, Jian"
+    ],
+    "citation_date": [
+      "2026/01/26"
+    ],
+    "citation_online_date": [
+      "2026/01/26"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2601.18323"
+    ],
+    "citation_arxiv_id": [
+      "2601.18323"
+    ],
+    "citation_abstract": [
+      "The vision-language-action (VLA) paradigm has enabled powerful robotic control by leveraging vision-language models, but its reliance on large-scale, high-quality robot data limits its generalization. Generative world models offer a promising alternative for general-purpose embodied AI, yet a critical gap remains between their pixel-level plans and physically executable actions. To this end, we propose the Tool-Centric Inverse Dynamics Model (TC-IDM). By focusing on the tool's imagined trajectory as synthesized by the world model, TC-IDM establishes a robust intermediate representation that bridges the gap between visual planning and physical control. TC-IDM extracts the tool's point cloud trajectories via segmentation and 3D motion estimation from generated videos. Considering diverse tool attributes, our architecture employs decoupled action heads to project these planned trajectories into 6-DoF end-effector motions and corresponding control signals. This plan-and-translate paradigm not only supports a wide range of end-effectors but also significantly improves viewpoint invariance. Furthermore, it exhibits strong generalization capabilities across long-horizon and out-of-distribution tasks, including interacting with deformable objects. In real-world evaluations, the world model with TC-IDM achieves an average success rate of 61.11 percent, with 77.7 percent on simple tasks and 38.46 percent on zero-shot deformable object tasks. It substantially outperforms end-to-end VLA-style baselines and other inverse dynamics models."
+    ]
+  },
+  "error_type": "ValueError",
+  "error": "Full text exceeds configured download limit"
+}

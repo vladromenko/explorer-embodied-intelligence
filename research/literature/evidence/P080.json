@@ -1,0 +1,101 @@
+{
+  "paper_id": "P080",
+  "retrieved_at": "2026-10-25T22:06:16.784848+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2504.02792",
+  "fulltext_url": "https://arxiv.org/pdf/2504.02792",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2504.02792: Unified World Models: Coupling Video and Action Diffusion for Pretraining on Large Robotic Datasets"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Unified World Models: Coupling Video and Action Diffusion for Pretraining on Large Robotic Datasets"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2504.02792v3"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Imitation learning has emerged as a promising approach towards building generalist robots. However, scaling imitation learning for large robot foundation models remains challenging due to its reliance on high-quality expert demonstrations. Meanwhile, large amounts of video data depicting a wide range of environments and diverse behaviors are readily available. This data provides a rich source of information about real-world dynamics and agent-environment interactions. Leveraging this data directly for imitation learning, however, has proven difficult due to the lack of action annotation. In this work, we present Unified World Models (UWM), a framework that allows for leveraging both video and action data for policy learning. Specifically, a UWM integrates an action diffusion process and a video diffusion process within a unified transformer architecture, where independent diffusion timesteps govern each modality. By controlling each diffusion timestep, UWM can flexibly represent a policy, a forward dynamics, an inverse dynamics, and a video generator. Through simulated and real-world experiments, we show that: (1) UWM enables effective pretraining on large-scale multitask robot datasets with both dynamics and action predictions, resulting in more generalizable and robust policies than imitation learning, (2) UWM naturally facilitates learning from action-free video data through independent control of modality-specific diffusion timesteps, further improving the performance of finetuned policies. Our results suggest that UWM offers a promising step toward harnessing large, heterogeneous datasets for scalable robot learning, and provides a simple unification between the often disparate paradigms of imitation learning and world modeling. Videos and code are available at https://weirdlabuw.github.io/uwm/."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Unified World Models: Coupling Video and Action Diffusion for..."
+    ],
+    "twitter:description": [
+      "Imitation learning has emerged as a promising approach towards building generalist robots. However, scaling imitation learning for large robot foundation models remains challenging due to its..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Unified World Models: Coupling Video and Action Diffusion for Pretraining on Large Robotic Datasets"
+    ],
+    "citation_author": [
+      "Zhu, Chuning",
+      "Yu, Raymond",
+      "Feng, Siyuan",
+      "Burchfiel, Benjamin",
+      "Shah, Paarth",
+      "Gupta, Abhishek"
+    ],
+    "citation_date": [
+      "2025/04/03"
+    ],
+    "citation_online_date": [
+      "2025/05/23"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2504.02792"
+    ],
+    "citation_arxiv_id": [
+      "2504.02792"
+    ],
+    "citation_abstract": [
+      "Imitation learning has emerged as a promising approach towards building generalist robots. However, scaling imitation learning for large robot foundation models remains challenging due to its reliance on high-quality expert demonstrations. Meanwhile, large amounts of video data depicting a wide range of environments and diverse behaviors are readily available. This data provides a rich source of information about real-world dynamics and agent-environment interactions. Leveraging this data directly for imitation learning, however, has proven difficult due to the lack of action annotation. In this work, we present Unified World Models (UWM), a framework that allows for leveraging both video and action data for policy learning. Specifically, a UWM integrates an action diffusion process and a video diffusion process within a unified transformer architecture, where independent diffusion timesteps govern each modality. By controlling each diffusion timestep, UWM can flexibly represent a policy, a forward dynamics, an inverse dynamics, and a video generator. Through simulated and real-world experiments, we show that: (1) UWM enables effective pretraining on large-scale multitask robot datasets with both dynamics and action predictions, resulting in more generalizable and robust policies than imitation learning, (2) UWM naturally facilitates learning from action-free video data through independent control of modality-specific diffusion timesteps, further improving the performance of finetuned policies. Our results suggest that UWM offers a promising step toward harnessing large, heterogeneous datasets for scalable robot learning, and provides a simple unification between the often disparate paradigms of imitation learning and world modeling. Videos and code are available at https://weirdlabuw.github.io/uwm/."
+    ]
+  },
+  "fulltext_sha256": "00412b2405481445df0dfc43dbc1037f7af63b9eb66fa25280844d9d5add2b88",
+  "pages": 17,
+  "extracted_characters": 79632,
+  "cache_key": "P080/fulltext.pdf",
+  "extraction": "pypdf"
+}

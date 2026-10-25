@@ -1,0 +1,103 @@
+{
+  "paper_id": "P040",
+  "retrieved_at": "2026-10-25T22:05:36.722277+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2601.19406",
+  "fulltext_url": "https://arxiv.org/pdf/2601.19406",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2601.19406: Sim-and-Human Co-training for Data-Efficient and Scene-Generalizable Bimanual Manipulation"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Sim-and-Human Co-training for Data-Efficient and Scene-Generalizable Bimanual Manipulation"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2601.19406v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Real-robot demonstrations are prohibitively expensive, while simulation data and real-world human demonstrations are both scalable but each leaves a distinct gap: simulation suffers from a sim-to-real visual gap, and human data suffers from a human-to-robot embodiment gap. In this work, we identify a natural yet underexplored complementarity between these sources: simulation contributes robot-valid actions absent in human data, while human data provides real-world observations that simulation struggles to render. Building on this insight, we present SimHum, a co-training recipe that extracts kinematic priors from simulation and visual priors from human observations, then fine-tunes on a small real-robot dataset. SimHum exhibits strong scene-generalizable and data-efficient capabilities. With only 80 real-robot episodes per task, it achieves 62.5% success on held-out OOD scenes across four bimanual tabletop tasks, 53.7% higher than Real only in absolute success rate. Moreover, in a controlled data-collection study with matched collection time, SimHum improves over the best single-source pre-training baseline by 35.0% in absolute success rate. Project page: https://kaipengfang.github.io/sim-and-human/"
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Sim-and-Human Co-training for Data-Efficient and..."
+    ],
+    "twitter:description": [
+      "Real-robot demonstrations are prohibitively expensive, while simulation data and real-world human demonstrations are both scalable but each leaves a distinct gap: simulation suffers from a..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Sim-and-Human Co-training for Data-Efficient and Scene-Generalizable Bimanual Manipulation"
+    ],
+    "citation_author": [
+      "Fang, Kaipeng",
+      "Liang, Weiqing",
+      "Li, Yuyang",
+      "Zhang, Ji",
+      "Zeng, Pengpeng",
+      "Shen, Heng Tao",
+      "Song, Jingkuan",
+      "Gao, Lianli"
+    ],
+    "citation_date": [
+      "2026/01/27"
+    ],
+    "citation_online_date": [
+      "2026/09/17"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2601.19406"
+    ],
+    "citation_arxiv_id": [
+      "2601.19406"
+    ],
+    "citation_abstract": [
+      "Real-robot demonstrations are prohibitively expensive, while simulation data and real-world human demonstrations are both scalable but each leaves a distinct gap: simulation suffers from a sim-to-real visual gap, and human data suffers from a human-to-robot embodiment gap. In this work, we identify a natural yet underexplored complementarity between these sources: simulation contributes robot-valid actions absent in human data, while human data provides real-world observations that simulation struggles to render. Building on this insight, we present SimHum, a co-training recipe that extracts kinematic priors from simulation and visual priors from human observations, then fine-tunes on a small real-robot dataset. SimHum exhibits strong scene-generalizable and data-efficient capabilities. With only 80 real-robot episodes per task, it achieves 62.5% success on held-out OOD scenes across four bimanual tabletop tasks, 53.7% higher than Real only in absolute success rate. Moreover, in a controlled data-collection study with matched collection time, SimHum improves over the best single-source pre-training baseline by 35.0% in absolute success rate. Project page: https://kaipengfang.github.io/sim-and-human/"
+    ]
+  },
+  "fulltext_sha256": "0f41b82f116ff485b665550604ac74408a05f00f663445a6465c62c519a6d370",
+  "pages": 26,
+  "extracted_characters": 80089,
+  "cache_key": "P040/fulltext.pdf",
+  "extraction": "pypdf"
+}

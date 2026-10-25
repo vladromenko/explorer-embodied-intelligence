@@ -1,0 +1,109 @@
+{
+  "paper_id": "P099",
+  "retrieved_at": "2026-10-25T22:06:46.392013+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2507.04447",
+  "fulltext_url": "https://arxiv.org/pdf/2507.04447",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2507.04447: DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2507.04447v3"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Recent advances in vision-language-action (VLA) models have shown promise in integrating image generation with action prediction to improve generalization and reasoning in robot manipulation. However, existing methods are limited to challenging image-based forecasting, which suffers from redundant information and lacks comprehensive and critical world knowledge, including dynamic, spatial and semantic information. To address these limitations, we propose DreamVLA, a novel VLA framework that integrates comprehensive world knowledge forecasting to enable inverse dynamics modeling, thereby establishing a perception-prediction-action loop for manipulation tasks. Specifically, DreamVLA introduces a dynamic-region-guided world knowledge prediction, integrated with the spatial and semantic cues, which provide compact yet comprehensive representations for action planning. This design aligns with how humans interact with the world by first forming abstract multimodal reasoning chains before acting. To mitigate interference among the dynamic, spatial and semantic information during training, we adopt a block-wise structured attention mechanism that masks their mutual attention, preventing information leakage and keeping each representation clean and disentangled. Moreover, to model the conditional distribution over future actions, we employ a diffusion-based transformer that disentangles action representations from shared latent features. Extensive experiments on both real-world and simulation environments demonstrate that DreamVLA achieves 76.7% success rate on real robot tasks and 4.44 average length on the CALVIN ABC-D benchmarks."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "DreamVLA: A Vision-Language-Action Model Dreamed with..."
+    ],
+    "twitter:description": [
+      "Recent advances in vision-language-action (VLA) models have shown promise in integrating image generation with action prediction to improve generalization and reasoning in robot manipulation...."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge"
+    ],
+    "citation_author": [
+      "Zhang, Wenyao",
+      "Liu, Hongsi",
+      "Qi, Zekun",
+      "Wang, Yunnan",
+      "Yu, Xinqiang",
+      "Zhang, Jiazhao",
+      "Dong, Runpei",
+      "He, Jiawei",
+      "Lu, Fan",
+      "Wang, He",
+      "Zhang, Zhizheng",
+      "Yi, Li",
+      "Zeng, Wenjun",
+      "Jin, Xin"
+    ],
+    "citation_date": [
+      "2025/07/06"
+    ],
+    "citation_online_date": [
+      "2025/08/26"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2507.04447"
+    ],
+    "citation_arxiv_id": [
+      "2507.04447"
+    ],
+    "citation_abstract": [
+      "Recent advances in vision-language-action (VLA) models have shown promise in integrating image generation with action prediction to improve generalization and reasoning in robot manipulation. However, existing methods are limited to challenging image-based forecasting, which suffers from redundant information and lacks comprehensive and critical world knowledge, including dynamic, spatial and semantic information. To address these limitations, we propose DreamVLA, a novel VLA framework that integrates comprehensive world knowledge forecasting to enable inverse dynamics modeling, thereby establishing a perception-prediction-action loop for manipulation tasks. Specifically, DreamVLA introduces a dynamic-region-guided world knowledge prediction, integrated with the spatial and semantic cues, which provide compact yet comprehensive representations for action planning. This design aligns with how humans interact with the world by first forming abstract multimodal reasoning chains before acting. To mitigate interference among the dynamic, spatial and semantic information during training, we adopt a block-wise structured attention mechanism that masks their mutual attention, preventing information leakage and keeping each representation clean and disentangled. Moreover, to model the conditional distribution over future actions, we employ a diffusion-based transformer that disentangles action representations from shared latent features. Extensive experiments on both real-world and simulation environments demonstrate that DreamVLA achieves 76.7% success rate on real robot tasks and 4.44 average length on the CALVIN ABC-D benchmarks."
+    ]
+  },
+  "fulltext_sha256": "916d49a313c0246bfcd60bffba2e685e6432ae912f4b969fdbd3008437c3a44d",
+  "pages": 30,
+  "extracted_characters": 101873,
+  "cache_key": "P099/fulltext.pdf",
+  "extraction": "pypdf"
+}

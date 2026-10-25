@@ -1,0 +1,104 @@
+{
+  "paper_id": "P004",
+  "retrieved_at": "2026-10-25T22:05:13.370195+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://proceedings.mlr.press/v164/hoque22a.html",
+  "fulltext_url": "https://proceedings.mlr.press/v164/hoque22a/hoque22a.pdf",
+  "primary_metadata": {
+    "": [
+      "IE=edge"
+    ],
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "description": [
+      "ThriftyDAgger: Budget-Aware Novelty and Risk Gating for Interactive Imitation LearningRyan Hoque, Ashwin Balakrishna, Ellen Novoseller, Albert..."
+    ],
+    "citation_publisher": [
+      "PMLR"
+    ],
+    "citation_title": [
+      "ThriftyDAgger: Budget-Aware Novelty and Risk Gating for Interactive Imitation Learning"
+    ],
+    "citation_language": [
+      "en"
+    ],
+    "citation_abstract_html_url": [
+      "https://proceedings.mlr.press/v164/hoque22a.html"
+    ],
+    "citation_pdf_url": [
+      "https://proceedings.mlr.press/v164/hoque22a/hoque22a.pdf"
+    ],
+    "citation_firstpage": [
+      "598"
+    ],
+    "citation_lastpage": [
+      "608"
+    ],
+    "citation_author": [
+      "Ryan Hoque",
+      "Ashwin Balakrishna",
+      "Ellen Novoseller",
+      "Albert Wilcox",
+      "Daniel S. Brown",
+      "Ken Goldberg"
+    ],
+    "citation_publication_date": [
+      "2022/01/11"
+    ],
+    "citation_inbook_title": [
+      "Conference on Robot Learning"
+    ],
+    "citation_conference_title": [
+      "Conference on Robot Learning"
+    ],
+    "citation_issn": [
+      "2640-3498"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "ThriftyDAgger: Budget-Aware Novelty and Risk Gating for Interactive Imitation Learning"
+    ],
+    "twitter:site": [
+      "@MLResearchPress"
+    ],
+    "twitter:description": [
+      "Effective robot learning often requires online human feedback and interventions that can cost significant human time, giving rise to the central challenge in..."
+    ],
+    "twitter:image": [
+      "https://proceedings.mlr.press/v164/assets/images/logo-pmlr.png"
+    ],
+    "twitter:image:alt": [
+      "PMLR Logo"
+    ],
+    "og:title": [
+      "ThriftyDAgger: Budget-Aware Novelty and Risk Gating for Interactive Imitation Learning"
+    ],
+    "og:description": [
+      "Effective robot learning often requires online human feedback and interventions that can cost significant human time, giving rise to the central challenge in interactive imitation learning: is it p..."
+    ],
+    "og:type": [
+      "article"
+    ],
+    "article:published_time": [
+      "2022-01-11T00:00:00+00:00"
+    ],
+    "og:url": [
+      "https://proceedings.mlr.press/v164/hoque22a.html"
+    ],
+    "og:image": [
+      "https://proceedings.mlr.press/v164/assets/images/logo-pmlr.png"
+    ],
+    "og:site_name": [
+      "PMLR"
+    ]
+  },
+  "fulltext_sha256": "8641a8d4dda75363f8b622910f3f00fb021e491a0cbda211ea79792f790acd40",
+  "pages": 11,
+  "extracted_characters": 48279,
+  "cache_key": "P004/fulltext.pdf",
+  "extraction": "pypdf"
+}

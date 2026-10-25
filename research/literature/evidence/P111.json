@@ -1,0 +1,125 @@
+{
+  "paper_id": "P111",
+  "retrieved_at": "2026-10-25T22:06:58.229170+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2506.09985",
+  "fulltext_url": "https://arxiv.org/pdf/2506.09985",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2506.09985: V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2506.09985v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "A major challenge for modern AI is to learn to understand the world and learn to act largely by observation. This paper explores a self-supervised approach that combines internet-scale video data with a small amount of interaction data (robot trajectories), to develop models capable of understanding, predicting, and planning in the physical world. We first pre-train an action-free joint-embedding-predictive architecture, V-JEPA 2, on a video and image dataset comprising over 1 million hours of internet video. V-JEPA 2 achieves strong performance on motion understanding (77.3 top-1 accuracy on Something-Something v2) and state-of-the-art performance on human action anticipation (39.7 recall-at-5 on Epic-Kitchens-100) surpassing previous task-specific models. Additionally, after aligning V-JEPA 2 with a large language model, we demonstrate state-of-the-art performance on multiple video question-answering tasks at the 8 billion parameter scale (e.g., 84.0 on PerceptionTest, 76.9 on TempCompass). Finally, we show how self-supervised learning can be applied to robotic planning tasks by post-training a latent action-conditioned world model, V-JEPA 2-AC, using less than 62 hours of unlabeled robot videos from the Droid dataset. We deploy V-JEPA 2-AC zero-shot on Franka arms in two different labs and enable picking and placing of objects using planning with image goals. Notably, this is achieved without collecting any data from the robots in these environments, and without any task-specific training or reward. This work demonstrates how self-supervised learning from web-scale data and a small amount of robot interaction data can yield a world model capable of planning in the physical world."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "V-JEPA 2: Self-Supervised Video Models Enable Understanding,..."
+    ],
+    "twitter:description": [
+      "A major challenge for modern AI is to learn to understand the world and learn to act largely by observation. This paper explores a self-supervised approach that combines internet-scale video data..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning"
+    ],
+    "citation_author": [
+      "Assran, Mido",
+      "Bardes, Adrien",
+      "Fan, David",
+      "Garrido, Quentin",
+      "Howes, Russell",
+      "Mojtaba",
+      "Komeili",
+      "Muckley, Matthew",
+      "Rizvi, Ammar",
+      "Roberts, Claire",
+      "Sinha, Koustuv",
+      "Zholus, Artem",
+      "Arnaud, Sergio",
+      "Gejji, Abha",
+      "Martin, Ada",
+      "Hogan, Francois Robert",
+      "Dugas, Daniel",
+      "Bojanowski, Piotr",
+      "Khalidov, Vasil",
+      "Labatut, Patrick",
+      "Massa, Francisco",
+      "Szafraniec, Marc",
+      "Krishnakumar, Kapil",
+      "Li, Yong",
+      "Ma, Xiaodong",
+      "Chandar, Sarath",
+      "Meier, Franziska",
+      "LeCun, Yann",
+      "Rabbat, Michael",
+      "Ballas, Nicolas"
+    ],
+    "citation_date": [
+      "2025/06/11"
+    ],
+    "citation_online_date": [
+      "2025/06/11"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2506.09985"
+    ],
+    "citation_arxiv_id": [
+      "2506.09985"
+    ],
+    "citation_abstract": [
+      "A major challenge for modern AI is to learn to understand the world and learn to act largely by observation. This paper explores a self-supervised approach that combines internet-scale video data with a small amount of interaction data (robot trajectories), to develop models capable of understanding, predicting, and planning in the physical world. We first pre-train an action-free joint-embedding-predictive architecture, V-JEPA 2, on a video and image dataset comprising over 1 million hours of internet video. V-JEPA 2 achieves strong performance on motion understanding (77.3 top-1 accuracy on Something-Something v2) and state-of-the-art performance on human action anticipation (39.7 recall-at-5 on Epic-Kitchens-100) surpassing previous task-specific models. Additionally, after aligning V-JEPA 2 with a large language model, we demonstrate state-of-the-art performance on multiple video question-answering tasks at the 8 billion parameter scale (e.g., 84.0 on PerceptionTest, 76.9 on TempCompass). Finally, we show how self-supervised learning can be applied to robotic planning tasks by post-training a latent action-conditioned world model, V-JEPA 2-AC, using less than 62 hours of unlabeled robot videos from the Droid dataset. We deploy V-JEPA 2-AC zero-shot on Franka arms in two different labs and enable picking and placing of objects using planning with image goals. Notably, this is achieved without collecting any data from the robots in these environments, and without any task-specific training or reward. This work demonstrates how self-supervised learning from web-scale data and a small amount of robot interaction data can yield a world model capable of planning in the physical world."
+    ]
+  },
+  "fulltext_sha256": "9cfcfde5fb0d9730637da5b9e7317825c3f3d09e91f3553e22eeba42c74d2226",
+  "pages": 48,
+  "extracted_characters": 174916,
+  "cache_key": "P111/fulltext.pdf",
+  "extraction": "pypdf"
+}

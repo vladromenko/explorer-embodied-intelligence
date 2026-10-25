@@ -1,0 +1,100 @@
+{
+  "paper_id": "P078",
+  "retrieved_at": "2026-10-25T22:06:14.785765+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2602.10717",
+  "fulltext_url": "https://arxiv.org/pdf/2602.10717",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2602.10717: Say, Dream, and Act: Learning Video World Models for Instruction-Driven Robot Manipulation"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Say, Dream, and Act: Learning Video World Models for Instruction-Driven Robot Manipulation"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2602.10717v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Robotic manipulation requires anticipating how the environment evolves in response to actions, yet most existing systems lack this predictive capability, often resulting in errors and inefficiency. While Vision-Language Models (VLMs) provide high-level guidance, they cannot explicitly forecast future states, and existing world models either predict only short horizons or produce spatially inconsistent frames. To address these challenges, we propose a framework for fast and predictive video-conditioned action. Our approach first selects and adapts a robust video generation model to ensure reliable future predictions, then applies adversarial distillation for fast, few-step video generation, and finally trains an action model that leverages both generated videos and real observations to correct spatial errors. Extensive experiments show that our method produces temporally coherent, spatially accurate video predictions that directly support precise manipulation, achieving significant improvements in embodiment consistency, spatial referring ability, and task completion over existing baselines. Codes & Models will be released."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Say, Dream, and Act: Learning Video World Models for..."
+    ],
+    "twitter:description": [
+      "Robotic manipulation requires anticipating how the environment evolves in response to actions, yet most existing systems lack this predictive capability, often resulting in errors and..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Say, Dream, and Act: Learning Video World Models for Instruction-Driven Robot Manipulation"
+    ],
+    "citation_author": [
+      "Gu, Songen",
+      "Cai, Yunuo",
+      "Wang, Tianyu",
+      "Wu, Simo",
+      "Fu, Yanwei"
+    ],
+    "citation_date": [
+      "2026/02/11"
+    ],
+    "citation_online_date": [
+      "2026/02/11"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2602.10717"
+    ],
+    "citation_arxiv_id": [
+      "2602.10717"
+    ],
+    "citation_abstract": [
+      "Robotic manipulation requires anticipating how the environment evolves in response to actions, yet most existing systems lack this predictive capability, often resulting in errors and inefficiency. While Vision-Language Models (VLMs) provide high-level guidance, they cannot explicitly forecast future states, and existing world models either predict only short horizons or produce spatially inconsistent frames. To address these challenges, we propose a framework for fast and predictive video-conditioned action. Our approach first selects and adapts a robust video generation model to ensure reliable future predictions, then applies adversarial distillation for fast, few-step video generation, and finally trains an action model that leverages both generated videos and real observations to correct spatial errors. Extensive experiments show that our method produces temporally coherent, spatially accurate video predictions that directly support precise manipulation, achieving significant improvements in embodiment consistency, spatial referring ability, and task completion over existing baselines. Codes & Models will be released."
+    ]
+  },
+  "fulltext_sha256": "d8e71251df61893ccde0a839e3aecff9d617172d4c8df90d59923eb5051da95c",
+  "pages": 11,
+  "extracted_characters": 46754,
+  "cache_key": "P078/fulltext.pdf",
+  "extraction": "pypdf"
+}

@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "scientific_module_globs": [
+    "research/benchmark/*.py",
+    "01-autonomous-learning/src/**/*.py",
+    "shared/learning/**/*.py",
+    "04-cross-embodiment-transfer/src/**/*.py",
+    "05-cooperative-handover/src/**/*.py"
+  ],
+  "methods": [
+    {
+      "method_id": "ENG-EVAL-001",
+      "implementation_id": "IMPL-EXPLORER-EVAL-001",
+      "function_or_module": "research/benchmark/evaluate.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [
+        "P130"
+      ],
+      "sources": [
+        {
+          "url": "https://arxiv.org/abs/2306.03310",
+          "role": "Lifelong-task ordering and transfer evaluation motivation; no upstream code copied"
+        },
+        {
+          "url": "https://doi.org/10.1080/01621459.1927.10502953",
+          "role": "Wilson score interval mathematical reference"
+        },
+        {
+          "url": "https://docs.python.org/3/library/statistics.html#statistics.NormalDist",
+          "role": "Standard-library inverse normal CDF"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Original deterministic accounting and symbolic planning helpers; no claim of a novel learned skill-memory algorithm. Missing evidence stays unknown and simulation results are never pooled with physical results.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest research/benchmark/tests -q",
+          "result": "9 passed (7 evaluation, 2 provenance-invariant tests)",
+          "date": "2026-10-26",
+          "scope": "deterministic scientific accounting and symbolic planning only"
+        }
+      ],
+      "hardware_run_ids": []
+    }
+  ]
+}

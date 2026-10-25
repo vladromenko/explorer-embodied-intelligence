@@ -1,0 +1,105 @@
+{
+  "paper_id": "P075",
+  "retrieved_at": "2026-10-25T22:06:11.312890+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2409.16283",
+  "fulltext_url": "https://arxiv.org/pdf/2409.16283",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2409.16283: Gen2Act: Human Video Generation in Novel Scenarios enables Generalizable Robot Manipulation"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Gen2Act: Human Video Generation in Novel Scenarios enables Generalizable Robot Manipulation"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2409.16283v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "How can robot manipulation policies generalize to novel tasks involving unseen object types and new motions? In this paper, we provide a solution in terms of predicting motion information from web data through human video generation and conditioning a robot policy on the generated video. Instead of attempting to scale robot data collection which is expensive, we show how we can leverage video generation models trained on easily available web data, for enabling generalization. Our approach Gen2Act casts language-conditioned manipulation as zero-shot human video generation followed by execution with a single policy conditioned on the generated video. To train the policy, we use an order of magnitude less robot interaction data compared to what the video prediction model was trained on. Gen2Act doesn't require fine-tuning the video model at all and we directly use a pre-trained model for generating human videos. Our results on diverse real-world scenarios show how Gen2Act enables manipulating unseen object types and performing novel motions for tasks not present in the robot data. Videos are at https://homangab.github.io/gen2act/"
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Gen2Act: Human Video Generation in Novel Scenarios enables..."
+    ],
+    "twitter:description": [
+      "How can robot manipulation policies generalize to novel tasks involving unseen object types and new motions? In this paper, we provide a solution in terms of predicting motion information from web..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Gen2Act: Human Video Generation in Novel Scenarios enables Generalizable Robot Manipulation"
+    ],
+    "citation_author": [
+      "Bharadhwaj, Homanga",
+      "Dwibedi, Debidatta",
+      "Gupta, Abhinav",
+      "Tulsiani, Shubham",
+      "Doersch, Carl",
+      "Xiao, Ted",
+      "Shah, Dhruv",
+      "Xia, Fei",
+      "Sadigh, Dorsa",
+      "Kirmani, Sean"
+    ],
+    "citation_date": [
+      "2024/09/24"
+    ],
+    "citation_online_date": [
+      "2024/09/24"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2409.16283"
+    ],
+    "citation_arxiv_id": [
+      "2409.16283"
+    ],
+    "citation_abstract": [
+      "How can robot manipulation policies generalize to novel tasks involving unseen object types and new motions? In this paper, we provide a solution in terms of predicting motion information from web data through human video generation and conditioning a robot policy on the generated video. Instead of attempting to scale robot data collection which is expensive, we show how we can leverage video generation models trained on easily available web data, for enabling generalization. Our approach Gen2Act casts language-conditioned manipulation as zero-shot human video generation followed by execution with a single policy conditioned on the generated video. To train the policy, we use an order of magnitude less robot interaction data compared to what the video prediction model was trained on. Gen2Act doesn't require fine-tuning the video model at all and we directly use a pre-trained model for generating human videos. Our results on diverse real-world scenarios show how Gen2Act enables manipulating unseen object types and performing novel motions for tasks not present in the robot data. Videos are at https://homangab.github.io/gen2act/"
+    ]
+  },
+  "fulltext_sha256": "5d48dce0af6dc2a77904099c7454955c381c2e387ae38ed4acb6493bbcbd0295",
+  "pages": 11,
+  "extracted_characters": 51307,
+  "cache_key": "P075/fulltext.pdf",
+  "extraction": "pypdf"
+}

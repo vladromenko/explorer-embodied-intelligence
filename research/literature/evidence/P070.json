@@ -1,0 +1,106 @@
+{
+  "paper_id": "P070",
+  "retrieved_at": "2026-10-25T22:06:06.728724+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2410.20018",
+  "fulltext_url": "https://arxiv.org/pdf/2410.20018",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2410.20018: GHIL-Glue: Hierarchical Control with Filtered Subgoal Images"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "GHIL-Glue: Hierarchical Control with Filtered Subgoal Images"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2410.20018v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Image and video generative models that are pre-trained on Internet-scale data can greatly increase the generalization capacity of robot learning systems. These models can function as high-level planners, generating intermediate subgoals for low-level goal-conditioned policies to reach. However, the performance of these systems can be greatly bottlenecked by the interface between generative models and low-level controllers. For example, generative models may predict photorealistic yet physically infeasible frames that confuse low-level policies. Low-level policies may also be sensitive to subtle visual artifacts in generated goal images. This paper addresses these two facets of generalization, providing an interface to effectively \"glue together\" language-conditioned image or video prediction models with low-level goal-conditioned policies. Our method, Generative Hierarchical Imitation Learning-Glue (GHIL-Glue), filters out subgoals that do not lead to task progress and improves the robustness of goal-conditioned policies to generated subgoals with harmful visual artifacts. We find in extensive experiments in both simulated and real environments that GHIL-Glue achieves a 25% improvement across several hierarchical models that leverage generative subgoals, achieving a new state-of-the-art on the CALVIN simulation benchmark for policies using observations from a single RGB camera. GHIL-Glue also outperforms other generalist robot policies across 3/4 language-conditioned manipulation tasks testing zero-shot generalization in physical experiments."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "GHIL-Glue: Hierarchical Control with Filtered Subgoal Images"
+    ],
+    "twitter:description": [
+      "Image and video generative models that are pre-trained on Internet-scale data can greatly increase the generalization capacity of robot learning systems. These models can function as high-level..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "GHIL-Glue: Hierarchical Control with Filtered Subgoal Images"
+    ],
+    "citation_author": [
+      "Hatch, Kyle B.",
+      "Balakrishna, Ashwin",
+      "Mees, Oier",
+      "Nair, Suraj",
+      "Park, Seohong",
+      "Wulfe, Blake",
+      "Itkina, Masha",
+      "Eysenbach, Benjamin",
+      "Levine, Sergey",
+      "Kollar, Thomas",
+      "Burchfiel, Benjamin"
+    ],
+    "citation_date": [
+      "2024/10/26"
+    ],
+    "citation_online_date": [
+      "2024/10/26"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2410.20018"
+    ],
+    "citation_arxiv_id": [
+      "2410.20018"
+    ],
+    "citation_abstract": [
+      "Image and video generative models that are pre-trained on Internet-scale data can greatly increase the generalization capacity of robot learning systems. These models can function as high-level planners, generating intermediate subgoals for low-level goal-conditioned policies to reach. However, the performance of these systems can be greatly bottlenecked by the interface between generative models and low-level controllers. For example, generative models may predict photorealistic yet physically infeasible frames that confuse low-level policies. Low-level policies may also be sensitive to subtle visual artifacts in generated goal images. This paper addresses these two facets of generalization, providing an interface to effectively \"glue together\" language-conditioned image or video prediction models with low-level goal-conditioned policies. Our method, Generative Hierarchical Imitation Learning-Glue (GHIL-Glue), filters out subgoals that do not lead to task progress and improves the robustness of goal-conditioned policies to generated subgoals with harmful visual artifacts. We find in extensive experiments in both simulated and real environments that GHIL-Glue achieves a 25% improvement across several hierarchical models that leverage generative subgoals, achieving a new state-of-the-art on the CALVIN simulation benchmark for policies using observations from a single RGB camera. GHIL-Glue also outperforms other generalist robot policies across 3/4 language-conditioned manipulation tasks testing zero-shot generalization in physical experiments."
+    ]
+  },
+  "fulltext_sha256": "da16d7cbe3ba5c0572aff451dfbee4a3d3fc96de3b01b9cb6381b37147d28696",
+  "pages": 15,
+  "extracted_characters": 70398,
+  "cache_key": "P070/fulltext.pdf",
+  "extraction": "pypdf"
+}

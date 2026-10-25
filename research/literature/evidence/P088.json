@@ -1,0 +1,111 @@
+{
+  "paper_id": "P088",
+  "retrieved_at": "2026-10-25T22:06:35.256672+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2512.13030",
+  "fulltext_url": "https://arxiv.org/pdf/2512.13030",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2512.13030: Motus: A Unified Latent Action World Model"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Motus: A Unified Latent Action World Model"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2512.13030v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "While a general embodied agent must function as a unified system, current methods are built on isolated models for understanding, world modeling, and control. This fragmentation prevents unifying multimodal generative capabilities and hinders learning from large-scale, heterogeneous data. In this paper, we propose Motus, a unified latent action world model that leverages existing general pretrained models and rich, sharable motion information. Motus introduces a Mixture-of-Transformer (MoT) architecture to integrate three experts (i.e., understanding, video generation, and action) and adopts a UniDiffuser-style scheduler to enable flexible switching between different modeling modes (i.e., world models, vision-language-action models, inverse dynamics models, video generation models, and video-action joint prediction models). Motus further leverages the optical flow to learn latent actions and adopts a recipe with three-phase training pipeline and six-layer data pyramid, thereby extracting pixel-level \"delta action\" and enabling large-scale action pretraining. Experiments show that Motus achieves superior performance against state-of-the-art methods in both simulation (a +15% improvement over X-VLA and a +45% improvement over Pi0.5) and real-world scenarios(improved by +11~48%), demonstrating unified modeling of all functionalities and priors significantly benefits downstream robotic tasks."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Motus: A Unified Latent Action World Model"
+    ],
+    "twitter:description": [
+      "While a general embodied agent must function as a unified system, current methods are built on isolated models for understanding, world modeling, and control. This fragmentation prevents unifying..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Motus: A Unified Latent Action World Model"
+    ],
+    "citation_author": [
+      "Bi, Hongzhe",
+      "Tan, Hengkai",
+      "Xie, Shenghao",
+      "Wang, Zeyuan",
+      "Huang, Shuhe",
+      "Liu, Haitian",
+      "Zhao, Ruowen",
+      "Feng, Yao",
+      "Xiang, Chendong",
+      "Rong, Yinze",
+      "Zhao, Hongyan",
+      "Liu, Hanyu",
+      "Su, Zhizhong",
+      "Ma, Lei",
+      "Su, Hang",
+      "Zhu, Jun"
+    ],
+    "citation_date": [
+      "2025/12/15"
+    ],
+    "citation_online_date": [
+      "2025/12/25"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2512.13030"
+    ],
+    "citation_arxiv_id": [
+      "2512.13030"
+    ],
+    "citation_abstract": [
+      "While a general embodied agent must function as a unified system, current methods are built on isolated models for understanding, world modeling, and control. This fragmentation prevents unifying multimodal generative capabilities and hinders learning from large-scale, heterogeneous data. In this paper, we propose Motus, a unified latent action world model that leverages existing general pretrained models and rich, sharable motion information. Motus introduces a Mixture-of-Transformer (MoT) architecture to integrate three experts (i.e., understanding, video generation, and action) and adopts a UniDiffuser-style scheduler to enable flexible switching between different modeling modes (i.e., world models, vision-language-action models, inverse dynamics models, video generation models, and video-action joint prediction models). Motus further leverages the optical flow to learn latent actions and adopts a recipe with three-phase training pipeline and six-layer data pyramid, thereby extracting pixel-level \"delta action\" and enabling large-scale action pretraining. Experiments show that Motus achieves superior performance against state-of-the-art methods in both simulation (a +15% improvement over X-VLA and a +45% improvement over Pi0.5) and real-world scenarios(improved by +11~48%), demonstrating unified modeling of all functionalities and priors significantly benefits downstream robotic tasks."
+    ]
+  },
+  "fulltext_sha256": "4f9be253165cbb3567f56d23d200ba93bda1242195e579abaac987ea37cc264f",
+  "pages": 22,
+  "extracted_characters": 74460,
+  "cache_key": "P088/fulltext.pdf",
+  "extraction": "pypdf"
+}

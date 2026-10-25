@@ -1,0 +1,109 @@
+{
+  "paper_id": "P047",
+  "retrieved_at": "2026-10-25T22:05:48.448626+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2308.12952",
+  "fulltext_url": "https://arxiv.org/pdf/2308.12952",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2308.12952: BridgeData V2: A Dataset for Robot Learning at Scale"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "BridgeData V2: A Dataset for Robot Learning at Scale"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2308.12952v3"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "We introduce BridgeData V2, a large and diverse dataset of robotic manipulation behaviors designed to facilitate research on scalable robot learning. BridgeData V2 contains 60,096 trajectories collected across 24 environments on a publicly available low-cost robot. BridgeData V2 provides extensive task and environment variability, leading to skills that can generalize across environments, domains, and institutions, making the dataset a useful resource for a broad range of researchers. Additionally, the dataset is compatible with a wide variety of open-vocabulary, multi-task learning methods conditioned on goal images or natural language instructions. In our experiments, we train 6 state-of-the-art imitation learning and offline reinforcement learning methods on our dataset, and find that they succeed on a suite of tasks requiring varying amounts of generalization. We also demonstrate that the performance of these methods improves with more data and higher capacity models, and that training on a greater variety of skills leads to improved generalization. By publicly sharing BridgeData V2 and our pre-trained models, we aim to accelerate research in scalable robot learning methods. Project page at https://rail-berkeley.github.io/bridgedata"
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "BridgeData V2: A Dataset for Robot Learning at Scale"
+    ],
+    "twitter:description": [
+      "We introduce BridgeData V2, a large and diverse dataset of robotic manipulation behaviors designed to facilitate research on scalable robot learning. BridgeData V2 contains 60,096 trajectories..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "BridgeData V2: A Dataset for Robot Learning at Scale"
+    ],
+    "citation_author": [
+      "Walke, Homer",
+      "Black, Kevin",
+      "Lee, Abraham",
+      "Kim, Moo Jin",
+      "Du, Max",
+      "Zheng, Chongyi",
+      "Zhao, Tony",
+      "Hansen-Estruch, Philippe",
+      "Vuong, Quan",
+      "He, Andre",
+      "Myers, Vivek",
+      "Fang, Kuan",
+      "Finn, Chelsea",
+      "Levine, Sergey"
+    ],
+    "citation_date": [
+      "2023/08/24"
+    ],
+    "citation_online_date": [
+      "2024/01/17"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2308.12952"
+    ],
+    "citation_arxiv_id": [
+      "2308.12952"
+    ],
+    "citation_abstract": [
+      "We introduce BridgeData V2, a large and diverse dataset of robotic manipulation behaviors designed to facilitate research on scalable robot learning. BridgeData V2 contains 60,096 trajectories collected across 24 environments on a publicly available low-cost robot. BridgeData V2 provides extensive task and environment variability, leading to skills that can generalize across environments, domains, and institutions, making the dataset a useful resource for a broad range of researchers. Additionally, the dataset is compatible with a wide variety of open-vocabulary, multi-task learning methods conditioned on goal images or natural language instructions. In our experiments, we train 6 state-of-the-art imitation learning and offline reinforcement learning methods on our dataset, and find that they succeed on a suite of tasks requiring varying amounts of generalization. We also demonstrate that the performance of these methods improves with more data and higher capacity models, and that training on a greater variety of skills leads to improved generalization. By publicly sharing BridgeData V2 and our pre-trained models, we aim to accelerate research in scalable robot learning methods. Project page at https://rail-berkeley.github.io/bridgedata"
+    ]
+  },
+  "fulltext_sha256": "aa5fdac48bf9122b22f88150d45575cb0685f2a2f761ca6fc570be743022819b",
+  "pages": 15,
+  "extracted_characters": 53445,
+  "cache_key": "P047/fulltext.pdf",
+  "extraction": "pypdf"
+}

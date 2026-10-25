@@ -1,0 +1,106 @@
+{
+  "paper_id": "P116",
+  "retrieved_at": "2026-10-25T22:07:07.041025+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2601.05241",
+  "fulltext_url": "https://arxiv.org/pdf/2601.05241",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2601.05241: RoboVIP: Multi-View Video Generation with Visual Identity Prompting Augments Robot Manipulation"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "RoboVIP: Multi-View Video Generation with Visual Identity Prompting Augments Robot Manipulation"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2601.05241v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "The diversity, quantity, and quality of manipulation data are critical for training effective robot policies. However, due to hardware and physical setup constraints, collecting large-scale real-world manipulation data remains difficult to scale across diverse environments. Recent work uses text-prompt conditioned image diffusion models to augment manipulation data by altering the backgrounds and tabletop objects in the visual observations. However, these approaches often overlook the practical need for multi-view and temporally coherent observations required by state-of-the-art policy models. Further, text prompts alone cannot reliably specify the scene setup. To provide the diffusion model with explicit visual guidance, we introduce visual identity prompting, which supplies exemplar images as conditioning inputs to guide the generation of the desired scene setup. To this end, we also build a scalable pipeline to curate a visual identity pool from large robotics datasets. Using our augmented manipulation data to train downstream vision-language-action and visuomotor policy models yields consistent performance gains in both simulation and real-robot settings."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "RoboVIP: Multi-View Video Generation with Visual Identity..."
+    ],
+    "twitter:description": [
+      "The diversity, quantity, and quality of manipulation data are critical for training effective robot policies. However, due to hardware and physical setup constraints, collecting large-scale..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "RoboVIP: Multi-View Video Generation with Visual Identity Prompting Augments Robot Manipulation"
+    ],
+    "citation_author": [
+      "Wang, Boyang",
+      "Zhang, Haoran",
+      "Zhang, Shujie",
+      "Hao, Jinkun",
+      "Jia, Mingda",
+      "Lv, Qi",
+      "Mao, Yucheng",
+      "Lyu, Zhaoyang",
+      "Zeng, Jia",
+      "Xu, Xudong",
+      "Pang, Jiangmiao"
+    ],
+    "citation_date": [
+      "2026/01/08"
+    ],
+    "citation_online_date": [
+      "2026/01/08"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2601.05241"
+    ],
+    "citation_arxiv_id": [
+      "2601.05241"
+    ],
+    "citation_abstract": [
+      "The diversity, quantity, and quality of manipulation data are critical for training effective robot policies. However, due to hardware and physical setup constraints, collecting large-scale real-world manipulation data remains difficult to scale across diverse environments. Recent work uses text-prompt conditioned image diffusion models to augment manipulation data by altering the backgrounds and tabletop objects in the visual observations. However, these approaches often overlook the practical need for multi-view and temporally coherent observations required by state-of-the-art policy models. Further, text prompts alone cannot reliably specify the scene setup. To provide the diffusion model with explicit visual guidance, we introduce visual identity prompting, which supplies exemplar images as conditioning inputs to guide the generation of the desired scene setup. To this end, we also build a scalable pipeline to curate a visual identity pool from large robotics datasets. Using our augmented manipulation data to train downstream vision-language-action and visuomotor policy models yields consistent performance gains in both simulation and real-robot settings."
+    ]
+  },
+  "fulltext_sha256": "cfcbe6dfab9147119599fd71d9daa32c1c167eaea78dcaee5422eda966202bde",
+  "pages": 18,
+  "extracted_characters": 76364,
+  "cache_key": "P116/fulltext.pdf",
+  "extraction": "pypdf"
+}

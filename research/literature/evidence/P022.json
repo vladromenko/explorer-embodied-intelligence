@@ -1,0 +1,109 @@
+{
+  "paper_id": "P022",
+  "retrieved_at": "2026-10-25T22:05:26.878185+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2506.01844",
+  "fulltext_url": "https://arxiv.org/pdf/2506.01844",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2506.01844: SmolVLA: A Vision-Language-Action Model for Affordable and Efficient Robotics"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "SmolVLA: A Vision-Language-Action Model for Affordable and Efficient Robotics"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2506.01844v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Vision-language models (VLMs) pretrained on large-scale multimodal datasets encode rich visual and linguistic knowledge, making them a strong foundation for robotics. Rather than training robotic policies from scratch, recent approaches adapt VLMs into vision-language-action (VLA) models that enable natural language-driven perception and control. However, existing VLAs are typically massive--often with billions of parameters--leading to high training costs and limited real-world deployability. Moreover, they rely on academic and industrial datasets, overlooking the growing availability of community-collected data from affordable robotic platforms. In this work, we present SmolVLA, a small, efficient, and community-driven VLA that drastically reduces both training and inference costs, while retaining competitive performance. SmolVLA is designed to be trained on a single GPU and deployed on consumer-grade GPUs or even CPUs. To further improve responsiveness, we introduce an asynchronous inference stack decoupling perception and action prediction from action execution, allowing higher control rates with chunked action generation. Despite its compact size, SmolVLA achieves performance comparable to VLAs that are 10x larger. We evaluate SmolVLA on a range of both simulated as well as real-world robotic benchmarks and release all code, pretrained models, and training data."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "SmolVLA: A Vision-Language-Action Model for Affordable and..."
+    ],
+    "twitter:description": [
+      "Vision-language models (VLMs) pretrained on large-scale multimodal datasets encode rich visual and linguistic knowledge, making them a strong foundation for robotics. Rather than training robotic..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "SmolVLA: A Vision-Language-Action Model for Affordable and Efficient Robotics"
+    ],
+    "citation_author": [
+      "Shukor, Mustafa",
+      "Aubakirova, Dana",
+      "Capuano, Francesco",
+      "Kooijmans, Pepijn",
+      "Palma, Steven",
+      "Zouitine, Adil",
+      "Aractingi, Michel",
+      "Pascal, Caroline",
+      "Russi, Martino",
+      "Marafioti, Andres",
+      "Alibert, Simon",
+      "Cord, Matthieu",
+      "Wolf, Thomas",
+      "Cadene, Remi"
+    ],
+    "citation_date": [
+      "2025/06/02"
+    ],
+    "citation_online_date": [
+      "2025/06/02"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2506.01844"
+    ],
+    "citation_arxiv_id": [
+      "2506.01844"
+    ],
+    "citation_abstract": [
+      "Vision-language models (VLMs) pretrained on large-scale multimodal datasets encode rich visual and linguistic knowledge, making them a strong foundation for robotics. Rather than training robotic policies from scratch, recent approaches adapt VLMs into vision-language-action (VLA) models that enable natural language-driven perception and control. However, existing VLAs are typically massive--often with billions of parameters--leading to high training costs and limited real-world deployability. Moreover, they rely on academic and industrial datasets, overlooking the growing availability of community-collected data from affordable robotic platforms. In this work, we present SmolVLA, a small, efficient, and community-driven VLA that drastically reduces both training and inference costs, while retaining competitive performance. SmolVLA is designed to be trained on a single GPU and deployed on consumer-grade GPUs or even CPUs. To further improve responsiveness, we introduce an asynchronous inference stack decoupling perception and action prediction from action execution, allowing higher control rates with chunked action generation. Despite its compact size, SmolVLA achieves performance comparable to VLAs that are 10x larger. We evaluate SmolVLA on a range of both simulated as well as real-world robotic benchmarks and release all code, pretrained models, and training data."
+    ]
+  },
+  "fulltext_sha256": "cb1bb9a8f824187fcdc32af8c290214487c524f139a3c2def1c6d97adb1fa40c",
+  "pages": 24,
+  "extracted_characters": 97328,
+  "cache_key": "P022/fulltext.pdf",
+  "extraction": "pypdf"
+}

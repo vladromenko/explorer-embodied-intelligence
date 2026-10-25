@@ -1,0 +1,99 @@
+{
+  "paper_id": "P013",
+  "retrieved_at": "2026-10-25T22:05:19.367244+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2107.09645",
+  "fulltext_url": "https://arxiv.org/pdf/2107.09645",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2107.09645: Mastering Visual Continuous Control: Improved Data-Augmented Reinforcement Learning"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Mastering Visual Continuous Control: Improved Data-Augmented Reinforcement Learning"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2107.09645v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "We present DrQ-v2, a model-free reinforcement learning (RL) algorithm for visual continuous control. DrQ-v2 builds on DrQ, an off-policy actor-critic approach that uses data augmentation to learn directly from pixels. We introduce several improvements that yield state-of-the-art results on the DeepMind Control Suite. Notably, DrQ-v2 is able to solve complex humanoid locomotion tasks directly from pixel observations, previously unattained by model-free RL. DrQ-v2 is conceptually simple, easy to implement, and provides significantly better computational footprint compared to prior work, with the majority of tasks taking just 8 hours to train on a single GPU. Finally, we publicly release DrQ-v2's implementation to provide RL practitioners with a strong and computationally efficient baseline."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Mastering Visual Continuous Control: Improved Data-Augmented..."
+    ],
+    "twitter:description": [
+      "We present DrQ-v2, a model-free reinforcement learning (RL) algorithm for visual continuous control. DrQ-v2 builds on DrQ, an off-policy actor-critic approach that uses data augmentation to learn..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Mastering Visual Continuous Control: Improved Data-Augmented Reinforcement Learning"
+    ],
+    "citation_author": [
+      "Yarats, Denis",
+      "Fergus, Rob",
+      "Lazaric, Alessandro",
+      "Pinto, Lerrel"
+    ],
+    "citation_date": [
+      "2021/07/20"
+    ],
+    "citation_online_date": [
+      "2021/07/20"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2107.09645"
+    ],
+    "citation_arxiv_id": [
+      "2107.09645"
+    ],
+    "citation_abstract": [
+      "We present DrQ-v2, a model-free reinforcement learning (RL) algorithm for visual continuous control. DrQ-v2 builds on DrQ, an off-policy actor-critic approach that uses data augmentation to learn directly from pixels. We introduce several improvements that yield state-of-the-art results on the DeepMind Control Suite. Notably, DrQ-v2 is able to solve complex humanoid locomotion tasks directly from pixel observations, previously unattained by model-free RL. DrQ-v2 is conceptually simple, easy to implement, and provides significantly better computational footprint compared to prior work, with the majority of tasks taking just 8 hours to train on a single GPU. Finally, we publicly release DrQ-v2's implementation to provide RL practitioners with a strong and computationally efficient baseline."
+    ]
+  },
+  "fulltext_sha256": "7a9b7d03a6cbdf09767b132fa474620abed861197632352d236be61faa09a0fd",
+  "pages": 18,
+  "extracted_characters": 52143,
+  "cache_key": "P013/fulltext.pdf",
+  "extraction": "pypdf"
+}

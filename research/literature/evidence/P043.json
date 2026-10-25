@@ -1,0 +1,102 @@
+{
+  "paper_id": "P043",
+  "retrieved_at": "2026-10-25T22:05:42.671499+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2510.08568",
+  "fulltext_url": "https://arxiv.org/pdf/2510.08568",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2510.08568: NovaFlow: Zero-Shot Manipulation via Actionable Flow from Generated Videos"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "NovaFlow: Zero-Shot Manipulation via Actionable Flow from Generated Videos"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2510.08568v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Enabling robots to execute novel manipulation tasks zero-shot is a central goal in robotics. Most existing methods assume in-distribution tasks or rely on fine-tuning with embodiment-matched data, limiting transfer across platforms. We present NovaFlow, an autonomous manipulation framework that converts a task description into an actionable plan for a target robot without any demonstrations. Given a task description, NovaFlow synthesizes a video using a video generation model and distills it into 3D actionable object flow using off-the-shelf perception modules. From the object flow, it computes relative poses for rigid objects and realizes them as robot actions via grasp proposals and trajectory optimization. For deformable objects, this flow serves as a tracking objective for model-based planning with a particle-based dynamics model. By decoupling task understanding from low-level control, NovaFlow naturally transfers across embodiments. We validate on rigid, articulated, and deformable object manipulation tasks using a table-top Franka arm and a Spot quadrupedal mobile robot, and achieve effective zero-shot execution without demonstrations or embodiment-specific training. Project website: https://novaflow.lhy.xyz/."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "NovaFlow: Zero-Shot Manipulation via Actionable Flow from Generated Videos"
+    ],
+    "twitter:description": [
+      "Enabling robots to execute novel manipulation tasks zero-shot is a central goal in robotics. Most existing methods assume in-distribution tasks or rely on fine-tuning with embodiment-matched data,..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "NovaFlow: Zero-Shot Manipulation via Actionable Flow from Generated Videos"
+    ],
+    "citation_author": [
+      "Li, Hongyu",
+      "Sun, Lingfeng",
+      "Hu, Yafei",
+      "Ta, Duy",
+      "Barry, Jennifer",
+      "Konidaris, George",
+      "Fu, Jiahui"
+    ],
+    "citation_date": [
+      "2025/10/09"
+    ],
+    "citation_online_date": [
+      "2025/10/09"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2510.08568"
+    ],
+    "citation_arxiv_id": [
+      "2510.08568"
+    ],
+    "citation_abstract": [
+      "Enabling robots to execute novel manipulation tasks zero-shot is a central goal in robotics. Most existing methods assume in-distribution tasks or rely on fine-tuning with embodiment-matched data, limiting transfer across platforms. We present NovaFlow, an autonomous manipulation framework that converts a task description into an actionable plan for a target robot without any demonstrations. Given a task description, NovaFlow synthesizes a video using a video generation model and distills it into 3D actionable object flow using off-the-shelf perception modules. From the object flow, it computes relative poses for rigid objects and realizes them as robot actions via grasp proposals and trajectory optimization. For deformable objects, this flow serves as a tracking objective for model-based planning with a particle-based dynamics model. By decoupling task understanding from low-level control, NovaFlow naturally transfers across embodiments. We validate on rigid, articulated, and deformable object manipulation tasks using a table-top Franka arm and a Spot quadrupedal mobile robot, and achieve effective zero-shot execution without demonstrations or embodiment-specific training. Project website: https://novaflow.lhy.xyz/."
+    ]
+  },
+  "fulltext_sha256": "d522d89f00c9b494bd4675ec8f003932026a3c7f957ebcf0defb8a7c2b659c13",
+  "pages": 20,
+  "extracted_characters": 60714,
+  "cache_key": "P043/fulltext.pdf",
+  "extraction": "pypdf"
+}

@@ -1,0 +1,106 @@
+{
+  "paper_id": "P062",
+  "retrieved_at": "2026-10-25T22:05:59.194901+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2603.09030",
+  "fulltext_url": "https://arxiv.org/pdf/2603.09030",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2603.09030: PlayWorld: Learning Robot World Models from Autonomous Play"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "PlayWorld: Learning Robot World Models from Autonomous Play"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2603.09030v3"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Action-conditioned video models offer a promising path to building general-purpose robot simulators that can improve directly from data. Yet, despite training on large-scale robot datasets, current state-of-the-art video models still struggle to predict physically consistent robot-object interactions that are crucial in robotic manipulation. To close this gap, we present PlayWorld, a simple, scalable, and fully autonomous pipeline for training high-fidelity video world simulators from interaction experience. In contrast to prior approaches that rely on success-biased human demonstrations, PlayWorld is the first system capable of learning entirely from unsupervised robot self-play, enabling naturally scalable data collection while capturing complex, long-tailed physical interactions essential for modeling realistic object dynamics. Experiments across diverse manipulation tasks show that PlayWorld generates high-quality, physically consistent predictions for contact-rich interactions that are not captured by world models trained on human-collected data. We further demonstrate the versatility of PlayWorld in enabling fine-grained failure prediction and policy evaluation, with up to 40% improvements over human-collected data. Finally, we demonstrate how PlayWorld enables reinforcement learning in the world model, improving policy performance by 65% in success rates when deployed in the real world."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "PlayWorld: Learning Robot World Models from Autonomous Play"
+    ],
+    "twitter:description": [
+      "Action-conditioned video models offer a promising path to building general-purpose robot simulators that can improve directly from data. Yet, despite training on large-scale robot datasets,..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "PlayWorld: Learning Robot World Models from Autonomous Play"
+    ],
+    "citation_author": [
+      "Yin, Tenny",
+      "Mei, Zhiting",
+      "Zheng, Zhonghe",
+      "Yamane, Miyu",
+      "Wang, David",
+      "Sceats, Jade",
+      "Bateman, Samuel M.",
+      "Zha, Lihan",
+      "Badithela, Apurva",
+      "Shorinwa, Ola",
+      "Majumdar, Anirudha"
+    ],
+    "citation_date": [
+      "2026/03/09"
+    ],
+    "citation_online_date": [
+      "2026/04/06"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2603.09030"
+    ],
+    "citation_arxiv_id": [
+      "2603.09030"
+    ],
+    "citation_abstract": [
+      "Action-conditioned video models offer a promising path to building general-purpose robot simulators that can improve directly from data. Yet, despite training on large-scale robot datasets, current state-of-the-art video models still struggle to predict physically consistent robot-object interactions that are crucial in robotic manipulation. To close this gap, we present PlayWorld, a simple, scalable, and fully autonomous pipeline for training high-fidelity video world simulators from interaction experience. In contrast to prior approaches that rely on success-biased human demonstrations, PlayWorld is the first system capable of learning entirely from unsupervised robot self-play, enabling naturally scalable data collection while capturing complex, long-tailed physical interactions essential for modeling realistic object dynamics. Experiments across diverse manipulation tasks show that PlayWorld generates high-quality, physically consistent predictions for contact-rich interactions that are not captured by world models trained on human-collected data. We further demonstrate the versatility of PlayWorld in enabling fine-grained failure prediction and policy evaluation, with up to 40% improvements over human-collected data. Finally, we demonstrate how PlayWorld enables reinforcement learning in the world model, improving policy performance by 65% in success rates when deployed in the real world."
+    ]
+  },
+  "fulltext_sha256": "18c8bfc90fad9fe6cc387f923035c823c7061f40cada1eae134b62638e3d187f",
+  "pages": 25,
+  "extracted_characters": 79249,
+  "cache_key": "P062/fulltext.pdf",
+  "extraction": "pypdf"
+}

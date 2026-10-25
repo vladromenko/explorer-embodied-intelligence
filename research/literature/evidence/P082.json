@@ -1,0 +1,102 @@
+{
+  "paper_id": "P082",
+  "retrieved_at": "2026-10-25T22:06:20.800165+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2508.00795",
+  "fulltext_url": "https://arxiv.org/pdf/2508.00795",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2508.00795: Video Generators are Robot Policies"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Video Generators are Robot Policies"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2508.00795v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Despite tremendous progress in dexterous manipulation, current visuomotor policies remain fundamentally limited by two challenges: they struggle to generalize under perceptual or behavioral distribution shifts, and their performance is constrained by the size of human demonstration data. In this paper, we use video generation as a proxy for robot policy learning to address both limitations simultaneously. We propose Video Policy, a modular framework that combines video and action generation that can be trained end-to-end. Our results demonstrate that learning to generate videos of robot behavior allows for the extraction of policies with minimal demonstration data, significantly improving robustness and sample efficiency. Our method shows strong generalization to unseen objects, backgrounds, and tasks, both in simulation and the real world. We further highlight that task success is closely tied to the generated video, with action-free video data providing critical benefits for generalizing to novel tasks. By leveraging large-scale video generative models, we achieve superior performance compared to traditional behavior cloning, paving the way for more scalable and data-efficient robot policy learning."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Video Generators are Robot Policies"
+    ],
+    "twitter:description": [
+      "Despite tremendous progress in dexterous manipulation, current visuomotor policies remain fundamentally limited by two challenges: they struggle to generalize under perceptual or behavioral..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Video Generators are Robot Policies"
+    ],
+    "citation_author": [
+      "Liang, Junbang",
+      "Tokmakov, Pavel",
+      "Liu, Ruoshi",
+      "Sudhakar, Sruthi",
+      "Shah, Paarth",
+      "Ambrus, Rares",
+      "Vondrick, Carl"
+    ],
+    "citation_date": [
+      "2025/08/01"
+    ],
+    "citation_online_date": [
+      "2025/08/01"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2508.00795"
+    ],
+    "citation_arxiv_id": [
+      "2508.00795"
+    ],
+    "citation_abstract": [
+      "Despite tremendous progress in dexterous manipulation, current visuomotor policies remain fundamentally limited by two challenges: they struggle to generalize under perceptual or behavioral distribution shifts, and their performance is constrained by the size of human demonstration data. In this paper, we use video generation as a proxy for robot policy learning to address both limitations simultaneously. We propose Video Policy, a modular framework that combines video and action generation that can be trained end-to-end. Our results demonstrate that learning to generate videos of robot behavior allows for the extraction of policies with minimal demonstration data, significantly improving robustness and sample efficiency. Our method shows strong generalization to unseen objects, backgrounds, and tasks, both in simulation and the real world. We further highlight that task success is closely tied to the generated video, with action-free video data providing critical benefits for generalizing to novel tasks. By leveraging large-scale video generative models, we achieve superior performance compared to traditional behavior cloning, paving the way for more scalable and data-efficient robot policy learning."
+    ]
+  },
+  "fulltext_sha256": "b816cc80f0368c3ab09df906de831b47c93d7f78b9a19af1ff698ae26eaa8165",
+  "pages": 23,
+  "extracted_characters": 57406,
+  "cache_key": "P082/fulltext.pdf",
+  "extraction": "pypdf"
+}

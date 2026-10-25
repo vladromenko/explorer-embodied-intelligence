@@ -1,0 +1,111 @@
+{
+  "paper_id": "P027",
+  "retrieved_at": "2026-10-25T22:05:30.648448+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2410.11758",
+  "fulltext_url": "https://arxiv.org/pdf/2410.11758",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2410.11758: Latent Action Pretraining from Videos"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Latent Action Pretraining from Videos"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2410.11758v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "We introduce Latent Action Pretraining for general Action models (LAPA), an unsupervised method for pretraining Vision-Language-Action (VLA) models without ground-truth robot action labels. Existing Vision-Language-Action models require action labels typically collected by human teleoperators during pretraining, which significantly limits possible data sources and scale. In this work, we propose a method to learn from internet-scale videos that do not have robot action labels. We first train an action quantization model leveraging VQ-VAE-based objective to learn discrete latent actions between image frames, then pretrain a latent VLA model to predict these latent actions from observations and task descriptions, and finally finetune the VLA on small-scale robot manipulation data to map from latent to robot actions. Experimental results demonstrate that our method significantly outperforms existing techniques that train robot manipulation policies from large-scale videos. Furthermore, it outperforms the state-of-the-art VLA model trained with robotic action labels on real-world manipulation tasks that require language conditioning, generalization to unseen objects, and semantic generalization to unseen instructions. Training only on human manipulation videos also shows positive transfer, opening up the potential for leveraging web-scale data for robotics foundation model."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Latent Action Pretraining from Videos"
+    ],
+    "twitter:description": [
+      "We introduce Latent Action Pretraining for general Action models (LAPA), an unsupervised method for pretraining Vision-Language-Action (VLA) models without ground-truth robot action labels...."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Latent Action Pretraining from Videos"
+    ],
+    "citation_author": [
+      "Ye, Seonghyeon",
+      "Jang, Joel",
+      "Jeon, Byeongguk",
+      "Joo, Sejune",
+      "Yang, Jianwei",
+      "Peng, Baolin",
+      "Mandlekar, Ajay",
+      "Tan, Reuben",
+      "Chao, Yu-Wei",
+      "Lin, Bill Yuchen",
+      "Liden, Lars",
+      "Lee, Kimin",
+      "Gao, Jianfeng",
+      "Zettlemoyer, Luke",
+      "Fox, Dieter",
+      "Seo, Minjoon"
+    ],
+    "citation_date": [
+      "2024/10/15"
+    ],
+    "citation_online_date": [
+      "2025/05/15"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2410.11758"
+    ],
+    "citation_arxiv_id": [
+      "2410.11758"
+    ],
+    "citation_abstract": [
+      "We introduce Latent Action Pretraining for general Action models (LAPA), an unsupervised method for pretraining Vision-Language-Action (VLA) models without ground-truth robot action labels. Existing Vision-Language-Action models require action labels typically collected by human teleoperators during pretraining, which significantly limits possible data sources and scale. In this work, we propose a method to learn from internet-scale videos that do not have robot action labels. We first train an action quantization model leveraging VQ-VAE-based objective to learn discrete latent actions between image frames, then pretrain a latent VLA model to predict these latent actions from observations and task descriptions, and finally finetune the VLA on small-scale robot manipulation data to map from latent to robot actions. Experimental results demonstrate that our method significantly outperforms existing techniques that train robot manipulation policies from large-scale videos. Furthermore, it outperforms the state-of-the-art VLA model trained with robotic action labels on real-world manipulation tasks that require language conditioning, generalization to unseen objects, and semantic generalization to unseen instructions. Training only on human manipulation videos also shows positive transfer, opening up the potential for leveraging web-scale data for robotics foundation model."
+    ]
+  },
+  "fulltext_sha256": "efab4f379e1a30ef7be36c87885c2c509d880ee9578f4cfdcc20d9321c93dce9",
+  "pages": 27,
+  "extracted_characters": 85620,
+  "cache_key": "P027/fulltext.pdf",
+  "extraction": "pypdf"
+}

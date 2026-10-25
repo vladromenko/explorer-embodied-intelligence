@@ -1,0 +1,103 @@
+{
+  "paper_id": "P071",
+  "retrieved_at": "2026-10-25T22:06:07.938537+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2302.00111",
+  "fulltext_url": "https://arxiv.org/pdf/2302.00111",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2302.00111: Learning Universal Policies via Text-Guided Video Generation"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Learning Universal Policies via Text-Guided Video Generation"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2302.00111v3"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "A goal of artificial intelligence is to construct an agent that can solve a wide variety of tasks. Recent progress in text-guided image synthesis has yielded models with an impressive ability to generate complex novel images, exhibiting combinatorial generalization across domains. Motivated by this success, we investigate whether such tools can be used to construct more general-purpose agents. Specifically, we cast the sequential decision making problem as a text-conditioned video generation problem, where, given a text-encoded specification of a desired goal, a planner synthesizes a set of future frames depicting its planned actions in the future, after which control actions are extracted from the generated video. By leveraging text as the underlying goal specification, we are able to naturally and combinatorially generalize to novel goals. The proposed policy-as-video formulation can further represent environments with different state and action spaces in a unified space of images, which, for example, enables learning and generalization across a variety of robot manipulation tasks. Finally, by leveraging pretrained language embeddings and widely available videos from the internet, the approach enables knowledge transfer through predicting highly realistic video plans for real robots."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Learning Universal Policies via Text-Guided Video Generation"
+    ],
+    "twitter:description": [
+      "A goal of artificial intelligence is to construct an agent that can solve a wide variety of tasks. Recent progress in text-guided image synthesis has yielded models with an impressive ability to..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Learning Universal Policies via Text-Guided Video Generation"
+    ],
+    "citation_author": [
+      "Du, Yilun",
+      "Yang, Mengjiao",
+      "Dai, Bo",
+      "Dai, Hanjun",
+      "Nachum, Ofir",
+      "Tenenbaum, Joshua B.",
+      "Schuurmans, Dale",
+      "Abbeel, Pieter"
+    ],
+    "citation_date": [
+      "2023/01/31"
+    ],
+    "citation_online_date": [
+      "2023/11/20"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2302.00111"
+    ],
+    "citation_arxiv_id": [
+      "2302.00111"
+    ],
+    "citation_abstract": [
+      "A goal of artificial intelligence is to construct an agent that can solve a wide variety of tasks. Recent progress in text-guided image synthesis has yielded models with an impressive ability to generate complex novel images, exhibiting combinatorial generalization across domains. Motivated by this success, we investigate whether such tools can be used to construct more general-purpose agents. Specifically, we cast the sequential decision making problem as a text-conditioned video generation problem, where, given a text-encoded specification of a desired goal, a planner synthesizes a set of future frames depicting its planned actions in the future, after which control actions are extracted from the generated video. By leveraging text as the underlying goal specification, we are able to naturally and combinatorially generalize to novel goals. The proposed policy-as-video formulation can further represent environments with different state and action spaces in a unified space of images, which, for example, enables learning and generalization across a variety of robot manipulation tasks. Finally, by leveraging pretrained language embeddings and widely available videos from the internet, the approach enables knowledge transfer through predicting highly realistic video plans for real robots."
+    ]
+  },
+  "fulltext_sha256": "5ded462cfcad30a6317610a4f991d3c1eca7826cbe208dbd9929c3837529708e",
+  "pages": 17,
+  "extracted_characters": 55293,
+  "cache_key": "P071/fulltext.pdf",
+  "extraction": "pypdf"
+}

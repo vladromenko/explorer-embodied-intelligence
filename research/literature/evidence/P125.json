@@ -1,0 +1,50 @@
+{
+  "paper_id": "P125",
+  "retrieved_at": "2026-10-25T22:07:13.993600+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://openaccess.thecvf.com/content/ICCV2025/html/Wang_DexH2R_A_Benchmark_for_Dynamic_Dexterous_Grasping_in_Human-to-Robot_Handover_ICCV_2025_paper.html",
+  "fulltext_url": "https://openaccess.thecvf.com/content/ICCV2025/papers/Wang_DexH2R_A_Benchmark_for_Dynamic_Dexterous_Grasping_in_Human-to-Robot_Handover_ICCV_2025_paper.pdf",
+  "primary_metadata": {
+    "": [
+      "text/html; charset=UTF-8"
+    ],
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "citation_title": [
+      "DexH2R: A Benchmark for Dynamic Dexterous Grasping in Human-to-Robot Handover"
+    ],
+    "citation_author": [
+      "Wang, Youzhuo",
+      "Ye, Jiayi",
+      "Xiao, Chuyang",
+      "Zhong, Yiming",
+      "Tao, Heng",
+      "Yu, Hang",
+      "Liu, Yumeng",
+      "Yu, Jingyi",
+      "Ma, Yuexin"
+    ],
+    "citation_publication_date": [
+      "2025"
+    ],
+    "citation_conference_title": [
+      "Proceedings of the IEEE/CVF International Conference on Computer Vision"
+    ],
+    "citation_firstpage": [
+      "12702"
+    ],
+    "citation_lastpage": [
+      "12712"
+    ],
+    "citation_pdf_url": [
+      "https://openaccess.thecvf.com/content/ICCV2025/papers/Wang_DexH2R_A_Benchmark_for_Dynamic_Dexterous_Grasping_in_Human-to-Robot_Handover_ICCV_2025_paper.pdf"
+    ]
+  },
+  "fulltext_sha256": "de3ecdfc9297d075aa108589643c89a792b2879520fd50591db316d217350ff3",
+  "pages": 11,
+  "extracted_characters": 50098,
+  "cache_key": "P125/fulltext.pdf",
+  "extraction": "pypdf"
+}

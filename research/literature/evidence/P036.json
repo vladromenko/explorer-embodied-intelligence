@@ -1,0 +1,99 @@
+{
+  "paper_id": "P036",
+  "retrieved_at": "2026-10-25T22:05:35.864325+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2601.09163",
+  "fulltext_url": "https://arxiv.org/pdf/2601.09163",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2601.09163: CEI: A Unified Interface for Cross-Embodiment Visuomotor Policy Learning in 3D Space"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "CEI: A Unified Interface for Cross-Embodiment Visuomotor Policy Learning in 3D Space"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2601.09163v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Robotic foundation models trained on large-scale manipulation datasets have shown promise in learning generalist policies, but they often overfit to specific viewpoints, robot arms, and especially parallel-jaw grippers due to dataset biases. To address this limitation, we propose Cross-Embodiment Interface (\\CEI), a framework for cross-embodiment learning that enables the transfer of demonstrations across different robot arm and end-effector morphologies. \\CEI introduces the concept of \\textit{functional similarity}, which is quantified using Directional Chamfer Distance. Then it aligns robot trajectories through gradient-based optimization, followed by synthesizing observations and actions for unseen robot arms and end-effectors. In experiments, \\CEI transfers data and policies from a Franka Panda robot to \\textbf{16} different embodiments across \\textbf{3} tasks in simulation, and supports bidirectional transfer between a UR5+AG95 gripper robot and a UR5+Xhand robot across \\textbf{6} real-world tasks, achieving an average transfer ratio of 82.4\\%. Finally, we demonstrate that \\CEI can also be extended with spatial generalization and multimodal motion generation capabilities using our proposed techniques. Project website: https://cross-embodiment-interface.github.io/"
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "CEI: A Unified Interface for Cross-Embodiment Visuomotor Policy..."
+    ],
+    "twitter:description": [
+      "Robotic foundation models trained on large-scale manipulation datasets have shown promise in learning generalist policies, but they often overfit to specific viewpoints, robot arms, and especially..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "CEI: A Unified Interface for Cross-Embodiment Visuomotor Policy Learning in 3D Space"
+    ],
+    "citation_author": [
+      "Wu, Tong",
+      "Li, Shoujie",
+      "Gong, Junhao",
+      "Guo, Changqing",
+      "Li, Xingting",
+      "Mu, Shilong",
+      "Ding, Wenbo"
+    ],
+    "citation_date": [
+      "2026/01/14"
+    ],
+    "citation_online_date": [
+      "2026/01/14"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2601.09163"
+    ],
+    "citation_arxiv_id": [
+      "2601.09163"
+    ],
+    "citation_abstract": [
+      "Robotic foundation models trained on large-scale manipulation datasets have shown promise in learning generalist policies, but they often overfit to specific viewpoints, robot arms, and especially parallel-jaw grippers due to dataset biases. To address this limitation, we propose Cross-Embodiment Interface (\\CEI), a framework for cross-embodiment learning that enables the transfer of demonstrations across different robot arm and end-effector morphologies. \\CEI introduces the concept of \\textit{functional similarity}, which is quantified using Directional Chamfer Distance. Then it aligns robot trajectories through gradient-based optimization, followed by synthesizing observations and actions for unseen robot arms and end-effectors. In experiments, \\CEI transfers data and policies from a Franka Panda robot to \\textbf{16} different embodiments across \\textbf{3} tasks in simulation, and supports bidirectional transfer between a UR5+AG95 gripper robot and a UR5+Xhand robot across \\textbf{6} real-world tasks, achieving an average transfer ratio of 82.4\\%. Finally, we demonstrate that \\CEI can also be extended with spatial generalization and multimodal motion generation capabilities using our proposed techniques. Project website: https://cross-embodiment-interface.github.io/"
+    ]
+  },
+  "error_type": "ValueError",
+  "error": "Full text exceeds configured download limit"
+}

@@ -1,0 +1,103 @@
+{
+  "paper_id": "P133",
+  "retrieved_at": "2026-10-25T22:07:22.467007+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/1606.04671",
+  "fulltext_url": "https://arxiv.org/pdf/1606.04671",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 1606.04671: Progressive Neural Networks"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Progressive Neural Networks"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/1606.04671v4"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Learning to solve complex sequences of tasks--while both leveraging transfer and avoiding catastrophic forgetting--remains a key obstacle to achieving human-level intelligence. The progressive networks approach represents a step forward in this direction: they are immune to forgetting and can leverage prior knowledge via lateral connections to previously learned features. We evaluate this architecture extensively on a wide variety of reinforcement learning tasks (Atari and 3D maze games), and show that it outperforms common baselines based on pretraining and finetuning. Using a novel sensitivity measure, we demonstrate that transfer occurs at both low-level sensory and high-level control layers of the learned policy."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Progressive Neural Networks"
+    ],
+    "twitter:description": [
+      "Learning to solve complex sequences of tasks--while both leveraging transfer and avoiding catastrophic forgetting--remains a key obstacle to achieving human-level intelligence. The progressive..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Progressive Neural Networks"
+    ],
+    "citation_author": [
+      "Rusu, Andrei A.",
+      "Rabinowitz, Neil C.",
+      "Desjardins, Guillaume",
+      "Soyer, Hubert",
+      "Kirkpatrick, James",
+      "Kavukcuoglu, Koray",
+      "Pascanu, Razvan",
+      "Hadsell, Raia"
+    ],
+    "citation_date": [
+      "2016/06/15"
+    ],
+    "citation_online_date": [
+      "2022/10/22"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/1606.04671"
+    ],
+    "citation_arxiv_id": [
+      "1606.04671"
+    ],
+    "citation_abstract": [
+      "Learning to solve complex sequences of tasks--while both leveraging transfer and avoiding catastrophic forgetting--remains a key obstacle to achieving human-level intelligence. The progressive networks approach represents a step forward in this direction: they are immune to forgetting and can leverage prior knowledge via lateral connections to previously learned features. We evaluate this architecture extensively on a wide variety of reinforcement learning tasks (Atari and 3D maze games), and show that it outperforms common baselines based on pretraining and finetuning. Using a novel sensitivity measure, we demonstrate that transfer occurs at both low-level sensory and high-level control layers of the learned policy."
+    ]
+  },
+  "fulltext_sha256": "d7f4f1c7175529862ceefb3add4767a83350f089592a68f0a088a383cc8d38b6",
+  "pages": 14,
+  "extracted_characters": 43254,
+  "cache_key": "P133/fulltext.pdf",
+  "extraction": "pypdf"
+}

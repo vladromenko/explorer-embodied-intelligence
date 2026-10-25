@@ -1,0 +1,116 @@
+{
+  "paper_id": "P114",
+  "retrieved_at": "2026-10-25T22:07:05.629770+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2602.08971",
+  "fulltext_url": "https://arxiv.org/pdf/2602.08971",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2602.08971: WorldArena: A Unified Benchmark for Evaluating Perception and Functional Utility of Embodied World Models"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "WorldArena: A Unified Benchmark for Evaluating Perception and Functional Utility of Embodied World Models"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2602.08971v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "While world models have emerged as a cornerstone of embodied intelligence by enabling agents to reason about environmental dynamics through action-conditioned prediction, their evaluation remains fragmented. Current evaluation of embodied world models has largely focused on perceptual fidelity (e.g., video generation quality), overlooking the functional utility of these models in downstream decision-making tasks. In this work, we introduce WorldArena, a unified benchmark designed to systematically evaluate embodied world models across both perceptual and functional dimensions. WorldArena assesses models through three dimensions: video perception quality, measured with 16 metrics across six sub-dimensions; embodied task functionality, which evaluates world models as data engines, policy evaluators, and action planners integrating with subjective human evaluation. Furthermore, we propose EWMScore, a holistic metric integrating multi-dimensional performance into a single interpretable index. Through extensive experiments on 14 representative models, we reveal a significant perception-functionality gap, showing that high visual quality does not necessarily translate into strong embodied task capability. WorldArena benchmark with the public leaderboard is released at https://world-arena.ai, providing a framework for tracking progress toward truly functional world models in embodied AI."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "WorldArena: A Unified Benchmark for Evaluating Perception and..."
+    ],
+    "twitter:description": [
+      "While world models have emerged as a cornerstone of embodied intelligence by enabling agents to reason about environmental dynamics through action-conditioned prediction, their evaluation remains..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "WorldArena: A Unified Benchmark for Evaluating Perception and Functional Utility of Embodied World Models"
+    ],
+    "citation_author": [
+      "Shang, Yu",
+      "Li, Zhuohang",
+      "Ma, Yiding",
+      "Su, Weikang",
+      "Jin, Xin",
+      "Wang, Ziyou",
+      "Jin, Lei",
+      "Zhang, Xin",
+      "Tang, Yinzhou",
+      "Su, Haisheng",
+      "Gao, Chen",
+      "Wu, Wei",
+      "Liu, Xihui",
+      "Shah, Dhruv",
+      "Zhang, Zhaoxiang",
+      "Chen, Zhibo",
+      "Zhu, Jun",
+      "Tian, Yonghong",
+      "Chua, Tat-Seng",
+      "Zhu, Wenwu",
+      "Li, Yong"
+    ],
+    "citation_date": [
+      "2026/02/09"
+    ],
+    "citation_online_date": [
+      "2026/02/11"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2602.08971"
+    ],
+    "citation_arxiv_id": [
+      "2602.08971"
+    ],
+    "citation_abstract": [
+      "While world models have emerged as a cornerstone of embodied intelligence by enabling agents to reason about environmental dynamics through action-conditioned prediction, their evaluation remains fragmented. Current evaluation of embodied world models has largely focused on perceptual fidelity (e.g., video generation quality), overlooking the functional utility of these models in downstream decision-making tasks. In this work, we introduce WorldArena, a unified benchmark designed to systematically evaluate embodied world models across both perceptual and functional dimensions. WorldArena assesses models through three dimensions: video perception quality, measured with 16 metrics across six sub-dimensions; embodied task functionality, which evaluates world models as data engines, policy evaluators, and action planners integrating with subjective human evaluation. Furthermore, we propose EWMScore, a holistic metric integrating multi-dimensional performance into a single interpretable index. Through extensive experiments on 14 representative models, we reveal a significant perception-functionality gap, showing that high visual quality does not necessarily translate into strong embodied task capability. WorldArena benchmark with the public leaderboard is released at https://world-arena.ai, providing a framework for tracking progress toward truly functional world models in embodied AI."
+    ]
+  },
+  "fulltext_sha256": "e41ab0f9ce75adad027e4e77402e1bbd77a50ab12340a6517a300d2edc94a6e6",
+  "pages": 22,
+  "extracted_characters": 81320,
+  "cache_key": "P114/fulltext.pdf",
+  "extraction": "pypdf"
+}

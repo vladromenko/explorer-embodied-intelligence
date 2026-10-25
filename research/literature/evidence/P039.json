@@ -1,0 +1,102 @@
+{
+  "paper_id": "P039",
+  "retrieved_at": "2026-10-25T22:04:21.477405+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2403.03949",
+  "fulltext_url": "https://arxiv.org/pdf/2403.03949",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2403.03949: Reconciling Reality through Simulation: A Real-to-Sim-to-Real Approach for Robust Manipulation"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Reconciling Reality through Simulation: A Real-to-Sim-to-Real Approach for Robust Manipulation"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2403.03949v3"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Imitation learning methods need significant human supervision to learn policies robust to changes in object poses, physical disturbances, and visual distractors. Reinforcement learning, on the other hand, can explore the environment autonomously to learn robust behaviors but may require impractical amounts of unsafe real-world data collection. To learn performant, robust policies without the burden of unsafe real-world data collection or extensive human supervision, we propose RialTo, a system for robustifying real-world imitation learning policies via reinforcement learning in \"digital twin\" simulation environments constructed on the fly from small amounts of real-world data. To enable this real-to-sim-to-real pipeline, RialTo proposes an easy-to-use interface for quickly scanning and constructing digital twins of real-world environments. We also introduce a novel \"inverse distillation\" procedure for bringing real-world demonstrations into simulated environments for efficient fine-tuning, with minimal human intervention and engineering required. We evaluate RialTo across a variety of robotic manipulation problems in the real world, such as robustly stacking dishes on a rack, placing books on a shelf, and six other tasks. RialTo increases (over 67%) in policy robustness without requiring extensive human data collection. Project website and videos at https://real-to-sim-to-real.github.io/RialTo/"
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Reconciling Reality through Simulation: A Real-to-Sim-to-Real..."
+    ],
+    "twitter:description": [
+      "Imitation learning methods need significant human supervision to learn policies robust to changes in object poses, physical disturbances, and visual distractors. Reinforcement learning, on the..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Reconciling Reality through Simulation: A Real-to-Sim-to-Real Approach for Robust Manipulation"
+    ],
+    "citation_author": [
+      "Torne, Marcel",
+      "Simeonov, Anthony",
+      "Li, Zechu",
+      "Chan, April",
+      "Chen, Tao",
+      "Gupta, Abhishek",
+      "Agrawal, Pulkit"
+    ],
+    "citation_date": [
+      "2024/03/06"
+    ],
+    "citation_online_date": [
+      "2024/11/24"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2403.03949"
+    ],
+    "citation_arxiv_id": [
+      "2403.03949"
+    ],
+    "citation_abstract": [
+      "Imitation learning methods need significant human supervision to learn policies robust to changes in object poses, physical disturbances, and visual distractors. Reinforcement learning, on the other hand, can explore the environment autonomously to learn robust behaviors but may require impractical amounts of unsafe real-world data collection. To learn performant, robust policies without the burden of unsafe real-world data collection or extensive human supervision, we propose RialTo, a system for robustifying real-world imitation learning policies via reinforcement learning in \"digital twin\" simulation environments constructed on the fly from small amounts of real-world data. To enable this real-to-sim-to-real pipeline, RialTo proposes an easy-to-use interface for quickly scanning and constructing digital twins of real-world environments. We also introduce a novel \"inverse distillation\" procedure for bringing real-world demonstrations into simulated environments for efficient fine-tuning, with minimal human intervention and engineering required. We evaluate RialTo across a variety of robotic manipulation problems in the real world, such as robustly stacking dishes on a rack, placing books on a shelf, and six other tasks. RialTo increases (over 67%) in policy robustness without requiring extensive human data collection. Project website and videos at https://real-to-sim-to-real.github.io/RialTo/"
+    ]
+  },
+  "fulltext_sha256": "db7e57f6b298b535e912df1098c33669ffd4366935ea60c422cd161b1e0797ce",
+  "pages": 23,
+  "extracted_characters": 100097,
+  "cache_key": "P039/fulltext.pdf",
+  "extraction": "pypdf"
+}

@@ -1,0 +1,101 @@
+{
+  "paper_id": "P060",
+  "retrieved_at": "2026-10-25T22:05:57.741958+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2602.12063",
+  "fulltext_url": "https://arxiv.org/pdf/2602.12063",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2602.12063: VLAW: Iterative Co-Improvement of Vision-Language-Action Policy and World Model"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "VLAW: Iterative Co-Improvement of Vision-Language-Action Policy and World Model"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2602.12063v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "The goal of this paper is to improve the performance and reliability of vision-language-action (VLA) models through iterative online interaction. Since collecting policy rollouts in the real world is expensive, we investigate whether a learned simulator-specifically, an action-conditioned video generation model-can be used to generate additional rollout data. Unfortunately, existing world models lack the physical fidelity necessary for policy improvement: they are predominantly trained on demonstration datasets that lack coverage of many different physical interactions (particularly failure cases) and struggle to accurately model small yet critical physical details in contact-rich object manipulation. We propose a simple iterative improvement algorithm that uses real-world roll-out data to improve the fidelity of the world model, which can then, in turn, be used to generate supplemental synthetic data for improving the VLA model. In our experiments on a real robot, we use this approach to improve the performance of a state-of-the-art VLA model on multiple downstream tasks. We achieve a 39.2% absolute success rate improvement over the base policy and 11.6% improvement from training with the generated synthetic rollouts. Videos can be found at this anonymous website: https://sites.google.com/view/vla-w"
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "VLAW: Iterative Co-Improvement of Vision-Language-Action Policy..."
+    ],
+    "twitter:description": [
+      "The goal of this paper is to improve the performance and reliability of vision-language-action (VLA) models through iterative online interaction. Since collecting policy rollouts in the real world..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "VLAW: Iterative Co-Improvement of Vision-Language-Action Policy and World Model"
+    ],
+    "citation_author": [
+      "Guo, Yanjiang",
+      "Lee, Tony",
+      "Shi, Lucy Xiaoyang",
+      "Chen, Jianyu",
+      "Liang, Percy",
+      "Finn, Chelsea"
+    ],
+    "citation_date": [
+      "2026/02/12"
+    ],
+    "citation_online_date": [
+      "2026/02/15"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2602.12063"
+    ],
+    "citation_arxiv_id": [
+      "2602.12063"
+    ],
+    "citation_abstract": [
+      "The goal of this paper is to improve the performance and reliability of vision-language-action (VLA) models through iterative online interaction. Since collecting policy rollouts in the real world is expensive, we investigate whether a learned simulator-specifically, an action-conditioned video generation model-can be used to generate additional rollout data. Unfortunately, existing world models lack the physical fidelity necessary for policy improvement: they are predominantly trained on demonstration datasets that lack coverage of many different physical interactions (particularly failure cases) and struggle to accurately model small yet critical physical details in contact-rich object manipulation. We propose a simple iterative improvement algorithm that uses real-world roll-out data to improve the fidelity of the world model, which can then, in turn, be used to generate supplemental synthetic data for improving the VLA model. In our experiments on a real robot, we use this approach to improve the performance of a state-of-the-art VLA model on multiple downstream tasks. We achieve a 39.2% absolute success rate improvement over the base policy and 11.6% improvement from training with the generated synthetic rollouts. Videos can be found at this anonymous website: https://sites.google.com/view/vla-w"
+    ]
+  },
+  "fulltext_sha256": "34ba87492a0fca9d382c366a80884eef99bc1101d973bbbb64125ae78bedffb8",
+  "pages": 14,
+  "extracted_characters": 52222,
+  "cache_key": "P060/fulltext.pdf",
+  "extraction": "pypdf"
+}

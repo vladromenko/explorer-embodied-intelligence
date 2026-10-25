@@ -1,0 +1,98 @@
+{
+  "paper_id": "P035",
+  "retrieved_at": "2026-10-25T22:04:18.565371+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2606.22113",
+  "fulltext_url": "https://arxiv.org/pdf/2606.22113",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2606.22113: KITE: Decoupling Kinematics and Interaction for Zero-Shot Cross-Embodiment Manipulation"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "KITE: Decoupling Kinematics and Interaction for Zero-Shot Cross-Embodiment Manipulation"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2606.22113v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Generalizing manipulation policies across robot embodiments remains difficult because standard policies tie the interactions needed for a task to the actions of a particular robot. We study zero-shot cross-embodiment manipulation, where a policy trained on source embodiments must be deployed on a structurally different target embodiment without additional task demonstrations. We introduce Kinematic Interaction Transfer across Embodiments (KITE), which decouples manipulation into embodiment-agnostic interaction prediction and embodiment-specific kinematic decoding, connected through a learned representation of interaction intent based on contact patterns. An interaction policy is trained to predict the intent using demonstration data only collected on a source robot, and shared across morphologically different target robots. A kinematic decoder realizes these intents by learning from synthetic data generated from each embodiment's kinematic model. Through such decoupling, KITE can robustly transfer learned skills to a new embodiment given only its kinematic model, without recollecting any task-specific demonstration data. We evaluate KITE on four manipulation tasks in simulation and the real world spanning transfer between parallel grippers, dexterous hands, and composite embodiments. KITE successfully achieves zero-shot transfer to structurally different target embodiments, and consistently outperforms state-of-the-art baselines. Project website: https://kite-manip.github.io/."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "KITE: Decoupling Kinematics and Interaction for Zero-Shot..."
+    ],
+    "twitter:description": [
+      "Generalizing manipulation policies across robot embodiments remains difficult because standard policies tie the interactions needed for a task to the actions of a particular robot. We study..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "KITE: Decoupling Kinematics and Interaction for Zero-Shot Cross-Embodiment Manipulation"
+    ],
+    "citation_author": [
+      "Wang, Qianxu",
+      "Jin, Shengmiao Samuel",
+      "Fang, Kuan"
+    ],
+    "citation_date": [
+      "2026/06/20"
+    ],
+    "citation_online_date": [
+      "2026/10/20"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2606.22113"
+    ],
+    "citation_arxiv_id": [
+      "2606.22113"
+    ],
+    "citation_abstract": [
+      "Generalizing manipulation policies across robot embodiments remains difficult because standard policies tie the interactions needed for a task to the actions of a particular robot. We study zero-shot cross-embodiment manipulation, where a policy trained on source embodiments must be deployed on a structurally different target embodiment without additional task demonstrations. We introduce Kinematic Interaction Transfer across Embodiments (KITE), which decouples manipulation into embodiment-agnostic interaction prediction and embodiment-specific kinematic decoding, connected through a learned representation of interaction intent based on contact patterns. An interaction policy is trained to predict the intent using demonstration data only collected on a source robot, and shared across morphologically different target robots. A kinematic decoder realizes these intents by learning from synthetic data generated from each embodiment's kinematic model. Through such decoupling, KITE can robustly transfer learned skills to a new embodiment given only its kinematic model, without recollecting any task-specific demonstration data. We evaluate KITE on four manipulation tasks in simulation and the real world spanning transfer between parallel grippers, dexterous hands, and composite embodiments. KITE successfully achieves zero-shot transfer to structurally different target embodiments, and consistently outperforms state-of-the-art baselines. Project website: https://kite-manip.github.io/."
+    ]
+  },
+  "fulltext_sha256": "b1911f5bc28be3fd683a6194e5d2075f86dead3566098047f7f2f6d388f7a83e",
+  "pages": 13,
+  "extracted_characters": 68645,
+  "cache_key": "P035/fulltext.pdf",
+  "extraction": "pypdf"
+}

@@ -1,0 +1,98 @@
+{
+  "paper_id": "P109",
+  "retrieved_at": "2026-10-25T22:06:55.300558+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2604.16484",
+  "fulltext_url": "https://arxiv.org/pdf/2604.16484",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2604.16484: DexWorldModel: Causal Latent World Modeling towards Automated Learning of Embodied Tasks"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "DexWorldModel: Causal Latent World Modeling towards Automated Learning of Embodied Tasks"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2604.16484v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Deploying generative World-Action Models for manipulation is severely bottlenecked by redundant pixel-level reconstruction, $\\mathcal{O}(T)$ memory scaling, and sequential inference latency. We introduce the Causal Latent World Model (CLWM), which employs DINOv3 features as generative targets to disentangle interaction semantics from visual noise, yielding highly robust domain generalization. To overcome memory scaling, CLWM features a Dual-State Test-Time Training (TTT) Memory that guarantees a strict $\\mathcal{O}(1)$ footprint for long-horizon tasks. To overcome deployment latency, we propose Speculative Asynchronous Inference (SAI) to mask partial diffusion denoising behind physical execution, cutting blocking latency by about $50\\%$. To scale robust policies, we present EmbodiChain, an online framework that establishes the Efficiency Law by injecting an infinite flow of physics-grounded trajectories during training. Extensive experiments validate that CLWM achieves state-of-the-art performance in complex dual-arm simulation and unprecedented zero-shot sim-to-real transfer on physical robots, outperforming baselines explicitly finetuned on real-world data."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "DexWorldModel: Causal Latent World Modeling towards Automated..."
+    ],
+    "twitter:description": [
+      "Deploying generative World-Action Models for manipulation is severely bottlenecked by redundant pixel-level reconstruction, $\\mathcal{O}(T)$ memory scaling, and sequential inference latency. We..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "DexWorldModel: Causal Latent World Modeling towards Automated Learning of Embodied Tasks"
+    ],
+    "citation_author": [
+      "Deng, Yueci",
+      "Liu, Guiliang",
+      "Jia, Kui"
+    ],
+    "citation_date": [
+      "2026/04/13"
+    ],
+    "citation_online_date": [
+      "2026/04/13"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2604.16484"
+    ],
+    "citation_arxiv_id": [
+      "2604.16484"
+    ],
+    "citation_abstract": [
+      "Deploying generative World-Action Models for manipulation is severely bottlenecked by redundant pixel-level reconstruction, $\\mathcal{O}(T)$ memory scaling, and sequential inference latency. We introduce the Causal Latent World Model (CLWM), which employs DINOv3 features as generative targets to disentangle interaction semantics from visual noise, yielding highly robust domain generalization. To overcome memory scaling, CLWM features a Dual-State Test-Time Training (TTT) Memory that guarantees a strict $\\mathcal{O}(1)$ footprint for long-horizon tasks. To overcome deployment latency, we propose Speculative Asynchronous Inference (SAI) to mask partial diffusion denoising behind physical execution, cutting blocking latency by about $50\\%$. To scale robust policies, we present EmbodiChain, an online framework that establishes the Efficiency Law by injecting an infinite flow of physics-grounded trajectories during training. Extensive experiments validate that CLWM achieves state-of-the-art performance in complex dual-arm simulation and unprecedented zero-shot sim-to-real transfer on physical robots, outperforming baselines explicitly finetuned on real-world data."
+    ]
+  },
+  "fulltext_sha256": "a3d97b33e611a6fc0379ee64253cacb441ec90261ea2103075785de595aa0f88",
+  "pages": 19,
+  "extracted_characters": 67814,
+  "cache_key": "P109/fulltext.pdf",
+  "extraction": "pypdf"
+}

@@ -1,0 +1,103 @@
+{
+  "paper_id": "P033",
+  "retrieved_at": "2026-10-25T22:04:16.813970+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2402.10329",
+  "fulltext_url": "https://arxiv.org/pdf/2402.10329",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2402.10329: Universal Manipulation Interface: In-The-Wild Robot Teaching Without In-The-Wild Robots"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Universal Manipulation Interface: In-The-Wild Robot Teaching Without In-The-Wild Robots"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2402.10329v3"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "We present Universal Manipulation Interface (UMI) -- a data collection and policy learning framework that allows direct skill transfer from in-the-wild human demonstrations to deployable robot policies. UMI employs hand-held grippers coupled with careful interface design to enable portable, low-cost, and information-rich data collection for challenging bimanual and dynamic manipulation demonstrations. To facilitate deployable policy learning, UMI incorporates a carefully designed policy interface with inference-time latency matching and a relative-trajectory action representation. The resulting learned policies are hardware-agnostic and deployable across multiple robot platforms. Equipped with these features, UMI framework unlocks new robot manipulation capabilities, allowing zero-shot generalizable dynamic, bimanual, precise, and long-horizon behaviors, by only changing the training data for each task. We demonstrate UMI's versatility and efficacy with comprehensive real-world experiments, where policies learned via UMI zero-shot generalize to novel environments and objects when trained on diverse human demonstrations. UMI's hardware and software system is open-sourced at https://umi-gripper.github.io."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Universal Manipulation Interface: In-The-Wild Robot Teaching..."
+    ],
+    "twitter:description": [
+      "We present Universal Manipulation Interface (UMI) -- a data collection and policy learning framework that allows direct skill transfer from in-the-wild human demonstrations to deployable robot..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Universal Manipulation Interface: In-The-Wild Robot Teaching Without In-The-Wild Robots"
+    ],
+    "citation_author": [
+      "Chi, Cheng",
+      "Xu, Zhenjia",
+      "Pan, Chuer",
+      "Cousineau, Eric",
+      "Burchfiel, Benjamin",
+      "Feng, Siyuan",
+      "Tedrake, Russ",
+      "Song, Shuran"
+    ],
+    "citation_date": [
+      "2024/02/15"
+    ],
+    "citation_online_date": [
+      "2024/03/06"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2402.10329"
+    ],
+    "citation_arxiv_id": [
+      "2402.10329"
+    ],
+    "citation_abstract": [
+      "We present Universal Manipulation Interface (UMI) -- a data collection and policy learning framework that allows direct skill transfer from in-the-wild human demonstrations to deployable robot policies. UMI employs hand-held grippers coupled with careful interface design to enable portable, low-cost, and information-rich data collection for challenging bimanual and dynamic manipulation demonstrations. To facilitate deployable policy learning, UMI incorporates a carefully designed policy interface with inference-time latency matching and a relative-trajectory action representation. The resulting learned policies are hardware-agnostic and deployable across multiple robot platforms. Equipped with these features, UMI framework unlocks new robot manipulation capabilities, allowing zero-shot generalizable dynamic, bimanual, precise, and long-horizon behaviors, by only changing the training data for each task. We demonstrate UMI's versatility and efficacy with comprehensive real-world experiments, where policies learned via UMI zero-shot generalize to novel environments and objects when trained on diverse human demonstrations. UMI's hardware and software system is open-sourced at https://umi-gripper.github.io."
+    ]
+  },
+  "fulltext_sha256": "a9452cbaf9f5d2a77d5f8b631632fa7f45ae4bbc32400be1cc939b91a36e1609",
+  "pages": 18,
+  "extracted_characters": 84017,
+  "cache_key": "P033/fulltext.pdf",
+  "extraction": "pypdf"
+}

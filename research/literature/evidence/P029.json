@@ -1,0 +1,99 @@
+{
+  "paper_id": "P029",
+  "retrieved_at": "2026-10-25T22:05:31.608566+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2401.11439",
+  "fulltext_url": "https://arxiv.org/pdf/2401.11439",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2401.11439: General Flow as Foundation Affordance for Scalable Robot Learning"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "General Flow as Foundation Affordance for Scalable Robot Learning"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2401.11439v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "We address the challenge of acquiring real-world manipulation skills with a scalable framework. We hold the belief that identifying an appropriate prediction target capable of leveraging large-scale datasets is crucial for achieving efficient and universal learning. Therefore, we propose to utilize 3D flow, which represents the future trajectories of 3D points on objects of interest, as an ideal prediction target. To exploit scalable data resources, we turn our attention to human videos. We develop, for the first time, a language-conditioned 3D flow prediction model directly from large-scale RGBD human video datasets. Our predicted flow offers actionable guidance, thus facilitating zero-shot skill transfer in real-world scenarios. We deploy our method with a policy based on closed-loop flow prediction. Remarkably, without any in-domain finetuning, our method achieves an impressive 81\\% success rate in zero-shot human-to-robot skill transfer, covering 18 tasks in 6 scenes. Our framework features the following benefits: (1) scalability: leveraging cross-embodiment data resources; (2) wide application: multiple object categories, including rigid, articulated, and soft bodies; (3) stable skill transfer: providing actionable guidance with a small inference domain-gap. Code, data, and supplementary materials are available https://general-flow.github.io"
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "General Flow as Foundation Affordance for Scalable Robot Learning"
+    ],
+    "twitter:description": [
+      "We address the challenge of acquiring real-world manipulation skills with a scalable framework. We hold the belief that identifying an appropriate prediction target capable of leveraging..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "General Flow as Foundation Affordance for Scalable Robot Learning"
+    ],
+    "citation_author": [
+      "Yuan, Chengbo",
+      "Wen, Chuan",
+      "Zhang, Tong",
+      "Gao, Yang"
+    ],
+    "citation_date": [
+      "2024/01/21"
+    ],
+    "citation_online_date": [
+      "2024/09/23"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2401.11439"
+    ],
+    "citation_arxiv_id": [
+      "2401.11439"
+    ],
+    "citation_abstract": [
+      "We address the challenge of acquiring real-world manipulation skills with a scalable framework. We hold the belief that identifying an appropriate prediction target capable of leveraging large-scale datasets is crucial for achieving efficient and universal learning. Therefore, we propose to utilize 3D flow, which represents the future trajectories of 3D points on objects of interest, as an ideal prediction target. To exploit scalable data resources, we turn our attention to human videos. We develop, for the first time, a language-conditioned 3D flow prediction model directly from large-scale RGBD human video datasets. Our predicted flow offers actionable guidance, thus facilitating zero-shot skill transfer in real-world scenarios. We deploy our method with a policy based on closed-loop flow prediction. Remarkably, without any in-domain finetuning, our method achieves an impressive 81\\% success rate in zero-shot human-to-robot skill transfer, covering 18 tasks in 6 scenes. Our framework features the following benefits: (1) scalability: leveraging cross-embodiment data resources; (2) wide application: multiple object categories, including rigid, articulated, and soft bodies; (3) stable skill transfer: providing actionable guidance with a small inference domain-gap. Code, data, and supplementary materials are available https://general-flow.github.io"
+    ]
+  },
+  "fulltext_sha256": "d7308ab8fcc64a8676638577979b8b553f9e7f1f6d67b10de1f8936f4c8f5a47",
+  "pages": 26,
+  "extracted_characters": 81040,
+  "cache_key": "P029/fulltext.pdf",
+  "extraction": "pypdf"
+}

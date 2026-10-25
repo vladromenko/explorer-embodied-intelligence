@@ -1,0 +1,102 @@
+{
+  "paper_id": "P069",
+  "retrieved_at": "2026-10-25T22:06:03.927837+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2310.10639",
+  "fulltext_url": "https://arxiv.org/pdf/2310.10639",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2310.10639: Zero-Shot Robotic Manipulation with Pretrained Image-Editing Diffusion Models"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Zero-Shot Robotic Manipulation with Pretrained Image-Editing Diffusion Models"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2310.10639v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "If generalist robots are to operate in truly unstructured environments, they need to be able to recognize and reason about novel objects and scenarios. Such objects and scenarios might not be present in the robot's own training data. We propose SuSIE, a method that leverages an image-editing diffusion model to act as a high-level planner by proposing intermediate subgoals that a low-level controller can accomplish. Specifically, we finetune InstructPix2Pix on video data, consisting of both human videos and robot rollouts, such that it outputs hypothetical future \"subgoal\" observations given the robot's current observation and a language command. We also use the robot data to train a low-level goal-conditioned policy to act as the aforementioned low-level controller. We find that the high-level subgoal predictions can utilize Internet-scale pretraining and visual understanding to guide the low-level goal-conditioned policy, achieving significantly better generalization and precision than conventional language-conditioned policies. We achieve state-of-the-art results on the CALVIN benchmark, and also demonstrate robust generalization on real-world manipulation tasks, beating strong baselines that have access to privileged information or that utilize orders of magnitude more compute and training data. The project website can be found at http://rail-berkeley.github.io/susie ."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Zero-Shot Robotic Manipulation with Pretrained Image-Editing..."
+    ],
+    "twitter:description": [
+      "If generalist robots are to operate in truly unstructured environments, they need to be able to recognize and reason about novel objects and scenarios. Such objects and scenarios might not be..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Zero-Shot Robotic Manipulation with Pretrained Image-Editing Diffusion Models"
+    ],
+    "citation_author": [
+      "Black, Kevin",
+      "Nakamoto, Mitsuhiko",
+      "Atreya, Pranav",
+      "Walke, Homer",
+      "Finn, Chelsea",
+      "Kumar, Aviral",
+      "Levine, Sergey"
+    ],
+    "citation_date": [
+      "2023/10/16"
+    ],
+    "citation_online_date": [
+      "2023/10/16"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2310.10639"
+    ],
+    "citation_arxiv_id": [
+      "2310.10639"
+    ],
+    "citation_abstract": [
+      "If generalist robots are to operate in truly unstructured environments, they need to be able to recognize and reason about novel objects and scenarios. Such objects and scenarios might not be present in the robot's own training data. We propose SuSIE, a method that leverages an image-editing diffusion model to act as a high-level planner by proposing intermediate subgoals that a low-level controller can accomplish. Specifically, we finetune InstructPix2Pix on video data, consisting of both human videos and robot rollouts, such that it outputs hypothetical future \"subgoal\" observations given the robot's current observation and a language command. We also use the robot data to train a low-level goal-conditioned policy to act as the aforementioned low-level controller. We find that the high-level subgoal predictions can utilize Internet-scale pretraining and visual understanding to guide the low-level goal-conditioned policy, achieving significantly better generalization and precision than conventional language-conditioned policies. We achieve state-of-the-art results on the CALVIN benchmark, and also demonstrate robust generalization on real-world manipulation tasks, beating strong baselines that have access to privileged information or that utilize orders of magnitude more compute and training data. The project website can be found at http://rail-berkeley.github.io/susie ."
+    ]
+  },
+  "fulltext_sha256": "791d1df5c0da1cd65d1799fe5ef9b55c5c9887f060875b024aa34f0dbb37f9bd",
+  "pages": 22,
+  "extracted_characters": 71353,
+  "cache_key": "P069/fulltext.pdf",
+  "extraction": "pypdf"
+}

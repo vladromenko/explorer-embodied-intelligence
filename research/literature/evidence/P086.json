@@ -1,0 +1,105 @@
+{
+  "paper_id": "P086",
+  "retrieved_at": "2026-10-25T22:06:27.621954+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2604.06168",
+  "fulltext_url": "https://arxiv.org/pdf/2604.06168",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2604.06168: Action Images: End-to-End Policy Learning via Multiview Video Generation"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Action Images: End-to-End Policy Learning via Multiview Video Generation"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2604.06168v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "World action models (WAMs) have emerged as a promising direction for robot policy learning, as they can leverage powerful video backbones to model the future states. However, existing approaches often rely on separate action modules, or use action representations that are not pixel-grounded, making it difficult to fully exploit the pretrained knowledge of video models and limiting transfer across viewpoints and environments. In this work, we present Action Images, a unified world action model that formulates policy learning as multiview video generation. Instead of encoding control as low-dimensional tokens, we translate 7-DoF robot actions into interpretable action images: multi-view action videos that are grounded in 2D pixels and explicitly track robot-arm motion. This pixel-grounded action representation allows the video backbone itself to act as a zero-shot policy, without a separate policy head or action module. Beyond control, the same unified model supports video-action joint generation, action-conditioned video generation, and action labeling under a shared representation. On RLBench and real-world evaluations, our model achieves the strongest zero-shot success rates and improves video-action joint generation quality over prior video-space world models, suggesting that interpretable action images are a promising route to policy learning."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Action Images: End-to-End Policy Learning via Multiview Video Generation"
+    ],
+    "twitter:description": [
+      "World action models (WAMs) have emerged as a promising direction for robot policy learning, as they can leverage powerful video backbones to model the future states. However, existing approaches..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Action Images: End-to-End Policy Learning via Multiview Video Generation"
+    ],
+    "citation_author": [
+      "Zhen, Haoyu",
+      "Gao, Zixian",
+      "Sun, Qiao",
+      "Zhao, Yilin",
+      "Yang, Yuncong",
+      "Du, Yilun",
+      "Guo, Pengsheng",
+      "Wang, Tsun-Hsuan",
+      "Qiao, Yi-Ling",
+      "Gan, Chuang"
+    ],
+    "citation_date": [
+      "2026/04/07"
+    ],
+    "citation_online_date": [
+      "2026/04/15"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2604.06168"
+    ],
+    "citation_arxiv_id": [
+      "2604.06168"
+    ],
+    "citation_abstract": [
+      "World action models (WAMs) have emerged as a promising direction for robot policy learning, as they can leverage powerful video backbones to model the future states. However, existing approaches often rely on separate action modules, or use action representations that are not pixel-grounded, making it difficult to fully exploit the pretrained knowledge of video models and limiting transfer across viewpoints and environments. In this work, we present Action Images, a unified world action model that formulates policy learning as multiview video generation. Instead of encoding control as low-dimensional tokens, we translate 7-DoF robot actions into interpretable action images: multi-view action videos that are grounded in 2D pixels and explicitly track robot-arm motion. This pixel-grounded action representation allows the video backbone itself to act as a zero-shot policy, without a separate policy head or action module. Beyond control, the same unified model supports video-action joint generation, action-conditioned video generation, and action labeling under a shared representation. On RLBench and real-world evaluations, our model achieves the strongest zero-shot success rates and improves video-action joint generation quality over prior video-space world models, suggesting that interpretable action images are a promising route to policy learning."
+    ]
+  },
+  "fulltext_sha256": "f0b6d8aad562ddd7ba69e803c218e5d146ecfcee7fbcef4d833c05da40d6abaf",
+  "pages": 25,
+  "extracted_characters": 55337,
+  "cache_key": "P086/fulltext.pdf",
+  "extraction": "pypdf"
+}

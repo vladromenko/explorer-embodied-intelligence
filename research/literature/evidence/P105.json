@@ -1,0 +1,104 @@
+{
+  "paper_id": "P105",
+  "retrieved_at": "2026-10-25T22:06:52.118228+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2602.10098",
+  "fulltext_url": "https://arxiv.org/pdf/2602.10098",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2602.10098: VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2602.10098v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Pretraining Vision-Language-Action (VLA) policies on internet-scale video is appealing, yet current latent-action objectives often learn the wrong thing: they remain anchored to pixel variation rather than action-relevant state transitions, making them vulnerable to appearance bias, nuisance motion, and information leakage. We introduce VLA-JEPA, a JEPA-style pretraining framework that sidesteps these pitfalls by design. The key idea is leakage-free state prediction: a target encoder produces latent representations from future frames, while the student pathway sees only the current observation -- future information is used solely as supervision targets, never as input. By predicting in latent space rather than pixel space, VLA-JEPA learns dynamics abstractions that are robust to camera motion and irrelevant background changes. This yields a simple two-stage recipe -- JEPA pretraining followed by action-head fine-tuning -- without the multi-stage complexity of prior latent-action pipelines. Experiments on LIBERO, LIBERO-Plus, SimplerEnv and real-world manipulation tasks show that VLA-JEPA achieves consistent gains in generalization and robustness over existing methods."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model"
+    ],
+    "twitter:description": [
+      "Pretraining Vision-Language-Action (VLA) policies on internet-scale video is appealing, yet current latent-action objectives often learn the wrong thing: they remain anchored to pixel variation..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model"
+    ],
+    "citation_author": [
+      "Sun, Jingwen",
+      "Zhang, Wenyao",
+      "Qi, Zekun",
+      "Ren, Shaojie",
+      "Liu, Zezhi",
+      "Zhu, Hanxin",
+      "Sun, Guangzhong",
+      "Jin, Xin",
+      "Chen, Zhibo"
+    ],
+    "citation_date": [
+      "2026/02/10"
+    ],
+    "citation_online_date": [
+      "2026/02/14"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2602.10098"
+    ],
+    "citation_arxiv_id": [
+      "2602.10098"
+    ],
+    "citation_abstract": [
+      "Pretraining Vision-Language-Action (VLA) policies on internet-scale video is appealing, yet current latent-action objectives often learn the wrong thing: they remain anchored to pixel variation rather than action-relevant state transitions, making them vulnerable to appearance bias, nuisance motion, and information leakage. We introduce VLA-JEPA, a JEPA-style pretraining framework that sidesteps these pitfalls by design. The key idea is leakage-free state prediction: a target encoder produces latent representations from future frames, while the student pathway sees only the current observation -- future information is used solely as supervision targets, never as input. By predicting in latent space rather than pixel space, VLA-JEPA learns dynamics abstractions that are robust to camera motion and irrelevant background changes. This yields a simple two-stage recipe -- JEPA pretraining followed by action-head fine-tuning -- without the multi-stage complexity of prior latent-action pipelines. Experiments on LIBERO, LIBERO-Plus, SimplerEnv and real-world manipulation tasks show that VLA-JEPA achieves consistent gains in generalization and robustness over existing methods."
+    ]
+  },
+  "fulltext_sha256": "5deec841d5a7da63e5bab3593798e1741d44d354507586bec8a2f9b576f12677",
+  "pages": 18,
+  "extracted_characters": 68264,
+  "cache_key": "P105/fulltext.pdf",
+  "extraction": "pypdf"
+}

@@ -1,0 +1,116 @@
+{
+  "paper_id": "P085",
+  "retrieved_at": "2026-10-25T22:06:25.025607+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2603.17240",
+  "fulltext_url": "https://arxiv.org/pdf/2603.17240",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2603.17240: GigaWorld-Policy: An Efficient Action-Centered World--Action Model"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "GigaWorld-Policy: An Efficient Action-Centered World--Action Model"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2603.17240v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "World-Action Models (WAM) initialized from pre-trained video generation backbones have demonstrated remarkable potential for robot policy learning. However, existing approaches face two critical bottlenecks that hinder performance and deployment. First, jointly reasoning over future visual dynamics and corresponding actions incurs substantial inference overhead. Second, joint modeling often entangles visual and motion representations, making motion prediction accuracy heavily dependent on the quality of future video forecasts. To address these issues, we introduce GigaWorld-Policy, an action-centered WAM that learns 2D pixel-action dynamics while enabling efficient action decoding, with optional video generation. Specifically, we formulate policy training into two coupled components: the model predicts future action sequences conditioned on the current observation, and simultaneously generates future videos conditioned on the predicted actions and the same observation. The policy is supervised by both action prediction and video generation, providing richer learning signals and encouraging physically plausible actions through visual-dynamics constraints. With a causal design that prevents future-video tokens from influencing action tokens, explicit future-video generation is optional at inference time, allowing faster action prediction during deployment. To support this paradigm, we curate a diverse, large-scale robot dataset to pre-train an action-centered video generation model, which is then adapted as the backbone for robot policy learning. Experimental results on real-world robotic platforms show that GigaWorld-Policy runs 9x faster than the leading WAM baseline, Motus, while improving task success rates by 7%. Moreover, compared with pi-0.5, GigaWorld-Policy improves performance by 95% on RoboTwin 2.0."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "GigaWorld-Policy: An Efficient Action-Centered World--Action Model"
+    ],
+    "twitter:description": [
+      "World-Action Models (WAM) initialized from pre-trained video generation backbones have demonstrated remarkable potential for robot policy learning. However, existing approaches face two critical..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "GigaWorld-Policy: An Efficient Action-Centered World--Action Model"
+    ],
+    "citation_author": [
+      "Ye, Angen",
+      "Wang, Boyuan",
+      "Ni, Chaojun",
+      "Huang, Guan",
+      "Zhao, Guosheng",
+      "Li, Hao",
+      "Li, Hengtao",
+      "Li, Jie",
+      "Lv, Jindi",
+      "Liu, Jingyu",
+      "Cao, Min",
+      "Li, Peng",
+      "Deng, Qiuping",
+      "Mei, Wenjun",
+      "Wang, Xiaofeng",
+      "Chen, Xinze",
+      "Zhou, Xinyu",
+      "Wang, Yang",
+      "Chang, Yifan",
+      "Li, Yifan",
+      "Zhou, Yukun",
+      "Ye, Yun",
+      "Liu, Zhichao",
+      "Zhu, Zheng"
+    ],
+    "citation_date": [
+      "2026/03/18"
+    ],
+    "citation_online_date": [
+      "2026/03/21"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2603.17240"
+    ],
+    "citation_arxiv_id": [
+      "2603.17240"
+    ],
+    "citation_abstract": [
+      "World-Action Models (WAM) initialized from pre-trained video generation backbones have demonstrated remarkable potential for robot policy learning. However, existing approaches face two critical bottlenecks that hinder performance and deployment. First, jointly reasoning over future visual dynamics and corresponding actions incurs substantial inference overhead. Second, joint modeling often entangles visual and motion representations, making motion prediction accuracy heavily dependent on the quality of future video forecasts. To address these issues, we introduce GigaWorld-Policy, an action-centered WAM that learns 2D pixel-action dynamics while enabling efficient action decoding, with optional video generation. Specifically, we formulate policy training into two coupled components: the model predicts future action sequences conditioned on the current observation, and simultaneously generates future videos conditioned on the predicted actions and the same observation. The policy is supervised by both action prediction and video generation, providing richer learning signals and encouraging physically plausible actions through visual-dynamics constraints. With a causal design that prevents future-video tokens from influencing action tokens, explicit future-video generation is optional at inference time, allowing faster action prediction during deployment. To support this paradigm, we curate a diverse, large-scale robot dataset to pre-train an action-centered video generation model, which is then adapted as the backbone for robot policy learning. Experimental results on real-world robotic platforms show that GigaWorld-Policy runs 9x faster than the leading WAM baseline, Motus, while improving task success rates by 7%. Moreover, compared with pi-0.5, GigaWorld-Policy improves performance by 95% on RoboTwin 2.0."
+    ]
+  },
+  "error_type": "UnicodeEncodeError",
+  "error": "'utf-8' codec can't encode character '\\ud835' in position 18208: surrogates not allowed"
+}

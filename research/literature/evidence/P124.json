@@ -1,0 +1,298 @@
+{
+  "paper_id": "P124",
+  "retrieved_at": "2026-10-25T22:04:28.741818+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://doi.org/10.1007/s10514-025-10201-y",
+  "fulltext_url": "https://link.springer.com/content/pdf/10.1007/s10514-025-10201-y.pdf",
+  "primary_metadata": {
+    "": [
+      "IE=edge",
+      "1",
+      "2",
+      "3"
+    ],
+    "applicable-device": [
+      "pc,mobile"
+    ],
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "robots": [
+      "max-image-preview:large"
+    ],
+    "access": [
+      "Yes"
+    ],
+    "360-site-verification": [
+      "1268d79b5e96aecf3ff2a7dac04ad990"
+    ],
+    "twitter:site": [
+      "@SpringerLink"
+    ],
+    "twitter:card": [
+      "summary_large_image"
+    ],
+    "twitter:image:alt": [
+      "Content cover image"
+    ],
+    "twitter:title": [
+      "Autonomous learning-free grasping and robot-to-robot handover of unknown objects"
+    ],
+    "twitter:description": [
+      "Autonomous Robots - In this paper, we propose a learning-free approach for an autonomous robotic system to grasp, hand over, and regrasp previously unseen objects. The proposed framework includes..."
+    ],
+    "twitter:image": [
+      "https://media.springernature.com/m685/springer-static/image/art%3A10.1007%2Fs10514-025-10201-y/MediaObjects/10514_2025_10201_Fig1_HTML.png"
+    ],
+    "journal_id": [
+      "10514"
+    ],
+    "dc.title": [
+      "Autonomous learning-free grasping and robot-to-robot handover of unknown objects"
+    ],
+    "dc.source": [
+      "Autonomous Robots 2025 49:3"
+    ],
+    "dc.format": [
+      "text/html"
+    ],
+    "dc.publisher": [
+      "Springer"
+    ],
+    "dc.date": [
+      "2025-06-28"
+    ],
+    "dc.type": [
+      "OriginalPaper"
+    ],
+    "dc.language": [
+      "En"
+    ],
+    "dc.copyright": [
+      "2025 The Author(s)"
+    ],
+    "dc.rights": [
+      "2025 The Author(s)"
+    ],
+    "dc.rightsAgent": [
+      "journalpermissions@springernature.com"
+    ],
+    "dc.description": [
+      "In this paper, we propose a learning-free approach for an autonomous robotic system to grasp, hand over, and regrasp previously unseen objects. The proposed framework includes two main components: a novel grasping detector to predict grasping poses directly from the point cloud and a reachability-aware handover planner to select the exchange pose and grasping poses for two robots. In the grasping detection stage, multiple superquadrics are first recovered at different positions within the object, representing the local geometric feature of the object. Our algorithm then exploits the tri-symmetry feature of superquadrics and synthesizes a list of antipodal grasps from each recovered superquadric. An evaluation model is designed to assess and quantify the quality of each grasp candidate. In the handover planning stage, the planner first selects grasping candidates that have high scores and a larger number of collision-free partners. Then the exchange location is computed by utilizing two signed distance fields (SDF) which model the reachability space for the pair of two robots. To evaluate the performance of the proposed method, we first run experiments on isolated and packed scenes to corroborate the effectiveness of our grasping detection method. Then the handover experiments are conducted on a dual-arm system with two 7 degrees of freedom (DoF) manipulators. The results indicate that our method shows better performance compared with the state-of-the-art, without the need for large amounts of training."
+    ],
+    "prism.issn": [
+      "1573-7527"
+    ],
+    "prism.publicationName": [
+      "Autonomous Robots"
+    ],
+    "prism.publicationDate": [
+      "2025-06-28"
+    ],
+    "prism.volume": [
+      "49"
+    ],
+    "prism.number": [
+      "3"
+    ],
+    "prism.section": [
+      "OriginalPaper"
+    ],
+    "prism.startingPage": [
+      "18"
+    ],
+    "prism.copyright": [
+      "2025 The Author(s)"
+    ],
+    "prism.rightsAgent": [
+      "journalpermissions@springernature.com"
+    ],
+    "prism.url": [
+      "https://link.springer.com/article/10.1007/s10514-025-10201-y"
+    ],
+    "prism.doi": [
+      "doi:10.1007/s10514-025-10201-y"
+    ],
+    "citation_pdf_url": [
+      "https://link.springer.com/content/pdf/10.1007/s10514-025-10201-y.pdf"
+    ],
+    "citation_fulltext_html_url": [
+      "https://link.springer.com/article/10.1007/s10514-025-10201-y"
+    ],
+    "citation_journal_title": [
+      "Autonomous Robots"
+    ],
+    "citation_journal_abbrev": [
+      "Auton Robot"
+    ],
+    "citation_publisher": [
+      "Springer US"
+    ],
+    "citation_issn": [
+      "1573-7527"
+    ],
+    "citation_title": [
+      "Autonomous learning-free grasping and robot-to-robot handover of unknown objects"
+    ],
+    "citation_volume": [
+      "49"
+    ],
+    "citation_issue": [
+      "3"
+    ],
+    "citation_publication_date": [
+      "2025/09"
+    ],
+    "citation_online_date": [
+      "2025/06/28"
+    ],
+    "citation_firstpage": [
+      "18"
+    ],
+    "citation_article_type": [
+      "Article"
+    ],
+    "citation_language": [
+      "en"
+    ],
+    "dc.identifier": [
+      "doi:10.1007/s10514-025-10201-y"
+    ],
+    "DOI": [
+      "10.1007/s10514-025-10201-y"
+    ],
+    "size": [
+      "197268"
+    ],
+    "citation_doi": [
+      "10.1007/s10514-025-10201-y"
+    ],
+    "citation_springer_api_url": [
+      "http://api.springer.com/xmldata/jats?q=doi:10.1007/s10514-025-10201-y&api_key="
+    ],
+    "description": [
+      "In this paper, we propose a learning-free approach for an autonomous robotic system to grasp, hand over, and regrasp previously unseen objects. The propose"
+    ],
+    "dc.creator": [
+      "Wu, Yuwei",
+      "Li, Wanze",
+      "Liu, Zhiyang",
+      "Liu, Weixiao",
+      "Chirikjian, Gregory S."
+    ],
+    "dc.subject": [
+      "Robotics and Automation",
+      "Artificial Intelligence",
+      "Computer Imaging, Vision, Pattern Recognition and Graphics",
+      "Control, Robotics, Mechatronics"
+    ],
+    "citation_reference": [
+      "Akinola, I., Varley, J., Chen, B. & Allen, P. K. (2018). Workspace aware online grasp planning. In 2018 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) (pp. 2917–2924). IEEE.",
+      "citation_title=Industrial robot applications; citation_publication_date=2012; citation_id=CR2; citation_author=E Appleton; citation_author=DJ Williams; citation_publisher=Springer",
+      "citation_journal_title=IEEE Computer Graphics and Applications; citation_title=Superquadrics and angle-preserving transformations; citation_author=AH Barr; citation_volume=1; citation_issue=1; citation_publication_date=1981; citation_pages=11-23; citation_doi=10.1109/MCG.1981.1673799; citation_id=CR3",
+      "citation_journal_title=Industrial Robot: An International Journal; citation_title=Domestic robots: Has their time finally come?; citation_author=R Bogue; citation_volume=44; citation_issue=2; citation_publication_date=2017; citation_pages=129-136; citation_doi=10.1108/IR-01-2017-0018; citation_id=CR4",
+      "Breyer, M., Chung, J. J., Ott, L., Siegwart, R. & Nieto, J. (2021). Volumetric grasping network: Real-time 6 dof grasp detection in clutter. In Conference on Robot Learning (pp. 1602–1611). PMLR.",
+      "Chan, W. P., Kumagai, I., Nozawa, S., Kakiuchi, Y., Okada, K. & Inaba, M. (2014). Implementation of a robot–human object handover controller on a compliant underactuated hand using joint position error measurements for grip force and load force estimations. In 2014 IEEE International Conference on Robotics and Automation (ICRA) (pp. 1190–1195). IEEE.",
+      "Chan, W. P., Parker, C. A. C., Van der Loos, H. F. M., & Croft, E. A. (2012). Grip forces and load forces in handovers: implications for designing human-robot handover controllers. In Proceedings of the seventh annual ACM/IEEE international conference on human–robot interaction (pp. 9–16).",
+      "citation_journal_title=IEEE Transactions on Robotics and Automation; citation_title=Finding antipodal point grasps on irregularly shaped objects; citation_author=I-M Chen, JW Burdick; citation_volume=9; citation_issue=4; citation_publication_date=1993; citation_pages=507-512; citation_doi=10.1109/70.246063; citation_id=CR8",
+      "Chevalier, L., Jaillet, F. & Baskurt, A. (2003). Segmentation and superquadric modeling of 3d objects. In Journal of Winter School of Computer Graphics, WSCG’03, Pilsen, Rep. Tchèque.",
+      "Christen, S., Yang, W., Pérez-D’Arpino, C., Hilliges, O., Fox, D., & Chao, Y.-W. (2023). Learning human-to-robot handovers from point clouds. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition (pp. 9654–9664).",
+      "citation_journal_title=Frontiers in Robotics and AI; citation_title=Handover control for human–robot and robot–robot collaboration; citation_author=M Costanzo, G Maria, C Natale; citation_volume=8; citation_publication_date=2021; citation_doi=10.3389/frobt.2021.672995; citation_id=CR11",
+      "Curless, B., & Levoy, M. (1996). A volumetric method for building complex models from range images. In Proceedings of the 23rd annual conference on computer graphics and interactive techniques (pp. 303–312).",
+      "Ding, D., Liu, Y.-H., & Wang, S. (2000). Computing 3-d optimal form-closure grasps. In Proceedings 2000 ICRA. Millennium Conference. IEEE International Conference on Robotics and Automation. Symposia Proceedings (Cat. No. 00CH37065) (Vol. 4, pp. 3573–3578). IEEE.",
+      "Fan, H., Hao, S., & Guibas, L. J. (2017). A point set generation network for 3d object reconstruction from a single image. In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 605–613).",
+      "Fang, H.-S., Wang, C., Gou, M., & Cewu, L. (2020). Graspnet-1billion: A large-scale benchmark for general object grasping. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition (pp. 11444–11453).",
+      "Jiang, Z., Zhu, Y., Svetlik, M., Fang, K., & Zhu, Y. (2021). Synergies between affordance and geometry: 6-dof grasp detection via implicit representations. Robotics: Science and Systems.",
+      "citation_journal_title=IEEE Robotics and Automation Letters; citation_title=Learning task-oriented grasping from human activity datasets; citation_author=M Kokic, D Kragic, J Bohg; citation_volume=5; citation_issue=2; citation_publication_date=2020; citation_pages=3352-3359; citation_doi=10.1109/LRA.2020.2975706; citation_id=CR17",
+      "Kumra, S., Joshi, S., & Sahin, F. (2020). Antipodal robotic grasping using generative residual convolutional neural network. In 2020 IEEE/RSJ International Conference on Intelligent Robots and Systems (pp. 9626–9633). IEEE.",
+      "citation_journal_title=IEEE Transactions on Pattern Analysis and Machine Intelligence; citation_title=Superquadrics for segmenting and modeling range data; citation_author=A Leonardis, A Jaklic, F Solina; citation_volume=19; citation_issue=11; citation_publication_date=1997; citation_pages=1289-1295; citation_doi=10.1109/34.632988; citation_id=CR19",
+      "Liang, H., Ma, X., Li, S., Görner, M., Tang, S., Fang, B., Sun, F., & Zhang, J. (2019). Pointnetgpd: Detecting grasp configurations from point sets. In 2019 International Conference on Robotics and Automation (pp. 3629–3635). IEEE.",
+      "Liu, W., Wu, Y., Ruan, S., & Chirikjian, G. S. (2022). Robust and accurate superquadric recovery: A probabilistic approach. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition (pp. 2676–2685).",
+      "Liu, W., Wu, Y., Ruan, S., & Chirikjian, G. (2023) Marching-primitives: Shape abstraction from signed distance function. In Proceedings IEEE Conferences on Computer Vision and Pattern Recognition (CVPR) (pp. 8771–8780).",
+      "citation_journal_title=IEEE Transactions on Robotics and Automation; citation_title=Qualitative test and force optimization of 3-d frictional form-closure grasps using linear programming; citation_author=Y-H Liu; citation_volume=15; citation_issue=1; citation_publication_date=1999; citation_pages=163-173; citation_doi=10.1109/70.744611; citation_id=CR23",
+      "citation_journal_title=ACM Siggraph Computer Graphics; citation_title=Marching cubes: A high resolution 3d surface construction algorithm; citation_author=WE Lorensen, HE Cline; citation_volume=21; citation_issue=4; citation_publication_date=1987; citation_pages=163-169; citation_doi=10.1145/37402.37422; citation_id=CR24",
+      "citation_journal_title=Robotics: Science and Systems; citation_title=Dex-net 2.0: Deep learning to plan robust grasps with synthetic point clouds and analytic grasp metrics; citation_author=J Mahler, J Liang, S Niyaz, M Laskey, R Doan, X Liu, JA Ojea, K Goldberg; citation_volume=99; citation_publication_date=2017; citation_pages=45789; citation_id=CR25",
+      "Makhal, A., Thomas, F. & Gracia, A. P. (2018). Grasping unknown objects in clutter by superquadric representation. In 2018 Second IEEE International Conference on Robotic Computing (pp. 292–299). IEEE.",
+      "Mavsar, M., Ridge, B., Morimoto, J., Ude, A. et al. (2024). Simulation-aided handover prediction from video using recurrent image-to-motion networks. IEEE Transactions on Neural Networks and Learning Systems, 35(1), 494–506.",
+      "Mohandes, M., Moradi, B., Gupta, K., & Mehrandezh, M. (2022). Robot to human object handover using vision and joint torque sensor modalities. In International conference on robot intelligence technology and applications (pp. 109–124). Springer.",
+      "Morrison, D., Corke, P., & Leitner, J. (2018). 2018 Closing the loop for robotic grasping: A real-time, generative grasp synthesis approach. In Robotics: Science and Systems 2018.",
+      "citation_journal_title=The International Journal of Robotics Research; citation_title=Learning robust, real-time, reactive robotic grasping; citation_author=D Morrison, P Corke, J Leitner; citation_volume=39; citation_issue=2–3; citation_publication_date=2020; citation_pages=183-201; citation_doi=10.1177/0278364919859066; citation_id=CR30",
+      "Mousavian, A., Eppner, C. & Fox, D. (2019). 6-dof graspnet: Variational grasp generation for object manipulation. In Proceedings of the IEEE/CVF international conference on computer vision (pp. 2901–2910).",
+      "Newbury, R., Gu, M., Chumbley, L., Mousavian, A., Eppner, C., Leitner, J., Bohg, J., Morales, A., Asfour, T., Kragic, D., Fox, D. & Cosgun, A. (2023). Deep learning approaches to grasp synthesis: A review. IEEE Transactionson Robotics, 39(5), 3994–4015",
+      "Pan, J., Chitta, S. & Manocha, D. (2012). Fcl: A general purpose library for collision and proximity queries. In 2012 IEEE International Conference on Robotics and Automation (pp. 3859–3866). \n                  https://doi.org/10.1109/ICRA.2012.6225337\n                  \n                .",
+      "Paschalidou, D., Ulusoy, A. O. & Geiger, A. (2019). Superquadrics revisited: Learning 3d shape parsing beyond cuboids. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition (pp. 10344–10353).",
+      "Paschalidou, D., Van Gool, L. & Geiger, A. (2020). Learning unsupervised hierarchical part decomposition of 3d objects from a single rgb image. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition (pp. 1060–1070).",
+      "Ponce, J.,Sullivan, S., Boissonnat, J.-D. & Merlet, J.-P. (1993). On characterizing and computing three-and four-finger force-closure grasps of polyhedral objects. In 1993 Proceedings IEEE International Conference on Robotics and Automation (pp. 821–827). IEEE.",
+      "Sahbani, A. & El-Khoury, S. (2009). A hybrid approach for grasping 3d objects. In 2009 IEEE/RSJ International Conference on Intelligent Robots and Systems (pp. 1272–1277). IEEE.",
+      "citation_journal_title=The International Journal of Robotics Research; citation_title=Robotic grasping of novel objects using vision; citation_author=A Saxena, J Driemeyer, AY Ng; citation_volume=27; citation_issue=2; citation_publication_date=2008; citation_pages=157-173; citation_doi=10.1177/0278364907087172; citation_id=CR38",
+      "Sileo, M., Nigro, M., Bloisi, D. D., & Pierri, F. (2021). Vision based robot-to-robot object handover. In 2021 20th International Conference on Advanced Robotics (ICAR) (pp. 664–669). IEEE.",
+      "citation_journal_title=IEEE Transactions on Pattern Analysis and Machine Intelligence; citation_title=Recovery of parametric models from range images: The case for superquadrics with global deformations; citation_author=F Solina, R Bajcsy; citation_volume=12; citation_issue=2; citation_publication_date=1990; citation_pages=131-147; citation_doi=10.1109/34.44401; citation_id=CR40",
+      "Suay, H. B. & Sisbot, E. A. (2015). A position generation algorithm utilizing a biomechanical model for robot-human object handover. In 2015 IEEE International Conference on Robotics and Automation (ICRA) (pp. 3776–3781). IEEE.",
+      "Sundermeyer, M., Mousavian, A., Triebel, R., & Fox, D. (2021). Contact-graspnet: Efficient 6-dof grasp generation in cluttered scenes. In 2021 IEEE International Conference on Robotics and Automation (pp. 13438–13444). IEEE.",
+      "citation_journal_title=The International Journal of Robotics Research; citation_title=Grasp pose detection in point clouds; citation_author=A Pas, M Gualtieri, K Saenko, R Platt; citation_volume=36; citation_issue=13–14; citation_publication_date=2017; citation_pages=1455-1473; citation_id=CR43",
+      "Wu, Y., Liu, W., Liu, Z., & Chirikjian, G. S. (2023a). Learning-free grasping of unknown objects using hidden superquadrics. Robotics: Science and Systems.",
+      "citation_journal_title=IFAC-PapersOnLine; citation_title=Learning dynamic robot-to-robot object handover; citation_author=Y Wu, L Chen, IP Mahiques, Z Bing, F Wu, A Knoll, S Haddadin; citation_volume=56; citation_issue=2; citation_publication_date=2023; citation_pages=4368-4374; citation_doi=10.1016/j.ifacol.2023.10.1814; citation_id=CR47",
+      "Wu, Y., Liu, W., Ruan, S., & Chirikjian, G. S. (2022) Primitive-based shape abstraction via nonparametric bayesian inference. In Computer Vision—ECCV 2022: 17th European Conference, Tel Aviv, Israel, October 23–27, 2022, Proceedings, Part XXVII (pp. 479–495). Springer.",
+      "Wu, M., Taetz, B., Saraiva, E. D., Bleser, G., & Liu, S. (2019). On-line motion prediction and adaptive control in human–robot handover tasks. In 2019 IEEE International Conference on Advanced Robotics and its SocialImpacts (ARSO), (pp. 1–6). IEEE.",
+      "Zhu, X., & Ding, H. (2004). Planning force-closure grasps on 3-d objects. In IEEE International Conference on Robotics and Automation. Proceedings. ICRA’04. 2004 (Vol. 2, pp. 1258–1263). IEEE.",
+      "Zhu, X., Wang, D., Biza, O., Su, G., Walters, R. & Platt, R. (2022). Sample efficient grasp learning using equivariant models. Proceedings of Robotics: Science and Systems."
+    ],
+    "citation_author": [
+      "Wu, Yuwei",
+      "Li, Wanze",
+      "Liu, Zhiyang",
+      "Liu, Weixiao",
+      "Chirikjian, Gregory S."
+    ],
+    "citation_author_email": [
+      "yw.wu@nus.edu.sg",
+      "li_wanze@u.nus.edu",
+      "mpezyl@nus.edu.sg",
+      "wliu72@jhu.edu",
+      "gchirik@udel.edu"
+    ],
+    "citation_author_institution": [
+      "Mechanical Engineering Department, National University of Singapore, Singapore, Singapore",
+      "Mechanical Engineering Department, National University of Singapore, Singapore, Singapore",
+      "Mechanical Engineering Department, National University of Singapore, Singapore, Singapore",
+      "Mechanical Engineering Department, National University of Singapore, Singapore, Singapore",
+      "Mechanical Engineering Department, Johns Hopkins University, Baltimore, USA",
+      "Mechanical Engineering Department, National University of Singapore, Singapore, Singapore",
+      "Mechanical Engineering Department, University of Delaware, Newark, USA"
+    ],
+    "format-detection": [
+      "telephone=no",
+      "telephone=no"
+    ],
+    "citation_cover_date": [
+      "2025/09/01"
+    ],
+    "og:url": [
+      "https://link.springer.com/article/10.1007/s10514-025-10201-y"
+    ],
+    "og:type": [
+      "article"
+    ],
+    "og:site_name": [
+      "SpringerLink"
+    ],
+    "og:title": [
+      "Autonomous learning-free grasping and robot-to-robot handover of unknown objects - Autonomous Robots"
+    ],
+    "og:description": [
+      "In this paper, we propose a learning-free approach for an autonomous robotic system to grasp, hand over, and regrasp previously unseen objects. The proposed framework includes two main components: a novel grasping detector to predict grasping poses directly from the point cloud and a reachability-aware handover planner to select the exchange pose and grasping poses for two robots. In the grasping detection stage, multiple superquadrics are first recovered at different positions within the object, representing the local geometric feature of the object. Our algorithm then exploits the tri-symmetry feature of superquadrics and synthesizes a list of antipodal grasps from each recovered superquadric. An evaluation model is designed to assess and quantify the quality of each grasp candidate. In the handover planning stage, the planner first selects grasping candidates that have high scores and a larger number of collision-free partners. Then the exchange location is computed by utilizing two signed distance fields (SDF) which model the reachability space for the pair of two robots. To evaluate the performance of the proposed method, we first run experiments on isolated and packed scenes to corroborate the effectiveness of our grasping detection method. Then the handover experiments are conducted on a dual-arm system with two 7 degrees of freedom (DoF) manipulators. The results indicate that our method shows better performance compared with the state-of-the-art, without the need for large amounts of training."
+    ],
+    "og:image": [
+      "https://media.springernature.com/m685/springer-static/image/art%3A10.1007%2Fs10514-025-10201-y/MediaObjects/10514_2025_10201_Fig1_HTML.png"
+    ],
+    "theme-color": [
+      "#e6e6e6"
+    ]
+  },
+  "fulltext_sha256": "26e6ebd22f830d9766d7ed66afbcc031c3e62ac5f845853918b6c38067b82af2",
+  "pages": 16,
+  "extracted_characters": 66544,
+  "cache_key": "P124/fulltext.pdf",
+  "extraction": "pypdf"
+}

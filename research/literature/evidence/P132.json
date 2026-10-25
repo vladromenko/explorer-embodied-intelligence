@@ -1,0 +1,112 @@
+{
+  "paper_id": "P132",
+  "retrieved_at": "2026-10-25T22:07:22.110018+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/1612.00796",
+  "fulltext_url": "https://arxiv.org/pdf/1612.00796",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 1612.00796: Overcoming catastrophic forgetting in neural networks"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Overcoming catastrophic forgetting in neural networks"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/1612.00796v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "The ability to learn tasks in a sequential fashion is crucial to the development of artificial intelligence. Neural networks are not, in general, capable of this and it has been widely thought that catastrophic forgetting is an inevitable feature of connectionist models. We show that it is possible to overcome this limitation and train networks that can maintain expertise on tasks which they have not experienced for a long time. Our approach remembers old tasks by selectively slowing down learning on the weights important for those tasks. We demonstrate our approach is scalable and effective by solving a set of classification tasks based on the MNIST hand written digit dataset and by learning several Atari 2600 games sequentially."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Overcoming catastrophic forgetting in neural networks"
+    ],
+    "twitter:description": [
+      "The ability to learn tasks in a sequential fashion is crucial to the development of artificial intelligence. Neural networks are not, in general, capable of this and it has been widely thought..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Overcoming catastrophic forgetting in neural networks"
+    ],
+    "citation_author": [
+      "Kirkpatrick, James",
+      "Pascanu, Razvan",
+      "Rabinowitz, Neil",
+      "Veness, Joel",
+      "Desjardins, Guillaume",
+      "Rusu, Andrei A.",
+      "Milan, Kieran",
+      "Quan, John",
+      "Ramalho, Tiago",
+      "Grabska-Barwinska, Agnieszka",
+      "Hassabis, Demis",
+      "Clopath, Claudia",
+      "Kumaran, Dharshan",
+      "Hadsell, Raia"
+    ],
+    "citation_doi": [
+      "10.1073/pnas.1611835114"
+    ],
+    "citation_date": [
+      "2016/12/02"
+    ],
+    "citation_online_date": [
+      "2017/01/25"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/1612.00796"
+    ],
+    "citation_arxiv_id": [
+      "1612.00796"
+    ],
+    "citation_abstract": [
+      "The ability to learn tasks in a sequential fashion is crucial to the development of artificial intelligence. Neural networks are not, in general, capable of this and it has been widely thought that catastrophic forgetting is an inevitable feature of connectionist models. We show that it is possible to overcome this limitation and train networks that can maintain expertise on tasks which they have not experienced for a long time. Our approach remembers old tasks by selectively slowing down learning on the weights important for those tasks. We demonstrate our approach is scalable and effective by solving a set of classification tasks based on the MNIST hand written digit dataset and by learning several Atari 2600 games sequentially."
+    ]
+  },
+  "fulltext_sha256": "5e181839191ab4582da2b5ff9666f5222e40b8b8d2f1cdf4fa7100b3a58d7a29",
+  "pages": 13,
+  "extracted_characters": 49781,
+  "cache_key": "P132/fulltext.pdf",
+  "extraction": "pypdf"
+}

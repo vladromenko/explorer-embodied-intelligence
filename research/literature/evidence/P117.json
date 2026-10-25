@@ -1,0 +1,125 @@
+{
+  "paper_id": "P117",
+  "retrieved_at": "2026-10-25T22:07:07.934550+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2602.06949",
+  "fulltext_url": "https://arxiv.org/pdf/2602.06949",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2602.06949: DreamDojo: A Generalist Robot World Model from Large-Scale Human Videos"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "DreamDojo: A Generalist Robot World Model from Large-Scale Human Videos"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2602.06949v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Being able to simulate the outcomes of actions in varied environments will revolutionize the development of generalist agents at scale. However, modeling these world dynamics, especially for dexterous robotics tasks, poses significant challenges due to limited data coverage and scarce action labels. As an endeavor towards this end, we introduce DreamDojo, a foundation world model that learns diverse interactions and dexterous controls from 44k hours of egocentric human videos. Our data mixture represents the largest video dataset to date for world model pretraining, spanning a wide range of daily scenarios with diverse objects and skills. To address the scarcity of action labels, we introduce continuous latent actions as unified proxy actions, enhancing interaction knowledge transfer from unlabeled videos. After post-training on small-scale target robot data, DreamDojo demonstrates a strong understanding of physics and precise action controllability. We also devise a distillation pipeline that accelerates DreamDojo to a real-time speed of 10.81 FPS and further improves context consistency. Our work enables several important applications based on generative world models, including live teleoperation, policy evaluation, and model-based planning. Systematic evaluation on multiple challenging out-of-distribution (OOD) benchmarks verifies the significance of our method for simulating open-world, contact-rich tasks, paving the way for general-purpose robot world models."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "DreamDojo: A Generalist Robot World Model from Large-Scale Human Videos"
+    ],
+    "twitter:description": [
+      "Being able to simulate the outcomes of actions in varied environments will revolutionize the development of generalist agents at scale. However, modeling these world dynamics, especially for..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "DreamDojo: A Generalist Robot World Model from Large-Scale Human Videos"
+    ],
+    "citation_author": [
+      "Gao, Shenyuan",
+      "Liang, William",
+      "Zheng, Kaiyuan",
+      "Malik, Ayaan",
+      "Ye, Seonghyeon",
+      "Yu, Sihyun",
+      "Tseng, Wei-Cheng",
+      "Dong, Yuzhu",
+      "Mo, Kaichun",
+      "Lin, Chen-Hsuan",
+      "Ma, Qianli",
+      "Nah, Seungjun",
+      "Magne, Loic",
+      "Xiang, Jiannan",
+      "Xie, Yuqi",
+      "Zheng, Ruijie",
+      "Niu, Dantong",
+      "Tan, You Liang",
+      "Zentner, K. R.",
+      "Kurian, George",
+      "Indupuru, Suneel",
+      "Jannaty, Pooya",
+      "Gu, Jinwei",
+      "Zhang, Jun",
+      "Malik, Jitendra",
+      "Abbeel, Pieter",
+      "Liu, Ming-Yu",
+      "Zhu, Yuke",
+      "Jang, Joel",
+      "Fan, Linxi \"Jim\""
+    ],
+    "citation_date": [
+      "2026/02/06"
+    ],
+    "citation_online_date": [
+      "2026/02/06"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2602.06949"
+    ],
+    "citation_arxiv_id": [
+      "2602.06949"
+    ],
+    "citation_abstract": [
+      "Being able to simulate the outcomes of actions in varied environments will revolutionize the development of generalist agents at scale. However, modeling these world dynamics, especially for dexterous robotics tasks, poses significant challenges due to limited data coverage and scarce action labels. As an endeavor towards this end, we introduce DreamDojo, a foundation world model that learns diverse interactions and dexterous controls from 44k hours of egocentric human videos. Our data mixture represents the largest video dataset to date for world model pretraining, spanning a wide range of daily scenarios with diverse objects and skills. To address the scarcity of action labels, we introduce continuous latent actions as unified proxy actions, enhancing interaction knowledge transfer from unlabeled videos. After post-training on small-scale target robot data, DreamDojo demonstrates a strong understanding of physics and precise action controllability. We also devise a distillation pipeline that accelerates DreamDojo to a real-time speed of 10.81 FPS and further improves context consistency. Our work enables several important applications based on generative world models, including live teleoperation, policy evaluation, and model-based planning. Systematic evaluation on multiple challenging out-of-distribution (OOD) benchmarks verifies the significance of our method for simulating open-world, contact-rich tasks, paving the way for general-purpose robot world models."
+    ]
+  },
+  "fulltext_sha256": "c8f02e22c8fbe98e0b50215e10e1f6baf2f589b1987e5c6dc07175bfe6fe8587",
+  "pages": 33,
+  "extracted_characters": 92270,
+  "cache_key": "P117/fulltext.pdf",
+  "extraction": "pypdf"
+}

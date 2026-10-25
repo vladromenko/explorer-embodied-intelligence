@@ -1,0 +1,56 @@
+{
+  "paper_id": "P037",
+  "retrieved_at": "2026-10-25T22:05:36.130572+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://openaccess.thecvf.com/content/CVPR2026W/GigaBrainChallenge/html/Ge_CrossZero_Zero-Shot_of_Unseen_Embodiment_Manipulation_via_Object-Centric_Hierarchical_Diffusion_CVPRW_2026_paper.html",
+  "fulltext_url": "https://openaccess.thecvf.com/content/CVPR2026W/GigaBrainChallenge/papers/Ge_CrossZero_Zero-Shot_of_Unseen_Embodiment_Manipulation_via_Object-Centric_Hierarchical_Diffusion_CVPRW_2026_paper.pdf",
+  "primary_metadata": {
+    "": [
+      "text/html; charset=UTF-8"
+    ],
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "citation_title": [
+      "CrossZero: Zero-Shot of Unseen Embodiment Manipulation via Object-Centric Hierarchical Diffusion Models"
+    ],
+    "citation_author": [
+      "Ge, Yiheng",
+      "Yan, Yongqi",
+      "Han, Mishuo",
+      "LI, Changxian",
+      "Ding, Zizhong",
+      "Li, Jiaxiang",
+      "Yang, Fan",
+      "Yang, Tianshuo",
+      "Shen, Tong",
+      "Ouyang, Changle",
+      "Shen, Weijie",
+      "Deng, Weiliang",
+      "Liu, Shuhao",
+      "Qi, Tian",
+      "Mu, Yao"
+    ],
+    "citation_publication_date": [
+      "2026"
+    ],
+    "citation_conference_title": [
+      "Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition"
+    ],
+    "citation_firstpage": [
+      "4446"
+    ],
+    "citation_lastpage": [
+      "4454"
+    ],
+    "citation_pdf_url": [
+      "https://openaccess.thecvf.com/content/CVPR2026W/GigaBrainChallenge/papers/Ge_CrossZero_Zero-Shot_of_Unseen_Embodiment_Manipulation_via_Object-Centric_Hierarchical_Diffusion_CVPRW_2026_paper.pdf"
+    ]
+  },
+  "fulltext_sha256": "fe6dbf0b0ff834b2a8654a585644fd601a828efe66985f4d949c7dacdf207432",
+  "pages": 9,
+  "extracted_characters": 36635,
+  "cache_key": "P037/fulltext.pdf",
+  "extraction": "pypdf"
+}

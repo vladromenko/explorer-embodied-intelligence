@@ -1,0 +1,47 @@
+{
+  "paper_id": "P119",
+  "retrieved_at": "2026-10-25T22:08:56.788058+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://openaccess.thecvf.com/content/ICCV2025/html/Zhu_IRASim_A_Fine-Grained_World_Model_for_Robot_Manipulation_ICCV_2025_paper.html",
+  "fulltext_url": "https://openaccess.thecvf.com/content/ICCV2025/papers/Zhu_IRASim_A_Fine-Grained_World_Model_for_Robot_Manipulation_ICCV_2025_paper.pdf",
+  "primary_metadata": {
+    "": [
+      "text/html; charset=UTF-8"
+    ],
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "citation_title": [
+      "IRASim: A Fine-Grained World Model for Robot Manipulation"
+    ],
+    "citation_author": [
+      "Zhu, Fangqi",
+      "Wu, Hongtao",
+      "Guo, Song",
+      "Liu, Yuxiao",
+      "Cheang, Chilam",
+      "Kong, Tao"
+    ],
+    "citation_publication_date": [
+      "2025"
+    ],
+    "citation_conference_title": [
+      "Proceedings of the IEEE/CVF International Conference on Computer Vision"
+    ],
+    "citation_firstpage": [
+      "9834"
+    ],
+    "citation_lastpage": [
+      "9844"
+    ],
+    "citation_pdf_url": [
+      "https://openaccess.thecvf.com/content/ICCV2025/papers/Zhu_IRASim_A_Fine-Grained_World_Model_for_Robot_Manipulation_ICCV_2025_paper.pdf"
+    ]
+  },
+  "fulltext_sha256": "ce335fb2e00505026f00c045a8ffa951bd891ba3bc499a5c804747c8b99caa59",
+  "pages": 11,
+  "extracted_characters": 54396,
+  "cache_key": "P119/fulltext.pdf",
+  "extraction": "pypdf"
+}

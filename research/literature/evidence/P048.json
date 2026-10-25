@@ -1,0 +1,196 @@
+{
+  "paper_id": "P048",
+  "retrieved_at": "2026-10-25T22:05:49.083012+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2403.12945",
+  "fulltext_url": "https://arxiv.org/pdf/2403.12945",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2403.12945: DROID: A Large-Scale In-The-Wild Robot Manipulation Dataset"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "DROID: A Large-Scale In-The-Wild Robot Manipulation Dataset"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2403.12945v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "The creation of large, diverse, high-quality robot manipulation datasets is an important stepping stone on the path toward more capable and robust robotic manipulation policies. However, creating such datasets is challenging: collecting robot manipulation data in diverse environments poses logistical and safety challenges and requires substantial investments in hardware and human labour. As a result, even the most general robot manipulation policies today are mostly trained on data collected in a small number of environments with limited scene and task diversity. In this work, we introduce DROID (Distributed Robot Interaction Dataset), a diverse robot manipulation dataset with 76k demonstration trajectories or 350 hours of interaction data, collected across 564 scenes and 84 tasks by 50 data collectors in North America, Asia, and Europe over the course of 12 months. We demonstrate that training with DROID leads to policies with higher performance and improved generalization ability. We open source the full dataset, policy learning code, and a detailed guide for reproducing our robot hardware setup."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "DROID: A Large-Scale In-The-Wild Robot Manipulation Dataset"
+    ],
+    "twitter:description": [
+      "The creation of large, diverse, high-quality robot manipulation datasets is an important stepping stone on the path toward more capable and robust robotic manipulation policies. However, creating..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "DROID: A Large-Scale In-The-Wild Robot Manipulation Dataset"
+    ],
+    "citation_author": [
+      "Khazatsky, Alexander",
+      "Pertsch, Karl",
+      "Nair, Suraj",
+      "Balakrishna, Ashwin",
+      "Dasari, Sudeep",
+      "Karamcheti, Siddharth",
+      "Nasiriany, Soroush",
+      "Srirama, Mohan Kumar",
+      "Chen, Lawrence Yunliang",
+      "Ellis, Kirsty",
+      "Fagan, Peter David",
+      "Hejna, Joey",
+      "Itkina, Masha",
+      "Lepert, Marion",
+      "Ma, Yecheng Jason",
+      "Miller, Patrick Tree",
+      "Wu, Jimmy",
+      "Belkhale, Suneel",
+      "Dass, Shivin",
+      "Ha, Huy",
+      "Jain, Arhan",
+      "Lee, Abraham",
+      "Lee, Youngwoon",
+      "Memmel, Marius",
+      "Park, Sungjae",
+      "Radosavovic, Ilija",
+      "Wang, Kaiyuan",
+      "Zhan, Albert",
+      "Black, Kevin",
+      "Chi, Cheng",
+      "Hatch, Kyle Beltran",
+      "Lin, Shan",
+      "Lu, Jingpei",
+      "Mercat, Jean",
+      "Rehman, Abdul",
+      "Sanketi, Pannag R",
+      "Sharma, Archit",
+      "Simpson, Cody",
+      "Vuong, Quan",
+      "Walke, Homer Rich",
+      "Wulfe, Blake",
+      "Xiao, Ted",
+      "Yang, Jonathan Heewon",
+      "Yavary, Arefeh",
+      "Zhao, Tony Z.",
+      "Agia, Christopher",
+      "Baijal, Rohan",
+      "Castro, Mateo Guaman",
+      "Chen, Daphne",
+      "Chen, Qiuyu",
+      "Chung, Trinity",
+      "Drake, Jaimyn",
+      "Foster, Ethan Paul",
+      "Gao, Jensen",
+      "Guizilini, Vitor",
+      "Herrera, David Antonio",
+      "Heo, Minho",
+      "Hsu, Kyle",
+      "Hu, Jiaheng",
+      "Irshad, Muhammad Zubair",
+      "Jackson, Donovon",
+      "Le, Charlotte",
+      "Li, Yunshuang",
+      "Lin, Kevin",
+      "Lin, Roy",
+      "Ma, Zehan",
+      "Maddukuri, Abhiram",
+      "Mirchandani, Suvir",
+      "Morton, Daniel",
+      "Nguyen, Tony",
+      "O'Neill, Abigail",
+      "Scalise, Rosario",
+      "Seale, Derick",
+      "Son, Victor",
+      "Tian, Stephen",
+      "Tran, Emi",
+      "Wang, Andrew E.",
+      "Wu, Yilin",
+      "Xie, Annie",
+      "Yang, Jingyun",
+      "Yin, Patrick",
+      "Zhang, Yunchu",
+      "Bastani, Osbert",
+      "Berseth, Glen",
+      "Bohg, Jeannette",
+      "Goldberg, Ken",
+      "Gupta, Abhinav",
+      "Gupta, Abhishek",
+      "Jayaraman, Dinesh",
+      "Lim, Joseph J",
+      "Malik, Jitendra",
+      "Martín-Martín, Roberto",
+      "Ramamoorthy, Subramanian",
+      "Sadigh, Dorsa",
+      "Song, Shuran",
+      "Wu, Jiajun",
+      "Yip, Michael C.",
+      "Zhu, Yuke",
+      "Kollar, Thomas",
+      "Levine, Sergey",
+      "Finn, Chelsea"
+    ],
+    "citation_date": [
+      "2024/03/19"
+    ],
+    "citation_online_date": [
+      "2025/04/22"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2403.12945"
+    ],
+    "citation_arxiv_id": [
+      "2403.12945"
+    ],
+    "citation_abstract": [
+      "The creation of large, diverse, high-quality robot manipulation datasets is an important stepping stone on the path toward more capable and robust robotic manipulation policies. However, creating such datasets is challenging: collecting robot manipulation data in diverse environments poses logistical and safety challenges and requires substantial investments in hardware and human labour. As a result, even the most general robot manipulation policies today are mostly trained on data collected in a small number of environments with limited scene and task diversity. In this work, we introduce DROID (Distributed Robot Interaction Dataset), a diverse robot manipulation dataset with 76k demonstration trajectories or 350 hours of interaction data, collected across 564 scenes and 84 tasks by 50 data collectors in North America, Asia, and Europe over the course of 12 months. We demonstrate that training with DROID leads to policies with higher performance and improved generalization ability. We open source the full dataset, policy learning code, and a detailed guide for reproducing our robot hardware setup."
+    ]
+  },
+  "fulltext_sha256": "9e40a9c934ce78ea315d2c05593d60f9e18edf6dcd3785cd66439518965c3b07",
+  "pages": 26,
+  "extracted_characters": 97100,
+  "cache_key": "P048/fulltext.pdf",
+  "extraction": "pypdf"
+}

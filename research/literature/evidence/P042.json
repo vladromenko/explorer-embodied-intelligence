@@ -1,0 +1,100 @@
+{
+  "paper_id": "P042",
+  "retrieved_at": "2026-10-25T22:05:41.289895+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2310.08576",
+  "fulltext_url": "https://arxiv.org/pdf/2310.08576",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2310.08576: Learning to Act from Actionless Videos through Dense Correspondences"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Learning to Act from Actionless Videos through Dense Correspondences"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2310.08576v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "In this work, we present an approach to construct a video-based robot policy capable of reliably executing diverse tasks across different robots and environments from few video demonstrations without using any action annotations. Our method leverages images as a task-agnostic representation, encoding both the state and action information, and text as a general representation for specifying robot goals. By synthesizing videos that ``hallucinate'' robot executing actions and in combination with dense correspondences between frames, our approach can infer the closed-formed action to execute to an environment without the need of any explicit action labels. This unique capability allows us to train the policy solely based on RGB videos and deploy learned policies to various robotic tasks. We demonstrate the efficacy of our approach in learning policies on table-top manipulation and navigation tasks. Additionally, we contribute an open-source framework for efficient video modeling, enabling the training of high-fidelity policy models with four GPUs within a single day."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Learning to Act from Actionless Videos through Dense Correspondences"
+    ],
+    "twitter:description": [
+      "In this work, we present an approach to construct a video-based robot policy capable of reliably executing diverse tasks across different robots and environments from few video demonstrations..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Learning to Act from Actionless Videos through Dense Correspondences"
+    ],
+    "citation_author": [
+      "Ko, Po-Chen",
+      "Mao, Jiayuan",
+      "Du, Yilun",
+      "Sun, Shao-Hua",
+      "Tenenbaum, Joshua B."
+    ],
+    "citation_date": [
+      "2023/10/12"
+    ],
+    "citation_online_date": [
+      "2023/10/12"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2310.08576"
+    ],
+    "citation_arxiv_id": [
+      "2310.08576"
+    ],
+    "citation_abstract": [
+      "In this work, we present an approach to construct a video-based robot policy capable of reliably executing diverse tasks across different robots and environments from few video demonstrations without using any action annotations. Our method leverages images as a task-agnostic representation, encoding both the state and action information, and text as a general representation for specifying robot goals. By synthesizing videos that ``hallucinate'' robot executing actions and in combination with dense correspondences between frames, our approach can infer the closed-formed action to execute to an environment without the need of any explicit action labels. This unique capability allows us to train the policy solely based on RGB videos and deploy learned policies to various robotic tasks. We demonstrate the efficacy of our approach in learning policies on table-top manipulation and navigation tasks. Additionally, we contribute an open-source framework for efficient video modeling, enabling the training of high-fidelity policy models with four GPUs within a single day."
+    ]
+  },
+  "fulltext_sha256": "678d6b56c8acf054a0af49c287534c43ad7b0a7ffb3f00153512a1d41b3df540",
+  "pages": 19,
+  "extracted_characters": 66269,
+  "cache_key": "P042/fulltext.pdf",
+  "extraction": "pypdf"
+}

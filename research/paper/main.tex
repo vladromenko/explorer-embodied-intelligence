@@ -1,0 +1,28 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\title{Explorer: Evidence-Grounded Acquisition, Transfer and Composition of Embodied Skills}
+\author{Author information to be confirmed before submission}
+\date{Research draft, 26 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+This document records a research design for a distributed low-cost robot learning platform. The proposed program studies acquisition from simulation and demonstrations, cross-embodiment adaptation, lifelong retention, diagnosis and cooperative handover. It contains no claim of completed physical experiments or confirmed scientific novelty. Results will be populated only from independently evaluated runs with artifact hashes and frozen protocols.
+\end{abstract}
+\section{Problem and contribution boundaries}
+An integrated platform, a reproducible evaluation resource and a novel learning algorithm are distinct contributions. Evidence-grounded skill memory is a working research hypothesis. Published action-chunking, correction, transferable representation and continual-skill methods must be compared before making novelty claims.
+\section{System and evidence model}
+The central Jetson maintains durable events, jobs and immutable artifact references; robot-side controllers retain local safety authority. A skill artifact records conditions, expected world effects, compatible action contracts, source lineage, uncertainty and independent validation scope. Command estimates and measured states are never conflated.
+\section{Experimental design}
+Five connected studies investigate simulation learning, direct demonstrations, leader-arm teaching, cross-embodiment transfer and handover. Train/development/sealed evaluation sessions are disjoint. Baseline revisions, success predicates, exclusions and trial ordering are frozen before evaluation. Unknown outcomes, failures and interventions remain visible.
+\section{Results status}
+No experimental result is asserted in this draft. Numeric tables and plots must be generated from registered trial records, with run identifiers and verified source hashes. Simulation outcomes will be reported separately from physical validation. A successful test of software accounting does not establish a learned robotic skill.
+\section{Limitations and required physical validation}
+Hardware calibration, actuator feedback, contact observability, safe workspace and supervised trial approval constrain physical interpretation. A camera or language model cannot certify grip force. Limited local compute may prevent reproducing large published baselines; any alternative must be identified and measured honestly.
+\section{Reproducibility}
+The repository retains protocols, provenance mappings and legal source metadata. Private videos and checkpoints remain outside Git. The literature review is incomplete until its validated registry records at least 100 unique full-text reviews and 25 technical deep reviews. The intended venue, deadline, format and anonymization requirements remain unconfirmed.
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}

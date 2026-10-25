@@ -1,0 +1,8 @@
+{
+  "paper_id": "P126",
+  "retrieved_at": "2026-10-25T22:07:14.580778+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "error_type": "URLError",
+  "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+}

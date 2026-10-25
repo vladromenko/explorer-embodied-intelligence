@@ -1,0 +1,107 @@
+{
+  "paper_id": "P090",
+  "retrieved_at": "2026-10-25T22:06:37.506608+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2602.09849",
+  "fulltext_url": "https://arxiv.org/pdf/2602.09849",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2602.09849: BagelVLA: Enhancing Long-Horizon Manipulation via Interleaved Vision-Language-Action Generation"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "BagelVLA: Enhancing Long-Horizon Manipulation via Interleaved Vision-Language-Action Generation"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2602.09849v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Equipping embodied agents with the ability to reason about tasks, foresee physical outcomes, and generate precise actions is essential for general-purpose manipulation. While recent Vision-Language-Action (VLA) models have leveraged pre-trained foundation models, they typically focus on either linguistic planning or visual forecasting in isolation. These methods rarely integrate both capabilities simultaneously to guide action generation, leading to suboptimal performance in complex, long-horizon manipulation tasks. To bridge this gap, we propose BagelVLA, a unified model that integrates linguistic planning, visual forecasting, and action generation within a single framework. Initialized from a pretrained unified understanding and generative model, BagelVLA is trained to interleave textual reasoning and visual prediction directly into the action execution loop. To efficiently couple these modalities, we introduce Residual Flow Guidance (RFG), which initializes from current observation and leverages single-step denoising to extract predictive visual features, guiding action generation with minimal latency. Extensive experiments demonstrate that BagelVLA outperforms existing baselines by a significant margin on multiple simulated and real-world benchmarks, particularly in tasks requiring multi-stage reasoning."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "BagelVLA: Enhancing Long-Horizon Manipulation via Interleaved..."
+    ],
+    "twitter:description": [
+      "Equipping embodied agents with the ability to reason about tasks, foresee physical outcomes, and generate precise actions is essential for general-purpose manipulation. While recent..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "BagelVLA: Enhancing Long-Horizon Manipulation via Interleaved Vision-Language-Action Generation"
+    ],
+    "citation_author": [
+      "Hu, Yucheng",
+      "Zhang, Jianke",
+      "Luo, Yuanfei",
+      "Guo, Yanjiang",
+      "Chen, Xiaoyu",
+      "Sun, Xinshu",
+      "Feng, Kun",
+      "Lu, Qingzhou",
+      "Chen, Sheng",
+      "Zhang, Yangang",
+      "Li, Wei",
+      "Chen, Jianyu"
+    ],
+    "citation_date": [
+      "2026/02/10"
+    ],
+    "citation_online_date": [
+      "2026/02/11"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2602.09849"
+    ],
+    "citation_arxiv_id": [
+      "2602.09849"
+    ],
+    "citation_abstract": [
+      "Equipping embodied agents with the ability to reason about tasks, foresee physical outcomes, and generate precise actions is essential for general-purpose manipulation. While recent Vision-Language-Action (VLA) models have leveraged pre-trained foundation models, they typically focus on either linguistic planning or visual forecasting in isolation. These methods rarely integrate both capabilities simultaneously to guide action generation, leading to suboptimal performance in complex, long-horizon manipulation tasks. To bridge this gap, we propose BagelVLA, a unified model that integrates linguistic planning, visual forecasting, and action generation within a single framework. Initialized from a pretrained unified understanding and generative model, BagelVLA is trained to interleave textual reasoning and visual prediction directly into the action execution loop. To efficiently couple these modalities, we introduce Residual Flow Guidance (RFG), which initializes from current observation and leverages single-step denoising to extract predictive visual features, guiding action generation with minimal latency. Extensive experiments demonstrate that BagelVLA outperforms existing baselines by a significant margin on multiple simulated and real-world benchmarks, particularly in tasks requiring multi-stage reasoning."
+    ]
+  },
+  "fulltext_sha256": "691d30709ce69fbd23c4366b41d30dc06ce5b3b406e36afa3f813e7c09b43cd0",
+  "pages": 28,
+  "extracted_characters": 75177,
+  "cache_key": "P090/fulltext.pdf",
+  "extraction": "pypdf"
+}

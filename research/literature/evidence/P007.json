@@ -1,0 +1,99 @@
+{
+  "paper_id": "P007",
+  "retrieved_at": "2026-10-25T22:05:13.370613+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2302.02948",
+  "fulltext_url": "https://arxiv.org/pdf/2302.02948",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2302.02948: Efficient Online Reinforcement Learning with Offline Data"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Efficient Online Reinforcement Learning with Offline Data"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2302.02948v4"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Sample efficiency and exploration remain major challenges in online reinforcement learning (RL). A powerful approach that can be applied to address these issues is the inclusion of offline data, such as prior trajectories from a human expert or a sub-optimal exploration policy. Previous methods have relied on extensive modifications and additional complexity to ensure the effective use of this data. Instead, we ask: can we simply apply existing off-policy methods to leverage offline data when learning online? In this work, we demonstrate that the answer is yes; however, a set of minimal but important changes to existing off-policy RL algorithms are required to achieve reliable performance. We extensively ablate these design choices, demonstrating the key factors that most affect performance, and arrive at a set of recommendations that practitioners can readily apply, whether their data comprise a small number of expert demonstrations or large volumes of sub-optimal trajectories. We see that correct application of these simple recommendations can provide a $\\mathbf{2.5\\times}$ improvement over existing approaches across a diverse set of competitive benchmarks, with no additional computational overhead. We have released our code at https://github.com/ikostrikov/rlpd."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Efficient Online Reinforcement Learning with Offline Data"
+    ],
+    "twitter:description": [
+      "Sample efficiency and exploration remain major challenges in online reinforcement learning (RL). A powerful approach that can be applied to address these issues is the inclusion of offline data,..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Efficient Online Reinforcement Learning with Offline Data"
+    ],
+    "citation_author": [
+      "Ball, Philip J.",
+      "Smith, Laura",
+      "Kostrikov, Ilya",
+      "Levine, Sergey"
+    ],
+    "citation_date": [
+      "2023/02/06"
+    ],
+    "citation_online_date": [
+      "2023/05/31"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2302.02948"
+    ],
+    "citation_arxiv_id": [
+      "2302.02948"
+    ],
+    "citation_abstract": [
+      "Sample efficiency and exploration remain major challenges in online reinforcement learning (RL). A powerful approach that can be applied to address these issues is the inclusion of offline data, such as prior trajectories from a human expert or a sub-optimal exploration policy. Previous methods have relied on extensive modifications and additional complexity to ensure the effective use of this data. Instead, we ask: can we simply apply existing off-policy methods to leverage offline data when learning online? In this work, we demonstrate that the answer is yes; however, a set of minimal but important changes to existing off-policy RL algorithms are required to achieve reliable performance. We extensively ablate these design choices, demonstrating the key factors that most affect performance, and arrive at a set of recommendations that practitioners can readily apply, whether their data comprise a small number of expert demonstrations or large volumes of sub-optimal trajectories. We see that correct application of these simple recommendations can provide a $\\mathbf{2.5\\times}$ improvement over existing approaches across a diverse set of competitive benchmarks, with no additional computational overhead. We have released our code at https://github.com/ikostrikov/rlpd."
+    ]
+  },
+  "fulltext_sha256": "a87cb856a5294e71c21474006106fd7cadcff0e986da494535f44b13117c10d0",
+  "pages": 18,
+  "extracted_characters": 64265,
+  "cache_key": "P007/fulltext.pdf",
+  "extraction": "pypdf"
+}

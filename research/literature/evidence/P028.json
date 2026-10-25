@@ -1,0 +1,102 @@
+{
+  "paper_id": "P028",
+  "retrieved_at": "2026-10-25T22:05:31.482792+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2410.05273",
+  "fulltext_url": "https://arxiv.org/pdf/2410.05273",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2410.05273: HiRT: Enhancing Robotic Control with Hierarchical Robot Transformers"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "HiRT: Enhancing Robotic Control with Hierarchical Robot Transformers"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2410.05273v3"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Large Vision-Language-Action (VLA) models, leveraging powerful pre trained Vision-Language Models (VLMs) backends, have shown promise in robotic control due to their impressive generalization ability. However, the success comes at a cost. Their reliance on VLM backends with billions of parameters leads to high computational costs and inference latency, limiting the testing scenarios to mainly quasi-static tasks and hindering performance in dynamic tasks requiring rapid interactions. To address these limitations, this paper proposes HiRT, a Hierarchical Robot Transformer framework that enables flexible frequency and performance trade-off. HiRT keeps VLMs running at low frequencies to capture temporarily invariant features while enabling real-time interaction through a high-frequency vision-based policy guided by the slowly updated features. Experiment results in both simulation and real-world settings demonstrate significant improvements over baseline methods. Empirically, in static tasks, we double the control frequency and achieve comparable success rates. Additionally, on novel real-world dynamic ma nipulation tasks which are challenging for previous VLA models, HiRT improves the success rate from 48% to 75%."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "HiRT: Enhancing Robotic Control with Hierarchical Robot Transformers"
+    ],
+    "twitter:description": [
+      "Large Vision-Language-Action (VLA) models, leveraging powerful pre trained Vision-Language Models (VLMs) backends, have shown promise in robotic control due to their impressive generalization..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "HiRT: Enhancing Robotic Control with Hierarchical Robot Transformers"
+    ],
+    "citation_author": [
+      "Zhang, Jianke",
+      "Guo, Yanjiang",
+      "Chen, Xiaoyu",
+      "Wang, Yen-Jen",
+      "Hu, Yucheng",
+      "Shi, Chengming",
+      "Chen, Jianyu"
+    ],
+    "citation_date": [
+      "2024/09/12"
+    ],
+    "citation_online_date": [
+      "2025/02/03"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2410.05273"
+    ],
+    "citation_arxiv_id": [
+      "2410.05273"
+    ],
+    "citation_abstract": [
+      "Large Vision-Language-Action (VLA) models, leveraging powerful pre trained Vision-Language Models (VLMs) backends, have shown promise in robotic control due to their impressive generalization ability. However, the success comes at a cost. Their reliance on VLM backends with billions of parameters leads to high computational costs and inference latency, limiting the testing scenarios to mainly quasi-static tasks and hindering performance in dynamic tasks requiring rapid interactions. To address these limitations, this paper proposes HiRT, a Hierarchical Robot Transformer framework that enables flexible frequency and performance trade-off. HiRT keeps VLMs running at low frequencies to capture temporarily invariant features while enabling real-time interaction through a high-frequency vision-based policy guided by the slowly updated features. Experiment results in both simulation and real-world settings demonstrate significant improvements over baseline methods. Empirically, in static tasks, we double the control frequency and achieve comparable success rates. Additionally, on novel real-world dynamic ma nipulation tasks which are challenging for previous VLA models, HiRT improves the success rate from 48% to 75%."
+    ]
+  },
+  "fulltext_sha256": "e3083aa063f6502b54e82206ea8e86f968de2c14bab5e158e546a3577b33462a",
+  "pages": 14,
+  "extracted_characters": 43817,
+  "cache_key": "P028/fulltext.pdf",
+  "extraction": "pypdf"
+}

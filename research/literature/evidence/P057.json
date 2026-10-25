@@ -1,0 +1,101 @@
+{
+  "paper_id": "P057",
+  "retrieved_at": "2026-10-25T22:05:55.680296+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2511.09515",
+  "fulltext_url": "https://arxiv.org/pdf/2511.09515",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2511.09515: WMPO: World Model-based Policy Optimization for Vision-Language-Action Models"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "WMPO: World Model-based Policy Optimization for Vision-Language-Action Models"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2511.09515v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Vision-Language-Action (VLA) models have shown strong potential for general-purpose robotic manipulation, but their reliance on expert demonstrations limits their ability to learn from failures and perform self-corrections. Reinforcement learning (RL) addresses these through self-improving interactions with the physical environment, but suffers from high sample complexity on real robots. We introduce World-Model-based Policy Optimization (WMPO), a principled framework for on-policy VLA RL without interacting with the real environment. In contrast to widely used latent world models, WMPO focuses on pixel-based predictions that align the \"imagined\" trajectories with the VLA features pretrained with web-scale images. Crucially, WMPO enables the policy to perform on-policy GRPO that provides stronger performance than the often-used off-policy methods. Extensive experiments in both simulation and real-robot settings demonstrate that WMPO (i) substantially improves sample efficiency, (ii) achieves stronger overall performance, (iii) exhibits emergent behaviors such as self-correction, and (iv) demonstrates robust generalization and lifelong learning capabilities."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "WMPO: World Model-based Policy Optimization for..."
+    ],
+    "twitter:description": [
+      "Vision-Language-Action (VLA) models have shown strong potential for general-purpose robotic manipulation, but their reliance on expert demonstrations limits their ability to learn from failures..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "WMPO: World Model-based Policy Optimization for Vision-Language-Action Models"
+    ],
+    "citation_author": [
+      "Zhu, Fangqi",
+      "Yan, Zhengyang",
+      "Hong, Zicong",
+      "Shou, Quanxin",
+      "Ma, Xiao",
+      "Guo, Song"
+    ],
+    "citation_date": [
+      "2025/11/12"
+    ],
+    "citation_online_date": [
+      "2025/11/12"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2511.09515"
+    ],
+    "citation_arxiv_id": [
+      "2511.09515"
+    ],
+    "citation_abstract": [
+      "Vision-Language-Action (VLA) models have shown strong potential for general-purpose robotic manipulation, but their reliance on expert demonstrations limits their ability to learn from failures and perform self-corrections. Reinforcement learning (RL) addresses these through self-improving interactions with the physical environment, but suffers from high sample complexity on real robots. We introduce World-Model-based Policy Optimization (WMPO), a principled framework for on-policy VLA RL without interacting with the real environment. In contrast to widely used latent world models, WMPO focuses on pixel-based predictions that align the \"imagined\" trajectories with the VLA features pretrained with web-scale images. Crucially, WMPO enables the policy to perform on-policy GRPO that provides stronger performance than the often-used off-policy methods. Extensive experiments in both simulation and real-robot settings demonstrate that WMPO (i) substantially improves sample efficiency, (ii) achieves stronger overall performance, (iii) exhibits emergent behaviors such as self-correction, and (iv) demonstrates robust generalization and lifelong learning capabilities."
+    ]
+  },
+  "fulltext_sha256": "1f3e88874bcb716ad0417347f9c6a73f1dd70c873e7872d3ceed6c57af2b7598",
+  "pages": 16,
+  "extracted_characters": 52048,
+  "cache_key": "P057/fulltext.pdf",
+  "extraction": "pypdf"
+}

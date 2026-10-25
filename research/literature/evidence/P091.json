@@ -1,0 +1,103 @@
+{
+  "paper_id": "P091",
+  "retrieved_at": "2026-10-25T22:06:37.507292+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2602.17259",
+  "fulltext_url": "https://arxiv.org/pdf/2602.17259",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2602.17259: FRAPPE: Infusing World Modeling into Generalist Policies via Multiple Future Representation Alignment"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "FRAPPE: Infusing World Modeling into Generalist Policies via Multiple Future Representation Alignment"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2602.17259v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Enabling VLA models to predict environmental dynamics, known as world modeling, has been recognized as essential for improving robotic reasoning and generalization. However, current approaches face two main issues: 1. The training objective forces models to over-emphasize pixel-level reconstruction, which constrains semantic learning and generalization 2. Reliance on predicted future observations during inference often leads to error accumulation. To address these challenges, we introduce Future Representation Alignment via Parallel Progressive Expansion (FRAPPE). Our method adopts a two-stage fine-tuning strategy: In the mid-training phase, the model learns to predict the latent representations of future observations; In the post-training phase, we expand the computational workload in parallel and align the representation simultaneously with multiple different visual foundation models. By significantly improving fine-tuning efficiency and reducing dependence on action-annotated data, FRAPPE provides a scalable and data-efficient pathway to enhance world-awareness in generalist robotic policies. Experiments on the RoboTwin benchmark and real-world tasks demonstrate that FRAPPE outperforms state-of-the-art approaches and shows strong generalization in long-horizon and unseen scenarios."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "FRAPPE: Infusing World Modeling into Generalist Policies via..."
+    ],
+    "twitter:description": [
+      "Enabling VLA models to predict environmental dynamics, known as world modeling, has been recognized as essential for improving robotic reasoning and generalization. However, current approaches..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "FRAPPE: Infusing World Modeling into Generalist Policies via Multiple Future Representation Alignment"
+    ],
+    "citation_author": [
+      "Zhao, Han",
+      "Wang, Jingbo",
+      "Song, Wenxuan",
+      "Chen, Shuai",
+      "Liu, Yang",
+      "Wang, Yan",
+      "Li, Haoang",
+      "Wang, Donglin"
+    ],
+    "citation_date": [
+      "2026/02/19"
+    ],
+    "citation_online_date": [
+      "2026/02/19"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2602.17259"
+    ],
+    "citation_arxiv_id": [
+      "2602.17259"
+    ],
+    "citation_abstract": [
+      "Enabling VLA models to predict environmental dynamics, known as world modeling, has been recognized as essential for improving robotic reasoning and generalization. However, current approaches face two main issues: 1. The training objective forces models to over-emphasize pixel-level reconstruction, which constrains semantic learning and generalization 2. Reliance on predicted future observations during inference often leads to error accumulation. To address these challenges, we introduce Future Representation Alignment via Parallel Progressive Expansion (FRAPPE). Our method adopts a two-stage fine-tuning strategy: In the mid-training phase, the model learns to predict the latent representations of future observations; In the post-training phase, we expand the computational workload in parallel and align the representation simultaneously with multiple different visual foundation models. By significantly improving fine-tuning efficiency and reducing dependence on action-annotated data, FRAPPE provides a scalable and data-efficient pathway to enhance world-awareness in generalist robotic policies. Experiments on the RoboTwin benchmark and real-world tasks demonstrate that FRAPPE outperforms state-of-the-art approaches and shows strong generalization in long-horizon and unseen scenarios."
+    ]
+  },
+  "fulltext_sha256": "12eac2e5cd9812e23f337f94ddd8081f8805532d9904658d366952cabc46faa1",
+  "pages": 16,
+  "extracted_characters": 52553,
+  "cache_key": "P091/fulltext.pdf",
+  "extraction": "pypdf"
+}

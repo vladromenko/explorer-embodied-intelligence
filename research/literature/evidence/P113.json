@@ -1,0 +1,103 @@
+{
+  "paper_id": "P113",
+  "retrieved_at": "2026-10-25T22:07:02.967819+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2505.09694",
+  "fulltext_url": "https://arxiv.org/pdf/2505.09694",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2505.09694: EWMBench: Evaluating Scene, Motion, and Semantic Quality in Embodied World Models"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "EWMBench: Evaluating Scene, Motion, and Semantic Quality in Embodied World Models"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2505.09694v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Recent advances in creative AI have enabled the synthesis of high-fidelity images and videos conditioned on language instructions. Building on these developments, text-to-video diffusion models have evolved into embodied world models (EWMs) capable of generating physically plausible scenes from language commands, effectively bridging vision and action in embodied AI applications. This work addresses the critical challenge of evaluating EWMs beyond general perceptual metrics to ensure the generation of physically grounded and action-consistent behaviors. We propose the Embodied World Model Benchmark (EWMBench), a dedicated framework designed to evaluate EWMs based on three key aspects: visual scene consistency, motion correctness, and semantic alignment. Our approach leverages a meticulously curated dataset encompassing diverse scenes and motion patterns, alongside a comprehensive multi-dimensional evaluation toolkit, to assess and compare candidate models. The proposed benchmark not only identifies the limitations of existing video generation models in meeting the unique requirements of embodied tasks but also provides valuable insights to guide future advancements in the field. The dataset and evaluation tools are publicly available at https://github.com/AgibotTech/EWMBench."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "EWMBench: Evaluating Scene, Motion, and Semantic Quality in..."
+    ],
+    "twitter:description": [
+      "Recent advances in creative AI have enabled the synthesis of high-fidelity images and videos conditioned on language instructions. Building on these developments, text-to-video diffusion models..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "EWMBench: Evaluating Scene, Motion, and Semantic Quality in Embodied World Models"
+    ],
+    "citation_author": [
+      "Yue, Hu",
+      "Huang, Siyuan",
+      "Liao, Yue",
+      "Chen, Shengcong",
+      "Zhou, Pengfei",
+      "Chen, Liliang",
+      "Yao, Maoqing",
+      "Ren, Guanghui"
+    ],
+    "citation_date": [
+      "2025/05/14"
+    ],
+    "citation_online_date": [
+      "2025/05/18"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2505.09694"
+    ],
+    "citation_arxiv_id": [
+      "2505.09694"
+    ],
+    "citation_abstract": [
+      "Recent advances in creative AI have enabled the synthesis of high-fidelity images and videos conditioned on language instructions. Building on these developments, text-to-video diffusion models have evolved into embodied world models (EWMs) capable of generating physically plausible scenes from language commands, effectively bridging vision and action in embodied AI applications. This work addresses the critical challenge of evaluating EWMs beyond general perceptual metrics to ensure the generation of physically grounded and action-consistent behaviors. We propose the Embodied World Model Benchmark (EWMBench), a dedicated framework designed to evaluate EWMs based on three key aspects: visual scene consistency, motion correctness, and semantic alignment. Our approach leverages a meticulously curated dataset encompassing diverse scenes and motion patterns, alongside a comprehensive multi-dimensional evaluation toolkit, to assess and compare candidate models. The proposed benchmark not only identifies the limitations of existing video generation models in meeting the unique requirements of embodied tasks but also provides valuable insights to guide future advancements in the field. The dataset and evaluation tools are publicly available at https://github.com/AgibotTech/EWMBench."
+    ]
+  },
+  "fulltext_sha256": "42b02ed4949bdd4377830927b42205a4a1f5eab48a2e491bce065319eb5e6d01",
+  "pages": 17,
+  "extracted_characters": 48878,
+  "cache_key": "P113/fulltext.pdf",
+  "extraction": "pypdf"
+}

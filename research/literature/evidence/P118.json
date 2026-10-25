@@ -1,0 +1,107 @@
+{
+  "paper_id": "P118",
+  "retrieved_at": "2026-10-25T22:07:09.551550+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2511.07416",
+  "fulltext_url": "https://arxiv.org/pdf/2511.07416",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2511.07416: Robot Learning from a Physical World Model"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Robot Learning from a Physical World Model"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2511.07416v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "We introduce PhysWorld, a framework that enables robot learning from video generation through physical world modeling. Recent video generation models can synthesize photorealistic visual demonstrations from language commands and images, offering a powerful yet underexplored source of training signals for robotics. However, directly retargeting pixel motions from generated videos to robots neglects physics, often resulting in inaccurate manipulations. PhysWorld addresses this limitation by coupling video generation with physical world reconstruction. Given a single image and a task command, our method generates task-conditioned videos and reconstructs the underlying physical world from the videos, and the generated video motions are grounded into physically accurate actions through object-centric residual reinforcement learning with the physical world model. This synergy transforms implicit visual guidance into physically executable robotic trajectories, eliminating the need for real robot data collection and enabling zero-shot generalizable robotic manipulation. Experiments on diverse real-world tasks demonstrate that PhysWorld substantially improves manipulation accuracy compared to previous approaches. Visit \\href{https://pointscoder.github.io/PhysWorld_Web/}{the project webpage} for details."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Robot Learning from a Physical World Model"
+    ],
+    "twitter:description": [
+      "We introduce PhysWorld, a framework that enables robot learning from video generation through physical world modeling. Recent video generation models can synthesize photorealistic visual..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Robot Learning from a Physical World Model"
+    ],
+    "citation_author": [
+      "Mao, Jiageng",
+      "He, Sicheng",
+      "Wu, Hao-Ning",
+      "You, Yang",
+      "Sun, Shuyang",
+      "Wang, Zhicheng",
+      "Bao, Yanan",
+      "Chen, Huizhong",
+      "Guibas, Leonidas",
+      "Guizilini, Vitor",
+      "Zhou, Howard",
+      "Wang, Yue"
+    ],
+    "citation_date": [
+      "2025/11/10"
+    ],
+    "citation_online_date": [
+      "2025/11/10"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2511.07416"
+    ],
+    "citation_arxiv_id": [
+      "2511.07416"
+    ],
+    "citation_abstract": [
+      "We introduce PhysWorld, a framework that enables robot learning from video generation through physical world modeling. Recent video generation models can synthesize photorealistic visual demonstrations from language commands and images, offering a powerful yet underexplored source of training signals for robotics. However, directly retargeting pixel motions from generated videos to robots neglects physics, often resulting in inaccurate manipulations. PhysWorld addresses this limitation by coupling video generation with physical world reconstruction. Given a single image and a task command, our method generates task-conditioned videos and reconstructs the underlying physical world from the videos, and the generated video motions are grounded into physically accurate actions through object-centric residual reinforcement learning with the physical world model. This synergy transforms implicit visual guidance into physically executable robotic trajectories, eliminating the need for real robot data collection and enabling zero-shot generalizable robotic manipulation. Experiments on diverse real-world tasks demonstrate that PhysWorld substantially improves manipulation accuracy compared to previous approaches. Visit \\href{https://pointscoder.github.io/PhysWorld_Web/}{the project webpage} for details."
+    ]
+  },
+  "fulltext_sha256": "b657ea0e43a8ed2258143df6f42f37d99c84dc5118971c78ccba5b8fbeae19f2",
+  "pages": 9,
+  "extracted_characters": 42250,
+  "cache_key": "P118/fulltext.pdf",
+  "extraction": "pypdf"
+}

@@ -1,0 +1,104 @@
+{
+  "paper_id": "P003",
+  "retrieved_at": "2026-10-25T22:04:14.809987+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://proceedings.mlr.press/v15/ross11a.html",
+  "fulltext_url": "https://proceedings.mlr.press/v15/ross11a/ross11a.pdf",
+  "primary_metadata": {
+    "": [
+      "IE=edge"
+    ],
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "description": [
+      "A Reduction of Imitation Learning and Structured Prediction to No-Regret Online LearningStephane Ross, Geoffrey Gordon, Drew BagnellSequential pred..."
+    ],
+    "citation_publisher": [
+      "JMLR Workshop and Conference Proceedings"
+    ],
+    "citation_title": [
+      "A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning"
+    ],
+    "citation_language": [
+      "en"
+    ],
+    "citation_abstract_html_url": [
+      "https://proceedings.mlr.press/v15/ross11a.html"
+    ],
+    "citation_pdf_url": [
+      "http://proceedings.mlr.press/v15/ross11a/ross11a.pdf"
+    ],
+    "citation_firstpage": [
+      "627"
+    ],
+    "citation_lastpage": [
+      "635"
+    ],
+    "citation_author": [
+      "Stephane Ross",
+      "Geoffrey Gordon",
+      "Drew Bagnell"
+    ],
+    "citation_publication_date": [
+      "2011/06/14"
+    ],
+    "citation_inbook_title": [
+      "Proceedings of the Fourteenth International Conference on Artificial Intelligence and Statistics"
+    ],
+    "citation_conference_title": [
+      "Proceedings of the Fourteenth International Conference on Artificial Intelligence and Statistics"
+    ],
+    "citation_conference_sequence_num": [
+      "14"
+    ],
+    "citation_issn": [
+      "1938-7228"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning"
+    ],
+    "twitter:site": [
+      "@MLResearchPress"
+    ],
+    "twitter:description": [
+      "Sequential prediction problems such as imitation learning, where future observations depend on previous predictions (actions), violate the common i.i.d. assu..."
+    ],
+    "twitter:image": [
+      "https://proceedings.mlr.press/v15/assets/images/SAIS_logo.jpg"
+    ],
+    "twitter:image:alt": [
+      "Logo"
+    ],
+    "og:title": [
+      "A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning"
+    ],
+    "og:description": [
+      "Sequential prediction problems such as imitation learning, where future observations depend on previous predictions (actions), violate the common i.i.d. assumptions made in statistical learning. Th..."
+    ],
+    "og:type": [
+      "article"
+    ],
+    "article:published_time": [
+      "2011-06-14T00:00:00+00:00"
+    ],
+    "og:url": [
+      "https://proceedings.mlr.press/v15/ross11a.html"
+    ],
+    "og:image": [
+      "https://proceedings.mlr.press/v15/assets/images/SAIS_logo.jpg"
+    ],
+    "og:site_name": [
+      "PMLR"
+    ]
+  },
+  "fulltext_sha256": "17bdd6e049e64f09010b322f9e2d4fb5c744c33ff7ac99b4c4561e39bd9082a7",
+  "pages": 9,
+  "extracted_characters": 42830,
+  "cache_key": "P003/fulltext.pdf",
+  "extraction": "pypdf"
+}

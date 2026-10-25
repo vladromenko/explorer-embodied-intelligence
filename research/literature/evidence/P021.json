@@ -1,0 +1,149 @@
+{
+  "paper_id": "P021",
+  "retrieved_at": "2026-10-25T22:05:25.587891+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2307.15818",
+  "fulltext_url": "https://arxiv.org/pdf/2307.15818",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2307.15818: RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2307.15818v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "We study how vision-language models trained on Internet-scale data can be incorporated directly into end-to-end robotic control to boost generalization and enable emergent semantic reasoning. Our goal is to enable a single end-to-end trained model to both learn to map robot observations to actions and enjoy the benefits of large-scale pretraining on language and vision-language data from the web. To this end, we propose to co-fine-tune state-of-the-art vision-language models on both robotic trajectory data and Internet-scale vision-language tasks, such as visual question answering. In contrast to other approaches, we propose a simple, general recipe to achieve this goal: in order to fit both natural language responses and robotic actions into the same format, we express the actions as text tokens and incorporate them directly into the training set of the model in the same way as natural language tokens. We refer to such category of models as vision-language-action models (VLA) and instantiate an example of such a model, which we call RT-2. Our extensive evaluation (6k evaluation trials) shows that our approach leads to performant robotic policies and enables RT-2 to obtain a range of emergent capabilities from Internet-scale training. This includes significantly improved generalization to novel objects, the ability to interpret commands not present in the robot training data (such as placing an object onto a particular number or icon), and the ability to perform rudimentary reasoning in response to user commands (such as picking up the smallest or largest object, or the one closest to another object). We further show that incorporating chain of thought reasoning allows RT-2 to perform multi-stage semantic reasoning, for example figuring out which object to pick up for use as an improvised hammer (a rock), or which type of drink is best suited for someone who is tired (an energy drink)."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "RT-2: Vision-Language-Action Models Transfer Web Knowledge to..."
+    ],
+    "twitter:description": [
+      "We study how vision-language models trained on Internet-scale data can be incorporated directly into end-to-end robotic control to boost generalization and enable emergent semantic reasoning. Our..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control"
+    ],
+    "citation_author": [
+      "Brohan, Anthony",
+      "Brown, Noah",
+      "Carbajal, Justice",
+      "Chebotar, Yevgen",
+      "Chen, Xi",
+      "Choromanski, Krzysztof",
+      "Ding, Tianli",
+      "Driess, Danny",
+      "Dubey, Avinava",
+      "Finn, Chelsea",
+      "Florence, Pete",
+      "Fu, Chuyuan",
+      "Arenas, Montse Gonzalez",
+      "Gopalakrishnan, Keerthana",
+      "Han, Kehang",
+      "Hausman, Karol",
+      "Herzog, Alexander",
+      "Hsu, Jasmine",
+      "Ichter, Brian",
+      "Irpan, Alex",
+      "Joshi, Nikhil",
+      "Julian, Ryan",
+      "Kalashnikov, Dmitry",
+      "Kuang, Yuheng",
+      "Leal, Isabel",
+      "Lee, Lisa",
+      "Lee, Tsang-Wei Edward",
+      "Levine, Sergey",
+      "Lu, Yao",
+      "Michalewski, Henryk",
+      "Mordatch, Igor",
+      "Pertsch, Karl",
+      "Rao, Kanishka",
+      "Reymann, Krista",
+      "Ryoo, Michael",
+      "Salazar, Grecia",
+      "Sanketi, Pannag",
+      "Sermanet, Pierre",
+      "Singh, Jaspiar",
+      "Singh, Anikait",
+      "Soricut, Radu",
+      "Tran, Huong",
+      "Vanhoucke, Vincent",
+      "Vuong, Quan",
+      "Wahid, Ayzaan",
+      "Welker, Stefan",
+      "Wohlhart, Paul",
+      "Wu, Jialin",
+      "Xia, Fei",
+      "Xiao, Ted",
+      "Xu, Peng",
+      "Xu, Sichun",
+      "Yu, Tianhe",
+      "Zitkovich, Brianna"
+    ],
+    "citation_date": [
+      "2023/07/28"
+    ],
+    "citation_online_date": [
+      "2023/07/28"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2307.15818"
+    ],
+    "citation_arxiv_id": [
+      "2307.15818"
+    ],
+    "citation_abstract": [
+      "We study how vision-language models trained on Internet-scale data can be incorporated directly into end-to-end robotic control to boost generalization and enable emergent semantic reasoning. Our goal is to enable a single end-to-end trained model to both learn to map robot observations to actions and enjoy the benefits of large-scale pretraining on language and vision-language data from the web. To this end, we propose to co-fine-tune state-of-the-art vision-language models on both robotic trajectory data and Internet-scale vision-language tasks, such as visual question answering. In contrast to other approaches, we propose a simple, general recipe to achieve this goal: in order to fit both natural language responses and robotic actions into the same format, we express the actions as text tokens and incorporate them directly into the training set of the model in the same way as natural language tokens. We refer to such category of models as vision-language-action models (VLA) and instantiate an example of such a model, which we call RT-2. Our extensive evaluation (6k evaluation trials) shows that our approach leads to performant robotic policies and enables RT-2 to obtain a range of emergent capabilities from Internet-scale training. This includes significantly improved generalization to novel objects, the ability to interpret commands not present in the robot training data (such as placing an object onto a particular number or icon), and the ability to perform rudimentary reasoning in response to user commands (such as picking up the smallest or largest object, or the one closest to another object). We further show that incorporating chain of thought reasoning allows RT-2 to perform multi-stage semantic reasoning, for example figuring out which object to pick up for use as an improvised hammer (a rock), or which type of drink is best suited for someone who is tired (an energy drink)."
+    ]
+  },
+  "fulltext_sha256": "0a62dc36bbbfdea232ad45a0ab75c82e9cf535b55333ff22c02d5da1897ccac3",
+  "pages": 26,
+  "extracted_characters": 81841,
+  "cache_key": "P021/fulltext.pdf",
+  "extraction": "pypdf"
+}

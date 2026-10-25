@@ -1,0 +1,108 @@
+{
+  "paper_id": "P110",
+  "retrieved_at": "2026-10-25T22:06:58.228958+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2604.09330",
+  "fulltext_url": "https://arxiv.org/pdf/2604.09330",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2604.09330: VAG: Dual-Stream Video-Action Generation for Embodied Data Synthesis"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "VAG: Dual-Stream Video-Action Generation for Embodied Data Synthesis"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2604.09330v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Recent advances in robot foundation models trained on large-scale human teleoperation data have enabled robots to perform increasingly complex real-world tasks. However, scaling these systems remains difficult because collecting task-specific demonstrations is expensive and labor-intensive. Synthetic data, especially generated videos, offer a promising direction, but existing World Models (WMs) are not directly suitable for policy learning since they do not provide paired action trajectories. World-Action (WA) models partially address this by predicting actions with visual outputs, yet often lack strong video-action alignment, while two-stage pipelines that generate video first and then infer actions introduce inefficiency and error accumulation. To address these limitations, we propose VAG, a unified flow-matching-based dual-stream framework that jointly generates video and action under visual and language conditioning. By synchronizing denoising in both branches and using an adaptive 3D pooling mechanism to transfer compact global video context to the action branch, VAG improves cross-modal consistency during generation. Across both simulated and real-world settings, VAG produces aligned video-action pairs with competitive prediction quality, supports executable trajectory replay, and provides useful synthetic pretraining data that improves downstream policy generalization, indicating its potential as a practical world-action model for embodied data synthesis."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "VAG: Dual-Stream Video-Action Generation for Embodied Data Synthesis"
+    ],
+    "twitter:description": [
+      "Recent advances in robot foundation models trained on large-scale human teleoperation data have enabled robots to perform increasingly complex real-world tasks. However, scaling these systems..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "VAG: Dual-Stream Video-Action Generation for Embodied Data Synthesis"
+    ],
+    "citation_author": [
+      "Lang, Xiaolei",
+      "Wang, Yang",
+      "Zhou, Yukun",
+      "Ni, Chaojun",
+      "Li, Kerui",
+      "Zhu, Jiagang",
+      "Liu, Tianze",
+      "Lv, Jiajun",
+      "Zuo, Xingxing",
+      "Ye, Yun",
+      "Huang, Guan",
+      "Wang, Xiaofeng",
+      "Zhu, Zheng"
+    ],
+    "citation_date": [
+      "2026/04/10"
+    ],
+    "citation_online_date": [
+      "2026/04/10"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2604.09330"
+    ],
+    "citation_arxiv_id": [
+      "2604.09330"
+    ],
+    "citation_abstract": [
+      "Recent advances in robot foundation models trained on large-scale human teleoperation data have enabled robots to perform increasingly complex real-world tasks. However, scaling these systems remains difficult because collecting task-specific demonstrations is expensive and labor-intensive. Synthetic data, especially generated videos, offer a promising direction, but existing World Models (WMs) are not directly suitable for policy learning since they do not provide paired action trajectories. World-Action (WA) models partially address this by predicting actions with visual outputs, yet often lack strong video-action alignment, while two-stage pipelines that generate video first and then infer actions introduce inefficiency and error accumulation. To address these limitations, we propose VAG, a unified flow-matching-based dual-stream framework that jointly generates video and action under visual and language conditioning. By synchronizing denoising in both branches and using an adaptive 3D pooling mechanism to transfer compact global video context to the action branch, VAG improves cross-modal consistency during generation. Across both simulated and real-world settings, VAG produces aligned video-action pairs with competitive prediction quality, supports executable trajectory replay, and provides useful synthetic pretraining data that improves downstream policy generalization, indicating its potential as a practical world-action model for embodied data synthesis."
+    ]
+  },
+  "fulltext_sha256": "99cde0af549a4de56c722a3ba9d0096e976730c0d9b6b8ed793bc65cffa0a51c",
+  "pages": 13,
+  "extracted_characters": 53969,
+  "cache_key": "P110/fulltext.pdf",
+  "extraction": "pypdf"
+}

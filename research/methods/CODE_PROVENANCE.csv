@@ -1,0 +1,2 @@
+function_or_module,method_id,implementation_id,implementation_type,source,upstream_commit,evaluation_run_id
+research/benchmark/evaluate.py,ENG-EVAL-001,IMPL-EXPLORER-EVAL-001,ENGINEERING_GLUE,https://arxiv.org/abs/2306.03310,NOT_APPLICABLE,NOT_EVALUATED_ON_HARDWARE

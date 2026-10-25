@@ -1,0 +1,105 @@
+{
+  "paper_id": "P092",
+  "retrieved_at": "2026-10-25T22:06:39.603031+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2602.22010",
+  "fulltext_url": "https://arxiv.org/pdf/2602.22010",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2602.22010: World Guidance: World Modeling in Condition Space for Action Generation"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "World Guidance: World Modeling in Condition Space for Action Generation"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2602.22010v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Leveraging future observation modeling to facilitate action generation presents a promising avenue for enhancing the capabilities of Vision-Language-Action (VLA) models. However, existing approaches struggle to strike a balance between maintaining efficient, predictable future representations and preserving sufficient fine-grained information to guide precise action generation. To address this limitation, we propose WoG (World Guidance), a framework that maps future observations into compact conditions by injecting them into the action inference pipeline. The VLA is then trained to simultaneously predict these compressed conditions alongside future actions, thereby achieving effective world modeling within the condition space for action inference. We demonstrate that modeling and predicting this condition space not only facilitates fine-grained action generation but also exhibits superior generalization capabilities. Moreover, it learns effectively from substantial human manipulation videos. Extensive experiments across both simulation and real-world environments validate that our method significantly outperforms existing methods based on future prediction. Project page is available at: https://selen-suyue.github.io/WoGNet/"
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "World Guidance: World Modeling in Condition Space for Action Generation"
+    ],
+    "twitter:description": [
+      "Leveraging future observation modeling to facilitate action generation presents a promising avenue for enhancing the capabilities of Vision-Language-Action (VLA) models. However, existing..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "World Guidance: World Modeling in Condition Space for Action Generation"
+    ],
+    "citation_author": [
+      "Su, Yue",
+      "Chen, Sijin",
+      "Shi, Haixin",
+      "Liu, Mingyu",
+      "Zhang, Zhengshen",
+      "Huang, Ningyuan",
+      "Zhong, Weiheng",
+      "Zhu, Zhengbang",
+      "Liu, Yuxiao",
+      "Liu, Xihui"
+    ],
+    "citation_date": [
+      "2026/02/25"
+    ],
+    "citation_online_date": [
+      "2026/02/25"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2602.22010"
+    ],
+    "citation_arxiv_id": [
+      "2602.22010"
+    ],
+    "citation_abstract": [
+      "Leveraging future observation modeling to facilitate action generation presents a promising avenue for enhancing the capabilities of Vision-Language-Action (VLA) models. However, existing approaches struggle to strike a balance between maintaining efficient, predictable future representations and preserving sufficient fine-grained information to guide precise action generation. To address this limitation, we propose WoG (World Guidance), a framework that maps future observations into compact conditions by injecting them into the action inference pipeline. The VLA is then trained to simultaneously predict these compressed conditions alongside future actions, thereby achieving effective world modeling within the condition space for action inference. We demonstrate that modeling and predicting this condition space not only facilitates fine-grained action generation but also exhibits superior generalization capabilities. Moreover, it learns effectively from substantial human manipulation videos. Extensive experiments across both simulation and real-world environments validate that our method significantly outperforms existing methods based on future prediction. Project page is available at: https://selen-suyue.github.io/WoGNet/"
+    ]
+  },
+  "fulltext_sha256": "306052a624f97d0048d716d9bdc2e03cd72669a001b42a5511ea9bb6a8ec2620",
+  "pages": 20,
+  "extracted_characters": 69955,
+  "cache_key": "P092/fulltext.pdf",
+  "extraction": "pypdf"
+}

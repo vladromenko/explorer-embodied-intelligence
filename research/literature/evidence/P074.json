@@ -1,0 +1,104 @@
+{
+  "paper_id": "P074",
+  "retrieved_at": "2026-10-25T22:06:11.073245+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2412.14803",
+  "fulltext_url": "https://arxiv.org/pdf/2412.14803",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2412.14803: Video Prediction Policy: A Generalist Robot Policy with Predictive Visual Representations"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Video Prediction Policy: A Generalist Robot Policy with Predictive Visual Representations"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2412.14803v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Visual representations play a crucial role in developing generalist robotic policies. Previous vision encoders, typically pre-trained with single-image reconstruction or two-image contrastive learning, tend to capture static information, often neglecting the dynamic aspects vital for embodied tasks. Recently, video diffusion models (VDMs) demonstrate the ability to predict future frames and showcase a strong understanding of physical world. We hypothesize that VDMs inherently produce visual representations that encompass both current static information and predicted future dynamics, thereby providing valuable guidance for robot action learning. Based on this hypothesis, we propose the Video Prediction Policy (VPP), which learns implicit inverse dynamics model conditioned on predicted future representations inside VDMs. To predict more precise future, we fine-tune pre-trained video foundation model on robot datasets along with internet human manipulation data. In experiments, VPP achieves a 18.6\\% relative improvement on the Calvin ABC-D generalization benchmark compared to the previous state-of-the-art, and demonstrates a 31.6\\% increase in success rates for complex real-world dexterous manipulation tasks. Project page at https://video-prediction-policy.github.io"
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Video Prediction Policy: A Generalist Robot Policy with Predictive..."
+    ],
+    "twitter:description": [
+      "Visual representations play a crucial role in developing generalist robotic policies. Previous vision encoders, typically pre-trained with single-image reconstruction or two-image contrastive..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Video Prediction Policy: A Generalist Robot Policy with Predictive Visual Representations"
+    ],
+    "citation_author": [
+      "Hu, Yucheng",
+      "Guo, Yanjiang",
+      "Wang, Pengchao",
+      "Chen, Xiaoyu",
+      "Wang, Yen-Jen",
+      "Zhang, Jianke",
+      "Sreenath, Koushil",
+      "Lu, Chaochao",
+      "Chen, Jianyu"
+    ],
+    "citation_date": [
+      "2024/12/19"
+    ],
+    "citation_online_date": [
+      "2025/05/04"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2412.14803"
+    ],
+    "citation_arxiv_id": [
+      "2412.14803"
+    ],
+    "citation_abstract": [
+      "Visual representations play a crucial role in developing generalist robotic policies. Previous vision encoders, typically pre-trained with single-image reconstruction or two-image contrastive learning, tend to capture static information, often neglecting the dynamic aspects vital for embodied tasks. Recently, video diffusion models (VDMs) demonstrate the ability to predict future frames and showcase a strong understanding of physical world. We hypothesize that VDMs inherently produce visual representations that encompass both current static information and predicted future dynamics, thereby providing valuable guidance for robot action learning. Based on this hypothesis, we propose the Video Prediction Policy (VPP), which learns implicit inverse dynamics model conditioned on predicted future representations inside VDMs. To predict more precise future, we fine-tune pre-trained video foundation model on robot datasets along with internet human manipulation data. In experiments, VPP achieves a 18.6\\% relative improvement on the Calvin ABC-D generalization benchmark compared to the previous state-of-the-art, and demonstrates a 31.6\\% increase in success rates for complex real-world dexterous manipulation tasks. Project page at https://video-prediction-policy.github.io"
+    ]
+  },
+  "fulltext_sha256": "7a6d966b78a205efe0943e9188f16ec33e470526da1066df5406922fafb4f0d6",
+  "pages": 18,
+  "extracted_characters": 61132,
+  "cache_key": "P074/fulltext.pdf",
+  "extraction": "pypdf"
+}

@@ -1,0 +1,104 @@
+{
+  "paper_id": "P063",
+  "retrieved_at": "2026-10-25T22:05:59.942060+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2603.20607",
+  "fulltext_url": "https://arxiv.org/pdf/2603.20607",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2603.20607: Towards Practical World Model-based Reinforcement Learning for Vision-Language-Action Models"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Towards Practical World Model-based Reinforcement Learning for Vision-Language-Action Models"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2603.20607v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Vision-Language-Action (VLA) models show strong generalization for robotic control, but finetuning them with reinforcement learning (RL) is constrained by the high cost and safety risks of real-world interaction. Training VLA models in interactive world models avoids these issues but introduces several challenges, including pixel-level world modeling, multi-view consistency, and compounding errors under sparse rewards. Building on recent advances across large multimodal models and model-based RL, we propose VLA-MBPO, a practical framework to tackle these problems in VLA finetuning. Our approach has three key design choices: (i) adapting unified multimodal models (UMMs) for data-efficient world modeling; (ii) an interleaved view decoding mechanism to enforce multi-view consistency; and (iii) chunk-level branched rollout to mitigate error compounding. Theoretical analysis and experiments across simulation and real-world tasks demonstrate that VLA-MBPO significantly improves policy performance and sample efficiency, underscoring its robustness and scalability for real-world robotic deployment."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Towards Practical World Model-based Reinforcement Learning for..."
+    ],
+    "twitter:description": [
+      "Vision-Language-Action (VLA) models show strong generalization for robotic control, but finetuning them with reinforcement learning (RL) is constrained by the high cost and safety risks of..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Towards Practical World Model-based Reinforcement Learning for Vision-Language-Action Models"
+    ],
+    "citation_author": [
+      "Zhang, Zhilong",
+      "Ren, Haoxiang",
+      "Sun, Yihao",
+      "Sheng, Yifei",
+      "Wang, Haonan",
+      "Lin, Haoxin",
+      "Wu, Zhichao",
+      "Bacon, Pierre-Luc",
+      "Yu, Yang"
+    ],
+    "citation_date": [
+      "2026/03/21"
+    ],
+    "citation_online_date": [
+      "2026/03/21"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2603.20607"
+    ],
+    "citation_arxiv_id": [
+      "2603.20607"
+    ],
+    "citation_abstract": [
+      "Vision-Language-Action (VLA) models show strong generalization for robotic control, but finetuning them with reinforcement learning (RL) is constrained by the high cost and safety risks of real-world interaction. Training VLA models in interactive world models avoids these issues but introduces several challenges, including pixel-level world modeling, multi-view consistency, and compounding errors under sparse rewards. Building on recent advances across large multimodal models and model-based RL, we propose VLA-MBPO, a practical framework to tackle these problems in VLA finetuning. Our approach has three key design choices: (i) adapting unified multimodal models (UMMs) for data-efficient world modeling; (ii) an interleaved view decoding mechanism to enforce multi-view consistency; and (iii) chunk-level branched rollout to mitigate error compounding. Theoretical analysis and experiments across simulation and real-world tasks demonstrate that VLA-MBPO significantly improves policy performance and sample efficiency, underscoring its robustness and scalability for real-world robotic deployment."
+    ]
+  },
+  "fulltext_sha256": "52f8b7560bc7e9de4f7c1de4ec4379e9e1eba3bd3aa671999cde4cf0615d59d4",
+  "pages": 27,
+  "extracted_characters": 73979,
+  "cache_key": "P063/fulltext.pdf",
+  "extraction": "pypdf"
+}

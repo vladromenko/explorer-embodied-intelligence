@@ -1,0 +1,101 @@
+{
+  "paper_id": "P098",
+  "retrieved_at": "2026-10-25T22:06:46.067888+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2501.18867",
+  "fulltext_url": "https://arxiv.org/pdf/2501.18867",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2501.18867: UP-VLA: A Unified Understanding and Prediction Model for Embodied Agent"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "UP-VLA: A Unified Understanding and Prediction Model for Embodied Agent"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2501.18867v3"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Recent advancements in Vision-Language-Action (VLA) models have leveraged pre-trained Vision-Language Models (VLMs) to improve the generalization capabilities. VLMs, typically pre-trained on vision-language understanding tasks, provide rich semantic knowledge and reasoning abilities. However, prior research has shown that VLMs often focus on high-level semantic content and neglect low-level features, limiting their ability to capture detailed spatial information and understand physical dynamics. These aspects, which are crucial for embodied control tasks, remain underexplored in existing pre-training paradigms. In this paper, we investigate the training paradigm for VLAs, and introduce \\textbf{UP-VLA}, a \\textbf{U}nified VLA model training with both multi-modal \\textbf{U}nderstanding and future \\textbf{P}rediction objectives, enhancing both high-level semantic comprehension and low-level spatial understanding. Experimental results show that UP-VLA achieves a 33% improvement on the Calvin ABC-D benchmark compared to the previous state-of-the-art method. Additionally, UP-VLA demonstrates improved success rates in real-world manipulation tasks, particularly those requiring precise spatial information."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "UP-VLA: A Unified Understanding and Prediction Model for Embodied Agent"
+    ],
+    "twitter:description": [
+      "Recent advancements in Vision-Language-Action (VLA) models have leveraged pre-trained Vision-Language Models (VLMs) to improve the generalization capabilities. VLMs, typically pre-trained on..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "UP-VLA: A Unified Understanding and Prediction Model for Embodied Agent"
+    ],
+    "citation_author": [
+      "Zhang, Jianke",
+      "Guo, Yanjiang",
+      "Hu, Yucheng",
+      "Chen, Xiaoyu",
+      "Zhu, Xiang",
+      "Chen, Jianyu"
+    ],
+    "citation_date": [
+      "2025/01/31"
+    ],
+    "citation_online_date": [
+      "2025/06/26"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2501.18867"
+    ],
+    "citation_arxiv_id": [
+      "2501.18867"
+    ],
+    "citation_abstract": [
+      "Recent advancements in Vision-Language-Action (VLA) models have leveraged pre-trained Vision-Language Models (VLMs) to improve the generalization capabilities. VLMs, typically pre-trained on vision-language understanding tasks, provide rich semantic knowledge and reasoning abilities. However, prior research has shown that VLMs often focus on high-level semantic content and neglect low-level features, limiting their ability to capture detailed spatial information and understand physical dynamics. These aspects, which are crucial for embodied control tasks, remain underexplored in existing pre-training paradigms. In this paper, we investigate the training paradigm for VLAs, and introduce \\textbf{UP-VLA}, a \\textbf{U}nified VLA model training with both multi-modal \\textbf{U}nderstanding and future \\textbf{P}rediction objectives, enhancing both high-level semantic comprehension and low-level spatial understanding. Experimental results show that UP-VLA achieves a 33% improvement on the Calvin ABC-D benchmark compared to the previous state-of-the-art method. Additionally, UP-VLA demonstrates improved success rates in real-world manipulation tasks, particularly those requiring precise spatial information."
+    ]
+  },
+  "fulltext_sha256": "9a68d42baab71262e90643a5c2d49f95565830e43b15fa953845a6c2b6013386",
+  "pages": 12,
+  "extracted_characters": 47244,
+  "cache_key": "P098/fulltext.pdf",
+  "extraction": "pypdf"
+}

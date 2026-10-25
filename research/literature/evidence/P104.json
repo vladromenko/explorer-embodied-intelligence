@@ -1,0 +1,137 @@
+{
+  "paper_id": "P104",
+  "retrieved_at": "2026-10-25T22:06:51.721310+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2601.02456",
+  "fulltext_url": "https://arxiv.org/pdf/2601.02456",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2601.02456: InternVLA-A1: Unifying Understanding, Generation and Action for Robotic Manipulation"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "InternVLA-A1: Unifying Understanding, Generation and Action for Robotic Manipulation"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2601.02456v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Prevalent Vision-Language-Action (VLA) models are typically built upon Multimodal Large Language Models (MLLMs) and demonstrate exceptional proficiency in semantic understanding, but they inherently lack the capability to deduce physical world dynamics. Consequently, recent approaches have shifted toward World Models, typically formulated via video prediction; however, these methods often suffer from a lack of semantic grounding and exhibit brittleness in the presence of video prediction errors. To synergize semantic understanding with dynamic predictive capabilities, we present InternVLA-A1. This model employs a unified Mixture-of-Transformers architecture, coordinating three experts for scene understanding, visual foresight generation, and action execution. These components interact seamlessly through a unified masked self attention mechanism. Building upon InternVL3 and Qwen3-VL, we instantiate InternVLA-A1 at 2B and 3B parameter scales. We pre-train these models on heterogeneous data sources over real-world robot data, synthetic simulation data, and human videos, covering over 692M frames. This hybrid training strategy effectively harnesses the diversity of synthetic simulation data while minimizing the sim-to-real gap. We evaluated InternVLA-A1 on 12 real-world robotic tasks and a simulation benchmark. The results show that InternVLA-A1 consistently outperforms prior leading models: compared with pi0.5, it achieves +4.4\\% on static manipulation tasks and +2.6\\% on the RoboTwin 2.0 simulation benchmark, and delivers a +26.7\\% boost on dynamic manipulation tasks."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "InternVLA-A1: Unifying Understanding, Generation and Action for..."
+    ],
+    "twitter:description": [
+      "Prevalent Vision-Language-Action (VLA) models are typically built upon Multimodal Large Language Models (MLLMs) and demonstrate exceptional proficiency in semantic understanding, but they..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "InternVLA-A1: Unifying Understanding, Generation and Action for Robotic Manipulation"
+    ],
+    "citation_author": [
+      "Cai, Junhao",
+      "Cai, Zetao",
+      "Cao, Jiafei",
+      "Chen, Yilun",
+      "He, Zeyu",
+      "Jiang, Lei",
+      "Li, Hang",
+      "Li, Hengjie",
+      "Li, Yang",
+      "Liu, Yufei",
+      "Lu, Yanan",
+      "Lv, Qi",
+      "Ma, Haoxiang",
+      "Pang, Jiangmiao",
+      "Qiao, Yu",
+      "Qiu, Zherui",
+      "Shen, Yanqing",
+      "Shi, Xu",
+      "Tian, Yang",
+      "Wang, Bolun",
+      "Wang, Hanqing",
+      "Wang, Jiaheng",
+      "Wang, Tai",
+      "Wei, Xueyuan",
+      "Wu, Chao",
+      "Xie, Yiman",
+      "Xing, Boyang",
+      "Yang, Yuqiang",
+      "Yang, Yuyin",
+      "Yu, Qiaojun",
+      "Yuan, Feng",
+      "Zeng, Jia",
+      "Zhang, Jingjing",
+      "Zhang, Shenghan",
+      "Zhang, Shi",
+      "Zhaxi, Zhuoma",
+      "Zhou, Bowen",
+      "Zhou, Yuanzhen",
+      "Zhou, Yunsong",
+      "Zhu, Hongrui",
+      "Zhu, Yangkun",
+      "Zhu, Yuchen"
+    ],
+    "citation_date": [
+      "2026/01/05"
+    ],
+    "citation_online_date": [
+      "2026/02/13"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2601.02456"
+    ],
+    "citation_arxiv_id": [
+      "2601.02456"
+    ],
+    "citation_abstract": [
+      "Prevalent Vision-Language-Action (VLA) models are typically built upon Multimodal Large Language Models (MLLMs) and demonstrate exceptional proficiency in semantic understanding, but they inherently lack the capability to deduce physical world dynamics. Consequently, recent approaches have shifted toward World Models, typically formulated via video prediction; however, these methods often suffer from a lack of semantic grounding and exhibit brittleness in the presence of video prediction errors. To synergize semantic understanding with dynamic predictive capabilities, we present InternVLA-A1. This model employs a unified Mixture-of-Transformers architecture, coordinating three experts for scene understanding, visual foresight generation, and action execution. These components interact seamlessly through a unified masked self attention mechanism. Building upon InternVL3 and Qwen3-VL, we instantiate InternVLA-A1 at 2B and 3B parameter scales. We pre-train these models on heterogeneous data sources over real-world robot data, synthetic simulation data, and human videos, covering over 692M frames. This hybrid training strategy effectively harnesses the diversity of synthetic simulation data while minimizing the sim-to-real gap. We evaluated InternVLA-A1 on 12 real-world robotic tasks and a simulation benchmark. The results show that InternVLA-A1 consistently outperforms prior leading models: compared with pi0.5, it achieves +4.4\\% on static manipulation tasks and +2.6\\% on the RoboTwin 2.0 simulation benchmark, and delivers a +26.7\\% boost on dynamic manipulation tasks."
+    ]
+  },
+  "fulltext_sha256": "a94c32fc45223a9b4eca28059961a196903d61d0c41ebf10acce68e2f6010c94",
+  "pages": 25,
+  "extracted_characters": 75082,
+  "cache_key": "P104/fulltext.pdf",
+  "extraction": "pypdf"
+}

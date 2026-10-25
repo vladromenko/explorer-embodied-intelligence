@@ -1,0 +1,99 @@
+{
+  "paper_id": "P050",
+  "retrieved_at": "2026-10-25T22:05:50.000590+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2609.33728",
+  "fulltext_url": "https://arxiv.org/pdf/2609.33728",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2609.33728: ALDER: Discovering the Laws of a World by Acting in It"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "ALDER: Discovering the Laws of a World by Acting in It"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2609.33728v1"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Reliable world models should not only predict future states but express how actions change the world in an explicit, transparent and testable form, such as equations. Yet methods that rely on a fixed set of trajectories cannot distinguish equally good competing hypotheses, while searches over a fixed set of predefined candidates cannot discover equations outside the initial hypothesis space. We introduce ALDER (Action-guided Law Discovery, Evaluation, and Revision), a method that actively proposes novel experiments to test and revise models. Specifically, ALDER proposes parametric equations; a numerical optimizer fits their coefficients; an independent verifier tests these candidates on held-out data. To distinguish between competing valid hypotheses, a cost- and safety-aware selector queries interventions, in the form of novel experiments. The resulting counterexamples update the evidence ledger and guide the next structural revision, while incompatible laws are discarded. Across an in-house benchmark, ODE equation discovery tasks, and robotic experiments, ALDER discovers laws beyond its initial formula set, repairs failed model proposals, distinguishes fixed candidate models with fewer interactions, and improves out-of-distribution prediction. Furthermore, given a current state and a target, ALDER selects control actions by solving the inverse problem defined by its validated world model. Together, these results show that explicit equation-based world models can be tested and revised through interaction, then naturally used to guide goal-directed control."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "ALDER: Discovering the Laws of a World by Acting in It"
+    ],
+    "twitter:description": [
+      "Reliable world models should not only predict future states but express how actions change the world in an explicit, transparent and testable form, such as equations. Yet methods that rely on a..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "ALDER: Discovering the Laws of a World by Acting in It"
+    ],
+    "citation_author": [
+      "Cao, Teng",
+      "Deng, Yu",
+      "Delfosse, Quentin",
+      "Kersting, Kristian"
+    ],
+    "citation_date": [
+      "2026/09/27"
+    ],
+    "citation_online_date": [
+      "2026/09/27"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2609.33728"
+    ],
+    "citation_arxiv_id": [
+      "2609.33728"
+    ],
+    "citation_abstract": [
+      "Reliable world models should not only predict future states but express how actions change the world in an explicit, transparent and testable form, such as equations. Yet methods that rely on a fixed set of trajectories cannot distinguish equally good competing hypotheses, while searches over a fixed set of predefined candidates cannot discover equations outside the initial hypothesis space. We introduce ALDER (Action-guided Law Discovery, Evaluation, and Revision), a method that actively proposes novel experiments to test and revise models. Specifically, ALDER proposes parametric equations; a numerical optimizer fits their coefficients; an independent verifier tests these candidates on held-out data. To distinguish between competing valid hypotheses, a cost- and safety-aware selector queries interventions, in the form of novel experiments. The resulting counterexamples update the evidence ledger and guide the next structural revision, while incompatible laws are discarded. Across an in-house benchmark, ODE equation discovery tasks, and robotic experiments, ALDER discovers laws beyond its initial formula set, repairs failed model proposals, distinguishes fixed candidate models with fewer interactions, and improves out-of-distribution prediction. Furthermore, given a current state and a target, ALDER selects control actions by solving the inverse problem defined by its validated world model. Together, these results show that explicit equation-based world models can be tested and revised through interaction, then naturally used to guide goal-directed control."
+    ]
+  },
+  "fulltext_sha256": "59ba21f26e716d6c334df00e9903ffa0d1d887b9cb2aa1c510833015fd04fa3b",
+  "pages": 27,
+  "extracted_characters": 95210,
+  "cache_key": "P050/fulltext.pdf",
+  "extraction": "pypdf"
+}

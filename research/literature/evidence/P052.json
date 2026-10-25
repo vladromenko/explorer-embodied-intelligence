@@ -1,0 +1,112 @@
+{
+  "paper_id": "P052",
+  "retrieved_at": "2026-10-25T22:04:23.598728+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2606.19980",
+  "fulltext_url": "https://arxiv.org/pdf/2606.19980",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2606.19980: ENPIRE: Agentic Robot Policy Self-Improvement in the Real World"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "ENPIRE: Agentic Robot Policy Self-Improvement in the Real World"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2606.19980v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Achieving dexterous robotic manipulation in the real world heavily relies on human supervision and algorithm engineering, which becomes a central bottleneck in the pursuit of general physical intelligence. Although emerging coding agents can generate code to automate algorithm search, their successes remain largely confined in digital environments. We conjecture that the missing abstraction to automate robotics research is a repeatable feedback loop for real-world policy improvement: reset the scene, execute a policy, verify the outcome, and refine the next iteration. To bridge this gap, we introduce ENPIRE, a harness framework for coding agents that instantiates this physical feedback routine with four core modules: an Environment module (EN) for automatic reset and verification, a Policy Improvement module (PI) that launches policy refinement, a Rollout module (R) to evaluate policies with one or multiple physical robots operating in parallel, and an Evolution module (E) in which coding agents analyze logs, consult literature, improve training infrastructure and algorithm code to address failure modes. This closed-loop system transforms real-world manipulation learning into a controllable optimization procedure, minimizing human effort while allowing fair ablations across training recipe and agent variants. Powered by ENPIRE, frontier coding agents can autonomously train a policy to achieve a 99% success rate on challenging, dexterous manipulation tasks, such as organizing a pin box, fastening a zip tie, and tool use, a process that further accelerates when we dispatch an agent team on a robot fleet. Our results suggest a practical and scalable path toward deploying coding agents to autonomously advancing robotics in the physical world."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "ENPIRE: Agentic Robot Policy Self-Improvement in the Real World"
+    ],
+    "twitter:description": [
+      "Achieving dexterous robotic manipulation in the real world heavily relies on human supervision and algorithm engineering, which becomes a central bottleneck in the pursuit of general physical..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "ENPIRE: Agentic Robot Policy Self-Improvement in the Real World"
+    ],
+    "citation_author": [
+      "Xiao, Wenli",
+      "Xie, Jia",
+      "Zhang, Tonghe",
+      "Lin, Haotian",
+      "Fu, Letian \"Max\"",
+      "Xue, Haoru",
+      "Lu, Jalen",
+      "Yang, Yi",
+      "Dai, Cunxi",
+      "Wang, Zi",
+      "Wu, Jimmy",
+      "Wang, Guanzhi",
+      "Sastry, S. Shankar",
+      "Goldberg, Ken",
+      "Fan, Linxi \"Jim\"",
+      "Zhu, Yuke",
+      "Shi, Guanya"
+    ],
+    "citation_date": [
+      "2026/06/18"
+    ],
+    "citation_online_date": [
+      "2026/09/20"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2606.19980"
+    ],
+    "citation_arxiv_id": [
+      "2606.19980"
+    ],
+    "citation_abstract": [
+      "Achieving dexterous robotic manipulation in the real world heavily relies on human supervision and algorithm engineering, which becomes a central bottleneck in the pursuit of general physical intelligence. Although emerging coding agents can generate code to automate algorithm search, their successes remain largely confined in digital environments. We conjecture that the missing abstraction to automate robotics research is a repeatable feedback loop for real-world policy improvement: reset the scene, execute a policy, verify the outcome, and refine the next iteration. To bridge this gap, we introduce ENPIRE, a harness framework for coding agents that instantiates this physical feedback routine with four core modules: an Environment module (EN) for automatic reset and verification, a Policy Improvement module (PI) that launches policy refinement, a Rollout module (R) to evaluate policies with one or multiple physical robots operating in parallel, and an Evolution module (E) in which coding agents analyze logs, consult literature, improve training infrastructure and algorithm code to address failure modes. This closed-loop system transforms real-world manipulation learning into a controllable optimization procedure, minimizing human effort while allowing fair ablations across training recipe and agent variants. Powered by ENPIRE, frontier coding agents can autonomously train a policy to achieve a 99% success rate on challenging, dexterous manipulation tasks, such as organizing a pin box, fastening a zip tie, and tool use, a process that further accelerates when we dispatch an agent team on a robot fleet. Our results suggest a practical and scalable path toward deploying coding agents to autonomously advancing robotics in the physical world."
+    ]
+  },
+  "fulltext_sha256": "b5c0c25ee0abe0c7c251b2f751b6ecb18345f5c6e11af55979262dda86c70f5a",
+  "pages": 28,
+  "extracted_characters": 79550,
+  "cache_key": "P052/fulltext.pdf",
+  "extraction": "pypdf"
+}

@@ -1,0 +1,114 @@
+{
+  "paper_id": "P019",
+  "retrieved_at": "2026-10-25T22:05:24.099368+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2405.12213",
+  "fulltext_url": "https://arxiv.org/pdf/2405.12213",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2405.12213: Octo: An Open-Source Generalist Robot Policy"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "Octo: An Open-Source Generalist Robot Policy"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2405.12213v2"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "Large policies pretrained on diverse robot datasets have the potential to transform robotic learning: instead of training new policies from scratch, such generalist robot policies may be finetuned with only a little in-domain data, yet generalize broadly. However, to be widely applicable across a range of robotic learning scenarios, environments, and tasks, such policies need to handle diverse sensors and action spaces, accommodate a variety of commonly used robotic platforms, and finetune readily and efficiently to new domains. In this work, we aim to lay the groundwork for developing open-source, widely applicable, generalist policies for robotic manipulation. As a first step, we introduce Octo, a large transformer-based policy trained on 800k trajectories from the Open X-Embodiment dataset, the largest robot manipulation dataset to date. It can be instructed via language commands or goal images and can be effectively finetuned to robot setups with new sensory inputs and action spaces within a few hours on standard consumer GPUs. In experiments across 9 robotic platforms, we demonstrate that Octo serves as a versatile policy initialization that can be effectively finetuned to new observation and action spaces. We also perform detailed ablations of design decisions for the Octo model, from architecture to training data, to guide future research on building generalist robot models."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "Octo: An Open-Source Generalist Robot Policy"
+    ],
+    "twitter:description": [
+      "Large policies pretrained on diverse robot datasets have the potential to transform robotic learning: instead of training new policies from scratch, such generalist robot policies may be finetuned..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "Octo: An Open-Source Generalist Robot Policy"
+    ],
+    "citation_author": [
+      "Octo Model Team",
+      "Ghosh, Dibya",
+      "Walke, Homer",
+      "Pertsch, Karl",
+      "Black, Kevin",
+      "Mees, Oier",
+      "Dasari, Sudeep",
+      "Hejna, Joey",
+      "Kreiman, Tobias",
+      "Xu, Charles",
+      "Luo, Jianlan",
+      "Tan, You Liang",
+      "Chen, Lawrence Yunliang",
+      "Sanketi, Pannag",
+      "Vuong, Quan",
+      "Xiao, Ted",
+      "Sadigh, Dorsa",
+      "Finn, Chelsea",
+      "Levine, Sergey"
+    ],
+    "citation_date": [
+      "2024/05/20"
+    ],
+    "citation_online_date": [
+      "2024/05/26"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2405.12213"
+    ],
+    "citation_arxiv_id": [
+      "2405.12213"
+    ],
+    "citation_abstract": [
+      "Large policies pretrained on diverse robot datasets have the potential to transform robotic learning: instead of training new policies from scratch, such generalist robot policies may be finetuned with only a little in-domain data, yet generalize broadly. However, to be widely applicable across a range of robotic learning scenarios, environments, and tasks, such policies need to handle diverse sensors and action spaces, accommodate a variety of commonly used robotic platforms, and finetune readily and efficiently to new domains. In this work, we aim to lay the groundwork for developing open-source, widely applicable, generalist policies for robotic manipulation. As a first step, we introduce Octo, a large transformer-based policy trained on 800k trajectories from the Open X-Embodiment dataset, the largest robot manipulation dataset to date. It can be instructed via language commands or goal images and can be effectively finetuned to robot setups with new sensory inputs and action spaces within a few hours on standard consumer GPUs. In experiments across 9 robotic platforms, we demonstrate that Octo serves as a versatile policy initialization that can be effectively finetuned to new observation and action spaces. We also perform detailed ablations of design decisions for the Octo model, from architecture to training data, to guide future research on building generalist robot models."
+    ]
+  },
+  "fulltext_sha256": "73bff297cfafe523319162124e6b7f96919c0930e0a380f307255c4c7464ac93",
+  "pages": 17,
+  "extracted_characters": 84846,
+  "cache_key": "P019/fulltext.pdf",
+  "extraction": "pypdf"
+}

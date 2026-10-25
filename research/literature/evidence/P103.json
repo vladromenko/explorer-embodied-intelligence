@@ -1,0 +1,109 @@
+{
+  "paper_id": "P103",
+  "retrieved_at": "2026-10-25T22:06:51.381209+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2511.17502",
+  "fulltext_url": "https://arxiv.org/pdf/2511.17502",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2511.17502: RynnVLA-002: A Unified Vision-Language-Action and World Model"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "RynnVLA-002: A Unified Vision-Language-Action and World Model"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2511.17502v3"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "We introduce RynnVLA-002, a unified Vision-Language-Action (VLA) and world model. The world model leverages action and visual inputs to predict future image states, learning the underlying physics of the environment to refine action generation. Conversely, the VLA model produces subsequent actions from image observations, enhancing visual understanding and supporting the world model's image generation. The unified framework of RynnVLA-002 enables joint learning of environmental dynamics and action planning. Our experiments show that RynnVLA-002 surpasses individual VLA and world models, demonstrating their mutual enhancement. We evaluate RynnVLA-002 in both simulation and real-world robot tasks. RynnVLA-002 achieves 97.4% success rate on the LIBERO simulation benchmark without pretraining, while in real-world LeRobot experiments, its integrated world model boosts the overall success rate by 50%."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "RynnVLA-002: A Unified Vision-Language-Action and World Model"
+    ],
+    "twitter:description": [
+      "We introduce RynnVLA-002, a unified Vision-Language-Action (VLA) and world model. The world model leverages action and visual inputs to predict future image states, learning the underlying physics..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "RynnVLA-002: A Unified Vision-Language-Action and World Model"
+    ],
+    "citation_author": [
+      "Cen, Jun",
+      "Huang, Siteng",
+      "Yuan, Yuqian",
+      "Li, Kehan",
+      "Yuan, Hangjie",
+      "Yu, Chaohui",
+      "Hou, Bohan",
+      "Jiang, Yuming",
+      "Guo, Jiayan",
+      "Li, Xin",
+      "Luo, Hao",
+      "Wang, Fan",
+      "Zhao, Deli",
+      "Chen, Hao"
+    ],
+    "citation_date": [
+      "2025/11/21"
+    ],
+    "citation_online_date": [
+      "2026/05/30"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2511.17502"
+    ],
+    "citation_arxiv_id": [
+      "2511.17502"
+    ],
+    "citation_abstract": [
+      "We introduce RynnVLA-002, a unified Vision-Language-Action (VLA) and world model. The world model leverages action and visual inputs to predict future image states, learning the underlying physics of the environment to refine action generation. Conversely, the VLA model produces subsequent actions from image observations, enhancing visual understanding and supporting the world model's image generation. The unified framework of RynnVLA-002 enables joint learning of environmental dynamics and action planning. Our experiments show that RynnVLA-002 surpasses individual VLA and world models, demonstrating their mutual enhancement. We evaluate RynnVLA-002 in both simulation and real-world robot tasks. RynnVLA-002 achieves 97.4% success rate on the LIBERO simulation benchmark without pretraining, while in real-world LeRobot experiments, its integrated world model boosts the overall success rate by 50%."
+    ]
+  },
+  "fulltext_sha256": "2788b0a36abb737af6c59511f7d2d00bcc0012570deb33a519afbe8e8b3fbb94",
+  "pages": 17,
+  "extracted_characters": 59407,
+  "cache_key": "P103/fulltext.pdf",
+  "extraction": "pypdf"
+}

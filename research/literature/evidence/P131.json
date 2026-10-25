@@ -1,0 +1,99 @@
+{
+  "paper_id": "P131",
+  "retrieved_at": "2026-10-25T22:07:20.731197+00:00",
+  "legal_source": "public primary author/publisher repository",
+  "review_credit": false,
+  "primary_url": "https://arxiv.org/abs/2311.02058",
+  "fulltext_url": "https://arxiv.org/pdf/2311.02058",
+  "primary_metadata": {
+    "viewport": [
+      "width=device-width, initial-scale=1"
+    ],
+    "msapplication-TileColor": [
+      "#da532c"
+    ],
+    "theme-color": [
+      "#ffffff"
+    ],
+    "description": [
+      "Abstract page for arXiv paper 2311.02058: LOTUS: Continual Imitation Learning for Robot Manipulation Through Unsupervised Skill Discovery"
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:site_name": [
+      "arXiv.org"
+    ],
+    "og:title": [
+      "LOTUS: Continual Imitation Learning for Robot Manipulation Through Unsupervised Skill Discovery"
+    ],
+    "og:url": [
+      "https://arxiv.org/abs/2311.02058v4"
+    ],
+    "og:image": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:secure_url": [
+      "/static/browse/0.3.4/images/arxiv-logo-fb.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "700"
+    ],
+    "og:image:alt": [
+      "arXiv logo"
+    ],
+    "og:description": [
+      "We introduce LOTUS, a continual imitation learning algorithm that empowers a physical robot to continuously and efficiently learn to solve new manipulation tasks throughout its lifespan. The core idea behind LOTUS is constructing an ever-growing skill library from a sequence of new tasks with a small number of human demonstrations. LOTUS starts with a continual skill discovery process using an open-vocabulary vision model, which extracts skills as recurring patterns presented in unsegmented demonstrations. Continual skill discovery updates existing skills to avoid catastrophic forgetting of previous tasks and adds new skills to solve novel tasks. LOTUS trains a meta-controller that flexibly composes various skills to tackle vision-based manipulation tasks in the lifelong learning process. Our comprehensive experiments show that LOTUS outperforms state-of-the-art baselines by over 11% in success rate, showing its superior knowledge transfer ability compared to prior methods. More results and videos can be found on the project website: https://ut-austin-rpl.github.io/Lotus/."
+    ],
+    "twitter:site": [
+      "@arxiv"
+    ],
+    "twitter:card": [
+      "summary"
+    ],
+    "twitter:title": [
+      "LOTUS: Continual Imitation Learning for Robot Manipulation Through..."
+    ],
+    "twitter:description": [
+      "We introduce LOTUS, a continual imitation learning algorithm that empowers a physical robot to continuously and efficiently learn to solve new manipulation tasks throughout its lifespan. The core..."
+    ],
+    "twitter:image": [
+      "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png"
+    ],
+    "twitter:image:alt": [
+      "arXiv logo"
+    ],
+    "citation_title": [
+      "LOTUS: Continual Imitation Learning for Robot Manipulation Through Unsupervised Skill Discovery"
+    ],
+    "citation_author": [
+      "Wan, Weikang",
+      "Zhu, Yifeng",
+      "Shah, Rutav",
+      "Zhu, Yuke"
+    ],
+    "citation_date": [
+      "2023/11/03"
+    ],
+    "citation_online_date": [
+      "2024/11/23"
+    ],
+    "citation_pdf_url": [
+      "https://arxiv.org/pdf/2311.02058"
+    ],
+    "citation_arxiv_id": [
+      "2311.02058"
+    ],
+    "citation_abstract": [
+      "We introduce LOTUS, a continual imitation learning algorithm that empowers a physical robot to continuously and efficiently learn to solve new manipulation tasks throughout its lifespan. The core idea behind LOTUS is constructing an ever-growing skill library from a sequence of new tasks with a small number of human demonstrations. LOTUS starts with a continual skill discovery process using an open-vocabulary vision model, which extracts skills as recurring patterns presented in unsegmented demonstrations. Continual skill discovery updates existing skills to avoid catastrophic forgetting of previous tasks and adds new skills to solve novel tasks. LOTUS trains a meta-controller that flexibly composes various skills to tackle vision-based manipulation tasks in the lifelong learning process. Our comprehensive experiments show that LOTUS outperforms state-of-the-art baselines by over 11% in success rate, showing its superior knowledge transfer ability compared to prior methods. More results and videos can be found on the project website: https://ut-austin-rpl.github.io/Lotus/."
+    ]
+  },
+  "fulltext_sha256": "150ebaa87d207930853ef55ccaa1caba82e85bd76cf9dd1de5f0564ef06a8d16",
+  "pages": 8,
+  "extracted_characters": 49399,
+  "cache_key": "P131/fulltext.pdf",
+  "extraction": "pypdf"
+}
