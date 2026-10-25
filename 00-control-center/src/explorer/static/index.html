@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1521">
+  <meta name="description" content="Explorer — единая исследовательская станция для наблюдения, обучения и проверки роботизированных навыков.">
+  <title>Explorer · Исследовательская станция</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к содержимому</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Разделы Explorer">
+      <a href="/" class="brand" data-link aria-label="Explorer, главная">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 36 36"><path d="M6 18 18 6l12 12-12 12z"/><path d="m12 18 6-6 6 6-6 6z"/></svg></span>
+        <span>EXPLORER<small>EMBODIED INTELLIGENCE</small></span>
+      </a>
+      <div class="sidebar-caption">Рабочее пространство</div>
+      <nav id="navigation" aria-label="Основная навигация"></nav>
+      <div class="sidebar-bottom">
+        <div class="safe-state"><span class="status-dot muted" id="sidebar-dot"></span><span id="sidebar-state">Подключаем станцию</span></div>
+        <a class="legacy-link" href="http://explorer.local:8080" target="_blank" rel="noopener noreferrer">Штатная панель робота <span aria-hidden="true">↗</span></a>
+        <button class="quiet-button logout-button" id="logout-button" type="button">Выйти</button>
+        <div class="sidebar-footnote">Работает в вашей локальной сети</div>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <div class="breadcrumbs"><span class="breadcrumb-root">Станция</span><span aria-hidden="true">/</span><span id="breadcrumb-title">Обзор</span></div>
+        <div class="topbar-actions"><span class="connection-label" id="connection-label"><span class="status-dot muted"></span>Подключение…</span><button type="button" class="stop-button" id="stop-button" title="Передать штатный STOP роботу и остановить задачи Explorer."><span class="stop-symbol" aria-hidden="true"></span>STOP</button></div>
+      </header>
+      <div id="connection-banner" class="connection-banner" role="status" hidden></div>
+      <main id="main" tabindex="-1"><div class="loading-state"><span class="loading-orbit" aria-hidden="true"></span><h1>Собираем состояние станции</h1><p>Проверяем узлы, камеры и исследовательские задачи.</p></div></main>
+      <footer class="workspace-footer"><span>Explorer / Research workspace</span><span id="last-updated">Ожидаем данные</span></footer>
+    </div>
+  </div>
+  <dialog id="record-dialog" aria-labelledby="record-title">
+    <form id="record-form">
+      <div class="dialog-heading"><div><p class="eyebrow">Новый материал</p><h2 id="record-title">Запись наблюдения</h2></div><button type="button" class="icon-button" id="close-record" aria-label="Закрыть запись">✕</button></div>
+      <div class="wizard-steps" aria-label="Этапы записи"><span class="active">01 Источник</span><span>02 Проверка</span><span>03 Запись</span></div>
+      <div id="record-step-content"></div>
+      <p id="record-error" class="form-error" role="alert" hidden></p>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="record-back">Отмена</button><button type="submit" class="button primary" id="record-next">Далее <span aria-hidden="true">→</span></button></div>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

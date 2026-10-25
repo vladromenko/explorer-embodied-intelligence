@@ -1,0 +1,602 @@
+"use strict";
+
+const ICONS = {
+  overview: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  research: '<path d="M9 3v6l-5 9a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-5-9V3M8 3h8M8 14h8"/><path d="m10 17 1 1m4-1 1 1"/>',
+  skills: '<path d="m12 3 9 5-9 5-9-5zM3 12l9 5 9-5M3 16l9 5 9-5"/>',
+  server: '<rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.1M7 17.5h.1M17 6.5h1M17 17.5h1"/>',
+  lab: '<path d="m3 9 9-5 9 5-9 5zM7 12v5c3 3 7 3 10 0v-5M21 9v8"/>',
+  camera: '<rect x="3" y="6" width="18" height="15" rx="2"/><path d="m8 6 2-3h4l2 3"/><circle cx="12" cy="13" r="4"/>',
+  robot: '<rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 4v4M10 4h4M2 12v4m20-4v4M9 19v2m6-2v2M8 13h.1m7.8 0h.1M9 16h6"/>',
+  chip: '<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4m6-4v4M9 18v4m6-4v4M2 9h4m-4 6h4m12-6h4m-4 6h4"/><rect x="9" y="9" width="6" height="6" rx="1"/>',
+  play: '<path d="m9 5 11 7-11 7z"/>',
+  pause: '<path d="M8 5v14M16 5v14"/>',
+  cancel: '<path d="m6 6 12 12M18 6 6 18"/>',
+  arrow: '<path d="M4 12h16m-6-6 6 6-6 6"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.1"/>',
+  shield: '<path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  folder: '<path d="M3 7a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v9H3z"/>',
+  wifi: '<path d="M3 8a15 15 0 0 1 18 0M6 12a10 10 0 0 1 12 0m-9 4a5 5 0 0 1 6 0m-3 4h.1"/>',
+  book: '<path d="M12 5c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V4c-3-1-6-1-9 1zM12 5v15"/>',
+  record: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',
+  check: '<path d="m5 12 4 4L19 6"/>',
+  refresh: '<path d="M20 7v5h-5M4 17v-5h5"/><path d="M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/>'
+};
+const icon = (name, className = "") => `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ICONS.overview}</svg>`;
+const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
+const array = (value) => Array.isArray(value) ? value : [];
+const defined = (...values) => values.find((value) => value !== null && value !== undefined);
+const text = (value, fallback = "") => typeof value === "string" || typeof value === "number" ? String(value) : (value?.message || value?.reason || value?.detail || fallback);
+const number = (value) => value !== null && value !== undefined && Number.isFinite(Number(value)) ? Number(value) : null;
+const count = (value) => number(value) === null ? "—" : new Intl.NumberFormat("ru-RU").format(Number(value));
+const projectId = (value) => String(value ?? "").match(/\d+/)?.[0]?.padStart(2, "0") || "";
+const dateValue = (value) => typeof value === "number" ? value * (value < 1e12 ? 1000 : 1) : Date.parse(value || "");
+const dateTime = (value) => Number.isFinite(dateValue(value)) ? new Intl.DateTimeFormat("ru-RU", { timeZone: "Europe/Moscow", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(dateValue(value)) : "Время не указано";
+const clockTime = (value = Date.now()) => new Intl.DateTimeFormat("ru-RU", { timeZone: "Europe/Moscow", hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(value);
+
+const PROJECTS = [
+  { id: "01", title: "Автономное обучение", short: "Обучение в симуляции", brief: "От простого движения к самостоятельному навыку.", subtitle: "Исследуем обучение в MuJoCo. Каждый запуск сохраняет параметры, результат и происхождение модели.", steps: [ ["Выбрать задачу", "Начните с достижения цели. Сначала проверяем, что обучение и сохранение результатов работают в симуляции."], ["Запустить обучение", "Наблюдайте за настоящим запуском, его метриками и кадрами. Задачу можно приостановить или отменить."], ["Проверить перенос", "Результат симуляции оценивается отдельно. Готовность физического выполнения определяется по фактическим проверкам оборудования."] ], guidance: "Покажите одну понятную цель и одно движение. Для этого опыта основной источник данных — симуляция." },
+  { id: "02", title: "Обучение по показам", short: "Показы на ROSMASTER", brief: "Опыт оператора становится материалом для обучения.", subtitle: "Записывайте наблюдения за роботом и связывайте их с задачей. Ручное управление доступно в штатной панели.", steps: [ ["Подготовить один показ", "Выберите одну задачу, начальное положение и ясный признак завершения. Держите объект и движение в кадре."], ["Сохранить наблюдение", "Запись камеры выполняется на узле. Она пока не заменяет эпизод с синхронизированными командами и состоянием."], ["Обучить и проверить", "Для обучения нужны проверенные эпизоды, временная привязка и отдельные испытания на новых начальных условиях."] ], guidance: "Покажите одно и то же действие несколько раз из разных начальных положений. В начале и конце ненадолго остановитесь, чтобы результат было видно." },
+  { id: "03", title: "Обучение с помощью руки", short: "SO-101 → ROSMASTER", brief: "Понятный показ рукой с учётом геометрии робота.", subtitle: "Рука SO-101 задаёт намерение. Перед выполнением на ROSMASTER нужны проверенное соответствие движений и калибровки.", steps: [ ["Определить роли рук", "Убедитесь, что ведущая и ведомая руки определены верно. Они остаются подключёнными к Raspberry Pi."], ["Проверить соответствие движений", "Разные конструкции требуют калибровки и согласования поз. Номера суставов нельзя считать готовым соответствием."], ["Записать и оценить показ", "Начните с одного небольшого действия. Результаты переноса проверяются независимо от обучающих показов."] ], guidance: "Держите ведущую руку и рабочую область в общем кадре. Показывайте короткое движение с хорошо различимыми началом и концом." },
+  { id: "04", title: "Перенос между роботами", short: "Перенос навыка", brief: "Проверяем, что сохраняется при смене конструкции.", subtitle: "Отдельно изучаем перенос опыта SO-101 на ROSMASTER. Результат на одной руке ещё не доказывает успех на другой.", steps: [ ["Сохранить исходный навык", "Зафиксируйте данные, версию модели, геометрию и условия исходной задачи на SO-101."], ["Подготовить перенос", "Сопоставьте рабочие пространства, наблюдения и действие через проверенный адаптер, сохраняя происхождение изменений."], ["Сравнить результаты", "Проведите отдельную оценку на ROSMASTER и сравните её с исходным навыком и базовыми методами."] ], guidance: "Показывайте одинаковую задачу в сопоставимых условиях. Сохраняйте положение камеры, размеры объекта и признак завершения." },
+  { id: "05", title: "Совместная передача", short: "Передача предмета", brief: "Два робота, одна согласованная задача.", subtitle: "Исследуем передачу предмета от ROSMASTER к SO-101. Готовность обеих сторон и наблюдение оцениваются совместно.", steps: [ ["Подготовить общую сцену", "Обе руки, предмет и место передачи должны быть видны. Сначала требуется подтверждённая геометрия сцены."], ["Проверить готовность сторон", "Передача зависит от возможностей захватов, удержания предмета, связи и согласования участников."], ["Оценить завершение", "Разделяйте попытку передачи, видимый переход предмета и устойчивое удержание принимающей рукой."] ], guidance: "Общий кадр должен показывать обе стороны и предмет на всём пути передачи. Сохраните наблюдение до передачи и после неё." }
+];
+const PERSONAL_PROJECT = { id: "personal", title: "Личная лаборатория SO-101", guidance: "Выберите одно простое движение. Сохраните его начало и конец в общем кадре и после записи разберите, что можно было показать понятнее." };
+
+const STATUS = {
+  queued: ["В очереди", "neutral"], pending: ["Ожидает", "neutral"], running: ["В работе", "good"], active: ["В работе", "good"],
+  paused: ["Пауза", "warn"], completed: ["Завершено", "good"], complete: ["Завершено", "good"], succeeded: ["Завершено", "good"],
+  success: ["Завершено", "good"], failed: ["Ошибка", "bad"], error: ["Ошибка", "bad"], cancelled: ["Отменено", "neutral"], canceled: ["Отменено", "neutral"],
+  ready: ["Готово к запуску", "good"], available: ["Доступно", "good"], blocked: ["Нужна подготовка", "warn"], needs_setup: ["Нужна подготовка", "warn"],
+  partial: ["Частично готово", "warn"], implemented: ["Подготовлено", "neutral"], not_started: ["Не запускался", "neutral"], offline: ["Нет связи", "neutral"],
+  not_validated: ["Не проверено", "warn"], unvalidated: ["Не проверено", "warn"], validated: ["Проверено", "good"], awaiting_validation: ["Ожидает проверки", "warn"],
+  awaiting_evidence: ["Ожидает результатов", "neutral"], untested_hypothesis: ["Гипотеза не проверена", "warn"],
+  pause_requested: ["Приостанавливается", "warn"], resume_requested: ["Возобновляется", "neutral"], cancel_requested: ["Отменяется", "warn"],
+  physically_validated: ["Проверено на оборудовании", "good"], simulation_validated: ["Проверено в симуляции", "neutral"]
+};
+function badge(value, fallback = "Ожидаем данные") {
+  const item = STATUS[String(value || "").toLowerCase()] || [text(value, fallback) || fallback, "neutral"];
+  return `<span class="badge ${item[1]}">${esc(item[0])}</span>`;
+}
+function reasonText(value) {
+  const labels = {
+    calibration_missing: "Нужна калибровка оборудования", calibration_required: "Нужна калибровка оборудования", no_measured_arm_feedback: "Измеренное положение руки недоступно",
+    camera_unavailable: "Камера пока недоступна", observer_required: "Нужно наблюдение через камеру или подтверждение присутствия", physical_validation_required: "Физическая проверка ещё не выполнена",
+    dataset_missing: "Пока нет подходящих эпизодов", no_demonstrations: "Пока нет проверенных показов", offline: "Нет связи с узлом",
+    so101_roles_unassigned: "Роли ведущей и ведомой рук ещё не сопоставлены", so101_calibration_unverified: "Калибровки рук ещё не проверены"
+  };
+  const raw = text(value, value?.code || "Уточняется состояние оборудования");
+  return labels[raw] || raw;
+}
+
+const model = { state: null, jobs: [], skills: [], research: {}, recordings: [], actions: [], lastUpdate: null, lastExtras: 0, error: null, refreshing: false, simDraft: { task: "reach", updates: 256, seed: 0 }, robot: { teleop: null, controls: null, teaching: null, error: null, episodeName: "Первый показ" } };
+const keyboard = { active: false, paused: false, keys: new Set(), mode: "cartesian", busy: false, lastKeys: "", error: null };
+let episodeLeaseBusy = false;
+const main = document.querySelector("#main");
+const dialog = document.querySelector("#record-dialog");
+const record = { step: 0, project: "02", camera: "", duration: 15, busy: false };
+let toastTimeout;
+let currentCamera = "";
+let cameraMode = "stream";
+let cameraSignature = "";
+let cameraLoaded = false;
+let lastSnapshotAt = 0;
+let simulationJob = "";
+let simulationImage = null;
+
+function csrfToken() {
+  const entry = document.cookie.split(";").map((part) => part.trim()).find((part) => part.startsWith("explorer_csrf="));
+  return entry ? decodeURIComponent(entry.slice("explorer_csrf=".length)) : "";
+}
+async function api(path, options = {}) {
+  const headers = { Accept: "application/json", ...(options.headers || {}) };
+  if (options.method && options.method !== "GET") { headers["Content-Type"] = "application/json"; headers["X-Explorer-CSRF"] = csrfToken(); }
+  const response = await fetch(path, { credentials: "same-origin", ...options, headers });
+  if (response.status === 401) { window.location.assign(`/api/login?next=${encodeURIComponent(window.location.pathname)}`); throw new Error("Требуется вход в станцию."); }
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    const detail = text(body.detail, text(body.error));
+    throw new Error(detail || `Станция не выполнила запрос (${response.status}).`);
+  }
+  return response.status === 204 ? {} : response.json();
+}
+const post = (path, body = {}, options = {}) => api(path, { method: "POST", body: JSON.stringify(body), ...options });
+function toast(message, error = false) {
+  const node = document.querySelector("#toast");
+  clearTimeout(toastTimeout); node.textContent = message; node.classList.toggle("error", error); node.hidden = false;
+  toastTimeout = setTimeout(() => { node.hidden = true; }, 6500);
+}
+function path() { return window.location.pathname.replace(/\/$/, "") || "/"; }
+function activeProject() { return PROJECTS.find((project) => path() === `/experiments/${project.id}`); }
+function navigate(url) { if (keyboard.active && url !== "/experiments/02") stopKeyboard(true); if (path() !== url) history.pushState({}, "", url); render(); main.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); }
+
+function navigation() {
+  const item = (href, label, symbol, ordinal) => `<a href="${href}" data-link class="nav-item ${path() === href ? "active" : ""}" ${path() === href ? 'aria-current="page"' : ""}>${ordinal ? `<span class="nav-number">${ordinal}</span>` : icon(symbol, "nav-icon")}<span>${label}</span></a>`;
+  document.querySelector("#navigation").innerHTML = item("/", "Обзор станции", "overview") + '<div class="nav-section-label">Исследовательские опыты</div>' + PROJECTS.map((project) => item(`/experiments/${project.id}`, ["Автономное обучение", "Обучение по показам", "Обучение с рукой", "Перенос навыков", "Совместная передача"][Number(project.id) - 1], "", project.id)).join("") + '<div class="nav-divider"></div>' + item("/research", "Исследования", "research") + item("/skills", "Библиотека навыков", "skills") + item("/infrastructure", "Оборудование", "server") + item("/learning/so101", "Моя лаборатория", "lab");
+}
+
+function nodes() { return array(model.state?.nodes); }
+function nodeRole(node) {
+  const name = `${node.id} ${node.host} ${node.name}`.toLowerCase();
+  if (/homebrain|orin nx|\bnx\b/.test(name)) return { name: "Homebrain", role: "Обучение и общая станция", symbol: "server" };
+  if (/explorer-pi|raspberry|\bpi\b/.test(name)) return { name: "Explorer Pi", role: "Руки и общий вид", symbol: "chip" };
+  return { name: node.name || "Explorer", role: "ROSMASTER и бортовые камеры", symbol: "robot" };
+}
+function compactHealth(node) {
+  if (!node.online) return "Ожидаем подключение";
+  const health = node.health || {};
+  if (typeof health === "string") return health === "online" ? "Связь установлена" : health === "offline" ? "Нет связи" : health;
+  return text(health.summary, text(health.message, array(health.errors)[0] ? reasonText(health.errors[0]) : "Связь установлена"));
+}
+function nodeCards() {
+  const list = nodes().length ? nodes() : [ { id: "homebrain", name: "Homebrain" }, { id: "explorer", name: "Explorer" }, { id: "explorer-pi", name: "Explorer Pi" } ];
+  return `<div class="node-grid">${list.map((node) => {
+    const role = nodeRole(node); const online = node.online === true;
+    return `<article class="node-card"><div class="node-top"><span class="node-symbol">${icon(role.symbol)}</span><div><h3 class="node-title">${esc(role.name)}</h3><div class="node-role">${esc(role.role)}</div></div><span class="node-connection ${online ? "" : "offline"}"><span class="status-dot ${online ? "good" : "muted"}"></span>${online ? "В сети" : (model.state ? "Нет связи" : "Ожидаем")}</span></div><div class="node-bottom"><span>${esc(compactHealth(node))}</span><span>${esc(online ? text(node.host, node.hostname || "") : "")}</span></div></article>`;
+  }).join("")}</div>`;
+}
+
+function cameras() {
+  const collection = [...array(model.state?.cameras)];
+  nodes().forEach((node) => array(node.cameras).forEach((camera) => {
+    const value = typeof camera === "string" ? { id: camera } : camera;
+    if (value?.id && !collection.some((known) => known.id === value.id)) collection.push({ ...value, node_id: node.id, node_online: node.online });
+  }));
+  return collection.filter((camera) => camera.id);
+}
+function cameraLabel(camera) { return text(camera?.label, text(camera?.name, { "pi-overview": "Общий вид · Raspberry Pi", "nano-rgbd": "RGB-D · ROSMASTER", "nano-logitech": "Внешняя камера · ROSMASTER" }[camera?.id] || camera?.id || "Камера")); }
+const cameraCard = document.createElement("section");
+cameraCard.className = "panel camera-card";
+cameraCard.setAttribute("aria-label", "Изображение с камеры");
+cameraCard.innerHTML = `<div class="panel-heading"><div class="heading-label">${icon("camera", "nav-icon")}<h2>Рабочая сцена</h2></div><label class="sr-only" for="camera-select">Камера</label><select class="camera-select" id="camera-select"><option value="">Ожидаем камеры</option></select></div><div class="camera-stage"><img id="camera-image" alt="Текущее изображение с выбранной камеры" hidden><div class="camera-placeholder" id="camera-placeholder">${icon("camera")}<strong id="camera-placeholder-title">Подключаем камеру</strong><p id="camera-placeholder-note">Здесь появится настоящее изображение с оборудования.</p></div><div class="camera-overlay"><span class="camera-badge"><span class="status-dot muted" id="camera-dot"></span><span id="camera-mode">ОЖИДАЕМ ИЗОБРАЖЕНИЕ</span></span><span class="camera-time" id="camera-time"></span></div></div><div class="camera-bottom"><span class="camera-note">Исходное изображение · без подмены симуляцией</span><button type="button" class="quiet-button text-link" data-action="record">${icon("record", "nav-icon")} Записать наблюдение</button></div>`;
+const cameraImage = cameraCard.querySelector("#camera-image");
+const cameraSelect = cameraCard.querySelector("#camera-select");
+cameraSelect.addEventListener("change", () => { currentCamera = cameraSelect.value; startCamera(); });
+cameraImage.addEventListener("load", () => {
+  cameraLoaded = true; cameraImage.hidden = false; cameraCard.querySelector("#camera-placeholder").hidden = true;
+  cameraCard.querySelector("#camera-dot").className = "status-dot good";
+  cameraCard.querySelector("#camera-mode").textContent = cameraMode === "stream" ? "ЖИВОЙ ПОТОК" : "СНИМКИ КАМЕРЫ";
+  const time = cameraCard.querySelector("#camera-time"); time.textContent = `Получено ${clockTime()}`; time.style.display = "block";
+});
+cameraImage.addEventListener("error", () => {
+  if (cameraMode === "stream" && currentCamera) { cameraMode = "snapshot"; loadSnapshot(); }
+  else cameraUnavailable("Камера пока недоступна", "Проверьте подключение камеры в разделе «Оборудование». Следующая попытка выполнится автоматически.");
+});
+function cameraUnavailable(title, note) {
+  cameraLoaded = false; cameraImage.hidden = true;
+  cameraCard.querySelector("#camera-placeholder").hidden = false;
+  cameraCard.querySelector("#camera-placeholder-title").textContent = title;
+  cameraCard.querySelector("#camera-placeholder-note").textContent = note;
+  cameraCard.querySelector("#camera-dot").className = "status-dot muted";
+  cameraCard.querySelector("#camera-mode").textContent = "НЕТ ИЗОБРАЖЕНИЯ";
+  cameraCard.querySelector("#camera-time").style.display = "none";
+}
+function loadSnapshot() {
+  if (currentCamera && document.contains(cameraCard)) {
+    lastSnapshotAt = Date.now();
+    cameraImage.src = `/api/cameras/${encodeURIComponent(currentCamera)}/snapshot?t=${Date.now()}`;
+  }
+}
+function startCamera() {
+  cameraMode = "stream"; cameraLoaded = false;
+  if (currentCamera && document.contains(cameraCard)) {
+    cameraUnavailable("Подключаем камеру", "Получаем изображение с выбранного узла.");
+    cameraImage.src = `/api/cameras/${encodeURIComponent(currentCamera)}/stream`;
+  } else {
+    cameraImage.removeAttribute("src");
+    cameraUnavailable("Камеры не обнаружены", "Когда камера станет доступна, здесь появится её изображение.");
+  }
+}
+function syncCamera() {
+  const available = cameras();
+  const signature = available.map((camera) => `${camera.id}:${cameraLabel(camera)}:${camera.available}:${camera.node_online}`).join("|");
+  if (signature !== cameraSignature) {
+    cameraSignature = signature;
+    const ready = available.filter((camera) => camera.available !== false && camera.node_online !== false);
+    cameraSelect.innerHTML = available.length ? available.map((camera) => `<option value="${esc(camera.id)}" ${camera.available === false || camera.node_online === false ? "disabled" : ""}>${esc(cameraLabel(camera))}${camera.available === false || camera.node_online === false ? " · недоступна" : ""}</option>`).join("") : '<option value="">Камеры не обнаружены</option>';
+    if (!ready.some((camera) => camera.id === currentCamera)) currentCamera = ready.find((camera) => camera.id === "pi-overview")?.id || ready[0]?.id || "";
+    cameraSelect.value = currentCamera;
+    startCamera();
+  } else if (currentCamera && !cameraImage.getAttribute("src")) startCamera();
+}
+
+function experimentState(id) { return array(model.state?.experiments).find((entry) => projectId(entry.id || entry.project_id) === id) || {}; }
+function heading(title, description, eyebrow = "Исследовательская станция", actions = "") { return `<div class="page-heading"><div><p class="eyebrow">${esc(eyebrow)}</p><h1>${esc(title)}</h1>${description ? `<p>${esc(description)}</p>` : ""}</div>${actions ? `<div class="heading-actions">${actions}</div>` : ""}</div>`; }
+function notice(title, description, kind = "info") { return `<div class="notice ${kind}">${icon("info")}<div>${title ? `<strong>${esc(title)}</strong>` : ""}<p>${esc(description)}</p></div></div>`; }
+function empty(title, description, symbol = "folder") { return `<div class="empty-state">${icon(symbol)}<strong>${esc(title)}</strong><p>${esc(description)}</p></div>`; }
+function readinessCard(project) {
+  const admission = model.state?.admission || {};
+  const reasons = [...array(admission.reasons), ...array(project ? experimentState(project.id).blockers : [])].map(reasonText);
+  const unique = [...new Set(reasons)];
+  const enabled = admission.physical_enabled === true;
+  const observation = defined(admission.observer_authorized, admission.observation_authorized);
+  return `<section class="panel admission-card"><div class="admission-title">${icon("shield")}Готовность навыков</div><p>${enabled ? "Оборудование допущено к доступным операциям. Выберите подготовленный навык и его условия выполнения." : (unique.length ? "Проверяем необходимые условия для автоматического выполнения навыков." : "Получаем сведения о калибровках, наблюдении и доступных операциях.")}</p>${admission.owner_authorization ? `<p>${esc(admission.owner_authorization)}</p>` : ""}${observation === true ? '<span class="badge good">Наблюдение подтверждено</span>' : ""}${unique.length ? `<ul class="blocker-list">${unique.slice(0, 4).map((reason) => `<li>${esc(reason)}</li>`).join("")}</ul>` : ""}<button class="button secondary full" type="button" data-action="choose-skill" ${enabled ? "" : 'disabled aria-disabled="true"'} title="${esc(enabled ? "Открыть подготовленные навыки" : unique.join(". ") || "Ожидаем подтверждения готовности оборудования")}">${enabled ? "Выбрать навык" : "Запуск навыка пока недоступен"}</button><a class="text-link" style="margin-top:14px;font-size:10px" href="http://explorer.local:8080" target="_blank" rel="noopener noreferrer">Штатное ручное управление <span aria-hidden="true">↗</span></a></section>`;
+}
+function experimentsGrid() {
+  return `<div class="experiment-grid">${PROJECTS.map((project) => { const state = experimentState(project.id); return `<a class="experiment-card" href="/experiments/${project.id}" data-link><div class="experiment-top"><span class="experiment-index">ОПЫТ ${project.id}</span>${icon(Number(project.id) === 1 ? "chip" : "robot", "nav-icon")}</div><h3>${esc(project.title)}</h3><p>${esc(project.brief)}</p><div class="experiment-bottom">${badge(state.status, "Ожидаем состояние")}<span class="experiment-arrow" aria-hidden="true">↗</span></div></a>`; }).join("")}</div>`;
+}
+const TERMINAL_JOBS = ["completed", "complete", "succeeded", "success", "failed", "error", "cancelled", "canceled"];
+function jobTitle(job) { return text(job.title, text(job.name, { sim_pilot: "Обучение в симуляции", camera_recording: "Запись наблюдения", recording: "Запись наблюдения", train: "Обучение модели", evaluation: "Оценка навыка" }[job.kind] || job.kind || "Исследовательская задача")); }
+function jobMetrics(job) {
+  const metrics = job.metrics || job.result?.metrics || {};
+  const list = [];
+  const steps = defined(metrics.updates, metrics.steps, job.completed_updates);
+  if (steps !== undefined) list.push(`Шаги: ${count(steps)}`);
+  if (number(metrics.loss) !== null) list.push(`Ошибка: ${Number(metrics.loss).toPrecision(3)}`);
+  if (number(metrics.reward) !== null) list.push(`Награда: ${Number(metrics.reward).toFixed(2)}`);
+  if (number(metrics.episodes) !== null) list.push(`Эпизоды: ${count(metrics.episodes)}`);
+  return list;
+}
+function jobRows(jobs, emptyDescription = "Здесь появятся ваши записи, обучение и проверки.") {
+  if (!jobs.length) return empty("Пока нет запусков", emptyDescription, "clock");
+  return `<div class="job-list">${jobs.slice(0, 12).map((job) => {
+    const state = String(job.status || job.state || "queued").toLowerCase(); const id = text(job.id, job.job_id); const metrics = jobMetrics(job);
+    let progress = number(defined(job.progress, job.progress_fraction));
+    if (progress !== null && progress <= 1) progress *= 100;
+    const project = projectId(job.project_id);
+    const details = [project ? `Опыт ${project}` : job.project_id === "personal" ? "Личная лаборатория" : "", dateTime(job.created_at || job.created_utc || job.started_at || job.created), ...metrics].filter(Boolean).join(" · ");
+    const buttons = [];
+    if (state === "running") buttons.push(`<button type="button" class="icon-button" data-job="${esc(id)}" data-job-action="pause" aria-label="Приостановить: ${esc(jobTitle(job))}" title="Приостановить">${icon("pause")}</button>`);
+    if (state === "paused") buttons.push(`<button type="button" class="icon-button" data-job="${esc(id)}" data-job-action="resume" aria-label="Продолжить: ${esc(jobTitle(job))}" title="Продолжить">${icon("play")}</button>`);
+    if (!TERMINAL_JOBS.includes(state) && !["cancel_requested", "pause_requested", "resume_requested"].includes(state)) buttons.push(`<button type="button" class="icon-button" data-job="${esc(id)}" data-job-action="cancel" aria-label="Отменить: ${esc(jobTitle(job))}" title="Отменить">${icon("cancel")}</button>`);
+    return `<article class="job-row"><span class="job-mark">${icon(/record/.test(job.kind || "") ? "camera" : "chip")}</span><div class="job-description"><div class="job-name">${esc(jobTitle(job))}${badge(state)}</div><div class="job-detail">${esc(details)}</div>${progress !== null ? `<div class="job-progress" role="progressbar" aria-label="Ход задачи" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.max(0, Math.min(100, Math.round(progress)))}"><span style="width:${Math.max(0, Math.min(100, progress))}%"></span></div>` : ""}${job.error ? `<div class="job-error">${esc(text(job.error, "Задача завершилась с ошибкой"))}</div>` : ""}</div><div class="job-actions">${buttons.join("")}</div></article>`;
+  }).join("")}</div>`;
+}
+function jobsPanel(jobs, title = "Последние запуски") { return `<section class="panel"><div class="panel-heading"><div><h2>${esc(title)}</h2><p>Сохранённые задачи и их фактическое состояние</p></div><span class="badge neutral">${count(jobs.length)}</span></div>${jobRows(jobs)}</section>`; }
+
+function dashboard() {
+  return heading("Всё начинается с наблюдения", "Ваша станция для показов, обучения и проверки навыков. Каждый опыт сохраняет свой путь от данных к результату.", "Explorer / Рабочее пространство", '<button class="button secondary" data-action="record" type="button">' + icon("record") + 'Записать наблюдение</button>') + nodeCards() + `<div class="overview-grid"><div id="camera-slot"></div><div class="side-stack"><section class="panel next-card"><p class="eyebrow">Следующий шаг</p><h2>Дайте роботу<br>понятную задачу</h2><p>Начните с короткого запуска в симуляции или сохраните наблюдение за реальным показом.</p><a href="/experiments/01" data-link class="button primary">Открыть первый опыт ${icon("arrow")}</a></section>${readinessCard()}</div></div><section class="spaced-section"><div class="section-heading"><div><h2>Пять путей к новому навыку</h2><p>Единые данные, отдельные исследовательские вопросы</p></div><a class="text-link" data-link href="/research">Исследования <span aria-hidden="true">→</span></a></div>${experimentsGrid()}</section><div class="spaced-section">${jobsPanel(model.jobs.slice(0, 6))}</div>`;
+}
+function flow(project) { return `<section class="panel"><div class="panel-heading"><h2>Как проходит опыт</h2>${badge(experimentState(project.id).status, "Ожидаем состояние")}</div><div class="panel-body flow-steps">${project.steps.map(([title, description], index) => `<div class="flow-step"><span class="step-number">${String(index + 1).padStart(2, "0")}</span><div><h3>${esc(title)}</h3><p>${esc(description)}</p></div></div>`).join("")}</div></section>`; }
+function simulationPanel(job) {
+  const hasFrame = job && (job.frame_available === true || job.metrics?.frame_available === true || job.frame_url || job.result?.frame_available === true);
+  return `<section class="panel simulation-panel"><div class="panel-heading"><div><h2>Наблюдение за симуляцией</h2><p>Кадры фактического запуска MuJoCo</p></div>${job ? badge(job.status) : '<span class="badge neutral">Нет активного кадра</span>'}</div><div class="simulation-stage" id="simulation-stage">${hasFrame ? `<img id="simulation-image" data-simulation-job="${esc(job.id || job.job_id)}" src="/api/simulations/${encodeURIComponent(job.id || job.job_id)}/frame?t=${Date.now()}" alt="Кадр фактического запуска симуляции"><div class="camera-placeholder" id="simulation-error" hidden>${icon("chip")}<strong>Кадр пока недоступен</strong><p>Проверяем следующий кадр этого запуска.</p></div>` : `<div class="camera-placeholder">${icon("chip")}<strong>${job ? "Запуск ещё не передал кадр" : "Здесь появится ваша симуляция"}</strong><p>${job ? "Метрики задачи доступны ниже. Изображение появится после получения настоящего кадра." : "Создайте запуск справа. Панель показывает только реально рассчитанные кадры."}</p></div>`}</div><div class="simulation-footer"><span>${esc(job ? jobTitle(job) : "Наблюдение не запущено")}</span><span>Симуляция ≠ физическая проверка</span></div></section>`;
+}
+function simulationForm() {
+  return `<section class="panel"><div class="panel-heading"><div><p class="eyebrow">Новый запуск</p><h2>Первый шаг в симуляции</h2></div></div><div class="panel-body"><p class="form-description">Пилотный запуск проверяет обучение достижению цели, сохранение модели и результатов.</p><form id="simulation-form"><div class="form-grid"><div class="form-field full"><label for="sim-task">Задача</label><select id="sim-task" name="task"><option value="reach">Достичь цели</option></select></div><div class="form-field"><label for="sim-updates">Шаги обучения</label><input id="sim-updates" name="updates" type="number" min="32" max="100000" step="32" value="${model.simDraft.updates}" required></div><div class="form-field"><label for="sim-seed">Вариант запуска</label><input id="sim-seed" name="seed" type="number" min="0" max="2147483647" step="1" value="${model.simDraft.seed}" required><small>Одинаковое число — для повторения условий</small></div></div><button class="button primary full" type="submit" id="start-simulation">${icon("play")}Запустить обучение</button><p class="form-hint">Задача выполняется на Homebrain. Кнопки паузы и отмены появятся в списке запусков.</p><p id="simulation-form-error" class="form-error" role="alert" hidden></p></form></div></section>`;
+}
+function experimentPage(project) {
+  const state = experimentState(project.id);
+  const jobs = model.jobs.filter((job) => projectId(job.project_id) === project.id);
+  const action = project.id === "01" ? '<a href="#simulation-form" class="button primary">' + icon("play") + 'Новый запуск</a>' : '<button type="button" class="button primary" data-action="record" data-project="' + project.id + '">' + icon("record") + 'Записать наблюдение</button>';
+  let content = heading(project.title, project.subtitle, `Исследовательский опыт / ${project.id}`, action);
+  if (state.summary) content += notice("Текущее состояние опыта", text(state.summary));
+  if (project.id === "01") {
+    const job = jobs.find((entry) => entry.kind === "sim_pilot" && !TERMINAL_JOBS.includes(entry.status)) || jobs.find((entry) => entry.kind === "sim_pilot");
+    content += `<div class="two-column">${simulationPanel(job)}${simulationForm()}</div><div class="spaced-section">${flow(project)}</div>`;
+  } else {
+    content += notice(project.id === "02" ? "Два разных материала" : "Запись наблюдения с камеры", project.id === "02" ? "Полный показ записывается через штатный ROSMASTER вместе с его командами и наблюдениями. Отдельная кнопка «Записать наблюдение» сохраняет только видео камеры." : "Сейчас мастер сохраняет видео сцены. Такой материал отмечается как наблюдение и не выдаётся за синхронизированный обучающий эпизод.");
+    content += `<div class="overview-grid"><div><div id="camera-slot"></div>${project.id === "02" ? `<div class="spaced-section">${keyboardPanel()}</div><div class="spaced-section">${episodePanel()}</div>` : ""}</div><div class="side-stack">${readinessCard(project)}${flow(project)}</div></div>`;
+  }
+  content += `<div class="spaced-section">${jobsPanel(jobs, "Запуски этого опыта")}</div>`;
+  if (project.id !== "01") content += `<div class="spaced-section">${recordingsPanel(project.id)}</div>`;
+  return content;
+}
+
+function keyboardPanel() {
+  const live = model.robot.teleop;
+  const help = model.robot.controls?.help || {};
+  return `<section class="panel"><div class="panel-heading"><div><h2>Показ с клавиатуры</h2><p>Штатный исполнитель ROSMASTER · текущие ограничения</p></div>${badge(keyboard.active ? keyboard.paused ? "paused" : "running" : "not_started")}</div><div class="panel-body"><p class="form-description">Наблюдайте за рабочей сценой во время управления. После ухода из окна клавиатура отключается и сама не возобновляет движение.</p><div class="teleop-actions"><button class="button ${keyboard.active ? "secondary" : "primary"}" type="button" data-action="keyboard-toggle">${keyboard.active ? "Отключить клавиатуру" : "Наблюдаю сцену · включить клавиатуру"}</button><button class="button danger" type="button" data-action="robot-stop">${icon("cancel")}STOP</button></div><div class="teleop-mode"><span>Режим руки</span><button class="button small ${keyboard.mode === "cartesian" ? "ghost" : "secondary"}" data-arm-mode="cartesian" type="button" ${keyboard.active ? "" : "disabled"}>XYZ</button><button class="button small ${keyboard.mode === "joint" ? "ghost" : "secondary"}" data-arm-mode="joint" type="button" ${keyboard.active ? "" : "disabled"}>Суставы</button></div><div class="keyboard-guide"><p><kbd>W</kbd><kbd>S</kbd> вперёд / назад · <kbd>A</kbd><kbd>D</kbd> влево / вправо · <kbd>Q</kbd><kbd>E</kbd> поворот</p><p>${esc(keyboard.mode === "joint" ? help.keyboard_joint || "J/L — J1; I/K — J2; U/O — J3; Y/H — J4; ,/. — J5." : help.keyboard_cartesian || "I/K — X; J/L — Y; U/O — Z.")}</p><p><kbd>N</kbd><kbd>M</kbd> захват · <kbd>Shift</kbd> точно · <kbd>Space</kbd> / <kbd>Esc</kbd> STOP · <kbd>Enter</kbd> продолжить</p></div>${keyboard.active && keyboard.paused ? '<p class="teleop-message">STOP зафиксирован. Отпустите клавиши; Enter — продолжить.</p>' : ""}${keyboard.error || model.robot.error ? `<p class="form-error">${esc(keyboard.error || model.robot.error)}</p>` : ""}<p class="form-hint">Углы руки — командная оценка. Измеренная обратная связь суставов ${live?.measured_joint_feedback === true ? "доступна по данным робота" : "не подтверждена"}.</p></div></section>`;
+}
+function episodePanel() {
+  const teaching = model.robot.teaching || {}; const active = teaching.active; const last = teaching.last;
+  return `<section class="panel"><div class="panel-heading"><div><h2>Полноценный показ ROSMASTER</h2><p>Команды, одометрия, камера и этапы штатной записи</p></div>${badge(active ? "running" : "not_started")}</div><div class="panel-body">${active ? `<p class="form-description">Идёт запись: ${esc(text(active.name, active.id || "показ"))}. Завершите показ и отметьте наблюдавшийся результат.</p><div class="episode-outcomes"><button class="button primary" data-episode-outcome="success" type="button">Задача выполнена</button><button class="button secondary" data-episode-outcome="failure" type="button">Не получилось</button><button class="button secondary" data-episode-outcome="unknown" type="button">Результат неясен</button></div><p class="form-hint">Оценка оператора сохраняется отдельно от независимой проверки навыка.</p>` : `<form id="episode-form"><div class="form-field"><label for="episode-name">Название задачи</label><input id="episode-name" name="name" value="${esc(model.robot.episodeName)}" maxlength="120" required placeholder="Например: подвести захват к предмету"></div><button type="submit" class="button primary" style="margin-top:16px">${icon("record")}Начать полный показ</button><p class="form-hint">Запись использует существующий формат робота. Она не запускает автоматическое воспроизведение.</p></form>`}${last ? `<div class="episode-last"><span class="status-dot good"></span>Последний показ сохранён${last.outcome ? ` · ${esc({ success: "отмечен успех", failure: "отмечена неудача", unknown: "результат неясен" }[last.outcome] || last.outcome)}` : ""}</div>` : ""}${array(teaching.record_errors).length ? `<p class="form-error">${esc(teaching.record_errors.map(reasonText).join(". "))}</p>` : ""}</div></section>`;
+}
+
+async function loadRobot() {
+  const results = await Promise.allSettled([api("/api/robot/teleop"), api("/api/robot/teleop/controls"), api("/api/robot/teaching/mobile")]);
+  if (results[0].status === "fulfilled") { model.robot.teleop = results[0].value; model.robot.error = null; }
+  else model.robot.error = results[0].reason.message;
+  if (results[1].status === "fulfilled") model.robot.controls = results[1].value;
+  if (results[2].status === "fulfilled") model.robot.teaching = results[2].value;
+}
+async function sendKeyboard() {
+  if (!keyboard.active || keyboard.paused || keyboard.busy || document.hidden) return;
+  keyboard.busy = true;
+  const sent = [...keyboard.keys].sort(); keyboard.lastKeys = sent.join(",");
+  try { await post("/api/robot/teleop/input", { source: "keyboard", keys: sent, observing: true, arm_mode: keyboard.mode }); }
+  catch (error) { keyboard.error = error.message; stopKeyboard(true); toast(error.message, true); }
+  finally { keyboard.busy = false; if (keyboard.active && keyboard.lastKeys !== [...keyboard.keys].sort().join(",")) sendKeyboard(); }
+}
+async function stopKeyboard(disconnect = false) {
+  const hadControl = keyboard.active; keyboard.keys.clear(); keyboard.paused = true;
+  if (disconnect) keyboard.active = false;
+  const requests = [post("/api/robot/teleop/input", { source: "keyboard", keys: [], observing: false, arm_mode: keyboard.mode }, { keepalive: true }), post("/api/robot/teleop/stop", {}, { keepalive: true })];
+  if (disconnect && hadControl) requests.push(post("/api/robot/teleop/disconnect", { source: "keyboard" }, { keepalive: true }));
+  await Promise.allSettled(requests);
+  if (activeProject()?.id === "02") { model.forceRender = true; render(); }
+}
+async function startKeyboard() {
+  if (!cameraLoaded) throw new Error("Дождитесь изображения рабочей сцены перед управлением с клавиатуры.");
+  if (!model.robot.controls) await loadRobot();
+  if (!model.robot.controls) throw new Error("Не удалось получить штатную раскладку управления.");
+  keyboard.keys.clear(); keyboard.error = null;
+  await post("/api/robot/teleop/select", { source: "keyboard", observing: true, neutral: true });
+  await post("/api/robot/teleop/resume", { source: "keyboard", observing: true });
+  keyboard.active = true; keyboard.paused = false;
+  model.forceRender = true; render(); main.focus({ preventScroll: true });
+}
+async function setArmMode(mode) {
+  if (!keyboard.active || !["cartesian", "joint"].includes(mode)) return;
+  keyboard.keys.clear(); await sendKeyboard();
+  await post("/api/robot/teleop/mode", { source: "keyboard", mode }); keyboard.mode = mode;
+  model.forceRender = true; render();
+}
+
+function metric(label, value, note = "") { return `<article class="metric-card"><div class="metric-value">${esc(count(value))}</div><div class="metric-label">${esc(label)}</div>${note ? `<div class="metric-note">${esc(note)}</div>` : ""}</article>`; }
+function researchPage() {
+  const r = model.research || {}; const c = r.counts || r.registry || {};
+  const papers = defined(c.papers, c.literature, r.candidates, r.paper_count, r.papers_total, r.literature?.total, Array.isArray(r.papers) ? r.papers.length : undefined);
+  const verified = defined(c.verified_papers, c.papers_verified, r.primary_verified, r.verified_papers, r.literature?.verified);
+  const runs = array(r.runs); const hypotheses = array(r.hypotheses);
+  const status = text(r.status?.summary, text(r.summary, typeof r.status === "string" ? r.status : "Исследовательский реестр связывает источники, гипотезы, данные и фактические запуски."));
+  return heading("Исследования", "Проверяем идеи по данным, сохраняем происхождение методов и отделяем программную готовность от научного результата.", "Explorer / Research hub") + `<section class="panel research-status"><span class="icon-box">${icon("research")}</span><div><h2>От вопроса — к проверяемому результату</h2><p>${esc(status)}</p></div></section><div class="metric-grid">${metric("Источников в реестре", papers, "Наличие записи ещё не означает глубокое прочтение")}${metric("Проверенных источников", verified)}${metric("Исследовательских запусков", defined(c.runs, r.run_count, Array.isArray(r.runs) ? runs.length : undefined))}${metric("Гипотез", defined(c.hypotheses, r.hypothesis_count, Array.isArray(r.hypotheses) ? hypotheses.length : undefined))}</div><div class="two-column"><section class="panel"><div class="panel-heading"><h2>Проверяемые гипотезы</h2></div><div class="panel-body">${hypotheses.length ? `<ul class="plain-list">${hypotheses.map((entry) => `<li><h3>${esc(text(entry.title, text(entry.question, entry.id || "Исследовательский вопрос")))}</h3><p>${esc(text(entry.description, text(entry.hypothesis, entry.statement || "")))}</p><div class="meta">${esc([text(entry.id), text(entry.status)].filter(Boolean).join(" · "))}</div></li>`).join("")}</ul>` : empty("Гипотезы ещё не загружены", "Здесь появятся вопросы из исследовательского реестра.", "research")}</div></section><section class="panel"><div class="panel-heading"><h2>Фактические результаты</h2></div><div class="panel-body">${runs.length ? `<ul class="plain-list">${runs.slice(0, 10).map((entry) => `<li><h3>${esc(text(entry.title, text(entry.name, entry.id || "Исследовательский запуск")))}</h3><p>${esc(text(entry.summary, text(entry.result, "Результат сохранён в реестре")))}</p><div class="meta">${esc(dateTime(entry.created_at || entry.wall_utc || entry.created))} · ${esc(text(entry.project_id, "Общая программа"))}</div></li>`).join("")}</ul>` : empty("Научные результаты ещё не получены", "Графики и выводы появятся после реальных запусков и независимой оценки. Они не создаются из примерных данных.", "book")}</div></section></div><section class="spaced-section"><div class="section-heading"><h2>Общая программа</h2></div>${experimentsGrid()}</section>`;
+}
+function skillsPage() {
+  const list = model.skills;
+  return heading("Библиотека навыков", "Данные, модели и независимые проверки в одном месте. Допуск к выполнению определяется для каждой версии отдельно.", "Explorer / Навыки") + notice("Как появляется навык", "Показы связываются с набором данных, обучение создаёт новую версию модели, а отдельная оценка показывает границы её применения.") + (list.length ? `<div class="skill-grid">${list.map((skill) => {
+    const validation = skill.validation || skill.evaluation || {};
+    const passed = validation.accepted === true || skill.validated === true;
+    return `<article class="panel skill-card"><div class="skill-top">${icon("skills", "nav-icon")}${badge(passed ? "validated" : skill.status || "not_validated")}</div><h3>${esc(text(skill.title, text(skill.name, skill.id || "Навык")))}</h3><p>${esc(text(skill.description, skill.summary || "Описание навыка ещё не добавлено."))}</p><dl class="skill-metadata"><div class="key-value"><dt>Версия</dt><dd>${esc(text(skill.version, text(skill.model_version, "Не указана")))}</dd></div><div class="key-value"><dt>Источник опыта</dt><dd>${esc(projectId(skill.project_id) ? `Опыт ${projectId(skill.project_id)}` : "Не указан")}</dd></div><div class="key-value"><dt>Набор данных</dt><dd>${esc(text(skill.dataset_id, "Не указан"))}</dd></div><div class="key-value"><dt>Независимая оценка</dt><dd>${passed ? "Принята" : "Не подтверждена"}</dd></div></dl></article>`;
+  }).join("")}</div>` : `<section class="panel">${empty("Первые навыки ещё впереди", "Начните с запуска симуляции или наблюдения за показом. Реестр сохранит связь между данными, моделью и проверками.", "skills")}<div class="panel-body" style="text-align:center"><a href="/experiments/01" data-link class="button primary">Открыть первый опыт ${icon("arrow")}</a></div></section>`);
+}
+
+function kv(label, value) { return `<div class="key-value"><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`; }
+function bytes(value) {
+  const amount = number(value);
+  if (amount === null) return "Не измерено";
+  if (amount >= 1024 ** 4) return `${(amount / 1024 ** 4).toFixed(1)} ТБ`;
+  if (amount >= 1024 ** 3) return `${(amount / 1024 ** 3).toFixed(1)} ГБ`;
+  return `${(amount / 1024 ** 2).toFixed(0)} МБ`;
+}
+function storagePanel() {
+  const s = model.state?.storage || {}; const volume = s.artifacts || s.primary || s;
+  const total = number(defined(volume.total_bytes, volume.total)); const free = number(defined(volume.free_bytes, volume.free));
+  const used = total !== null && free !== null ? Math.max(0, Math.min(100, (total - free) / total * 100)) : null;
+  const reasons = array(s.blockers || s.reasons || volume.blockers);
+  return `<section class="panel"><div class="panel-heading"><div><h2>Хранилище исследований</h2><p>Данные и модели сохраняются на Homebrain</p></div>${icon("folder", "nav-icon")}</div><div class="panel-body"><dl>${kv("Доступное пространство", free !== null ? bytes(free) : "Ожидаем сведения")}${kv("Накопитель", text(volume.label, text(volume.device, "Ожидаем сведения")))}${kv("Состояние", text(volume.status, volume.mounted === true ? "Подключён" : volume.mounted === false ? "Не смонтирован" : "Ожидаем сведения"))}</dl>${used !== null ? `<div class="storage-bar" aria-label="Занято ${Math.round(used)} процентов"><span style="width:${used}%"></span></div><div class="storage-stats"><span>Занято ${Math.round(used)}%</span><span>Всего ${bytes(total)}</span></div>` : ""}${reasons.length ? `<ul class="blocker-list">${reasons.map((reason) => `<li>${esc(reasonText(reason))}</li>`).join("")}</ul>` : ""}</div></section>`;
+}
+function operatorActions() {
+  return `<section class="panel"><div class="panel-heading"><div><h2>Что требует внимания</h2><p>Действия из текущего состояния станции</p></div></div><div class="panel-body">${model.actions.length ? `<ul class="plain-list">${model.actions.map((action) => `<li><h3>${esc(text(action.title, text(action.label, "Требуется действие")))}</h3><p>${esc(text(action.description, text(action.reason, action.detail || action.message || "")))}</p>${action.node_id ? `<div class="meta">${esc(action.node_id)}</div>` : ""}</li>`).join("")}</ul>` : empty("Нет загруженных указаний", "После проверки узлов здесь появятся необходимые действия, если они потребуются.", "info")}</div></section>`;
+}
+function infrastructurePage() {
+  return heading("Оборудование", "Живое состояние трёх узлов, камер, подключённых устройств и хранилища. Штатные настройки контроллера робота сохраняются.", "Explorer / Станция", '<button class="button secondary" type="button" data-action="refresh">' + icon("refresh") + 'Обновить</button>') + `<div class="three-column">${nodes().map((node) => {
+    const role = nodeRole(node); const health = typeof node.health === "object" && node.health ? node.health : {};
+    const hardware = node.hardware || health.hardware || {}; const memory = hardware.memory || health.memory || {};
+    const serial = array(node.serial_devices || node.devices?.serial || hardware.serial_devices);
+    const cameraList = array(node.cameras);
+    const memoryTotal = defined(memory.total_bytes, hardware.memory_total);
+    const memoryLabel = number(memoryTotal) !== null ? bytes(memoryTotal) : text(hardware.ram, text(health.memory_summary, "Не измерено"));
+    const temperature = number(defined(hardware.temperature_c, health.temperature_c));
+    const specifications = kv("Адрес", text(node.host, node.hostname || "Не указан")) + kv("Последний ответ", node.last_seen ? dateTime(node.last_seen) : "Пока не получен") + kv("Память", memoryLabel) + kv("Температура", temperature !== null ? `${temperature.toFixed(0)} °C` : "Не измерено") + kv("Камер", count(cameraList.length)) + kv("USB-адаптеров рук", serial.length ? count(serial.length) : "Ожидаем инвентаризацию");
+    return `<article class="panel infrastructure-node"><div class="node-top"><span class="node-symbol">${icon(role.symbol)}</span><div><h2 class="node-title">${esc(role.name)}</h2><div class="node-role">${esc(role.role)}</div></div></div>${badge(node.online ? "available" : "offline")}<p class="node-health">${esc(compactHealth(node))}</p><dl>${specifications}</dl>${cameraList.length ? `<div class="device-pills">${cameraList.map((camera) => `<span class="device-pill">${esc(cameraLabel(typeof camera === "string" ? { id: camera } : camera))}</span>`).join("")}</div>` : ""}</article>`;
+  }).join("") || `<section class="panel">${empty("Ожидаем сведения об узлах", "Инвентаризация появится после подключения служб станции.", "server")}</section>`}</div><div class="two-column spaced-section">${storagePanel()}${operatorActions()}</div><div class="spaced-section">${readinessCard()}</div>`;
+}
+
+function recordingsPanel(project) {
+  const list = project ? model.recordings.filter((entry) => project === "personal" ? entry.project_id === "personal" : projectId(entry.project_id) === project) : model.recordings;
+  return `<section class="panel"><div class="panel-heading"><div><h2>Сохранённые наблюдения</h2><p>Видео сцены — отдельный тип исследовательского материала</p></div><button type="button" class="button secondary small" data-action="record" ${project ? `data-project="${project}"` : ""}>${icon("record")}Записать</button></div><div class="panel-body">${list.length ? `<div class="recording-list">${list.slice(0, 12).map((entry) => `<article class="recording-row"><div><h3>${esc(text(entry.title, text(entry.id, entry.recording_id || "Наблюдение")))}</h3><p>${esc(cameraLabel(cameras().find((camera) => camera.id === (entry.camera_id || entry.config?.camera_id)) || { id: entry.camera_id || entry.config?.camera_id }))} · ${esc(dateTime(entry.created_at || entry.wall_utc || entry.created))}${number(defined(entry.duration_s, entry.config?.duration_s)) !== null ? ` · ${defined(entry.duration_s, entry.config?.duration_s)} с` : ""}</p><div class="recording-label">Запись камеры · обучающий эпизод не подтверждён</div></div>${badge(entry.status || "not_validated")}</article>`).join("")}</div>` : empty("Записей пока нет", "Сохраните короткое наблюдение с выбранной камеры. Готовая запись появится здесь.", "camera")}</div></section>`;
+}
+function labPage() {
+  return heading("Моя лаборатория SO-101", "Спокойно знакомьтесь с руками и данными. Это личная учебная среда, отдельная от пяти исследовательских опытов.", "Explorer / Практика", '<button class="button primary" type="button" data-action="record" data-project="personal">' + icon("record") + 'Записать наблюдение</button>') + `<section class="panel lesson-banner"><div><p class="eyebrow">Личная практика</p><h2>Понять движение.<br>Научиться показывать.</h2><p>Обе руки остаются подключёнными к Raspberry Pi. Рабочее место на Mac помогает наблюдать, сохранять материал и разбирать результат.</p></div><span class="lesson-count" aria-hidden="true">SO<br>101</span></section><div class="overview-grid"><div id="camera-slot"></div><div><article class="lesson-card"><p class="eyebrow">Первое знакомство / 01</p><h3>Увидеть рабочую сцену</h3><p>Выберите общий вид. Убедитесь, что в кадре видны обе руки, предмет и вся область предполагаемого движения.</p><a href="/infrastructure" data-link class="text-link">Посмотреть подключения →</a></article><article class="lesson-card"><p class="eyebrow">Практика / 02</p><h3>Сохранить понятный показ</h3><p>Выберите одно короткое действие. Чётко покажите начало и результат; камеру и предмет держите на месте.</p><button type="button" class="quiet-button text-link" data-action="record" data-project="personal" style="padding-left:0">Записать наблюдение →</button></article><article class="lesson-card"><p class="eyebrow">Разбор / 03</p><h3>Отделить наблюдение от навыка</h3><p>Видео помогает разобрать показ. Для обучения дополнительно нужны согласованные состояния суставов, действия и проверенная калибровка.</p></article></div></div><div class="spaced-section">${recordingsPanel("personal")}</div>`;
+}
+
+function updateHeader() {
+  const online = nodes().filter((node) => node.online === true).length; const total = nodes().length;
+  const label = document.querySelector("#connection-label");
+  const connected = model.lastUpdate && !model.error;
+  label.innerHTML = `<span class="status-dot ${connected ? "good" : model.error ? "warn" : "muted"}"></span>${connected ? `В сети ${online} из ${total} узлов` : model.error ? "Нет обновлений" : "Подключение…"}`;
+  document.querySelector("#sidebar-dot").className = `status-dot ${connected ? "good" : "muted"}`;
+  document.querySelector("#sidebar-state").textContent = connected ? "Станция на связи" : "Ожидаем связь со станцией";
+  document.querySelector("#last-updated").textContent = model.lastUpdate ? `Последнее обновление ${clockTime(model.lastUpdate)}` : "Ожидаем данные";
+  const banner = document.querySelector("#connection-banner"); banner.hidden = !model.error;
+  if (model.error) banner.textContent = model.lastUpdate ? "Связь со станцией прервалась. На экране последние полученные данные; пробуем подключиться снова." : `Ожидаем ответ станции. ${model.error}`;
+}
+function render() {
+  const route = path(); const project = activeProject();
+  const focused = document.activeElement;
+  if (focused && main.contains(focused) && ["INPUT", "SELECT", "TEXTAREA"].includes(focused.tagName) && !model.forceRender) { updateHeader(); return; }
+  model.forceRender = false;
+  navigation();
+  let title = "Обзор"; let markup;
+  if (project) { title = `Опыт ${project.id}`; markup = experimentPage(project); }
+  else if (route === "/research") { title = "Исследования"; markup = researchPage(); }
+  else if (route === "/skills") { title = "Библиотека навыков"; markup = skillsPage(); }
+  else if (route === "/infrastructure") { title = "Оборудование"; markup = infrastructurePage(); }
+  else if (route === "/learning/so101") { title = "Моя лаборатория"; markup = labPage(); }
+  else if (route === "/") markup = dashboard();
+  else markup = heading("Раздел не найден", "Вернитесь к обзору станции или выберите опыт в меню.") + '<a href="/" class="button primary" data-link>Открыть обзор</a>';
+  const cameraWasVisible = document.contains(cameraCard); const slotNeeded = markup.includes('id="camera-slot"');
+  if (cameraWasVisible) cameraCard.remove();
+  main.innerHTML = markup;
+  if (slotNeeded) { main.querySelector("#camera-slot").append(cameraCard); syncCamera(); }
+  else { cameraImage.removeAttribute("src"); cameraLoaded = false; }
+  simulationImage = main.querySelector("#simulation-image");
+  simulationJob = simulationImage?.dataset.simulationJob || "";
+  if (simulationImage) {
+    simulationImage.addEventListener("error", () => { simulationImage.hidden = true; main.querySelector("#simulation-error").hidden = false; });
+    simulationImage.addEventListener("load", () => { simulationImage.hidden = false; main.querySelector("#simulation-error").hidden = true; });
+  }
+  document.querySelector("#breadcrumb-title").textContent = title;
+  document.title = `${project?.title || title} · Explorer`;
+  updateHeader();
+}
+
+async function refresh(forceExtras = false) {
+  if (model.refreshing) return;
+  model.refreshing = true;
+  try {
+    const state = await api("/api/state");
+    model.state = state; model.error = null; model.lastUpdate = Date.now();
+    model.jobs = array(state.jobs); model.skills = array(state.skills); model.research = state.research || model.research;
+    if (forceExtras || Date.now() - model.lastExtras > 20000) {
+      const endpoints = ["/api/jobs", "/api/skills", "/api/research", "/api/recordings", "/api/operator-actions"];
+      const results = await Promise.allSettled(endpoints.map((endpoint) => api(endpoint)));
+      if (results[0].status === "fulfilled") model.jobs = array(results[0].value.jobs);
+      if (results[1].status === "fulfilled") model.skills = array(results[1].value.skills);
+      if (results[2].status === "fulfilled") model.research = results[2].value;
+      if (results[3].status === "fulfilled") model.recordings = array(results[3].value.recordings);
+      if (results[4].status === "fulfilled") model.actions = array(results[4].value.actions);
+      model.lastExtras = Date.now();
+    }
+    if (activeProject()?.id === "02") await loadRobot();
+  } catch (error) { model.error = error.message === "Failed to fetch" ? "Проверьте подключение к домашней сети." : error.message; }
+  finally { model.refreshing = false; render(); }
+}
+
+function openRecord(project) {
+  if (keyboard.active) stopKeyboard(true);
+  record.step = 0; record.project = project === "personal" ? "personal" : projectId(project || activeProject()?.id) || "02";
+  const ready = cameras().filter((camera) => camera.available !== false && camera.node_online !== false);
+  record.camera = ready.find((camera) => camera.id === currentCamera)?.id || ready[0]?.id || ""; record.duration = 15; record.busy = false;
+  renderRecord(); dialog.showModal();
+}
+function renderRecord() {
+  const project = record.project === "personal" ? PERSONAL_PROJECT : PROJECTS.find((entry) => entry.id === record.project) || PROJECTS[1];
+  const options = cameras().filter((camera) => camera.available !== false && camera.node_online !== false);
+  let html;
+  if (record.step === 0) {
+    html = `<p class="form-description">Сохраните короткое видео сцены и привяжите его к опыту. Запись сама не запускает движения оборудования.</p><div class="form-grid"><div class="form-field full"><label for="record-project">Исследовательский опыт</label><select id="record-project" name="project_id">${[...PROJECTS, PERSONAL_PROJECT].map((entry) => `<option value="${entry.id}" ${entry.id === record.project ? "selected" : ""}>${entry.id === "personal" ? "Личная практика" : entry.id} · ${esc(entry.title)}</option>`).join("")}</select></div><div class="form-field full"><label for="record-camera">Камера</label><select id="record-camera" name="camera_id" required>${options.length ? options.map((camera) => `<option value="${esc(camera.id)}" ${camera.id === record.camera ? "selected" : ""}>${esc(cameraLabel(camera))}</option>`).join("") : '<option value="">Камеры пока не обнаружены</option>'}</select></div><div class="form-field"><label for="record-duration">Длительность, секунд</label><input id="record-duration" name="duration_s" type="number" min="5" max="60" step="1" value="${record.duration}" required></div></div>`;
+  } else if (record.step === 1) {
+    html = `<p class="form-description">Посмотрите на живое изображение перед началом: предмет и всё интересующее движение должны оставаться в кадре.</p><div class="wizard-guidance"><h3>Что и как показывать</h3><p>${esc(project.guidance)}</p></div><div class="summary-label">Сохраняется видео наблюдения. Совместная запись команд и измеренных суставов в этом мастере не подтверждается.</div>`;
+  } else {
+    html = `<p class="form-description">Запись выполнится на узле камеры. Готовый материал появится в списке наблюдений.</p><dl class="summary-list">${kv("Опыт", `${record.project === "personal" ? "Личная практика" : record.project} · ${project.title}`)}${kv("Источник", cameraLabel(options.find((camera) => camera.id === record.camera) || { id: record.camera }))}${kv("Длительность", `${record.duration} секунд`)}${kv("Тип материала", "Видео наблюдения")}</dl><div class="summary-label">Материал не считается проверенной демонстрацией навыка до отдельной оценки.</div>`;
+  }
+  document.querySelector("#record-step-content").innerHTML = html;
+  dialog.querySelectorAll(".wizard-steps span").forEach((element, index) => { element.classList.toggle("active", index === record.step); if (index === record.step) element.setAttribute("aria-current", "step"); else element.removeAttribute("aria-current"); });
+  document.querySelector("#record-back").textContent = record.step ? "Назад" : "Отмена";
+  const next = document.querySelector("#record-next"); next.disabled = record.busy || (!record.camera && record.step === 0);
+  next.textContent = record.busy ? "Запускаем запись…" : record.step === 2 ? `Начать запись · ${record.duration} с` : "Далее →";
+  document.querySelector("#record-error").hidden = true;
+}
+document.querySelector("#close-record").addEventListener("click", () => { if (!record.busy) dialog.close(); });
+document.querySelector("#record-back").addEventListener("click", () => { if (record.step > 0) { record.step -= 1; renderRecord(); } else dialog.close(); });
+document.querySelector("#record-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (record.busy) return;
+  if (record.step === 0) {
+    record.project = document.querySelector("#record-project").value; record.camera = document.querySelector("#record-camera").value;
+    record.duration = Number(document.querySelector("#record-duration").value);
+    if (!record.camera || !Number.isInteger(record.duration) || record.duration < 5 || record.duration > 60) return;
+  }
+  if (record.step < 2) { record.step += 1; renderRecord(); return; }
+  record.busy = true; renderRecord();
+  try {
+    await post("/api/recordings", { camera_id: record.camera, project_id: record.project, duration_s: record.duration });
+    dialog.close(); toast("Запись наблюдения поставлена в очередь. Состояние видно в списке запусков."); await refresh(true);
+  } catch (error) {
+    const node = document.querySelector("#record-error"); node.textContent = error.message; node.hidden = false;
+  } finally { record.busy = false; const next = document.querySelector("#record-next"); next.disabled = false; next.textContent = `Начать запись · ${record.duration} с`; }
+});
+dialog.addEventListener("cancel", (event) => { if (record.busy) event.preventDefault(); });
+
+document.addEventListener("click", async (event) => {
+  const link = event.target.closest("a[data-link]");
+  if (link && !event.metaKey && !event.ctrlKey && !event.shiftKey && event.button === 0) { event.preventDefault(); model.forceRender = true; navigate(link.getAttribute("href")); return; }
+  const button = event.target.closest("button");
+  if (!button || button.disabled) return;
+  const action = button.dataset.action;
+  if (action === "record") { openRecord(button.dataset.project); return; }
+  if (action === "choose-skill") { model.forceRender = true; navigate("/skills"); return; }
+  if (action === "refresh") { await refresh(true); return; }
+  if (action === "keyboard-toggle") {
+    button.disabled = true;
+    try { if (keyboard.active) await stopKeyboard(true); else await startKeyboard(); }
+    catch (error) { keyboard.error = error.message; toast(error.message, true); button.disabled = false; }
+    return;
+  }
+  if (action === "robot-stop") { await stopKeyboard(false); return; }
+  if (button.dataset.armMode) { try { await setArmMode(button.dataset.armMode); } catch (error) { toast(error.message, true); } return; }
+  if (button.dataset.episodeOutcome) {
+    button.disabled = true;
+    try {
+      await post("/api/robot/teaching/mobile/finish", { outcome: button.dataset.episodeOutcome });
+      toast("Показ завершён. Оценка оператора сохранена отдельно от проверки навыка.");
+      await loadRobot(); model.forceRender = true; render();
+    } catch (error) { toast(error.message, true); button.disabled = false; }
+    return;
+  }
+  if (button.dataset.jobAction) {
+    button.disabled = true;
+    try { await post(`/api/jobs/${encodeURIComponent(button.dataset.job)}/${button.dataset.jobAction}`); await refresh(true); }
+    catch (error) { toast(error.message, true); button.disabled = false; }
+  }
+});
+document.addEventListener("input", (event) => {
+  if (event.target.id === "sim-updates") model.simDraft.updates = Number(event.target.value);
+  if (event.target.id === "sim-seed") model.simDraft.seed = Number(event.target.value);
+  if (event.target.id === "episode-name") model.robot.episodeName = event.target.value;
+});
+document.addEventListener("submit", async (event) => {
+  if (event.target.id === "episode-form") {
+    event.preventDefault();
+    const button = event.target.querySelector('button[type="submit"]'); button.disabled = true;
+    try {
+      if (!cameraLoaded) throw new Error("Дождитесь изображения рабочей сцены перед началом показа.");
+      await post("/api/robot/teaching/mobile/start", { name: model.robot.episodeName, observing: true, object_label: "", object_class: "unknown", size_class: "medium", destination: "" });
+      await loadRobot(); model.forceRender = true; render(); toast("Полный показ записывается штатной системой ROSMASTER.");
+    } catch (error) { toast(error.message, true); button.disabled = false; }
+    return;
+  }
+  if (event.target.id !== "simulation-form") return;
+  event.preventDefault();
+  const button = document.querySelector("#start-simulation"); const errorNode = document.querySelector("#simulation-form-error");
+  button.disabled = true; errorNode.hidden = true;
+  try {
+    await post("/api/jobs", { kind: "sim_pilot", project_id: "01", config: { task: "reach", updates: Number(document.querySelector("#sim-updates").value), seed: Number(document.querySelector("#sim-seed").value) } });
+    model.forceRender = true; toast("Обучение поставлено в очередь. Здесь появятся состояние и фактические результаты."); await refresh(true);
+  } catch (error) { errorNode.textContent = error.message; errorNode.hidden = false; button.disabled = false; }
+});
+document.querySelector("#stop-button").addEventListener("click", async () => {
+  const button = document.querySelector("#stop-button"); button.disabled = true;
+  keyboard.keys.clear(); keyboard.paused = true;
+  try { const result = await post("/api/stop"); toast(result.robot_error ? `Задачи остановлены. Запрос STOP роботу не подтверждён: ${result.robot_error}` : "Запрос STOP передан штатному управлению робота. Задачи Explorer останавливаются.", Boolean(result.robot_error)); await refresh(true); }
+  catch (error) { toast(error.message, true); }
+  finally { button.disabled = false; }
+});
+document.querySelector("#logout-button").addEventListener("click", async () => {
+  try { await post("/api/logout"); window.location.assign("/api/login"); }
+  catch (error) { toast(error.message, true); }
+});
+window.addEventListener("popstate", () => { if (keyboard.active && path() !== "/experiments/02") stopKeyboard(true); model.forceRender = true; render(); });
+window.addEventListener("blur", () => { if (keyboard.active) stopKeyboard(true); });
+window.addEventListener("pagehide", () => { if (keyboard.active) stopKeyboard(true); });
+document.addEventListener("keydown", async (event) => {
+  if (!keyboard.active || activeProject()?.id !== "02" || dialog.open || event.target.closest("input,select,textarea,[contenteditable=true]")) return;
+  const scheme = model.robot.controls?.keyboard || {};
+  if (array(scheme.stop || ["Space", "Escape"]).includes(event.code)) { event.preventDefault(); stopKeyboard(false); return; }
+  if (event.code === (scheme.resume || "Enter") && keyboard.paused && !event.repeat) {
+    event.preventDefault();
+    try { if (!cameraLoaded) throw new Error("Изображение камеры недоступно."); await post("/api/robot/teleop/resume", { source: "keyboard", observing: true }); keyboard.paused = false; keyboard.error = null; model.forceRender = true; render(); }
+    catch (error) { toast(error.message, true); }
+    return;
+  }
+  if (scheme.mode?.[event.code] && !event.repeat) { event.preventDefault(); try { await setArmMode(scheme.mode[event.code]); } catch (error) { toast(error.message, true); } return; }
+  const allowed = new Set([...Object.keys(scheme.common || {}), ...Object.keys(scheme[keyboard.mode] || {}), ...array(scheme.precision)]);
+  if (allowed.has(event.code) && !keyboard.paused) { event.preventDefault(); keyboard.keys.add(event.code); sendKeyboard(); }
+});
+document.addEventListener("keyup", (event) => {
+  if (keyboard.keys.has(event.code)) { event.preventDefault(); keyboard.keys.delete(event.code); sendKeyboard(); }
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) { if (keyboard.active) stopKeyboard(true); cameraImage.removeAttribute("src"); cameraLoaded = false; }
+  else { syncCamera(); refresh(); }
+});
+setInterval(() => { if (!document.hidden) refresh(); }, 5000);
+setInterval(() => { if (keyboard.active && !keyboard.paused && !document.hidden) sendKeyboard(); }, 100);
+setInterval(async () => {
+  const active = model.robot.teaching?.active;
+  if (active?.session && activeProject()?.id === "02" && !document.hidden && cameraLoaded && !episodeLeaseBusy) {
+    episodeLeaseBusy = true;
+    try { await post("/api/robot/teaching/mobile/lease", { session: active.session, observing: true }); }
+    catch (error) { model.robot.error = error.message; }
+    finally { episodeLeaseBusy = false; }
+  }
+}, 250);
+setInterval(() => {
+  if (!document.hidden && cameraMode === "snapshot" && currentCamera && document.contains(cameraCard) && Date.now() - lastSnapshotAt > 2400) loadSnapshot();
+  if (!document.hidden && simulationJob && simulationImage && document.contains(simulationImage)) simulationImage.src = `/api/simulations/${encodeURIComponent(simulationJob)}/frame?t=${Date.now()}`;
+}, 2500);
+render();
+refresh(true);
