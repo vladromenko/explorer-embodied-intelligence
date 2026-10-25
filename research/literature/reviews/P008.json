@@ -1,0 +1,61 @@
+{
+  "deep_review": true,
+  "problem": "Vanilla policy-gradient updates can be too large and unstable, while trust-region optimization is more complex to implement.",
+  "contribution": "Proximal policy optimization uses a clipped orKL-penalized surrogate and multiple minibatch optimization epochs on collected on-policy data.",
+  "algorithm": "Estimate advantages from policy rollouts; optimize the minimum of the unclipped probability-ratio advantage and its clipped counterpart. An alternative adapts aKLpenalty. Value and entropy terms depend on the implementation/configuration.",
+  "observations": "State vectors in continuousMuJoCo benchmarks and visual observations forAtari; privileged simulator state is legitimate for a teacher but not a deployable visualstudent.",
+  "actions": "Stochastic continuousGaussian or discrete actions depending on the environment.",
+  "embodiment_and_data": "SevenMuJoCo continuous-control tasks for surrogate comparisons, broader continuous-control andAtari benchmarks. The surrogate study uses3seeds per task and1millionsteps perrun.",
+  "experiments": "Compare clipping widths, fixed/adaptiveKL, otherRLalgorithms and reward-over-training versus finalreturn. Task reward is not an independently verified real-world successpredicate.",
+  "baselines": "Unconstrained policygradient, fixed/adaptiveKLvariants,TRPO/A2C/ACER and other context-specific algorithm comparisons.",
+  "quantitative_result": {
+    "source": "PDFp6Table1",
+    "metric": "Benchmark-normalized score across7tasks x3seeds",
+    "clip_epsilon_0_2": 0.82,
+    "no_clipping_or_penalty": -0.39,
+    "note": "Source-specific normalization sets randompolicy0andbestresult1; not a physical successrate."
+  },
+  "limitations": "Clipping is not a hard bound on realizedKL or actuator actions, and no physical safety follows from the surrogate. On-policy sample cost and reward shaping remain significant; later library implementations include additional choices.",
+  "code_and_license": {
+    "repo": "https://github.com/DLR-RM/stable-baselines3",
+    "code_license": "MIT_REPORTED_BY_INTEGRATION_AGENT_PENDING_INDEPENDENT_SOURCE_AUDIT",
+    "model_data_license": "NOT_APPLICABLE",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "Reuse pinnedSB3PPO as the simulated teacher. Report raw action clipping, timestep counts and optimizer updates; a single optimizer smoke test does not mean successful tasklearning.",
+  "decision": "REUSE",
+  "algorithm_detail": "The clipped objective is pessimistic relative to the importance-weighted surrogate and removes incentives for favorable excessive ratios; it does not clip the neural output directly. Multiple epochs reuse the same rollout with advantage estimates. Library advantage/value normalization differences need version-specific provenance.",
+  "integration_contract": "Record rolloutbuffer size, vectorizedworker count, seed,GAE/discount, actiondistribution, clipping, entropy/value coefficients and actual environment/optimizer counts. Sealed evaluation seeds must differ from training.",
+  "license_evidence": "The methodpaper is primaryverified. SB3 licensing/version evidence is tracked separately from the original paper and must be pinned before release; no upstream code was copied by this review.",
+  "required_experiments": "Weightschange after realoptimizer steps; save/reload andresumption equivalence; independentrollout outcomes; throughput/RAM/temperature measurement for1/2/4workers; no privilegedtruth in studentobservations.",
+  "difference_from_explorer": "PPO is a standardteacher baseline, not evidence of skillmemory or diagnosticnovelty. A CADsimulation model and a trainedteacher require separate validation scopes.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "§3Eq7",
+      "supports": "clippedsurrogate"
+    },
+    {
+      "page": 4,
+      "section": "§4-5",
+      "supports": "KLvariant andmultipleepochs"
+    },
+    {
+      "page": 6,
+      "section": "Table1/§6.1",
+      "supports": "normalizedscores and21runconditions"
+    },
+    {
+      "page": 8,
+      "section": "Table2/§7",
+      "supports": "metricdependence andscope"
+    }
+  ],
+  "paper_id": "P008",
+  "source_sha256": "e78feadadbdbb0b601b3c2bcc81404722cd431a489b307545f9b7bea1e8c4f5b",
+  "primary_url": "https://arxiv.org/abs/1707.06347",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

@@ -1,0 +1,67 @@
+{
+  "deep_review": true,
+  "problem": "Interactive imitation policies need help in unfamiliar or dangerous states, but frequent context switches impose human burden even when each correction is short.",
+  "contribution": "Robot-gated intervention based jointly on novelty and learned failure risk, with asymmetric enter/exit thresholds and an explicit intervention budget.",
+  "algorithm": "Train a bootstrapped policy ensemble; average action-component variance estimates novelty. A goal-probability critic estimates task failure risk. Enter supervisor mode for high novelty or high risk; cede only when both human-policy action discrepancy and risk are low. Data quantiles adapt thresholds to the requested budget.",
+  "observations": "Generic state inputs in simulated peg insertion; the physical cable-routing policy observes workspace RGB at64x64, rather than privileged contact state.",
+  "actions": "Continuous planar delta positions in the physical daVinci cable task; human teleoperation targets supply correction labels.",
+  "embodiment_and_data": "Simulated peg insertion, a three-robot simulated fleet with10human participants, and physical cable routing. The physical task starts from25demonstrations/1381state-action pairs and collects1500environment steps.",
+  "experiments": "Autonomous success after training is evaluated separately from intervention-aided success. Fleet study measures switching, actions, throughput, idle time and concurrent human-task performance. Some burden metrics are explicitly conditional on successful episodes, so they cannot replace all-attempt success accounting.",
+  "baselines": "Behavior cloning, HG-DAgger, SafeDAgger and LazyDAgger; physical table comparesBC, HG-DAgger andThriftyDAgger.",
+  "quantitative_result": {
+    "source": "PDFp8Table3, visually inspected",
+    "physical_autonomous_success": {
+      "BC": "0/15",
+      "HG_DAgger": "10/15",
+      "ThriftyDAgger": "12/15"
+    },
+    "intervention_aided_success": {
+      "HG_DAgger": "15/15",
+      "ThriftyDAgger": "15/15"
+    },
+    "note": "Do not equate intervention-aided15/15 with autonomous performance."
+  },
+  "limitations": "Risk estimates are trusted only near familiar states; policy variance is not a calibrated safety certificate. Budget-sensitive thresholds and available human response remain assumptions. Simulated fleet evidence is not a physical three-robot deployment.",
+  "code_and_license": {
+    "repo": "NO_OFFICIAL_CODE_VERIFIED",
+    "code_license": "NOT_AUDITED",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "Compare novelty/risk gating in simulation and use it only to request supervision. It cannot override independentNano/Pi limits, STOP or lease. NX resource cost of an ensemble must be measured.",
+  "decision": "COMPARE",
+  "algorithm_detail": "Novelty is bootstrap ensemble action variance; risk is1minus a learned discounted goal-success estimate. Entering uses anOR of novelty/risk; returning uses anAND of low disagreement and lowrisk with stricter thresholds, implementing hysteresis. This avoids confusing uncertain unfamiliar states with well-known but failure-prone bottlenecks.",
+  "integration_contract": "Intervention requests, human acceptance, ownership transfer and eventual ceding need separate timestamped events. A requested human response is not an executed correction; timeout remains a local safe stop. Keep aided and autonomous episode outcomes distinct.",
+  "license_evidence": "The primaryPMLR paper and PDF were read. No official sourcecode or code license was verified, so the decision authorizes conceptual comparison, not copying code.",
+  "required_experiments": "Known-fault simulation ablations for novelty-only/risk-only/both; compare matched expert-query budgets and full-task outcomes; test absent operator and delayed handoff; measure abstention/calibration and all safety stops.",
+  "difference_from_explorer": "This already addresses intervention scheduling; a human-time saving alone is not Explorer's main scientific contribution. Cause identification, cross-embodiment effects and retention require additional evidence.",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "§4.1-4.2",
+      "supports": "novelty andrisk estimation"
+    },
+    {
+      "page": 5,
+      "section": "§4.3-4.4",
+      "supports": "hysteresis andbudgets"
+    },
+    {
+      "page": 6,
+      "section": "§5.1-5.2",
+      "supports": "distinct aided/autonomousmetrics andbaselines"
+    },
+    {
+      "page": 8,
+      "section": "Tables2-3/§5.5-6",
+      "supports": "counts, physicalsetup andfuturework"
+    }
+  ],
+  "paper_id": "P004",
+  "source_sha256": "8641a8d4dda75363f8b622910f3f00fb021e491a0cbda211ea79792f790acd40",
+  "primary_url": "https://proceedings.mlr.press/v164/hoque22a.html",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

@@ -1,0 +1,79 @@
+{
+  "deep_review": true,
+  "problem": "Visuomotor behavior cloning must represent multimodal trajectories without the instability of energy-based negative sampling or excessive single-step compounding error.",
+  "contribution": "Conditional diffusion over action sequences, integrated with receding-horizon control and visual conditioning; CNN and time-series transformer variants have different inductive biases.",
+  "algorithm": "Train a noise predictor by squared error between sampled Gaussian noise and predicted noise on corrupted demonstrated action sequences. At inference denoise a random action trajectory conditioned on recent observations, execute a short prefix and replan. DDIM reduces inference iterations relative to training.",
+  "observations": "Recent low-dimensional state or visual observations; visual encoder extracts camera features once per policy query. Temporal observation horizon, prediction horizon and executed action horizon are distinct.",
+  "actions": "Task-dependent continuous action sequences; position-control actions are particularly effective. The benchmark deliberately gives each compared method its best-performing action space, so an action-space-matched Explorer ablation remains necessary.",
+  "embodiment_and_data": "Fifteen simulated and real tasks spanning robomimic Lift/Can/Square/Transport/ToolHang, PushT, BlockPush, Kitchen and additional real single/bimanual manipulation. Demonstrations include proficient and multiple-human data.",
+  "experiments": "State and visual behavior-cloning benchmarks, multi-stage tasks, real PushT/mug/sauce tasks and extended bimanual examples. Ablations study action horizon, backbone, representation, training stability and pretraining.",
+  "baselines": "Reproduced LSTM-GMM/BC-RNN, IBC and BeT; evaluate three training seeds and50environment initializations per seed in the tabulated simulation benchmark. Tables distinguish maximum checkpoint score from average oflast10checkpoints.",
+  "quantitative_result": {
+    "source": "PDFp7Table2",
+    "metric": "VisualToolHang success max/average-last10checkpoints",
+    "diffusion_c": [
+      0.95,
+      0.73
+    ],
+    "lstm_gmm": [
+      0.68,
+      0.49
+    ],
+    "evaluation": "Three training seeds. Page7footnote reports that an evaluation-code bug used only22initialconditions for robomimic tasks instead of the stated50; the caption150trial count must not be treated as the actual independent denominator.",
+    "secondary_latency": "PDFp4§3.4:10DDIMinference steps yields0.1s onNVIDIA3080, not onNX"
+  },
+  "limitations": "BC still depends on demonstration coverage. Iterative denoising is more expensive than simple recurrent policies; chunking cannot guarantee adequate reaction at high control rates. Transformer sensitivity and differing action spaces complicate attribution of gains. The primary PDF includes an evaluation-code caveat (page7footnote) about22rather than50initializations, which must accompany reported robomimic numbers.",
+  "code_and_license": {
+    "repo": "https://github.com/real-stanford/diffusion_policy",
+    "commit": "5ba07ac6661db573af695b419a7947ecb704690f",
+    "code_license": "MIT",
+    "inspected_module": "diffusion_policy/policy/diffusion_unet_image_policy.py:conditional_sample,predict_action,compute_loss",
+    "model_data_license": "NOT_AUDITED",
+    "code_executed": false
+  },
+  "hardware_adaptation": "COMPARE a compact diffusion alternative toACT only after actualNX inference/VRAM/thermal profiling. Copy the observation/actionnormalizer and temporal horizon semantics with the checkpoint. Do not treat a3080latency as aJetsonmeasurement.",
+  "decision": "COMPARE",
+  "algorithm_detail": "CNN variant uses observation FiLM conditioning of temporal convolutions; transformer uses observation cross-attention and causal action tokens. Inspected code explicitly normalizes observations/actions, samples scheduler timesteps and takes predicted actions starting at n_obs_steps-1, so temporal alignment is an integration contract, not merely matching tensor dimensions.",
+  "integration_contract": "Bind camera and action feature order, fitted normalization, observation horizon, prediction horizon, action horizon and inference scheduler/steps to the artifact. Expire latechunks locally and retain robot-side permission/acknowledgment checks.",
+  "license_evidence": "PrimaryGitHub metadata identifies MIT at the pinnedhead. Coreprediction/sampling code was read. Separate checkpoint/demonstration rights were not audited.",
+  "required_experiments": "Same-dataACT comparison; matched action-space ablation; image/state deployment parity; measuredNX latency and stale-chunk behavior; checkpoint reload equivalence; heldout closed-loop task success rather than denoising loss.",
+  "difference_from_explorer": "A strong policy baseline already providing chunked control; it does not supply cross-robot action compatibility, verified skillmemory or cause-selective repair. Adding these claims requires independent measurements.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "§2.2-2.3/Fig2",
+      "supports": "noise objective and temporalhorizons"
+    },
+    {
+      "page": 4,
+      "section": "§3.1/3.4",
+      "supports": "architectures and3080latency"
+    },
+    {
+      "page": 7,
+      "section": "Tables1-2",
+      "supports": "quantitative comparison anddenominators"
+    },
+    {
+      "page": 8,
+      "section": "§5.3",
+      "supports": "actionspacechoice andhorizontradeoff"
+    },
+    {
+      "page": 13,
+      "section": "§9",
+      "supports": "BCcoverage andinferencecost limitations"
+    },
+    {
+      "page": 7,
+      "section": "Footnote under§5.2, visually inspected",
+      "supports": "22actual robomimicinitializations, not50"
+    }
+  ],
+  "paper_id": "P002",
+  "source_sha256": "b65c474b696a4802d8f1457d86b637ce2c5521412570d3aa928cd54563babc8f",
+  "primary_url": "https://arxiv.org/abs/2303.04137",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

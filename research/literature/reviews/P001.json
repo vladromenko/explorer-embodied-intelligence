@@ -1,0 +1,76 @@
+{
+  "paper_id": "P001",
+  "source_sha256": "2e2fe25860f5f9cee9e655a2714e9f2264a7a5078bcd267c16d3f39af461345a",
+  "primary_url": "https://arxiv.org/abs/2304.13705",
+  "full_text_examined": true,
+  "deep_review": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26",
+  "problem": "High-frequency imitation of precise contact-rich manipulation suffers from compounding errors and non-Markovian, variable human demonstrations on inexpensive arms.",
+  "contribution": "ALOHA teleoperation hardware plus ACT: observation-conditioned action chunks and a conditional latent-variable training objective, with overlapping predictions combined at deployment.",
+  "algorithm": "A transformer CVAE encodes current proprioception and demonstrated action chunks into a Gaussian style posterior. The policy combines camera features, joint state and style to predict a chunk; training adds reconstruction and KL penalties. Inference uses zero style and can ensemble predictions for the same future instant.",
+  "observations": "Four 480x640 RGB views and fourteen current follower joint/gripper positions; current observation rather than privileged world state.",
+  "actions": "Fourteen absolute joint/gripper position targets from the leader arms, tracked by follower motor PID at50Hz. Targets differ conceptually from measured follower positions and encode commanded effort through tracking error.",
+  "embodiment_and_data": "Two7-DoF ALOHA arms. Six real tasks generally use50demonstrations, Thread Velcro100; two simulated tasks use50successful scripted or human demonstrations. Main real-task evaluation uses one training seed.",
+  "experiments": "Real Slide Ziploc, Slot Battery, Open Cup, Thread Velcro, Prep Tape and Put On Shoe; simulation cube transfer and bimanual insertion. Stage outcomes expose where full-task success degrades. Chunking, temporal ensembling and CVAE are ablated; frequency user study is separate from autonomous task success.",
+  "baselines": "BC-ConvMLP, BeT, RT-1 and VINN inTableI; remaining real tasks compare the strongest baseline BeT. Baselines are tuned on cube transfer, with appendix reporting altered history/retrieval settings.",
+  "quantitative_result": {
+    "source": "PDFp8TableI andp9§V-C",
+    "real_slide_ziploc_success_percent": 88,
+    "real_slot_battery_success_percent": 96,
+    "real_trials_per_task": 25,
+    "real_training_seeds": 1,
+    "simulation_training_seeds": 3,
+    "simulation_evaluations_per_seed": 50,
+    "note": "These are sourcepaper conditions, not Explorer performance. Thread Velcro finalsuccess is20% inTableII despite92% firststage."
+  },
+  "limitations": "Thin dark deformable objects are hard to localize; Velcro frequently fails at grasp/insertion. One real seed and25trials do not establish broad robot/object transfer. Demonstration coverage and camera setup remain task-specific; visual-only outcomes do not measure force.",
+  "code_and_license": {
+    "repo": "https://github.com/tonyzhaozh/act",
+    "commit": "742c753c0d4a5d87076c8f69e5628c79a8cc5488",
+    "code_license": "MIT",
+    "license_evidence": "OfficialGitHub repository metadata license.spdx_id; UPSTREAM_AUDIT.json",
+    "inspected_module": "policy.py ACTPolicy.__call__ andkl_divergence",
+    "code_executed": false,
+    "model_data_license": "NOT_AUDITED"
+  },
+  "hardware_adaptation": "Reuse the maintained LeRobot ACT implementation with a pinned version and measuredNX batch sizes. SO101/ROSMASTER action ordering, units, normalization, cameraorientation and target-vs-measured semantics must be explicit. Do not load the original fourteen-actuator actionhead into a different arm.",
+  "decision": "ADAPT",
+  "algorithm_detail": "PaperAlgorithm1 gives MSE reconstruction plus betaKL; the inspected officialpolicy.py instead computes maskedL1 plus weightedKL. It normalizes images with ImageNet mean/std, truncates to num_queries and masks padded actions. Training posterior uses demonstrated actions; inference does not. Record this implementation difference rather than claiming exact paper parity.",
+  "integration_contract": "A checkpoint must bind action feature names/order/dimensions and camera bindings/rotation/FPS, normalizationprocessor hashes and hardware limits. Officialcurrent LeRobot remote inference admits ACT only with temporal ensembling disabled and a position-hold driver; compare this changed inference recipe separately from original per-tick ensembling.",
+  "license_evidence": "MIT code indicated by primaryGitHub API metadata at2026-10-26; pinned source exists and corepolicy was read. Model/data rights were not independently audited, so they are not granted by the code license.",
+  "required_experiments": "Real forward/backward and checkpoint reload onNX; independent simrollout without privileged leakage; chunk/freshness and position-hold contract tests; camera/action schema roundtrip; supervised physical trials only after separate approval; compare chunking/ensembling choices under equalconditions.",
+  "difference_from_explorer": "ACT provides a reusable imitation learner, not evidence-grounded cross-robot skillmemory, retention, fault attribution or verified multi-robot release. Explorer must demonstrate those claims with separate baselines rather than relabel ACT.",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "§IV",
+      "supports": "leader actiontargets versus followerstate; observation/action contract"
+    },
+    {
+      "page": 5,
+      "section": "Algorithms1-2 and§IV-B/C",
+      "supports": "CVAE, chunking and temporal ensembling"
+    },
+    {
+      "page": 8,
+      "section": "TablesI-II and§V-B",
+      "supports": "data counts and quantitative real/sim evaluation"
+    },
+    {
+      "page": 9,
+      "section": "§V-C",
+      "supports": "trial denominators and failurestages"
+    },
+    {
+      "page": 10,
+      "section": "§VII",
+      "supports": "limitations"
+    },
+    {
+      "page": 15,
+      "section": "AppendixD/E",
+      "supports": "baseline tuning andfrequency study"
+    }
+  ]
+}

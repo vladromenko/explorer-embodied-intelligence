@@ -1,0 +1,82 @@
+{
+  "deep_review": true,
+  "problem": "Dexterous visual real-worldRL needs task-directed exploration and stable low-level execution; offline demonstrations alone can be insufficient for difficult recovery states.",
+  "contribution": "HIL-SERL combines demonstrations, online human corrections, balanced replay, taskreward classifiers and continuous/discrete control into a practical distributed learning system.",
+  "algorithm": "RLPD actor-critic samples equally from a demonstration buffer andRLbuffer. Human correction transitions enter both buffers, while ordinary policy transitions enter only theRLbuffer. A separateDQN graspcritic selects discrete open/close/stay actions while the continuous actor controls end-effector motion.",
+  "observations": "Multiple cropped128x128RGB views processed by anImageNet-pretrainedResNet10 plus proprioception and gripper state. Relative pose representations use the episode's initial frame; output motion is expressed in the current toolframe.",
+  "actions": "Continuous end-effector actions plus discrete gripper actions. Contact tasks use impedance control/reference limiting; some dynamic tasks use feedforward wrenches. Neither capability follows automatically from a position-controlledSO101 driver.",
+  "embodiment_and_data": "Physical single/dual-arm insertion, assembly, handover, Jenga andflipping tasks. Usually20-30initial demonstrations; a separate sparse reward classifier is fitted from positive andnegative examples. Source training uses a singleRTX4090.",
+  "experiments": "Independent task evaluation compares success andcycle time, human interventions during learning, robustness perturbations and no-demo/no-intervention ablations. Running20episode training curves with interventions are not the final autonomousevaluation.",
+  "baselines": "HG-DAgger with matched episodes/interventions, flatBC, DiffusionPolicy, IBRL, ResidualRL andDAPG; several baselines receive200demonstrations. Ablations remove demonstrations and/or corrections.",
+  "quantitative_result": {
+    "source": "PDFp13Table1a, visually inspected",
+    "RAM_insertion_success_percent": {
+      "HG_DAgger_BC": 29,
+      "HIL_SERL": 100
+    },
+    "RAM_trials_per_method": 100,
+    "RAM_training_hours": 1.5,
+    "whole_IKEA_assembly": "10trials, not100",
+    "source_inconsistency": "Table1b listsDPdashboard18%, prose p17 says28%; that comparison is not silently reconciled."
+  },
+  "limitations": "Human setup, resets, reward data and interventions remain necessary; the current method trains each task separately. Source hardware/control affordances differ from low-cost servos. A high classifier accuracy does not itself establish physical task success or force safety.",
+  "code_and_license": {
+    "repo": "https://github.com/rail-berkeley/hil-serl",
+    "commit": "c32939bccb65f3b8c43a9f9add3d322d4ab0264a",
+    "code_license": "Apache-2.0",
+    "license_evidence": "PrimaryGitHub repository metadata",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "Reuse intervention/replay semantics and evaluate a compact compatible learner onNX. Keep Pi/Nano hardware authority local, and reject anywrench/impedance action contract the actual driver cannot implement. Begin with simulation/offline data; physicallearning needs explicit supervisionapproval.",
+  "decision": "ADAPT",
+  "algorithm_detail": "Two replay stores distinguish trusted demonstrations/corrections from general interaction. Human takeover changes the action actually applied, so transitions must record it rather than the displaced policy proposal. A separate discretecritic avoids treating gripper categories as a continuousGaussian. Shared pretrainedvisual features reduce visuallearning cost.",
+  "integration_contract": "Record policy proposal, takeoverflag, humancommand, dispatchedaction, observationcapturetime, rewardclassifierrevision and independently verified outcome. Maintain separate continuous-motion andgripper schemas. Pause cannot publish stale bufferedactions after ownershipchanges.",
+  "license_evidence": "Officialrepository metadata identifiesApache-2.0 at the pinnedhead. Reading the paper andmetadata does not imply code inspection, installed dependencies orNX reproduction; those statuses remainfalse.",
+  "required_experiments": "Replay routing assertions; matched-dataBC/HG-DAgger comparison; classifier calibration and independent successaudit; realNX optimizer/reload tests; correction/no-correction ablations; controlsupported-action admission andnetworkloss tests without physicalmotion.",
+  "difference_from_explorer": "Already provides successful correction-driven physicallearning and a distributed architecture. Explorer must separately test cross-embodiment effectmemory, retention, composition and cause-selective repair rather than claim HIL-SERL's coreidea.",
+  "evidence_locations": [
+    {
+      "page": 5,
+      "section": "§3.2",
+      "supports": "actorlearner andbalancedreplay"
+    },
+    {
+      "page": 6,
+      "section": "Fig2/§3.3",
+      "supports": "ResNet10 andrewardclassifier"
+    },
+    {
+      "page": 7,
+      "section": "GripperControl/§3.4",
+      "supports": "relativeframes,controllers andDQN"
+    },
+    {
+      "page": 8,
+      "section": "Fig3",
+      "supports": "corrections versuspolicydata"
+    },
+    {
+      "page": 13,
+      "section": "Table1/§4.3",
+      "supports": "numericresults, denominators andRTX4090"
+    },
+    {
+      "page": 17,
+      "section": "Ablations",
+      "supports": "no-correction comparison andDPtext inconsistency"
+    },
+    {
+      "page": 21,
+      "section": "§6",
+      "supports": "limitations andpertasktraining"
+    }
+  ],
+  "paper_id": "P006",
+  "source_sha256": "547a4d5d9440a3f70a773798813db1c8a612f006a6994398bbee2a566daab526",
+  "primary_url": "https://arxiv.org/abs/2410.21845",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

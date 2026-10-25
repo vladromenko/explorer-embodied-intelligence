@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "run_id": "smoke-first",
+  "source_domain": "SIMULATION",
+  "execution_host": "MAC_CPU",
+  "purpose": "Functional end-to-end engineering smoke test only",
+  "physical_io": false,
+  "scientific_status": "UNTESTED_HYPOTHESIS",
+  "validation_status": "NOT_VALIDATED",
+  "source_artifact_sha256": {
+    "result.json": "d46573beb473e16ddbbac0c58aa9636eb8d0cd4ebe4874998ec6907dd1ade1de",
+    "provenance.json": "d3ab18b771b5d142b39f1ec27e9e589e5ff95b9e71e872c1315d28b076a67cbd"
+  },
+  "observed": {
+    "teacher_environment_steps": 128,
+    "teacher_optimizer_updates": 5,
+    "student_optimizer_updates": 2,
+    "teacher_successes": 0,
+    "teacher_attempts": 1,
+    "student_successes": 0,
+    "student_attempts": 1,
+    "student_reload_max_abs_error": 0
+  },
+  "limitations": [
+    "Not executed onNX in this evidence record",
+    "Single heldout rollout is not a skillquality evaluation",
+    "No sock, physicalcontact, mobile navigation or cross-robot transfer validation",
+    "Torch2.14.1/torchvision0.29.1 are outside LeRobot0.6.1 declareddependencybounds; executionexception is limited to this checkedpath",
+    "Historical authorization flags in imported modelmetadata do not authorize new hardwaremovement"
+  ]
+}

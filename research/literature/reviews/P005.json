@@ -1,0 +1,71 @@
+{
+  "deep_review": true,
+  "problem": "Real-world roboticRL depends on interacting choices of algorithm, reward, resets, compliant control and distributed software; a nominal RLalgorithm alone is hard to reproduce.",
+  "contribution": "An open software suite integrating a practical sample-efficientRL recipe, classifier/VICE rewards, forward-backward reset policies and robot interfaces. The paper explicitly presents a resource/integration contribution rather than a new corealgorithm.",
+  "algorithm": "RLPD-style off-policy actor-critic with high update-to-data ratio, equal sampling from prior and online replay, and layer normalization. Optional binary or adversarial reward learning and separately trained forward/backward policies support physical training.",
+  "observations": "Task-specific wrist/side RGB cameras and robot proprioception; success may use ground-truth state or a learned binary classifier depending on the task.",
+  "actions": "End-effector reference commands through a compliant impedance controller with high-frequency reference limiting, not unrestricted low-frequency torques from the learner.",
+  "embodiment_and_data": "Franka manipulation tasks: PCB insertion, cable routing, and forward/backward object relocation.20initial demonstrations per task; theBC baseline receives100demonstrations. Training uses anRTX4090.",
+  "experiments": "Compare closed-loop task success and cycle time under matched task/reset conditions, show controller behavior, and report an independent third-party insertion reproduction. Runtime includes computation, resets and planned stops.",
+  "baselines": "Behavior cloning with100expert demonstrations; comparisons to other published systems are explicitly qualified because their hardware and protocols differ.",
+  "quantitative_result": {
+    "source": "PDFp8Table2 andresults",
+    "success": "Source reports100/100 on each of three taskgroups",
+    "training_time_minutes": {
+      "PCB": 20,
+      "cable": 31,
+      "forward_backward_relocation": 105
+    },
+    "compute": "SingleRTX4090; times are not NX estimates."
+  },
+  "limitations": "Reward classifiers may fail under distribution shift; autonomous reset policies are not universal. The framework does not cover everyRLmethod or task. Compliant torque-control assumptions may not hold on low-cost position servos.",
+  "code_and_license": {
+    "repo": "https://github.com/rail-berkeley/serl",
+    "commit": "1fa2af7496be042e43d36120a7c8d1b71f1bfb59",
+    "code_license": "Apache-2.0",
+    "license_evidence": "PrimaryGitHub repository metadata",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "Adapt the separation of actor/learner, replay provenance and reward testing. Do not port theFranka impedance controller toROSMASTER/SO101 without measured supported actuators and feedback. Limit physical learning to separately approved supervised trials.",
+  "decision": "ADAPT",
+  "algorithm_detail": "Balanced batches draw half from prior demonstrations and half from online replay. HighUTD supplies multiple optimizer steps per physical transition, with layer-normalized critics. Forward/backward learning uses distinct policies, value functions and rewards; reset behavior is itself a learned physical policy.",
+  "integration_contract": "Version transitions, reward-model hashes, replay source labels and published policy revisions. Learner delays cannot block actor watchdogs. Distinguish requested reference, limited controllerreference and measured state; preserve independent outcome verification even if training uses a learned reward.",
+  "license_evidence": "PrimaryGitHub metadata reportsApache-2.0 at the recorded commit. No codeexecution or model/data licensing audit is claimed. Relevant implementation must be inspected before actualsource reuse.",
+  "required_experiments": "MeasuredNX throughput andmemory; replaymix andUTD ablations with optimizercounts; heldout rewardfalse-positive/negative tests; independent task evaluator; safe reset/admission tests in simulation before anyphysical rollout.",
+  "difference_from_explorer": "A distributed robotic-learning suite already exists. Explorer's proposed novelty must concern its tested evidence-grounded transfer/composition/repair mechanism, not the existence of actor-learner processes or a trainingbutton.",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "§4.1",
+      "supports": "RLPD recipe andresource contribution"
+    },
+    {
+      "page": 5,
+      "section": "§4.3-4.4",
+      "supports": "forward/backward policies anddistributedsoftware"
+    },
+    {
+      "page": 6,
+      "section": "Controller discussion",
+      "supports": "real-time reference limiting"
+    },
+    {
+      "page": 8,
+      "section": "Table2/Fig6/Results",
+      "supports": "taskdata, hardware, quantitativeconditions"
+    },
+    {
+      "page": 9,
+      "section": "§6",
+      "supports": "limitations andthird-partyreproduction"
+    }
+  ],
+  "paper_id": "P005",
+  "source_sha256": "4a45bc106add1571a0f5e02f295522ce8ae75186943f66c9339a5954a81bac16",
+  "primary_url": "https://arxiv.org/abs/2401.16013",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

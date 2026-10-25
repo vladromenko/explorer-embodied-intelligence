@@ -1,0 +1,59 @@
+{
+  "deep_review": true,
+  "problem": "OnlineRL should exploit prior data without constraining improvement to a possibly poor offline dataset or allowing unstable value extrapolation.",
+  "contribution": "A simpleSAC-based recipe combining balanced prior/online sampling, layer-normalized critics and sample-efficient updates with ensembles.",
+  "algorithm": "Sample half a training batch from prior data and half from online replay. LayerNorm limits pathological critic extrapolation; high update-to-data ratios and critic ensembles improve sample efficiency. Some choices, including entropy and clipped-doubleQ, are explicitly environment-dependent.",
+  "observations": "State and pixel observations across continuous-control benchmarks.",
+  "actions": "Continuous task-specific controls; rewards and transition records must be available for both offline and online samples.",
+  "embodiment_and_data": "D4RLAntMaze, Adroit and locomotion plus visual-control domains; prior datasets vary in quality. These are predominantly simulation benchmarks, not evidence forROSMASTER hardware.",
+  "experiments": "Compare online improvement curves and ablate sampling, normalization, regularization, ensemble and environment-sensitive choices; report means and standard deviations across10seeds.",
+  "baselines": "SACfD and domain-specific strongest prior approaches such asIQL+fine-tuning andOff2On, rather than one weak universal baseline.",
+  "quantitative_result": {
+    "value": "NOT_EXTRACTED",
+    "location": "PDFp6Fig4 andp7Fig5",
+    "reason": "Benchmark learning curves were examined but exact return coordinates were not digitized;10seed aggregation is explicit."
+  },
+  "limitations": "HighUTD and ensembles consume compute; extrapolation control is not a physical-safety bound. Performance depends on domain-specific entropy/critic choices and available reward labels.",
+  "code_and_license": {
+    "repo": "https://github.com/ikostrikov/rlpd",
+    "code_license": "NOT_AUDITED",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "Compare only afterNX memory/update-throughput measurement. Use explicit demonstration versus interaction provenance and keep optimizer work off the actuator control loop.",
+  "decision": "COMPARE",
+  "algorithm_detail": "Symmetric sampling preserves prior-data influence as the online buffer grows. CriticLayerNorm addresses unbounded extrapolation without a policy constraint; ensemble/highUTD choices are separate from the50/50sampling contribution.",
+  "integration_contract": "Every replay transition binds observation, dispatchedaction, rewardmodel, termination/truncation and sourceepisode. Record actual optimizer updates per environment step and dataset sampling proportions.",
+  "license_evidence": "Primary paper and public codecandidate verified; no code license/source audit completed, so no copied implementation is claimed.",
+  "required_experiments": "Balancedversusbuffer-prefill ablation; normalization andUTD ablations; equal-resource target-only comparison; optimizer/reload tests and heldoutclosed-loop outcome evaluation.",
+  "difference_from_explorer": "RLPD already reuses mixed-quality offline data during online learning; source mixing alone is not an original evidence-grounded skill-memory contribution.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "§4.1",
+      "supports": "balanced sampling andproblem"
+    },
+    {
+      "page": 4,
+      "section": "§4.2-4.3",
+      "supports": "LayerNorm andsampleefficiency"
+    },
+    {
+      "page": 5,
+      "section": "§4.5",
+      "supports": "environment-sensitive choices"
+    },
+    {
+      "page": 6,
+      "section": "§5/Fig4",
+      "supports": "benchmarks,strongbaselines,10seeds"
+    }
+  ],
+  "paper_id": "P007",
+  "source_sha256": "a87cb856a5294e71c21474006106fd7cadcff0e986da494535f44b13117c10d0",
+  "primary_url": "https://arxiv.org/abs/2302.02948",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

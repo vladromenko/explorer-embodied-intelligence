@@ -1,0 +1,59 @@
+{
+  "deep_review": true,
+  "problem": "Continuous-controlRL needs sample efficiency and robust exploration without the instability of deterministic off-policy actors.",
+  "contribution": "An off-policy maximum-entropy actor-critic with a tractable stochastic policy, soft policy-iteration derivation and replay-based practical updates.",
+  "algorithm": "Fit softQ/value functions using replay and optimize a reparameterized stochastic actor toward highQandentropy. The original2018formulation explicitly includes a state-value network and its target, unlike some laterSACimplementations.",
+  "observations": "Low-dimensional state observations forMuJoCo/rllab continuous-control benchmarks.",
+  "actions": "Continuous stochastic actions, with bounded-action transformations requiring the correct log-density correction.",
+  "embodiment_and_data": "Hopper,Walker,HalfCheetah,Ant andHumanoid benchmark interactions; source evaluation uses five independent seeds and one rollout every1000environmentsteps.",
+  "experiments": "Return learningcurves, stochasticversusdeterministic policy ablation, rewardscale and target-smoothing sensitivity. Shaded curves show min/max acrossfive runs rather than confidenceintervals.",
+  "baselines": "DDPG,PPO,TD3andSQL, with componentablation comparing deterministic and stochastic variants.",
+  "quantitative_result": {
+    "value": "NOT_EXTRACTED",
+    "location": "PDFp6-8Figures1-3",
+    "reason": "Curves examined; exactreturncoordinates were notdigitized. The five-seed design and min/max display are explicit."
+  },
+  "limitations": "The theoretical tabular guarantees do not certify deep-network optimization or physicalsafety. Rewardscale and targetupdate choices matter. Continuous entropy exploration cannot be sent unguarded to actuators.",
+  "code_and_license": {
+    "repo": "https://github.com/DLR-RM/stable-baselines3",
+    "code_license": "PENDING_VERSION_SPECIFIC_AUDIT",
+    "model_data_license": "NOT_APPLICABLE",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "COMPARE a pinned modernSAC implementation in simulation if it answers a specificbaseline question; do not introduce a secondheavy learner before thePPO/ACTpath is working.",
+  "decision": "COMPARE",
+  "algorithm_detail": "Softpolicy improvement minimizesKLtoward an exponentialQdensity; reparameterization gives actor gradients through the critic. OriginalAlgorithm1 updates twinQ, a separateVandits target, andactor. Later automatic-temperature/twin-targetQvariants must not be described as identical to this paper.",
+  "integration_contract": "Bind action scaling/logprobability transformation, rewardtemperature, replaytermination andtargetnetwork semantics to the implementationrevision. Separate stochastictraining from deterministic evaluation and log both modes.",
+  "license_evidence": "Primaryfulltext read; no librarysource/license inspection claimed here. ExistingMITSB3integration evidence is a separate artifact, not permission inferred from thepaper.",
+  "required_experiments": "Reward/action normalization parity; deterministicversusstochastic evaluation; checkpointreplay; matchedenvironment-budget andcompute comparisons; simulation-only exploration until physical admission andoperator approval.",
+  "difference_from_explorer": "Standard maximum-entropyRL does not establish causeidentification, crossrobottransfer, retention or cooperation. Those require experiments beyond a returncurve.",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "§4.1",
+      "supports": "softpolicyiteration"
+    },
+    {
+      "page": 5,
+      "section": "§4.2/Algorithm1",
+      "supports": "originalVnetwork andactorupdates"
+    },
+    {
+      "page": 7,
+      "section": "§5.1-5.2",
+      "supports": "baselines,5seeds andmin/maxcurves"
+    },
+    {
+      "page": 8,
+      "section": "§5.2-6",
+      "supports": "sensitivity andscope"
+    }
+  ],
+  "paper_id": "P009",
+  "source_sha256": "5c33fae017d02f7025730f05198d4a6b103402822c8bbf48cbc5d8a0474c336a",
+  "primary_url": "https://arxiv.org/abs/1801.01290",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

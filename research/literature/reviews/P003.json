@@ -1,0 +1,62 @@
+{
+  "deep_review": true,
+  "problem": "A policy trained only on expert states visits a different state distribution after its own mistakes, causing errors to compound over the task horizon.",
+  "contribution": "Dataset Aggregation reduces sequential imitation to iterative no-regret supervised learning on the distributions induced by candidate policies.",
+  "algorithm": "At each iteration execute a mixture of current learner and expert, query the expert labels for visited states, aggregate those labels with all prior data, and refit the learner. Select the candidate using validation, not the sealed test.",
+  "observations": "Generic sequential state or observation features, illustrated by image features for games and previous character predictions for structured OCR; the method does not prescribe a robot camera architecture.",
+  "actions": "Expert-labeled controls at learner-visited states; game steering/key actions and OCRlabels in experiments. For Explorer the expert is a simulator teacher or explicitly supervised operator, not automatically inferred from policy failures.",
+  "embodiment_and_data": "SuperTuxKart StarTrack, SuperMario and handwriting recognition; this source does not establish physical robot performance. One training lap is about1000examples in the driving experiment.",
+  "experiments": "Compare aggregated-policy training as data grows, expert-only supervised training and stochastic mixture methods. The OCR experiment uses roughly6600words/52000characters with10foldcrossvalidation.",
+  "baselines": "Supervised expert-distribution training, SMILe and SEARN where applicable, plus a nonstructured OCRclassifier.",
+  "quantitative_result": {
+    "source": "PDFp6§5.1/Figure2 discussion",
+    "metric": "SuperTuxKart falls perlap",
+    "dagger": "Source reports nofalls after15trainingiterations",
+    "smile": "About2falls/lap after20iterations",
+    "replicate_count": "NOT_EXTRACTED",
+    "note": "Game outcome, not arobotics successrate"
+  },
+  "limitations": "Requires an expert capable of labeling states encountered by the learner. Labeling and physical exploration can be expensive or unsafe; no-regret assumptions and expert recovery conditions are not hardware safety guarantees. An unidentifiable failed action is not an expert target.",
+  "code_and_license": {
+    "repo": "NO_OFFICIAL_CODE_VERIFIED",
+    "code_license": "NOT_APPLICABLE_TO_ALGORITHM_REFERENCE",
+    "model_data_license": "NOT_AUDITED",
+    "code_inspected": false,
+    "code_executed": false
+  },
+  "hardware_adaptation": "ADAPT initially with an oracle teacher in simulation. Real corrections need operator ownership, timestamped intended actions and explicit approval of physical trials. Keep correction labels distinct from policy transitions and failure outcomes.",
+  "decision": "ADAPT",
+  "algorithm_detail": "Algorithm3.1 aggregates (state,expert(state)) under pi_i=beta_i expert+(1-beta_i)learner. The learner is refitted on the union, rather than only the newest correction. Theoretical guarantee depends on no-regret learning and the state distributions induced by policies; expert-query availability is an actual assumption.",
+  "integration_contract": "Store iteration, learner/checkpoint revision, mixture schedule, visited observation, expert label provenance and sourceepisode ID. Oracle simstate can label actions but must not leak into deployable visual observations. Split by collectionsession and evaluate an independently executed policy.",
+  "license_evidence": "PrimaryPMLR article and fullPDF verified; no official upstream code/license was established. Any Explorer implementation must be attributed as a reimplementation/adaptation rather than claimed copied licensed code.",
+  "required_experiments": "Compare equal-budget expert-onlyBC versus DAgger in controlledsim faults; verify the label corresponds to the visitedstate and not futurestate; count expert queries and all failures; independently evaluate closed-loop recovery and regressions.",
+  "difference_from_explorer": "DAgger already addresses covariate shift through expert queries. It does not identify physical causes or justify automatic correction labels, cross-embodiment adaptation or skillcomposition novelty.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "§2.2/3",
+      "supports": "distribution/recovery assumptions and aggregation"
+    },
+    {
+      "page": 4,
+      "section": "Algorithm3.1 and§4.1",
+      "supports": "mixture,expertlabels,noregret formulation"
+    },
+    {
+      "page": 6,
+      "section": "§5.1",
+      "supports": "drivingcontrols,data budget andresult"
+    },
+    {
+      "page": 8,
+      "section": "§5.3/6",
+      "supports": "OCRsplit,baselines andscope"
+    }
+  ],
+  "paper_id": "P003",
+  "source_sha256": "17bdd6e049e64f09010b322f9e2d4fb5c744c33ff7ac99b4c4561e39bd9082a7",
+  "primary_url": "https://proceedings.mlr.press/v15/ross11a.html",
+  "full_text_examined": true,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}
