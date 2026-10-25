@@ -1,0 +1,66 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P077",
+  "source_sha256": "a5a3c5596023e9a32f371573698da91a66caf480dfdd3ee79df395608162b28f",
+  "primary_url": "https://arxiv.org/abs/2601.18323",
+  "problem": "Translate generated manipulation videos into executable robot motion without depending on unstable deformable-object tracks.",
+  "contribution": "TC-IDM tracks the tool rather than the manipulated object, aligns reconstructed geometry to measured metric depth/camera pose, separates gripper state prediction from TCP motion, and demonstrates real Panda replay and selected transfer examples. Zero-shot refers to held-out tasks/embodiments after prior training, not an untrained action translator.",
+  "algorithm": "Generate a video; reconstruct depth/camera motion with VGGT and align scale/shift to the initial metric depth. SAM3 masks the gripper, SpatialTrackerV2 supplies dense3D tracks, and the10most rigid-consistent tracks define consecutive SE(3) alignment. Main method3.2.2 derives TCP motion analytically; a frozen DINOv3 encoder and learned MLP predict aperture. Intro/diagram language about two learned action heads is less precise than this explicit geometric formulation.",
+  "observations": "Initial RGB, measured/depth-completed metric depth, known reference camera pose, text instruction and generated video. Visibility of the end-effector in the initial frame is an explicit prerequisite. Hand transfer additionally uses frozen HaMeR estimates.",
+  "actions": "TCP six-dimensional relative pose plus gripper aperture; the paper assumes a downstream robot controller. Dexterous-hand transfer replaces the hand-state retargeting MLP, rather than establishing a universal shared finger-joint head.",
+  "embodiment_and_data": "AppendixB/PDFp14-15 describes30,210RoboMIND trajectories from25training tasks and9strictly held-out tasks. Physical reference is7DOF Franka Panda, Robotiq2F85, RealSenseD457 and FCI. Camera examples use ApplePro/D435i; qualitative embodiment transfer includes UR5 dual-arm and BrainCo/Inspire hands.",
+  "experiments": "Nine tasks grouped3easy/3medium/3hard. Separate ground-truth-video replay from generated-world-model execution. Precision, camera shifts, deformable cloth, six-stage hoodie folding and embodiment examples are reported, but several generalization results are qualitative without complete trial denominators. The dexterous section both mentions embodiment-specific retargeting training and describes transfer as no-finetuning; those scopes must remain distinct.",
+  "baselines": "Ground-truth replay compares ResNet-MLP, AVDC, AnyPos and2D-tracker IDM. Generated-video comparison listspi0 and CogVideo/Wan/Cosmos/Hailuo/Kling/WoW pipelines; planner quality and embodiment-data finetuning differ.",
+  "quantitative_result": {
+    "location": "PDFp6 Table1, ground-truth-video replay",
+    "counts": "TC-IDM easy28/30, medium16/30, hard13/45; corresponding AnyPos25/30,16/30,4/45",
+    "interpretation": "Different denominators10/easy-medium task and15/hard task; these are executed replay trials, not generated-video quality scores.",
+    "inconsistency": "Main prose reports61.11% overall and38.46% deformable success, but the inspected Table2 WoW-wan row totals33/81, while its easy subtotal21/27 explains77.7%. A matching denominator for61.11% and the deformable38.46% is NOT_EXTRACTED; do not combine these as a reconciled benchmark."
+  },
+  "limitations": "Depth completion, metric registration, masks, rigid tracking and pretrained video priors can fail together. Analytic trajectory recovery does not prove reachability, collision clearance or force/contact validity. Hard replay succeeds13/45 and qualitative cross-robot videos do not characterize population success. Reported averages are not fully reconciled with visible tables; deployment compute and latency are insufficiently specified.",
+  "code_and_license": "Seed release link https://github.com/wsbaiyi/TC-IDM is not inspected in this review. License terms for TC-IDM, RoboMIND, world models, DINOv3/SAM3/VGGT/trackers and checkpoints are NOT_AUDITED separately; no code executed.",
+  "hardware_adaptation": "ADAPT a tool-centric pose/registration representation as an offline transfer baseline. NX16GB cannot be presumed to run video generation plus all foundation estimators interactively. Use recorded/simulated inputs first, preserve camera/depth frames and timestamps, and project TCP goals through actual calibrated ROSMASTER/SO101 kinematics. Their five arm joints plus gripper do not supply arbitrary6DoF TCP control or Panda force sensing; controller settings remain unchanged.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "3.1/Figure2",
+      "supports": "Inputs, foundation-model components and metric registration"
+    },
+    {
+      "page": 4,
+      "section": "3.2/Equations1-7",
+      "supports": "Learned gripper state versus analytic rigid TCP recovery and top10tracks"
+    },
+    {
+      "page": 6,
+      "section": "Tables1-2",
+      "supports": "Trial counts and aggregate-report inconsistency"
+    },
+    {
+      "page": 8,
+      "section": "5.3-5.5",
+      "supports": "Deformable/long-horizon/UR5 transfer scope"
+    },
+    {
+      "page": 9,
+      "section": "6/Equations8-10",
+      "supports": "HaMeR and embodiment-specific hand retargeting"
+    },
+    {
+      "page": 14,
+      "section": "AppendixA-B",
+      "supports": "Panda/FCI hardware and30,210-trajectory training corpus"
+    },
+    {
+      "page": 15,
+      "section": "Table3",
+      "supports": "Held-out9-task split"
+    }
+  ]
+}

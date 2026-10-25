@@ -1,0 +1,86 @@
+{
+  "full_text_examined": true,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P080",
+  "source_sha256": "00412b2405481445df0dfc43dbc1037f7af63b9eb66fa25280844d9d5add2b88",
+  "primary_url": "https://arxiv.org/abs/2504.02792",
+  "deep_review": true,
+  "problem": "Learn a shared robot model that can perform policy, forward dynamics, inverse dynamics and video prediction from the same action-labelled and action-free corpora.",
+  "contribution": "UWM trains coupled action/image diffusion with independently chosen modality noise timesteps. Fully noising a modality marginalizes it; leaving it clean conditions on it. This differs from a single synchronized-noise joint decoder and makes the same trained model usable in several inference modes.",
+  "algorithm": "Model conditional joint action/next-observation scores given current observation. Independently sample action and image diffusion timesteps during denoising training. At inference set one timestep to maximum noise for marginal policy/video prediction or zero for conditioning in inverse/forward dynamics. Mix action-labelled robot data with action-free videos by fully noising/imputing the unavailable actions.",
+  "observations": "Two observation-history frames from each of two scene cameras plus a wrist camera in real DROID setup. ResNet18 encodes current images; frozen SDXL VAE maps224x224RGB into28x28x4future-image latents. The additional overhead camera is used to reproduce evaluation initializations, not as an undeclared policy camera.",
+  "actions": "Six-dimensional delta end-effector pose plus one continuous gripper coordinate, at10Hz on Panda. Policy predicts16actions and executes8before replanning. Inverse-dynamics tracking is given actual future reference observations and an exact matching initial simulator state; it is not zero-shot language-to-action control.",
+  "embodiment_and_data": "Pretrain on2000DROID trajectories; optionally co-train with another2000DROID trajectories stripped of action annotations. Five physical tasks use50/50/100/50/150expert finetuning demonstrations. LIBERO pretraining uses90tasks/4500trajectories, followed by50demos for each of5held-out tasks, not an unadapted evaluation of all10LIBERO evaluation tasks.",
+  "experiments": "100kpretraining updates followed by task-specific10k/20k/50kfinetuning. Physical ID/OOD configurations are explicitly standardized with a reference-image overlay. AppendixC.3 permits three attempts per initialization:50configurations for most tasks and20near-distribution configurations for Rice-Cooker, with no Rice-Cooker OOD test. Simulated finetuning uses3seeds and50initializations/task under enlarged object-start ranges and removed background objects.",
+  "baselines": "Matched-backbone diffusion policy, custom PAD and custom GR1 implementations adapted to UWM input/output format. PAD differs both in synchronized timesteps and raw/latent concatenation conditioning; attributing the entire gap solely to noise-time independence is not warranted. GR1 is a custom regression implementation rather than an untouched released checkpoint.",
+  "quantitative_result": {
+    "location": "PDFp7 TableI; PDFp8 TableII; PDFp9 TableIV; PDFp15-16 evaluation protocol",
+    "physical": "Stack-Bowls pretrained/co-trained ID0.86/0.92 and OOD0.76/0.84 versus DP0.48ID/0.36OOD. Rice-Cooker0.60/0.65 over20near-distribution configurations. Three attempts per initialization are allowed, so these should not be labelled one-shot trial success.",
+    "simulation": "Five-task LIBERO average0.79±0.11 versus DP0.71±0.12, with3finetuning seeds and50initializations/task; preserve the table's reported uncertainty rather than inventing a per-trial CI.",
+    "small_ood": "Categorized Stack-Bowls co-trained21/30 versus pretrained15/30 andDP12/30; Block-Cabinet15/30 versus8/30 and6/30."
+  },
+  "limitations": "A learned action/image joint distribution does not by itself identify causal physical parameters, contact forces or out-of-distribution intervention effects. Fine-tuning data and multiple allowed attempts matter. Three cameras still leave some task angles poorly observed; paper towels can topple after placement. Internet-video gains are smaller than matched robot-video gains. No cross-embodiment deployment or direct joint-ID transfer is demonstrated.",
+  "code_and_license": "Seed points to https://github.com/WEIRDLabUW/unified-world-model. This full-text review did not inspect repository/license/checkpoint/data terms or execute code. SDXL-VAE, DROID and the separate internet-video datasets need independent rights checks; public paper availability is not license evidence.",
+  "hardware_adaptation": "ADAPT modality-specific masking and shared auxiliary prediction as a compact baseline; do not immediately reproduce the full training recipe on NX16GB. AppendixA reports100kDROID updates taking24h on4A100GPUs. A reduced action-only inference mode is potentially useful, but measure actual Orin memory/denoising latency and map Cartesian targets through calibrated5DOF-arm IK. Pi should keep capture/outbox and local servo timing independent of that model.",
+  "decision": "ADAPT",
+  "algorithm_detail": "A12-layer,12-head transformer uses embedding768,8register tokens and AdaLN conditioning from current visual features plus separate action/image time embeddings. Action chunks are shallow-MLP tokens; SDXL latents are spatiotemporally patchified4x4x2. Both denoising objectives haveweight1; training100noise steps, inference10DDIM steps, AdamW1e-4. For action-free samples ta=T and Gaussian-imputed actions; appendixA explicitly computes the diffusion objective on mixed samples. Registers provide a shared channel between image and action modalities.",
+  "integration_contract": "Declare exact image history/view order, transforms, timestamp spacing, end-effector frame and delta-pose convention, continuous gripper mapping, chunk freshness and which modality is masked/conditioned. Generated observations, actual reference future images and recorded physical observations must have distinct provenance. Preserve source data splits and action-mask status; an absent action must not become a synthetic executed label.",
+  "license_evidence": "NOT_AUDITED individually for UWM code/checkpoints, SDXL-VAE, DROID, Kinetics400 and Something-Something-v2. The paper's resource references establish where to investigate, not redistribution permission.",
+  "required_experiments": "Match actor/backbone and finetuning budgets against ACT/DP, compare synchronized versus independent noise timesteps without changing conditioning, and ablate future versus current-image reconstruction. Test action-free data from matched versus mismatched cameras. Repeat one-attempt and allowed-retry physical evaluations separately, measure image/action synchronization and NX inference latency, and evaluate intervention prediction before claiming causal diagnosis.",
+  "difference_from_explorer": "This already unifies policy, inverse/forward dynamics and action-free video pretraining. Explorer's registry or event queue is engineering glue; a new reusable-skill/repair claim must go beyond those existing capabilities with independent contact-sensitive and cross-embodiment evidence. Current CAD PPO→ACT reach does not implement UWM's multimodal joint diffusion.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "III-A/B",
+      "supports": "Task assumptions and separate modality timesteps"
+    },
+    {
+      "page": 4,
+      "section": "Equations1-5/Figure2",
+      "supports": "Denoising objective and four inference modes"
+    },
+    {
+      "page": 5,
+      "section": "III-C/D",
+      "supports": "Architecture, registers and action-free co-training"
+    },
+    {
+      "page": 7,
+      "section": "TableI/IV-B",
+      "supports": "Physical results and pretraining/finetuning setup"
+    },
+    {
+      "page": 8,
+      "section": "TableII/IV-C",
+      "supports": "Five-task LIBERO evaluation and uncertainty"
+    },
+    {
+      "page": 9,
+      "section": "TablesIII-IV",
+      "supports": "Privileged-reference inverse tracking and categorized OOD counts"
+    },
+    {
+      "page": 14,
+      "section": "AppendixA/TableV",
+      "supports": "Hyperparameters and4A100/24h compute"
+    },
+    {
+      "page": 15,
+      "section": "AppendixB/C/TableVI",
+      "supports": "Custom baseline adaptations,10Hzdelta-pose actions and task data budgets"
+    },
+    {
+      "page": 16,
+      "section": "C.3-C.5",
+      "supports": "Three-attempt protocol, evaluation restrictions and failure modes"
+    },
+    {
+      "page": 17,
+      "section": "TablesVII-IX/AppendixD",
+      "supports": "Register/reconstruction ablations and internet-video comparison"
+    }
+  ]
+}

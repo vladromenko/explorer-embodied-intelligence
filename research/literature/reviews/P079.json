@@ -1,0 +1,61 @@
+{
+  "full_text_examined": true,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P079",
+  "source_sha256": "8f0e312622e926623a90e8f8dbe7d17fca3c007b3b8a9b936cd695c204860118",
+  "primary_url": "https://arxiv.org/abs/2503.00200",
+  "deep_review": false,
+  "problem": "Obtain the representational benefit of predicting robot videos without requiring expensive video decoding before every control decision.",
+  "contribution": "UVA jointly learns video/action latents with separate lightweight diffusion decoders. Policy inference can skip the video decoder. Input/output masking also supports forward dynamics, inverse dynamics and action-free video learning without presenting one capability's metric as another.",
+  "algorithm": "Encode historical RGB through a pretrained VAE and historical high-rate action chunks through projections, concatenate with masked future visual tokens, and fuse with a transformer. Consistent token positions are masked across future frames. Independent video/action diffusion losses supervise lightweight heads; application-dependent masks select policy/dynamics/generation tasks. A policy-only ablation removes video supervision.",
+  "observations": "Historical third-person RGB and action history; language CLIP conditioning for LIBERO. At policy time all future images are masked, so actual future observations are not available to the actor. The real-world UMI datasets use camera-related motion information; the inverse-dynamics evaluation is separately compared against motion-capture camera poses.",
+  "actions": "Continuous action chunks, typically16predicted and8executed. Task-specific action meanings follow simulator/UMI control interfaces, not a universal joint-ID map. The paper's planning mode samples100DP-C trajectories, predicts their futures and executes the first6steps of the selected candidate.",
+  "embodiment_and_data": "PushT,ToolHang,PushT-M,LIBERO10 and public UMI Cup/Towel/Mouse data evaluated with an ARX X5 arm. Multitask real training samples500episodes/task (1500total) from6764public episodes;20real rollouts/task. Supplemental video-pretraining experiment uses3175human videos, so large-scale actionless-video exploitation is still limited rather than absent.",
+  "experiments": "Evaluate single/multitask policies, visual distribution shifts, history-length robustness, video FVD, block-pushing candidate selection and mocap-referenced inverse dynamics. Main LIBERO description uses50initializations/task and500total; appendixX-B contains an inconsistent10runs wording, while TableVIII explicitly confirms50/task in the500test setting. Best-checkpoint selection must not be confused with an untouched final evaluation.",
+  "baselines": "CNN/transformer Diffusion Policy, improved CLIP/ViT DP-UMI, OpenVLA,pi0/pi0FAST and a third-party UniPi implementation. Inputs/pretraining differ:pi0 uses additional wrist/proprioception and broader data. Timing matches8executed actions by querying OpenVLA8times, not comparing a single forward call directly.",
+  "quantitative_result": {
+    "location": "PDFp6 TableII; PDFp15 TableVII",
+    "physical_success": "Multitask Cup13/20,Towel14/20,Mouse16/20 versus DP-UMI10/20,14/20,8/20; single-task Cup17/20 versus19/20 baseline.",
+    "runtime": "95ms per16-action chunk at16denoising steps on RTX3080, versus70ms DP-UMI. Breakdown40msVAE+40mstransformer+15msaction head; NOT measured on NX.",
+    "other_metric": "PDFp10 TableVI inverse camera-pose error0.75cm/1.11deg versus SLAM0.41cm/0.30deg; this is not physical task success."
+  },
+  "limitations": "Some visual changes still cause large failures (PushT background-color success0.35 versus0.98normal). Single-task cup performance is worse than DP-UMI, and longer history can underuse failure-recovery data. UMI camera-pose reconstruction accuracy does not guarantee general inverse dynamics. The block-pushing text's50% unconditioned-policy ceiling is distinct from the planner's60% and simulator-selected75%; video FVD is likewise separate from control success.",
+  "code_and_license": "Primary paper links https://unified-video-action-model.github.io/ and says implementation derives from pretrained MAR-B with substantial modifications. Repository, encoder/checkpoint and UMI/human-video license texts were not inspected; all those reuse terms are NOT_AUDITED. No code executed.",
+  "hardware_adaptation": "COMPARE a compact auxiliary future-image objective or decoupled action head against the actual ACT baseline. The0.5B backbone and VAE require measured NX memory/latency; RTX3080 timing cannot establish Wi-Fi or Orin deadlines. Preserve commanded-action history, chunk timing and source camera calibration. Pi remains a capture/servo node and should not be required to decode video predictions for every command.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "III-A/Figure2",
+      "supports": "History encoding and action/video temporal rates"
+    },
+    {
+      "page": 4,
+      "section": "III-B/C",
+      "supports": "Masking, decoupled losses and skipping video decoder"
+    },
+    {
+      "page": 5,
+      "section": "V-A/B/TableI",
+      "supports": "Simulation protocols and action-chunk timing comparison"
+    },
+    {
+      "page": 6,
+      "section": "TableII/V-C",
+      "supports": "Physical success counts and baseline differences"
+    },
+    {
+      "page": 10,
+      "section": "VII-IX/TablesV-VI",
+      "supports": "Planning, mocap inverse metrics and acknowledged limitations"
+    },
+    {
+      "page": 15,
+      "section": "X-C/D/E/TableVII-VIII",
+      "supports": "Real-data budgets, RTX3080 runtime and human-video experiment"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P078",
+  "source_sha256": "d8e71251df61893ccde0a839e3aecff9d617172d4c8df90d59923eb5051da95c",
+  "primary_url": "https://arxiv.org/abs/2602.10717",
+  "problem": "Use long-horizon video prediction for instruction-driven control while reducing the expensive denoising delay and correcting imagined trajectories against actual observations.",
+  "contribution": "Say,Dream,andAct/Dream4manip combines target-domain CosmosPredict2 adaptation, latent adversarial distillation, fixed-length whole-trajectory keyframes and an in-context action policy. The PDF retains ICML2026 submission-format headers; venue acceptance is not established by this review.",
+  "algorithm": "Select a video prior using generated-video embodiment/referring metrics. Distill with a noisy-latent discriminator initialized from a frozen DiT plus trained3D heads, hinge adversarial objectives and denoising reconstruction loss(lambda0.1). Compress arbitrary-length demonstrations into93uniform keyframes. The action model conditions on imagined future frames and actual observation history instead of rigidly tracking every generated frame.",
+  "observations": "Third-person RGB, instruction, generated future frames and8sampled historical frames. The generated-video metric labels are human/visual judgments of imagined embodiment, referring, grasp appearance and task completion; they are not independent physical outcomes.",
+  "actions": "Predicted action chunks for manipulation. Figure2 describes an ACT-derived transformer with separate visual encoders, whereas implementation describes Qwen2.5, LoRArank64 and an action model trained on8GPUs. Exact endpoint/action-coordinate serialization is NOT_EXTRACTED and needs clarification before any robot adapter.",
+  "embodiment_and_data": "LIBERO suites with reported training counts Spatial433,Object456,Goal436,Long389 and10test subtasks/suite. Each test subtask is run50times (500runs/suite). Physical setup is7DOF Franka, third-person RealSenseD435 and SpaceMouse demonstrations, but a complete quantitative physical trial table is not provided in the examined text.",
+  "experiments": "Separate generated-video quality tests from closed-loop LIBERO policy evaluation; ablate domain adaptation, distillation and denoising steps. World model training uses10,000LIBERO iterations or1,000real-world iterations. Action training uses20,000steps, total batch128 across8GPUs. Generated-video RSR/ISR/TCR are defined by observed content of synthesized videos, not executed robot success.",
+  "baselines": "OpenVLA/OFT, CoT-VLA, UniVLA, WorldVLA,4D/SpatialVLA,pi0/pi0FAST,SmolVLA,GR00TN1,DreamVLA for LIBERO; Wan14B and Cosmos2B/14B/DROID variants for visual generation. The table's parameter column describes backbones and does not establish total end-to-end memory equivalence.",
+  "quantitative_result": {
+    "location": "PDFp6 Table3 and PDFp5-6 Tables1,4; prose discrepancy PDFp8",
+    "table3": "Dream4manip Spatial99.4,Object99.2,Goal98.2,Long95.4,total98.1%; OpenVLA-OFT97.1total andDreamVLA92.6total;500evaluation runs/suite perPDFp5.",
+    "inconsistency": "Section4.3 instead writes98.2total and98.6Goal; retain the actual table values rather than silently reconciling.",
+    "separate_generation_metric": "Table1 C2B domain adaptation FVD571.46→211.84; adaptation+distillation238.09. Table4 base-model inference35steps86.20s versus10steps29.80s; these are video-generation timing/quality, not controlHz. Hardware for those timing entries NOT_EXTRACTED."
+  },
+  "limitations": "Very high simulated success does not establish physical reliability. Main text and table contain numerical inconsistencies; architecture/action details and physical success denominators remain incomplete. Domain adaptation is needed for camera/embodiment consistency; the paper acknowledges drift and resource-constrained latency. A few denoising steps still do not imply NX-real-time operation.",
+  "code_and_license": "No repository/code/weight/dataset license was examined. Cosmos-family and Qwen model terms require their own checks, as do the downstream data. Software and weights are NOT_AUDITED; no code executed.",
+  "hardware_adaptation": "COMPARE the separation between imagined context and continuously observed correction, rather than attempting full eight-GPU training on NX. Keep event-triggered/offline video planning outside the Pi servo/camera loop; benchmark any compact distilled component with actual memory/latency. Treat93uniform keyframes as planning context, never as timed motor commands or executed evidence.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "3.1",
+      "supports": "World-model selection/adaptation and distillation intent"
+    },
+    {
+      "page": 4,
+      "section": "Equations1-4/Figure2",
+      "supports": "Latent adversarial/reconstruction objectives and ACT-style diagram"
+    },
+    {
+      "page": 5,
+      "section": "3.2-3.3/4",
+      "supports": "93keyframes, actual-observation conditioning and500runs/suite"
+    },
+    {
+      "page": 6,
+      "section": "Tables3-4/implementation",
+      "supports": "LIBERO metrics, generation latency and8GPUQwenLoRA training"
+    },
+    {
+      "page": 8,
+      "section": "4.3/Discussion",
+      "supports": "Table/prose disagreement and acknowledged deployment limitations"
+    },
+    {
+      "page": 11,
+      "section": "AppendixA",
+      "supports": "Definitions of generated-video metrics distinct from physical execution"
+    }
+  ]
+}

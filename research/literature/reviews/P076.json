@@ -1,0 +1,83 @@
+{
+  "paper_id": "P076",
+  "source_sha256": "76f73cc64110421afe6f08feafbb0d57bb23bb7aa24850e9b6d320d3a2cc22c0",
+  "primary_url": "https://arxiv.org/abs/2411.07223",
+  "full_text_examined": true,
+  "deep_review": true,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "problem": "Ground language-conditioned video plans in executable embodied actions without expert action labels or an environment reward. The important gap is that a plausible video does not supply an embodiment-specific control law.",
+  "contribution": "Goal-conditioned hindsight learning uses actual environment rollouts generated while pursuing video subgoals. Periodic random exploration and temporally coherent action chunks prevent the self-trained policy from collapsing onto its own narrow action distribution. The reported evidence is entirely simulated, despite the general motivation of real-world grounding.",
+  "algorithm": "Freeze an environment-trained video diffusion model; generate subgoal images from the current image and instruction, execute a goal-conditioned policy, and place actual observed image/action trajectories in FIFO replay. Train on past/future image pairs from the same actual rollout, with the executed intermediate action sequence as the hindsight target. Mix initial and periodic random chunks with video-directed exploration.",
+  "observations": "Current and visual goal RGB images at128x128 for the manipulation policy; language conditions the video model. The policy itself uses image pairs. A grasp exploration heuristic additionally compares wrist-camera obstacle distance and gripper height; the method is therefore not a sensor-free discovery of grasping.",
+  "actions": "LIBERO/CALVIN use7D end-effector displacement/orientation plus gripper; Meta-World uses4D Cartesian displacement/gripper. iTHOR uses four discrete actions with a single-step ResNet/MLP policy rather than the manipulation diffusion policy. Source action semantics cannot be copied directly to ROSMASTER endpoint degrees or SO101 normalized joints.",
+  "embodiment_and_data": "Simulated Franka/Panda/Sawyer manipulation:8LIBERO tasks,6Meta-World tasks,4CALVIN tasks;12navigation targets across4iTHOR scene types. LIBERO video training uses20visual demonstrations/task (160total), Meta-World15/task; expert actions are withheld from this method but supplied to starred BC baselines. LIBERO has one multitask policy, Meta-World separate single-task policies. No physical robot experiment is reported.",
+  "experiments": "Randomized robot/object starts for manipulation and randomized navigation starts. Compare task success, random/video/chunk ablations, demonstration counts, training iterations and video/policy horizons. AppendixC explicitly analyzes video object-identity hallucinations, wrong task directions and final-placement precision failures. AppendixD documents real rollout-based success termination rather than judging generated frames.",
+  "baselines": "BC, GCBC, diffusion BC/GCBC, SuSIE and AVDC; action supervision and object-mask access differ. AVDC receives target segmentation and uses the same camera viewpoint, while some original AVDC published averages used three views. Supplementary DrQ+LIV uses a learned zero-shot reward. These supervision and interaction budgets must accompany comparisons.",
+  "quantitative_result": {
+    "location": "PDFp7 Table2, visually checked; PDFp8 Table3; PDFp10 Table5",
+    "metric": "simulator task success rate percent",
+    "metaworld_overall": "67.2±3.6 versus DP-BC51.7±3.6, GCBC52.8±3.5 and AVDC50.7±2.6 across six tasks",
+    "calvin_overall": "84.4±3.0 versus DP-BC68.8±3.0 across four tasks",
+    "ablation": "LIBERO scene1 full42.2±8.9 versus no-random0.0, no-video0.0 and single-action16.4±5.4",
+    "denominator": "Main-table trial count and uncertainty interpretation NOT_EXTRACTED. AppendixA.8/PDFp21 explicitly describes25evaluation episodes/checkpoint for that separate diagnostic; AppendixA.1 says five checkpoint averages for its BC-data comparison. Do not silently treat either as all main-table independent training seeds."
+  },
+  "limitations": "Video models are trained separately on each environment's demonstration images, so claims about internet-scale priors do not demonstrate an off-the-shelf universal video planner. Precise assembly reaches16.8% despite94.4% handle-press. Video hallucinations and task mismatch persist. Exploration needs resettable interactions; the paper explicitly leaves autonomous physical reset and potentially unwanted contact unresolved.",
+  "code_and_license": "The seed points to https://github.com/video-to-action/video-to-action-release. This review examined the primary paper, not repository files, weight terms or dataset license texts. Code/model/data reuse rights are NOT_AUDITED; no implementation was executed by this review.",
+  "hardware_adaptation": "ADAPT hindsight relabeling and replay accounting first inside the actual CAD MuJoCo scene. A compact goal-conditioned actor may be plausible on NX, but the paper uses one RTX3090-class GPU and reports about36h for LIBERO200k iterations, aboutone day Meta-World/iTHOR and15h CALVIN. Pi should capture timestamped camera/joint data, not host the video denoiser. Physical exploration/reset is a separate engineering problem and does not justify changing existing controller settings.",
+  "decision": "ADAPT",
+  "algorithm_detail": "Manipulation uses a ResNet18 goal/current encoder and1D-UNet diffusion policy with prediction horizon16, executed horizon8,100denoising steps, batch64, Adam1e-4 and200k updates. A 3D-UNet/CLIP video model supplies goals. Random chunks have a uniformly chosen mean and Gaussian local actions, reducing cancellation. LIBERO initial50random episodes/task, warm-start10k steps, periodic additions every500updates and FIFOcapacity1200; the gripper is discretized separately. Training targets always come from real simulator transitions, not generated trajectories treated as executed data.",
+  "integration_contract": "Persist actual state/action/image timing, source camera geometry, source versus generated goal IDs, replay membership, task conditioning, action-coordinate conventions, chunk length and actual dispatched actions. Distinguish video-goal plausibility from actual task success. Any grasp heuristic must declare its distance/height sensors instead of silently using simulator-only state at deployment.",
+  "license_evidence": "NOT_AUDITED for repository code, model checkpoints and each visual demonstration corpus. Public primary-paper access and a release link do not establish those separate rights.",
+  "required_experiments": "Match interaction counts and visual demonstrations against ACT/DP and a no-video hindsight baseline in the CAD scene; ablate random/chunk components and the grasp primitive. Test goal-image hallucinations, unreachable targets, reset failures and precision-sensitive tasks. Measure NX denoising latency/memory and retain an independent physical outcome protocol before interpreting any real transfer.",
+  "difference_from_explorer": "This prior work already couples video goals, autonomous interaction, hindsight skill learning and replay. Explorer novelty cannot be the loop itself; a distinct diagnostic-repair or durable cross-embodiment memory claim needs matched evidence. Current verified PPO→ACT reach uses action-labelled simulator rollouts and is not this reward-free discovery method.",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "3.1",
+      "supports": "Actual-rollout hindsight objective and video goal conditioning"
+    },
+    {
+      "page": 4,
+      "section": "Algorithm1 /3.2",
+      "supports": "Replay learning and random bootstrapping"
+    },
+    {
+      "page": 5,
+      "section": "3.3 /4",
+      "supports": "Chunked exploration and experiment supervision"
+    },
+    {
+      "page": 7,
+      "section": "Table2 /4.1",
+      "supports": "Meta-World quantitative results and action/visual demonstration differences"
+    },
+    {
+      "page": 10,
+      "section": "Table5 /5",
+      "supports": "Ablations and physical reset/exploration limitations"
+    },
+    {
+      "page": 29,
+      "section": "AppendixC.1",
+      "supports": "Object hallucination and instruction mismatch failures"
+    },
+    {
+      "page": 31,
+      "section": "AppendixD.1-D.3",
+      "supports": "Hardware, training time and distance/height grasp heuristic"
+    },
+    {
+      "page": 32,
+      "section": "Tables13-16",
+      "supports": "Policy, bootstrapping and action-range parameters"
+    },
+    {
+      "page": 33,
+      "section": "D.4-D.5",
+      "supports": "Actual simulator outcome criterion and baseline implementation differences"
+    }
+  ],
+  "code_inspected": false,
+  "code_executed": false
+}
