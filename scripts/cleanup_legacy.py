@@ -198,8 +198,8 @@ def inventory(plan: dict) -> tuple[list[dict], list[dict], list[str], int]:
         if reason:
             rows = [row for _, row in all_entries(path, home)]
             size = sum(row["size"] for row in rows)
-            if path.name == ".git" and item["kind"] == "directory" and git_identity(path.parent)["head"] is None:
-                # An unborn repository cannot produce a bundle. Preserve its complete raw Git tree.
+            if path.name == ".git" and item["kind"] == "directory" and requires_raw_git(git_identity(path.parent)):
+                # Unborn or shallow Git needs its complete raw tree, including shallow boundary metadata.
                 repositories.append(path.parent.relative_to(home).as_posix())
                 included.extend(rows)
                 total_bytes += size
@@ -292,13 +292,20 @@ def git_identity(repo: Path) -> dict:
                    "Git reference inspection", cwd=repo).decode().splitlines()
     result = subprocess.run(["git", "rev-parse", "--verify", "HEAD"], cwd=repo, capture_output=True, timeout=120, check=False)
     head = result.stdout.decode().strip()
+    shallow = command(["git", "rev-parse", "--is-shallow-repository"], "Git shallow boundary inspection", cwd=repo).decode().strip() == "true"
+    shallow_file = repo / ".git/shallow"
+    boundary = sorted(shallow_file.read_text().splitlines()) if shallow and shallow_file.is_file() else []
     if result.returncode != 0 and not refs:
         symbolic = command(["git", "symbolic-ref", "-q", "HEAD"], "Unborn Git HEAD inspection", cwd=repo).decode().strip()
         if symbolic.startswith("refs/heads/"):
-            return dict(head=None, refs=[], unborn=True, symbolic_head=symbolic)
+            return dict(head=None, refs=[], unborn=True, symbolic_head=symbolic, shallow=shallow, shallow_boundary=boundary)
     if result.returncode != 0 or not re.fullmatch(r"[0-9a-f]{40,64}", head):
         raise CleanupError("Git HEAD is neither a commit nor an unborn branch without refs")
-    return dict(head=head, refs=sorted(refs))
+    return dict(head=head, refs=sorted(refs), shallow=shallow, shallow_boundary=boundary)
+
+
+def requires_raw_git(identity: dict) -> bool:
+    return identity["head"] is None or identity["shallow"]
 
 
 def verify_git_sources(home: Path, bundles: list[dict]) -> None:
@@ -312,9 +319,10 @@ def git_bundles(home: Path, destination: Path, repositories: list[str]) -> list[
     for index, relative in enumerate(repositories):
         repo = home / relative
         identity = git_identity(repo)
-        if identity["head"] is None:
-            result.append(dict(repository=relative, file=None, head=None, source_identity=identity,
-                               storage="complete_git_directory_in_source_archive", sha256=None, bytes=0))
+        if requires_raw_git(identity):
+            result.append(dict(repository=relative, file=None, head=identity["head"], source_identity=identity,
+                               storage="complete_git_directory_in_source_archive", archive_reason="unborn" if identity["head"] is None else "shallow_history_preserved_at_original_boundary",
+                               sha256=None, bytes=0))
         else:
             path = destination / ("history-" + str(index) + ".bundle")
             command(["git", "bundle", "create", str(path), "--all", "HEAD"], "Git bundle creation", cwd=repo)
@@ -408,10 +416,13 @@ def verify_restore(archive: Path, entries: list[dict], bundles: list[dict], dest
         if seen != set(expected):
             raise CleanupError("Archive omits an expected source member")
         for index, row in enumerate(bundles):
-            if row["head"] is None:
+            if row["storage"] == "complete_git_directory_in_source_archive":
                 restored_repo = restore / "payload" / row["repository"]
                 if git_identity(restored_repo) != row["source_identity"]:
-                    raise CleanupError("Restored unborn Git state differs from its complete archived directory")
+                    raise CleanupError("Restored raw Git state differs from its complete archived directory")
+                if row["head"] is not None:
+                    command(["git", "cat-file", "-e", row["head"] + "^{commit}"], "Restored shallow Git HEAD verification", cwd=restored_repo)
+                    command(["git", "fsck", "--full", "--no-dangling"], "Restored shallow Git connectivity verification", cwd=restored_repo)
             else:
                 path = destination / row["file"]
                 if sha256(path) != row["sha256"]:

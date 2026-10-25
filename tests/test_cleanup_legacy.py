@@ -221,3 +221,30 @@ def test_unborn_git_preserved_completely_without_fabricated_bundle(tmp_path, mon
     assert not list(destination.glob("*.bundle"))
     with tarfile.open(result["archive"]) as archive:
         assert archive.extractfile("payload/MILO_Next/.git/custom-state.bin").read() == raw
+
+
+def test_shallow_git_restores_offline_at_its_original_boundary(tmp_path, monkeypatch):
+    mock_runtime(monkeypatch)
+    origin = tmp_path / "origin"
+    source = put(origin / "module.py", b"first")
+    subprocess.run(["git", "init", "-q", str(origin)], check=True)
+    for contents in (b"first", b"second"):
+        source.write_bytes(contents)
+        subprocess.run(["git", "-C", str(origin), "add", "module.py"], check=True)
+        subprocess.run(["git", "-C", str(origin), "-c", "user.name=Test", "-c", "user.email=test@example.invalid",
+                        "commit", "-qm", "source"], check=True)
+    home = tmp_path / "home"
+    home.mkdir()
+    repo = home / "MILO_Next"
+    subprocess.run(["git", "clone", "--depth", "1", "--quiet", origin.as_uri(), str(repo)], check=True)
+    boundary = (repo / ".git/shallow").read_bytes()
+    result = cleanup.cleanup(home, "pi", apply=True)
+    assert result["test_restore_passed"] and not repo.exists()
+    manifest = json.loads((Path(result["archive_directory"]) / "manifest.json").read_text())
+    history = manifest["git_bundles"][0]
+    assert history["source_identity"]["shallow"] is True
+    assert history["source_identity"]["shallow_boundary"] == boundary.decode().splitlines()
+    assert history["archive_reason"] == "shallow_history_preserved_at_original_boundary"
+    assert history["file"] is None
+    with tarfile.open(result["archive"]) as archive:
+        assert archive.extractfile("payload/MILO_Next/.git/shallow").read() == boundary
