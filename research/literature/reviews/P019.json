@@ -1,0 +1,57 @@
+{
+  "problem": "Provide a pretrained manipulation policy that can be adapted to new observation modalities, action spaces and robots without discarding its pretrained backbone.",
+  "contribution": "Octo uses modular task/observation tokenizers, block-wise transformer attention and a continuous diffusion action head, pretrained on a curated800Ktrajectory mixture.",
+  "algorithm": "Encode language/goal images and temporal observations into modality tokens. Mask absent modalities; observation tokens attend causally, while readout tokens passively summarize prior inputs. Decode action chunks with a small DDPM head after one backbone pass. Add new tokenizers/heads and finetune the full model for target contracts.",
+  "observations": "Language or goal images, third-person/wrist histories and optionally new proprioceptive modalities. Missing input tokens are masked rather than treated as measured zeros.",
+  "actions": "Continuous multimodal action chunks; finetuning supports joint-position heads and new robots. Pretraining aligns gripper+1open/0closed and zero-pads missing camera channels.",
+  "embodiment_and_data": "800Kcurated Open-X trajectories from an approximately1.5Mepisode pool. Real evaluations cover9setups across4institutions, including joint control, bimanual tasks and force-torque input adaptation.",
+  "experiments": "Finetuning recipe uses around100target demonstrations and50Ksteps. TableI evaluates20trials/domain; direct policies use2language tasks/robot with10trials each. Source evaluates new inputs/actions separately from in-distribution zero-shot setups.",
+  "baselines": "RT-1-X/RT-2-X zero-shot, target-only ResNet+Transformer and pretrained VC-1 representations for finetuning; MSE/discrete-action heads and data-mixture/model-scale ablations. RT-X has a smaller350Kpretraining subset, so not a pure architecture-only comparison.",
+  "quantitative_result": {
+    "value": "TableI average finetuning success72% forOcto versus20%fromscratch and15%VC-1; each domain20trials and approximately100demonstrations. This aggregate does not imply72% on an unseen Explorer robot.",
+    "location": "PDF p7 TableI"
+  },
+  "limitations": "Wrist-camera finetuning can be worse than third-person only; only27%ofpretraining data has wrist inputs and56%language annotations. Trains from optimal demonstrations, not a demonstrated online-improvement method; mobile manipulation is future scope.",
+  "code_and_license": "Paper reports public training/finetuning tools; this review did not inspect source files or verify separate code/model/data rights. No Octo execution is claimed.",
+  "hardware_adaptation": "A relevant compact-policy reference, but adapting robot inputs/actions requires real processors, finetuning and evaluation. Overview-only sensing does not inherit force-torque experiments. Record modality presence and gripper semantics explicitly.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "III",
+      "supports": "Mixture and modular design"
+    },
+    {
+      "page": 4,
+      "section": "III-A",
+      "supports": "Token/readout attention contract"
+    },
+    {
+      "page": 5,
+      "section": "III-C",
+      "supports": "Diffusion decoding and finetuning"
+    },
+    {
+      "page": 6,
+      "section": "Evaluation",
+      "supports": "Embodiments and comparison differences"
+    },
+    {
+      "page": 7,
+      "section": "TableI",
+      "supports": "20trial/domain results"
+    },
+    {
+      "page": 8,
+      "section": "V",
+      "supports": "Modality/data limitations"
+    }
+  ],
+  "paper_id": "P019",
+  "source_sha256": "73bff297cfafe523319162124e6b7f96919c0930e0a380f307255c4c7464ac93",
+  "primary_url": "https://arxiv.org/abs/2405.12213",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

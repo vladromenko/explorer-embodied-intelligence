@@ -1,0 +1,52 @@
+{
+  "problem": "Improve the sample and wall-clock efficiency of reinforcement learning directly from continuous-control images.",
+  "contribution": "DrQ-v2 is an efficient image-based actor-critic implementation using random shifts, deterministic policy gradients, n-step returns, scheduled exploration and replay/hyperparameter changes.",
+  "algorithm": "Encode augmented image stacks; train twin critics with n-step targets and minimum target-Q; update a deterministic actor while stopping encoder gradients from the actor loss. Use clipped Gaussian exploration and a schedule; retain current rather than target encoder weights.",
+  "observations": "Three consecutive84×84RGB observations stacked to recover temporal information; random shifts use4pixel replicated padding and bilinear interpolation.",
+  "actions": "Continuous simulator control actions with action repeat2; environment frames and actor steps are explicitly different quantities.",
+  "embodiment_and_data": "24DeepMind Control/MuJoCo tasks grouped by difficulty, including21DOF humanoid. Online simulated replay; not physical manipulation demonstrations.",
+  "experiments": "All compared algorithms use a single NVIDIA V100 and evaluations every20K environment steps. Each evaluation averages10episodes; curves show means over10training seeds with95%confidence regions. Easy/medium/hard budgets differ.",
+  "baselines": "SAC, CURL and DrQ, with implementation and component/hyperparameter comparisons. Wall-clock comparisons are controlled on the source hardware.",
+  "quantitative_result": {
+    "value": "Implementation throughput increases from28to96environment frames/s on the same source hardware, reported about3.5× faster; not an NX benchmark or task-success rate.",
+    "location": "PDF p3 opening implementation paragraph; p6 Section4.1 specifies V100 evaluation setup"
+  },
+  "limitations": "Results concern simulator returns and long online-interaction budgets. Faster training partly comes from implementation/hyperparameter changes; reproducing just an image augmentation does not reproduce the complete algorithm. Augmentation does not solve contact observability or missing joint feedback.",
+  "code_and_license": "Paper links facebookresearch/drqv2, but executable code/license were not audited here. Do not assume that code was installed or executed.",
+  "hardware_adaptation": "Useful future visual-RL comparator and image/replay engineering reference; profile actual NX memory, update latency and rollout throughput. Preserve image history and report environment versus decision-step units.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "2/3",
+      "supports": "Pixel-control formulation and throughput"
+    },
+    {
+      "page": 4,
+      "section": "Algorithm1",
+      "supports": "Update routine and augmentation"
+    },
+    {
+      "page": 5,
+      "section": "Eq1-3",
+      "supports": "Targets, encoder gradients and exploration"
+    },
+    {
+      "page": 6,
+      "section": "4.1",
+      "supports": "24tasks, V100, seeds and denominator"
+    },
+    {
+      "page": 13,
+      "section": "6",
+      "supports": "Scope and source implementation link"
+    }
+  ],
+  "paper_id": "P013",
+  "source_sha256": "7a9b7d03a6cbdf09767b132fa474620abed861197632352d236be61faa09a0fd",
+  "primary_url": "https://arxiv.org/abs/2107.09645",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

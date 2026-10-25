@@ -1,0 +1,57 @@
+{
+  "problem": "Transfer internet-scale visual/language representations into robot action prediction and adapt the resulting policy to new tasks with practical finetuning and inference costs.",
+  "contribution": "OpenVLA is a7B vision-language-action model with fused DINOv2/SigLIP visual features, Llama2 and discretized robot actions; studies target-robot finetuning and quantization.",
+  "algorithm": "Finetune a Prismatic VLM with next-token action prediction. Quantize each action dimension into256bins between training-data1st/99th percentiles and replace256least-used vocabulary tokens. Investigate full/parameter-efficient finetuning and low-bit serving.",
+  "observations": "A single RGB image plus language instruction in the examined version; multi-image, proprioception and observation history are future work.",
+  "actions": "Seven-dimensional Cartesian robot action, including pose change and gripper; action normalization statistics and tokenizer bins are part of its deployment contract.",
+  "embodiment_and_data": "Main model970K Open-X demonstrations,27training epochs,64A100 GPUs for14days. Direct evaluations use WidowX BridgeDataV2 and Google mobile manipulators; target finetuning covers additional setups.",
+  "experiments": "Bridge direct evaluation170rollouts/17tasks and Google60/12tasks. Quantization evaluation is80rollouts over8representative Bridge tasks and uses a smaller training mixture/SigLIP-only architectural variant per footnote4.",
+  "baselines": "RT-1-X/RT-2-X, Octo and data-efficient imitation comparisons; full finetuning, parameter-efficient variants and different precision settings. Training mixtures and access are not identical across all comparisons.",
+  "quantitative_result": {
+    "value": "Quantization variant: bfloat16 success71.3±4.8%,VRAM16.8GB; int4 success71.9±4.7%,7.0GB; int8 success58.1±5.1%,10.2GB. Mean±standard error over80rollouts/8tasks. These are not NX memory/latency measurements or the identical main-model configuration.",
+    "location": "PDF p10 Table2/footnote4, p11 quantization discussion"
+  },
+  "limitations": "Typically below90%reliability; single-image input and slow inference limit dexterous/high-frequency control. On A5000, int8 runs1.2Hz versusint4 3Hz and changes dynamics relative to5Hz collection. Metadata/reduced weight memory does not prove whole-system fit in16GB unified memory.",
+  "code_and_license": "Paper releases code/model but this review did not inspect executable files or independently verify code, model and upstream Llama licenses; no local OpenVLA execution is claimed.",
+  "hardware_adaptation": "Consider remote or quantized research inference only after measuring processors, latency, action units and actual NX compatibility. Preserve tokenizer/normalization and controller timing; do not claim7GB reported VRAM guarantees safe local execution.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3/Fig2",
+      "supports": "Architecture and970Kdata"
+    },
+    {
+      "page": 5,
+      "section": "3.2",
+      "supports": "Quantile-based action tokenization"
+    },
+    {
+      "page": 6,
+      "section": "3.5",
+      "supports": "Compute and main-model inference"
+    },
+    {
+      "page": 7,
+      "section": "5.1",
+      "supports": "Evaluation denominators"
+    },
+    {
+      "page": 10,
+      "section": "Table2/footnote4",
+      "supports": "Quantization values and changed variant"
+    },
+    {
+      "page": 11,
+      "section": "5.4/6",
+      "supports": "Timing sensitivity and limits"
+    }
+  ],
+  "paper_id": "P018",
+  "source_sha256": "353c37df34458f12f969b14dfd8b77175b727b9cddea7bb891759beddeefe1be",
+  "primary_url": "https://arxiv.org/abs/2406.09246",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

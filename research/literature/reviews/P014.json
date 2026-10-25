@@ -1,0 +1,57 @@
+{
+  "problem": "Evaluate offline RL on datasets that reflect narrow coverage, human/non-Markovian behavior, suboptimal mixtures, sparse rewards and undirected data rather than only online-RL replay.",
+  "contribution": "D4RL provides heterogeneous fixed datasets, simulator-based evaluation and a normalization/tuning protocol that exposes failures hidden by simple policy-generated data.",
+  "algorithm": "A benchmark rather than one learning algorithm: construct tasks/data with specified collection processes, separate tuning and final tasks, train offline methods and normalize returns to random/domain-expert references.",
+  "observations": "Domain-dependent state observations or image inputs; CARLA uses48×48first-person RGB and is partially observable. Some collection policies have hidden waypoint memory not represented in learner observations.",
+  "actions": "Task-specific continuous controls across navigation, dexterous manipulation, kitchen interaction, locomotion and simulated driving.",
+  "embodiment_and_data": "Typically roughly1M fixed transitions per task, with different datasets sharing simulators. Maze2D/AntMaze planner-generated data, human demonstrations, cloned/expert mixtures, Flow and CARLA controller data are intentionally heterogeneous.",
+  "experiments": "Compare offline learners across dataset types and hold out evaluation tasks from hyperparameter tuning. Analysis finds stitching/mixture/human-limited data remain difficult even when conventional RL replay looks successful.",
+  "baselines": "BC, online/offline SAC, BEAR, BRAC, AWR, BCQ, cREM and AlgaeDICE; CQL appears in discussion of conservative methods. Online SAC has different data-collection access and is a contextual reference.",
+  "quantitative_result": {
+    "value": "NOT_EXTRACTED: individual algorithm/task table scores were not transcribed. Normalization is100×(return−random_reference)/(expert_reference−random_reference), so0/100are reference returns, not universal failure/success percentages; random reference averages100episodes.",
+    "location": "PDF p7 Evaluation protocol, p8 benchmark discussion"
+  },
+  "limitations": "Mostly simulated robotics/driving/traffic, not standardized physical evaluation. Extensive online hyperparameter tuning can overstate offline deployment performance. Expert references differ by domain, and dataset coverage/collection policies strongly affect outcomes.",
+  "code_and_license": "Paper says benchmark/data are released; this review verifies primary fulltext but does not establish current package, dataset-asset licenses or executable compatibility.",
+  "hardware_adaptation": "Reuse the discipline of explicit collection-process metadata, development/final splits and mixed-quality data stress tests. Never display D4RL normalized returns as Explorer physical success rates; use measured task-specific rewards and observation contracts.",
+  "decision": "REUSE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "3",
+      "supports": "Offline setting and data-source motivation"
+    },
+    {
+      "page": 4,
+      "section": "4",
+      "supports": "Stitching, sparse and suboptimal distributions"
+    },
+    {
+      "page": 5,
+      "section": "5",
+      "supports": "Dataset construction"
+    },
+    {
+      "page": 7,
+      "section": "Evaluation protocol",
+      "supports": "Tuning split and normalization"
+    },
+    {
+      "page": 8,
+      "section": "6/7",
+      "supports": "Observed deficiencies and benchmark limits"
+    },
+    {
+      "page": 9,
+      "section": "7 continuation",
+      "supports": "Need for real-world/off-policy evaluation"
+    }
+  ],
+  "paper_id": "P014",
+  "source_sha256": "8a7b164dda59674366520aabbd6717b1049b489af383cb9b17b505b861799f5f",
+  "primary_url": "https://arxiv.org/abs/2004.07219",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

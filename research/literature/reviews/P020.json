@@ -1,0 +1,62 @@
+{
+  "problem": "Train one real-world control policy from diverse language-labelled robot demonstrations and assess new-instruction, distractor, background and long-horizon generalization.",
+  "contribution": "RT-1 combines language-conditioned visual tokenization, TokenLearner compression and a decoder-only transformer for efficient discrete action prediction at scale.",
+  "algorithm": "Behavioral clone successful episodes. Encode6RGB frames with EfficientNet-B3 and FiLM-conditioned language embeddings; compress each image to8tokens, process48tokens through an8layer transformer and predict discretized action variables with categorical cross entropy.",
+  "observations": "Six300×300RGB frames and Universal Sentence Encoder task description; model does not infer measured grip force merely from text conditioning.",
+  "actions": "Seven arm/gripper variables, three planar-base variables and a discrete arm/base/terminate mode; each variable uses256uniform bins within declared bounds.",
+  "embodiment_and_data": "Everyday Robots mobile manipulators with7DOF arms; over130Kepisodes and700instructions collected with13robots over17months, across classroom/office kitchen environments.",
+  "experiments": "Seen/unseen instruction combinations,30distractor tasks,22background tasks, heterogeneous-data ablations and15long-horizon instructions in two kitchens via SayCan. Planning and execution success are separate metrics.",
+  "baselines": "Gato, BC-Z, enlarged BC-Z and SayCan variants; dataset quantity/diversity and model-component ablations. Original SayCan uses a slightly different prompt, explicitly noted under the long-horizon table.",
+  "quantitative_result": {
+    "value": "Table2 reports RT-1 seen97%,unseen76%,distractor83%,background59%. These are different task sets, not four measurements of one common task; exact trial multiplicity/training-seed count not extracted here. Table6 reports planning87% and execution67% for RT-1 in each kitchen, illustrating their distinction.",
+    "location": "PDF p10 Table2 and p14 Table6; p9 defines evaluation sets"
+  },
+  "limitations": "Imitation need not surpass demonstrators; unseen instructions recombine familiar concepts rather than establish completely new motions. Demonstrated tasks are not very dexterous. Large collection scale and fixed source morphology cannot be assumed for local low-cost arms.",
+  "code_and_license": "Primary architecture/data/evaluation examined; original executable checkpoints, source license and dataset permissions were not audited in this review. No RT-1 reproduction is claimed.",
+  "hardware_adaptation": "Use as architecture and data-diversity context. Any local implementation must map base stop/mode semantics, bound joint/Cartesian units and measure its own timing. A generated plan is not a completed sequence; keep planning and execution outcomes separate.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "4",
+      "supports": "Data and robot/action contracts"
+    },
+    {
+      "page": 5,
+      "section": "5.1",
+      "supports": "Vision/language history"
+    },
+    {
+      "page": 6,
+      "section": "5.1",
+      "supports": "Tokens, action bins and loss"
+    },
+    {
+      "page": 9,
+      "section": "6",
+      "supports": "Generalization and long-horizon protocol"
+    },
+    {
+      "page": 10,
+      "section": "Table2",
+      "supports": "Source rates"
+    },
+    {
+      "page": 14,
+      "section": "Table6",
+      "supports": "Planning versus execution"
+    },
+    {
+      "page": 15,
+      "section": "7",
+      "supports": "Data scale and limitations"
+    }
+  ],
+  "paper_id": "P020",
+  "source_sha256": "81efe669c8fa50ffc7097886dc78a442fa7a8f7f2451684b93069cb9fbeda767",
+  "primary_url": "https://arxiv.org/abs/2212.06817",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

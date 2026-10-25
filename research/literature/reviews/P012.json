@@ -1,0 +1,42 @@
+{
+  "problem": "Use fixed prior robot data to initialize reinforcement learning while retaining the ability to improve with newly collected interactions.",
+  "contribution": "AWAC combines off-policy bootstrapped critic learning with an implicitly constrained, advantage-weighted maximum-likelihood actor update, avoiding an explicit behavior-density model.",
+  "algorithm": "Initialize replay from offline transitions; fit a TD critic; maximize logged-action log likelihood weighted by exp(advantage/temperature). After offline updates, collect current-policy transitions into the same replay and keep updating. This differs from AWR's Monte Carlo/value estimation and explicit behavior-model constraints.",
+  "observations": "Task-specific state observations, including end-effector and drawer position measured with an encoder; examined real setup is not a general overhead-image policy.",
+  "actions": "Continuous task controls: Sawyer drawer uses3D end-effector control and a hook; dexterous repositioning uses19D arm/hand control.",
+  "embodiment_and_data": "Simulated dexterous manipulation plus real DClaw, Sawyer drawer and Sawyer/hand repositioning. Drawer prior data has10teleoperated demonstrations plus500imitation-policy trajectories; hand task19kinesthetic plus50policy trajectories.",
+  "experiments": "Offline initialization followed by online finetuning; simulated sparse/high-dimensional tasks and three real robot environments. Source learning curves distinguish offline timestep0 from further interaction.",
+  "baselines": "AWR, ABM, BEAR, BRAC, DAPG, SACfD, SAC+BC, MARWIL and BC in task-specific comparisons. Prior-data access is shared, but exact benchmark/controller budgets must be checked before reproduction.",
+  "quantitative_result": {
+    "value": "NOT_EXTRACTED: final real success/return values are learning curves, not digitized here. Figure4's100K samples≈16minutes is an equivalent interaction-time conversion for simulated tasks, not a measured Explorer physical-learning time.",
+    "location": "PDF p6 Figure4, p8 Figure6"
+  },
+  "limitations": "Constraint temperature/threshold selection remains difficult; the paper gives empirical rather than general guarantees of avoiding excessive conservatism. Real setups have task-specific state sensing and engineered tooling. The drawer reward sentence on p8 appears counterintuitive relative to its objective and must be checked against source code before implementation.",
+  "code_and_license": "Primary algorithm/fulltext verified; executable source and license not inspected in this review, so neither code reproduction nor hardware qualification is claimed.",
+  "hardware_adaptation": "Potential offline-to-online baseline only when measured transitions/rewards and an approved interaction protocol exist. Command estimates must not be substituted for encoder states without declaring the observation change; do not inherit source sample-efficiency claims.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "IV",
+      "supports": "Implicit constraint rationale"
+    },
+    {
+      "page": 5,
+      "section": "Eq13/Algorithm1",
+      "supports": "Actor weighting, TD critic, online replay"
+    },
+    {
+      "page": 8,
+      "section": "VI/VII",
+      "supports": "Real data/control contracts and limitations"
+    }
+  ],
+  "paper_id": "P012",
+  "source_sha256": "c35d947c5a0318392ea561fd3d0f35189f2de29261bf4007ce868f12b43e4235",
+  "primary_url": "https://arxiv.org/abs/2006.09359",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}
