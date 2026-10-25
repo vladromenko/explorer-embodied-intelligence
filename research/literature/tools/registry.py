@@ -4,6 +4,9 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import re
+import os
+import tempfile
 from pathlib import Path
 
 
@@ -19,10 +22,15 @@ def validate_review(review: dict, paper: dict) -> list[str]:
         errors.append(f"{paper['paper_id']}: missing substantive review fields {sorted(missing)}")
     if review.get("paper_id") != paper["paper_id"]:
         errors.append(f"{paper['paper_id']}: review identity mismatch")
-    if review.get("source_sha256") != paper.get("fulltext_sha256") or not paper.get("fulltext_sha256"):
+    if (review.get("source_sha256") != paper.get("fulltext_sha256")
+            or not re.fullmatch(r"[0-9a-f]{64}", paper.get("fulltext_sha256", ""))):
         errors.append(f"{paper['paper_id']}: review must bind to retrieved full-text SHA256")
-    if paper.get("fulltext_status") != "RETRIEVED" or not review.get("full_text_examined"):
+    if paper.get("fulltext_status") != "RETRIEVED" or review.get("full_text_examined") is not True:
         errors.append(f"{paper['paper_id']}: abstract/retrieval alone is not a full-text review")
+    if not isinstance(review.get("deep_review"), bool):
+        errors.append(f"{paper['paper_id']}: deep_review must be an explicit boolean")
+    if not review.get("quantitative_result"):
+        errors.append(f"{paper['paper_id']}: quantitative_result must contain evidence or NOT_EXTRACTED")
     if review.get("decision") not in {"REUSE", "ADAPT", "COMPARE", "EXCLUDE"}:
         errors.append(f"{paper['paper_id']}: invalid reuse decision")
     if not review.get("evidence_locations"):
@@ -35,6 +43,35 @@ def validate_review(review: dict, paper: dict) -> list[str]:
         if field in review and not review[field]:
             errors.append(f"{paper['paper_id']}: empty review field {field}")
     return errors
+
+
+def ingest_reviews(registry_path: Path) -> list[str]:
+    """Validate every review before atomically updating earned status metadata."""
+    document = json.loads(registry_path.read_text())
+    known = {paper["paper_id"] for paper in document["papers"]}
+    review_dir = registry_path.parent / "reviews"
+    unknown = {path.stem for path in review_dir.glob("P*.json")} - known
+    errors = [f"Review has no candidate identity: {paper_id}" for paper_id in sorted(unknown)]
+    promoted = []
+    for paper in document["papers"]:
+        review_path = review_dir / f"{paper['paper_id']}.json"
+        if review_path.is_file() and not paper.get("duplicate_of"):
+            review = json.loads(review_path.read_text())
+            current_errors = validate_review(review, paper)
+            errors.extend(current_errors)
+            if not current_errors:
+                paper.update(primary_status="PRIMARY_VERIFIED", review_status="FULL_TEXT_REVIEWED",
+                             review_path=str(review_path.relative_to(registry_path.parent)),
+                             deep_review=review["deep_review"], decision=review["decision"])
+                promoted.append(paper["paper_id"])
+    if errors:
+        raise ValueError("; ".join(errors))
+    serialized = json.dumps(document, ensure_ascii=False, indent=2) + "\n"
+    with tempfile.NamedTemporaryFile(mode="w", dir=registry_path.parent, delete=False, suffix=".tmp") as stream:
+        stream.write(serialized)
+        temporary_path = Path(stream.name)
+    os.replace(temporary_path, registry_path)
+    return promoted
 
 
 def report(registry_path: Path) -> dict:
@@ -88,7 +125,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--registry", type=Path, default=Path(__file__).parents[1] / "literature_registry.json")
     parser.add_argument("--export-csv", action="store_true")
+    parser.add_argument("--ingest-reviews", action="store_true",
+                        help="Validate source-bound review files and atomically update earned statuses")
     args = parser.parse_args()
+    if args.ingest_reviews:
+        ingest_reviews(args.registry)
     if args.export_csv:
         export_csv(args.registry)
     result = report(args.registry)

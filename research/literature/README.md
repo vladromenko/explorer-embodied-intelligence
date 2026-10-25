@@ -15,3 +15,7 @@ This command requires `pypdf` and a network connection. It does not upload resea
 Each finished review describes problem, contribution, learning algorithm, observations/actions, embodiment/data, experiments, strong baselines, a quantitative result with its page/table or `NOT_EXTRACTED`, limitations, code/license evidence, practical NX/Pi/Nano adaptation and reuse decision. Deep reviews additionally cover algorithm details, integration contracts, licensing evidence, required validation experiments and differences from Explorer.
 
 No result in this directory establishes performance of Explorer. Such a claim needs a registered experiment run and independent outcome evidence.
+
+## Integrating reviewed batches
+
+After merging per-paper review files, run `python research/literature/tools/registry.py --ingest-reviews --export-csv > research/literature/REVIEW_STATUS.json`. Ingestion validates every source hash and explicit review boolean before atomically changing earned statuses. An invalid review leaves the registry unchanged. Retrieval never creates review credit. The checker verifies accounting consistency, not the semantic quality or completeness of a human/agent reading.

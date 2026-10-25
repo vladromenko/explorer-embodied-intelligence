@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-26",
+  "command": "python -m pytest research/benchmark/tests -q",
+  "result": "11 passed",
+  "coverage": {
+    "evaluation_invariants": 7,
+    "method_provenance_invariants": 2,
+    "literature_accounting_invariants": 2
+  },
+  "scope": "Synthetic software invariants only; not physical robot validation"
+}
