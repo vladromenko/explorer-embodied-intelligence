@@ -1,0 +1,57 @@
+{
+  "problem": "Align pretrained2Dvision-language processing with spatially precise3Drobot manipulation while reducing target demonstration requirements.",
+  "contribution": "BridgeVLA pretrains language-conditioned2Dheatmap grounding, then predicts heatmaps on three orthographic renders of a3Dscene and converts them into keyframe actions.",
+  "algorithm": "Use PaliGemma features with learned convex upsampling to output detection heatmaps. Reconstruct a calibrated RGBD point cloud, render top/front/right views, predict view heatmaps and back-project to score3Dworkspace grid points. Predict rotation, gripper and collision flags with additional heads.",
+  "observations": "One or more calibrated RGBD images and language; although the VLM backbone consumes rendered RGB, metric3Dgeometry/depth remains required upstream. No raw proprioception is passed into its VLM forward path.",
+  "actions": "Next-keyframe6DOFend-effector pose, gripper bit and collision flag consumed by a motion planner. A learned collision flag is an instruction to the planner, not proof that a motion is safe.",
+  "embodiment_and_data": "Detection-grounding pretraining and robot demonstrations; simulation RLBench/COLOSSEUM/GemBench and real tasks. Basic real comparison uses10demonstrations/task except SpatialVLA50; few-shot3demo experiments are a separate setting.",
+  "experiments": "Basic real table13tasks×10trials/method, manually aligned scene snapshots; simulation includes novel long-horizon GemBenchL4. Source separates visual disturbance, instruction-combination and category tests.",
+  "baselines": "SpatialVLA, pi0, separate single-task ACT, RVT-2 and3Dsimulation methods. Input/depth access, demonstration quantities and language conditioning differ across some comparisons.",
+  "quantitative_result": {
+    "value": "Basic real Table4 BridgeVLA96.9% from printed126/130raw task successes, versusRVT-290%; this uses10demos/task. GemBench overall50.0% includesL4long-horizon0.0%, while3D-LOTUS++achieves17.4%L4. Do not equate the separate abstract3demo96.8%claim with this basic protocol.",
+    "location": "PDF p10 Table4 and p9 Table3"
+  },
+  "limitations": "Long-horizon composition remains weak despite high overall averages. Calibrated depth, keyframe extraction and a functioning robot-specific planner are assumptions. VLM-only RGB processing does not make the full pipeline monocular or calibration-free.",
+  "code_and_license": "Primary architecture/results read; exact executable code/base-model/detection-data licenses were not independently audited and no BridgeVLA execution is claimed.",
+  "hardware_adaptation": "An informative3Dtarget-generation baseline after metric depth/calibration is available. Keep heatmaps, geometric candidates, planner validity and actual physical outcomes separate; one overview RGB stream alone does not satisfy the source contract.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3.1/Fig2",
+      "supports": "RGBD/action contract"
+    },
+    {
+      "page": 5,
+      "section": "3.2-3.3",
+      "supports": "Heatmap pretraining and3Dbackprojection"
+    },
+    {
+      "page": 7,
+      "section": "4.1",
+      "supports": "Simulation comparisons"
+    },
+    {
+      "page": 9,
+      "section": "Table3",
+      "supports": "L4failure"
+    },
+    {
+      "page": 10,
+      "section": "Table4/4.2",
+      "supports": "Basic real denominators/counts"
+    },
+    {
+      "page": 12,
+      "section": "5",
+      "supports": "Future action-model scope"
+    }
+  ],
+  "paper_id": "P031",
+  "source_sha256": "9076d1b5e3c4f746d9f1280b2d87cf6c761dc20b0ce6504edd28c00319bd9bf1",
+  "primary_url": "https://arxiv.org/abs/2506.07961",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

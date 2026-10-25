@@ -1,0 +1,52 @@
+{
+  "problem": "Consolidate heterogeneous robot datasets and test when cross-embodiment co-training improves existing robot-policy performance.",
+  "contribution": "Open X-Embodiment standardizes a large multi-institution dataset repository and studies RT-1-X/RT-2-X models trained on a subset of its embodiments.",
+  "algorithm": "Consolidate observation/action formats, choose a canonical camera and normalize each dataset's end-effector controls. Train RT-1-X with robot data or co-finetune RT-2-X with robot/web examples. Evaluate transfer/scale/history/data-source ablations.",
+  "observations": "Image history and task language, with camera placement varying by dataset. Common serialization does not align all scene or robot coordinate frames.",
+  "actions": "Coarsely aligned7Dend-effector/gripper variables plus termination. Absolute positions, deltas and velocities retain source-specific meanings; denormalization depends on embodiment, so identical vectors can induce different physical motion.",
+  "embodiment_and_data": "Paper describes60datasets across22embodiments/21institutions and527skills. Actual model training mixture covers9embodiments available at experiment time, rather than all22listed in the evolving dataset.",
+  "experiments": "3600evaluation trials across six robots in the reported study; known-embodiment co-training and transferred task concepts, model-capacity/history and removal-of-Bridge ablations. This is not an unseen-robot zero-shot control qualification.",
+  "baselines": "Original local methods, RT-1, RT-1-X and RT-2/RT-2-X with differing capacity/web training. Published overall positive-transfer aggregates coexist with negative per-setting results.",
+  "quantitative_result": {
+    "value": "High-data TableI: Google RT-1paper6skills RT-192% versusRT-1-X73%; Stanford Bridge RT-140% versusRT-1-X27%. RT-2-X55B scores91% and50%respectively. Thus co-training is not uniformly beneficial, especially under capacity limits.",
+    "location": "PDF p5 TableI"
+  },
+  "limitations": "Action units/frames/control frequencies remain heterogeneous; small models underfit large mixtures. Paper explicitly leaves generalization to new robots and criteria for positive transfer as open problems. Dataset count and actual training mixture must not be conflated.",
+  "code_and_license": "Primary dataset/model design examined; individual source-dataset rights and current tooling revisions require separate audits. No aggregate license can be assumed to grant every component/model right; no RT-X execution is claimed.",
+  "hardware_adaptation": "Reuse per-dataset schema, normalization, camera and robot identity provenance. Do not transfer a common7Dvector directly to SO101/ROSMASTER or assume inclusion in a data family makes an unseen robot compatible.",
+  "decision": "REUSE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "Fig2",
+      "supports": "Dataset/embodiment diversity"
+    },
+    {
+      "page": 4,
+      "section": "IV-A/B",
+      "supports": "Normalization and unaligned semantics"
+    },
+    {
+      "page": 5,
+      "section": "TableI/V",
+      "supports": "Negative transfer,9versus22embodiments and trials"
+    },
+    {
+      "page": 6,
+      "section": "TableII/VI",
+      "supports": "Ablations and limitations"
+    },
+    {
+      "page": 7,
+      "section": "VI continuation",
+      "supports": "Unseen-robot/open transfer criteria"
+    }
+  ],
+  "paper_id": "P032",
+  "source_sha256": "13f16aff5afdee583dc25b3c570e9bb0cf6baefb59b539928d919588cd8d9246",
+  "primary_url": "https://arxiv.org/abs/2310.08864",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

@@ -1,0 +1,52 @@
+{
+  "problem": "Improve VLA action selection by spending additional inference-time compute on candidate generation and learned verification.",
+  "contribution": "RoboMonkey trains a VLM action-ranking verifier from synthetic preferences and proposes actions efficiently through a fitted distribution before selecting the highest score.",
+  "algorithm": "Sample and cluster policy actions; rank pairs by RMSE to a demonstrated action. Train a LLaVA7B reward head with Bradley-Terry and preference-margin loss. At inference fit a Gaussian to sampled translation/rotation, majority-vote the gripper state, resample candidates and choose the verifier maximum.",
+  "observations": "Current visual state, task language and candidate action. RMSE-to-demonstration supervision is a preference proxy, not observed physical task success or a calibrated safety certificate.",
+  "actions": "Selected Cartesian pose increment plus gripper state from a generalist policy proposal distribution; candidate sampling is not repeated physical trial execution.",
+  "embodiment_and_data": "BridgeV2over40Ktrajectories and20Msynthetic comparisons; OpenVLA base and LLaVA verifier, trained with8H100s. Reported deployment uses28GBGPUmemory and about1.5Hz on oneH100.",
+  "experiments": "SIMPLER in-distribution, physical WidowX OOD tasks and further transfer/verification ablations. Real prose specifies4task suites×10trials per approach and120total rollouts across compared approaches, not120independent trials per policy.",
+  "baselines": "OpenVLA and V-GPS with corresponding verifier checkpoints; test-time sampling and training-size/component ablations. Extra verifier computation changes the deployed resource budget.",
+  "quantitative_result": {
+    "value": "Physical OOD average60%RoboMonkey versus35%OpenVLA and30%V-GPS. Per-method40trials follows4×10in the protocol; source total120covers three compared approaches. This is a particular WidowX study, not Explorer verification accuracy.",
+    "location": "PDF p7 Section5.3; compute contract p6 Section5.1"
+  },
+  "limitations": "Substantial inference overhead,20Mcomparison/Bridge-focused training and limited embodiment scope. Single-demonstration RMSE can under-reward valid alternative actions; a learned score does not prove contact/grip/world-effect correctness.",
+  "code_and_license": "Primary method/evaluation examined; executable repository, checkpoints and separate model/data licenses not audited here. No local RoboMonkey execution is claimed.",
+  "hardware_adaptation": "A research comparison for ranking, with abstention and measured false-positive outcomes. The source28GBdeployment exceeds16GBdevice memory; do not substitute a generic VLM score for the controller's evidence and safety authority.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "4.2/Fig2",
+      "supports": "Synthetic RMSE preferences"
+    },
+    {
+      "page": 5,
+      "section": "4.3-4.4",
+      "supports": "Verifier loss and proposal sampling"
+    },
+    {
+      "page": 6,
+      "section": "5.1",
+      "supports": "Data and H100memory/timing"
+    },
+    {
+      "page": 7,
+      "section": "5.3",
+      "supports": "Physical protocol/rates"
+    },
+    {
+      "page": 9,
+      "section": "6",
+      "supports": "Compute/data/evaluation limits"
+    }
+  ],
+  "paper_id": "P030",
+  "source_sha256": "43ebed0cc8293890b81a8ddb240e30e791bc391093b75b3dc6d07fff772e9583",
+  "primary_url": "https://arxiv.org/abs/2506.17811",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}
