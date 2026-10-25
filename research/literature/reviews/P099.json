@@ -1,0 +1,86 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P099",
+  "source_sha256": "916d49a313c0246bfcd60bffba2e685e6432ae912f4b969fdbd3008437c3a44d",
+  "primary_url": "https://arxiv.org/abs/2507.04447",
+  "verified_title": "DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge",
+  "problem": "Full-frame prediction can waste capacity on static backgrounds while omitting motion, depth and semantic cues relevant to control. Unrestricted interaction among heterogeneous future queries may inject irrelevant gradients.",
+  "contribution": "Train a GPT2-style policy with separate dynamic-region, depth and semantic future queries. Structured attention isolates target types; a diffusion action head uses their latent embedding while prediction decoders are omitted at inference.",
+  "algorithm": "Frozen CLIP text and MAE visual features plus state tokens enter a multimodal transformer. CoTracker identifies moving patches for masked reconstruction. Depth targets come from sensors or DepthAnythingV2 with scale normalization. Semantic targets use DINO/SAM features. Separate query groups cannot read each other directly; the model jointly trains these objectives with diffusion action prediction. The final preferred semantic target is SAM because adding DINO can hurt.",
+  "observations": "Static and wrist RGB with EE pose and binary gripper state. Scale-normalized monocular depth preserves relative structure, rather than guaranteed metric geometry. Prediction heads operate only during training.",
+  "actions": "7D EE displacement/gripper vectors. The appendix specifies current plus2future steps, a3-frame chunk, no past-action context and10 inference denoising steps. Physical control frequency and NX latency are NOT_EXTRACTED.",
+  "embodiment_and_data": "CALVIN language-free and DROID pretraining; LIBERO90 pretraining before per-suite fine-tuning. Physical FrankaPanda uses two D415 RGB cameras and100 demonstrations/task for grasp, place and drawer tasks. Training uses8A800 GPUs; precomputed teacher features trade extra storage for lower training-time computation.",
+  "experiments": "CALVIN ABC-to-D uses1000 five-task rollouts; LIBERO reports four suites. Physical trials randomize objects/drawer and permit up toTWENTY consecutive attempts PER TRIAL. Success uses grasp, placement or drawer displacement over10cm. Total physical trial denominator is NOT_EXTRACTED. Ablations compare target types, present reconstruction versus future prediction, optical flow versus motion regions, attention and query counts.",
+  "baselines": "DiffusionPolicy, OctoBase and OpenVLA on the authors' physical demonstrations; published CALVIN VLA/video policies and controlled query/target variants. Checkpoints are selected by validation success; a reproduction must retain independent final evaluation data.",
+  "quantitative_result": {
+    "simulation": "PDFp7 Table1:CALVIN4.44/5,five-task78.1%over1000rollouts. PDFp8 Table2:LIBERO92.6%average;exactLIBEROevaluationn NOT_EXTRACTED.",
+    "physical": "PDFp9 Table3:76.7%mean versusDiffusionPolicy50.8/Octo45.0/OpenVLA35.0;pick82.5,place80.0,drawer67.5. Thesepermitup to20attempts/trial(p8),not76.7%first-attemptsuccess. Exactnumberoftrials NOT_EXTRACTED.",
+    "ablation": "PDFpp9–11:dynamicregions4.32/5,plusdepth4.40,plussemantics4.44;currentreconstruction4.14versusfutureprediction4.44;vanillacausalattention3.75versusstructured4.44. Depth/DINO/SAMindividuallycanworsenthebaseline;moreauxiliarytargetsarenotuniformlybetter."
+  },
+  "limitations": "Twenty attempts per trial can conceal frequent control failures. Monocular depth does not establish metric contact geometry, and motion masks can capture camera motion or irrelevant objects. RGB-centric parallel grippers and limited material diversity constrain scope. Navigation, humanoid and complex cloth tasks are future work. Main cosine scheduling/weight decay1e-4 conflicts with appendix constant scheduling/0.01 and needs pinned-source verification.",
+  "code_and_license": "No source commit, model weights, teacher licenses or training-data terms audited; no execution. Derived pseudo-label features require separate provenance and rights review.",
+  "hardware_adaptation": "ADAPT motion-region future-feature supervision to an ACT-sized policy offline, testing one auxiliary target at a time with matched data/compute. Keep actual RGB/depth distinct from pseudo-depth and forecasts. Count first-attempt success separately from recovery. Three-frame Cartesian actions and two-view Franka geometry cannot be directly mapped to SO101/M3 commands. Existing controller settings remain unchanged.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "Fig2/3.1",
+      "supports": "Training-onlypredictiondecodersandworld/actionqueries"
+    },
+    {
+      "page": 5,
+      "section": "3.2–3.3",
+      "supports": "Motion-regionpredictionandGPT2fusion"
+    },
+    {
+      "page": 6,
+      "section": "Depth/semantics/attention",
+      "supports": "Pseudo-depthscaleandqueryisolation"
+    },
+    {
+      "page": 7,
+      "section": "Table1/4.1",
+      "supports": "CALVINprotocol andtraining"
+    },
+    {
+      "page": 8,
+      "section": "4.3",
+      "supports": "Hardware,100demos/task,20attempts/trial"
+    },
+    {
+      "page": 9,
+      "section": "Tables3–4",
+      "supports": "Physicalaggregateandauxiliarycontributions"
+    },
+    {
+      "page": 10,
+      "section": "Tables5–6",
+      "supports": "Predictionversusreconstructionandflowmaskstudy"
+    },
+    {
+      "page": 11,
+      "section": "Table7/Limitations",
+      "supports": "Attentioncomparisonandphysicalscope"
+    },
+    {
+      "page": 23,
+      "section": "Table11",
+      "supports": "3-frameactionwindow"
+    },
+    {
+      "page": 24,
+      "section": "A.2–A.3",
+      "supports": "Teacherfeatures,storageandconfigdifferences"
+    },
+    {
+      "page": 30,
+      "section": "Futurework",
+      "supports": "Navigation/humanoidnotdemonstrated"
+    }
+  ]
+}

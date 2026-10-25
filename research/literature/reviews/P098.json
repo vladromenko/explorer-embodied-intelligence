@@ -1,0 +1,66 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P098",
+  "source_sha256": "9a68d42baab71262e90643a5c2d49f95565830e43b15fa953845a6c2b6013386",
+  "primary_url": "https://arxiv.org/abs/2501.18867",
+  "verified_title": "UP-VLA: A Unified Understanding and Prediction Model for Embodied Agent",
+  "problem": "Semantic VLM pretraining and future visual prediction provide complementary capabilities, but action-only adaptation can lose one or fail to preserve fine visual manipulation detail.",
+  "contribution": "A unified Show-o/Phi1.5 policy combines language understanding,future image-token prediction and continuous action learning. Generated scene descriptions augment task prompts while training retains VQA and visual prediction objectives.",
+  "algorithm": "Frozen CLIP-ViT encodes continuous understanding features; VQ/MagViT encodes discrete images. A1.3B Phi1.5/Show-o backbone predicts future tokens at corresponding current-image positions, rather than fully autoregressively rendering a separate goal image. Action queries attend to visual/language context and feed a small MAP-attention/linear policy head. Train text/image cross-entropy plus continuous-action MSE and gripper BCE, with task-specific loss sampling.",
+  "observations": "Current images, instruction and the model's generated scene description; framework also depicts robot-pose input. Continuous understanding tokens and discrete prediction tokens have distinct encoders and attention masks. Generated descriptions can be semantically wrong and must not be treated as measured facts.",
+  "actions": "Low-level continuous relative pose/action output and discrete gripper state through a small policy head. Exact hardware control frequency,chunk horizon and detailed axis convention NOT_EXTRACTED; do not infer them from CALVIN defaults.",
+  "embodiment_and_data": "Pretrained Show-o512×512 1.3B; Bridge25000robot demonstrations for prediction andLLaVA665kVQA for understanding. Initial20ksteps/batch64,followed by target action learning. PhysicalFrankaPanda uses>2000demonstrations across6skills includinggrasp/place,cables,buttons anddrawers,from manualteleoperation andscripted block-grasp data.",
+  "experiments": "CALVINABC-to-D andABCD-to-D report five-task chain success/length. Hardware evaluates seen/unseen/precision tasks with20attempts per task. Controlled ablations removeMMU,Bridge pretraining,visual prediction or scene-description conditioning. Original external baselines are mostly copied benchmark results; starred variants are locally reproduced.",
+  "baselines": "RT-1,DiffusionPolicy,RoboFlamingo,3D-VLA,UniPi,SuSIE,GR-1,3DDiffuserActor,and matched UP-VLA-RT2/Phi-withoutMMU. The matched controls have different prompting/objectives, so this is a combined training mechanism comparison.",
+  "quantitative_result": {
+    "simulation": "PDFp7 Tables1–2:CALVINABC-to-D4.08/5 andfive-task69.9%,versusUP-VLA-RT2 1.44/5;ABCD-to-D4.42/5 and81.2%. Exact simulationchain denominator NOT_EXTRACTED.",
+    "physical_ablation": "PDFp8 Table3:full seen0.80/unseen0.58,versusnoMMU0.85/0.20 andnoPrediction0.65/0.35. Figure6 exact task bars NOT_EXTRACTED; sourcep7 states20attempts/task. Fullmodel isnot highest onseen tasks.",
+    "prediction_limits": "PDFp8 acknowledges inaccurate object names and future backgrounds reverting to trainingABCcolors when observingD. These are actual reported failure modes, not proof of future geometry correctness."
+  },
+  "limitations": "Future imagery can hallucinate appearance and descriptions can name objects incorrectly. Some semantic ablations improve seen-task success while reducing transfer. Hardware data and simulated chain success do not establish bimanual cloth skill. Runtime,memory and precise action schema are insufficiently specified for direct reproduction; the1.3B model size alone does not qualify NX.",
+  "code_and_license": "No pinned implementation,weights or code/data licenses inspected; no execution. Show-o/Phi/Bridge/LLaVA components require independent terms review before copying or redistribution.",
+  "hardware_adaptation": "COMPARE a compact ACT student's training with future-feature and description supervision separately. Keep hallucinated captions/predicted images separate from actual camera evidence. Use real source-bound episodes with calibrated target action/state names and preserve controller settings. Measure end-to-end latency, including text generation, before an NX deployment claim.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "4.1–4.2",
+      "supports": "Backbone and two encoding/prediction paths"
+    },
+    {
+      "page": 4,
+      "section": "4.3–4.4",
+      "supports": "Scene-description prompting,small policy head and training data"
+    },
+    {
+      "page": 5,
+      "section": "4.4.2",
+      "supports": "Text,image,action/gripper objectives"
+    },
+    {
+      "page": 6,
+      "section": "5.1",
+      "supports": "Physicalskills and baseline definitions"
+    },
+    {
+      "page": 7,
+      "section": "Tables1–2/5.3",
+      "supports": "CALVINmetrics,baselineprovenance and20hardwareattempts/task"
+    },
+    {
+      "page": 8,
+      "section": "Table3/5.5",
+      "supports": "Ablations andsemantic/backgroundpredictionerrors"
+    },
+    {
+      "page": 12,
+      "section": "AppendixA–B",
+      "supports": "1.3B initialization,trainingsteps and mixed demonstration collection"
+    }
+  ]
+}

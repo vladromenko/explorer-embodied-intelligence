@@ -1,0 +1,66 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P097",
+  "source_sha256": "8b9bf7c3de182ce263ca65d103fc3a84aa0c70d13aa88f6b8dd5cdf5df2f5f3a",
+  "primary_url": "https://arxiv.org/abs/2410.06158",
+  "verified_title": "GR-2: A Generative Video-Language-Action Model with Web-Scale Knowledge for Robot Manipulation",
+  "problem": "Manipulation policies trained on limited action data generalize poorly across objects/scenes; human video offers temporal and semantic priors without compatible robot controls.",
+  "contribution": "Scale GPT-style video generative pretraining to38million clips, then jointly fine-tune future multiview image generation and continuous action chunks through a conditional VAE. Demonstrate broad multitask manipulation and bin picking with a comparatively compact default policy.",
+  "algorithm": "Frozen text encoder and VQGAN produce discrete language/image tokens; train autoregressive future image prediction, then add trainable robot-state embeddings and a cVAE chunk decoder. Robot fine-tuning generates images and actions together. Synthetic distractor/background augmentation uses object inpainting,SAM and video generation while preserving demonstrated motion. A separate trajectory optimizer and WBC convert Cartesian chunks into hardware joint tracking.",
+  "observations": "Language, current/history images from static and wrist cameras, and EE position/orientation plus binary gripper state. Prediction examples compare imagined versus actual rollout, but no independent causal contact identification is shown.",
+  "actions": "Cartesian action trajectories decoded by cVAE, then smoothed and converted to joint commands. The Kinova tracker runs200Hz; this is a separate low-level WBC rate, not evidence of200Hz model inference. Exact policy chunk horizon and latency NOT_EXTRACTED.",
+  "embodiment_and_data": "KinovaGen3 7DoF withRobotiq2F85 andtwo RGB views. Default230M parameters/95M trainable, with scaling up to719M trainable. Web video pretraining38M clips/~50B tokens. Physical105 tasks cover8skills using~40000demos (~400/task), with a~5000-demo subset (~50/task). Bin picking separately uses94000 demonstrations of55seen objects and tests122total objects.",
+  "experiments": "Multitask simple/distractor plus unseen background,kitchen environment andmanipulation conditions; data-augmentation and scarcity variants. Bin picking tests seen/unseen and cluttered seen/unseen object sets. CALVIN ABCD-to-D uses1000chains of5tasks; it includes D training data and must not be compared as identical to ABC-to-D zero-shot evaluation.",
+  "baselines": "GR-1 is the main physical comparison; CALVIN includes RT-1,MT-ACT,HULC,RoboFlamingo,GR-1. Large-scale pretraining,augmentation and action-data changes accompany model differences; all gains cannot be uniquely attributed to one architectural component.",
+  "quantitative_result": {
+    "physical": "PDFpp7–8:97.7% on105tasks in simple setting,71.4%unseen backgrounds/71.7%unseen environments; augmented variant87.0%unseen environments.50-demo/task variant73.9%simple; reported unseen-manipulation55.8%. Exact physical rollout denominators NOT_EXTRACTED;105tasks is not a trial count.",
+    "bin_picking": "PDFp8/Fig9:mean79.0% versusGR-1 33.3% across four seen/unseen/clutter conditions after94000demos; exact evaluation n NOT_EXTRACTED.",
+    "simulation": "PDFp8/Fig10:CALVINABCD-to-D1000chains,average4.64/5 versusGR-1 4.21;five-task success85.9% versus73.1%."
+  },
+  "limitations": "Strong simple-setting results depend on substantial web and robot data. Physical evaluation denominators,confidence intervals and policy latency are absent from extracted evidence. Unseen objects remain a major failure source. WBC smoothing,collision/manipulability constraints and synthetic augmentation are part of reported behavior; the learned model alone is not the full deployed system. No bimanual cloth/sock task is quantitatively established.",
+  "code_and_license": "No actual code/checkpoint release,revision or licenses audited; no execution. Dataset citations and a technical report do not establish reusable model rights.",
+  "hardware_adaptation": "COMPARE compact cVAE action chunks with video-supervised features against officialACT at matched data budgets. The230M scale is more plausible for an NX experiment than14B WAMs, but there is no NX runtime qualification. Two-view calibration and Cartesian-to-joint mapping differ from Explorer. Do not import the paper's WBC or change existing controller settings.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "2.1",
+      "supports": "Frozen codecs,GPT video prediction and state inputs"
+    },
+    {
+      "page": 4,
+      "section": "2.1–2.2",
+      "supports": "cVAE,230M policy and separate200HzWBC"
+    },
+    {
+      "page": 5,
+      "section": "3.1",
+      "supports": "40000demos,105tasks and augmentation"
+    },
+    {
+      "page": 7,
+      "section": "Fig6/Results",
+      "supports": "Physical simple/generalization scores"
+    },
+    {
+      "page": 8,
+      "section": "3.2–3.3",
+      "supports": "Bin-picking scale,CALVIN protocol and numerical results"
+    },
+    {
+      "page": 10,
+      "section": "3.5",
+      "supports": "Model scaling and generated-video comparison"
+    },
+    {
+      "page": 17,
+      "section": "Conclusion",
+      "supports": "Remaining unseen-manipulation generalization limits"
+    }
+  ]
+}

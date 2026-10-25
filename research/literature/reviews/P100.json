@@ -1,0 +1,125 @@
+{
+  "paper_id": "P100",
+  "source_sha256": "0e1672e95ecead2b5ec283273adab20ae33d2c48411ceedd7ff725a052c7486a",
+  "primary_url": "https://arxiv.org/abs/2506.19850",
+  "full_text_examined": true,
+  "deep_review": true,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "verified_title": "Unified Vision-Language-Action Model",
+  "identity_note": "This is Yuqi Wang et al., arXiv2506.19850, based on Emu3/discrete vision-language-action tokens. It is distinct from Qingwen Bu et al.'s similarly named UniVLA: Learning to Act Anywhere with Task-centric Latent Actions, arXiv2505.06111. Do not transfer checkpoints or results between those identities.",
+  "problem": "An action-only VLM interface underuses temporal video data, while separate visual generators and action policies fragment representations. The authors test whether unified discrete multimodal sequence modeling and action-free video post-training improve transferable control.",
+  "contribution": "An8.5B Emu3-derived autoregressive model uses discrete visual, language and FAST action tokens in one vocabulary, with modality-specific loss masks. Post-training predicts instructed visual futures; downstream fine-tuning interleaves actual observations and action chunks. It supports video prediction, grounding and policies in the same model.",
+  "algorithm": "A VQ codec discretizes images; FAST applies temporal DCT, quantization and BPE to continuous action chunks. Special image/action delimiters partition one causal sequence. World post-training supervises only visual tokens in instruction-plus-video sequences; policy fine-tuning supervises only action tokens in observation/action histories. This predicts actions directly during deployment rather than requiring complete future-video generation for every command.",
+  "observations": "Language plus actual current/history RGB. CALVIN uses static200×200 and wrist80×80; LIBERO both200×200; SimplerEnv one256×256 view. Physical ALOHA uses three128×128 views. The claimed 'encoder-free' architecture still requires a VQ visual codec; it avoids a separate semantic ViT feature interface rather than eliminating image encoding.",
+  "actions": "Relative continuous chunks normalized with training-set1st/99th percentiles, FAST vocabulary1024 remapped into the final language-token range. Simulation chunks10, SimplerEnv5, physical ALOHA20 with14D EE-pose/gripper actions. The inspected ALOHA preprocessing defaults to pose chunks relative to the first pose, preserves gripper dimensions6/13, wraps orientation differences and then applies quantile normalization. This is not a generic joint-position interface.",
+  "embodiment_and_data": "General Emu3 vision-language initialization, followed by robotics/human video post-training: main text says622K videos and30ksteps, while appendix lists a larger mixed used-video table and50ksteps on32A100-40GB over4–5days. Controlled post-training comparisons exclude SSV2 because action-only controls need labels. Physical AgileX CobotMagicV2.0 has~500 demonstrations/task across8tasks, including528cloth-fold episodes, recorded30Hz before adaptive keyframe selection.",
+  "experiments": "CALVIN ABC-to-D and ABCD-to-D five-task chains; LIBERO500episodes/suite=2000 total with one model across4suites; SimplerEnv Bridge-WidowX real-to-sim tasks. Post-training ablations compare action-only,text-to-image,video-only and instructed-video objectives, then matched action-only downstream fine-tuning. History,visual-loss,data-budget and iteration studies separate some factors. Physical ALOHA examples are qualitative; no physical success table or trial denominator is supplied in the inspected primary PDF. NAVSIM is a separate simulated-driving transfer task.",
+  "baselines": "CALVIN MCIL,RT1,RoboFlamingo,GR1,UP-VLA,RoboVLMs,Seer; LIBERO DP,Octo,OpenVLA,SpatialVLA,CoT-VLA,pi0-FAST; SimplerEnv Octo/OpenVLA/RoboVLMs/SpatialVLA. Many are published comparisons with different pretraining/backbones; the same-model post-training table is the stronger controlled evidence. The similarly named Bu UniVLA must remain a separate method identity.",
+  "quantitative_result": {
+    "simulation": "PDFp7 Tables1–3:CALVIN mean4.41/5 on ABC-to-D and4.63/5 on ABCD-to-D; exact chain count NOT_EXTRACTED. LIBERO95.5% mean,Long94.0%,500episodes/suite. SimplerEnv69.8% full-task success versusSpatialVLA42.7%; grasp and complete-task columns are distinct, and exact SimplerEnv n is NOT_EXTRACTED.",
+    "controlled_training": "PDFp8 Table4:instructed-video post-training yields94.2LIBERO/64.6Simpler/4.61CALVIN versus48.5/0.0/1.46 with no post-training. Video-only gives78.9/17.7/3.59; post-training action-only43.9/0.0/0.52. These are separate action-only fine-tuning ablations, not numerically identical to all headline results.",
+    "history_and_efficiency": "PDFp8 Tables5–6:10% fine-tuning data gives3.19CALVIN versus0.15 without post-training. Current+one historical frame gives4.61 versus4.26 current-only; more history does not monotonically help.",
+    "physical": "NOT_EXTRACTED: real ALOHA section provides demonstrations/training details and qualitative examples, but no independently counted success rate, evaluation denominator or latency.528fold demonstrations are training data, not528successful autonomous trials.",
+    "driving": "PDFp9 Table7:NAVSIM PDMS81.7 versushuman94.8 andTransfuser84.0. This is a simulation benchmark, not demonstrated autonomous mobile driving."
+  },
+  "limitations": "Temporal token causality and instructed-video prediction do not identify an action-conditioned physical simulator: world post-training treats language as a generalized action rather than conditioning on executed motor commands. Data counts and30k/50kstep recipes differ between main/appendix.8.5B FP16 weights alone require~17GB before codecs,caches and activations, so16GB NX feasibility is unproven. No physical folding success or runtime is quantified. Adaptive keyframes require preserving time/action interpretation instead of assuming original30Hz. Code inspection found permissive FAST decoding that truncates/pads coefficient sequences and substitutes zeros after exceptions; this can turn malformed output into apparently valid arrays and is not evidence of a valid hardware command.",
+  "code_and_license": "Official project links baaivision/UniVLA, inspected at commit a91ee5f269d7ad46d46635ee6481d2eb655b4af9. Read FAST processor, simulation inference example, ALOHA normalization/example docs and component license; no code executed or weights downloaded. The complete972-path tree has no top-level LICENSE, while bundled reference/Emu3/LICENSE is Apache2. HuggingFace Yuqi1997/UniVLA model-card metadata declares apache-2.0; its Code link points to an unrelated OS-Atlas repository, so project identity must come from the verified project/repo rather than that stale card link. Website CC-BY-SA4.0 applies to website material, not automatically the model or all glue code.",
+  "hardware_adaptation": "COMPARE full UniVLA offline and ADAPT its action-tokenization/evaluation lessons only as a separately scoped experiment. Preserve actual camera/state/action provenance and calibrated SO101/M3 schema; a14D bimanual EE policy cannot be sent directly to a6D joint follower or M3 arm. The8.5B model and multi-A100 full fine-tuning are unsuitable as assumed-ready NX components. Existing official ACT remains the concrete compact-policy baseline and existing controller settings are unchanged.",
+  "decision": "COMPARE",
+  "algorithm_detail": "The visual post-training sequence is(T,I1,...,It), with visual-token cross-entropy only; policy sequence is(T,I1,A1,I2,A2,...), with action-token cross-entropy only. The base Emu3 codec uses8×spatial compression. FAST's inspected processor computes orthonormal DCT across time, scales/rounds coefficients, serializes them for BPE and applies inverse DCT during decode with explicit horizon/action dimension. Its token-to-language mapping is reversed from pad_token_id−1. The older models/tokenizer/action_tokenizer.py is a separate uniform-bin tokenizer, so choosing it merely by filename would not reproduce FAST. Simulation inference explicitly loads AutoProcessor from the FAST directory and constrains generation IDs. ALOHA preprocessing subtracts the chunk's first EE pose except the two grippers and wraps angular differences before task normalization.",
+  "integration_contract": "A research adapter requires immutable source episode hashes, camera identities, actual frame timestamps, explicit action names/units/basis and sampling intervals. Fit quantiles and any task-specific FAST vocabulary on training episodes only; persist tokenizer revision, scale,min-token,horizon,dimension and inverse-normalization metadata with the model. Decode must return a validation result separate from an action array: malformed/truncated tokens or fallback zeros cannot silently become accepted measured or executable data. Evaluate tokenization and inference entirely offline first. Any generated visual tokens remain synthetic and cannot satisfy a camera-observation check.",
+  "license_evidence": {
+    "checked_at": "2026-10-26",
+    "upstream_commit": "a91ee5f269d7ad46d46635ee6481d2eb655b4af9",
+    "repository": "https://github.com/baaivision/UniVLA",
+    "repository_tree_result": "Complete recursive tree inspected,972paths,truncated=false. No root LICENSE/COPYING/NOTICE found; component licenses exist under reference/.",
+    "component_license": "https://github.com/baaivision/UniVLA/blob/a91ee5f269d7ad46d46635ee6481d2eb655b4af9/reference/Emu3/LICENSE (Apache2 text inspected)",
+    "model_card": "https://huggingface.co/Yuqi1997/UniVLA/raw/main/README.md declares apache-2.0; exact downloaded checkpoint rights/revision not audited because no weights were downloaded.",
+    "website": "https://robertwyq.github.io/univla.github.io/ labels website material CC-BY-SA4.0; this is not a top-level source/model license.",
+    "reuse_status": "Root glue-code licensing remains UNCONFIRMED; component/model-card declarations do not automatically clear all source, tokenizer and training-data rights."
+  },
+  "required_experiments": [
+    "Round-trip actual6D and9D recorded action chunks through a pinned FAST tokenizer; report per-joint quantization error,angle/gripper handling and token lengths against continuousACT targets.",
+    "Test malformed IDs,missing end markers,truncation and wrong horizon/dimension. Detect padded/zero fallback outputs rather than treating a shaped array as valid evidence.",
+    "Repeat present-only versus one-history-frame ACT/student comparisons with identical source episodes and independent object/episode splits; preserve real time intervals after any keyframe selection.",
+    "Measure true end-to-end memory and fresh-observation latency on NX for any proposed smaller/distilled model; do not transfer server metrics or claim the8.5B checkpoint fits16GB.",
+    "For cloth, collect actual calibrated demonstrations and independently count complete autonomous task trials; qualitative ALOHA videos and training-episode counts cannot populate a trainedSkillCard success field."
+  ],
+  "difference_from_explorer": "This paper's strongest evidence is simulated manipulation with a large discrete multimodal model, plus qualitative three-camera bimanual ALOHA examples. Explorer's actual compact ACT/PPO engineering pilot, measured joint station episodes and heterogeneous mobile/arm platform have different calibration,dimensions,camera coverage and compute. Source code is available for study but has not been integrated or executed here; this review does not upgrade Explorer hardware or task readiness.",
+  "evidence_locations": [
+    {
+      "page": 1,
+      "section": "Title/authors",
+      "supports": "Wang et al. identity distinct from the other UniVLA"
+    },
+    {
+      "page": 4,
+      "section": "3.1/Fig2",
+      "supports": "VQ/FAST unified token representation"
+    },
+    {
+      "page": 5,
+      "section": "3.2/Eqs1–2",
+      "supports": "Language-conditioned visual objective versus action-supervised policy sequence"
+    },
+    {
+      "page": 6,
+      "section": "4.2",
+      "supports": "8.5B model,quantiles,chunk sizes andmaintrainingrecipe"
+    },
+    {
+      "page": 7,
+      "section": "Tables1–3",
+      "supports": "Benchmark metrics andgrasp/successdistinction"
+    },
+    {
+      "page": 8,
+      "section": "Tables4–6",
+      "supports": "Controlled post-training,history anddataefficiency"
+    },
+    {
+      "page": 9,
+      "section": "Table7/Limitations",
+      "supports": "Simulated driving scope andremainingRL/scalingwork"
+    },
+    {
+      "page": 16,
+      "section": "AppendixA/Table8",
+      "supports": "Post-trainingrecipeconflict and14D/20stepphysicalpolicy"
+    },
+    {
+      "page": 17,
+      "section": "AppendixB/Table9",
+      "supports": "ALOHAhardware,cameras,trainingcountsandadaptivekeyframes"
+    },
+    {
+      "page": 18,
+      "section": "AppendixC",
+      "supports": "NAVSIMtraining/testscenario scope"
+    }
+  ],
+  "code_inspected": true,
+  "code_executed": false,
+  "code_inspection_scope": [
+    "pretrain/fast/processing_action_tokenizer.py blobcbfb55b90c302fe34febc3ce375770eb4c2bbe3d",
+    "models/inference/inference_action.py blobf4c267666a78fdf2bafa1a90bd3589b934ad587e",
+    "models/tokenizer/action_tokenizer.py blobcbbf0963b2e2eb36c2e7b1f25bdcea6f5f847bcc",
+    "tools/real_aloha/pickle_generation_multitask_sepnorm.py blobe39ba90f32babeb8bad9ce0062e91106000d52f0",
+    "docs/aloha.md andcomponentlicense read"
+  ],
+  "external_sources": [
+    {
+      "url": "https://github.com/baaivision/UniVLA/tree/a91ee5f269d7ad46d46635ee6481d2eb655b4af9",
+      "supports": "Pinned public source and inspected component files"
+    },
+    {
+      "url": "https://huggingface.co/Yuqi1997/UniVLA/raw/main/README.md",
+      "supports": "Model-card license declaration andstaleCodeURL"
+    },
+    {
+      "url": "https://robertwyq.github.io/univla.github.io/",
+      "supports": "Author/project identity,repository link andwebsite-onlylicense"
+    }
+  ]
+}

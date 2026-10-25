@@ -1,0 +1,76 @@
+{
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex full-text reviewer P076-P100",
+  "reviewed_at": "2026-10-26",
+  "code_inspected": false,
+  "code_executed": false,
+  "paper_id": "P096",
+  "source_sha256": "92b6e0734fd8889edb5d492e4bbb0d68329e192abe14a383d754c36bd00432b9",
+  "primary_url": "https://arxiv.org/abs/2604.14732",
+  "verified_title": "World–Value–Action Model: Implicit Planning for Vision–Language–Action Systems",
+  "problem": "A one-shot generative policy can sample plausible but low-return futures. Searching raw long-horizon actions is difficult, while a learned latent prior does not automatically concentrate on successful trajectories.",
+  "contribution": "WAV couples a video generator, trajectory-value diffusion module and action decoder; inference iteratively updates video/value noise distributions toward high-scoring latent futures before decoding controls.",
+  "algorithm": "Autoregressive multiview video features condition value and action DiTs. Train video, then value with video frozen, then action/joint modules using flow objectives and discounted-return labels. At inference, sampleM video noises andN value noises per video, rank by predicted mean/std SNR, choose elites and update diagonal Gaussian means/variances with smoothing. This is elite-distribution optimization inspired by MPPI, rather than a verified feasibility projection.",
+  "observations": "Language, current/memorized multiview RGB and robot state. Value labels use terminal-image MSE/SSIM, joint proximity and smoothness penalties from recorded trajectories; sparse success-only value training is also evaluated. Predicted value uncertainty is not independently calibrated.",
+  "actions": "Eight-step chunks per planning call, all executed before replanning. Physical Piper has14D joint states, overview plus two wrist cameras. Exact action-space units should be resolved from the implementation before mapping to another embodiment.",
+  "embodiment_and_data": "Physical task-specific models use300 successful drawer trajectories,300 bowl-organization trajectories and2000 towel-flattening trajectories. LIBERO supplies four suites. Training uses8A100-80GB GPUs for several days/task, with separate video/value/action training. Data release is promised upon publication in this PDF.",
+  "experiments": "LIBERO compares one-shot, random selection, mean-value/max-SNR best-of-N, compute-matched best-of-N and iterative value-guided search with identical frozen modules. Real three tasks use strict binary complete-task success,15trials/task/method. Towel flattening is distinct from folding. Inference cost and accuracy are separately reported on a harder LIBERO-10 subset.",
+  "baselines": "GE-Act with comparable backbone/architecture, pi0.5, published LIBERO policies and matched inference ablations. Theory compares against uniform action-space sampling under an assumed already-feasible latent generator, not against every strong structured policy or MPC baseline.",
+  "quantitative_result": {
+    "simulation": "PDFp7 Table1:98.1% LIBERO mean versus96.4% without planning; exact main evaluation trial denominator NOT_EXTRACTED. PDFp17 Table2:compute-matched best-of-N97.2%, full98.1%. Sparse-success value training98.4% versus dense98.1% (Table3), so dense reward is not universally superior.",
+    "physical": "PDFp8 Fig2/prose:average75.6% versusGE-Act35.6%,15trials/task across3tasks. This is strict binary trial success, unlike partial-score papers; no confidence interval supplied.",
+    "compute": "PDFp18 Table4:A100-80GB,K3/M30/N5 latency7.862s,p95 7.888s,peak32.0GB;one-shot0.909s/14.2GB. Harder-subset score70→82 butK5drops80. Reported1.02Hz equals8commands/7.862s, not one fresh planning decision each second."
+  },
+  "limitations": "Theory assumes the learned generator already places at least1−delta probability on feasible trajectories; the experiments do not prove this for contact-rich hardware. Maximizing over noisy value samples may exploit value errors, and SNR need not measure physical uncertainty. Iteration is not monotonically beneficial. Seconds-long planning and32GB memory target quasi-static tasks and exceed16GB NX's reported-memory budget. Physical cloth evidence uses2000 flattening demos, not autonomous sock folding.",
+  "code_and_license": "No pinned implementation, weights or dataset terms audited and no execution. PDFp19 promises dataset release, which is not verified availability or a license grant.",
+  "hardware_adaptation": "COMPARE offline outcome-based ranking on real held-out episodes and simulation trajectories. Use a compact value model with calibrated outcome labels before evaluating any latent search. Do not substitute generated futures for actual feedback or import Piper joint controls. Current32GB/7.9s planner has no demonstrated NX control role; existing controller settings remain unchanged.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "4.1",
+      "supports": "Conditional feasibility assumptions"
+    },
+    {
+      "page": 5,
+      "section": "4.2",
+      "supports": "Video/value/action architecture"
+    },
+    {
+      "page": 6,
+      "section": "Algorithm1/Eqs4–5",
+      "supports": "Elite Gaussian search and value SNR"
+    },
+    {
+      "page": 7,
+      "section": "Table1",
+      "supports": "LIBERO performance and no-planning ablation"
+    },
+    {
+      "page": 8,
+      "section": "5.2/Fig2",
+      "supports": "Strict binary hardware metric and15trial protocol"
+    },
+    {
+      "page": 17,
+      "section": "Tables2–3",
+      "supports": "Matched inference and sparse-reward comparisons"
+    },
+    {
+      "page": 18,
+      "section": "Table4",
+      "supports": "Latency,memory and command-throughput definition"
+    },
+    {
+      "page": 19,
+      "section": "C.1–C.2",
+      "supports": "Task-specific demonstrations and dense rewards"
+    },
+    {
+      "page": 21,
+      "section": "C.4",
+      "supports": "8A100 training resources"
+    }
+  ]
+}
