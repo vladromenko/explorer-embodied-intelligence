@@ -281,27 +281,45 @@ def save_receipt(destination: Path, receipt: dict) -> None:
     sync_path(destination)
 
 
+def git_identity(repo: Path) -> dict:
+    head = command(["git", "rev-parse", "HEAD"], "Git HEAD inspection", cwd=repo).decode().strip()
+    if not re.fullmatch(r"[0-9a-f]{40,64}", head):
+        raise CleanupError("Git HEAD is not a commit identity")
+    refs = command(["git", "for-each-ref", "--format=%(refname) %(objectname)"],
+                   "Git reference inspection", cwd=repo).decode().splitlines()
+    return dict(head=head, refs=sorted(refs))
+
+
+def verify_git_sources(home: Path, bundles: list[dict]) -> None:
+    for row in bundles:
+        if git_identity(home / row["repository"]) != row["source_identity"]:
+            raise CleanupError("Git HEAD or references changed after the history backup")
+
+
 def git_bundles(home: Path, destination: Path, repositories: list[str]) -> list[dict]:
     result = []
     for index, relative in enumerate(repositories):
         repo = home / relative
-        head = command(["git", "rev-parse", "HEAD"], "Git HEAD inspection", cwd=repo).decode().strip()
-        if not re.fullmatch(r"[0-9a-f]{40,64}", head):
-            raise CleanupError("Git HEAD is not a commit identity")
+        identity = git_identity(repo)
         path = destination / ("history-" + str(index) + ".bundle")
         command(["git", "bundle", "create", str(path), "--all", "HEAD"], "Git bundle creation", cwd=repo)
         path.chmod(0o600)
         command(["git", "bundle", "verify", str(path)], "Git bundle verification", cwd=repo)
         sync_path(path)
-        result.append(dict(repository=relative, file=path.name, head=head, sha256=sha256(path), bytes=path.stat().st_size))
+        if git_identity(repo) != identity:
+            raise CleanupError("Git references changed while making the history backup")
+        result.append(dict(repository=relative, file=path.name, head=identity["head"], source_identity=identity,
+                           sha256=sha256(path), bytes=path.stat().st_size))
     return result
 
 
-def unchanged(path: Path, item: dict) -> None:
+def unchanged(path: Path, item: dict, *, content: bool = False) -> None:
     current = metadata(path, item["path"])
     keys = ("kind", "size", "mode", "mtime_ns", "inode", "device")
     if any(current[key] != item[key] for key in keys) or current.get("target") != item.get("target"):
         raise CleanupError("Legacy source changed after archive inventory")
+    if content and item["kind"] == "file" and sha256(path) != item["sha256"]:
+        raise CleanupError("Legacy source content changed after its checked backup")
 
 
 def create_archive(home: Path, destination: Path, entries: list[dict]) -> Path:
@@ -445,7 +463,8 @@ def cleanup(home: Path, node: str, *, apply: bool = False) -> dict:
     save_receipt(destination, receipt)
     try:
         for item in entries:
-            unchanged(home / item["path"], item)
+            unchanged(home / item["path"], item, content=True)
+        verify_git_sources(home, bundles)
         assert_inactive_units(plan)
         assert_no_consumers(plan)
         if plan["patch_shell"]:
@@ -471,6 +490,10 @@ def cleanup(home: Path, node: str, *, apply: bool = False) -> dict:
             if row["kind"] == "directory":
                 if path.is_symlink():
                     raise CleanupError("Candidate changed into a symlink before removal")
+                for git_bundle in bundles:
+                    repository = home / git_bundle["repository"]
+                    if repository == path or path in repository.parents:
+                        verify_git_sources(home, [git_bundle])
                 shutil.rmtree(path)
                 receipt["removed_paths"] += 1
                 save_receipt(destination, receipt)

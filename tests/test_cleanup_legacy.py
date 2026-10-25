@@ -2,6 +2,7 @@
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import tarfile
@@ -167,3 +168,35 @@ def test_checksum_mismatch_and_source_changes_block_removal(tmp_path, monkeypatc
     assert failure.value.receipt["removed_paths"] == 0
     assert not failure.value.receipt["completed"]
     assert source.read_bytes() == b"new data"
+
+
+def test_preserved_timestamp_does_not_hide_changed_content(tmp_path):
+    path = put(tmp_path / "module.py", b"original")
+    item = cleanup.metadata(path, "module.py")
+    item["sha256"] = cleanup.sha256(path)
+    path.write_bytes(b"modified")
+    os.utime(path, ns=(path.stat().st_atime_ns, item["mtime_ns"]))
+    with pytest.raises(cleanup.CleanupError, match="content changed"):
+        cleanup.unchanged(path, item, content=True)
+
+
+def test_new_git_ref_after_bundle_blocks_removal(tmp_path, monkeypatch):
+    mock_runtime(monkeypatch)
+    home = tmp_path / "home"
+    repo = home / "MILO_Next"
+    source = put(repo / "module.py")
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    subprocess.run(["git", "-C", str(repo), "add", "module.py"], check=True)
+    subprocess.run(["git", "-C", str(repo), "-c", "user.name=Test", "-c", "user.email=test@example.invalid",
+                    "commit", "-qm", "source"], check=True)
+    verify = cleanup.verify_restore
+
+    def add_ref_after_restore(*args):
+        verify(*args)
+        subprocess.run(["git", "-C", str(repo), "tag", "new-after-bundle"], check=True)
+
+    monkeypatch.setattr(cleanup, "verify_restore", add_ref_after_restore)
+    with pytest.raises(cleanup.CleanupError) as failure:
+        cleanup.cleanup(home, "pi", apply=True)
+    assert failure.value.receipt["removed_paths"] == 0
+    assert source.exists()
