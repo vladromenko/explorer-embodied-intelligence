@@ -117,6 +117,9 @@ def main(job_id):
             result = recording(store, job, config)
         elif job['kind'] == 'station_import':
             result = station_import(store,job,config)
+        elif job['kind'] in ('station_shadow','station_rollout'):
+            from .station_runtime import run_station_policy
+            result=run_station_policy(store,job,config)
         elif job['kind'] == 'sim_pilot':
             from .simulation import run_sim_pilot
             result = run_sim_pilot(store, job, config)

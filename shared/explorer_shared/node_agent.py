@@ -1,4 +1,4 @@
-"""Explorer cameras, durable observations and explicitly requested station control.
+"""ENGINEERING_GLUE: Explorer cameras, durable observations and explicitly requested station control.
 
 Pi owns one camera capture. Nano observes the existing controller's files;
 it neither imports ROS nor opens its cameras or serial ports. Pi optionally owns

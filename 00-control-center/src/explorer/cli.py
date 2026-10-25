@@ -1,4 +1,4 @@
-"""Local/SSH administrative CLI; credentials never embedded in source."""
+"""ENGINEERING_GLUE: Local/SSH administrative CLI; credentials never embedded in source."""
 import argparse
 import hashlib
 import json

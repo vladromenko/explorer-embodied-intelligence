@@ -52,6 +52,8 @@ class SO101Station:
         self.operator_present = False
         self.baseline_leader, self.baseline_follower = None, None
         self.explicit_goal = None
+        self.last_command = None
+        self.action_source = None
         self.control_epoch = uuid.uuid4().hex
         self.action_sequence = -1
         self.goal_deadline = 0
@@ -161,6 +163,9 @@ class SO101Station:
                         accepted = [min(HIGH[i],max(LOW[i],float(value))) for i,value in enumerate(target)]
                         self._write(accepted)
                         dispatched_at = time.monotonic_ns()
+                        self.last_command=dict(control_epoch=self.control_epoch,sequence=self.action_sequence,requested=list(target),
+                            dispatched=accepted,monotonic_ns=dispatched_at,clock_domain=self.clock_domain,
+                            source_observation=dict(self.action_source or {}))
                         self._sample(frame,follower,target,accepted,measured_at,dispatched_at)
                 self.last_periods.append(begin - previous)
                 self.last_periods = self.last_periods[-300:]
@@ -189,6 +194,7 @@ class SO101Station:
                 period_p95_ms=1000*periods[int(.95*(len(periods)-1))] if periods else None,
                 recording={key:value for key,value in self.record.items() if key!='samples'} if self.record else None,
                 recording_error=self.record_errors.get(self.record['episode_id']) if self.record else None,
+                last_command=dict(self.last_command) if self.last_command else None,
                 action_names=NAMES,action_units=UNITS,position_hold='existing_position_mode',configuration_writes=0)
 
     def command(self, operation, body):
@@ -196,6 +202,8 @@ class SO101Station:
             return self._finish_record(body.get('outcome','unknown'))
         with self.lock:
             if operation == 'stop':
+                if body.get('expected_control_epoch') is not None and body['expected_control_epoch']!=self.control_epoch:
+                    raise ValueError('The requested control session has already ended')
                 if self.mode != 'idle' and self.measurements:
                     self._write(self._positions('follower'))
                 self.mode = 'idle'
@@ -216,6 +224,7 @@ class SO101Station:
                 self.baseline_leader = self._positions('leader')
                 self.baseline_follower = self._positions('follower')
                 self.mode = 'teleoperation'
+                self.action_source = None
                 self.control_epoch = uuid.uuid4().hex
                 self.action_sequence = -1
             elif operation == 'policy/start':
@@ -240,7 +249,14 @@ class SO101Station:
                     raise ValueError('Policy action contract does not match this station')
                 if not isinstance(target,list) or len(target)!=6 or not all(math.isfinite(float(x)) for x in target):
                     raise ValueError('Six finite calibrated SO-101 coordinates are required')
+                source_time=body.get('source_frame_monotonic_ns')
+                if not isinstance(source_time,int) or body.get('source_clock_domain')!=self.clock_domain:
+                    raise ValueError('Policy action is missing the original Pi camera clock')
+                source_age=(time.monotonic_ns()-source_time)/1e9
+                if not 0<=source_age<=self.camera.stale_s:
+                    raise ValueError('Policy action refers to a future or expired camera observation')
                 self.action_sequence = sequence
+                self.action_source=dict(frame_id=body.get('source_frame_id'),monotonic_ns=source_time,clock_domain=self.clock_domain)
                 self.explicit_goal = list(target)
                 self.goal_deadline = time.monotonic() + min(1,max(.05,float(body.get('duration_s',.25))))
                 self.mode = 'policy'

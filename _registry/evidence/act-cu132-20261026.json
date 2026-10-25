@@ -1,0 +1,33 @@
+{
+  "passed": false,
+  "scope": "Compact six-axis official ACT only; synthetic tensors, no physical skill validation",
+  "device": "Orin",
+  "compute_capability": [
+    8,
+    7
+  ],
+  "compiled_architectures": [
+    "sm_80",
+    "sm_90",
+    "sm_100",
+    "sm_110",
+    "sm_120"
+  ],
+  "lerobot": "0.6.1",
+  "optimizer_steps": 2,
+  "losses": [
+    0.9859876036643982,
+    0.8373768925666809
+  ],
+  "weights_changed": true,
+  "finite": true,
+  "save_reload_max_abs_error": 0.0,
+  "cpu_gpu_max_abs_error": 0.00010028481483459473,
+  "elapsed_s": 2.319318439000199,
+  "checkpoint": "/home/jetsonnx/.local/share/explorer/state/qualification/act-cu132-20261026/student_act",
+  "framework_versions": {
+    "torch": "2.12.0+cu132",
+    "torchvision": "0.27.0+cu132"
+  },
+  "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds"
+}

@@ -1,3 +1,4 @@
+"""ENGINEERING_GLUE: load private local runtime paths and connection settings."""
 import json
 import os
 from pathlib import Path

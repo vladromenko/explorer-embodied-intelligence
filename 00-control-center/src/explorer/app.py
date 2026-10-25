@@ -209,7 +209,7 @@ def state():
     operational=any(node.get('capabilities',{}).get('physical_motion') for node in nodes)
     return dict(schema_version=1, nodes=nodes, experiments=experiments, jobs=jobs,
         skills=STORE.skills(), research=research_status(), storage={'free_bytes':disk.free,'total_bytes':disk.total,'root':str(STORE.root)},
-        capabilities={'station_rollout':False},
+        capabilities={'station_rollout':True},
         admission={'physical_enabled':operational, 'owner_authorization':'Разрешено владельцем при видимости на камере Pi либо подтверждённом присутствии',
             'reasons':['Доступность управления и результаты обучения показаны отдельно. Физическая проверка обученных навыков ещё не завершена.'], 'controller_settings_unchanged':True})
 
@@ -247,23 +247,38 @@ def jobs():
 @app.post('/api/jobs')
 async def create_job(request: Request):
     body = await request.json()
-    if body.get('kind') not in ('sim_pilot', 'train_act', 'virtual_transfer', 'handover_test') or body.get('project_id') not in (*TITLES.keys(),'personal'):
+    if body.get('kind') not in ('sim_pilot', 'train_act', 'virtual_transfer', 'handover_test','station_shadow','station_rollout') or body.get('project_id') not in (*TITLES.keys(),'personal'):
         raise HTTPException(400, 'Unsupported job')
     config = body.get('config', {})
     if not isinstance(config, dict):
         raise HTTPException(400, 'Job configuration must be an object')
+    if body['kind']=='station_shadow':
+        config['shadow']=True
+    if body['kind']=='station_rollout':
+        config['shadow']=False
+        if not config.get('observing') or not config.get('expected_control_epoch'):
+            raise HTTPException(400,'An observed current station control session is required')
     return STORE.create_job(body['kind'], body['project_id'], config)
 
 
 @app.post('/api/jobs/{job_id}/{operation}')
-def job_operation(job_id: str, operation: str):
+async def job_operation(job_id: str, operation: str):
     job = STORE.job(job_id)
     if not job:
         raise HTTPException(404)
     desired = {'pause':'pause_requested', 'resume':'resume_requested', 'cancel':'cancel_requested'}
     if operation not in desired or job['status'] in ('completed', 'failed', 'cancelled'):
         raise HTTPException(409, 'Operation is not valid for this job')
+    if operation in ('pause','resume') and job['kind'] not in ('sim_pilot','train_act'):
+        raise HTTPException(409,'Pause and resume apply to training. Stop an interactive attempt and start a fresh one.')
     STORE.update_job(job_id, status=desired[operation])
+    if operation=='cancel' and job['kind']=='station_rollout' and (job.get('result') or {}).get('control_epoch'):
+        node=next(node for node in CONFIG['nodes'] if node['id']=='pi')
+        try:
+            await CLIENT.post('http://'+node['host']+':'+str(node['port'])+'/station/stop',
+                headers={'Authorization':'Bearer '+node['token']},json={'expected_control_epoch':job['result']['control_epoch']})
+        except httpx.HTTPError:
+            pass
     return STORE.job(job_id)
 
 

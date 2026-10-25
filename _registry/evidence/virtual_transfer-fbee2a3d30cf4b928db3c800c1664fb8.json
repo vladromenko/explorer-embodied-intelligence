@@ -1,0 +1,67 @@
+{
+  "id": "fbee2a3d30cf4b928db3c800c1664fb8",
+  "kind": "virtual_transfer",
+  "project_id": "04",
+  "status": "completed",
+  "created": 1792970733.3385296,
+  "updated": 1792970736.564332,
+  "config": {},
+  "result": {
+    "scope": "kinematic_virtual_transfer",
+    "source_type": "virtual_joint_reference_not_learned_policy",
+    "source_policy_executed": false,
+    "physical_execution": false,
+    "physical_skill_success_not_tested": true,
+    "collision_check_performed": false,
+    "orientation_constrained": false,
+    "position_tolerance_m": 0.001,
+    "point_count": 24,
+    "reachable_count": 22,
+    "unsupported_points": [
+      6,
+      7
+    ],
+    "median_position_error_m": 0.00030162627614233127,
+    "max_position_error_m": 0.001108979894067528,
+    "raw_joint_copy_virtual_baseline": {
+      "valid_points": 24,
+      "median_position_error_m": 0.022896998469828962,
+      "scope": "illustrative raw-joint baseline only; no claim against published transfer methods"
+    },
+    "elapsed_s": 2.275693345000036,
+    "source_joint_names": [
+      "shoulder_pan",
+      "shoulder_lift",
+      "elbow_flex",
+      "wrist_flex",
+      "wrist_roll"
+    ],
+    "target_joint_names": [
+      "arm1_Joint",
+      "arm2_Joint",
+      "arm3_Joint",
+      "arm4_Joint",
+      "arm5_Joint"
+    ],
+    "source_urdf_sha256": "3a65d2d35e68a8d2f0c2cc176d19b884506543c93ba72980145b80abe276022c",
+    "target_urdf_sha256": "9ee94f15a2473ba04c84c552bae47f7dd2bd734b8b3700f3fe25d752c3eace4b",
+    "source_revision": "a758567c3978dfeefe282ede0500085a48fe8f78",
+    "registration_provenance": "virtual_declared",
+    "gripper_transfer": "not_attempted_separate_measured_aperture_calibration_required",
+    "method_status": "KNOWN_BASELINE_ENGINEERING_GLUE",
+    "hypotheses_status": "UNTESTED_HYPOTHESIS",
+    "method_ids": [
+      "SO101_URDF_FK_IK",
+      "OBJECT_RELATIVE_RETARGET",
+      "LELAB_CHECKPOINT_IMPORT"
+    ],
+    "artifact_sha256": {
+      "kinematic_trajectories.npz": "7b82df13a554dcff20e72f1aed1a16cba5abb32488d0a6e2537d38f4e1b68e4a",
+      "transfer_errors.csv": "3bc2f64edf4ffe0561567a8ffc1008b26ead7cf04cfd8223175ffd39cca0b51b",
+      "frame.jpg": "9a3b465ba5ae621b3879202791087f586c4b0a026421dc256659e90811049f50"
+    }
+  },
+  "progress": 1.0,
+  "error": null,
+  "frame_available": true
+}

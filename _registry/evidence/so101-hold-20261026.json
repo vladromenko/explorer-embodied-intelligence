@@ -1,0 +1,2781 @@
+{
+  "scope": "Technical position hold and synchronized source recording; no learned policy or object-task validation",
+  "configuration_writes": 0,
+  "before": {
+    "action_names": [
+      "shoulder_pan",
+      "shoulder_lift",
+      "elbow_flex",
+      "wrist_flex",
+      "wrist_roll",
+      "gripper"
+    ],
+    "action_units": [
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "normalized_0_100"
+    ],
+    "available": true,
+    "configuration_writes": 0,
+    "control_epoch": "1832469c0780403291b4be9199eed68e",
+    "error": null,
+    "loop_hz": 29.936140513402886,
+    "measurement_age_ms": 5.773499,
+    "measurements": {
+      "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+      "follower": [
+        -10.14492753623189,
+        -100.0,
+        99.90962494351558,
+        62.71331058020476,
+        0.219780219780219,
+        27.796161482461944
+      ],
+      "leader": [
+        -0.7729112992270899,
+        -87.81725888324873,
+        99.63718820861678,
+        36.08862377503195,
+        5.641025641025649,
+        1.1299435028248588
+      ],
+      "monotonic_ns": 7251083570198,
+      "wall_utc": 1792970567.1600928
+    },
+    "mode": "idle",
+    "observation_warning": null,
+    "period_p95_ms": 33.41540299970802,
+    "position_hold": "existing_position_mode",
+    "recording": null,
+    "recording_error": null,
+    "roles": {
+      "follower": {
+        "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+        "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+        "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+        "verified_on_connected_hardware": true
+      },
+      "leader": {
+        "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+        "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+        "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+        "verified_on_connected_hardware": true
+      }
+    }
+  },
+  "samples": [
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.93435327447934,
+      "measurement_age_ms": 29.798089,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7251451592094,
+        "wall_utc": 1792970567.5281148
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41543999977148,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 4,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.93444118206134,
+      "measurement_age_ms": 6.758832,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7251752614370,
+        "wall_utc": 1792970567.829137
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41540299970802,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 7,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.934517384232947,
+      "measurement_age_ms": 12.713665,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7252019627298,
+        "wall_utc": 1792970568.09615
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41523699964455,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 9,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.934514776921276,
+      "measurement_age_ms": 30.341718,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7252287648077,
+        "wall_utc": 1792970568.364171
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41523699964455,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 12,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.933934503074337,
+      "measurement_age_ms": 16.459053,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7252587659001,
+        "wall_utc": 1792970568.6641815
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41543999977148,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 15,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.933909527840797,
+      "measurement_age_ms": 29.643626,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7252854703373,
+        "wall_utc": 1792970568.9312258
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41543999977148,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 18,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.933689547404057,
+      "measurement_age_ms": 2.432592,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7253155694778,
+        "wall_utc": 1792970569.2322173
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41612599979271,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 21,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.933562408181338,
+      "measurement_age_ms": 15.839887,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7253423707558,
+        "wall_utc": 1792970569.5002303
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41612599979271,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 23,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.933402477283785,
+      "measurement_age_ms": 29.474959,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7253690728078,
+        "wall_utc": 1792970569.767251
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41612599979271,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 26,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.93331829466627,
+      "measurement_age_ms": 9.592036,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7253990745983,
+        "wall_utc": 1792970570.0672686
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41612599979271,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 29,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.93319598918547,
+      "measurement_age_ms": 29.384625,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7254257771004,
+        "wall_utc": 1792970570.3342938
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41612599979271,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 32,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.933002323403525,
+      "measurement_age_ms": 9.262999,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7254558765871,
+        "wall_utc": 1792970570.6352885
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.416440000110015,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 35,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.932953766507744,
+      "measurement_age_ms": 30.583514,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7254825793670,
+        "wall_utc": 1792970570.9023166
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.416440000110015,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 37,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.93300021379216,
+      "measurement_age_ms": 4.55787,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7255127797315,
+        "wall_utc": 1792970571.20432
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.416440000110015,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 40,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.93307363675874,
+      "measurement_age_ms": 14.541424,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7255393816928,
+        "wall_utc": 1792970571.4703395
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.416440000110015,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 43,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.93292414220484,
+      "measurement_age_ms": 30.499422,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7255660834263,
+        "wall_utc": 1792970571.737357
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41664399977162,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 46,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.933008933911868,
+      "measurement_age_ms": 13.066832,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7255961846279,
+        "wall_utc": 1792970572.0383687
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41664399977162,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 49,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.932859550877744,
+      "measurement_age_ms": 1.529981,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7256262866054,
+        "wall_utc": 1792970572.3393886
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41712600013125,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 52,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.932837912622812,
+      "measurement_age_ms": 10.269813,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7256529883204,
+        "wall_utc": 1792970572.606406
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.41664399977162,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 54,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    },
+    {
+      "action_names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "action_units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "available": true,
+      "configuration_writes": 0,
+      "control_epoch": "964d96db562c4a60b409ba4143ba7df2",
+      "error": null,
+      "loop_hz": 29.932923093399115,
+      "measurement_age_ms": 15.496295,
+      "measurements": {
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "follower": [
+          -10.14492753623189,
+          -100.0,
+          99.90962494351558,
+          62.71331058020476,
+          0.219780219780219,
+          27.796161482461944
+        ],
+        "leader": [
+          -0.7729112992270899,
+          -87.81725888324873,
+          99.63718820861678,
+          36.08862377503195,
+          5.641025641025649,
+          1.1299435028248588
+        ],
+        "monotonic_ns": 7256796899946,
+        "wall_utc": 1792970572.8734226
+      },
+      "mode": "teleoperation",
+      "observation_warning": null,
+      "period_p95_ms": 33.416440000110015,
+      "position_hold": "existing_position_mode",
+      "recording": {
+        "action_basis": "dispatched_command",
+        "action_names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "action_units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "calibration_metadata": {
+          "follower": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+            "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+            "verified_on_connected_hardware": true
+          },
+          "leader": {
+            "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+            "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+            "verified_on_connected_hardware": true
+          }
+        },
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "demonstration_actor": "automated_engineering_test",
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+        "execution_mode": "teleoperation",
+        "fps": 10,
+        "name": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043f\u043e\u0437\u044b",
+        "normalization": {
+          "high": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "low": [
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            -100.0,
+            0.0
+          ]
+        },
+        "outcome": "unknown",
+        "project_id": "personal",
+        "queued_samples": 57,
+        "schema_version": 1,
+        "source_type": "station_demonstration",
+        "split": "train",
+        "started_wall_utc": 1792970567.2240493,
+        "state": "recording",
+        "state_basis": "measured_state",
+        "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration"
+      },
+      "recording_error": null,
+      "roles": {
+        "follower": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+          "verified_on_connected_hardware": true
+        },
+        "leader": {
+          "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+          "verified_on_connected_hardware": true
+        }
+      }
+    }
+  ],
+  "max_normalized_position_deviation": 0.0,
+  "recording": {
+    "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+    "manifest": "/home/vlados/.local/share/explorer/node-state/station/recordings/a7b9d1ba98bc4f0da0fdc52280727211/manifest.json",
+    "outcome": "success",
+    "project_id": "personal",
+    "samples": 57,
+    "sha256": "dadc63ae6a6394b83fa1aa7593b373f0c38d9836156c294da238ce08a029d989",
+    "state": "complete",
+    "import_job": {
+      "id": "971293838b234d9da1d15c955d2e3207",
+      "kind": "station_import",
+      "project_id": "personal",
+      "status": "queued",
+      "created": 1792970572.993479,
+      "updated": 1792970572.993479,
+      "config": {
+        "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211"
+      },
+      "result": null,
+      "progress": 0.0,
+      "error": null,
+      "frame_available": false
+    }
+  },
+  "stopped": {
+    "action_names": [
+      "shoulder_pan",
+      "shoulder_lift",
+      "elbow_flex",
+      "wrist_flex",
+      "wrist_roll",
+      "gripper"
+    ],
+    "action_units": [
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "normalized_0_100"
+    ],
+    "available": true,
+    "configuration_writes": 0,
+    "control_epoch": "f692d384c9124e6f850b954d79fd58c7",
+    "error": null,
+    "loop_hz": 29.93300866421751,
+    "measurement_age_ms": 24.97833,
+    "measurements": {
+      "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+      "follower": [
+        -10.14492753623189,
+        -100.0,
+        99.90962494351558,
+        62.71331058020476,
+        0.219780219780219,
+        27.796161482461944
+      ],
+      "leader": [
+        -0.7729112992270899,
+        -87.81725888324873,
+        99.63718820861678,
+        36.08862377503195,
+        5.641025641025649,
+        1.1299435028248588
+      ],
+      "monotonic_ns": 7256930909447,
+      "wall_utc": 1792970573.0074322
+    },
+    "mode": "idle",
+    "observation_warning": null,
+    "period_p95_ms": 33.41612599979271,
+    "position_hold": "existing_position_mode",
+    "recording": null,
+    "recording_error": null,
+    "roles": {
+      "follower": {
+        "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+        "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+        "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B7B016903-if00",
+        "verified_on_connected_hardware": true
+      },
+      "leader": {
+        "calibration_path": "/home/vlados/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+        "calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+        "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79050876-if00",
+        "verified_on_connected_hardware": true
+      }
+    }
+  }
+}

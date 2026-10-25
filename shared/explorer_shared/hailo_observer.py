@@ -1,4 +1,4 @@
-"""Hailo-10H object estimates; no robot, audio, identity or actuator imports.
+"""ENGINEERING_GLUE: Hailo-10H object estimates; no robot, audio, identity or actuator imports.
 
 The hardware adapter derives from the owner's audited MILO detector. See
 shared/perception/PROVENANCE.md. Importing this module never opens a device.

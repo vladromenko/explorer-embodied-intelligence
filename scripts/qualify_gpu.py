@@ -21,6 +21,9 @@ def main():
     output=Path(args.output)
     output.mkdir(parents=True,exist_ok=True)
     torch.set_num_threads(4)
+    torch.set_float32_matmul_precision('highest')
+    torch.backends.cuda.matmul.allow_tf32=False
+    torch.backends.cudnn.allow_tf32=False
     settings=parameters(dict(seed=27,device='cuda',image_size=64,chunk_size=4,act_steps=2,batch_size=2))
     policy=make_act_policy(settings,6,6)
     before=state_digest(policy)
@@ -54,7 +57,7 @@ def main():
     passed=finite and parity<1e-4 and before!=state_digest(policy)
     result=dict(passed=passed,scope='Compact six-axis official ACT only; synthetic tensors, no physical skill validation',
         device=torch.cuda.get_device_name(),compute_capability=list(torch.cuda.get_device_capability()),
-        compiled_architectures=torch.cuda.get_arch_list(),lerobot=importlib.metadata.version('lerobot'),
+        compiled_architectures=torch.cuda.get_arch_list(),tf32_enabled=False,lerobot=importlib.metadata.version('lerobot'),
         optimizer_steps=2,losses=losses,weights_changed=before!=state_digest(policy),finite=finite,
         save_reload_max_abs_error=reload_error,cpu_gpu_max_abs_error=parity,elapsed_s=time.monotonic()-started,
         checkpoint=str(checkpoint),**framework_info())

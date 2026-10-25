@@ -1,11 +1,23 @@
 """ENGINEERING_GLUE: independent durable resource scheduler; no robot I/O."""
 import fcntl
+import json
 import os
 import signal
 import subprocess
 import sys
 import time
 import psutil
+from pathlib import Path
+
+
+def executable_for(job):
+    if job['kind'] in ('train_act','sim_pilot') and job.get('config',{}).get('device')=='cuda':
+        runtime=Path.home()/'.local/share/explorer/gpu-venv/bin/python'
+        evidence=Path.home()/'.local/share/explorer/state/qualification/act-cu132-fp32-20261026/qualification.json'
+        if not runtime.is_file() or not evidence.is_file() or not json.loads(evidence.read_text()).get('passed'):
+            raise ValueError('The selected GPU runtime has not passed its actual ACT qualification')
+        return str(runtime)
+    return sys.executable
 
 
 def supervise(config, store):
@@ -48,9 +60,14 @@ def supervise(config, store):
                 if (not training or not busy) and (not training or memory_ok):
                     folder = store.root / 'jobs' / job_id
                     folder.mkdir(parents=True, exist_ok=True)
-                    with (folder / 'worker.log').open('ab') as log:
-                        process = subprocess.Popen([sys.executable, '-m', 'explorer.job_runner', job_id],
-                            stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
-                    processes[job_id] = process
-                    store.update_job(job_id, status='running')
+                    try:
+                        executable=executable_for(job)
+                        with (folder / 'worker.log').open('ab') as log:
+                            process = subprocess.Popen([executable, '-m', 'explorer.job_runner', job_id],
+                                stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+                    except (ValueError,OSError) as error:
+                        store.update_job(job_id,status='failed',error=str(error))
+                    else:
+                        processes[job_id] = process
+                        store.update_job(job_id, status='running')
         time.sleep(1)

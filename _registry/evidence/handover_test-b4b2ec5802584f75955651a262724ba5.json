@@ -1,0 +1,219 @@
+{
+  "id": "b4b2ec5802584f75955651a262724ba5",
+  "kind": "handover_test",
+  "project_id": "05",
+  "status": "completed",
+  "created": 1792970733.3563159,
+  "updated": 1792970734.3144715,
+  "config": {},
+  "result": {
+    "scope": "deterministic_protocol_test",
+    "method_ids": [
+      "HANDOVER_VERIFIED_FSM"
+    ],
+    "cases": [
+      {
+        "name": "closed_gripper_alone_cannot_authorize_release",
+        "passed": true
+      },
+      {
+        "name": "independent_virtual_oracle_full_protocol",
+        "passed": true
+      },
+      {
+        "name": "stop_discards_release_authorization",
+        "passed": true
+      },
+      {
+        "name": "virtual_oracle_rejected_for_physical_protocol",
+        "passed": true
+      }
+    ],
+    "passed": true,
+    "trace": [
+      {
+        "event_id": "prepare-0",
+        "coordinator_monotonic_ns": 1000000000,
+        "clock_domain": "test-coordinator",
+        "before": "PREPARE",
+        "after": "ROSMASTER_HOLDING",
+        "reason": "giver_holding",
+        "event": "giver_holding",
+        "evidence": {
+          "evidence_id": "fixture-giver_holds_object-1000000000",
+          "object_id": "virtual-object",
+          "actor": "test_oracle",
+          "kind": "virtual_test_oracle",
+          "statement": "giver_holds_object",
+          "independent": true,
+          "acquired_ns": 1000000000,
+          "source_clock_domain": "test-source-clock",
+          "received_ns": 1000000000,
+          "received_clock_domain": "test-coordinator",
+          "value": true
+        },
+        "facts": {}
+      },
+      {
+        "event_id": "prepare-1",
+        "coordinator_monotonic_ns": 1000000001,
+        "clock_domain": "test-coordinator",
+        "before": "ROSMASTER_HOLDING",
+        "after": "OFFER",
+        "reason": "offer_ready",
+        "event": "offer_ready",
+        "evidence": null,
+        "facts": {
+          "zone_registered": true,
+          "giver_stationary": true
+        }
+      },
+      {
+        "event_id": "prepare-2",
+        "coordinator_monotonic_ns": 1000000002,
+        "clock_domain": "test-coordinator",
+        "before": "OFFER",
+        "after": "SO101_APPROACH",
+        "reason": "receiver_ready",
+        "event": "receiver_ready",
+        "evidence": null,
+        "facts": {
+          "receiver_ready": true
+        }
+      },
+      {
+        "event_id": "prepare-3",
+        "coordinator_monotonic_ns": 1000000003,
+        "clock_domain": "test-coordinator",
+        "before": "SO101_APPROACH",
+        "after": "RECEIVER_GRASP_CHECK",
+        "reason": "receiver_at_object",
+        "event": "receiver_at_object",
+        "evidence": null,
+        "facts": {
+          "both_stationary": true
+        }
+      },
+      {
+        "event_id": "prepare-4",
+        "coordinator_monotonic_ns": 1000000004,
+        "clock_domain": "test-coordinator",
+        "before": "RECEIVER_GRASP_CHECK",
+        "after": "RECEIVER_GRASP_CHECK",
+        "reason": "closed_joint_command_is_not_hold_evidence",
+        "event": "receiver_closed",
+        "evidence": null,
+        "facts": {}
+      },
+      {
+        "event_id": "hold",
+        "coordinator_monotonic_ns": 1000000007,
+        "clock_domain": "test-coordinator",
+        "before": "RECEIVER_GRASP_CHECK",
+        "after": "RELEASE_AUTHORIZED",
+        "reason": "receiver_hold_confirmed",
+        "event": "receiver_hold_confirmed",
+        "evidence": {
+          "evidence_id": "fixture-receiver_holds_object-1000000007",
+          "object_id": "virtual-object",
+          "actor": "test_oracle",
+          "kind": "virtual_test_oracle",
+          "statement": "receiver_holds_object",
+          "independent": true,
+          "acquired_ns": 1000000007,
+          "source_clock_domain": "test-source-clock",
+          "received_ns": 1000000007,
+          "received_clock_domain": "test-coordinator",
+          "value": true
+        },
+        "facts": {}
+      },
+      {
+        "event_id": "release",
+        "coordinator_monotonic_ns": 1000000008,
+        "clock_domain": "test-coordinator",
+        "before": "RELEASE_AUTHORIZED",
+        "after": "RELEASE",
+        "reason": "release_requested",
+        "event": "release_requested",
+        "evidence": null,
+        "facts": {
+          "both_stationary": true
+        }
+      },
+      {
+        "event_id": "released",
+        "coordinator_monotonic_ns": 1000000009,
+        "clock_domain": "test-coordinator",
+        "before": "RELEASE",
+        "after": "CONFIRM_TRANSFER",
+        "reason": "giver_released",
+        "event": "giver_released",
+        "evidence": null,
+        "facts": {}
+      },
+      {
+        "event_id": "transferred",
+        "coordinator_monotonic_ns": 1000000010,
+        "clock_domain": "test-coordinator",
+        "before": "CONFIRM_TRANSFER",
+        "after": "SO101_FINISH",
+        "reason": "transfer_confirmed",
+        "event": "transfer_confirmed",
+        "evidence": {
+          "evidence_id": "fixture-object_transferred_to_receiver-1000000010",
+          "object_id": "virtual-object",
+          "actor": "test_oracle",
+          "kind": "virtual_test_oracle",
+          "statement": "object_transferred_to_receiver",
+          "independent": true,
+          "acquired_ns": 1000000010,
+          "source_clock_domain": "test-source-clock",
+          "received_ns": 1000000010,
+          "received_clock_domain": "test-coordinator",
+          "value": true
+        },
+        "facts": {}
+      },
+      {
+        "event_id": "finished",
+        "coordinator_monotonic_ns": 1000000011,
+        "clock_domain": "test-coordinator",
+        "before": "SO101_FINISH",
+        "after": "SO101_FINISH",
+        "reason": "receiver_finished",
+        "event": "receiver_finished",
+        "evidence": {
+          "evidence_id": "fixture-receiver_finished_task-1000000011",
+          "object_id": "virtual-object",
+          "actor": "test_oracle",
+          "kind": "virtual_test_oracle",
+          "statement": "receiver_finished_task",
+          "independent": true,
+          "acquired_ns": 1000000011,
+          "source_clock_domain": "test-source-clock",
+          "received_ns": 1000000011,
+          "received_clock_domain": "test-coordinator",
+          "value": true
+        },
+        "facts": {}
+      },
+      {
+        "event_id": "stop",
+        "coordinator_monotonic_ns": 1000000012,
+        "clock_domain": "test-coordinator",
+        "before": "SO101_FINISH",
+        "after": "SAFE_STOP",
+        "reason": "stop",
+        "event": "stop",
+        "evidence": null,
+        "facts": {}
+      }
+    ],
+    "physical_execution": false,
+    "physical_success_not_tested": true
+  },
+  "progress": 1.0,
+  "error": null,
+  "frame_available": false
+}

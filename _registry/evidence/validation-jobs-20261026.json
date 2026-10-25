@@ -1,0 +1,58 @@
+[
+  {
+    "id": "447f40e9e1fd45c1ba4f8cda473abaf5",
+    "kind": "train_act",
+    "project_id": "personal",
+    "status": "queued",
+    "created": 1792970733.3091075,
+    "updated": 1792970733.3091075,
+    "config": {
+      "dataset_manifest": "/home/jetsonnx/.local/share/explorer/state/datasets/station-a7b9d1ba98bc4f0da0fdc52280727211/manifest.json",
+      "act_steps": 120,
+      "device": "cpu"
+    },
+    "result": null,
+    "progress": 0.0,
+    "error": null,
+    "frame_available": false
+  },
+  {
+    "id": "7e21260f8ffb4bfa93b6d3b384123318",
+    "kind": "sim_pilot",
+    "project_id": "01",
+    "status": "queued",
+    "created": 1792970733.323817,
+    "updated": 1792970733.323817,
+    "config": {},
+    "result": null,
+    "progress": 0.0,
+    "error": null,
+    "frame_available": false
+  },
+  {
+    "id": "fbee2a3d30cf4b928db3c800c1664fb8",
+    "kind": "virtual_transfer",
+    "project_id": "04",
+    "status": "queued",
+    "created": 1792970733.3385296,
+    "updated": 1792970733.3385296,
+    "config": {},
+    "result": null,
+    "progress": 0.0,
+    "error": null,
+    "frame_available": false
+  },
+  {
+    "id": "b4b2ec5802584f75955651a262724ba5",
+    "kind": "handover_test",
+    "project_id": "05",
+    "status": "queued",
+    "created": 1792970733.3563159,
+    "updated": 1792970733.3563159,
+    "config": {},
+    "result": null,
+    "progress": 0.0,
+    "error": null,
+    "frame_available": false
+  }
+]

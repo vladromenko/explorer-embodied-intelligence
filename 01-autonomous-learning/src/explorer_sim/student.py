@@ -73,6 +73,10 @@ def make_act_policy(settings, state_dim=9, action_dim=9):
 
     torch.manual_seed(settings["seed"])
     device = settings["device"]
+    if device=='cuda':
+        torch.set_float32_matmul_precision('highest')
+        torch.backends.cuda.matmul.allow_tf32=False
+        torch.backends.cudnn.allow_tf32=False
     config = ACTConfig(device=device, input_features={
         IMAGE_KEY: PolicyFeature(type=FeatureType.VISUAL, shape=(3, settings["image_size"], settings["image_size"])),
         "observation.state": PolicyFeature(type=FeatureType.STATE, shape=(state_dim,))},
