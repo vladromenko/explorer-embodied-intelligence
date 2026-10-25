@@ -10,6 +10,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from explorer_sim.pilot import parameters, ReachEnv, sha, completed_result, preserve_interrupted_attempt
 from explorer_sim.student import EpisodeChunks, IMAGE_KEY
+from explorer_sim.dataset_export import validate_splits, load_episode
 
 
 def test_parameter_validation_rejects_nontraining_requests():
@@ -57,6 +58,27 @@ def test_interrupted_attempt_preserves_prior_evidence_and_worker_log(tmp_path):
     assert (archives[0] / "dataset/episode.npz").read_bytes() == b"prior evidence"
     assert (tmp_path / "worker.log").read_text() == "live worker output"
     assert not (tmp_path / "provenance.json").exists()
+
+
+def test_dataset_splits_reject_reused_source_episode():
+    manifest = {"episodes": [{"id": "one", "file": "one.npz", "sha256": "abc", "split": "train"},
+                             {"id": "copy", "file": "copy.npz", "sha256": "abc", "split": "sealed_test"}]}
+    with pytest.raises(ValueError, match="overlaps"):
+        validate_splits(manifest)
+
+
+def test_official_export_rejects_noncausal_action_alignment(tmp_path):
+    from explorer_sim.pilot import LOW, HIGH, HOME
+    path = tmp_path / "bad.npz"
+    state = np.repeat(HOME[None], 3, axis=0)
+    action = state.copy()
+    action[0, 0] += 5
+    np.savez_compressed(path, rgb=np.zeros((3, 32, 32, 3), np.uint8),
+                        state=2 * (state - LOW) / (HIGH - LOW) - 1,
+                        state_command9=state, command9=action)
+    manifest = {"action_normalization": {"low": LOW.tolist(), "high": HIGH.tolist()}}
+    with pytest.raises(ValueError, match="Causal"):
+        load_episode(tmp_path / "manifest.json", {"file": path.name, "sha256": sha(path)}, manifest)
 
 
 @pytest.fixture
@@ -120,8 +142,14 @@ def test_actual_optimizer_checkpoint_reload_and_independent_rollouts(tmp_path, c
     assert result["student"]["weights_changed"]
     assert result["student"]["save_reload_passed"]
     assert result["student"]["official_module"] == "lerobot.policies.act.modeling_act"
+    assert result["dataset"]["official_export"]["official_readback_passed"]
     assert store.cards[0]["evaluation"]["physical_run_ids"] == []
     manifest = json.loads((tmp_path / "jobs/integration/dataset/manifest.json").read_text())
     data_seeds = {item["seed"] for item in manifest["episodes"]}
     evaluation_seeds = {item["seed"] for item in result["student"]["evaluation"]["episodes"]}
     assert not data_seeds.intersection(evaluation_seeds)
+    teacher_mtime = (tmp_path / "jobs/integration/teacher_ppo.zip").stat().st_mtime_ns
+    from explorer_sim.pilot import completed_result
+    saved = completed_result(tmp_path / "jobs/integration")
+    assert saved["teacher"]["sha256"] == result["teacher"]["sha256"]
+    assert (tmp_path / "jobs/integration/teacher_ppo.zip").stat().st_mtime_ns == teacher_mtime

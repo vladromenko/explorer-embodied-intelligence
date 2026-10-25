@@ -38,10 +38,18 @@ action9 сохраняются отдельно. Temporal ensembling выклю�
 элемент нового chunk за решение. Сохранение и загрузка — официальные
 `save_pretrained` / `from_pretrained`, равенство предсказаний проверяется.
 
-Эпизоды пока имеют переносимый внутренний формат `explorer_npz_episode_v1`,
-**не** выдают себя за официальный `LeRobotDataset`. Официальный ACT обучается
-через открытый policy API с небольшим episode adapter. Необходимый экспорт
-в LeRobotDataset/Parquet — отдельная интеграция, без изменения исходных данных.
+Неизменяемые исходные эпизоды имеют внутренний формат
+`explorer_npz_episode_v1`. Из них официальный `LeRobotDataset.create()` создаёт
+**настоящий LeRobotDataset v3.0**: image features, `use_videos=False`, Parquet,
+metadata и обязательный `finalize()`. Новый экземпляр официального reader
+проверяет каждый RGB-пиксель, state/action, timestamp и границы эпизодов;
+исходные NPZ повторно сверяются по hash. Causal-проверка подтверждает, что
+командное состояние предшествует action, а исходные эпизоды не пересекают
+train/development/test splits. 12,5 fps сохраняется без округления времён.
+Нет загрузки на Hugging Face Hub. Отдельный `explorer_provenance.json` сохраняет
+source hashes, basis `command_estimate` и отсутствие измеренных joint states.
+ACT использует официальный policy API с небольшим NPZ episode adapter;
+дополнительно полученный v3 dataset доступен другим стандартным инструментам.
 
 Параметры берутся только из `job['config']`: `teacher_steps` (4096),
 `demonstration_episodes` (12), `evaluation_episodes` (6), `horizon` (60),
@@ -83,6 +91,11 @@ forward/backward, optimizer и official checkpoint roundtrip проверяют�
 `einops==0.8.2`, `draccus==0.11.6`, `huggingface-hub>=1.6,<2`, `safetensors`,
 `termcolor`, `tqdm`, `requests`, `packaging<26`, `opencv-python-headless`.
 Для этого policy API не нужны transformers, wandb, datasets и torchcodec.
+Для официального image-only dataset writer/reader дополнительно нужны
+`datasets>=4.8,<5`, `pandas>=2,<3`, `pyarrow>=21,<30`, `av>=15,<16`,
+`jsonlines>=4,<5`. Даже image-only API импортирует PyAV; torchcodec и video
+encoding здесь не требуются. Недостающая зависимость отмечается как
+`official_readback_passed=false`, а не как выполненный экспорт.
 
 ## Method provenance
 

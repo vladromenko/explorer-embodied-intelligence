@@ -62,6 +62,12 @@ def completed_result(folder):
     result = json.loads(path.read_text())
     checks = [(folder / "teacher_ppo.zip", result["teacher"]["sha256"]),
               (folder / "dataset/manifest.json", result["dataset"]["manifest_sha256"])]
+    manifest = json.loads((folder / "dataset/manifest.json").read_text())
+    for descriptor in manifest["episodes"]:
+        episode = (folder / "dataset" / descriptor["file"]).resolve()
+        if not episode.is_relative_to((folder / "dataset").resolve()):
+            raise ValueError("Invalid stored episode path")
+        checks.append((episode, descriptor["sha256"]))
     for name, digest in result.get("student", {}).get("checkpoint_sha256", {}).items():
         if Path(name).name != name:
             raise ValueError("Invalid stored checkpoint filename")
@@ -77,7 +83,8 @@ def preserve_interrupted_attempt(folder):
         archive = folder / "interrupted_attempts" / uuid.uuid4().hex
         archive.mkdir(parents=True)
         names = ["provenance.json", "frame.jpg", "frame.json", "model.xml", "teacher_ppo.zip", "dataset",
-                 "act_training.json", "act_evaluation.json", "student_act", "act_optimizer.pt"]
+                 "act_training.json", "act_evaluation.json", "student_act", "act_optimizer.pt",
+                 "lerobot_v3", "lerobot_v3-readback.json"]
         for name in names:
             if (folder / name).exists():
                 shutil.move(str(folder / name), str(archive / name))
@@ -274,12 +281,14 @@ def collect_dataset(policy, env, folder, settings, update):
     for index in range(settings["demonstration_episodes"]):
         seed = settings["seed"] + 2000 + index
         observation, initial = env.reset(seed=seed)
-        images, states, actions, actions9, rewards, targets = [], [], [], [], [], []
+        images, states, raw_states, actions, actions9, rewards, targets, sim_times = [], [], [], [], [], [], [], []
         done = False
         while not done:
             image = Image.fromarray(env.render()).resize((settings["image_size"], settings["image_size"]))
             images.append(np.asarray(image, np.uint8))
             states.append(env.student_state())
+            raw_states.append(env.command.copy())
+            sim_times.append(float(env.data.time))
             targets.append(env.goal.copy())  # evaluator-only, deliberately excluded from ACT input
             action, _ = policy.predict(observation, deterministic=True)
             observation, reward, terminal, truncated, info = env.step(action)
@@ -289,7 +298,8 @@ def collect_dataset(policy, env, folder, settings, update):
             done = terminal or truncated
         path = directory / f"episode_{index:04d}.npz"
         np.savez_compressed(path, rgb=np.asarray(images), state=np.asarray(states), action=np.asarray(actions),
-                            command9=np.asarray(actions9), reward=np.asarray(rewards), evaluator_goal_xyz=np.asarray(targets))
+                            state_command9=np.asarray(raw_states), command9=np.asarray(actions9), reward=np.asarray(rewards),
+                            evaluator_goal_xyz=np.asarray(targets), simulator_time_s=np.asarray(sim_times))
         episodes.append({"id": f"episode_{index:04d}", "seed": seed, "file": path.name,
                          "sha256": sha(path), "frames": len(images), "outcome": info,
                          "split": "imitation_train", "quality": "ppo_rollout_outcome_labelled"})
@@ -298,6 +308,8 @@ def collect_dataset(policy, env, folder, settings, update):
     manifest = {"schema_version": 1, "dataset_id": "cad-reach-" + folder.name,
                 "source": "real_mujoco_ppo_rollouts", "format": "explorer_npz_episode_v1",
                 "official_lerobot_dataset_format": False, "created_wall_utc": utc(),
+                "fps": 1 / env.period, "decision_period_s": env.period,
+                "task": "Reach the visible green target with the gripper; base fixed",
                 "episodes": episodes, "action_names": ACTION_NAMES,
                 "actor_inputs": ["rgb", "state_command_estimate"],
                 "teacher_and_evaluator_only": ["evaluator_goal_xyz", "simulator_joint_state"],
@@ -306,6 +318,14 @@ def collect_dataset(policy, env, folder, settings, update):
                 "contains_physical_recordings": False}
     write_json(directory / "manifest.json", manifest)
     return manifest
+
+
+def export_dataset_if_available(folder):
+    try:
+        from .dataset_export import export_lerobot_v3
+        return export_lerobot_v3(folder / "dataset/manifest.json", folder / "lerobot_v3")
+    except ImportError as exc:
+        return {"status": "dependency_blocked", "official_readback_passed": False, "error": str(exc)}
 
 
 def run_pilot(store, job, root):
@@ -323,6 +343,9 @@ def run_pilot(store, job, root):
     folder.mkdir(parents=True, exist_ok=True)
     saved = completed_result(folder)
     if saved is not None:
+        if not saved["dataset"].get("official_export", {}).get("official_readback_passed"):
+            saved["dataset"]["official_export"] = export_dataset_if_available(folder)
+            write_json(folder / "result.json", saved)
         card = saved.get("skill_card")
         if card and not any(item["id"] == card["id"] for item in store.skills()):
             store.add_skill(card)
@@ -397,6 +420,7 @@ def run_pilot(store, job, root):
         result["dataset"] = {"id": dataset["dataset_id"], "manifest_sha256": sha(folder / "dataset/manifest.json"),
                              "episode_count": len(dataset["episodes"]),
                              "successful_teacher_episodes": sum(item["outcome"]["success"] for item in dataset["episodes"])}
+        result["dataset"]["official_export"] = export_dataset_if_available(folder)
         if settings["act_steps"] > 0:
             from .student import train_and_evaluate_act
             try:
