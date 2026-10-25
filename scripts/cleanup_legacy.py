@@ -198,6 +198,12 @@ def inventory(plan: dict) -> tuple[list[dict], list[dict], list[str], int]:
         if reason:
             rows = [row for _, row in all_entries(path, home)]
             size = sum(row["size"] for row in rows)
+            if path.name == ".git" and item["kind"] == "directory" and git_identity(path.parent)["head"] is None:
+                # An unborn repository cannot produce a bundle. Preserve its complete raw Git tree.
+                repositories.append(path.parent.relative_to(home).as_posix())
+                included.extend(rows)
+                total_bytes += size
+                return
             excluded.append(dict(path=relative, reason=reason, bytes=size, entries=len(rows)))
             total_bytes += size
             if path.name == ".git":
@@ -282,11 +288,16 @@ def save_receipt(destination: Path, receipt: dict) -> None:
 
 
 def git_identity(repo: Path) -> dict:
-    head = command(["git", "rev-parse", "HEAD"], "Git HEAD inspection", cwd=repo).decode().strip()
-    if not re.fullmatch(r"[0-9a-f]{40,64}", head):
-        raise CleanupError("Git HEAD is not a commit identity")
     refs = command(["git", "for-each-ref", "--format=%(refname) %(objectname)"],
                    "Git reference inspection", cwd=repo).decode().splitlines()
+    result = subprocess.run(["git", "rev-parse", "--verify", "HEAD"], cwd=repo, capture_output=True, timeout=120, check=False)
+    head = result.stdout.decode().strip()
+    if result.returncode != 0 and not refs:
+        symbolic = command(["git", "symbolic-ref", "-q", "HEAD"], "Unborn Git HEAD inspection", cwd=repo).decode().strip()
+        if symbolic.startswith("refs/heads/"):
+            return dict(head=None, refs=[], unborn=True, symbolic_head=symbolic)
+    if result.returncode != 0 or not re.fullmatch(r"[0-9a-f]{40,64}", head):
+        raise CleanupError("Git HEAD is neither a commit nor an unborn branch without refs")
     return dict(head=head, refs=sorted(refs))
 
 
@@ -301,15 +312,19 @@ def git_bundles(home: Path, destination: Path, repositories: list[str]) -> list[
     for index, relative in enumerate(repositories):
         repo = home / relative
         identity = git_identity(repo)
-        path = destination / ("history-" + str(index) + ".bundle")
-        command(["git", "bundle", "create", str(path), "--all", "HEAD"], "Git bundle creation", cwd=repo)
-        path.chmod(0o600)
-        command(["git", "bundle", "verify", str(path)], "Git bundle verification", cwd=repo)
-        sync_path(path)
-        if git_identity(repo) != identity:
-            raise CleanupError("Git references changed while making the history backup")
-        result.append(dict(repository=relative, file=path.name, head=identity["head"], source_identity=identity,
-                           sha256=sha256(path), bytes=path.stat().st_size))
+        if identity["head"] is None:
+            result.append(dict(repository=relative, file=None, head=None, source_identity=identity,
+                               storage="complete_git_directory_in_source_archive", sha256=None, bytes=0))
+        else:
+            path = destination / ("history-" + str(index) + ".bundle")
+            command(["git", "bundle", "create", str(path), "--all", "HEAD"], "Git bundle creation", cwd=repo)
+            path.chmod(0o600)
+            command(["git", "bundle", "verify", str(path)], "Git bundle verification", cwd=repo)
+            sync_path(path)
+            if git_identity(repo) != identity:
+                raise CleanupError("Git references changed while making the history backup")
+            result.append(dict(repository=relative, file=path.name, head=identity["head"], source_identity=identity,
+                               storage="verified_bundle", sha256=sha256(path), bytes=path.stat().st_size))
     return result
 
 
@@ -393,12 +408,17 @@ def verify_restore(archive: Path, entries: list[dict], bundles: list[dict], dest
         if seen != set(expected):
             raise CleanupError("Archive omits an expected source member")
         for index, row in enumerate(bundles):
-            path = destination / row["file"]
-            if sha256(path) != row["sha256"]:
-                raise CleanupError("Git bundle checksum differs")
-            clone = restore / ("git-restore-" + str(index))
-            command(["git", "clone", "--bare", str(path), str(clone)], "Git history restore")
-            command(["git", "cat-file", "-e", row["head"] + "^{commit}"], "Restored Git commit verification", cwd=clone)
+            if row["head"] is None:
+                restored_repo = restore / "payload" / row["repository"]
+                if git_identity(restored_repo) != row["source_identity"]:
+                    raise CleanupError("Restored unborn Git state differs from its complete archived directory")
+            else:
+                path = destination / row["file"]
+                if sha256(path) != row["sha256"]:
+                    raise CleanupError("Git bundle checksum differs")
+                clone = restore / ("git-restore-" + str(index))
+                command(["git", "clone", "--bare", str(path), str(clone)], "Git history restore")
+                command(["git", "cat-file", "-e", row["head"] + "^{commit}"], "Restored Git commit verification", cwd=clone)
 
 
 def patch_completion(home: Path, original: bytes, destination: Path) -> bool:

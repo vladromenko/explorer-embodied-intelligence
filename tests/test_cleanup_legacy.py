@@ -200,3 +200,24 @@ def test_new_git_ref_after_bundle_blocks_removal(tmp_path, monkeypatch):
         cleanup.cleanup(home, "pi", apply=True)
     assert failure.value.receipt["removed_paths"] == 0
     assert source.exists()
+
+
+def test_unborn_git_preserved_completely_without_fabricated_bundle(tmp_path, monkeypatch):
+    mock_runtime(monkeypatch)
+    home = tmp_path / "home"
+    repo = home / "MILO_Next"
+    put(repo / "module.py")
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    raw = b"\x00exact unborn Git bytes\xff"
+    put(repo / ".git/custom-state.bin", raw)
+    result = cleanup.cleanup(home, "pi", apply=True)
+    assert result["test_restore_passed"]
+    assert not repo.exists()
+    destination = Path(result["archive_directory"])
+    manifest = json.loads((destination / "manifest.json").read_text())
+    history = manifest["git_bundles"][0]
+    assert history["head"] is None and history["file"] is None
+    assert history["storage"] == "complete_git_directory_in_source_archive"
+    assert not list(destination.glob("*.bundle"))
+    with tarfile.open(result["archive"]) as archive:
+        assert archive.extractfile("payload/MILO_Next/.git/custom-state.bin").read() == raw
