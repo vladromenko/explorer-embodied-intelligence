@@ -1,0 +1,57 @@
+{
+  "problem": "Scale representation learning across robots with incompatible observation/action dimensions while transferring useful visual and proprioceptive knowledge.",
+  "contribution": "Heterogeneous Pre-trained Transformers split policies into embodiment-specific stems/heads and a shared transformer trunk, supporting heterogeneous supervised pretraining and adaptation.",
+  "algorithm": "Map vision/proprioception to fixed query tokens, process them with a shared trunk and regress normalized actions with Huber loss through task heads. Pretrain sampled embodiment stems/heads plus trunk; for new embodiments reinitialize stem/head and freeze the pretrained trunk.",
+  "observations": "Vision and available measured proprioception. Default frozen ResNet18 features from one view; force/3D/tactile modalities are architectural possibilities, not all validated in the same experiment.",
+  "actions": "Embodiment-specific normalized control outputs; source real tasks use relative or absolute pose actions at10Hz. Human video experiments use pose/2D surrogates rather than actual robot action labels.",
+  "embodiment_and_data": "Default27datasets with maximum1000trajectories each and16Ktotal; scaling studies reach52datasets and1Bparameters. Real pet-care/assembly tasks use roughly100demos each across two embodiments.",
+  "experiments": "Pretraining validation losses and separate downstream success tests; four simulation benchmarks and four real tasks. Real prose specifies15trials/task, while Figure12 caption says45trials/approach; Table3's exact aggregation/seed convention requires appendix confirmation.",
+  "baselines": "From-scratch/no-trunk, no-proprioception and pretrained visual R3M, Voltron, VC-1; different pretraining/input access must remain explicit. Some simulator baselines use published source scores.",
+  "quantitative_result": {
+    "value": "Sweep Leftover Table3 HPT-B70.0±3.0%,HPT-XL76.7±3.3%,fromscratch43.3±3.8%,VC-153.3±2.6%. These are one task's source results, not a four-task average; exact Table3 uncertainty/denominator was not resolved by examined main text.",
+    "location": "PDF p10 Table3, p9 Section5.2 protocol"
+  },
+  "limitations": "Dataset curation/filtering and pretraining objectives remain underexplored; heterogeneous training can converge slowly. Evaluations are short-horizon and typically below90%reliability. Missing proprioception can make simulator transfer unsuitable without finetuning.",
+  "code_and_license": "Paper releases code/weights; this review did not inspect source/license files or execute HPT. Human-data surrogates require their own provenance.",
+  "hardware_adaptation": "A useful alternative to a universal joint-action vector: keep embodiment-specific stems/heads and explicit measured-state availability. Frozen backbones still occupy memory; no NX fit/performance claim follows from only2%trainable parameters.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "Fig2",
+      "supports": "Modularity and scale"
+    },
+    {
+      "page": 4,
+      "section": "3/Fig3",
+      "supports": "Query tokenizers and trunk"
+    },
+    {
+      "page": 6,
+      "section": "3.3/4",
+      "supports": "Transfer and default data"
+    },
+    {
+      "page": 8,
+      "section": "4/5",
+      "supports": "Human surrogates and downstream distinction"
+    },
+    {
+      "page": 9,
+      "section": "5.2",
+      "supports": "Real protocols and denominator ambiguity"
+    },
+    {
+      "page": 10,
+      "section": "Table3/6",
+      "supports": "Results and limitations"
+    }
+  ],
+  "paper_id": "P026",
+  "source_sha256": "e4cee3f35f6d2bd03ecc1d114809794042f2aa17a2f48304b0d7a90c094e48ba",
+  "primary_url": "https://arxiv.org/abs/2409.20537",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

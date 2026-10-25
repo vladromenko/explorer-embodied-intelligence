@@ -1,0 +1,62 @@
+{
+  "problem": "Reduce VLA training/inference cost while providing a practical policy for low-cost community robot hardware and distributed inference.",
+  "contribution": "SmolVLA combines a compact partially used SmolVLM-2 backbone with a flow-matching action expert and an asynchronous action-queue inference scheme.",
+  "algorithm": "Project image/language/state tokens through frozen VLM features; reduce image tokens to64/frame and use the first16LLM layers. Train an action expert with interleaved cross/causal-self attention to generate50-action chunks using10flow steps. Async clients replenish an action queue and may drop observations judged near-duplicate in joint space.",
+  "observations": "Image views, language and sensorimotor-state tokens. SO100 experiments use top/wrist cameras and SO101 top/side cameras; this differs from a single uncalibrated overview camera.",
+  "actions": "Continuous robot action chunks with robot-specific state/action normalization. Synchronous real evaluation executes the whole chunk before observing again; simulation observes after each action.",
+  "embodiment_and_data": "450Mmain model, approximately100Maction expert;481community datasets,22.9Kepisodes/10.6Mframes. Real target datasets50demonstrations each; SO100/SO101, plus LIBERO and Meta-World simulation. Entire research project reports30KGPUhours, not a cheap local pretraining run.",
+  "experiments": "LIBERO10trials/task and Meta-World10trials/task. Real evaluations use fractional subtask scores: pick/grasp earns0.5, full placement another0.5; sorting accumulates four0.25components. Main pretrained/multitask ablations and sync/async timing are separate studies.",
+  "baselines": "ACT single-task, pi0 and SmolVLA multitask/pretraining variants; simulation table mixes source-paper baselines. Training mode, observations and score definitions need matching before claiming algorithmic superiority.",
+  "quantitative_result": {
+    "value": "Source sync versusasync averages78.3 versus73.3 on its fractional real-task score scale; sorting70→50, while reported mean completion time13.75→9.70s. Faster execution does not uniformly improve task performance. These are not all-or-nothing success probabilities under Explorer's task predicate.",
+    "location": "PDF p12 Figure5; fractional-score definitions p8-9"
+  },
+  "limitations": "Community data are heterogeneous/noisy. Real and simulated feedback schedules differ. Joint-space near-duplicate filtering can miss changes in the world at unchanged joints, especially if only command estimates exist. Reported async speed and partial-credit scores cannot qualify safe physical control.",
+  "code_and_license": "Paper uses LeRobot and releases a model; this review did not audit exact SmolVLA code/model licenses or execute the policy. Current LeRobot remote-inference APIs must be verified separately from the paper's original implementation.",
+  "hardware_adaptation": "A relevant future SO101-compatible candidate after real processor/camera/state validation and profiling. Do not infer measured state from commands, or suppress visually changed observations just because estimated joints are unchanged. Keep queue age/hold/stop authority local.",
+  "decision": "ADAPT",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "3.1",
+      "supports": "Backbone reduction and flow expert"
+    },
+    {
+      "page": 5,
+      "section": "3.2",
+      "supports": "Community-data scale"
+    },
+    {
+      "page": 7,
+      "section": "Async implementation",
+      "supports": "Queue/filter behavior"
+    },
+    {
+      "page": 8,
+      "section": "4.1",
+      "supports": "Evaluation schedules and fractional metrics"
+    },
+    {
+      "page": 10,
+      "section": "4.3",
+      "supports": "Actual architecture/training costs"
+    },
+    {
+      "page": 11,
+      "section": "Tables2-4",
+      "supports": "Comparison modes"
+    },
+    {
+      "page": 12,
+      "section": "Figure5",
+      "supports": "Timing/performance tradeoff"
+    }
+  ],
+  "paper_id": "P022",
+  "source_sha256": "cb1bb9a8f824187fcdc32af8c290214487c524f139a3c2def1c6d97adb1fa40c",
+  "primary_url": "https://arxiv.org/abs/2506.01844",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

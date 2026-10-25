@@ -1,0 +1,52 @@
+{
+  "problem": "Ground pretrained visual/language knowledge in low-level robot control while improving semantic and visual generalization beyond robot-demonstration concepts.",
+  "contribution": "RT-2 co-finetunes large vision-language models with robot action-token examples and original web tasks, making action prediction part of their existing output vocabulary.",
+  "algorithm": "Discretize continuous end-effector/gripper components into256bins and encode them with a terminate token. Associate bins with numeric tokens for PaLI-X or least-used vocabulary tokens for PaLM-E. Co-finetune robot/web examples and constrain decoding to valid action tokens for robot prompts.",
+  "observations": "Robot camera image plus language instruction, with optional reasoning text in studied variants. Semantic reasoning is not measured physical state or force feedback.",
+  "actions": "Eight entries: terminate,3position,3rotation and gripper extension. A generated terminate token signals model intention; it is not independent task verification.",
+  "embodiment_and_data": "PaLI-X5B/55B and PaLM-E12B variants; real7DOF mobile manipulator with RT-1 demonstration data from13robots/17months, co-trained with web data.",
+  "experiments": "Approximately6000evaluation trajectories across methods/conditions: seen/generalization tasks, emergent semantic selections, architecture/scale ablations and chain-of-thought variants. Language Table table results are simulation; selected figures additionally show physical examples.",
+  "baselines": "RT-1 and other representation/policy baselines share robotic data but do not all share pretrained web knowledge/compute. Co-finetuning and model-size comparisons test individual design choices.",
+  "quantitative_result": {
+    "value": "Simulated Language Table: RT-2-PaLI-3B90±10 versus RT-174±13, LAVA77±4 and BC-Zero72±3. Uncertainty definition and seed count were not extracted; this table is not a physical mobile-manipulator success rate.",
+    "location": "PDF p9 Table1"
+  },
+  "limitations": "Web transfer does not create new physical motions; skills remain bounded by robot-data coverage. Large-model serving is expensive and can bottleneck high-frequency feedback. Chain-of-thought examples do not establish reliable causal diagnosis or safe release decisions.",
+  "code_and_license": "Primary method/evaluation verified. Original model access, executable code and licenses were not audited; no local RT-2 reproduction is claimed.",
+  "hardware_adaptation": "Use as context for semantic task interfaces, with explicit separation between model tokens and verified outcomes. Tens-of-billions serving is not an NX deployment plan; choose and measure an actually available policy and preserve robot-specific action constraints.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 5,
+      "section": "3.2",
+      "supports": "Action dimensions/tokenization"
+    },
+    {
+      "page": 6,
+      "section": "Co-finetuning/Output constraint",
+      "supports": "Web/robot objective and constrained tokens"
+    },
+    {
+      "page": 7,
+      "section": "4",
+      "supports": "6000trajectories, model/data scope"
+    },
+    {
+      "page": 9,
+      "section": "Table1",
+      "supports": "Simulation metric"
+    },
+    {
+      "page": 11,
+      "section": "5",
+      "supports": "No new motions and compute limitations"
+    }
+  ],
+  "paper_id": "P021",
+  "source_sha256": "0a62dc36bbbfdea232ad45a0ab75c82e9cf535b55333ff22c02d5da1897ccac3",
+  "primary_url": "https://arxiv.org/abs/2307.15818",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

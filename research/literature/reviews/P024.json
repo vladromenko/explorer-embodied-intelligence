@@ -1,0 +1,52 @@
+{
+  "problem": "Build a faster, data-efficient language-conditioned robot policy without large-scale robot-action pretraining.",
+  "contribution": "TinyVLA adapts compact pretrained VLMs with LoRA and a diffusion-policy decoder, studying model scale and visual/language generalization.",
+  "algorithm": "Freeze most pretrained transformer weights, train low-rank attention adapters and diffusion action prediction, then merge LoRA weights for inference. This is a generative policy architecture, not an MLP replacement for ACT.",
+  "observations": "Two RGB views, language instructions and recorded robot state; experiments explicitly modify OpenVLA to accept both views and add FiLM language conditioning to its diffusion baseline.",
+  "actions": "Seven continuous position/rotation/gripper entries; gripper width0closed/1open. Bimanual tasks require a separate appropriate action contract.",
+  "embodiment_and_data": "Five single-arm tasks with100demonstrations each; Franka and bimanual UR5 studies. Variants422M,740M and1.3B total parameters have differing trainable subsets; web VLM pretraining is distinct from absent robot pretraining.",
+  "experiments": "Multitask quality, instruction/background/view/lighting shifts, model-size failures and policy-head ablations. Each view change gets only2trials; bimanual TableIII caption specifies10trials, without a clearly extracted uncertainty/seed convention here.",
+  "baselines": "Diffusion Policy, Multimodal Diffusion, modified multiview OpenVLA; ACT/MLP heads inside TinyVLA are local architectural ablations, not definitive comparisons against all standalone ACT implementations.",
+  "quantitative_result": {
+    "value": "TinyVLA-H single-arm average94.0%; bimanual PlaceTennisBag30±1 versus Diffusion Policy43±2.3, retaining a negative task result. A6000 reported latency14ms versus modified OpenVLA-1B140ms; timing is source-GPU specific.",
+    "location": "PDF p4 TablesII/III, p7 TableIV"
+  },
+  "limitations": "Small per-condition generalization samples, source-specific tooling/views and ambiguous printed uncertainty units limit broad interpretation. A strong single-arm average does not establish uniform bimanual advantage or new-robot transfer.",
+  "code_and_license": "Fulltext methods/results examined; executable source, checkpoint rights and upstream VLM licenses not audited. No local TinyVLA run is claimed.",
+  "hardware_adaptation": "Compare compact genuine ACT/diffusion baselines before a larger VLM. Require measured camera/state/action mapping and NX profiling; source A6000 latency does not qualify edge execution.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "Method/Fig2",
+      "supports": "LoRA and diffusion decoder"
+    },
+    {
+      "page": 4,
+      "section": "TablesII/III/Data",
+      "supports": "100demos, action semantics and negative task result"
+    },
+    {
+      "page": 5,
+      "section": "Fig5",
+      "supports": "Two-trial view protocol"
+    },
+    {
+      "page": 7,
+      "section": "V/TableIV",
+      "supports": "Failure analysis and latency"
+    },
+    {
+      "page": 8,
+      "section": "TableV",
+      "supports": "Head-ablation scope"
+    }
+  ],
+  "paper_id": "P024",
+  "source_sha256": "57a8d723e8ec76f8c6fee0e74944b8f7308b87cabe6bd327050ae9ebb4a9753f",
+  "primary_url": "https://arxiv.org/abs/2409.12514",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

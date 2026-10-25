@@ -1,0 +1,62 @@
+{
+  "problem": "Identify which VLA finetuning design decisions improve task performance and inference efficiency when adapting a pretrained model to robot manipulation.",
+  "contribution": "OpenVLA-OFT studies parallel decoding, action chunks, continuous action objectives and optional FiLM language conditioning with controlled alternatives to the original autoregressive discrete OpenVLA recipe.",
+  "algorithm": "Insert empty action embeddings and replace causal action decoding with bidirectional attention to predict all action entries/chunks in one forward pass. Compare L1 regression and diffusion heads under LoRA finetuning; add wrist/proprio inputs where specified and FiLM for language-dependent ALOHA tasks.",
+  "observations": "Condition-dependent: overview image and language; enhanced variants add wrist/multiple images and proprioception. Original versus modified filtered demonstration datasets are separated in the source table.",
+  "actions": "Continuous chunks, LIBERO7D with chunk8; ALOHA14D with chunk25. Action-generation throughput counts entries across a chunk and differs from fresh observation-conditioned inference frequency.",
+  "embodiment_and_data": "OpenVLA7B base; each LIBERO suite500demonstrations/10tasks, finetuned independently. Physical ALOHA studies use bimanual/multiview inputs; base pretraining did not include that bimanual configuration.",
+  "experiments": "LIBERO500evaluation episodes per suite (10tasks×50), plus ALOHA task/language-following comparisons. Speed tables average100queries on A100; different policy/runtime implementations remain a comparison caveat.",
+  "baselines": "Original OpenVLA, PD/chunk/L1/diffusion ablations, ACT, Diffusion Policy, Octo, pi0, RDT-1B, MDT and Seer. Many quality scores come from published papers with differing inputs/data; pi0 uses optimized JAX while others are PyTorch.",
+  "quantitative_result": {
+    "value": "Enhanced filtered-input OpenVLA-OFT averages97.1% LIBERO success; same family with single-image inputs95.3%, unfiltered enhanced94.5%, showing protocol dependence. ALOHA throughput77.9Hz at0.321s latency for25-action chunks on A100; this is not77.9fresh-feedback decisions/s.",
+    "location": "PDF p6 TableI; p10 TableIII"
+  },
+  "limitations": "Offline imitation from expert data, not demonstrated online improvement. Language grounding can collapse without FiLM despite competent motion; extra inputs/data filters affect comparisons. Bimanual runtime and quality cannot be transferred from A100 to NX without execution evidence.",
+  "code_and_license": "Primary implementation design/evaluation read; repository revision and separate code/base-model licensing not inspected here. No local OFT implementation is claimed.",
+  "hardware_adaptation": "Useful adaptation baseline if the base model is actually available and affordable. Log chunk size, end-to-end latency, freshness and processor semantics; compare ACT's compact genuine architecture before selecting a larger model on reported throughput alone.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 3,
+      "section": "III",
+      "supports": "Scope and fixed-data learning"
+    },
+    {
+      "page": 4,
+      "section": "IV",
+      "supports": "Parallel continuous decoding"
+    },
+    {
+      "page": 5,
+      "section": "V-A",
+      "supports": "Training/evaluation setup"
+    },
+    {
+      "page": 6,
+      "section": "TablesI-II",
+      "supports": "Protocol-dependent results"
+    },
+    {
+      "page": 7,
+      "section": "V-D",
+      "supports": "Input flexibility and throughput"
+    },
+    {
+      "page": 9,
+      "section": "ALOHA analysis",
+      "supports": "Language/state failure modes"
+    },
+    {
+      "page": 10,
+      "section": "TableIII/VII",
+      "supports": "Chunk latency and runtime caveats"
+    }
+  ],
+  "paper_id": "P023",
+  "source_sha256": "b860aa1206b6cfb0ce8be177f961379dd6a133d52cc74ac346636e0f4952a596",
+  "primary_url": "https://arxiv.org/abs/2502.19645",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}

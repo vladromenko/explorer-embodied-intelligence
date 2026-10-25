@@ -1,0 +1,62 @@
+{
+  "problem": "Learn multimodal bimanual manipulation policies despite scarce target dual-arm data and heterogeneous action spaces across source robots.",
+  "contribution": "RDT-1B is a diffusion transformer with physically labelled unified action slots, multimodal conditioning and large multi-robot pretraining followed by target bimanual finetuning.",
+  "algorithm": "Map physical quantities into a padded unified vector; encode proprioception/actions/frequency with Fourier-feature MLPs and frozen SigLIP/T5-XXL conditions. Train direct clean-action denoising; alternate image/text cross-attention and mask modalities to reduce shortcuts.",
+  "observations": "Proprioception, control frequency, two time steps of exterior/left-wrist/right-wrist images and language. This is substantially richer than one overview camera and command estimates.",
+  "actions": "Continuous multimodal action chunks, interpreted through physical slots and robot-specific masks rather than copying arbitrary joint indices across robots.",
+  "embodiment_and_data": "46datasets, over1Mtrajectories/21TB pretraining; target ALOHA finetuning over6Ktrajectories,300tasks,100objects and15rooms. One/five-shot skill subsets sit within this much larger pretrained/finetuned context.",
+  "experiments": "Seven physical ALOHA tasks covering objects/scenes, instruction-following, dexterity and few-shot skills. Handover/folding/robot-dog each25trials; wash/pour groups24trials; instruction variants8each. Partial stages and total task completion are separately tabulated.",
+  "baselines": "ACT, OpenVLA, Octo and RDT from scratch; ACT is explicitly not language-conditioned and absent from instruction-following comparisons. Architecture/data ablations investigate pretraining and model size.",
+  "quantitative_result": {
+    "value": "Five-demo handover: switch-hand stage56%, total task40% over25trials; scratch total16%, ACT0%, Octo0%, OpenVLA0%. Do not relabel56%intermediate completion as full handover success. One-demo fold-shorts total68% over25trials.",
+    "location": "PDF p9 denominator/setup and p10 Table3"
+  },
+  "limitations": "Requires substantial pretraining and target data; reported few-shot labels are task-specific demonstration counts, not total learning from one/five trajectories. Physical task failures remain frequent and a unified physical action schema does not establish calibration/contact equivalence.",
+  "code_and_license": "Paper reports released code, models and target datasets; exact source revision and independent code/model/data-license verification were not performed here. No RDT execution is claimed.",
+  "hardware_adaptation": "Reuse explicit physical-quantity masks and frequency metadata as design context. A1TBdisk cannot hold its entire21TBsource corpus; selective licensed datasets and compact tested policies are necessary. Learned ALOHA handover does not validate Explorer's protocol FSM or release sensing.",
+  "decision": "COMPARE",
+  "evidence_locations": [
+    {
+      "page": 4,
+      "section": "Fig3",
+      "supports": "Inputs and unified space"
+    },
+    {
+      "page": 5,
+      "section": "4.1",
+      "supports": "Denoising objective"
+    },
+    {
+      "page": 6,
+      "section": "Encoding",
+      "supports": "Frozen encoders/masking"
+    },
+    {
+      "page": 7,
+      "section": "4.2/5",
+      "supports": "Data scale and target context"
+    },
+    {
+      "page": 9,
+      "section": "Metric and Hardware",
+      "supports": "Physical denominators"
+    },
+    {
+      "page": 10,
+      "section": "Table3",
+      "supports": "Intermediate versus total results"
+    },
+    {
+      "page": 11,
+      "section": "Reproducibility",
+      "supports": "Release claim only"
+    }
+  ],
+  "paper_id": "P025",
+  "source_sha256": "fabfa885b63f2d68b8e7868549563c346d4323a596d24ee3e43d0a62b4ef9667",
+  "primary_url": "https://arxiv.org/abs/2410.07864",
+  "full_text_examined": true,
+  "deep_review": false,
+  "reviewer": "Codex research agent",
+  "reviewed_at": "2026-10-26"
+}
