@@ -11,6 +11,7 @@ import numpy as np
 from PIL import Image
 import torch
 from torch.utils.data import DataLoader, Dataset
+from packaging.version import Version
 
 from .pilot import HIGH, LOW, sha, state_digest, summarize, write_frame, write_json
 
@@ -144,10 +145,12 @@ def train_and_evaluate_act(env, evaluation_env, folder, settings, manifest, seed
             done = terminal or truncated
         episodes.append({"seed": seed, "initial_distance_m": initial["distance_m"], **info,
                          "return": float(sum(rewards))})
-        write_frame(evaluation_env, folder, "Official ACT: independent RGB-only simulated reach rollout")
+        write_frame(evaluation_env, folder, "Official ACT: RGB + commanded-state independent reach rollout")
         update(.85 + .1 * len(episodes) / len(seeds), "evaluating_reloaded_rgb_act")
     evaluation = summarize(episodes)
     write_json(folder / "act_evaluation.json", evaluation)
+    framework = {name: importlib.metadata.version(name) for name in ("torch", "torchvision")}
+    outside_bounds = Version(framework["torch"].split("+")[0]) >= Version("2.12") or Version(framework["torchvision"].split("+")[0]) >= Version("0.27")
     return {"status": "trained_and_simulation_evaluated", "trained": True,
             "algorithm": "official LeRobot ACT", "lerobot_version": version,
             "official_module": ACTPolicy.__module__, "optimizer_steps": len(losses),
@@ -159,4 +162,5 @@ def train_and_evaluate_act(env, evaluation_env, folder, settings, manifest, seed
             "evaluation": evaluation, "losses_first_last": [losses[0]["loss"], losses[-1]["loss"]],
             "rgb_inputs": [IMAGE_KEY], "state_basis": "command_estimate",
             "privileged_state_in_actor": False, "elapsed_s": time.monotonic() - started,
-            "framework_compatibility_note": "Runtime tested; Torch 2.14 / torchvision 0.29 lie outside LeRobot 0.6.1 declared bounds"}
+            "framework_versions": framework,
+            "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds" if outside_bounds else "Torch/torchvision versions lie within LeRobot 0.6.1 declared bounds"}

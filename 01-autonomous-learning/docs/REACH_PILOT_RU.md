@@ -63,6 +63,13 @@ optimizer checkpoint, actual rollout metrics и `result.json`. SkillCard
 статус — `simulation_pilot_evaluated`, физические run IDs пусты. Даже нулевой
 success rate сохраняется без переименования в успешное обучение.
 
+Повторный запуск завершённого job проверяет hashes артефактов и возвращает
+результат. При прерывании прежние данные переносятся внутри каталога job в
+`interrupted_attempts/<id>`; новая попытка не перезаписывает исходные эпизоды.
+Рабочий `worker.log` сохраняет свой текущий путь. Engineering evaluation
+помечается `sealed_final_test=false`, чтобы не выдать её за финальную научную
+проверку после подбора параметров.
+
 ## Проверенная программная совместимость
 
 MuJoCo 3.17.0, SB3 2.9.0, LeRobot 0.6.1. LeRobot объявляет torch<2.12 и

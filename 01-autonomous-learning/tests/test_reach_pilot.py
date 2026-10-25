@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from explorer_sim.pilot import parameters, ReachEnv, sha
+from explorer_sim.pilot import parameters, ReachEnv, sha, completed_result, preserve_interrupted_attempt
 from explorer_sim.student import EpisodeChunks, IMAGE_KEY
 
 
@@ -44,6 +44,19 @@ def test_act_data_checksum_checked_before_training(tmp_path):
     (tmp_path / "one.npz").write_bytes(b"corrupt")
     with pytest.raises(ValueError, match="checksum"):
         EpisodeChunks(tmp_path, {"episodes": [descriptor]}, 4)
+
+
+def test_interrupted_attempt_preserves_prior_evidence_and_worker_log(tmp_path):
+    (tmp_path / "provenance.json").write_text("{}")
+    (tmp_path / "worker.log").write_text("live worker output")
+    (tmp_path / "dataset").mkdir()
+    (tmp_path / "dataset/episode.npz").write_bytes(b"prior evidence")
+    preserve_interrupted_attempt(tmp_path)
+    archives = list((tmp_path / "interrupted_attempts").iterdir())
+    assert len(archives) == 1
+    assert (archives[0] / "dataset/episode.npz").read_bytes() == b"prior evidence"
+    assert (tmp_path / "worker.log").read_text() == "live worker output"
+    assert not (tmp_path / "provenance.json").exists()
 
 
 @pytest.fixture

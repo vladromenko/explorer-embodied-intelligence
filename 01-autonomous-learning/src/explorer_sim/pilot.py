@@ -11,7 +11,9 @@ import importlib.metadata
 import json
 import os
 from pathlib import Path
+import shutil
 import time
+import uuid
 import xml.etree.ElementTree as ET
 
 import gymnasium as gym
@@ -51,6 +53,34 @@ def write_json(path, value):
 def sha(path):
     with Path(path).open("rb") as source:
         return hashlib.file_digest(source, "sha256").hexdigest()
+
+
+def completed_result(folder):
+    path = folder / "result.json"
+    if not path.is_file():
+        return None
+    result = json.loads(path.read_text())
+    checks = [(folder / "teacher_ppo.zip", result["teacher"]["sha256"]),
+              (folder / "dataset/manifest.json", result["dataset"]["manifest_sha256"])]
+    for name, digest in result.get("student", {}).get("checkpoint_sha256", {}).items():
+        if Path(name).name != name:
+            raise ValueError("Invalid stored checkpoint filename")
+        checks.append((folder / "student_act" / name, digest))
+    for artifact, expected in checks:
+        if not artifact.is_file() or sha(artifact) != expected:
+            raise ValueError("Completed pilot artifact checksum mismatch")
+    return result
+
+
+def preserve_interrupted_attempt(folder):
+    if (folder / "provenance.json").exists():
+        archive = folder / "interrupted_attempts" / uuid.uuid4().hex
+        archive.mkdir(parents=True)
+        names = ["provenance.json", "frame.jpg", "frame.json", "model.xml", "teacher_ppo.zip", "dataset",
+                 "act_training.json", "act_evaluation.json", "student_act", "act_optimizer.pt"]
+        for name in names:
+            if (folder / name).exists():
+                shutil.move(str(folder / name), str(archive / name))
 
 
 def parameters(config):
@@ -233,7 +263,8 @@ def summarize(episodes):
             "successes": sum(item["success"] for item in episodes),
             "success_rate": sum(item["success"] for item in episodes) / max(1, len(episodes)),
             "mean_final_distance_m": float(np.mean([item["distance_m"] for item in episodes])),
-            "physical_run_ids": [], "evaluation_domain": "simulation", "independent_from_training_episodes": True}
+            "physical_run_ids": [], "evaluation_domain": "simulation", "independent_from_training_episodes": True,
+            "split_role": "engineering_development_evaluation", "sealed_final_test": False}
 
 
 def collect_dataset(policy, env, folder, settings, update):
@@ -290,6 +321,13 @@ def run_pilot(store, job, root):
     torch.set_num_threads(4)
     folder = store.root / "jobs" / job["id"]
     folder.mkdir(parents=True, exist_ok=True)
+    saved = completed_result(folder)
+    if saved is not None:
+        card = saved.get("skill_card")
+        if card and not any(item["id"] == card["id"] for item in store.skills()):
+            store.add_skill(card)
+        return saved
+    preserve_interrupted_attempt(folder)
     assets = resolve_mesh_dir(os.environ.get("EXPLORER_SIM_MESH_DIR") or
                               Path(root) / "_registry/private/assets/m3_reference/meshes")
     started = time.monotonic()
@@ -370,7 +408,6 @@ def run_pilot(store, job, root):
         else:
             result["student"] = {"status": "not_requested", "algorithm": "official LeRobot ACT", "trained": False}
         result.update(elapsed_s=time.monotonic() - started, provenance_sha256=sha(folder / "provenance.json"))
-        write_json(folder / "result.json", result)
         student = result["student"]
         evaluated = student.get("trained", False)
         card = {"id": "sim-reach-" + job["id"], "task": result["task"],
@@ -382,7 +419,10 @@ def run_pilot(store, job, root):
                 "evaluation": student["evaluation"] if evaluated else teacher_evaluation,
                 "limitations": ["Engineering reach pilot, not a sock task", "Simulated fixed base; three active joints",
                                 "Estimated actuator/contact physics", "No physical validation", "No calibrated real camera transfer"]}
-        if result["teacher"]["weights_changed"] and not any(item["id"] == card["id"] for item in store.skills()):
+        if result["teacher"]["weights_changed"]:
+            result["skill_card"] = card
+        write_json(folder / "result.json", result)
+        if result.get("skill_card") and not any(item["id"] == card["id"] for item in store.skills()):
             store.add_skill(card)
         update(.98, "simulated_reach_pilot_evaluated")
         return result
