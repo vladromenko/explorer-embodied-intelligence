@@ -158,3 +158,13 @@ test("a plan from another immutable skill cannot enable enqueue and changed sour
   const state=fixture();state.workbench.sessions[0].recording_id="finishing-source";const {client}=await rig({get:async()=>clone(state),post:async(path)=>({result:path.endsWith("/aggregate")?{aggregate_manifest_sha256:"e".repeat(64)}:{ready:true},snapshot:clone(state)})});await client.aggregate();await client.trainingPlan();await client.recordFinish();assert.throws(()=>client.train(),/Сначала соберите/);
   const view=client.snapshot();view.aggregateReceipt={skillKey:"foreign",result:{aggregate_manifest_sha256:"e".repeat(64)}};view.trainingPlanReceipt={skillKey:"foreign",result:{ready:true}};assert.match(cooperativeWorkbenchPanel(view),/Для enqueue нужны допущенный/);
 });
+
+test("warm model preparation is explicit compute-only, pinned to epoch and never revives after STOP",async()=>{
+  const state=fixture(),calls=[];state.queued_native_shadow_supported=true;state.warm_compute_sessions=[];
+  state.workbench.skills[0].spec.subskills.giver.model_id="native9-model";state.workbench.skills[0].spec.subskills.receiver.model_id="native6-model";
+  const {client}=await rig({uuid:()=>"11111111-1111-4111-8111-111111111111",get:async()=>clone(state),post:async(path,body)=>{calls.push([path,body]);return {result:{compute_ready:false},snapshot:clone(state)};}});
+  assert.equal(calls.length,0);await client.warmModels();assert.deepEqual(calls[0],["/api/cooperative/warm_models",{session_id:"server-session",expected_epoch:"epoch-one",request_id:"11111111-1111-4111-8111-111111111111",compute_ttl_s:120}]);
+  const view=client.snapshot();view.data.warm_compute_sessions=[{job_id:"abc12345",status:"running",compute_ready:true,compute_ttl_s:120,paired_runtime_benchmark_qualified:false,blockers:[]}];
+  const html=cooperativeWorkbenchPanel(view);assert.match(html,/Обе модели загружены/);assert.match(html,/native lease не разрешаются/);assert.match(html,/измерение пары моделей ещё не подтверждено/);
+  await client.stop();assert.throws(()=>client.warmModels(),/После STOP/);assert.ok(calls.every(([path])=>path.endsWith('/warm_models') || path.endsWith('/stop')));
+});

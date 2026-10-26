@@ -32,6 +32,7 @@ def test_cooperative_routes_pin_session_scope_actor_and_managed_artifact(tmp_pat
         assert client.post('/api/cooperative/authorize',json={},headers=headers).status_code==404
         body={'session_id':ident,'actor_id':'spoofed','expected_epoch':'current-fixture'}
         assert client.post('/api/cooperative/step',json=body,headers=headers).status_code==200
+        assert client.post('/api/cooperative/warm_models',json={'session_id':ident,'expected_epoch':'current-fixture'},headers=headers).status_code==200
         command=next(row for row in calls if row[0]=='POST')
         assert command[-1].startswith('authenticated-session:') and command[-1]!='spoofed'
         media=client.get('/api/cooperative/artifacts/zone/'+ident+'?role=giver')

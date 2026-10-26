@@ -1,0 +1,47 @@
+{
+  "actual_API_auth_CSRF": true,
+  "archive_bytes": 133120,
+  "archive_sha256": "468c5be7a5076a32acb32d33b7415d80ffdcff5497810cbc49c58e8c7ea6d829",
+  "downloaded_copy_verified_without_original_source_locator": true,
+  "durable_Supervisor_bootstrap_job_runner_subprocess": true,
+  "elapsed_s": 0.8729061909980373,
+  "execution_commit": "1351573a6f58bc15de2af9a617470e4763fa71f3",
+  "export_job_id": "ce0b262517ce40789f462b20f6c6b6dc",
+  "files": 7,
+  "manifest_sha256": "9b05042232a8431295ca64bf69230224aabda0c55dc922a5dd4f4fdb18a29395",
+  "missing_dependencies_count": 3,
+  "old_worker_gone": true,
+  "physical_IO": false,
+  "schema": "explorer_research_export_actual_public_queue_qualification_v1",
+  "scientific_or_physical_mastery_claimed": false,
+  "second_independent_restore": {
+    "files": 7,
+    "independent_destination": true,
+    "manifest_sha256": "9b05042232a8431295ca64bf69230224aabda0c55dc922a5dd4f4fdb18a29395",
+    "metric_checks": [],
+    "originals_required": false,
+    "physical_actions_authorized": false,
+    "schema": "explorer_research_export_restore_v1",
+    "scientific_success_claimed": false,
+    "scope": "explicit_selected_dependency_graph_not_whole_state_or_scientific_success",
+    "source_manifest_rewritten": false,
+    "total_payload_bytes": 107790,
+    "verification": "PARTIAL"
+  },
+  "selected_original_SQL_bytes_unchanged": true,
+  "source_file_sha256": {
+    "development-results.json": "d5fc6e98b373022b27e5b36dc0da80c5b8a1080960f2426a7aa32809c261a8c2",
+    "retained-target-video.mp4": "03971e6a186d69d1a80eaaecd361e063a67ec1de909b887fe87ec05665dcce1a"
+  },
+  "source_job_id": "127631e8bac34ca2a5e22ea29f066b02",
+  "source_scope": "Non-executing private tempStore fixture with actual retained scripted SIM receipt/video bytes; no production-state job or training created",
+  "total_payload_bytes": 107790,
+  "verification": "PARTIAL",
+  "worker_independent_restore_verified": true,
+  "raw_qualification_sha256": "d74f0887c8924a2b6aabd129e0c5f501a8788ddd6ebb29d4f0aad0b74cd5eb25",
+  "first_attempt_retained": {
+    "export_worker_completed": true,
+    "qualification_failed_at": "Harness asserted worker gone immediately after terminal SQL, before supervisor reap; corrected by waiting for actual process exit/reap",
+    "production_or_hardware_affected": false
+  }
+}

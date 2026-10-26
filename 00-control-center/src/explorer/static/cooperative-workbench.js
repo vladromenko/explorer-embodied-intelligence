@@ -39,7 +39,17 @@
     const stops = {}, draft = {name:"Передать предмет ROSMASTER → SO101 и завершить задачу",object_description:"",receiver_goal_description:"",outcome_criteria:"",mode:"both_manual",giver_choice_id:"",receiver_choice_id:"",giver_model_id:"",receiver_model_id:"",phase_maps:{giver:{},receiver:{}},scene:"",object_instance:"",split:"train",giver_input_mode:"keyboard",receiver_input_mode:"leader",execution_domain:"observation_only",stationary_chassis_confirmed:false,native_variants:{giver:"",receiver:""},zone_checked:false,zone_observing:false,record_phase:"",finish:freshFinish(),review:{status:"unknown",whole_episode_seen:false,phase_outcomes:{},native_episode_choice_ids:{giver:"",receiver:""}},evidence:{}};
     const storage = options.storage ?? (typeof sessionStorage !== "undefined" ? sessionStorage : null);
     const storageKey = options.storageKey || "explorer.cooperative-workbench.v1";
-    let reviewRecordingID = "", finishRecordingID = "", pendingShadow = null;
+    let reviewRecordingID = "", finishRecordingID = "", pendingShadow = null, pendingWarm = null;
+    function requestUUID() {
+      if (options.uuid) return options.uuid();
+      if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+      if (globalThis.crypto?.getRandomValues) {
+        const bytes=globalThis.crypto.getRandomValues(new Uint8Array(16));bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;
+        const hex=Array.from(bytes,value=>value.toString(16).padStart(2,"0")).join("");
+        return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+      }
+      throw new Error("Браузер не предоставил идентификатор запроса; обновите защищённую страницу");
+    }
     function clearObservationChecks() {draft.zone_checked = false;draft.zone_observing = false;draft.finish.observed = false;draft.finish.giver_visible = false;draft.finish.giver_full_task = false;draft.review.whole_episode_seen = false;draft.evidence = {};}
     try {
       const raw = storage?.getItem(storageKey);
@@ -56,6 +66,7 @@
           selectedSkill = typeof saved.selectedSkill === "string" ? saved.selectedSkill : "";selectedSession = typeof saved.selectedSession === "string" ? saved.selectedSession : "";
           reviewRecordingID = saved.reviewRecordingID || "";finishRecordingID = saved.finishRecordingID || "";
           if (typeof saved.pendingShadow?.pin === "string" && /^[0-9a-f-]{36}$/.test(saved.pendingShadow?.request_id || "")) pendingShadow = copy(saved.pendingShadow);
+          if (typeof saved.pendingWarm?.pin === "string" && /^[0-9a-f-]{36}$/.test(saved.pendingWarm?.request_id || "")) pendingWarm = copy(saved.pendingWarm);
           clearObservationChecks(); // A prior current-observation affirmation never survives page recreation.
         }
       }
@@ -64,7 +75,7 @@
       try {
         const safeDraft = copy(draft);safeDraft.evidence = {};safeDraft.zone_checked = false;safeDraft.zone_observing = false;
         safeDraft.finish.observed = false;safeDraft.finish.giver_visible = false;safeDraft.finish.giver_full_task = false;safeDraft.review.whole_episode_seen = false;
-        storage?.setItem(storageKey,JSON.stringify({schema:1,draft:safeDraft,stops,selectedSkill,selectedSession,reviewRecordingID,finishRecordingID,pendingShadow}));
+        storage?.setItem(storageKey,JSON.stringify({schema:1,draft:safeDraft,stops,selectedSkill,selectedSession,reviewRecordingID,finishRecordingID,pendingShadow,pendingWarm}));
       } catch (_) { /* Explicit server save remains authoritative. */ }
     }
     const notify = () => {persist();options.onChange?.();};
@@ -210,7 +221,7 @@
       if (busy) throw new Error("Дождитесь текущего запроса; STOP доступен всегда");
       const pin = `${session.session_id}:${session.epoch}:${key(skill)}`;
       if (pendingShadow?.pin !== pin) {
-        const request_id = options.uuid ? options.uuid() : globalThis.crypto?.randomUUID?.();
+        const request_id = requestUUID();
         if (!/^[0-9a-f-]{36}$/.test(request_id || "")) throw new Error("Браузер не предоставил идентификатор запроса; обновите защищённую страницу");
         pendingShadow = {pin,request_id};
       }
@@ -220,7 +231,23 @@
         return reply;
       });
     }
-    return {snapshot,refresh,edit,chooseSkill,chooseSession,propose,confirm,createSession,registerZone,recordStart,recordStage,recordFinish,step,stop,confirmEvidence,review,aggregate,trainingPlan,train,shadow};
+    function warmModels() {
+      const session=sessionRequired(),skill=current().skill;
+      if (!shadowSupported(data,skill) || !Array.isArray(data?.warm_compute_sessions)) throw new Error("Для подготовки нужны обе закреплённые native-модели и серверная вычислительная очередь");
+      if (busy) throw new Error("Дождитесь текущего запроса; STOP доступен всегда");
+      const pin=`${session.session_id}:${session.epoch}:${key(skill)}`;
+      if (pendingWarm?.pin !== pin) {
+        const request_id=requestUUID();
+        if (!/^[0-9a-f-]{36}$/.test(request_id || "")) throw new Error("Нет идентификатора вычислительного запроса");
+        pendingWarm={pin,request_id};
+      }
+      const request=pendingWarm;
+      return operation("warm_models",{session_id:session.session_id,expected_epoch:session.epoch,request_id:request.request_id,compute_ttl_s:120}).then(reply=>{
+        if (!reply?.ignored && pendingWarm===request) {pendingWarm=null;persist();}
+        return reply;
+      });
+    }
+    return {snapshot,refresh,edit,chooseSkill,chooseSession,propose,confirm,createSession,registerZone,recordStart,recordStage,recordFinish,step,stop,confirmEvidence,review,aggregate,trainingPlan,train,shadow,warmModels};
   }
 
   function cooperativeWorkbenchPanel(view = {}) {
@@ -270,6 +297,8 @@
     }).join("") : "";
     const review = session?.last_recording_id ? `<details><summary>Независимый разбор завершённого показа</summary>${check("review.whole_episode_seen","Просмотрел весь исходный показ и конкретный предмет",draft.review?.whole_episode_seen)}${select("review.status","Полный исход",Object.entries(outcomes),draft.review?.status)}<div class="form-grid">${phases.map(phase => select(`review.phase_outcomes.${phase}`,labels[phase] || phase,[["","Выберите исход"],...Object.entries(outcomes)],draft.review?.phase_outcomes?.[phase] || "")).join("")}</div>${["giver","receiver"].map(role => select(`review.native_episode_choice_ids.${role}`,role === "giver" ? "Завершённый оригинал ROSMASTER" : "Завершённый оригинал SO101",[["","Нет выбранного допущенного оригинала"],...episodeChoices(data,session,role).map(row => [choiceID(row),row.name || row.title || "Исходный показ · "+(row.status || "допуск проверяется")])],draft.review?.native_episode_choice_ids?.[role] || "")).join("")}<p>Отсутствующий оригинал остаётся недоступным. Ручной ввод ID, подмена intent на dispatch и перенос sealed в train не выполняются.</p>${sourceReviewLinks}${button("review","Сохранить независимый разбор",busy)}</details>` : "";
     const shadowReady = shadowSupported(data,skill);
+    const warmReady=shadowReady && Array.isArray(data?.warm_compute_sessions);
+    const warmStatus=rows(data?.warm_compute_sessions).map(row=>`<section><h3>Подготовка моделей · CPU</h3><p>${esc(row.job_id?.slice(0,8))} · ${esc(row.status)} · ${row.compute_ready === true ? "Обе модели загружены в текущем worker" : "Готовность вычислительного worker не подтверждена"}</p>${reasons(row.blockers)}<p class="form-hint">Вычислительная сессия: ${esc(row.compute_ttl_s)}с после загрузки. ${row.paired_runtime_benchmark_qualified === true ? "Измерение пары моделей подтверждено." : "Независимое измерение пары моделей ещё не подтверждено."} Движение и native lease не разрешаются этой подготовкой. Для отдельного наблюдаемого исполнения нужны текущие разрешения пользователя на обоих роботах. <a href="/queue">Состояние общей очереди</a></p></section>`).join("");
     const queuedShadows = rows(data?.queued_native_shadows).map(receipt => `<section><h3>Проверка двух native-моделей в очереди</h3>${["giver","receiver"].map(role => {
       const head = receipt.native_heads?.[role], queued = receipt.jobs?.[role], error = receipt.errors?.[role];
       return `<p>${role === "giver" ? "ROSMASTER9D" : "SO1016D"}: ${esc(head?.status || (queued ? "В очереди" : "Не поставлено"))} ${head?.job_id ? "· "+esc(head.job_id.slice(0,8)) : ""}${head?.verified_fresh_shadow_at_worker_time === true ? " · свежее наблюдение проверено worker" : ""}</p>${reasons([...(head?.schedule?.waiting_reasons || []),...(head?.evidence_error ? [head.evidence_error] : []),...(error ? [error] : [])])}`;
@@ -280,7 +309,7 @@
       return `<p>${role === "giver" ? "ROSMASTER9D" : "SO1016D"}: ${job ? "задача "+esc(String(job.id).slice(0,8))+" · "+esc(job.status) : "задача не подтверждена"}</p>${error ? `<p class="form-error">${esc(error)}</p>` : ""}`;
     }).join("")}<p class="form-hint">Частичный результат сохраняется сервером. Это отдельные native datasets/models; coordinator не объявляется обученной моделью, физический запуск не разрешается.</p></section>` : "";
     const results = view.lastResult ? `<div role="status"><p>Серверный результат: ${esc(view.lastResult.operation)}</p>${reasons(view.lastResult.result?.blockers || view.lastResult.result?.reasons)}${view.lastResult.result?.ready != null ? `<p>${view.lastResult.result.ready ? "План готов в заявленной сервером области" : "Есть незакрытые требования"}</p>` : ""}</div>` : "";
-    return `<section class="panel cooperative-workbench" style="min-width:0;overflow-wrap:anywhere"><div class="panel-heading" style="position:sticky;top:0;z-index:2;background:var(--panel,var(--bg))"><div><p class="eyebrow">05 · Совместный навык</p><h2>Передать предмет и завершить действие</h2></div><div class="teleop-actions">${button("refresh","Обновить состояние")}${button("stop","STOP · остановить текущую сессию",!session)}</div></div><div class="panel-body"><p>Общий навык связывает проверенные версии ROSMASTER и SO101. Шасси неподвижно. Данные, модели и clocks двух роботов остаются раздельными. Свободный текст описывает SkillSpec и не добавляет ACT языковой вход.</p>${view.error ? `<p class="form-error" role="alert">${esc(view.error)}</p>` : ""}${!data ? '<p>Состояние ещё не загружено. Обновление читает сервер и не запускает действия.</p>' : ""}${cameras}${skillSelect}${spec}${creation}${newSession}${sessionSelect}${session ? `<p class="form-hint">Сцена: ${esc(session.scene_id)} · предмет: ${esc(session.object_instance_id)} · ${esc(session.split)} · ${esc(session.execution_domain)}</p>${reasons(state.metadata_and_recording_blockers)}${reasons(state.observed_execution_blockers)}` : ""}${zone}${recording}${protocol}${pending}${review}${skill ? `<section><h3>Данные → план обучения → shadow</h3>${button("aggregate","Собрать только допущенные пары показов",busy)}${button("training-plan","Проверить план двух native обучений",busy)}${button("train","Поставить две native-задачи обучения в общую очередь",busy || !trainReady)}${!trainReady ? '<p class="form-hint">Для enqueue нужны допущенный парный train/development агрегат и готовый план этой точной версии. Все допуски повторно проверяет сервер.</p>' : ""}${button("shadow","Проверить отдельные модели без команд",busy || stopped || !session || !shadowReady)}${!shadowReady ? '<p class="form-hint">Shadow заблокирован: требуются обе закреплённые native-модели и серверная общая очередь inference.</p>' : ""}<p class="form-hint">Агрегат не означает, что обучение запущено; план не означает готовность физического навыка. Shadow использует реальные серверные наблюдения и не отправляет команды. Исполнение и deploy выбираются отдельно после квалификации.</p>${results}${trainResult}${queuedShadows}</section>` : ""}</div></section>`;
+    return `<section class="panel cooperative-workbench" style="min-width:0;overflow-wrap:anywhere"><div class="panel-heading" style="position:sticky;top:0;z-index:2;background:var(--panel,var(--bg))"><div><p class="eyebrow">05 · Совместный навык</p><h2>Передать предмет и завершить действие</h2></div><div class="teleop-actions">${button("refresh","Обновить состояние")}${button("stop","STOP · остановить текущую сессию",!session)}</div></div><div class="panel-body"><p>Общий навык связывает проверенные версии ROSMASTER и SO101. Шасси неподвижно. Данные, модели и clocks двух роботов остаются раздельными. Свободный текст описывает SkillSpec и не добавляет ACT языковой вход.</p>${view.error ? `<p class="form-error" role="alert">${esc(view.error)}</p>` : ""}${!data ? '<p>Состояние ещё не загружено. Обновление читает сервер и не запускает действия.</p>' : ""}${cameras}${skillSelect}${spec}${creation}${newSession}${sessionSelect}${session ? `<p class="form-hint">Сцена: ${esc(session.scene_id)} · предмет: ${esc(session.object_instance_id)} · ${esc(session.split)} · ${esc(session.execution_domain)}</p>${reasons(state.metadata_and_recording_blockers)}${reasons(state.observed_execution_blockers)}` : ""}${zone}${recording}${protocol}${pending}${review}${skill ? `<section><h3>Данные → план обучения → shadow</h3>${button("aggregate","Собрать только допущенные пары показов",busy)}${button("training-plan","Проверить план двух native обучений",busy)}${button("train","Поставить две native-задачи обучения в общую очередь",busy || !trainReady)}${!trainReady ? '<p class="form-hint">Для enqueue нужны допущенный парный train/development агрегат и готовый план этой точной версии. Все допуски повторно проверяет сервер.</p>' : ""}${button("shadow","Проверить отдельные модели без команд",busy || stopped || !session || !shadowReady)}${!shadowReady ? '<p class="form-hint">Shadow заблокирован: требуются обе закреплённые native-модели и серверная общая очередь inference.</p>' : ""}<p class="form-hint">Агрегат не означает, что обучение запущено; план не означает готовность физического навыка. Shadow использует реальные серверные наблюдения и не отправляет команды. Исполнение и deploy выбираются отдельно после квалификации.</p>${button("warm-models","Подготовить обе модели без движения · 120с",busy || stopped || !session || !warmReady)}${results}${trainResult}${queuedShadows}${warmStatus}</section>` : ""}</div></section>`;
   }
 
   function bindCooperativeWorkbench(root,client,onError = () => {}) {
@@ -298,7 +327,7 @@
     };
     const click = event => {
       const button = event.target?.closest?.("[data-coop-action]");if (!button || !root.contains(button) || button.disabled) return;
-      const actions = {refresh:() => client.refresh(),confirm:() => client.confirm(),"register-zone":() => client.registerZone(),"record-start":() => client.recordStart(),"record-stage":() => client.recordStage(),"record-finish":() => client.recordFinish(),step:() => client.step(button.dataset.coopEvent),stop:() => client.stop(),evidence:() => client.confirmEvidence(button.dataset.coopChallenge),review:() => client.review(),aggregate:() => client.aggregate(),"training-plan":() => client.trainingPlan(),train:() => client.train(),shadow:() => client.shadow()};
+      const actions = {refresh:() => client.refresh(),confirm:() => client.confirm(),"register-zone":() => client.registerZone(),"record-start":() => client.recordStart(),"record-stage":() => client.recordStage(),"record-finish":() => client.recordFinish(),step:() => client.step(button.dataset.coopEvent),stop:() => client.stop(),evidence:() => client.confirmEvidence(button.dataset.coopChallenge),review:() => client.review(),aggregate:() => client.aggregate(),"training-plan":() => client.trainingPlan(),train:() => client.train(),shadow:() => client.shadow(),"warm-models":() => client.warmModels()};
       if (actions[button.dataset.coopAction]) failure(actions[button.dataset.coopAction]);
     };
     for (const [type,handler] of [["input",input],["change",change],["submit",submit],["click",click]]) root.addEventListener(type,handler);
