@@ -1,0 +1,198 @@
+{
+  "schema": "explorer_environment_inventory_v1",
+  "collected_at_unix": 1792973187.1271627,
+  "python": "3.12.3",
+  "python_executable": "/home/jetsonnx/.local/share/explorer/venv/bin/python",
+  "explorer_release_commit": "9e01ff688b0be2522bde50fe0c29ef7bfd90a892",
+  "site_package_search_paths": [
+    "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages"
+  ],
+  "architecture": "aarch64",
+  "kernel": "6.8.12-1021-tegra",
+  "hardware_model": "NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super",
+  "os": {
+    "PRETTY_NAME": "Ubuntu 24.04.4 LTS",
+    "VERSION_ID": "24.04",
+    "ID": "ubuntu"
+  },
+  "nvidia_l4t_release": "# R39 (release), REVISION: 2.1, GCID: 46758480, BOARD: generic, EABI: aarch64, DATE: Fri Aug  7 05:54:22 AM UTC 2026\n# KERNEL_VARIANT: oot\nTARGET_USERSPACE_LIB_DIR=nvidia\nTARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia",
+  "system_hailo_packages": [],
+  "pip_freeze_sanitized": [
+    "absl-py==2.5.1",
+    "aiohappyeyeballs==2.7.1",
+    "aiohttp==3.14.5",
+    "aiosignal==1.4.0",
+    "annotated-doc==0.0.5",
+    "annotated-types==0.8.0",
+    "anyio==4.15.1",
+    "attrs==26.1.0",
+    "av==15.1.0",
+    "certifi==2026.10.23",
+    "charset-normalizer==3.5.2",
+    "click==8.5.0",
+    "cloudpickle==3.1.2",
+    "cmake==4.1.3",
+    "cuda-bindings==13.4.4",
+    "cuda-pathfinder==1.8.4",
+    "cuda-toolkit==13.0.2",
+    "datasets==4.8.5",
+    "dill==0.4.1",
+    "draccus==0.11.6",
+    "einops==0.8.2",
+    "etils==1.14.0",
+    "Farama-Notifications==0.0.6",
+    "fastapi==0.162.0",
+    "filelock==4.2.4",
+    "frozenlist==1.8.0",
+    "fsspec==2026.2.0",
+    "glfw==2.11.0",
+    "gymnasium==1.4.0",
+    "h11==0.16.0",
+    "hf-xet==1.7.0",
+    "httpcore2==2.16.0",
+    "httpcore==1.0.9",
+    "httpx2==2.16.0",
+    "httpx==0.28.1",
+    "huggingface_hub==1.33.0",
+    "idna==3.20",
+    "iniconfig==2.3.1",
+    "Jinja2==3.1.6",
+    "jsonlines==4.0.0",
+    "lerobot==0.6.1",
+    "MarkupSafe==3.0.4",
+    "mergedeep==1.3.4",
+    "mpmath==1.3.0",
+    "mujoco==3.17.0",
+    "multidict==7.2.1",
+    "multiprocess==0.70.19",
+    "mypy_extensions==1.1.0",
+    "networkx==3.7",
+    "numpy==2.2.6",
+    "nvidia-cublas==13.1.0.3",
+    "nvidia-cuda-cupti==13.0.85",
+    "nvidia-cuda-nvrtc==13.0.88",
+    "nvidia-cuda-runtime==13.0.96",
+    "nvidia-cudnn-cu13==9.19.0.56",
+    "nvidia-cudss-cu13==0.7.1.6",
+    "nvidia-cufft==12.0.0.61",
+    "nvidia-cufile==1.15.1.6",
+    "nvidia-curand==10.4.0.35",
+    "nvidia-cusolver==12.0.4.66",
+    "nvidia-cusparse==12.6.3.3",
+    "nvidia-cusparselt-cu13==0.8.0",
+    "nvidia-nccl-cu13==2.28.9",
+    "nvidia-nvjitlink==13.0.88",
+    "nvidia-nvshmem-cu13==3.4.5",
+    "nvidia-nvtx==13.0.85",
+    "nvpl-blas==0.6.0",
+    "nvpl-lapack==0.4.0.1",
+    "opencv-python-headless==4.13.0.92",
+    "opentelemetry-api==1.45.1",
+    "packaging==25.0",
+    "pandas==2.3.3",
+    "pillow==12.3.0",
+    "pip==26.2.2",
+    "pluggy==1.7.0",
+    "propcache==0.5.4",
+    "psutil==7.2.2",
+    "pyarrow==26.0.0",
+    "pydantic==2.14.1",
+    "pydantic_core==2.50.1",
+    "Pygments==2.21.0",
+    "PyOpenGL==3.1.10",
+    "pytest==9.1.1",
+    "python-dateutil==3.0.0",
+    "pytz==2026.5",
+    "PyYAML==6.0.3",
+    "requests==2.34.2",
+    "safetensors==0.8.0",
+    "scipy==1.18.1",
+    "setuptools==81.0.0",
+    "six==1.17.0",
+    "stable_baselines3==2.9.0",
+    "starlette==1.10.0",
+    "sympy==1.14.0",
+    "termcolor==3.3.0",
+    "toml==0.10.2",
+    "torch==2.11.0",
+    "torchvision==0.26.0",
+    "tqdm==4.70.1",
+    "triton==3.6.0",
+    "truststore==0.10.5",
+    "typing-inspect==0.9.0",
+    "typing-inspection==0.4.4",
+    "typing_extensions==4.16.0",
+    "tzdata==2026.5",
+    "urllib3==2.8.0",
+    "uvicorn==0.54.0",
+    "websockets==17.3",
+    "xxhash==4.0.2",
+    "yarl==1.25.1",
+    "zipp==4.1.2"
+  ],
+  "pip_freeze_available": true,
+  "freeze_url_or_editable_lines_redacted": 0,
+  "packages": {
+    "torch": {
+      "version": "2.11.0",
+      "record_sha256": "5da585095f73c86c58abf15aed60c5aa2d4b9e97e87a58709325793b9f23b55a",
+      "static_build_fields": {
+        "__version__": "2.11.0+cu130",
+        "cuda": "13.0",
+        "git_version": "70d99e998b4955e0049d13a98d77ae1b14db1f45",
+        "hip": null
+      },
+      "version_source_sha256": "323d35171ef1184f1d7db3bbd1f3d3e227e0e826be8fd52200778346e17c873f"
+    },
+    "torchvision": {
+      "version": "0.26.0",
+      "record_sha256": "df7d28d90e85fe71ca48bc1cacda2d16e6bedadaa4221fdf2be475fb364c9826",
+      "static_build_fields": {
+        "__version__": "0.26.0+cu130",
+        "git_version": "336d36e8db990a905498c73933e35231876e28bc"
+      },
+      "version_source_sha256": "e343247ae50079cef19f970029f691c4366d4788b9f9dab3a863d26413bbfdd7"
+    },
+    "lerobot": {
+      "version": "0.6.1",
+      "record_sha256": "73be0a61d906ac0d0cbf27d35a481eff7379b222512773131e5c27895db60321",
+      "act_source_sha256": {
+        "lerobot/policies/act/modeling_act.py": "a6c1a49c5daafa513b9abee9b986205d327e25c70ed13623ab2e6c0ab6b1f577",
+        "lerobot/policies/act/configuration_act.py": "35a60c0dd3c811b137b5eb035bdbd40d40e2c24ba0cda61756052e6e1c829282"
+      }
+    },
+    "mujoco": {
+      "version": "3.17.0",
+      "record_sha256": "832b8b7dda887c479829fe60197991f13f61b164d0fb16ab0eca25267c187496"
+    },
+    "stable-baselines3": {
+      "version": "2.9.0",
+      "record_sha256": "6e7ca757d0bb0cad51df362f99a0184edd56e4de3c0955138bbd502460148342"
+    },
+    "numpy": {
+      "version": "2.2.6",
+      "record_sha256": "75e2918990aff5cafd312da632b40c03b0024a87019370c3a1b4f661398281f7"
+    },
+    "opencv-python": {
+      "installed": false
+    },
+    "opencv-python-headless": {
+      "version": "4.13.0.92",
+      "record_sha256": "8d1688033dfaa8d2c8de49ce916512bbc7826a196fb91783f96d6e3ae3a71ed6"
+    },
+    "opencv": {
+      "installed": false
+    },
+    "hailort": {
+      "installed": false
+    },
+    "feetech-servo-sdk": {
+      "installed": false
+    },
+    "pyserial": {
+      "installed": false
+    }
+  },
+  "scope": "Installed metadata only. No CUDA/Hailo/servo import, model execution or hardware qualification.",
+  "venv_config": "home = /usr/bin\ninclude-system-site-packages = false\nversion = 3.12.3\nexecutable = /usr/bin/python3.12\ncommand = /usr/bin/python3 -m venv /home/jetsonnx/.local/share/explorer/venv\n"
+}
