@@ -1,0 +1,61 @@
+{
+  "schema": "explorer_current_CPU_qualification_attempt_ledger_v1",
+  "source_commit": "fb430399c46297d1297c012c83b218dae4cf9801",
+  "attempts": [
+    {
+      "id": "20261027_STATION_R3_ACT",
+      "actual_pytest_exit_code": 0,
+      "reporting_wrapper_exit_code": 1,
+      "reason": "Canonical pytest directory/current alias yielded two matches",
+      "directory": "/mnt/explorer-data/explorer-work/qualification-station-cpu-20261027-r3/act",
+      "math_repeated": false
+    },
+    {
+      "id": "20261027_STATION_R3B_ACT_ARTIFACT_VALIDATION",
+      "process_exit_code": 0,
+      "model_or_optimizer_executed": false,
+      "directory": "/mnt/explorer-data/explorer-work/qualification-station-cpu-20261027-r3b/act"
+    },
+    {
+      "id": "20261027_STATION_R3B_DIFFUSION",
+      "actual_pytest_exit_code": 0,
+      "reporting_wrapper_exit_code": 0,
+      "directory": "/mnt/explorer-data/explorer-work/qualification-station-cpu-20261027-r3b/diffusion",
+      "actual_optimizer_updates": 8,
+      "durable_restart_at_update": 4
+    },
+    {
+      "id": "20261027_STATION_R3B_FUSED106",
+      "actual_pytest_exit_code": 0,
+      "reporting_wrapper_exit_code": 1,
+      "reason": "Pytest directory-name truncation mismatched result locator",
+      "directory": "/mnt/explorer-data/explorer-work/qualification-station-cpu-20261027-r3b/fused106",
+      "math_repeated": false
+    },
+    {
+      "id": "20261027_STATION_R3B_PUBLICATION_V1",
+      "process_exit_code": 1,
+      "model_or_optimizer_executed": false,
+      "reason": "Path concatenation error while writing final publication summary; partial candidate files retained",
+      "directory": "/mnt/explorer-data/explorer-work/qualification-station-cpu-20261027-r3b/publication-candidate",
+      "publisher_source_sha256": "9fb8e907aa40bcab76aaca8627f76c34d5de7f0071d78a8e0aca9c66fe2ed91e"
+    },
+    {
+      "id": "20261027_STATION_R3B_PUBLICATION_V2",
+      "process_exit_code": 0,
+      "model_or_optimizer_executed": false,
+      "directory": "/mnt/explorer-data/explorer-work/qualification-station-cpu-20261027-r3b/publication-candidate-v2"
+    },
+    {
+      "id": "20261027_STATION_R3B_SELECTOR",
+      "process_exit_code": 0,
+      "no_Torch_import": true,
+      "source_mutation_negative_rejected": true,
+      "binding_sha256": "8bc7bd625702da22a3074c5640e118ec6a83b096e81da6b9d5ff710704f2ac0b"
+    }
+  ],
+  "old_R2_files_unchanged": true,
+  "original_attempts_unchanged": true,
+  "physical_io": false,
+  "production_state_writes": false
+}

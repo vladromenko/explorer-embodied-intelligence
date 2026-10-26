@@ -95,15 +95,28 @@ def test_cli_plan_import_is_stdlib_only_no_torch_or_mujoco():
     assert outcome.returncode==0,outcome.stdout+outcome.stderr
 
 
-def test_result_locator_deduplicates_only_same_canonical_current_alias_inside_basetemp(tmp_path):
-    output=tmp_path/'act';root=output/'pytest';directory=root/'test_real_official_ACT6_eight_0';directory.mkdir(parents=True)
-    result=directory/'actual8-qualification.json';result.write_text('{}')
-    (root/'test_real_official_ACT6_eight_current').symlink_to(directory,target_is_directory=True)
-    assert module.one_result(output,'act')==result.resolve()
-    another=root/'test_real_official_ACT6_eight_1';another.mkdir();(another/result.name).write_text('{}')
-    with pytest.raises(module.QualificationRejected,match='found 2'):module.one_result(output,'act')
-    (another/result.name).unlink();another.rmdir()
-    (root/'test_real_official_ACT6_eight_current').unlink()
-    outside=tmp_path/'outside';outside.mkdir();(outside/result.name).write_text('{}')
-    (root/'test_real_official_ACT6_eight_current').symlink_to(outside,target_is_directory=True)
-    with pytest.raises(module.QualificationRejected,match='escaped'):module.one_result(output,'act')
+@pytest.mark.parametrize('phase,directory,filename',[
+    ('act','test_real_official_ACT6_eight_0','actual8-qualification.json'),
+    ('diffusion','test_same_accepted_whole_skill0','qualification.json'),
+    ('fused106','test_actual_eight_official_ACT0/state/jobs/fixture','result.json')])
+def test_result_locator_typed_artifact_actual_truncated_names_aliases_ambiguity_and_escape(tmp_path,phase,directory,filename):
+    output=tmp_path/phase;root=output/'pytest';path=root/directory;path.mkdir(parents=True)
+    body=dict(trained=True,weights_changed=True,save_reload_passed=True,optimizer_steps=8,checkpoint_sha256={},physical_io=False)
+    if phase=='fused106':body.update(job_kind='rosmaster_skill_train',feature_dimension=106,output_action_dimension=9)
+    else:body.update(action_contract_id='so101_follower_calibrated_position6_v1',algorithm='official ACT6 fixture',backend=None if phase=='act' else 'diffusion')
+    result=path/filename;result.write_text(json.dumps(body))
+    (root/'arbitrary_current_alias').symlink_to(path,target_is_directory=True)
+    assert module.one_result(output,phase)==result.resolve()
+    another=root/'arbitrary_1';another.mkdir();(another/filename).write_text(json.dumps(body))
+    with pytest.raises(module.QualificationRejected,match='found 2'):module.one_result(output,phase)
+    (another/filename).unlink();another.rmdir();(root/'arbitrary_current_alias').unlink()
+    outside=tmp_path/'outside';outside.mkdir();(outside/filename).write_text(json.dumps(body))
+    (root/'arbitrary_current_alias').symlink_to(outside,target_is_directory=True)
+    with pytest.raises(module.QualificationRejected,match='escaped'):module.one_result(output,phase)
+
+
+def test_result_locator_rejects_wrong_phase_schema_even_with_expected_filename(tmp_path):
+    output=tmp_path/'fused';root=output/'pytest';root.mkdir(parents=True)
+    (root/'result.json').write_text(json.dumps(dict(trained=True,weights_changed=True,save_reload_passed=True,
+        optimizer_steps=8,checkpoint_sha256={},physical_io=False,job_kind='rosmaster_skill_train',feature_dimension=9,output_action_dimension=9)))
+    with pytest.raises(module.QualificationRejected,match='found 0'):module.one_result(output,'fused106')

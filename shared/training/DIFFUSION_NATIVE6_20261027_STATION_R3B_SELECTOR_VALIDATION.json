@@ -1,0 +1,93 @@
+{
+  "schema": "explorer_native6_diffusion_candidate_selector_validation_v1",
+  "selection": {
+    "executable": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/bin/python",
+    "binding_sha256": "8bc7bd625702da22a3074c5640e118ec6a83b096e81da6b9d5ff710704f2ac0b",
+    "identity": {
+      "schema": "explorer_native6_diffusion_dispatch_binding_v1",
+      "profile_id": "diffusion_resnet18_unet32_64_ddim4_cpu_v1",
+      "source_contract_id": "so101_follower_calibrated_position6_v1",
+      "native6_qualification_sha256": "e114baf91ded543b321a1f985e62b46eec0925baabfe01989a854f62f4ebc339",
+      "native6_implementation_binding_sha256": "03d636b702484657cb03f3ef083213a1cf30e67536cbc72fb99f729e71eb04df",
+      "pipeline_source_sha256": {
+        "00-control-center/src/explorer/lab_skill_workflow.py": "b5a019970aa6db86b443829fc4c485175476aaeb100ba63c8020a03bae42a56d",
+        "00-control-center/src/explorer/skill_catalogue.py": "f8a53d30c9efd8979c966eeefc3aff6d3519db1e61bedaa9070faa2d61f8ed22",
+        "00-control-center/src/explorer/so101_dataset_admission.py": "bc680faf7ff2f8568d85904b59ab2b6305f8cbb174d756bc60711686cc9ea2cc",
+        "00-control-center/src/explorer/so101_diffusion_training.py": "bb744ee0e98b9963a15ffb00dd244facfb2f13e9d0e19b92a9e66f09fe65ead8",
+        "01-autonomous-learning/src/explorer_sim/dataset_export.py": "0e1163980f598d5bd7cf8dee8077db446537cb32c473ead1719ecf2efc82a589",
+        "01-autonomous-learning/src/explorer_sim/so101_dataset_qualification.py": "d0e4ec0ed169236eae49c460ff4092e9c3d76e4910bb285b5800477c838b93b5",
+        "01-autonomous-learning/src/explorer_sim/station_adapter.py": "b1980e5afbac715c1c2ff3bca0142adcc8c074d4299df27ea02799cccfea21cd",
+        "shared/explorer_shared/contracts.py": "4f7742e754126ad9c29b9d4fb2f01fa32c1c5d82d22239d722d63b445d03d6da",
+        "shared/explorer_shared/experiments.py": "1a2795fab6d78883e8887ff0dcb9e69c1b8e40180e4e08bfd43072671b249478",
+        "shared/explorer_shared/learning/act_backend.py": "4bad89f03289705570aa7e4a2c2eeea571a319e2e7dcc7a8f4bd6df96b049137",
+        "shared/explorer_shared/learning/artifacts.py": "c218abfc061878c85fdc7651df1de95beb2727d2afc4de193ba4b6d284d8d626",
+        "shared/explorer_shared/learning/checkpoint_control.py": "4f62174e05516718299024be500677fb17948591830153fcc811f40d77959380",
+        "shared/explorer_shared/learning/diffusion_backend.py": "137e141c3a991ac3efd6c89fe8ce56eb9244820ef8d20e80094a2d1bfa9f24e6",
+        "shared/explorer_shared/learning/diffusion_optimizer.py": "3dd8c064f31c1de50aa3cd8a188cadaf6a51230abb4baf32a36215aabe615ee0",
+        "shared/explorer_shared/learning/diffusion_policy.py": "56482c495743583570c082a8e3166e3a710bfa441840dc5782809f3d74c60aea",
+        "shared/explorer_shared/learning/history_windows.py": "ed5065dab3be83dd88625dda0dd07c6a546003b0d7a7cbc1d8fc9629adeb9ae8",
+        "shared/explorer_shared/learning/runtime_profiles.py": "9cf18d5a9855cb7ea6d47acc3bd93f85cf1a2f0b7f32d4c3c3c0572cd17a7fa9",
+        "shared/explorer_shared/so101_station.py": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885"
+      },
+      "runtime_identity": {
+        "executable": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/bin/python",
+        "resolved_executable_sha256": "c86f21d0da9290ece2d7d49a3f7ed52aed59cb029abdf0ea25c79634f6cbe960",
+        "pyvenv_config_sha256": "cc5f0da55183c1ecfe2df2bffaa6b756626ba98e6181f4a4a3062a9c51125c3e",
+        "distribution_records": {
+          "mujoco": {
+            "version": "3.17.0",
+            "metadata_sha256": "59c0628b1c219551fd19692987f988f93f076bfd30f43f048b7e0040797a0bf9",
+            "record_sha256": "96f312ea0246e765f4f4bd89d9ebd5956386f4212555e2fdb4e55e9a9aa843af",
+            "metadata_path": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages/mujoco-3.17.0.dist-info/METADATA"
+          },
+          "numpy": {
+            "version": "2.2.6",
+            "metadata_sha256": "77c8e31c559eae4dfab00dee334c3a57ec23d0b7cf7249472bf35648eddca83b",
+            "record_sha256": "0ce8faaa9b93df6b976720a5f95af6506b26b035ed54c146c4e3f807b889627c",
+            "metadata_path": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages/numpy-2.2.6.dist-info/METADATA"
+          },
+          "torchvision": {
+            "version": "0.26.0",
+            "metadata_sha256": "a973d62f050ca0cf294e2b73469ab586c0f4fc4c4bd2e0a304ac4f2abb7f14fc",
+            "record_sha256": "9fde4575e851216bf4529868f39d61ea5cad84d01b9b853b4459b655071979ce",
+            "metadata_path": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages/torchvision-0.26.0.dist-info/METADATA"
+          },
+          "torch": {
+            "version": "2.11.0",
+            "metadata_sha256": "d65e0ab5a65ced0dce799a2f6f32bff57b3d3e9d050069f607ef71eb24dd9976",
+            "record_sha256": "caa5ed44c65b699b2b9440ca044493409c195958ba37043562f282a7ef7fe2fc",
+            "metadata_path": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages/torch-2.11.0.dist-info/METADATA"
+          },
+          "lerobot": {
+            "version": "0.6.1",
+            "metadata_sha256": "0269a6ad5649134835ee3a247d901e125501fb067ce407d76048612f538d6105",
+            "record_sha256": "2197e427eb677540e6cadab89f7e36803690e4be9209cc822ad0e83a637a7b17",
+            "metadata_path": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages/lerobot-0.6.1.dist-info/METADATA"
+          },
+          "diffusers": {
+            "version": "0.38.0",
+            "metadata_path": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/lib/python3.12/site-packages/diffusers-0.38.0.dist-info/METADATA",
+            "metadata_sha256": "40914752416695c832dafcb212201ba8bf59d3e65f7d3e93cd2ee44ff43151b4",
+            "record_sha256": "396954931ae194b60d66a69c040bb397023c074f889c1ac7ef2fa6fd164dad4a"
+          }
+        },
+        "site_path_files_sha256": {
+          "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/lib/python3.12/site-packages/explorer-cpu-baseline.pth": "f6706be165230014876fc1b3cd3329303f05c63bef75e60056e2e6a007c36756"
+        },
+        "distribution_resolution": "qualified_interpreter_importlib_metadata",
+        "OS_and_GPU_driver_fully_hashed": false
+      },
+      "measured_runtime_observation_sha256": "ca35fc089d6d51ad4d5f52d4609caf7ba9c1f44ad860fe0ce4780443364bbdf9",
+      "physical_execution_authorized": false
+    }
+  },
+  "elapsed_s": 0.6749052419909276,
+  "source_commit": "fb430399c46297d1297c012c83b218dae4cf9801",
+  "exact_source_files": 18,
+  "source_modified_negative": "Diffusion source differs from the measured native6 implementation: shared/explorer_shared/so101_station.py",
+  "selector_implementation_sha256": "8eb93be7e0b03e8dcb4115c33cecee118e2fec2d3a17d4232cb5fc8d4b070c3d",
+  "candidate_root": "/mnt/explorer-data/explorer-work/qualification-station-cpu-20261027-r3b/selector-candidate-root",
+  "no_Torch_import": true,
+  "physical_io": false,
+  "production_state_writes": false
+}

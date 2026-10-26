@@ -1,0 +1,2280 @@
+{
+  "trained": true,
+  "optimizer_steps": 8,
+  "weights_changed": true,
+  "save_reload_passed": true,
+  "reload_max_abs_error": 0.0,
+  "algorithm": "official LeRobot compact ACT9 available-sensor fusion plus separately composed hybrid candidate",
+  "job_kind": "rosmaster_skill_train",
+  "feature_dimension": 106,
+  "output_action_dimension": 9,
+  "device": "cpu",
+  "checkpoint_dir": "/mnt/explorer-data/explorer-work/qualification-station-cpu-20261027-r3b/fused106/pytest/test_actual_eight_official_ACT0/state/jobs/74cd57e49cbd47e1b32714bbb3cf4638/student_act",
+  "checkpoint_sha256": {
+    "config.json": "98709dd1d8a9a7b8042b516c8da05c6e7bd850052d110e9bdb4ae2db6ce03d9b",
+    "explorer_preprocessing.json": "b486d3eebb09dc370b50ea10fe5efaf6853356a4d71a918caef9354cc262927e",
+    "model.safetensors": "dc58119198b0dfa94bd3b3f787ebdbcb2ef9deaa3bce4d55c6fb2a38938d55c2"
+  },
+  "model_manifest": "/mnt/explorer-data/explorer-work/qualification-station-cpu-20261027-r3b/fused106/pytest/test_actual_eight_official_ACT0/state/jobs/74cd57e49cbd47e1b32714bbb3cf4638/model_manifest.json",
+  "model_manifest_sha256": "62f3d2f564db0a1fcc7787cfce3ea1a4f4b65b03ef35834912d88737cfa21d05",
+  "source_manifest_path": "/mnt/explorer-data/explorer-work/qualification-station-cpu-20261027-r3b/fused106/pytest/test_actual_eight_official_ACT0/state/datasets/skill-workflows/fb490b5d-e96c-4647-a47d-a3dccb2da62b/v0001/8b6d6ac27d6ee8e327c7f0ea6c060778c05148c7299d6dc5b6233f34f73dab44/manifest.json",
+  "source_manifest_sha256": "bf837685ee076e2ca7aeac6a5a2ae87126d535874c922e60fc9c1a2e58b6477b",
+  "training_resume": {
+    "supported": true,
+    "checkpoint_loaded": false,
+    "resumed_from_step": 0,
+    "completed_steps": 8,
+    "optimizer_steps_executed_this_process": 8,
+    "checkpoint_interval": 8,
+    "signature": "56c1f9acb2a383e5c65d31337ebbbff7f9ebf5c5b2d972f061ce4b345bdb11bf",
+    "active_optimizer_elapsed_s": 3.975330393004697,
+    "non_durable_updates_may_be_replayed": true,
+    "retained_history_is_not_total_compute_across_failed_attempts": true,
+    "rng_sources": [
+      "python",
+      "numpy_global",
+      "torch_cpu",
+      "all_initialized_cuda",
+      "explicit_batch_sampler"
+    ]
+  },
+  "evaluation": {
+    "domain": "independent_development_offline_next_action_and_observation_phase_diagnostics",
+    "same_matched_development_samples": true,
+    "ACT9": {
+      "evaluated_samples": 10,
+      "action_error": {
+        "base": {
+          "mae_native": 0.2633993327617645,
+          "unit": "deg"
+        },
+        "shoulder": {
+          "mae_native": 0.16061515659093856,
+          "unit": "deg"
+        },
+        "elbow": {
+          "mae_native": 0.15527574419975282,
+          "unit": "deg"
+        },
+        "wrist_pitch": {
+          "mae_native": 0.016288787056691945,
+          "unit": "deg"
+        },
+        "wrist_roll": {
+          "mae_native": 0.2426357761025429,
+          "unit": "deg"
+        },
+        "gripper": {
+          "mae_native": 0.4403386265039444,
+          "unit": "deg"
+        },
+        "vx": {
+          "mae_native": 0.2855800837278366,
+          "unit": "m/s"
+        },
+        "vy": {
+          "mae_native": 0.23535533100366593,
+          "unit": "m/s"
+        },
+        "wz": {
+          "mae_native": 0.28767392933368685,
+          "unit": "rad/s"
+        }
+      }
+    },
+    "hybrid": {
+      "evaluated_samples": 10,
+      "blocked_samples": 0,
+      "blocked_reasons": {},
+      "action_error": {
+        "base": {
+          "mae_native": 0.11660186499357224,
+          "unit": "deg"
+        },
+        "shoulder": {
+          "mae_native": 0.06296495050191879,
+          "unit": "deg"
+        },
+        "elbow": {
+          "mae_native": 0.05950597375631332,
+          "unit": "deg"
+        },
+        "wrist_pitch": {
+          "mae_native": 0.007722133025527001,
+          "unit": "deg"
+        },
+        "wrist_roll": {
+          "mae_native": 0.09606682509183884,
+          "unit": "deg"
+        },
+        "gripper": {
+          "mae_native": 0.17909866869449614,
+          "unit": "deg"
+        },
+        "vx": {
+          "mae_native": 0.19759638103035232,
+          "unit": "m/s"
+        },
+        "vy": {
+          "mae_native": 0.11168493439996248,
+          "unit": "m/s"
+        },
+        "wz": {
+          "mae_native": 0.11225487291812897,
+          "unit": "rad/s"
+        }
+      },
+      "phase_accuracy_on_executed_predictions": 1.0
+    },
+    "raw_predictions": [
+      {
+        "episode_id": "packet-3",
+        "sample_index": 0,
+        "actual_target9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ACT9": [
+          0.14655600488185883,
+          0.17666757106781006,
+          0.17671072483062744,
+          0.008122743107378483,
+          0.2580437660217285,
+          -0.4038732945919037,
+          0.3275209069252014,
+          -0.2608494460582733,
+          0.31302911043167114
+        ],
+        "hybrid9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.147087101353638,
+          0.029417420270727596,
+          0.0
+        ],
+        "predicted_phase": "find_object",
+        "component": "navigation_with_recorded_arm_command_hold",
+        "perception": {
+          "method": "source_bound_calibrated_goal_position",
+          "calibration_id": "cal-1"
+        },
+        "navigation": {
+          "method": "A_star_4_connected_observed_grid_with_body_footprint_and_trajectory_tracking",
+          "path_cells": [
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              2,
+              6
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              2,
+              8
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              4,
+              8
+            ],
+            [
+              5,
+              8
+            ],
+            [
+              6,
+              8
+            ],
+            [
+              7,
+              8
+            ],
+            [
+              8,
+              8
+            ]
+          ],
+          "robot_radius_m": 0.08,
+          "robot_geometry_id": "software_fixture_ROSMASTER_body",
+          "full9d": true,
+          "hardware_io": false
+        }
+      },
+      {
+        "episode_id": "packet-3",
+        "sample_index": 1,
+        "actual_target9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ACT9": [
+          0.17119550704956055,
+          0.1756092756986618,
+          0.17566433548927307,
+          0.003597437171265483,
+          0.2570371925830841,
+          -0.41337496042251587,
+          0.31616565585136414,
+          -0.2589440643787384,
+          0.31032952666282654
+        ],
+        "hybrid9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.14657645458842014,
+          0.03186444664965655,
+          0.0
+        ],
+        "predicted_phase": "localize_object",
+        "component": "navigation_with_recorded_arm_command_hold",
+        "perception": {
+          "method": "source_bound_calibrated_goal_position",
+          "calibration_id": "cal-1"
+        },
+        "navigation": {
+          "method": "A_star_4_connected_observed_grid_with_body_footprint_and_trajectory_tracking",
+          "path_cells": [
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              2,
+              6
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              2,
+              8
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              4,
+              8
+            ],
+            [
+              5,
+              8
+            ],
+            [
+              6,
+              8
+            ],
+            [
+              7,
+              8
+            ],
+            [
+              8,
+              8
+            ]
+          ],
+          "robot_radius_m": 0.08,
+          "robot_geometry_id": "software_fixture_ROSMASTER_body",
+          "full9d": true,
+          "hardware_io": false
+        }
+      },
+      {
+        "episode_id": "packet-3",
+        "sample_index": 2,
+        "actual_target9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ACT9": [
+          0.19841286540031433,
+          0.17326606810092926,
+          0.17079991102218628,
+          0.002613381016999483,
+          0.25546684861183167,
+          -0.419742226600647,
+          0.3058132529258728,
+          -0.2560034394264221,
+          0.3064100742340088
+        ],
+        "hybrid9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.14592093220280503,
+          0.03474307909590595,
+          0.0
+        ],
+        "predicted_phase": "approach_align",
+        "component": "navigation_with_recorded_arm_command_hold",
+        "perception": {
+          "method": "source_bound_calibrated_goal_position",
+          "calibration_id": "cal-1"
+        },
+        "navigation": {
+          "method": "A_star_4_connected_observed_grid_with_body_footprint_and_trajectory_tracking",
+          "path_cells": [
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              2,
+              6
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              2,
+              8
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              4,
+              8
+            ],
+            [
+              5,
+              8
+            ],
+            [
+              6,
+              8
+            ],
+            [
+              7,
+              8
+            ],
+            [
+              8,
+              8
+            ]
+          ],
+          "robot_radius_m": 0.08,
+          "robot_geometry_id": "software_fixture_ROSMASTER_body",
+          "full9d": true,
+          "hardware_io": false
+        }
+      },
+      {
+        "episode_id": "packet-3",
+        "sample_index": 3,
+        "actual_target9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ACT9": [
+          0.22971363365650177,
+          0.16839559376239777,
+          0.15946726500988007,
+          0.003566908184438944,
+          0.2537345588207245,
+          -0.42330148816108704,
+          0.2935607135295868,
+          -0.2503820061683655,
+          0.2964884340763092
+        ],
+        "hybrid9": [
+          0.22971363365650177,
+          0.16839559376239777,
+          0.15946726500988007,
+          0.003566908184438944,
+          0.2537345588207245,
+          -0.42330148816108704,
+          0.2935607135295868,
+          -0.2503820061683655,
+          0.2964884340763092
+        ],
+        "predicted_phase": "coordinated_reach",
+        "component": "ACT9_contact_or_coordinated_motion",
+        "simultaneous_9d": true
+      },
+      {
+        "episode_id": "packet-3",
+        "sample_index": 4,
+        "actual_target9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ACT9": [
+          0.2566160559654236,
+          0.1615154892206192,
+          0.14903324842453003,
+          0.006928864400833845,
+          0.24629028141498566,
+          -0.42637404799461365,
+          0.2793382704257965,
+          -0.2386411726474762,
+          0.28457945585250854
+        ],
+        "hybrid9": [
+          0.2566160559654236,
+          0.1615154892206192,
+          0.14903324842453003,
+          0.006928864400833845,
+          0.24629028141498566,
+          -0.42637404799461365,
+          0.2793382704257965,
+          -0.2386411726474762,
+          0.28457945585250854
+        ],
+        "predicted_phase": "grasp_confirm",
+        "component": "ACT9_contact_or_coordinated_motion",
+        "simultaneous_9d": true
+      },
+      {
+        "episode_id": "packet-3",
+        "sample_index": 5,
+        "actual_target9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ACT9": [
+          0.27955108880996704,
+          0.15856552124023438,
+          0.14635802805423737,
+          0.004070584662258625,
+          0.23749296367168427,
+          -0.4328732192516327,
+          0.26961344480514526,
+          -0.22562702000141144,
+          0.28021979331970215
+        ],
+        "hybrid9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.147087101353638,
+          0.029417420270727596,
+          0.0
+        ],
+        "predicted_phase": "find_goal",
+        "component": "navigation_with_recorded_arm_command_hold",
+        "perception": {
+          "method": "source_bound_calibrated_goal_position",
+          "calibration_id": "cal-1"
+        },
+        "navigation": {
+          "method": "A_star_4_connected_observed_grid_with_body_footprint_and_trajectory_tracking",
+          "path_cells": [
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              2,
+              6
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              2,
+              8
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              4,
+              8
+            ],
+            [
+              5,
+              8
+            ],
+            [
+              6,
+              8
+            ],
+            [
+              7,
+              8
+            ],
+            [
+              8,
+              8
+            ]
+          ],
+          "robot_radius_m": 0.08,
+          "robot_geometry_id": "software_fixture_ROSMASTER_body",
+          "full9d": true,
+          "hardware_io": false
+        }
+      },
+      {
+        "episode_id": "packet-3",
+        "sample_index": 6,
+        "actual_target9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ACT9": [
+          0.30589786171913147,
+          0.15371982753276825,
+          0.14426614344120026,
+          -0.01137516088783741,
+          0.23240353167057037,
+          -0.45057734847068787,
+          0.2676171064376831,
+          -0.2182789295911789,
+          0.27246710658073425
+        ],
+        "hybrid9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.14657645458842014,
+          0.03186444664965654,
+          0.0
+        ],
+        "predicted_phase": "retained_transport",
+        "component": "navigation_with_recorded_arm_command_hold",
+        "perception": {
+          "method": "source_bound_calibrated_goal_position",
+          "calibration_id": "cal-1"
+        },
+        "navigation": {
+          "method": "A_star_4_connected_observed_grid_with_body_footprint_and_trajectory_tracking",
+          "path_cells": [
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              2,
+              6
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              2,
+              8
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              4,
+              8
+            ],
+            [
+              5,
+              8
+            ],
+            [
+              6,
+              8
+            ],
+            [
+              7,
+              8
+            ],
+            [
+              8,
+              8
+            ]
+          ],
+          "robot_radius_m": 0.08,
+          "robot_geometry_id": "software_fixture_ROSMASTER_body",
+          "full9d": true,
+          "hardware_io": false
+        }
+      },
+      {
+        "episode_id": "packet-3",
+        "sample_index": 7,
+        "actual_target9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ACT9": [
+          0.32877469062805176,
+          0.15093639492988586,
+          0.14147412776947021,
+          -0.02479935996234417,
+          0.23225007951259613,
+          -0.46378034353256226,
+          0.2627176344394684,
+          -0.21483179926872253,
+          0.2675899863243103
+        ],
+        "hybrid9": [
+          0.32877469062805176,
+          0.15093639492988586,
+          0.14147412776947021,
+          -0.02479935996234417,
+          0.23225007951259613,
+          -0.46378034353256226,
+          0.2627176344394684,
+          -0.21483179926872253,
+          0.2675899863243103
+        ],
+        "predicted_phase": "align_release",
+        "component": "ACT9_contact_or_coordinated_motion",
+        "simultaneous_9d": true
+      },
+      {
+        "episode_id": "packet-3",
+        "sample_index": 8,
+        "actual_target9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ACT9": [
+          0.35091426968574524,
+          0.1488020271062851,
+          0.14508509635925293,
+          -0.041926197707653046,
+          0.2283933311700821,
+          -0.4775308072566986,
+          0.26319432258605957,
+          -0.21336260437965393,
+          0.2738908529281616
+        ],
+        "hybrid9": [
+          0.35091426968574524,
+          0.1488020271062851,
+          0.14508509635925293,
+          -0.041926197707653046,
+          0.2283933311700821,
+          -0.4775308072566986,
+          0.26319432258605957,
+          -0.21336260437965393,
+          0.2738908529281616
+        ],
+        "predicted_phase": "verify_placement",
+        "component": "ACT9_contact_or_coordinated_motion",
+        "simultaneous_9d": true
+      },
+      {
+        "episode_id": "packet-3",
+        "sample_index": 9,
+        "actual_target9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ACT9": [
+          0.3663613498210907,
+          0.138673797249794,
+          0.14389856159687042,
+          -0.05588723346590996,
+          0.22524520754814148,
+          -0.49195852875709534,
+          0.2702595293521881,
+          -0.21663282811641693,
+          0.27173495292663574
+        ],
+        "hybrid9": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.1439048252356906,
+          0.04232494859873251,
+          0.0
+        ],
+        "predicted_phase": "retreat",
+        "component": "navigation_with_recorded_arm_command_hold",
+        "perception": {
+          "method": "source_bound_calibrated_goal_position",
+          "calibration_id": "cal-1"
+        },
+        "navigation": {
+          "method": "A_star_4_connected_observed_grid_with_body_footprint_and_trajectory_tracking",
+          "path_cells": [
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              2,
+              6
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              2,
+              8
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              4,
+              8
+            ],
+            [
+              5,
+              8
+            ],
+            [
+              6,
+              8
+            ],
+            [
+              7,
+              8
+            ],
+            [
+              8,
+              8
+            ]
+          ],
+          "robot_radius_m": 0.08,
+          "robot_geometry_id": "software_fixture_ROSMASTER_body",
+          "full9d": true,
+          "hardware_io": false
+        }
+      }
+    ],
+    "sealed_test_used": false,
+    "learned_policy_rollout_executed": false,
+    "whole_task_success": "NOT_EVALUATED",
+    "physical_success": false
+  },
+  "skill_card": {
+    "id": "rosmaster-skill-62f3d2f564db0a1fcc7787cf",
+    "task": "Носок → корзина",
+    "source_type": "simulation",
+    "status": "trained_offline_candidate_only",
+    "action_contract": {
+      "id": "rosmaster_joint9_position6_velocity3_v1",
+      "names": [
+        "base",
+        "shoulder",
+        "elbow",
+        "wrist_pitch",
+        "wrist_roll",
+        "gripper",
+        "vx",
+        "vy",
+        "wz"
+      ],
+      "units": [
+        "deg",
+        "deg",
+        "deg",
+        "deg",
+        "deg",
+        "deg",
+        "m/s",
+        "m/s",
+        "rad/s"
+      ],
+      "dimension": 9,
+      "neutral_channels_retained": true
+    },
+    "lineage": {
+      "skill_id": "fb490b5d-e96c-4647-a47d-a3dccb2da62b",
+      "skill_version": 1,
+      "aggregate_sha256": "bf837685ee076e2ca7aeac6a5a2ae87126d535874c922e60fc9c1a2e58b6477b",
+      "model_manifest_sha256": "62f3d2f564db0a1fcc7787cfce3ea1a4f4b65b03ef35834912d88737cfa21d05",
+      "workflow_family": "rosmaster_shared_demonstration_pipeline_v1",
+      "compatible_source_projects": [
+        "02",
+        "03"
+      ],
+      "job_id": "74cd57e49cbd47e1b32714bbb3cf4638"
+    },
+    "model_input_schema": {
+      "schema": "rosmaster_fused_ACT_preprocessing_v1",
+      "normalizer": {
+        "schema": "rosmaster_train_only_sensor_normalization_v1",
+        "feature_names": [
+          "preceding_command9.0",
+          "preceding_command9.1",
+          "preceding_command9.2",
+          "preceding_command9.3",
+          "preceding_command9.4",
+          "preceding_command9.5",
+          "preceding_command9.6",
+          "preceding_command9.7",
+          "preceding_command9.8",
+          "joint_feedback.0",
+          "joint_feedback.1",
+          "joint_feedback.2",
+          "joint_feedback.3",
+          "joint_feedback.4",
+          "joint_feedback.5",
+          "joint_command.0",
+          "joint_command.1",
+          "joint_command.2",
+          "joint_command.3",
+          "joint_command.4",
+          "joint_command.5",
+          "odometry_pose.0",
+          "odometry_pose.1",
+          "odometry_pose.2",
+          "odometry_pose.3",
+          "odometry_pose.4",
+          "odometry_pose.5",
+          "odometry_pose.6",
+          "base_velocity.0",
+          "base_velocity.1",
+          "base_velocity.2",
+          "imu.0",
+          "imu.1",
+          "imu.2",
+          "imu.3",
+          "imu.4",
+          "imu.5",
+          "lidar.0",
+          "lidar.1",
+          "lidar.2",
+          "lidar.3",
+          "lidar.4",
+          "lidar.5",
+          "lidar.6",
+          "lidar.7",
+          "goal.0",
+          "goal.1",
+          "goal.2",
+          "gripper.0",
+          "camera_depth.0",
+          "camera_depth.1",
+          "camera_depth.2",
+          "camera_depth.3"
+        ],
+        "feature_units": [
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "m/s",
+          "m/s",
+          "rad/s",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "m",
+          "m",
+          "m",
+          "1",
+          "1",
+          "1",
+          "1",
+          "m/s",
+          "m/s",
+          "rad/s",
+          "m/s^2",
+          "m/s^2",
+          "m/s^2",
+          "rad/s",
+          "rad/s",
+          "rad/s",
+          "m",
+          "m",
+          "m",
+          "m",
+          "m",
+          "m",
+          "m",
+          "m",
+          "m",
+          "m",
+          "m",
+          "m",
+          "m",
+          "m",
+          "m",
+          "m"
+        ],
+        "mask_names": [
+          "preceding_command9.0.valid",
+          "preceding_command9.1.valid",
+          "preceding_command9.2.valid",
+          "preceding_command9.3.valid",
+          "preceding_command9.4.valid",
+          "preceding_command9.5.valid",
+          "preceding_command9.6.valid",
+          "preceding_command9.7.valid",
+          "preceding_command9.8.valid",
+          "joint_feedback.0.valid",
+          "joint_feedback.1.valid",
+          "joint_feedback.2.valid",
+          "joint_feedback.3.valid",
+          "joint_feedback.4.valid",
+          "joint_feedback.5.valid",
+          "joint_command.0.valid",
+          "joint_command.1.valid",
+          "joint_command.2.valid",
+          "joint_command.3.valid",
+          "joint_command.4.valid",
+          "joint_command.5.valid",
+          "odometry_pose.0.valid",
+          "odometry_pose.1.valid",
+          "odometry_pose.2.valid",
+          "odometry_pose.3.valid",
+          "odometry_pose.4.valid",
+          "odometry_pose.5.valid",
+          "odometry_pose.6.valid",
+          "base_velocity.0.valid",
+          "base_velocity.1.valid",
+          "base_velocity.2.valid",
+          "imu.0.valid",
+          "imu.1.valid",
+          "imu.2.valid",
+          "imu.3.valid",
+          "imu.4.valid",
+          "imu.5.valid",
+          "lidar.0.valid",
+          "lidar.1.valid",
+          "lidar.2.valid",
+          "lidar.3.valid",
+          "lidar.4.valid",
+          "lidar.5.valid",
+          "lidar.6.valid",
+          "lidar.7.valid",
+          "goal.0.valid",
+          "goal.1.valid",
+          "goal.2.valid",
+          "gripper.0.valid",
+          "camera_depth.0.valid",
+          "camera_depth.1.valid",
+          "camera_depth.2.valid",
+          "camera_depth.3.valid"
+        ],
+        "means": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.08999999985098839,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          9.8100004196167,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.6000000238418579,
+          0.6000000238418579,
+          0.0,
+          0.0,
+          0.7000000476837158,
+          0.7000000476837158,
+          0.7000000476837158,
+          0.7000000476837158
+        ],
+        "scales": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          0.05744562732138689,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "valid_training_counts": [
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30
+        ],
+        "action_mean": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "action_scale": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "fit_partition": "train",
+        "masks_normalized": false,
+        "missing_numeric_placeholders_are_not_measurements": true,
+        "prior9_manufactured": false
+      },
+      "image_key": "observation.images.overview",
+      "RGB": "actual_source_RGB_UINT8_resize_bilinear_to_declared_size_once_ImageNet_normalization",
+      "image_size": 32,
+      "actor_state_dimension": 106,
+      "action_names": [
+        "base",
+        "shoulder",
+        "elbow",
+        "wrist_pitch",
+        "wrist_roll",
+        "gripper",
+        "vx",
+        "vy",
+        "wz"
+      ],
+      "action_units": [
+        "deg",
+        "deg",
+        "deg",
+        "deg",
+        "deg",
+        "deg",
+        "m/s",
+        "m/s",
+        "rad/s"
+      ],
+      "action_contract_id": "rosmaster_joint9_position6_velocity3_v1",
+      "source_phase_labels_or_privileged_object_truth_in_actor": false,
+      "phase_is_not_actor_input": true,
+      "neutral_channels_retained": true
+    },
+    "recorded_channels": [
+      "base_velocity",
+      "camera_calibration",
+      "camera_depth",
+      "camera_rgb",
+      "clocks",
+      "detections",
+      "goal",
+      "gripper",
+      "imu",
+      "joint_command",
+      "joint_feedback",
+      "lidar",
+      "odometry_pose",
+      "power_context",
+      "preceding_command9"
+    ],
+    "admitted_channels": [
+      "base_velocity",
+      "camera_calibration",
+      "camera_depth",
+      "camera_rgb",
+      "clocks",
+      "detections",
+      "goal",
+      "gripper",
+      "imu",
+      "joint_command",
+      "joint_feedback",
+      "lidar",
+      "odometry_pose",
+      "power_context",
+      "preceding_command9"
+    ],
+    "model_used_channels": [
+      "camera_rgb",
+      "base_velocity",
+      "camera_depth",
+      "goal",
+      "gripper",
+      "imu",
+      "joint_command",
+      "joint_feedback",
+      "lidar",
+      "odometry_pose",
+      "preceding_command9"
+    ],
+    "checkpoint_sha256": {
+      "config.json": "98709dd1d8a9a7b8042b516c8da05c6e7bd850052d110e9bdb4ae2db6ce03d9b",
+      "explorer_preprocessing.json": "b486d3eebb09dc370b50ea10fe5efaf6853356a4d71a918caef9354cc262927e",
+      "model.safetensors": "dc58119198b0dfa94bd3b3f787ebdbcb2ef9deaa3bce4d55c6fb2a38938d55c2"
+    },
+    "evaluation": {
+      "domain": "independent_development_offline_next_action_and_observation_phase_diagnostics",
+      "same_matched_development_samples": true,
+      "ACT9": {
+        "evaluated_samples": 10,
+        "action_error": {
+          "base": {
+            "mae_native": 0.2633993327617645,
+            "unit": "deg"
+          },
+          "shoulder": {
+            "mae_native": 0.16061515659093856,
+            "unit": "deg"
+          },
+          "elbow": {
+            "mae_native": 0.15527574419975282,
+            "unit": "deg"
+          },
+          "wrist_pitch": {
+            "mae_native": 0.016288787056691945,
+            "unit": "deg"
+          },
+          "wrist_roll": {
+            "mae_native": 0.2426357761025429,
+            "unit": "deg"
+          },
+          "gripper": {
+            "mae_native": 0.4403386265039444,
+            "unit": "deg"
+          },
+          "vx": {
+            "mae_native": 0.2855800837278366,
+            "unit": "m/s"
+          },
+          "vy": {
+            "mae_native": 0.23535533100366593,
+            "unit": "m/s"
+          },
+          "wz": {
+            "mae_native": 0.28767392933368685,
+            "unit": "rad/s"
+          }
+        }
+      },
+      "hybrid": {
+        "evaluated_samples": 10,
+        "blocked_samples": 0,
+        "blocked_reasons": {},
+        "action_error": {
+          "base": {
+            "mae_native": 0.11660186499357224,
+            "unit": "deg"
+          },
+          "shoulder": {
+            "mae_native": 0.06296495050191879,
+            "unit": "deg"
+          },
+          "elbow": {
+            "mae_native": 0.05950597375631332,
+            "unit": "deg"
+          },
+          "wrist_pitch": {
+            "mae_native": 0.007722133025527001,
+            "unit": "deg"
+          },
+          "wrist_roll": {
+            "mae_native": 0.09606682509183884,
+            "unit": "deg"
+          },
+          "gripper": {
+            "mae_native": 0.17909866869449614,
+            "unit": "deg"
+          },
+          "vx": {
+            "mae_native": 0.19759638103035232,
+            "unit": "m/s"
+          },
+          "vy": {
+            "mae_native": 0.11168493439996248,
+            "unit": "m/s"
+          },
+          "wz": {
+            "mae_native": 0.11225487291812897,
+            "unit": "rad/s"
+          }
+        },
+        "phase_accuracy_on_executed_predictions": 1.0
+      },
+      "raw_predictions": [
+        {
+          "episode_id": "packet-3",
+          "sample_index": 0,
+          "actual_target9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            0.14655600488185883,
+            0.17666757106781006,
+            0.17671072483062744,
+            0.008122743107378483,
+            0.2580437660217285,
+            -0.4038732945919037,
+            0.3275209069252014,
+            -0.2608494460582733,
+            0.31302911043167114
+          ],
+          "hybrid9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.147087101353638,
+            0.029417420270727596,
+            0.0
+          ],
+          "predicted_phase": "find_object",
+          "component": "navigation_with_recorded_arm_command_hold",
+          "perception": {
+            "method": "source_bound_calibrated_goal_position",
+            "calibration_id": "cal-1"
+          },
+          "navigation": {
+            "method": "A_star_4_connected_observed_grid_with_body_footprint_and_trajectory_tracking",
+            "path_cells": [
+              [
+                2,
+                2
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                2,
+                5
+              ],
+              [
+                2,
+                6
+              ],
+              [
+                2,
+                7
+              ],
+              [
+                2,
+                8
+              ],
+              [
+                3,
+                8
+              ],
+              [
+                4,
+                8
+              ],
+              [
+                5,
+                8
+              ],
+              [
+                6,
+                8
+              ],
+              [
+                7,
+                8
+              ],
+              [
+                8,
+                8
+              ]
+            ],
+            "robot_radius_m": 0.08,
+            "robot_geometry_id": "software_fixture_ROSMASTER_body",
+            "full9d": true,
+            "hardware_io": false
+          }
+        },
+        {
+          "episode_id": "packet-3",
+          "sample_index": 1,
+          "actual_target9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            0.17119550704956055,
+            0.1756092756986618,
+            0.17566433548927307,
+            0.003597437171265483,
+            0.2570371925830841,
+            -0.41337496042251587,
+            0.31616565585136414,
+            -0.2589440643787384,
+            0.31032952666282654
+          ],
+          "hybrid9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.14657645458842014,
+            0.03186444664965655,
+            0.0
+          ],
+          "predicted_phase": "localize_object",
+          "component": "navigation_with_recorded_arm_command_hold",
+          "perception": {
+            "method": "source_bound_calibrated_goal_position",
+            "calibration_id": "cal-1"
+          },
+          "navigation": {
+            "method": "A_star_4_connected_observed_grid_with_body_footprint_and_trajectory_tracking",
+            "path_cells": [
+              [
+                2,
+                2
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                2,
+                5
+              ],
+              [
+                2,
+                6
+              ],
+              [
+                2,
+                7
+              ],
+              [
+                2,
+                8
+              ],
+              [
+                3,
+                8
+              ],
+              [
+                4,
+                8
+              ],
+              [
+                5,
+                8
+              ],
+              [
+                6,
+                8
+              ],
+              [
+                7,
+                8
+              ],
+              [
+                8,
+                8
+              ]
+            ],
+            "robot_radius_m": 0.08,
+            "robot_geometry_id": "software_fixture_ROSMASTER_body",
+            "full9d": true,
+            "hardware_io": false
+          }
+        },
+        {
+          "episode_id": "packet-3",
+          "sample_index": 2,
+          "actual_target9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            0.19841286540031433,
+            0.17326606810092926,
+            0.17079991102218628,
+            0.002613381016999483,
+            0.25546684861183167,
+            -0.419742226600647,
+            0.3058132529258728,
+            -0.2560034394264221,
+            0.3064100742340088
+          ],
+          "hybrid9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.14592093220280503,
+            0.03474307909590595,
+            0.0
+          ],
+          "predicted_phase": "approach_align",
+          "component": "navigation_with_recorded_arm_command_hold",
+          "perception": {
+            "method": "source_bound_calibrated_goal_position",
+            "calibration_id": "cal-1"
+          },
+          "navigation": {
+            "method": "A_star_4_connected_observed_grid_with_body_footprint_and_trajectory_tracking",
+            "path_cells": [
+              [
+                2,
+                2
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                2,
+                5
+              ],
+              [
+                2,
+                6
+              ],
+              [
+                2,
+                7
+              ],
+              [
+                2,
+                8
+              ],
+              [
+                3,
+                8
+              ],
+              [
+                4,
+                8
+              ],
+              [
+                5,
+                8
+              ],
+              [
+                6,
+                8
+              ],
+              [
+                7,
+                8
+              ],
+              [
+                8,
+                8
+              ]
+            ],
+            "robot_radius_m": 0.08,
+            "robot_geometry_id": "software_fixture_ROSMASTER_body",
+            "full9d": true,
+            "hardware_io": false
+          }
+        },
+        {
+          "episode_id": "packet-3",
+          "sample_index": 3,
+          "actual_target9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            0.22971363365650177,
+            0.16839559376239777,
+            0.15946726500988007,
+            0.003566908184438944,
+            0.2537345588207245,
+            -0.42330148816108704,
+            0.2935607135295868,
+            -0.2503820061683655,
+            0.2964884340763092
+          ],
+          "hybrid9": [
+            0.22971363365650177,
+            0.16839559376239777,
+            0.15946726500988007,
+            0.003566908184438944,
+            0.2537345588207245,
+            -0.42330148816108704,
+            0.2935607135295868,
+            -0.2503820061683655,
+            0.2964884340763092
+          ],
+          "predicted_phase": "coordinated_reach",
+          "component": "ACT9_contact_or_coordinated_motion",
+          "simultaneous_9d": true
+        },
+        {
+          "episode_id": "packet-3",
+          "sample_index": 4,
+          "actual_target9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            0.2566160559654236,
+            0.1615154892206192,
+            0.14903324842453003,
+            0.006928864400833845,
+            0.24629028141498566,
+            -0.42637404799461365,
+            0.2793382704257965,
+            -0.2386411726474762,
+            0.28457945585250854
+          ],
+          "hybrid9": [
+            0.2566160559654236,
+            0.1615154892206192,
+            0.14903324842453003,
+            0.006928864400833845,
+            0.24629028141498566,
+            -0.42637404799461365,
+            0.2793382704257965,
+            -0.2386411726474762,
+            0.28457945585250854
+          ],
+          "predicted_phase": "grasp_confirm",
+          "component": "ACT9_contact_or_coordinated_motion",
+          "simultaneous_9d": true
+        },
+        {
+          "episode_id": "packet-3",
+          "sample_index": 5,
+          "actual_target9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            0.27955108880996704,
+            0.15856552124023438,
+            0.14635802805423737,
+            0.004070584662258625,
+            0.23749296367168427,
+            -0.4328732192516327,
+            0.26961344480514526,
+            -0.22562702000141144,
+            0.28021979331970215
+          ],
+          "hybrid9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.147087101353638,
+            0.029417420270727596,
+            0.0
+          ],
+          "predicted_phase": "find_goal",
+          "component": "navigation_with_recorded_arm_command_hold",
+          "perception": {
+            "method": "source_bound_calibrated_goal_position",
+            "calibration_id": "cal-1"
+          },
+          "navigation": {
+            "method": "A_star_4_connected_observed_grid_with_body_footprint_and_trajectory_tracking",
+            "path_cells": [
+              [
+                2,
+                3
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                2,
+                5
+              ],
+              [
+                2,
+                6
+              ],
+              [
+                2,
+                7
+              ],
+              [
+                2,
+                8
+              ],
+              [
+                3,
+                8
+              ],
+              [
+                4,
+                8
+              ],
+              [
+                5,
+                8
+              ],
+              [
+                6,
+                8
+              ],
+              [
+                7,
+                8
+              ],
+              [
+                8,
+                8
+              ]
+            ],
+            "robot_radius_m": 0.08,
+            "robot_geometry_id": "software_fixture_ROSMASTER_body",
+            "full9d": true,
+            "hardware_io": false
+          }
+        },
+        {
+          "episode_id": "packet-3",
+          "sample_index": 6,
+          "actual_target9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            0.30589786171913147,
+            0.15371982753276825,
+            0.14426614344120026,
+            -0.01137516088783741,
+            0.23240353167057037,
+            -0.45057734847068787,
+            0.2676171064376831,
+            -0.2182789295911789,
+            0.27246710658073425
+          ],
+          "hybrid9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.14657645458842014,
+            0.03186444664965654,
+            0.0
+          ],
+          "predicted_phase": "retained_transport",
+          "component": "navigation_with_recorded_arm_command_hold",
+          "perception": {
+            "method": "source_bound_calibrated_goal_position",
+            "calibration_id": "cal-1"
+          },
+          "navigation": {
+            "method": "A_star_4_connected_observed_grid_with_body_footprint_and_trajectory_tracking",
+            "path_cells": [
+              [
+                2,
+                3
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                2,
+                5
+              ],
+              [
+                2,
+                6
+              ],
+              [
+                2,
+                7
+              ],
+              [
+                2,
+                8
+              ],
+              [
+                3,
+                8
+              ],
+              [
+                4,
+                8
+              ],
+              [
+                5,
+                8
+              ],
+              [
+                6,
+                8
+              ],
+              [
+                7,
+                8
+              ],
+              [
+                8,
+                8
+              ]
+            ],
+            "robot_radius_m": 0.08,
+            "robot_geometry_id": "software_fixture_ROSMASTER_body",
+            "full9d": true,
+            "hardware_io": false
+          }
+        },
+        {
+          "episode_id": "packet-3",
+          "sample_index": 7,
+          "actual_target9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            0.32877469062805176,
+            0.15093639492988586,
+            0.14147412776947021,
+            -0.02479935996234417,
+            0.23225007951259613,
+            -0.46378034353256226,
+            0.2627176344394684,
+            -0.21483179926872253,
+            0.2675899863243103
+          ],
+          "hybrid9": [
+            0.32877469062805176,
+            0.15093639492988586,
+            0.14147412776947021,
+            -0.02479935996234417,
+            0.23225007951259613,
+            -0.46378034353256226,
+            0.2627176344394684,
+            -0.21483179926872253,
+            0.2675899863243103
+          ],
+          "predicted_phase": "align_release",
+          "component": "ACT9_contact_or_coordinated_motion",
+          "simultaneous_9d": true
+        },
+        {
+          "episode_id": "packet-3",
+          "sample_index": 8,
+          "actual_target9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            0.35091426968574524,
+            0.1488020271062851,
+            0.14508509635925293,
+            -0.041926197707653046,
+            0.2283933311700821,
+            -0.4775308072566986,
+            0.26319432258605957,
+            -0.21336260437965393,
+            0.2738908529281616
+          ],
+          "hybrid9": [
+            0.35091426968574524,
+            0.1488020271062851,
+            0.14508509635925293,
+            -0.041926197707653046,
+            0.2283933311700821,
+            -0.4775308072566986,
+            0.26319432258605957,
+            -0.21336260437965393,
+            0.2738908529281616
+          ],
+          "predicted_phase": "verify_placement",
+          "component": "ACT9_contact_or_coordinated_motion",
+          "simultaneous_9d": true
+        },
+        {
+          "episode_id": "packet-3",
+          "sample_index": 9,
+          "actual_target9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            0.3663613498210907,
+            0.138673797249794,
+            0.14389856159687042,
+            -0.05588723346590996,
+            0.22524520754814148,
+            -0.49195852875709534,
+            0.2702595293521881,
+            -0.21663282811641693,
+            0.27173495292663574
+          ],
+          "hybrid9": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.1439048252356906,
+            0.04232494859873251,
+            0.0
+          ],
+          "predicted_phase": "retreat",
+          "component": "navigation_with_recorded_arm_command_hold",
+          "perception": {
+            "method": "source_bound_calibrated_goal_position",
+            "calibration_id": "cal-1"
+          },
+          "navigation": {
+            "method": "A_star_4_connected_observed_grid_with_body_footprint_and_trajectory_tracking",
+            "path_cells": [
+              [
+                2,
+                3
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                2,
+                5
+              ],
+              [
+                2,
+                6
+              ],
+              [
+                2,
+                7
+              ],
+              [
+                2,
+                8
+              ],
+              [
+                3,
+                8
+              ],
+              [
+                4,
+                8
+              ],
+              [
+                5,
+                8
+              ],
+              [
+                6,
+                8
+              ],
+              [
+                7,
+                8
+              ],
+              [
+                8,
+                8
+              ]
+            ],
+            "robot_radius_m": 0.08,
+            "robot_geometry_id": "software_fixture_ROSMASTER_body",
+            "full9d": true,
+            "hardware_io": false
+          }
+        }
+      ],
+      "sealed_test_used": false,
+      "learned_policy_rollout_executed": false,
+      "whole_task_success": "NOT_EVALUATED",
+      "physical_success": false
+    },
+    "limitations": [
+      "No learned-policy rollout or physical trial from this offline job",
+      "Hybrid blocks absent essential navigation/geometry/transition evidence",
+      "Phase labels are supervised targets, never actor observations",
+      "Sealed payloads excluded from optimization and development metrics"
+    ]
+  },
+  "physical_io": false,
+  "simulator_executed": false,
+  "learned_rollout_executed": false,
+  "elapsed_s": 10.007228916001623,
+  "framework_versions": {
+    "torch": "2.11.0",
+    "torchvision": "0.26.0"
+  },
+  "framework_compatibility_note": "Torch/torchvision versions lie within LeRobot 0.6.1 declared bounds",
+  "execution_commit": null
+}

@@ -176,14 +176,28 @@ def runtime(mode):
 
 
 def one_result(output,phase):
-    pattern={'act':'test_real_official_ACT6_eig*/actual8-qualification.json',
-        'diffusion':'test_same_accepted_whole_skill*/qualification.json',
-        'fused106':'test_actual_eight_official_ACT_o*/state/jobs/*/result.json'}[phase]
-    boundary=(output/'pytest').resolve();matches=set()
-    for candidate in (output/'pytest').glob(pattern):
-        resolved=candidate.resolve()
-        if not resolved.is_relative_to(boundary):raise QualificationRejected('Pytest result alias escaped own basetemp')
-        matches.add(resolved)
+    # Pytest truncates directory names and creates aliases. Locate the typed
+    # artifact within this own basetemp, never by generated directory spelling.
+    filename={'act':'actual8-qualification.json','diffusion':'qualification.json','fused106':'result.json'}[phase]
+    boundary=(output/'pytest').resolve();frontier=[boundary];visited=set();matches=set();files=0
+    while frontier:
+        directory=frontier.pop().resolve()
+        if not directory.is_relative_to(boundary):raise QualificationRejected('Pytest result alias escaped own basetemp')
+        if directory not in visited:
+            visited.add(directory)
+            if len(visited)>10000:raise QualificationRejected('Qualification artifact tree is unexpectedly large')
+            for candidate in directory.iterdir():
+                resolved=candidate.resolve()
+                if not resolved.is_relative_to(boundary):raise QualificationRejected('Pytest result alias escaped own basetemp')
+                if candidate.is_dir():frontier.append(resolved)
+                elif candidate.is_file() and candidate.name==filename:
+                    files+=1
+                    if files>10000:raise QualificationRejected('Too many qualification result candidates')
+                    body=read(resolved)
+                    common=all(key in body for key in ('trained','weights_changed','save_reload_passed','optimizer_steps','checkpoint_sha256','physical_io'))
+                    native=body.get('action_contract_id')=='so101_follower_calibrated_position6_v1'
+                    selected=(native and str(body.get('algorithm','')).startswith('official ACT6') and body.get('backend') in (None,'act')) if phase=='act' else ((native and body.get('backend')=='diffusion') if phase=='diffusion' else (body.get('job_kind')=='rosmaster_skill_train' and body.get('feature_dimension')==106 and body.get('output_action_dimension')==9))
+                    if common and selected:matches.add(resolved)
     if len(matches)!=1:raise QualificationRejected('Expected one exact actual '+phase+' result, found '+str(len(matches)))
     return next(iter(matches))
 
