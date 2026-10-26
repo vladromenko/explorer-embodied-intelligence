@@ -58,6 +58,16 @@ def inspect_station_episode(path,*,task_type='joint_trajectory'):
         'physical_task_success_verified':False,'motor_application_time_verified':False,'source_files':[],
         'recorded_channels':{},'reasons':[],'missing_facts':[],'legacy_hold_only':None}
     reasons=report['reasons'];missing=report['missing_facts']
+    context=source.get('source_context') or {}
+    if not isinstance(context,dict):raise ValueError('Recorded source context must be an object')
+    resolved={}
+    for key in ('skill_id','skill_version','skill_spec_sha256','scene_id','session_id','phase_id','phase','task_type','split'):
+        if key in source and key in context and source[key]!=context[key]:reasons.append('source_context_conflict:'+key)
+        resolved[key]=source[key] if key in source else context.get(key)
+    report.update(source_session_id=resolved['session_id'],source_skill_id=resolved['skill_id'],source_skill_version=resolved['skill_version'],
+        source_skill_spec_sha256=resolved['skill_spec_sha256'],source_scene_id=resolved['scene_id'],source_phase_id=resolved['phase_id'],
+        source_phase=resolved['phase'],source_declared_task_type=resolved['task_type'],split=resolved['split'],source_context=context,
+        source_context_basis=source.get('source_context_basis','original_source_declaration_not_independent_task_validation'))
     if not isinstance(source.get('episode_id'),str) or not source['episode_id'] or len(source['episode_id'])>160:reasons.append('original_episode_identity_missing')
     if type(source.get('fps')) not in (int,float) or not np.isfinite(source['fps']) or not 0<source['fps']<=1000:reasons.append('finite_recording_FPS_missing')
     if source.get('source_type')!='station_demonstration':reasons.append('not_a_native_station_demonstration')
@@ -187,6 +197,7 @@ def qualify_station_dataset(bindings,target,*,skill_id,skill_version,task_type='
         if source.is_relative_to(target):raise ValueError('Output cannot contain an original source')
         evidence=inspect_station_episode(source,task_type=task_type);split=binding.get('split')
         if split not in SPLITS or split!=evidence['split']:raise ValueError('Original source split cannot be reassigned')
+        if evidence.get('source_skill_id') is not None and (evidence['source_skill_id']!=skill_id or evidence['source_skill_version']!=skill_version):raise ValueError('Recorded source skill/version differs from selected aggregate')
         if evidence['source_manifest_sha256']!=binding.get('manifest_sha256'):raise ValueError('Bound station source SHA changed')
         if not evidence['technical_dataset_ready'] or not evidence['operator_success']:raise ValueError('Only completed successful source-labelled technical demonstrations may be aggregated')
         if task_type!='joint_trajectory':raise ValueError('Object/custom expert qualification is unavailable; legacy holds are not object experts')
@@ -195,6 +206,10 @@ def qualify_station_dataset(bindings,target,*,skill_id,skill_version,task_type='
         seen[identity]=split
         for key in [('source_manifest',evidence['source_manifest_sha256']),*[('source_frame',tuple(item)) for item in evidence['frame_ids']],*[('RGB_content',item) for item in evidence['RGB_sha256']]]:
             if key in groups and groups[key]!=split:raise ValueError('Original source/frame/RGB content crosses dataset splits')
+            groups[key]=split
+        if evidence.get('source_scene_id'):
+            key=('scene',evidence['source_scene_id'])
+            if key in groups and groups[key]!=split:raise ValueError('Original declared scene crosses dataset splits')
             groups[key]=split
         if evidence['source_session_id']:
             key=('session',evidence['source_session_id'])

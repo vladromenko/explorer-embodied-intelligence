@@ -51,10 +51,11 @@ def sample(station,stamp,*,leader=None,stale=False,follower=None):
 def test_records_actual_existing_cycle_leader_requested_accepted_host_dispatch_and_preaction_follower(tmp_path):
     station=station_fixture(tmp_path)
     context={'project_id':'06','skill_id':'software-skill','skill_version':2,'session_id':'source-session','scene_id':'source-scene',
-        'phase_id':'reach','task_type':'joint_trajectory','context':{'object':'fixture','observation_basis':'software only'}}
+        'phase_id':'reach','split':'development','task_type':'joint_trajectory','context':{'object':'fixture','observation_basis':'software only'}}
     station._start_record(context);requested,accepted=sample(station,1_000_000_000)
     result,saved=finish(station);row=saved['samples'][0]
     assert saved['recording_provenance_version']==2 and saved['project_id']=='06'
+    assert saved['split']==saved['source_context']['split']=='development'
     assert saved['boot_id']==station.boot and saved['session_id']=='source-session'
     assert saved['source_context']['skill_version']==2 and row['source_context']==saved['source_context']
     assert saved['producer_runtime_binary_identity_verified'] is False
@@ -69,6 +70,9 @@ def test_records_actual_existing_cycle_leader_requested_accepted_host_dispatch_a
     from explorer_sim.so101_dataset_qualification import inspect_station_episode
     evidence=inspect_station_episode(result['manifest'])
     assert evidence['technical_dataset_ready']
+    assert evidence['source_skill_id']=='software-skill' and evidence['source_skill_version']==2
+    assert evidence['source_session_id']=='source-session' and evidence['source_scene_id']=='source-scene' and evidence['source_phase_id']=='reach'
+    assert evidence['split']=='development'
     assert evidence['recorded_channels']['leader_measured']['complete'] and evidence['recorded_channels']['follower_dispatched_separate']['complete']
     assert not evidence['full_teaching_provenance_ready'] and 'camera_calibration_not_recorded' in evidence['missing_facts']
     assert not receipt['MCU_acknowledgement_verified'] and not receipt['motor_application_time_verified'] and not receipt['attainment_verified']
@@ -103,9 +107,19 @@ def test_old_completed_source_bytes_unchanged_and_new_context_is_validated_befor
     old=tmp_path/'station/recordings/old/manifest.json';old.parent.mkdir(parents=True)
     raw=b'{"state":"complete","schema_version":1,"legacy":true}\n';old.write_bytes(raw)
     station=station_fixture(tmp_path)
-    for body in ({'skill_id':'missing-version'},{'skill_id':'skill','skill_version':True},{'context':{'bad':float('nan')}}):
+    for body in ({'skill_id':'missing-version'},{'skill_id':'skill','skill_version':True},{'context':{'bad':float('nan')}},{'split':'sealed_reassigned'}):
         with pytest.raises(ValueError):station._start_record(body)
     assert old.read_bytes()==raw and set(old.parent.parent.iterdir())=={old.parent}
     station._start_record({'project_id':'personal'})
     _,saved=finish(station)
     assert old.read_bytes()==raw and saved['schema_version']==1 and saved['project_id']=='personal'
+
+
+def test_new_sealed_split_is_source_bound_while_old_default_stays_train(tmp_path):
+    station=station_fixture(tmp_path)
+    station._start_record({'project_id':'06','split':'sealed_test'})
+    _,saved=finish(station)
+    assert saved['split']==saved['source_context']['split']=='sealed_test'
+    station._start_record({'project_id':'personal'})
+    _,old_default=finish(station)
+    assert old_default['split']=='train' and 'split' not in old_default['source_context']

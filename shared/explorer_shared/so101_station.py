@@ -34,11 +34,12 @@ def save(path, value):
 
 def _record_context(body):
     """Optional source-declared teaching identity; never hardware configuration."""
-    fields=('skill_id','skill_version','skill_spec_sha256','scene_id','session_id','phase_id','phase','context','task_type')
+    fields=('skill_id','skill_version','skill_spec_sha256','scene_id','session_id','phase_id','phase','context','task_type','split')
     context={key:body[key] for key in fields if key in body}
     if any(key in context and (not isinstance(context[key],str) or not context[key] or len(context[key])>240)
            for key in fields if key not in ('skill_version','context','phase')):
         raise ValueError('Named recording source context must contain bounded nonempty text')
+    if 'split' in context and context['split'] not in ('train','development','sealed_test'):raise ValueError('Choose an explicit train/development/sealed_test recording split')
     if 'skill_version' in context and (type(context['skill_version']) is not int or context['skill_version']<1):
         raise ValueError('Recording skill version must be a positive integer')
     if 'skill_id' in context or 'skill_version' in context:
@@ -322,7 +323,7 @@ class SO101Station:
         folder.mkdir(parents=True)
         self.record = dict(schema_version=1,episode_id=ident,source_type='station_demonstration',
             state_basis='measured_state',action_basis='dispatched_command',action_names=list(NAMES),action_units=UNITS,
-            normalization={'low':LOW,'high':HIGH},fps=10,split='train',project_id=body.get('project_id','personal'),
+            normalization={'low':LOW,'high':HIGH},fps=10,split=context.get('split','train'),project_id=body.get('project_id','personal'),
             name=str(body.get('name','SO-101 recording'))[:80],state='recording',outcome='unknown',samples=[],queued_samples=0,
             task=str(body.get('task',body.get('name','Imitate the recorded robot demonstration')))[:240],
             demonstration_actor=str(body.get('actor','human_operator'))[:80],execution_mode=self.mode,

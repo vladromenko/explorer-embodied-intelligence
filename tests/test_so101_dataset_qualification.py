@@ -131,3 +131,14 @@ def test_original_source_group_identity_and_immutable_binding_guards(tmp_path,fa
     messages={'session':'session crosses','calibration':'calibration identities differ','duplicate':'Duplicate original','changed_source':'source SHA changed'}
     with pytest.raises(ValueError,match=messages[fault]):qualify_station_dataset(bindings,tmp_path/'rejected',skill_id='software-skill',skill_version=1)
     assert not (tmp_path/'rejected').exists()
+
+
+def test_source_context_is_resolved_without_inventing_legacy_identity_and_conflicts_rejected(tmp_path):
+    path,source=fixture(tmp_path/'context','context-source')
+    assert inspect_station_episode(path)['source_skill_id'] is None
+    source['source_context']={'skill_id':'software-skill','skill_version':2,'session_id':'declared-session','scene_id':'scene','split':'train','phase_id':'reach'}
+    path.write_text(json.dumps(source));report=inspect_station_episode(path)
+    assert report['source_skill_id']=='software-skill' and report['source_skill_version']==2 and report['source_session_id']=='declared-session'
+    source['session_id']='contradictory-session';path.write_text(json.dumps(source))
+    report=inspect_station_episode(path)
+    assert not report['technical_dataset_ready'] and 'source_context_conflict:session_id' in report['reasons']

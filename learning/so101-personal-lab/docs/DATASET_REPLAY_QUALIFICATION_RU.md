@@ -102,3 +102,11 @@ _positions, _connect, _enable_hold или camera.latest немедленно п�
 метаданных и завершение writer queue не выполняют ни одной такой операции. Прежние
 write/connect/servo-loop методы и их частота не менялись. Развёртывание на Pi и
 физический показ этим source commit не выполнялись.
+
+Новые record/start принимают только явные split `train`, `development`, `sealed_test`;
+значение сохраняется и в оригинальном manifest, и в source_context. Без split
+сохраняется прежний train default. Inspector читает буквальные source-bound
+skill/version/spec SHA, scene/session/phase; противоречащие top/nested значения
+отклоняются, неизвестная историческая идентичность остаётся неизвестной.
+Aggregate не меняет split и не присваивает другой skill/version уже размеченному
+источнику. Отмеченные сцены и сессии также не пересекают train/heldout.
