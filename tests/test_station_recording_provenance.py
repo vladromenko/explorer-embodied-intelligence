@@ -9,6 +9,8 @@ from types import SimpleNamespace
 from PIL import Image
 import pytest
 from explorer_shared.so101_station import SO101Station
+from explorer_shared.experiments import experiment_id,experiment_identity
+SOURCE_ID=experiment_id('so101_source_learning')
 
 
 def prohibited(*_args,**_kwargs):raise AssertionError('No hardware/servo operation belongs in recording provenance')
@@ -50,11 +52,11 @@ def sample(station,stamp,*,leader=None,stale=False,follower=None):
 
 def test_records_actual_existing_cycle_leader_requested_accepted_host_dispatch_and_preaction_follower(tmp_path):
     station=station_fixture(tmp_path)
-    context={'project_id':'06','skill_id':'software-skill','skill_version':2,'session_id':'source-session','scene_id':'source-scene',
+    context={'project_id':SOURCE_ID,**experiment_identity('so101_source_learning'),'skill_id':'software-skill','skill_version':2,'session_id':'source-session','scene_id':'source-scene',
         'phase_id':'reach','split':'development','task_type':'joint_trajectory','context':{'object':'fixture','observation_basis':'software only'}}
     station._start_record(context);requested,accepted=sample(station,1_000_000_000)
     result,saved=finish(station);row=saved['samples'][0]
-    assert saved['recording_provenance_version']==2 and saved['project_id']=='06'
+    assert saved['recording_provenance_version']==2 and saved['project_id']==SOURCE_ID
     assert saved['split']==saved['source_context']['split']=='development'
     assert saved['boot_id']==station.boot and saved['session_id']=='source-session'
     assert saved['source_context']['skill_version']==2 and row['source_context']==saved['source_context']
@@ -79,7 +81,7 @@ def test_records_actual_existing_cycle_leader_requested_accepted_host_dispatch_a
 
 
 def test_stale_leader_and_unmatched_write_receipt_remain_null_and_masked(tmp_path):
-    station=station_fixture(tmp_path);station._start_record({'project_id':'06'})
+    station=station_fixture(tmp_path);station._start_record({'project_id':SOURCE_ID,**experiment_identity('so101_source_learning')})
     sample(station,1_000_000_000,stale=True)
     station.last_command=None
     station._sample(frame(1_100_000_000),[0]*6,[0]*6,[0]*6,1_100_000_001,1_100_000_002)
@@ -94,7 +96,7 @@ def test_stale_leader_and_unmatched_write_receipt_remain_null_and_masked(tmp_pat
 
 
 def test_later_measured_follower_remains_separate_from_previous_target_without_attainment_claim(tmp_path):
-    station=station_fixture(tmp_path);station._start_record({'project_id':'06'})
+    station=station_fixture(tmp_path);station._start_record({'project_id':SOURCE_ID,**experiment_identity('so101_source_learning')})
     sample(station,1_000_000_000);sample(station,1_100_000_000,follower=[2,3,4,5,6,7])
     _,saved=finish(station);first,second=saved['samples']
     assert second['state']!=first['action']
@@ -112,12 +114,12 @@ def test_old_completed_source_bytes_unchanged_and_new_context_is_validated_befor
     assert old.read_bytes()==raw and set(old.parent.parent.iterdir())=={old.parent}
     station._start_record({'project_id':'personal'})
     _,saved=finish(station)
-    assert old.read_bytes()==raw and saved['schema_version']==1 and saved['project_id']=='personal'
+    assert old.read_bytes()==raw and saved['schema_version']==1 and saved['project_id']==SOURCE_ID
 
 
 def test_new_sealed_split_is_source_bound_while_old_default_stays_train(tmp_path):
     station=station_fixture(tmp_path)
-    station._start_record({'project_id':'06','split':'sealed_test'})
+    station._start_record({'project_id':SOURCE_ID,**experiment_identity('so101_source_learning'),'split':'sealed_test'})
     _,saved=finish(station)
     assert saved['split']==saved['source_context']['split']=='sealed_test'
     station._start_record({'project_id':'personal'})

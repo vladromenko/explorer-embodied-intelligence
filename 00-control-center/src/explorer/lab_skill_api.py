@@ -1,7 +1,8 @@
-"""ENGINEERING_GLUE: Experiment06 metadata/data/learning routes; global app auth+CSRF apply."""
+"""ENGINEERING_GLUE: SO101 source metadata/data/learning routes; global app auth+CSRF apply."""
 from fastapi import APIRouter,HTTPException,Body
 from fastapi.responses import FileResponse,JSONResponse
 from . import lab_skill_workflow as service
+from explorer_shared.experiments import experiment_identity
 
 
 def install_router(app,store_provider):
@@ -13,7 +14,7 @@ def install_router(app,store_provider):
     @router.get('/catalogue')
     def catalogue():return service.catalogue()
     @router.get('/imports')
-    def imports():return {'imports':service.imports(store_provider())}
+    def imports():return {'imports':service.imports(store_provider()),**experiment_identity('so101_source_learning')}
     @router.get('/imports/{job_id}/review')
     def timeline(job_id:str,after:int=0,limit:int=100):return call(service.review_timeline,store_provider(),job_id,after=after,limit=limit)
     @router.get('/imports/{job_id}/frame/{index}')
@@ -22,7 +23,7 @@ def install_router(app,store_provider):
         if isinstance(result,JSONResponse):return result
         return FileResponse(result[0],media_type='image/jpeg',headers={'X-Content-SHA256':result[1],'Cache-Control':'no-store'})
     @router.get('')
-    def listing():return {'skills':service.list_skills(store_provider())}
+    def listing():return {'skills':service.list_skills(store_provider()),**experiment_identity('so101_source_learning')}
     @router.post('')
     def propose(body:dict=Body(...)):return call(service.propose,store_provider(),body)
     @router.get('/{skill_id}')

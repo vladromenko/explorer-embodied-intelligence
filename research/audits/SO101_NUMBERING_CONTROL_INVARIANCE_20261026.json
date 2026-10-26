@@ -1,0 +1,37 @@
+{
+  "scope": "SO101 semantic numbering metadata only, no hardware calls",
+  "reference_commit": "bd3cf4daed52b6491f9a6973eeeed6efade6482b",
+  "reference_source_sha256": "75a0c3762b6d7fb6fd1cb637f69ff43138c08646c370f9fc2e445af57e905c29",
+  "allowed_changed_station_methods": [
+    "_finish_record_locked",
+    "_start_record"
+  ],
+  "unchanged_station_methods_AST_sha256": {
+    "__init__": "f1c3daafe83d8f0e0c584807b0cd08accd40c6db2a1289338c19b1fb7c2775d5",
+    "start": "ac4f5dbf231d9dab50fc806dac9a0c613b6a1b2eae5debba261bd4963e4e0e66",
+    "_connect": "799abfc9073f41aa8b0a63aad01c3f6b67f07a782ed42feec11c5ca985bc23f2",
+    "_positions": "8a8940c19b9287cb9b73872a3a26dec18179d1d3860df85f0124d5109676393d",
+    "_write": "7a386ea28cfb0c22de747d2538b76a5e6f945c3d3dd8febb8416d049e956f9df",
+    "_enable_hold": "09ca5f575d2df30f67c834662d0f74b41c807bd14d9ef41afde590588c47e894",
+    "_enable_hold_locked": "cd574d74237cfd8b01d91afbba1cd3dca24efd17f6bdfceddf262b88c656a042",
+    "_work": "5f885b880ffba2892893a656011ff8bfbd65b8ebdd037ad29ad42ba1ab0851e6",
+    "status": "0f19d82b6304a025885f72e1796b21d67717314a3e97c8a074fb0c1252413f53",
+    "command": "8756306ed99eb4ba79aafee6d8959dba0f3d44fabe5a7df4c43ba513839347fd",
+    "_end_session": "e10b553f6b9dd98d7185d8bf72eadfd634245c7885e4cb7bc3a4f4b1486e00cc",
+    "_sample": "335100de3f05c08632600a32586044b8a8410b4f457da0a347f7bd9fb5692928",
+    "_record_writer": "5012597486e96fac73b633e98f1fb90b243efa37531805882f7b01096f1b79bd",
+    "_finish_record": "24698b4a52ecc476905f5a41bee0f16e64ad14bb3772e0e1fe78d8f0d1f84457",
+    "recordings": "b5343ad24545b31b333fe0cb23d6365e92269606f9dc496ebe563eb81d043d5e",
+    "manifest": "ee602873edc1ec31e9da8dc48a1a4a5e3dbbba43024c8afa84e03a84b62cb2f5",
+    "archive": "4ef062d7228c48ff1464e0d528eb6c243752bb0f7c6843a72b40d6d719c58452",
+    "close": "a1e7e4867d0ac194f83f393c65e5ad25819a64cd3a48670646b9620772473969"
+  },
+  "controller_settings_written": false,
+  "physical_motion": false,
+  "unchanged_coordinate_constants_AST_sha256": {
+    "NAMES": "5e7f1870ebe2689905885be4479f2344f546008d019ca0e0f61523e55e480ad2",
+    "LOW": "d538e9bf575658d77ba22896ae05ade9b3bff235db190fc22a05db80ccb230ca",
+    "HIGH": "bfc4ee667dd6431e16e0cf00c02d8158cd153f058ebb7d2efb2818bf472f5b84",
+    "UNITS": "9003862f1fbf7c09722f4f1369a96fe3550d7ed0b967b4a11d54757aaea860c9"
+  }
+}

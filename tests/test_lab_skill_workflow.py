@@ -17,6 +17,8 @@ from explorer import lab_skill_workflow as flow
 from explorer.lab_skill_api import install_router
 from explorer_shared.contracts import digest
 from explorer_shared.so101_station import NAMES,UNITS,LOW,HIGH
+from explorer_shared.experiments import experiment_id,experiment_identity
+SOURCE_ID=experiment_id('so101_source_learning')
 
 
 def proposal(store):
@@ -40,16 +42,16 @@ def native_source(store,chosen,variant,index,*,legacy=False,hold=False,outcome='
         rows.append(row)
     if evidence_fault=='false_mask':rows[0]['source_valid_masks']['leader_state'][0]=False
     if evidence_fault=='leader_future':rows[0]['leader_state_monotonic_ns']=rows[0]['state_monotonic_ns']+1
-    source={'schema_version':1,'episode_id':ident,'source_type':'station_demonstration','source_kind':'software_fixture','project_id':'06',
+    source={'schema_version':1,'episode_id':ident,'source_type':'station_demonstration','source_kind':'software_fixture','project_id':SOURCE_ID,**experiment_identity('so101_source_learning'),
         'recording_provenance_version':1 if legacy else 2,'state':'complete','outcome':outcome,'label_source':'software_fixture_operator_label',
         'action_names':list(NAMES),'action_units':UNITS,'normalization':{'low':LOW,'high':HIGH},'fps':10,
         'state_basis':'measured_state','action_basis':'dispatched_command','clock_domain':'software-boot-'+ident,'boot_id':'software-boot-'+ident,
         'calibration_metadata':{role:{'calibration_sha256':hashlib.sha256(role.encode()).hexdigest(),'verified_on_connected_hardware':False} for role in ('leader','follower')},
-        'samples':rows,'source_context':{key:context[key] for key in ('skill_id','skill_version','skill_spec_sha256','scene_id','session_id','split','phase_id','task_type','context')},
+        'samples':rows,'source_context':{key:context[key] for key in ('skill_id','skill_version','skill_spec_sha256','scene_id','session_id','split','phase_id','task_type','context','project_id','experiment_slug','experiment_numbering_version')},
         **{key:context[key] for key in ('skill_id','skill_version','skill_spec_sha256','scene_id','session_id','split')}}
     if legacy:source.pop('source_context');source.pop('skill_id');source.pop('skill_version');source.pop('skill_spec_sha256')
     path=folder/'manifest.json';path.write_text(json.dumps(source));checksum=hashlib.sha256(path.read_bytes()).hexdigest()
-    job=store.create_job('station_import','06',{'episode_id':ident});store.complete_job(job['id'],{'episode_id':ident,'observation_manifest':str(path),'source_manifest_sha256':checksum})
+    job=store.create_job('station_import',SOURCE_ID,{'episode_id':ident,**experiment_identity('so101_source_learning')});store.complete_job(job['id'],{'episode_id':ident,'observation_manifest':str(path),'source_manifest_sha256':checksum})
     return job,path,source,session
 
 

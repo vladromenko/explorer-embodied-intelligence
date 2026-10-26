@@ -1,4 +1,4 @@
-"""ENGINEERING_GLUE: Durable Experiment06 teaching→all-source dataset→official ACT workflow.
+"""ENGINEERING_GLUE: Durable SO101 source teaching→all-source dataset→official ACT workflow.
 
 Metadata/immutable data only. No robot/network/control operation is imported.
 Operator video/phase labels are BC evidence, never learned-policy physical proof.
@@ -13,12 +13,15 @@ import time
 import uuid
 
 from explorer_shared.contracts import canonical,digest,event
-from explorer_shared.so101_station import NAMES,UNITS
+from explorer_shared.so101_station import NAMES,UNITS,so101_source_identity
+from explorer_shared.experiments import experiment_id,experiment_identity
 from . import skill_catalogue as catalogue_module
 
 PREFIX='lab.skill.'
 CONTRACT=catalogue_module.SO101_CONTRACT
 SPLITS=('train','development','sealed_test')
+SOURCE_ROLE='so101_source_learning'
+SOURCE_PROJECT=experiment_id(SOURCE_ROLE)
 
 
 class WorkflowBlocked(ValueError):
@@ -47,13 +50,14 @@ def _records(db):
 
 
 def _append(db,kind,payload,request_id=None):
-    identity=PREFIX+kind+':'+str(request_id or uuid.uuid4());payload=dict(payload,type=PREFIX+kind)
+    identity=PREFIX+kind+':'+str(request_id or uuid.uuid4());payload=dict(payload,**experiment_identity(SOURCE_ROLE),type=PREFIX+kind)
     old=db.execute('SELECT body FROM events WHERE event_id=?',(identity,)).fetchone()
     if old:
         body=json.loads(old['body'])['payload']
         if body!=payload:raise ValueError('Immutable workflow request identity changed')
     else:
-        envelope=event('nx','06',payload);envelope['event_id']=identity
+        envelope=event('nx',SOURCE_PROJECT,payload);envelope['event_id']=identity
+        envelope.update(experiment_identity(SOURCE_ROLE))
         db.execute('INSERT INTO events VALUES (?,?,?,?,?)',(identity,'nx',time.time(),envelope['sha256'],canonical(envelope).decode()))
     return dict(payload,receipt_id=identity,receipt_sha256=digest(payload))
 
@@ -67,12 +71,12 @@ def _latest(rows,kind,key):
 
 def _chosen(store,skill_id,version=None):
     with store.connect() as db:chosen=catalogue_module._selected(db,skill_id,version)
-    if chosen['spec']['owner_experiment']!='06':raise ValueError('This workflow owns only native SO101 Experiment06')
+    if not catalogue_module.is_source_spec(chosen['spec']):raise ValueError('This workflow owns only the verified native SO101 source role; legacy06 requires explicit v1')
     return chosen
 
 
 def catalogue():return catalogue_module.catalogue()
-def list_skills(store):return [row for row in catalogue_module.list_proposals(store) if row['spec']['owner_experiment']=='06']
+def list_skills(store):return [row for row in catalogue_module.list_proposals(store) if catalogue_module.is_source_spec(row['spec'])]
 def propose(store,body):return catalogue_module.create_proposal(store,body)
 def revise(store,skill_id,version,body):return catalogue_module.revise_proposal(store,skill_id,version,body['patch'],body['spec_sha256'])
 def confirm(store,skill_id,version,body):return catalogue_module.confirm_proposal(store,skill_id,version,body['spec_sha256'])
@@ -80,13 +84,43 @@ def confirm(store,skill_id,version,body):return catalogue_module.confirm_proposa
 
 def imports(store):
     return [{'import_job_id':row['id'],'status':row['status'],'original_episode_id':row.get('config',{}).get('episode_id'),
-        'original_project_id':row.get('project_id'),'result':row.get('result')} for row in store.jobs(10000)
-        if row['kind']=='station_import' and row.get('project_id') in ('06','personal')]
+        'original_project_id':row.get('legacy_experiment_id',row.get('project_id')),'canonical_identity':_job_identity(row),'result':row.get('result')} for row in store.jobs(10000)
+        if row['kind']=='station_import']
+
+
+def _migration_epoch(job):
+    proof=job.get('numbering_provenance') or {}
+    if (proof.get('source')=='verified_migration_index' and proof.get('original_numbering_version')==1
+            and all(catalogue_module._hash(proof.get(key)) for key in ('projection_sha256','index_sha256'))):return 1
+    return None
+
+
+def _job_identity(job):
+    config=job.get('config') or {};proof=job.get('numbering_provenance') or {}
+    if _migration_epoch(job)==1:
+        identity=so101_source_identity(proof.get('original_project_id'),numbering_version=1)
+        return dict(identity,provenance=proof)
+    version=job.get('experiment_numbering_version',config.get('experiment_numbering_version'))
+    if version is None and job.get('project_id')=='06':version=config.get('source_numbering_version')
+    return so101_source_identity(job.get('project_id'),numbering_version=version)
+
+
+def _source_identity(job,raw,source_sha256):
+    context=raw.get('source_context') or {};version=raw.get('experiment_numbering_version',context.get('experiment_numbering_version'))
+    basis='source_manifest_marker' if version is not None else None
+    if 'experiment_numbering_version' in raw and 'experiment_numbering_version' in context and raw['experiment_numbering_version']!=context['experiment_numbering_version']:
+        return dict(verified=False,reasons=['source_numbering_marker_conflict'])
+    if version is None and _migration_epoch(job)==1:version=1;basis='verified_migration_index_bound_import'
+    config=job.get('config') or {}
+    if version is None and config.get('source_numbering_version') in (1,2):version=config['source_numbering_version'];basis='server_stored_source_numbering_declaration'
+    identity=so101_source_identity(raw.get('project_id'),numbering_version=version)
+    if raw.get('experiment_slug',SOURCE_ROLE)!=SOURCE_ROLE or context.get('experiment_slug',SOURCE_ROLE)!=SOURCE_ROLE:identity=dict(identity,verified=False,reasons=['source_semantic_role_conflict'])
+    return dict(identity,source_manifest_sha256=source_sha256,numbering_basis=basis or identity.get('basis'))
 
 
 def _source(store,job_id):
     job=store.job(job_id)
-    if not job or job['kind']!='station_import' or job.get('project_id') not in ('06','personal') or job['status']!='completed':raise ValueError('Completed native SO101 import required')
+    if not job or job['kind']!='station_import' or job['status']!='completed':raise ValueError('Completed native SO101 import required')
     result=job.get('result') or {};candidates=[]
     for key in ('observation_manifest','source_manifest_path'):
         if result.get(key):candidates.append(result[key])
@@ -105,6 +139,12 @@ def _source(store,job_id):
     raw=json.loads(selected.read_text());inspect,_=_sim();evidence=inspect(selected)
     identity=job.get('config',{}).get('episode_id') or result.get('episode_id')
     if raw.get('episode_id')!=identity:raise ValueError('Imported original SO101 episode identity differs')
+    evidence['source_experiment_identity']=_source_identity(job,raw,evidence['source_manifest_sha256'])
+    evidence['import_job_identity']=_job_identity(job)
+    if (not evidence['import_job_identity']['verified'] and evidence['source_experiment_identity'].get('verified')
+            and job.get('project_id')==raw.get('project_id') and raw.get('experiment_numbering_version')==1
+            and job.get('experiment_numbering_version') is None and (job.get('config') or {}).get('experiment_numbering_version') is None):
+        evidence['import_job_identity']=dict(so101_source_identity(job['project_id'],numbering_version=1),basis='verified_source_manifest_v1_bound_import')
     return job,selected,raw,evidence
 
 
@@ -118,7 +158,7 @@ def create_session(store,skill_id,version,body):
     with store.connect() as db:
         db.execute('BEGIN IMMEDIATE');rows=_records(db)
         existing=next((row for row in rows if row.get('type')==PREFIX+'session' and row['session_id']==identity),None)
-        if existing and existing!=dict(payload,type=PREFIX+'session'):raise ValueError('Session identity already bound to another skill/version/split')
+        if existing and existing!=dict(payload,**experiment_identity(SOURCE_ROLE),type=PREFIX+'session'):raise ValueError('Session identity already bound to another skill/version/split')
         if any(row.get('type')==PREFIX+'session' and row['scene_id']==scene and row['split']!=split for row in rows):raise ValueError('Declared scene cannot cross dataset splits')
         return _append(db,'session',payload,identity)
 
@@ -131,7 +171,7 @@ def capture_context(store,skill_id,version,body):
     if not variant or not session or session['skill_id']!=skill_id or session['skill_version']!=version or session['split']!=variant['split']:raise ValueError('Select an existing skill/version/variant/session with its original split')
     object_id=body.get('object_instance_id')
     if not isinstance(object_id,str) or not object_id or len(object_id)>160:raise ValueError('Explicit object instance identity required for split groups')
-    return dict(schema='explorer_so101_capture_context_v1',record_start_body=dict(project_id='06',name=body.get('name',spec['title']),task=spec['title'],
+    return dict(schema='explorer_so101_capture_context_v1',**experiment_identity(SOURCE_ROLE),record_start_body=dict(**experiment_identity(SOURCE_ROLE),name=body.get('name',spec['title']),task=spec['title'],
         skill_id=skill_id,skill_version=version,skill_spec_sha256=chosen['spec_sha256'],scene_id=session['scene_id'],session_id=session['session_id'],split=variant['split'],
         phase_id=spec['phase_ids'][0],task_type=spec['recognized_type'],context=dict(variant_id=variant['variant_id'],object_instance_id=object_id,
             object_query=spec['object']['query'],goal_query=spec['goal']['query'],episode_scope=body.get('episode_scope','whole_episode'))),
@@ -186,6 +226,7 @@ def _decision(store,spec,binding,review):
     try:job,path,raw,evidence=_source(store,binding['import_job_id'])
     except (ValueError,OSError,KeyError,TypeError) as error:return dict(binding=binding,accepted=False,reasons=['source_error:'+str(error)])
     if evidence['source_manifest_sha256']!=binding['source_manifest_sha256']:reasons.append('bound_source_changed')
+    if not evidence['source_experiment_identity'].get('verified') or not evidence['import_job_identity'].get('verified'):reasons.append('source_experiment_identity_not_verified')
     if not evidence['technical_dataset_ready'] or raw.get('recording_provenance_version',1)<2:reasons.append('source_grade_not_training_ready')
     for channel in ('operator_requested','follower_accepted','follower_dispatched_separate','leader_measured','follower_measured','camera_rgb'):
         if not evidence['recorded_channels'][channel]['complete']:reasons.append('missing_source_channel:'+channel)
@@ -242,11 +283,11 @@ def state_for_skill(store,skill_id,version=None):
     training=[row for row in store.jobs(10000) if row['kind']=='so101_skill_train' and row.get('config',{}).get('skill_id')==skill_id and row['config'].get('skill_version')==spec['version']]
     return dict(schema='explorer_so101_skill_workflow_v1',**chosen,cohort_fingerprint=_cohort_fingerprint(chosen['spec_sha256'],decisions),plan=plan,demonstration_plan=plan,data_ready=ready,train_ready=ready,
         assignments=[dict(binding=row['binding'],review=row.get('review'),accepted=row['accepted'],reasons=row['reasons'],
-            evidence={key:row.get('evidence',{}).get(key) for key in ('source_kind','frames','missing_facts','recorded_channels','operator_outcome','legacy_hold_only')}) for row in decisions],
+            evidence={key:row.get('evidence',{}).get(key) for key in ('source_kind','frames','missing_facts','recorded_channels','operator_outcome','legacy_hold_only','source_experiment_identity','import_job_identity')}) for row in decisions],
         sessions=[row for row in rows if row.get('type')==PREFIX+'session' and row['skill_id']==skill_id and row['skill_version']==spec['version']],
         counts=dict(assigned_originals=len(decisions),accepted_originals=sum(row['accepted'] for row in decisions),rejected_originals=sum(not row['accepted'] for row in decisions)),
         training_jobs=training,action_contract_id=CONTRACT,physical_execution_authorized=False,physical_calibration_required_for_grasp_geometry=True,
-        training_blockers=[] if ready else ['confirmed_spec_and_all_planned_whole_episode_variants_required'],next_action=plan['next_action'])
+        training_blockers=[] if ready else ['confirmed_spec_and_all_planned_whole_episode_variants_required'],next_action=plan['next_action'],**experiment_identity(SOURCE_ROLE))
 
 
 status=state_for_skill
@@ -278,7 +319,7 @@ def _build_aggregate_locked(store,skill_id,version):
     sidecars=root/'source-reviews.json';sidecars.write_bytes(canonical([dict(binding=row['binding'],review=row['review']) for row in accepted]))
     sources={str(path.relative_to(root)):_sha(path) for path in root.rglob('*') if path.is_file()}
     kinds={row['source_kind'] for row in accepted};source_kind='SIMULATION' if 'SIMULATION' in kinds else 'SO101_RECORDED_DEMONSTRATIONS'
-    receipt=dict(schema='explorer_so101_accepted_dataset_v1',owner_experiment='06',action_contract_id=CONTRACT,skill_id=skill_id,skill_version=version,
+    receipt=dict(schema='explorer_so101_accepted_dataset_v1',owner_experiment=SOURCE_PROJECT,action_contract_id=CONTRACT,skill_id=skill_id,skill_version=version,**experiment_identity(SOURCE_ROLE),
         spec_sha256=state['spec_sha256'],cohort_fingerprint=fingerprint,source_kind=source_kind,accepted_train_original_episode_ids=qualified['accepted_train_original_episode_ids'],
         accepted_development_original_episode_ids=qualified['accepted_development_original_episode_ids'],sealed_original_episode_ids=qualified['sealed_original_episode_ids'],
         full_teaching_provenance_ready=True,object_expert_eligible=True,global_split_groups_verified=True,
@@ -287,7 +328,7 @@ def _build_aggregate_locked(store,skill_id,version):
         metric_table_camera_calibration_is_separate_physical_execution_blocker=True,
         official_dataset_readback_verified=qualified['official_dataset_readback_verified'],physical_success_inferred=False)
     manifest=dict(schema='explorer_so101_skill_dataset_v1',skill_id=skill_id,skill_version=version,skill_spec=spec,spec_sha256=state['spec_sha256'],
-        action_contract_id=CONTRACT,action_names=list(NAMES),action_units=UNITS,source_kind=source_kind,source_files_sha256=sources,
+        action_contract_id=CONTRACT,action_names=list(NAMES),action_units=UNITS,source_kind=source_kind,source_files_sha256=sources,**experiment_identity(SOURCE_ROLE),
         internal_view='native-data/manifest.json',official_dataset='native-data/lerobot_v3',receipt=receipt,
         source_calibration_metadata=json.loads((root/'native-data/manifest.json').read_text())['source_calibration_metadata'],physical_execution_allowed=False)
     outer.write_bytes(canonical(manifest));result=dict(receipt,aggregate_manifest=str(outer),aggregate_manifest_sha256=_sha(outer))
@@ -308,11 +349,11 @@ def enqueue_training(store,skill_id,version,body=None):
     body=body or {};aggregate=build_aggregate(store,skill_id,version)
     settings={key:body[key] for key in ('act_steps','image_size','batch_size','chunk_size','seed') if key in body}
     settings=dict(act_steps=120,image_size=64,batch_size=4,chunk_size=16,seed=0)|settings
-    if body.get('device','cpu')!='cpu':raise ValueError('Initial Experiment06 training uses CPU only')
+    if body.get('device','cpu')!='cpu':raise ValueError('Initial SO101 source training uses CPU only')
     for key,value in settings.items():
         if type(value) is not int or value<0 or (key!='seed' and value<1):raise ValueError('Finite positive integer ACT settings required')
     if not 1<=settings['act_steps']<=20000 or not 32<=settings['image_size']<=160 or not 1<=settings['batch_size']<=16 or not 1<=settings['chunk_size']<=64:raise ValueError('ACT settings exceed bounded CPU workflow')
-    config=dict(settings,device='cpu',skill_id=skill_id,skill_version=version,spec_sha256=aggregate['spec_sha256'],
+    config=dict(settings,device='cpu',skill_id=skill_id,skill_version=version,spec_sha256=aggregate['spec_sha256'],**experiment_identity(SOURCE_ROLE),
         aggregate_manifest=aggregate['aggregate_manifest'],aggregate_manifest_sha256=aggregate['aggregate_manifest_sha256'],source_kind=aggregate['source_kind'])
     with store.connect() as db:
         db.execute('BEGIN IMMEDIATE');request=body.get('request_id')
@@ -323,7 +364,7 @@ def enqueue_training(store,skill_id,version,body=None):
         else:
             job_id=uuid.uuid4().hex;now=time.time()
             db.execute('INSERT INTO jobs(id,kind,project_id,status,created,updated,config) VALUES (?,?,?,?,?,?,?)',
-                (job_id,'so101_skill_train','06','queued',now,now,json.dumps(config,allow_nan=False)))
+                (job_id,'so101_skill_train',SOURCE_PROJECT,'queued',now,now,json.dumps(config,allow_nan=False)))
             _append(db,'training',dict(skill_id=skill_id,skill_version=version,job_id=job_id,request_id=request,config=config),request)
     return store.job(job_id)
 
@@ -345,7 +386,7 @@ def model_readiness(store,skill_id,version=None):
             try:
                 checkpoint=_local(store,result['checkpoint_dir']+'/config.json').parent
                 if any(_sha(checkpoint/name)!=expected for name,expected in result['checkpoint_sha256'].items()):raise ValueError('Checkpoint changed')
-                receipts['trained']=dict(skill_id=skill_id,skill_version=spec['version'],owner_experiment='06',action_contract_id=CONTRACT,
+                receipts['trained']=dict(skill_id=skill_id,skill_version=spec['version'],owner_experiment=SOURCE_PROJECT,action_contract_id=CONTRACT,**experiment_identity(SOURCE_ROLE),
                     trained=True,framework='LeRobot',framework_version='0.6.1',checkpoint_sha256=digest(result['checkpoint_sha256']),
                     aggregate_manifest_sha256=result['aggregate_manifest_sha256'],source_kind=result['source_kind'],job_id=job['id'])
                 break

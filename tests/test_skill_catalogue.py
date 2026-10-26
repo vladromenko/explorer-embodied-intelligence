@@ -16,15 +16,17 @@ from explorer.skill_workflow import proposal as mobile_proposal
 from explorer.store import Store
 from explorer_shared.contracts import digest
 from explorer_shared.so101_station import NAMES,UNITS
+from explorer_shared.experiments import experiment_id
+SOURCE_ID=experiment_id('so101_source_learning')
 
 
 def test_every_06_template_has_real_six_coordinate_station_names_and_distinct_owner():
     metadata=catalogue()
-    assert metadata['owner_experiment']=='06' and metadata['route']=='/experiments/06'
+    assert metadata['owner_experiment']==SOURCE_ID and metadata['route']=='/experiments/'+SOURCE_ID
     assert metadata['legacy_route']=='/learning/so101'
     for template in TEMPLATES:
         spec=propose_skill(template_id=template)
-        assert spec['status']=='PROPOSED' and spec['owner_experiment']=='06'
+        assert spec['status']=='PROPOSED' and spec['owner_experiment']==SOURCE_ID
         assert spec['action_contract']['id']==SO101_CONTRACT
         assert spec['action_contract']['names']==list(NAMES) and spec['action_contract']['units']==list(UNITS)
         assert spec['action_contract']['dimension']==6 and len(spec['robots'])==2
@@ -40,7 +42,7 @@ def test_russian_candy_proposal_exposes_task_owner_roles_queries_camera_phases_a
     spec=propose_skill('взять конфетку и положить в коробку')
     assert spec['template_id']=='pick_object_to_container' and spec['recognized_type']=='pick_object_to_container'
     assert spec['object']['query']=='конфетку' and spec['goal']['query']=='коробку'
-    assert spec['owner_experiment']=='06' and spec['source']['query']=='Стол'
+    assert spec['owner_experiment']==SOURCE_ID and spec['source']['query']=='Стол'
     assert [row['id'] for row in spec['stages']]==list(PICK_PHASES)
     assert spec['sensors']['primary_camera']['role']=='single_fixed_table_camera'
     assert spec['sensors']['primary_camera']['hardware_identity']=='UNKNOWN'
@@ -59,7 +61,7 @@ def test_give_cookie_from_rosmaster_routes_to_05_composite_without_merged_action
     assert not spec['composite']['datasets_may_merge'] and not spec['composite']['concatenate_action_spaces']
     assert not spec['composite']['timed_release_allowed'] and not spec['composite']['VLM_is_contact_measurement']
     assert spec['composite']['release_guard']=='source_bound_independent_person_grasp_evidence'
-    assert {row['owner_experiment'] for row in spec['subskill_references']}=={'02','06'}
+    assert {row['owner_experiment'] for row in spec['subskill_references']}=={'02',SOURCE_ID}
     mobile=propose_skill('ROSMASTER перенеси носок в корзину')
     assert mobile['owner_experiment']=='02' and mobile['action_contract']['dimension']==9
     assert mobile['action_contract']['neutral_channels_retained'] and len(mobile['robots'])==1
@@ -78,7 +80,7 @@ def test_custom_uncertainty_stable_retry_linear_versions_and_immutable_ownership
     with pytest.raises(ValueError,match='refresh'):revise_proposal(store,identity,1,dict(title='stale'),first['spec_sha256'])
     for patch in (dict(owner_experiment='02'),dict(action_contract=dict(dimension=9)),dict(constraints=dict(physical_motion_authorized=True))):
         with pytest.raises(ValueError):revise_proposal(store,identity,2,patch,revised['spec_sha256'])
-    with pytest.raises(ValueError,match='Experiment06 phase IDs'):revise_proposal(store,identity,2,dict(phase_ids=['release_after_grasp']),revised['spec_sha256'])
+    with pytest.raises(ValueError,match='SO101 source phase IDs'):revise_proposal(store,identity,2,dict(phase_ids=['release_after_grasp']),revised['spec_sha256'])
     with pytest.raises(ValueError,match='full-task template phases'):revise_proposal(store,identity,2,dict(phase_ids=['observe_select']),revised['spec_sha256'])
 
 
@@ -88,19 +90,19 @@ def test_composite_confirm_pins_exact_confirmed_child_versions_and_contracts(tmp
     child06=confirm_proposal(store,child06['spec']['skill_id'],1,child06['spec_sha256'])
     child02=dict(spec=mobile_proposal(preset='sock_to_basket'),confirmed=True)
     refs=[dict(role='deliver_to_handoff',owner_experiment='02',skill_id=child02['spec']['skill_id'],version=1,spec_sha256=digest(child02['spec'])),
-        dict(role='receive_and_offer',owner_experiment='06',skill_id=child06['spec']['skill_id'],version=1,spec_sha256=child06['spec_sha256'])]
+        dict(role='receive_and_offer',owner_experiment=SOURCE_ID,skill_id=child06['spec']['skill_id'],version=1,spec_sha256=child06['spec_sha256'])]
     revised=revise_proposal(store,parent['spec']['skill_id'],1,dict(subskill_references=refs),parent['spec_sha256'])
     assert not validate_subskill_references(revised['spec'],[child02,child06])
     with pytest.raises(ValueError,match='unresolved'):confirm_proposal(store,revised['spec']['skill_id'],2,revised['spec_sha256'])
     assert confirm_proposal(store,revised['spec']['skill_id'],2,revised['spec_sha256'],known_specs=[child02,child06])['confirmed']
     stale=deepcopy(revised['spec']);stale['subskill_references'][1]['version']=2
     assert validate_subskill_references(stale,[child02,child06])
-    swapped=deepcopy(revised['spec']);swapped['subskill_references'][0]['owner_experiment']='06'
+    swapped=deepcopy(revised['spec']);swapped['subskill_references'][0]['owner_experiment']=SOURCE_ID
     assert validate_subskill_references(swapped,[child02,child06])
 
 
 def receipts(spec):
-    base=dict(skill_id=spec['skill_id'],skill_version=spec['version'],owner_experiment='06',action_contract_id=SO101_CONTRACT,source_kind='simulation')
+    base=dict(skill_id=spec['skill_id'],skill_version=spec['version'],owner_experiment=SOURCE_ID,action_contract_id=SO101_CONTRACT,source_kind='simulation')
     return dict(demos=dict(base,aggregate_manifest_sha256='a'*64,full_teaching_provenance_ready=True,object_expert_eligible=True,global_split_groups_verified=True),
         trained=dict(base,trained=True,framework='LeRobot',framework_version='0.6.0',checkpoint_sha256='b'*64,aggregate_manifest_sha256='a'*64),
         shadow=dict(base,checkpoint_sha256='b'*64,execution_kind='fresh_observation_learned_policy_rollout',shadow=True,hardware_commands_dispatched=False),

@@ -1,4 +1,4 @@
-"""ENGINEERING_GLUE: editable Experiment06 tasks and Experiment05 composition.
+"""ENGINEERING_GLUE: editable SO101 source-role tasks and Experiment05 composition.
 
 Only planning, immutable intent and separately verified readiness. This module
 never opens a robot/camera, trains a policy or authorizes physical execution.
@@ -13,7 +13,10 @@ import uuid
 
 from explorer_shared.contracts import ACTION_NAMES as ROSMASTER_NAMES,canonical,digest,event
 from explorer_shared.so101_station import NAMES as SO101_NAMES,UNITS as SO101_UNITS
+from explorer_shared.experiments import canonical_experiment,experiment_id,experiment_identity,experiment_slug
 
+SO101_ROLE='so101_source_learning'
+SO101_PROJECT=experiment_id(SO101_ROLE)
 SCHEMA='explorer_skill_catalogue_spec_v1'
 SO101_CONTRACT='so101_follower_calibrated_position6_v1'
 ROSMASTER_CONTRACT='rosmaster_joint9_position6_velocity3_v1'
@@ -35,8 +38,25 @@ TEMPLATES={
     'sort_by_class_or_colour':dict(title='Рассортировать по классу / цвету',example='разложить красные кубики по коробкам',task_type='sort',object='Объекты выбранного класса / цвета',source='Рабочая поверхность',goal='Соответствующие контейнеры',phases=('classify_select',)+PICK_PHASES),
     'stack_if_geometry_validated':dict(title='Поставить один предмет на другой',example='поставить кубик на кубик',task_type='stack',object='Предмет',source='Рабочая поверхность',goal='Устойчивая опора другого предмета',phases=('validate_stack_geometry',)+PICK_PHASES),
 }
-SENSORS06=('top_rgb','camera_identity_calibration','leader_measured','follower_requested','follower_accepted','follower_dispatched','follower_measured','measurement_masks','gripper','clock_boot_domains','camera_control_clock_mapping','selection_goal','phase_outcomes')
-PHASES06={phase for template in TEMPLATES.values() for phase in template['phases']}
+SOURCE_SENSORS=('top_rgb','camera_identity_calibration','leader_measured','follower_requested','follower_accepted','follower_dispatched','follower_measured','measurement_masks','gripper','clock_boot_domains','camera_control_clock_mapping','selection_goal','phase_outcomes')
+SOURCE_PHASES={phase for template in TEMPLATES.values() for phase in template['phases']}
+# Historical import names refer to the same SO101 semantics, never new transfer06.
+SENSORS06=SOURCE_SENSORS
+PHASES06=SOURCE_PHASES
+
+
+def owner_identity(document,*,fallback_version=2):
+    """Numeric legacy06 requires an explicit v1; personal is an unambiguous alias."""
+    owner=document.get('owner_experiment',document.get('project_id'))
+    version=document.get('experiment_numbering_version',fallback_version)
+    return canonical_experiment(owner,numbering_version=version)
+
+
+def is_source_spec(spec):
+    try:
+        contract=spec.get('action_contract') or {}
+        return owner_identity(spec)==SO101_PROJECT and contract.get('id')==SO101_CONTRACT and contract.get('names')==list(SO101_NAMES) and contract.get('units')==list(SO101_UNITS)
+    except (ValueError,TypeError):return False
 
 
 def _text(value,label,maximum=600,empty=False):
@@ -53,16 +73,17 @@ def _hash(value):return isinstance(value,str) and re.fullmatch('[a-f0-9]{64}',va
 
 
 def catalogue():
-    return dict(schema='explorer_skill_template_catalogue_v1',owner_experiment='06',route='/experiments/06',legacy_route='/learning/so101',
+    return dict(schema='explorer_skill_template_catalogue_v1',owner_experiment=SO101_PROJECT,route='/experiments/'+SO101_PROJECT,legacy_route='/learning/so101',
         title='Две руки LeRobot · показ, обучение и повторение',templates=[dict(template_id=key,**deepcopy(value)) for key,value in TEMPLATES.items()],
-        robot_contract=dict(id=SO101_CONTRACT,names=list(SO101_NAMES),units=list(SO101_UNITS),dimension=6),physical_execution_authorized=False)
+        robot_contract=dict(id=SO101_CONTRACT,names=list(SO101_NAMES),units=list(SO101_UNITS),dimension=6),physical_execution_authorized=False,
+        **experiment_identity(SO101_ROLE))
 
 
 def _route(text):
     mobile=bool(re.search(r'rosmaster|росмастер',text,re.I))
     human=bool(re.search(r'\b(?:мне|человеку|владельцу|получателю)\b',text,re.I))
     give=bool(re.search(r'\b(?:дай|дать|передай|передать|подай|подать|принеси|принести)\b',text,re.I))
-    return '05' if mobile and human and give else '02' if mobile else '06'
+    return '05' if mobile and human and give else '02' if mobile else SO101_PROJECT
 
 
 def _custom(text):
@@ -75,8 +96,10 @@ def _custom(text):
 
 
 def _derive(spec):
-    spec=deepcopy(spec);owner=spec['owner_experiment']
-    if owner not in ('02','05','06'):raise ValueError('Supported catalogue owners are 02, 05 and 06')
+    spec=deepcopy(spec);owner=owner_identity(spec)
+    if owner not in ('02','05',SO101_PROJECT):raise ValueError('Use the ROSMASTER, SO101 source or coordinator catalogue owner')
+    identity=experiment_identity(experiment_slug(owner,numbering_version=2))
+    spec.update(owner_experiment=owner,experiment_slug=identity['experiment_slug'],experiment_numbering_version=2)
     spec['schema']=SCHEMA;spec['status']='PROPOSED'
     spec['constraints']=dict(physical_motion_authorized=False,separate_user_observed_arm_test_required=True,chassis_motion_forbidden=True,
         original_controller_settings='PRESERVE',no_automatic_deployment=True)
@@ -88,11 +111,11 @@ def _derive(spec):
             for index,(split,title) in enumerate((('train','Исходные условия'),('train','Другой подход'),('train','Другое положение предмета и цели'),('development','Новая проверочная сцена / сессия'),('sealed_test','Отложенная сцена / сессия — не дообучать')))],
         count_is_technical_smoke_not_mastery=True,minimum_before_training=dict(train_variants=3,development_variants=1,sealed_variants=1),
         sealed_data_never_optimizer_or_adaptive_correction=True,split_group_by=['original_episode_id','scene_id','session_id','object_instance_id','RGB_frame_identity'])
-    if owner=='06':
+    if owner==SO101_PROJECT:
         spec['robots']=[dict(role='leader',embodiment='SO101',purpose='measured_human_teaching'),dict(role='follower',embodiment='SO101',purpose='target_robot')]
         spec['action_contract']=dict(id=SO101_CONTRACT,names=list(SO101_NAMES),units=list(SO101_UNITS),dimension=6,target='SO101_follower',
             label_basis='actual_follower_dispatched_command_distinct_from_leader_requested_accepted_and_measured')
-        spec['sensors']=dict(required_schema_channels=list(SENSORS06),primary_camera=dict(profile='pi-overview',role='single_fixed_table_camera',hardware_identity='UNKNOWN'),
+        spec['sensors']=dict(required_schema_channels=list(SOURCE_SENSORS),primary_camera=dict(profile='pi-overview',role='single_fixed_table_camera',hardware_identity='UNKNOWN'),
             unknowns='preserve_null_and_actual_availability_masks_never_zero_fill',desired_model_inputs=['RGB','measured_follower6'],
             recorded_admitted_model_used_are_distinct=True)
         spec['execution_method']=dict(candidate='official_LeRobot_0.6_ACT_per_skill_baseline',implemented_by_catalogue=False,
@@ -109,12 +132,12 @@ def _derive(spec):
         spec['action_contract']=None
         spec['sensors']=dict(required_schema_channels=['robot_relative_registration','shared_scene_visibility','object_identity','native_dispatch_receipts','retained_hold','person_grasp_evidence','clock_boot_domains'],
             unknowns='preserve_UNKNOWN_no_VLM_contact_or_timed_release')
-        references=spec.get('subskill_references') or [dict(role='deliver_to_handoff',owner_experiment='02',skill_id=None,version=None,spec_sha256=None),dict(role='receive_and_offer',owner_experiment='06',skill_id=None,version=None,spec_sha256=None)]
+        references=spec.get('subskill_references') or [dict(role='deliver_to_handoff',owner_experiment='02',experiment_numbering_version=2,skill_id=None,version=None,spec_sha256=None),dict(role='receive_and_offer',owner_experiment=SO101_PROJECT,experiment_numbering_version=2,skill_id=None,version=None,spec_sha256=None)]
         spec['subskill_references']=references
         spec['composite']=dict(parent_owner='05',versioned_subskill_references=references,datasets_may_merge=False,concatenate_action_spaces=False,
-            child_contracts={'02':ROSMASTER_CONTRACT,'06':SO101_CONTRACT},release_guard='source_bound_independent_person_grasp_evidence',
+            child_contracts={'02':ROSMASTER_CONTRACT,SO101_PROJECT:SO101_CONTRACT},release_guard='source_bound_independent_person_grasp_evidence',
             timed_release_allowed=False,VLM_is_contact_measurement=False)
-        spec['execution_method']=dict(candidate='coordinator_handshake_FSM_with_versioned_02_06_subskills',implemented_by_catalogue=False,
+        spec['execution_method']=dict(candidate='coordinator_handshake_FSM_with_versioned_02_source_subskills',implemented_by_catalogue=False,
             physical_rollout_requires_separate_user_observed_test=True)
         spec['demo_plan'].update(training_scope='coordinator_scenarios_not_merged_parent_policy_dataset',datasets_may_merge=False)
         spec['stages']=[dict(id=phase,title=PHASE_TITLES[phase]) for phase in phases]
@@ -129,10 +152,10 @@ def _derive(spec):
     missing=[]
     for key in ('object','goal'):
         if spec[key]['query']=='UNKNOWN':missing.append(dict(id=key,required_for='confirmation',reason='Уточните '+('предмет' if key=='object' else 'цель')))
-    if owner=='06' and not spec.get('template_id'):missing.append(dict(id='task_type',required_for='confirmation',reason='Выберите подходящий шаблон и фазы'))
-    if owner=='05':missing.append(dict(id='versioned_subskill_references',required_for='confirmation',reason='Выберите конкретные версии навыков 02 и 06'))
+    if owner==SO101_PROJECT and not spec.get('template_id'):missing.append(dict(id='task_type',required_for='confirmation',reason='Выберите подходящий шаблон и фазы'))
+    if owner=='05':missing.append(dict(id='versioned_subskill_references',required_for='confirmation',reason='Выберите конкретные версии навыков ROSMASTER и SO101'))
     if owner=='02':missing.append(dict(id='open_unified_02_workflow',required_for='confirmation',reason='Определение и показы ROSMASTER подтверждаются в общем workflow опыта02'))
-    if owner=='06' and spec.get('template_id')=='stack_if_geometry_validated':missing.append(dict(id='stable_stack_geometry',required_for='physical_validation',reason='Размеры, плоскости опоры и устойчивость стопки должны быть фактически проверены'))
+    if owner==SO101_PROJECT and spec.get('template_id')=='stack_if_geometry_validated':missing.append(dict(id='stable_stack_geometry',required_for='physical_validation',reason='Размеры, плоскости опоры и устойчивость стопки должны быть фактически проверены'))
     missing.extend((dict(id='source_bound_geometry_camera',required_for='physical_validation',reason='Identity/calibration камеры, рабочая область и метрическая геометрия требуют фактической проверки'),
         dict(id='native_full_teaching_provenance',required_for='training',reason='Нужны реальные source-bound leader/requested/accepted/dispatched/measured, clocks, calibration, отбор и независимый outcome'),
         dict(id='separate_user_observed_physical_test',required_for='physical_execution',reason='Ни одна рука не движется по одному описанию или наличию модели')))
@@ -143,10 +166,10 @@ def _derive(spec):
 
 def propose_skill(text='',template_id=None):
     text=_text(text,'описание',empty=template_id is not None)
-    if template_id is not None and template_id not in TEMPLATES:raise ValueError('Unknown Experiment06 template')
-    owner='06' if template_id else _route(text)
+    if template_id is not None and template_id not in TEMPLATES:raise ValueError('Unknown SO101 source template')
+    owner=SO101_PROJECT if template_id else _route(text)
     suggested=template_id
-    if owner=='06' and suggested is None:suggested,obj,goal=_custom(text)
+    if owner==SO101_PROJECT and suggested is None:suggested,obj,goal=_custom(text)
     else:obj=goal='UNKNOWN'
     base=TEMPLATES.get(suggested,{})
     if template_id:obj=base['object'];goal=base['goal']
@@ -155,30 +178,34 @@ def propose_skill(text='',template_id=None):
         obj=match.group(1).strip() if match else 'UNKNOWN';goal='Подтверждённый захват получателем'
     return _derive(dict(skill_id=str(uuid.uuid4()),version=1,owner_experiment=owner,title=base.get('title') or text[:100],source_text=text,
         proposal_basis='deterministic_template' if template_id else 'PROPOSED_literal_patterns_not_certain_NLU',template_id=suggested,
-        recognized_type=base.get('task_type') if owner=='06' else 'composite_delivery_and_handover' if owner=='05' else 'unified_mobile_manipulation',
+        recognized_type=base.get('task_type') if owner==SO101_PROJECT else 'composite_delivery_and_handover' if owner=='05' else 'unified_mobile_manipulation',
         object=dict(query=obj),source=dict(query='ROSMASTER' if owner=='05' else base.get('source','UNKNOWN')),
         goal=dict(query=goal),recipient=dict(query='Человек: '+(re.search(r'\b(мне|человеку|владельцу|получателю)\b',text,re.I).group(1) if re.search(r'\b(мне|человеку|владельцу|получателю)\b',text,re.I) else 'UNKNOWN') if owner=='05' else 'Целевое место'),
         phase_ids=list(base.get('phases',PICK_PHASES)),success=dict(description='Вся выбранная задача завершена и результат независимо проверен')))
 
 
 def validate_subskill_references(spec,known_specs=()):
-    if spec['owner_experiment']!='05':return []
+    if owner_identity(spec)!='05':return []
     errors=[];refs=spec.get('subskill_references') or []
-    if not isinstance(refs,list) or len(refs)!=2 or any(not isinstance(row,dict) for row in refs) or {row.get('role') for row in refs}!={'deliver_to_handoff','receive_and_offer'}:return ['exactly_two_versioned_02_06_roles_required']
+    if not isinstance(refs,list) or len(refs)!=2 or any(not isinstance(row,dict) for row in refs) or {row.get('role') for row in refs}!={'deliver_to_handoff','receive_and_offer'}:return ['exactly_two_versioned_02_source_roles_required']
     for ref in refs:
-        expected='02' if ref.get('role')=='deliver_to_handoff' else '06'
+        expected='02' if ref.get('role')=='deliver_to_handoff' else SO101_PROJECT
         selected=next((row for row in known_specs if row.get('spec',row).get('skill_id')==ref.get('skill_id') and row.get('spec',row).get('version')==ref.get('version')),None)
         child=(selected or {}).get('spec',selected or {})
         owner=child.get('owner_experiment') or ('02' if child.get('embodiment')=='rosmaster_unified_mobile_manipulator' else None)
+        try:
+            owner=owner_identity(dict(child,owner_experiment=owner))
+            ref_owner=owner_identity(ref,fallback_version=spec.get('experiment_numbering_version',2))
+        except (ValueError,TypeError):owner=ref_owner=None
         contract=(child.get('action_contract') or {}).get('id') or (child.get('action_profile') or {}).get('schema')
-        if ref.get('owner_experiment')!=expected or owner!=expected or contract!=spec['composite']['child_contracts'][expected] or type(ref.get('version')) is not int or not _hash(ref.get('spec_sha256')) or digest(child)!=ref.get('spec_sha256') or (selected or {}).get('confirmed') is not True:
+        if ref_owner!=expected or owner!=expected or contract!=({'02':ROSMASTER_CONTRACT,SO101_PROJECT:SO101_CONTRACT}[expected]) or type(ref.get('version')) is not int or not _hash(ref.get('spec_sha256')) or digest(child)!=ref.get('spec_sha256') or (selected or {}).get('confirmed') is not True:
             errors.append('unresolved_or_mismatched_versioned_subskill:'+str(ref.get('role')))
     return errors
 
 
 def _records(db):
     rows=[]
-    for row in db.execute("SELECT body FROM events WHERE json_extract(body,'$.payload.type') LIKE 'skill.catalogue.%' ORDER BY received,event_id"):
+    for row in db.execute("SELECT body FROM events WHERE json_extract(body,'$.payload.type') LIKE 'skill.catalogue.%' ORDER BY rowid"):
         envelope=json.loads(row['body'])
         if digest(envelope['payload'])!=envelope['sha256']:raise ValueError('Catalogue event checksum mismatch')
         rows.append(envelope['payload'])
@@ -187,6 +214,7 @@ def _records(db):
 
 def _append(db,owner,kind,payload,identity):
     payload=dict(payload,type=EVENT_PREFIX+kind);envelope=event('nx',owner,payload);envelope['event_id']=identity
+    envelope.update(experiment_identity(experiment_slug(owner,numbering_version=2)))
     previous=db.execute('SELECT body FROM events WHERE event_id=?',(identity,)).fetchone()
     if previous:
         if json.loads(previous['body'])['payload']!=payload:raise ValueError('Conflicting immutable catalogue event')
@@ -200,7 +228,10 @@ def _selected(db,skill_id,version=None):
     chosen=next((row for row in found if row['spec']['version']==version),None)
     if chosen is None:raise ValueError('Unknown catalogue skill version')
     spec=chosen['spec'];checksum=digest(spec)
-    return dict(spec=spec,spec_sha256=checksum,confirmed=any(row['type']==EVENT_PREFIX+'confirmed' and row['skill_id']==skill_id and row['version']==version and row['spec_sha256']==checksum for row in records))
+    try:identity=experiment_identity(experiment_slug(owner_identity(spec),numbering_version=2))
+    except (ValueError,TypeError):identity=None
+    return dict(spec=spec,spec_sha256=checksum,canonical_identity=identity,original_owner_experiment=spec['owner_experiment'],
+        confirmed=any(row['type']==EVENT_PREFIX+'confirmed' and row['skill_id']==skill_id and row['version']==version and row['spec_sha256']==checksum for row in records))
 
 
 def create_proposal(store,body):
@@ -232,11 +263,11 @@ def revise_proposal(store,skill_id,version,patch,spec_sha256):
         for key in ('object','source','goal','recipient'):
             if not isinstance(spec[key],dict):raise ValueError('Named query field required: '+key)
             spec[key]['query']=_text(spec[key].get('query'),key,240)
-        if spec['owner_experiment']=='06':
-            if spec.get('template_id') not in TEMPLATES:raise ValueError('Select a known Experiment06 task template')
+        if owner_identity(spec)==SO101_PROJECT:
+            if spec.get('template_id') not in TEMPLATES:raise ValueError('Select a known SO101 source task template')
             spec['recognized_type']=TEMPLATES[spec['template_id']]['task_type']
             if 'template_id' in patch and 'phase_ids' not in patch:spec['phase_ids']=list(TEMPLATES[spec['template_id']]['phases'])
-            if not isinstance(spec.get('phase_ids'),list) or not spec['phase_ids'] or any(not isinstance(phase,str) for phase in spec['phase_ids']) or len(set(spec['phase_ids']))!=len(spec['phase_ids']) or set(spec['phase_ids'])-PHASES06:raise ValueError('Explicit distinct Experiment06 phase IDs required')
+            if not isinstance(spec.get('phase_ids'),list) or not spec['phase_ids'] or any(not isinstance(phase,str) for phase in spec['phase_ids']) or len(set(spec['phase_ids']))!=len(spec['phase_ids']) or set(spec['phase_ids'])-SOURCE_PHASES:raise ValueError('Explicit distinct SO101 source phase IDs required')
             if not set(TEMPLATES[spec['template_id']]['phases']).issubset(spec['phase_ids']):raise ValueError('Keep the full-task template phases; partial demonstrations use episode scopes')
         if not isinstance(spec.get('success'),dict) or not isinstance(spec['success'].get('description'),str):raise ValueError('Explicit full-task success required')
         spec=_derive(spec);_append(db,spec['owner_experiment'],'spec',dict(spec=spec,parent_spec_sha256=chosen['spec_sha256']),EVENT_PREFIX+'spec:'+skill_id+':'+str(spec['version']))
@@ -247,10 +278,11 @@ def confirm_proposal(store,skill_id,version,spec_sha256,*,known_specs=()):
     with store.connect() as db:
         db.execute('BEGIN IMMEDIATE');chosen=_selected(db,skill_id,version);spec=chosen['spec']
         if chosen['spec_sha256']!=spec_sha256:raise ValueError('Skill definition changed')
+        if owner_identity(spec) not in ('02','05',SO101_PROJECT) or owner_identity(spec)==SO101_PROJECT and not is_source_spec(spec):raise ValueError('Source role/contract is not verified for this catalogue')
         blockers=[row['id'] for row in spec['missing_facts'] if row['required_for']=='confirmation' and row['id']!='versioned_subskill_references']
         blockers.extend(validate_subskill_references(spec,known_specs))
         if blockers:raise ValueError('Resolve editable proposal before confirmation: '+', '.join(blockers))
-        _append(db,spec['owner_experiment'],'confirmed',dict(skill_id=skill_id,version=version,spec_sha256=spec_sha256),EVENT_PREFIX+'confirmed:'+skill_id+':'+str(version))
+        _append(db,owner_identity(spec),'confirmed',dict(skill_id=skill_id,version=version,spec_sha256=spec_sha256),EVENT_PREFIX+'confirmed:'+skill_id+':'+str(version))
         return _selected(db,skill_id,version)
 
 
@@ -260,11 +292,13 @@ def readiness(spec,*,confirmed=False,receipts=None,receipt_verifier=None):
     for kind in ('demos','trained','shadow','physical'):
         receipt=receipts.get(kind);reasons=[]
         if not isinstance(receipt,dict):reasons.append('receipt_missing');receipt={}
-        owner=spec['owner_experiment'];contract=(spec.get('action_contract') or {}).get('id')
-        bound=receipt.get('skill_id')==spec['skill_id'] and receipt.get('skill_version')==spec['version'] and receipt.get('owner_experiment')==owner and receipt.get('action_contract_id')==contract
+        owner=owner_identity(spec);contract=(spec.get('action_contract') or {}).get('id')
+        try:receipt_owner=owner_identity(receipt)
+        except (ValueError,TypeError):receipt_owner=None
+        bound=receipt.get('skill_id')==spec['skill_id'] and receipt.get('skill_version')==spec['version'] and receipt_owner==owner and receipt.get('action_contract_id')==contract
         verified=bound and callable(receipt_verifier) and receipt_verifier(kind,deepcopy(receipt),deepcopy(spec)) is True
         if not verified:reasons.append('source_bound_receipt_not_verified_by_server_adapter')
-        if owner!='06':reasons.append('use_owner_specific_02_workflow_or_05_coordinator_not_SO101_training')
+        if owner!=SO101_PROJECT:reasons.append('use_owner_specific_02_workflow_or_05_coordinator_not_SO101_training')
         if kind=='demos':
             if not _hash(receipt.get('aggregate_manifest_sha256')) or receipt.get('full_teaching_provenance_ready') is not True or receipt.get('object_expert_eligible') is not True or receipt.get('global_split_groups_verified') is not True:reasons.append('complete_source_bound_aggregate_and_expert_split_evidence_required')
         if kind=='trained':
@@ -282,14 +316,15 @@ def readiness(spec,*,confirmed=False,receipts=None,receipt_verifier=None):
         ready=not reasons;stages[kind]=dict(ready=ready,evidence_status='VERIFIED_RECEIPT' if verified else 'DECLARED_UNVERIFIED' if receipt else 'MISSING',reasons=reasons,
             source_kind=receipt.get('source_kind'),receipt_id=receipt.get('receipt_id'))
         previous=ready
-    return dict(schema='explorer_skill_readiness_v1',skill_id=spec['skill_id'],skill_version=spec['version'],owner_experiment=spec['owner_experiment'],
+    return dict(schema='explorer_skill_readiness_v1',skill_id=spec['skill_id'],skill_version=spec['version'],owner_experiment=owner_identity(spec),
+        original_owner_experiment=spec['owner_experiment'],experiment_numbering_version=2,
         template=dict(ready=confirmed,status='CONFIRMED' if confirmed else 'PROPOSED'),**stages,
         physical_execution_authorized=False,sim_evidence_is_not_physical_evidence=True,text_is_ACT_input=False)
 
 
 def demonstration_plan(spec,episode_reports=(),*,receipt_verifier=None):
     """Adaptive suggestions use verified outcomes, never convert failures to labels."""
-    if spec['owner_experiment']!='06':raise ValueError('Use owner02 workflow or owner05 coordinator; never merge child demonstration contracts')
+    if not is_source_spec(spec):raise ValueError('Use owner02 workflow or owner05 coordinator; never merge child demonstration contracts')
     variants=spec['demo_plan']['variants'];phases=[row['id'] for row in spec['stages']];counts={row['variant_id']:0 for row in variants};matrix={phase:{row['variant_id']:0 for row in variants} for phase in phases}
     attempts={key:0 for key in counts};rejected=[];identities=set();sealed_seen=[]
     for report in episode_reports:

@@ -1,4 +1,4 @@
-"""ENGINEERING_GLUE: Official ACT6 offline learner for one immutable Experiment06 skill cohort.
+"""ENGINEERING_GLUE: Official ACT6 offline learner for one immutable SO101 source skill cohort.
 
 No robot/replay CLI/camera/serial/network or simulator execution. Source simulation
 fixtures remain SIMULATION-only cards, regardless of task labels or loss values.
@@ -17,18 +17,31 @@ from explorer_shared.learning.artifacts import sha,state_digest,write_json
 from .recorded_training import RecordedChunks,offline_evaluation
 from explorer_shared.learning.act_backend import IMAGE_KEY,make_act_policy,optimize_act,save_reload_act,preprocessing_config,framework_info
 from explorer_shared.contracts import digest
-from explorer_shared.so101_station import NAMES,UNITS,LOW,HIGH
+from explorer_shared.so101_station import NAMES,UNITS,LOW,HIGH,so101_source_identity
+from explorer_shared.experiments import experiment_id,experiment_identity
 
 
 def _verify(store,path,expected):
     path=Path(path).resolve()
-    if not path.is_relative_to(Path(store.root).resolve()) or not path.is_file() or sha(path)!=expected:raise ValueError('Pinned Experiment06 dataset artifact changed or escaped managed state')
+    if not path.is_relative_to(Path(store.root).resolve()) or not path.is_file() or sha(path)!=expected:raise ValueError('Pinned SO101 source dataset artifact changed or escaped managed state')
     return path
+
+
+def _source_job_identity(job):
+    config=job.get('config') or {};proof=job.get('numbering_provenance') or {}
+    if (proof.get('source')=='verified_migration_index' and proof.get('original_numbering_version')==1
+            and all(isinstance(proof.get(key),str) and len(proof[key])==64 and all(char in '0123456789abcdef' for char in proof[key]) for key in ('projection_sha256','index_sha256'))):
+        return so101_source_identity(proof.get('original_project_id'),numbering_version=1)
+    version=job.get('experiment_numbering_version',config.get('experiment_numbering_version'))
+    if version is None and job.get('project_id')==experiment_id('so101_source_learning'):version=2
+    if version is None and job.get('project_id')=='06':version=config.get('source_numbering_version')
+    return so101_source_identity(job.get('project_id'),numbering_version=version)
 
 
 def run_so101_skill_train(store,job):
     config=job.get('config') or {}
-    if job.get('kind')!='so101_skill_train' or job.get('project_id')!='06' or config.get('device','cpu')!='cpu':raise ValueError('This learner owns CPU Experiment06 ACT6 only')
+    identity=experiment_identity('so101_source_learning')
+    if job.get('kind')!='so101_skill_train' or not _source_job_identity(job)['verified'] or config.get('device','cpu')!='cpu':raise ValueError('This learner owns the CPU SO101 source role ACT6 only; legacy06 requires explicit v1')
     source=_verify(store,config['aggregate_manifest'],config['aggregate_manifest_sha256']);outer=json.loads(source.read_text())
     if outer.get('schema')!='explorer_so101_skill_dataset_v1' or outer.get('action_contract_id')!='so101_follower_calibrated_position6_v1':raise ValueError('A source-bound native SO101 whole-skill dataset is required')
     if any(config.get(key)!=outer.get(key) for key in ('skill_id','skill_version','spec_sha256')) or outer.get('action_names')!=list(NAMES) or outer.get('action_units')!=UNITS:raise ValueError('Queued skill/version or coordinate contract differs')
@@ -51,7 +64,7 @@ def run_so101_skill_train(store,job):
         return saved
     def update(progress,phase):
         current=store.job(job['id'])
-        if current and current['status'] in ('cancelled','cancel_requested'):raise InterruptedError('Experiment06 training cancelled')
+        if current and current['status'] in ('cancelled','cancel_requested'):raise InterruptedError('SO101 source training cancelled')
         store.update_job(job['id'],progress=progress,result={'phase':phase,'physical_io':False,'skill_id':outer['skill_id']})
     samples=RecordedChunks(view_path,view,train,settings['chunk_size'],settings['image_size'])
     samples.resume_context.update(source_signature=sha(source),skill_id=outer['skill_id'],skill_version=outer['skill_version'],spec_sha256=outer['spec_sha256'])
@@ -76,7 +89,7 @@ def run_so101_skill_train(store,job):
     hashes={path.name:sha(path) for path in checkpoint.iterdir() if path.is_file()};kind=outer['source_kind'];simulation=kind=='SIMULATION'
     result=dict(trained=True,framework='LeRobot',framework_version='0.6.1',algorithm='official ACT6 RGB+measured_follower6→issued_native_follower6',
         skill_id=outer['skill_id'],skill_version=outer['skill_version'],spec_sha256=outer['spec_sha256'],action_contract_id=outer['action_contract_id'],
-        source_kind=kind,source_type='SIMULATION' if simulation else 'SO101_RECORDED_DEMONSTRATIONS',status='trained_offline_only',
+        source_kind=kind,source_type='SIMULATION' if simulation else 'SO101_RECORDED_DEMONSTRATIONS',status='trained_offline_only',**identity,
         aggregate_manifest_sha256=sha(source),source_manifest_path=str(source),source_manifest_sha256=sha(source),
         internal_view_manifest_sha256=sha(view_path),official_dataset_readback=official_readback,
         optimizer_steps=len(losses),loss_first=float(losses[0]['loss']),loss_last=float(losses[-1]['loss']),weights_changed=True,
@@ -87,14 +100,14 @@ def run_so101_skill_train(store,job):
         physical_io=False,simulator_executed=False,physical_success_inferred=False,rollout_success_claimed=False,elapsed_s=time.monotonic()-started,**framework_info())
     card=dict(id='so101-act-'+job['id'],task=outer['skill_spec']['title'],source_type=result['source_type'],source_kind=kind,status='trained_offline_only',
         action_contract={'id':outer['action_contract_id'],'names':list(NAMES),'units':UNITS,'state_basis':'measured_state','official_robot_use_degrees':False},
-        lineage={'job_id':job['id'],'skill_id':outer['skill_id'],'skill_version':outer['skill_version'],'spec_sha256':outer['spec_sha256'],
+        lineage={'job_id':job['id'],'skill_id':outer['skill_id'],'skill_version':outer['skill_version'],'spec_sha256':outer['spec_sha256'],**identity,
             'dataset_manifest_sha256':sha(source),'checkpoint_sha256':digest(hashes),'training_original_episode_ids':result['training_original_episode_ids'],
             'development_original_episode_ids':result['development_original_episode_ids'],'sealed_original_episode_ids':result['sealed_original_episode_ids'],
             'methods':['ACT_LEROBOT_0_6_1','ENGINEERING_GLUE']},evaluation=evaluation,
         deployment_scope='SIMULATION_ONLY' if simulation else 'OFFLINE_SHADOW_PENDING_SEPARATE_OBSERVED_TEST',
         limitations=['Offline development chunk MAE is not full-task rollout success','Source operator labels are BC targets, not learned-policy physical validation',
             'No physical commands, robot connection or controller changes','Sealed source payload excluded','Task text is metadata; ACT has no language input'])
-    result['skill_card']=card;write_json(folder/'provenance.json',{'aggregate_sha256':sha(source),'settings':settings,'source_kind':kind,'physical_io':False})
+    result['skill_card']=card;write_json(folder/'provenance.json',{'aggregate_sha256':sha(source),'settings':settings,'source_kind':kind,'physical_io':False,**identity})
     write_json(result_path,result)
     if not any(value['id']==card['id'] for value in store.skills()):store.add_skill(card)
     update(.99,'official_ACT6_optimizer_and_save_reload_verified_offline_only')

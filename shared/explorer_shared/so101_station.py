@@ -15,11 +15,34 @@ import re
 import threading
 import time
 import uuid
+from .experiments import canonical_experiment,experiment_id,experiment_identity
 
 NAMES = ('shoulder_pan','shoulder_lift','elbow_flex','wrist_flex','wrist_roll','gripper')
 LOW = [-100.0] * 5 + [0.0]
 HIGH = [100.0] * 6
 UNITS = ['calibrated_normalized_-100_100'] * 5 + ['normalized_0_100']
+SOURCE_ROLE='so101_source_learning'
+
+
+def so101_source_identity(project_id,*,numbering_version=None):
+    """Pure source metadata resolution; never reinterprets ambiguous legacy06."""
+    base=dict(original_project_id=project_id,original_numbering_version=numbering_version,
+        **experiment_identity(SOURCE_ROLE),verified=False,reasons=[])
+    if not isinstance(project_id,str):return dict(base,reasons=['source_project_identity_missing'])
+    if numbering_version is None and project_id not in ('personal',SOURCE_ROLE):return dict(base,reasons=['explicit_source_numbering_version_required'])
+    if numbering_version is not None and (type(numbering_version) is not int or numbering_version not in (1,2)):return dict(base,reasons=['invalid_source_numbering_version'])
+    try:canonical=canonical_experiment(project_id,numbering_version=numbering_version if numbering_version is not None else 2)
+    except ValueError:return dict(base,reasons=['source_project_identity_unknown'])
+    if canonical!=experiment_id(SOURCE_ROLE):return dict(base,reasons=['source_project_is_not_SO101_source_role'])
+    return dict(base,verified=True,basis='unambiguous_personal_or_semantic_alias' if numbering_version is None else 'explicit_numbering_epoch')
+
+
+def _record_identity(body):
+    original=body.get('project_id',experiment_id(SOURCE_ROLE));version=body.get('experiment_numbering_version')
+    if version is None and original==experiment_id(SOURCE_ROLE):version=2
+    identity=so101_source_identity(original,numbering_version=version)
+    if not identity['verified'] or body.get('experiment_slug',SOURCE_ROLE)!=SOURCE_ROLE:raise ValueError('SO101 source recording requires its semantic role; legacy06 needs explicit numbering v1')
+    return dict(**experiment_identity(SOURCE_ROLE),recording_request_identity=dict(original_project_id=original,original_numbering_version=version,basis=identity['basis']))
 
 
 def save(path, value):
@@ -34,11 +57,12 @@ def save(path, value):
 
 def _record_context(body):
     """Optional source-declared teaching identity; never hardware configuration."""
-    fields=('skill_id','skill_version','skill_spec_sha256','scene_id','session_id','phase_id','phase','context','task_type','split')
+    fields=('skill_id','skill_version','skill_spec_sha256','scene_id','session_id','phase_id','phase','context','task_type','split','project_id','experiment_slug','experiment_numbering_version')
     context={key:body[key] for key in fields if key in body}
     if any(key in context and (not isinstance(context[key],str) or not context[key] or len(context[key])>240)
-           for key in fields if key not in ('skill_version','context','phase')):
+           for key in fields if key not in ('skill_version','context','phase','experiment_numbering_version')):
         raise ValueError('Named recording source context must contain bounded nonempty text')
+    if 'experiment_numbering_version' in context and (type(context['experiment_numbering_version']) is not int or context['experiment_numbering_version'] not in (1,2)):raise ValueError('Explicit supported recording numbering version required')
     if 'split' in context and context['split'] not in ('train','development','sealed_test'):raise ValueError('Choose an explicit train/development/sealed_test recording split')
     if 'skill_version' in context and (type(context['skill_version']) is not int or context['skill_version']<1):
         raise ValueError('Recording skill version must be a positive integer')
@@ -317,13 +341,14 @@ class SO101Station:
             raise ValueError('Start an observed teleoperation or policy before recording action labels')
         if self.record or self.finishing_record:
             raise ValueError('A station recording is already active')
-        context=_record_context(body)
+        identity=_record_identity(body)
+        context=_record_context(dict(body,**experiment_identity(SOURCE_ROLE)))
         ident = uuid.uuid4().hex
         folder = self.root/'recordings'/ident
         folder.mkdir(parents=True)
         self.record = dict(schema_version=1,episode_id=ident,source_type='station_demonstration',
             state_basis='measured_state',action_basis='dispatched_command',action_names=list(NAMES),action_units=UNITS,
-            normalization={'low':LOW,'high':HIGH},fps=10,split=context.get('split','train'),project_id=body.get('project_id','personal'),
+            normalization={'low':LOW,'high':HIGH},fps=10,split=context.get('split','train'),**identity,
             name=str(body.get('name','SO-101 recording'))[:80],state='recording',outcome='unknown',samples=[],queued_samples=0,
             task=str(body.get('task',body.get('name','Imitate the recorded robot demonstration')))[:240],
             demonstration_actor=str(body.get('actor','human_operator'))[:80],execution_mode=self.mode,
@@ -338,7 +363,7 @@ class SO101Station:
             if key in context:self.record[key]=context[key]
         save(folder/'manifest.json',self.record)
         self.last_sample_ns = 0
-        return dict(episode_id=ident,state='recording',project_id=self.record['project_id'])
+        return dict(episode_id=ident,state='recording',**experiment_identity(SOURCE_ROLE))
 
     def _sample(self, frame, state, requested, accepted, measured_at, dispatched_at):
         if self.record and frame and measured_at-self.last_sample_ns >= 95_000_000:
@@ -431,6 +456,7 @@ class SO101Station:
         path = self.root/'recordings'/record['episode_id']/'manifest.json'
         save(path,record)
         result = dict(episode_id=record['episode_id'],project_id=record['project_id'],state=record['state'],outcome=outcome,samples=len(record['samples']),manifest=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+        result.update({key:record[key] for key in ('experiment_slug','experiment_numbering_version') if key in record})
         with self.lock:
             self.last_finished, self.finishing_record = result, None
         return result

@@ -1,0 +1,18 @@
+{
+  "scope": "SO101 source namespace2 metadata qualification; no hardware",
+  "ordinary_tests": "63 passed,1 skipped in12.65s",
+  "actual_new_namespace_optimizer_test": "1 passed in14.25s; own unit4GiB/2CPU",
+  "new_model_identity": {
+    "project_id": "04",
+    "experiment_slug": "so101_source_learning",
+    "experiment_numbering_version": 2
+  },
+  "new_result_sha256": "a5a5693805df88e997f84e29ff973da81c579df6ba253af5d1ee6047add981f3",
+  "old_receipt_sha256": "45d4b425e1d53cf5236ede66dfc045a8acd1a41463258d0a88e035d607f22c55",
+  "all_published_checkpoint_SHA_identical": true,
+  "old_scientific_payloads_rewritten": false,
+  "controller_method_AST_unchanged_count": 18,
+  "coordinate_constants_AST_unchanged": true,
+  "physical_io": false,
+  "physical_skill_success_claimed": false
+}
