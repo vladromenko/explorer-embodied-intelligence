@@ -1,0 +1,78 @@
+{
+  "results": [
+    {
+      "schema": "explorer_native_manual_startup_characterization_v1",
+      "source_sha256": {
+        "src/manual_arm.py": "8ddadb774fb166878d8856974bcea3c075ad8014af7f3c28247cea0e0b8ecdb8",
+        "src/manual_teleop.py": "809c465dae4d919f71e5e83e6bd111480bdb697f69552104a488519f85873ac1",
+        "src/servo_coordinates.py": "6dbfbcaa238b04e2ddb61e08d43f1ebee250e8bfd8ca273d83ff2e1008df6b2f",
+        "src/arm_velocity.py": "ee5300c7731b47806201e5509e8cad69e275f4e87812fb79d91964638159fd7c",
+        "config/arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+        "src/manual_controls.py": "9ac0553f788bc1258f694d7065e1952696be44bdf307ad05c00cc153af5c0618",
+        "src/gamepad_panel.py": "c34fad6bdd7783066569531d591b0879463b09eab72b20be66bda1f0a2af3788",
+        "src/web.py": "be68ea5233d1edb8aef476151b2ebe32c88f6bd90a761e23ef31ce54099f74f5",
+        "config/factory-arm-startup.json": "5a26edf01d8e20e440dc51c33da214d739357cd9130ff12a16601b7874e79ec5",
+        "config/gamepad.yaml": "5ab034ac877886006f41869ed79e7049bf254a013f5a42f8e91f1a5947a01cd3"
+      },
+      "uptime_s": 18002.49,
+      "original_constructor_classes": [
+        "ManualArm",
+        "ManualTeleop",
+        "GamepadPanel"
+      ],
+      "captured_thread_targets": [
+        "_automatic_startup_home",
+        "_run",
+        "run"
+      ],
+      "idle_tick_count": 1000,
+      "fake_arm_publications": 0,
+      "fake_base_callbacks": 0,
+      "automatic_home_attempts": 0,
+      "would_automatically_home": false,
+      "manual_startup_zero_command_under_tested_conditions": true,
+      "full_web_ros_startup_proven": false,
+      "physical_commands": 0,
+      "original_owner_restarted": false,
+      "scope": "exact_original_manual_classes_with_fake_publishers_captured_threads_no_evdev_or_ROS"
+    },
+    {
+      "schema": "explorer_native_manual_startup_characterization_v1",
+      "source_sha256": {
+        "src/manual_arm.py": "8ddadb774fb166878d8856974bcea3c075ad8014af7f3c28247cea0e0b8ecdb8",
+        "src/manual_teleop.py": "809c465dae4d919f71e5e83e6bd111480bdb697f69552104a488519f85873ac1",
+        "src/servo_coordinates.py": "6dbfbcaa238b04e2ddb61e08d43f1ebee250e8bfd8ca273d83ff2e1008df6b2f",
+        "src/arm_velocity.py": "ee5300c7731b47806201e5509e8cad69e275f4e87812fb79d91964638159fd7c",
+        "config/arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+        "src/manual_controls.py": "9ac0553f788bc1258f694d7065e1952696be44bdf307ad05c00cc153af5c0618",
+        "src/gamepad_panel.py": "c34fad6bdd7783066569531d591b0879463b09eab72b20be66bda1f0a2af3788",
+        "src/web.py": "be68ea5233d1edb8aef476151b2ebe32c88f6bd90a761e23ef31ce54099f74f5",
+        "config/factory-arm-startup.json": "5a26edf01d8e20e440dc51c33da214d739357cd9130ff12a16601b7874e79ec5",
+        "config/gamepad.yaml": "5ab034ac877886006f41869ed79e7049bf254a013f5a42f8e91f1a5947a01cd3"
+      },
+      "uptime_s": 120.0,
+      "original_constructor_classes": [
+        "ManualArm",
+        "ManualTeleop",
+        "GamepadPanel"
+      ],
+      "captured_thread_targets": [
+        "_automatic_startup_home",
+        "_run",
+        "run"
+      ],
+      "idle_tick_count": 1000,
+      "fake_arm_publications": 0,
+      "fake_base_callbacks": 0,
+      "automatic_home_attempts": 1,
+      "would_automatically_home": true,
+      "manual_startup_zero_command_under_tested_conditions": false,
+      "full_web_ros_startup_proven": false,
+      "physical_commands": 0,
+      "original_owner_restarted": false,
+      "scope": "exact_original_manual_classes_with_fake_publishers_captured_threads_no_evdev_or_ROS"
+    }
+  ],
+  "actual_original_owner_restarted": false,
+  "physical_commands": 0
+}

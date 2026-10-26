@@ -5,6 +5,7 @@ writes. Install only in the original owner process after reviewing its startup.
 Host publication receipts never establish MCU dispatch, attained q or contact.
 """
 from collections import deque
+import base64
 from copy import deepcopy
 import hashlib
 import json
@@ -80,16 +81,21 @@ class NativeDispatchTap:
                 self.capture_failures += 1
             return None
 
-    def reference_header(self, record, original_sha256, *, native_guard_verified=False):
+    def reference_header(self, record, original_sha256, *, native_guard_verified=False,source_bytes=None):
         if (record.get('boot_id') != self.boot_id or len(original_sha256) != 64 or
                 record.get('measured') is not False):
             raise ValueError('Original same-boot command reference required; never measured feedback')
         _vector(record.get('servo_deg'), 6)
+        if source_bytes is not None and (not isinstance(source_bytes,bytes) or
+                hashlib.sha256(source_bytes).hexdigest()!=original_sha256 or json.loads(source_bytes)!=record):
+            raise ValueError('Exact original reference bytes/hash must match its native record')
         with self.lock:
             self.reference = {'original': deepcopy(record), 'source_sha256': original_sha256,
                               'reference_id': original_sha256, 'reference_receipt_id': 'factory-reference:'+original_sha256,
                               'state_source': 'command_estimate', 'attainment_measured': False,
                               'native_guard_verified':native_guard_verified is True}
+            if source_bytes is not None:
+                self.reference['original_source_bytes_base64']=base64.b64encode(source_bytes).decode('ascii')
 
     def append(self, kind, payload, *, source_id, started_ns=None):
         with self.lock:
@@ -141,7 +147,10 @@ class NativeDispatchTap:
                 self.canonical_reference={
                     'reference_id':prior['reference_id'],'estimator_id':prior['estimator_id'],
                     'reference_kind':'native_command_estimate_snapshot','state_source':'command_estimate',
-                    'reference_action9':list(prior['values'][:6])+list(self.base),
+                    # This snapshot is stamped AFTER the publication returned.
+                    # Prior Ruckig q belongs only to preceding_command9; carrying
+                    # it into this receipt would pair old q with a future clock.
+                    'reference_action9':list(row['command9']),
                     'units':['deg']*6+['m/s','m/s','rad/s'],'stamp':deepcopy(row['stamp']),
                     'reference_receipt_id':receipt_id,'command_log_contiguous_since_reference':True,
                     'native_guard_verified':True,'prior_reference_sha256':self.reference['source_sha256'],
