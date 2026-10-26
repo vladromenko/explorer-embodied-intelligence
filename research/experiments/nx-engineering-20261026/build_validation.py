@@ -6,7 +6,8 @@ import json
 BASE = Path(__file__).resolve().parent
 ROOT = BASE.parents[2]
 NAMES = {
-    'sim': 'sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json',
+    'sim': 'corrected-selector-pilot.json',
+    'historical_sim': 'sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json',
     'recorded': 'train_act-447f40e9e1fd45c1ba4f8cda473abaf5.json',
     'hold': 'so101-hold-20261026.json',
     'gpu_initial': 'act-cu132-20261026.json',
@@ -27,6 +28,11 @@ def summarize():
             raise ValueError('Preserved evidence bytes changed: ' + name)
         source[key] = json.loads(data)
     sim, rec, hold = source['sim']['result'], source['recorded']['result'], source['hold']
+    history = source['historical_sim']['result']
+    if (sim['student']['training_episode_count'] != sim['dataset']['successful_teacher_episodes']
+            or len(sim['student']['excluded_failed_episode_ids']) !=
+            sim['dataset']['episode_count'] - sim['student']['training_episode_count']):
+        raise ValueError('Reported success-only selector counts are inconsistent')
     if rec['source_dataset_id'] != 'station-' + hold['recording']['episode_id']:
         raise ValueError('Recorded training does not reference this stationary episode')
     evaluations = [sim[k].get('evaluation', sim[k]) for k in ['no_motion_baseline', 'teacher', 'student']]
@@ -54,7 +60,20 @@ def summarize():
             'outcomes': {label: {'successes': e['successes'], 'attempts': e['n']} for label, e in zip(
                 ['no_motion', 'ppo_privileged_state', 'act_rgb_command_estimate'], evaluations)},
             'official_dataset_export': sim['dataset']['official_export'],
-            'historical_data_selection_caveat': 'This historical run used all12 teacher episodes as BC targets, including2failed. It does not validate the subsequent success-only filter. Integrator correction context; raw source is preserved.',
+            'training_episode_count': sim['student']['training_episode_count'],
+            'excluded_failed_episode_ids': sim['student']['excluded_failed_episode_ids'],
+            'execution_release_context': '8cb79fa, communicated by integrator; release is not embedded in this job snapshot',
+            'selection_scope': 'Only 10 successful episodes used for BC; original 12 episodes and official export retain both failed episodes',
+        },
+        'historical_simulation_comparison': {
+            'run_id': source['historical_sim']['id'],
+            'outcomes': {label: {'successes': e['successes'], 'attempts': e['n']}
+                         for label, e in zip(['no_motion', 'ppo_privileged_state', 'act_rgb_command_estimate'],
+                                            [history[k].get('evaluation', history[k]) for k in
+                                             ['no_motion_baseline', 'teacher', 'student']])},
+            'reported_elapsed_s': history['elapsed_s'],
+            'data_selection_caveat': 'All 12 teacher episodes were used as BC targets, including 2 failed; this does not validate the corrected success-only selector.',
+            'comparison_limit': 'Historical ACT 2/6 versus corrected ACT 1/6 is a lower observed count, not evidence of improved performance or a controlled statistical/causal filtering effect.',
         },
         'stationary_recording': {
             'episode_id': hold['recording']['episode_id'], 'recorded_frames': hold['recording']['samples'],
@@ -141,7 +160,7 @@ def plot(summary):
     axes[0].set_xticks(range(3), ['No motion', 'PPO\n(privileged)', 'ACT\n(RGB + command)'])
     axes[0].set_yticks([0, 2, 4, 6]); axes[0].set_ylim(0, 7.1)
     axes[0].set_ylabel('Confirmed simulated reach attempts')
-    axes[0].set_title('(a) Historical development reach check')
+    axes[0].set_title('(a) Corrected development reach check')
     for i, outcome in enumerate(outcomes):
         axes[0].text(i, outcome['successes'] + .18, f"{outcome['successes']}/{outcome['attempts']}", ha='center')
     errors = [a['cpu_gpu_max_abs_error'] for a in summary['gpu']['attempts']]

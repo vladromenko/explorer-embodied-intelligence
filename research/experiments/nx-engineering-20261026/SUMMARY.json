@@ -55,16 +55,22 @@
       "source_path": "_registry/evidence/station-shadow-gpu-model.json",
       "sha256": "c510fb7beacf2eb1fb35ebdd20a2424b35f0028a3bd07c02394a09f8f834d280",
       "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/corrected-selector-pilot.json",
+      "source_path": "_registry/evidence/corrected-selector-pilot.json",
+      "sha256": "970f6026ed27fcd8d8a6411094b1072ac0f5f41775d9f3092a625891e3858bab",
+      "copied_without_modification": true
     }
   ],
   "simulation": {
-    "run_id": "7e21260f8ffb4bfa93b6d3b384123318",
+    "run_id": "7a2877b5c47f49acaa04c164961e7fcd",
     "evaluation_role": "DEVELOPMENT_NOT_SEALED_FINAL",
     "physical_io": false,
     "teacher_environment_steps": 4096,
     "teacher_optimizer_updates": 160,
     "act_optimizer_steps": 120,
-    "reported_elapsed_s": 127.9052170219993,
+    "reported_elapsed_s": 131.52170962299897,
     "framework_versions": {
       "torch": "2.11.0",
       "torchvision": "0.26.0"
@@ -87,14 +93,14 @@
         "attempts": 6
       },
       "act_rgb_command_estimate": {
-        "successes": 2,
+        "successes": 1,
         "attempts": 6
       }
     },
     "official_dataset_export": {
       "format": "LeRobotDataset v3.0",
-      "directory": "/home/jetsonnx/.local/share/explorer/state/jobs/7e21260f8ffb4bfa93b6d3b384123318/lerobot_v3",
-      "repo_id": "local-explorer/cad-reach-7e21260f8ffb4bfa93b6d3b384123318",
+      "directory": "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/lerobot_v3",
+      "repo_id": "local-explorer/cad-reach-7a2877b5c47f49acaa04c164961e7fcd",
       "episodes": 12,
       "frames": 167,
       "fps": 12.5,
@@ -106,11 +112,39 @@
       "source_splits_preserved": true,
       "source_npz_immutable": true,
       "native_monotonic_timestamps_preserved": false,
-      "source_manifest_sha256": "68205e0fba523c410545aeaeb0c0d86e1ea28afcbc37b7f1120afc47e0675f39",
-      "provenance_sha256": "ef24bf80683dee4ac18cf977f95b4be27794a6bfb7f918555809f630d291fe4e",
+      "native_wall_timestamps_preserved": false,
+      "conversion_grid_preserved": false,
+      "source_manifest_sha256": "326c2662ff8094783abc6393f99d5686d4f26daa0c7a2390018122447f0fbb32",
+      "provenance_sha256": "2a6915564659e8b0ffb89a8dd274f14c365d1dc19689ad456faafdc726e79baf",
       "uploaded_to_hub": false
     },
-    "historical_data_selection_caveat": "This historical run used all12 teacher episodes as BC targets, including2failed. It does not validate the subsequent success-only filter. Integrator correction context; raw source is preserved."
+    "training_episode_count": 10,
+    "excluded_failed_episode_ids": [
+      "episode_0008",
+      "episode_0009"
+    ],
+    "execution_release_context": "8cb79fa, communicated by integrator; release is not embedded in this job snapshot",
+    "selection_scope": "Only 10 successful episodes used for BC; original 12 episodes and official export retain both failed episodes"
+  },
+  "historical_simulation_comparison": {
+    "run_id": "7e21260f8ffb4bfa93b6d3b384123318",
+    "outcomes": {
+      "no_motion": {
+        "successes": 0,
+        "attempts": 6
+      },
+      "ppo_privileged_state": {
+        "successes": 6,
+        "attempts": 6
+      },
+      "act_rgb_command_estimate": {
+        "successes": 2,
+        "attempts": 6
+      }
+    },
+    "reported_elapsed_s": 127.9052170219993,
+    "data_selection_caveat": "All 12 teacher episodes were used as BC targets, including 2 failed; this does not validate the corrected success-only selector.",
+    "comparison_limit": "Historical ACT 2/6 versus corrected ACT 1/6 is a lower observed count, not evidence of improved performance or a controlled statistical/causal filtering effect."
   },
   "stationary_recording": {
     "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",

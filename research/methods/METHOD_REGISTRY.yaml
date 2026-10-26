@@ -93,7 +93,8 @@
         "software_tested": true,
         "hardware_tested": false,
         "edge_cpu_execution_tested": true,
-        "physical_task_validated": false
+        "physical_task_validated": false,
+        "pipeline_with_corrected_success_only_selector_executed": true
       },
       "test_evidence": [
         {
@@ -108,6 +109,14 @@
           "canonical_source_path": "_registry/evidence/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
           "source_json_sha256": "4dcf3033b363723ffe7b02417c0c81eff89b921509dba01cc83ffcb01ed3aca6",
           "scope": "Historical NX CPU development run:4096PPOsteps,120ACTupdates,no-motion0/6,PPO6/6,ACT2/6; all12BCepisodes included2failed. This does not validate the corrected success-only selector. No physical I/O or sealed evaluation."
+        },
+        {
+          "run_id": "7a2877b5c47f49acaa04c164961e7fcd",
+          "path": "research/experiments/nx-engineering-20261026/corrected-selector-pilot.json",
+          "canonical_source_path": "_registry/evidence/corrected-selector-pilot.json",
+          "source_json_sha256": "970f6026ed27fcd8d8a6411094b1072ac0f5f41775d9f3092a625891e3858bab",
+          "execution_release_context": "8cb79fa, communicated by integrator; not embedded in raw job snapshot",
+          "scope": "Corrected NX CPU development run: 4096 PPO steps, 120 ACT updates; only 10 successful teacher episodes used for BC, excluding episode_0008 and episode_0009. Original 12 episodes and official v3 export retained. No motion 0/6, privileged-state PPO 6/6, RGB/command ACT 1/6; changed weights and reload verified. No physical I/O or sealed final evaluation; historical ACT 2/6 remains archived and no filtering benefit is established."
         }
       ],
       "hardware_run_ids": [],
@@ -146,7 +155,8 @@
         "edge_cpu_execution_tested": true,
         "physical_task_validated": false,
         "edge_gpu_numerical_execution_tested": true,
-        "recorded_gpu_fit_executed": true
+        "recorded_gpu_fit_executed": true,
+        "pipeline_with_corrected_success_only_selector_executed": true
       },
       "test_evidence": [
         {
@@ -182,6 +192,14 @@
           "canonical_source_path": "_registry/evidence/station-gpu-training-job.json",
           "source_json_sha256": "f09fa28d2b117dce85e70b0693e790343a4087dd081e4596d8e7c3a0091a4176",
           "scope": "Actual recorded stationary source480GPUupdates,66.8059s,changedweights,reload0,same source-manifest hash as CPUfit. No independent episodes/task evaluation. Different workload and out-of-bounds Torch2.12cu132/vision0.27; no matched speedup."
+        },
+        {
+          "run_id": "7a2877b5c47f49acaa04c164961e7fcd",
+          "path": "research/experiments/nx-engineering-20261026/corrected-selector-pilot.json",
+          "canonical_source_path": "_registry/evidence/corrected-selector-pilot.json",
+          "source_json_sha256": "970f6026ed27fcd8d8a6411094b1072ac0f5f41775d9f3092a625891e3858bab",
+          "execution_release_context": "8cb79fa, communicated by integrator; not embedded in raw job snapshot",
+          "scope": "Corrected NX CPU development run: 4096 PPO steps, 120 ACT updates; only 10 successful teacher episodes used for BC, excluding episode_0008 and episode_0009. Original 12 episodes and official v3 export retained. No motion 0/6, privileged-state PPO 6/6, RGB/command ACT 1/6; changed weights and reload verified. No physical I/O or sealed final evaluation; historical ACT 2/6 remains archived and no filtering benefit is established."
         }
       ],
       "hardware_run_ids": [],
@@ -217,7 +235,8 @@
         "software_tested": true,
         "hardware_tested": false,
         "edge_cpu_execution_tested": true,
-        "physical_task_validated": false
+        "physical_task_validated": false,
+        "pipeline_with_corrected_success_only_selector_executed": true
       },
       "test_evidence": [
         {
@@ -232,6 +251,14 @@
           "canonical_source_path": "_registry/evidence/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
           "source_json_sha256": "4dcf3033b363723ffe7b02417c0c81eff89b921509dba01cc83ffcb01ed3aca6",
           "scope": "Historical NX CPU development run:4096PPOsteps,120ACTupdates,no-motion0/6,PPO6/6,ACT2/6; all12BCepisodes included2failed. This does not validate the corrected success-only selector. No physical I/O or sealed evaluation."
+        },
+        {
+          "run_id": "7a2877b5c47f49acaa04c164961e7fcd",
+          "path": "research/experiments/nx-engineering-20261026/corrected-selector-pilot.json",
+          "canonical_source_path": "_registry/evidence/corrected-selector-pilot.json",
+          "source_json_sha256": "970f6026ed27fcd8d8a6411094b1072ac0f5f41775d9f3092a625891e3858bab",
+          "execution_release_context": "8cb79fa, communicated by integrator; not embedded in raw job snapshot",
+          "scope": "Corrected NX CPU development run: 4096 PPO steps, 120 ACT updates; only 10 successful teacher episodes used for BC, excluding episode_0008 and episode_0009. Original 12 episodes and official v3 export retained. No motion 0/6, privileged-state PPO 6/6, RGB/command ACT 1/6; changed weights and reload verified. No physical I/O or sealed final evaluation; historical ACT 2/6 remains archived and no filtering benefit is established."
         }
       ],
       "hardware_run_ids": [],
@@ -263,7 +290,8 @@
         "software_tested": true,
         "hardware_tested": false,
         "edge_cpu_execution_tested": true,
-        "physical_task_validated": false
+        "physical_task_validated": false,
+        "pipeline_with_corrected_success_only_selector_executed": true
       },
       "test_evidence": [
         {
@@ -278,6 +306,14 @@
           "canonical_source_path": "_registry/evidence/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
           "source_json_sha256": "4dcf3033b363723ffe7b02417c0c81eff89b921509dba01cc83ffcb01ed3aca6",
           "scope": "Historical NX CPU development run:4096PPOsteps,120ACTupdates,no-motion0/6,PPO6/6,ACT2/6; all12BCepisodes included2failed. This does not validate the corrected success-only selector. No physical I/O or sealed evaluation."
+        },
+        {
+          "run_id": "7a2877b5c47f49acaa04c164961e7fcd",
+          "path": "research/experiments/nx-engineering-20261026/corrected-selector-pilot.json",
+          "canonical_source_path": "_registry/evidence/corrected-selector-pilot.json",
+          "source_json_sha256": "970f6026ed27fcd8d8a6411094b1072ac0f5f41775d9f3092a625891e3858bab",
+          "execution_release_context": "8cb79fa, communicated by integrator; not embedded in raw job snapshot",
+          "scope": "Corrected NX CPU development run: 4096 PPO steps, 120 ACT updates; only 10 successful teacher episodes used for BC, excluding episode_0008 and episode_0009. Original 12 episodes and official v3 export retained. No motion 0/6, privileged-state PPO 6/6, RGB/command ACT 1/6; changed weights and reload verified. No physical I/O or sealed final evaluation; historical ACT 2/6 remains archived and no filtering benefit is established."
         }
       ],
       "hardware_run_ids": []
@@ -453,7 +489,9 @@
         "installed": false,
         "software_tested": true,
         "hardware_tested": false,
-        "official_dataset_readback_tested": true
+        "official_dataset_readback_tested": true,
+        "pipeline_with_corrected_success_only_selector_executed": true,
+        "physical_task_validated": false
       },
       "test_evidence": [
         {
@@ -467,6 +505,14 @@
           "canonical_source_path": "_registry/evidence/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
           "source_json_sha256": "4dcf3033b363723ffe7b02417c0c81eff89b921509dba01cc83ffcb01ed3aca6",
           "scope": "OfficialLeRobotDatasetv3readback12episodes/167frames; allimage/state/action checks passed,sourceNPZimmutable/splitspreserved. Simulated export does not preserve native monotonic timestamps and is not physical clock qualification."
+        },
+        {
+          "run_id": "7a2877b5c47f49acaa04c164961e7fcd",
+          "path": "research/experiments/nx-engineering-20261026/corrected-selector-pilot.json",
+          "canonical_source_path": "_registry/evidence/corrected-selector-pilot.json",
+          "source_json_sha256": "970f6026ed27fcd8d8a6411094b1072ac0f5f41775d9f3092a625891e3858bab",
+          "execution_release_context": "8cb79fa, communicated by integrator; not embedded in raw job snapshot",
+          "scope": "Corrected NX CPU development run: 4096 PPO steps, 120 ACT updates; only 10 successful teacher episodes used for BC, excluding episode_0008 and episode_0009. Original 12 episodes and official v3 export retained. No motion 0/6, privileged-state PPO 6/6, RGB/command ACT 1/6; changed weights and reload verified. No physical I/O or sealed final evaluation; historical ACT 2/6 remains archived and no filtering benefit is established."
         }
       ],
       "hardware_run_ids": [],
@@ -1150,13 +1196,23 @@
         "code_inspected": true,
         "installed": false,
         "software_tested": true,
-        "hardware_tested": false
+        "hardware_tested": false,
+        "pipeline_with_corrected_success_only_selector_executed": true,
+        "physical_task_validated": false
       },
       "test_evidence": [
         {
           "command": "python research/experiments/nx-engineering-20261026/build_validation.py",
           "result": "Executed source-hash validation, source episode-ID linkage, matched simulated-seed checks and original PDF/PNG generation",
           "scope": "Offline artifact generation only"
+        },
+        {
+          "run_id": "7a2877b5c47f49acaa04c164961e7fcd",
+          "path": "research/experiments/nx-engineering-20261026/corrected-selector-pilot.json",
+          "canonical_source_path": "_registry/evidence/corrected-selector-pilot.json",
+          "source_json_sha256": "970f6026ed27fcd8d8a6411094b1072ac0f5f41775d9f3092a625891e3858bab",
+          "execution_release_context": "8cb79fa, communicated by integrator; not embedded in raw job snapshot",
+          "scope": "Corrected NX CPU development run: 4096 PPO steps, 120 ACT updates; only 10 successful teacher episodes used for BC, excluding episode_0008 and episode_0009. Original 12 episodes and official v3 export retained. No motion 0/6, privileged-state PPO 6/6, RGB/command ACT 1/6; changed weights and reload verified. No physical I/O or sealed final evaluation; historical ACT 2/6 remains archived and no filtering benefit is established."
         }
       ],
       "hardware_run_ids": []

@@ -49,6 +49,12 @@
       "source_path": "_registry/evidence/station-shadow-gpu-model.json",
       "sha256": "c510fb7beacf2eb1fb35ebdd20a2424b35f0028a3bd07c02394a09f8f834d280",
       "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/corrected-selector-pilot.json",
+      "source_path": "_registry/evidence/corrected-selector-pilot.json",
+      "sha256": "970f6026ed27fcd8d8a6411094b1072ac0f5f41775d9f3092a625891e3858bab",
+      "copied_without_modification": true
     }
   ]
 }

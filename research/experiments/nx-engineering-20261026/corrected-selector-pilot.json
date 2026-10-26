@@ -1,0 +1,925 @@
+{
+  "id": "7a2877b5c47f49acaa04c164961e7fcd",
+  "kind": "sim_pilot",
+  "project_id": "01",
+  "status": "completed",
+  "created": 1792974041.284506,
+  "updated": 1792974176.3103447,
+  "config": {},
+  "result": {
+    "task": "engineering_fixed_base_reach_pilot",
+    "engineering_pilot": true,
+    "physical_io": false,
+    "method_ids": [
+      "PPO_SB3_2_9",
+      "ACT_LEROBOT_0_6_1",
+      "EXPLORER_CAD_MUJOCO",
+      "ENGINEERING_GLUE"
+    ],
+    "artifacts_dir": "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd",
+    "no_motion_baseline": {
+      "episodes": [
+        {
+          "seed": 10041,
+          "initial_distance_m": 0.09233311263589555,
+          "distance_m": 0.09192981453780218,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            0.12092768630011824,
+            -0.005531112652699004,
+            0.5358123146341539
+          ],
+          "grasp_center_xyz": [
+            0.030011939974225434,
+            -0.00016023909521218163,
+            0.5483251715497469
+          ],
+          "command9": [
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -110.27423543941906
+        },
+        {
+          "seed": 10042,
+          "initial_distance_m": 0.0463617492844326,
+          "distance_m": 0.04676430245056328,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            -0.01622431073409772,
+            0.0050288987545894365,
+            0.5436153995275996
+          ],
+          "grasp_center_xyz": [
+            0.030011939974225434,
+            -0.00016023909521218163,
+            0.5483251715497469
+          ],
+          "command9": [
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -56.15863918598325
+        },
+        {
+          "seed": 10043,
+          "initial_distance_m": 0.04712127077347261,
+          "distance_m": 0.046720949042476506,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            0.0759037772038158,
+            -0.007657693705745986,
+            0.5437892560428779
+          ],
+          "grasp_center_xyz": [
+            0.030011939974225434,
+            -0.00016023909521218163,
+            0.5483251715497469
+          ],
+          "command9": [
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -56.02390224425013
+        },
+        {
+          "seed": 10044,
+          "initial_distance_m": 0.08768004127393168,
+          "distance_m": 0.08808160329468412,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            -0.05685412056121935,
+            0.003902729704490129,
+            0.5343198636078559
+          ],
+          "grasp_center_xyz": [
+            0.030011939974225434,
+            -0.00016023909521218163,
+            0.5483251715497469
+          ],
+          "command9": [
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -105.73930100149244
+        },
+        {
+          "seed": 10045,
+          "initial_distance_m": 0.11671800129784556,
+          "distance_m": 0.11711450057203163,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            -0.08409583780593244,
+            0.014077923290807239,
+            0.5261329200600975
+          ],
+          "grasp_center_xyz": [
+            0.030011939974225434,
+            -0.00016023909521218163,
+            0.5483251715497469
+          ],
+          "command9": [
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -140.5782572961987
+        },
+        {
+          "seed": 10046,
+          "initial_distance_m": 0.05866501903014239,
+          "distance_m": 0.05906374157302115,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            -0.02774256579557713,
+            -0.01125473687578077,
+            0.5428612214321646
+          ],
+          "grasp_center_xyz": [
+            0.030011939974225434,
+            -0.00016023909521218163,
+            0.5483251715497469
+          ],
+          "command9": [
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -70.91757240448634
+        }
+      ],
+      "n": 6,
+      "successes": 0,
+      "success_rate": 0.0,
+      "mean_final_distance_m": 0.07494581857842982,
+      "physical_run_ids": [],
+      "evaluation_domain": "simulation",
+      "independent_from_training_episodes": true,
+      "split_role": "engineering_development_evaluation",
+      "sealed_final_test": false
+    },
+    "teacher": {
+      "algorithm": "Stable-Baselines3 PPO",
+      "privileged_state": true,
+      "device": "cpu",
+      "environment_timesteps": 4096,
+      "optimizer_updates": 160,
+      "weights_changed": true,
+      "checkpoint": "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/teacher_ppo.zip",
+      "sha256": "13c113b77edb49c3672f2a46bdf6f3ff3308e56172693cdbe82f84ae8d3478ed",
+      "save_reload_passed": true,
+      "evaluation": {
+        "episodes": [
+          {
+            "seed": 10041,
+            "initial_distance_m": 0.09233311263589555,
+            "distance_m": 0.003251752494115634,
+            "success": true,
+            "steps": 5,
+            "goal_xyz": [
+              0.12092768630011824,
+              -0.005531112652699004,
+              0.5358123146341539
+            ],
+            "grasp_center_xyz": [
+              0.12271351317379861,
+              -0.007886496736734395,
+              0.5344569982589481
+            ],
+            "command9": [
+              94.91354370117188,
+              80.33097076416016,
+              81.94100952148438,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": 11.207577183785121
+          },
+          {
+            "seed": 10042,
+            "initial_distance_m": 0.0463617492844326,
+            "distance_m": 0.014701546647072204,
+            "success": true,
+            "steps": 4,
+            "goal_xyz": [
+              -0.01622431073409772,
+              0.0050288987545894365,
+              0.5436153995275996
+            ],
+            "grasp_center_xyz": [
+              -0.002568537301002245,
+              0.0004557240617844631,
+              0.5465719852255106
+            ],
+            "command9": [
+              91.0007095336914,
+              93.80801391601562,
+              92.14840698242188,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": 6.517006795287053
+          },
+          {
+            "seed": 10043,
+            "initial_distance_m": 0.04712127077347261,
+            "distance_m": 0.005808435765159952,
+            "success": true,
+            "steps": 3,
+            "goal_xyz": [
+              0.0759037772038158,
+              -0.007657693705745986,
+              0.5437892560428779
+            ],
+            "grasp_center_xyz": [
+              0.07567881817902074,
+              -0.0019986409914719444,
+              0.5450786131897616
+            ],
+            "command9": [
+              92.46971893310547,
+              85.17588806152344,
+              86.29376983642578,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": 8.333031533555008
+          },
+          {
+            "seed": 10044,
+            "initial_distance_m": 0.08768004127393168,
+            "distance_m": 0.014289036993194266,
+            "success": true,
+            "steps": 6,
+            "goal_xyz": [
+              -0.05685412056121935,
+              0.003902729704490129,
+              0.5343198636078559
+            ],
+            "grasp_center_xyz": [
+              -0.04391261027428381,
+              0.0005468123042267583,
+              0.5393628496368496
+            ],
+            "command9": [
+              90.5330810546875,
+              98.22640228271484,
+              95.6695785522461,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": 8.576324074294321
+          },
+          {
+            "seed": 10045,
+            "initial_distance_m": 0.11671800129784556,
+            "distance_m": 0.017371821586227427,
+            "success": true,
+            "steps": 8,
+            "goal_xyz": [
+              -0.08409583780593244,
+              0.014077923290807239,
+              0.5261329200600975
+            ],
+            "grasp_center_xyz": [
+              -0.07403048189175133,
+              0.000574791661207914,
+              0.5303913507262339
+            ],
+            "command9": [
+              90.3987045288086,
+              101.56348419189453,
+              98.29232025146484,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": 8.417575050863356
+          },
+          {
+            "seed": 10046,
+            "initial_distance_m": 0.05866501903014239,
+            "distance_m": 0.018160883492370487,
+            "success": true,
+            "steps": 5,
+            "goal_xyz": [
+              -0.02774256579557713,
+              -0.01125473687578077,
+              0.5428612214321646
+            ],
+            "grasp_center_xyz": [
+              -0.01421876417051717,
+              0.000653229214275169,
+              0.5451250284971678
+            ],
+            "command9": [
+              90.99419403076172,
+              95.15988159179688,
+              92.98751831054688,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": 6.519802600156397
+          }
+        ],
+        "n": 6,
+        "successes": 6,
+        "success_rate": 1.0,
+        "mean_final_distance_m": 0.012263912829689994,
+        "physical_run_ids": [],
+        "evaluation_domain": "simulation",
+        "independent_from_training_episodes": true,
+        "split_role": "engineering_development_evaluation",
+        "sealed_final_test": false
+      }
+    },
+    "dataset": {
+      "id": "cad-reach-7a2877b5c47f49acaa04c164961e7fcd",
+      "manifest_sha256": "326c2662ff8094783abc6393f99d5686d4f26daa0c7a2390018122447f0fbb32",
+      "episode_count": 12,
+      "successful_teacher_episodes": 10,
+      "official_export": {
+        "format": "LeRobotDataset v3.0",
+        "directory": "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/lerobot_v3",
+        "repo_id": "local-explorer/cad-reach-7a2877b5c47f49acaa04c164961e7fcd",
+        "episodes": 12,
+        "frames": 167,
+        "fps": 12.5,
+        "image_only": true,
+        "finalize_called": true,
+        "official_readback_passed": true,
+        "all_frame_state_action_image_checks_passed": true,
+        "causal_alignment_checked": true,
+        "source_splits_preserved": true,
+        "source_npz_immutable": true,
+        "native_monotonic_timestamps_preserved": false,
+        "native_wall_timestamps_preserved": false,
+        "conversion_grid_preserved": false,
+        "source_manifest_sha256": "326c2662ff8094783abc6393f99d5686d4f26daa0c7a2390018122447f0fbb32",
+        "provenance_sha256": "2a6915564659e8b0ffb89a8dd274f14c365d1dc19689ad456faafdc726e79baf",
+        "uploaded_to_hub": false
+      }
+    },
+    "student": {
+      "status": "trained_and_simulation_evaluated",
+      "trained": true,
+      "algorithm": "official LeRobot ACT",
+      "lerobot_version": "0.6.1",
+      "official_module": "lerobot.policies.act.modeling_act",
+      "optimizer_steps": 120,
+      "weights_changed": true,
+      "parameter_count": 12303209,
+      "device": "cpu",
+      "checkpoint_dir": "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/student_act",
+      "checkpoint_sha256": {
+        "config.json": "5a1056188f424b8ec15c63516f8a77362efdcce99edb84e7b6286d67c7da1219",
+        "explorer_preprocessing.json": "106d836a1f4168244a4fd4e7e4a9311d74f111b3bc74e2358914f64584362808",
+        "model.safetensors": "364c33b87187cab701b6311775d0af45a3cc5a94a3b0ff693a18b9c2ff5c38ed"
+      },
+      "save_reload_passed": true,
+      "reload_max_abs_error": 0.0,
+      "evaluation": {
+        "episodes": [
+          {
+            "seed": 10041,
+            "initial_distance_m": 0.09233311263589555,
+            "distance_m": 0.05778681412855133,
+            "success": false,
+            "steps": 60,
+            "goal_xyz": [
+              0.12092768630011824,
+              -0.005531112652699004,
+              0.5358123146341539
+            ],
+            "grasp_center_xyz": [
+              0.06426808110101621,
+              -0.0015202097355622424,
+              0.5464385879036936
+            ],
+            "command9": [
+              92.60468292236328,
+              87.53726959228516,
+              85.59963989257812,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": -66.03668228724464
+          },
+          {
+            "seed": 10042,
+            "initial_distance_m": 0.0463617492844326,
+            "distance_m": 0.08078541004095499,
+            "success": false,
+            "steps": 60,
+            "goal_xyz": [
+              -0.01622431073409772,
+              0.0050288987545894365,
+              0.5436153995275996
+            ],
+            "grasp_center_xyz": [
+              0.06424568476050031,
+              -0.0015192070857547946,
+              0.546441104835705
+            ],
+            "command9": [
+              92.60273742675781,
+              87.53912353515625,
+              85.60221099853516,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": -100.30886817553943
+          },
+          {
+            "seed": 10043,
+            "initial_distance_m": 0.04712127077347261,
+            "distance_m": 0.01331053019196219,
+            "success": true,
+            "steps": 3,
+            "goal_xyz": [
+              0.0759037772038158,
+              -0.007657693705745986,
+              0.5437892560428779
+            ],
+            "grasp_center_xyz": [
+              0.06436360849744237,
+              -0.0015318235719400043,
+              0.5463325679237372
+            ],
+            "command9": [
+              92.6043472290039,
+              87.53804016113281,
+              85.60076904296875,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": 7.436889642066127
+          },
+          {
+            "seed": 10044,
+            "initial_distance_m": 0.08768004127393168,
+            "distance_m": 0.12182210734438688,
+            "success": false,
+            "steps": 60,
+            "goal_xyz": [
+              -0.05685412056121935,
+              0.003902729704490129,
+              0.5343198636078559
+            ],
+            "grasp_center_xyz": [
+              0.06424210417785779,
+              -0.0015190489343749696,
+              0.5464415181220462
+            ],
+            "command9": [
+              92.60259246826172,
+              87.53932189941406,
+              85.60275268554688,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": -149.52646996088325
+          },
+          {
+            "seed": 10045,
+            "initial_distance_m": 0.11671800129784556,
+            "distance_m": 0.1505419267256983,
+            "success": false,
+            "steps": 60,
+            "goal_xyz": [
+              -0.08409583780593244,
+              0.014077923290807239,
+              0.5261329200600975
+            ],
+            "grasp_center_xyz": [
+              0.06425239311215801,
+              -0.001519510224777009,
+              0.5464404101434472
+            ],
+            "command9": [
+              92.6025161743164,
+              87.53804016113281,
+              85.6021499633789,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": -183.9581110674727
+          },
+          {
+            "seed": 10046,
+            "initial_distance_m": 0.05866501903014239,
+            "distance_m": 0.09256261658788612,
+            "success": false,
+            "steps": 60,
+            "goal_xyz": [
+              -0.02774256579557713,
+              -0.01125473687578077,
+              0.5428612214321646
+            ],
+            "grasp_center_xyz": [
+              0.06423692890338403,
+              -0.001518814429016493,
+              0.5464420535464054
+            ],
+            "command9": [
+              92.6023941040039,
+              87.54014587402344,
+              85.60282135009766,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": -114.3941011931669
+          }
+        ],
+        "n": 6,
+        "successes": 1,
+        "success_rate": 0.16666666666666666,
+        "mean_final_distance_m": 0.08613490083657331,
+        "physical_run_ids": [],
+        "evaluation_domain": "simulation",
+        "independent_from_training_episodes": true,
+        "split_role": "engineering_development_evaluation",
+        "sealed_final_test": false
+      },
+      "losses_first_last": [
+        0.8674482107162476,
+        0.09407682716846466
+      ],
+      "rgb_inputs": [
+        "observation.images.overview"
+      ],
+      "state_basis": "command_estimate",
+      "privileged_state_in_actor": false,
+      "elapsed_s": 79.49484507600027,
+      "training_episode_count": 10,
+      "excluded_failed_episode_ids": [
+        "episode_0008",
+        "episode_0009"
+      ],
+      "framework_versions": {
+        "torch": "2.11.0",
+        "torchvision": "0.26.0"
+      },
+      "framework_compatibility_note": "Torch/torchvision versions lie within LeRobot 0.6.1 declared bounds"
+    },
+    "elapsed_s": 131.52170962299897,
+    "provenance_sha256": "da11259866d351c3f4fa41ff48c5dd93beb4bbd32ddd88196265a7b29b715a8a",
+    "skill_card": {
+      "id": "sim-reach-7a2877b5c47f49acaa04c164961e7fcd",
+      "task": "engineering_fixed_base_reach_pilot",
+      "source_type": "sim_teacher_distilled_act",
+      "status": "simulation_pilot_evaluated",
+      "action_contract": {
+        "version": 1,
+        "names": [
+          "base",
+          "shoulder",
+          "elbow",
+          "wrist_pitch",
+          "wrist_roll",
+          "gripper",
+          "vx",
+          "vy",
+          "wz"
+        ],
+        "arm_unit": "degrees",
+        "base_units": [
+          "m/s",
+          "m/s",
+          "rad/s"
+        ],
+        "pilot_active_indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      "lineage": {
+        "job_id": "7a2877b5c47f49acaa04c164961e7fcd",
+        "dataset_id": "cad-reach-7a2877b5c47f49acaa04c164961e7fcd",
+        "methods": [
+          "PPO_SB3_2_9",
+          "ACT_LEROBOT_0_6_1",
+          "EXPLORER_CAD_MUJOCO",
+          "ENGINEERING_GLUE"
+        ],
+        "teacher_sha256": "13c113b77edb49c3672f2a46bdf6f3ff3308e56172693cdbe82f84ae8d3478ed",
+        "provenance_sha256": "da11259866d351c3f4fa41ff48c5dd93beb4bbd32ddd88196265a7b29b715a8a"
+      },
+      "evaluation": {
+        "episodes": [
+          {
+            "seed": 10041,
+            "initial_distance_m": 0.09233311263589555,
+            "distance_m": 0.05778681412855133,
+            "success": false,
+            "steps": 60,
+            "goal_xyz": [
+              0.12092768630011824,
+              -0.005531112652699004,
+              0.5358123146341539
+            ],
+            "grasp_center_xyz": [
+              0.06426808110101621,
+              -0.0015202097355622424,
+              0.5464385879036936
+            ],
+            "command9": [
+              92.60468292236328,
+              87.53726959228516,
+              85.59963989257812,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": -66.03668228724464
+          },
+          {
+            "seed": 10042,
+            "initial_distance_m": 0.0463617492844326,
+            "distance_m": 0.08078541004095499,
+            "success": false,
+            "steps": 60,
+            "goal_xyz": [
+              -0.01622431073409772,
+              0.0050288987545894365,
+              0.5436153995275996
+            ],
+            "grasp_center_xyz": [
+              0.06424568476050031,
+              -0.0015192070857547946,
+              0.546441104835705
+            ],
+            "command9": [
+              92.60273742675781,
+              87.53912353515625,
+              85.60221099853516,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": -100.30886817553943
+          },
+          {
+            "seed": 10043,
+            "initial_distance_m": 0.04712127077347261,
+            "distance_m": 0.01331053019196219,
+            "success": true,
+            "steps": 3,
+            "goal_xyz": [
+              0.0759037772038158,
+              -0.007657693705745986,
+              0.5437892560428779
+            ],
+            "grasp_center_xyz": [
+              0.06436360849744237,
+              -0.0015318235719400043,
+              0.5463325679237372
+            ],
+            "command9": [
+              92.6043472290039,
+              87.53804016113281,
+              85.60076904296875,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": 7.436889642066127
+          },
+          {
+            "seed": 10044,
+            "initial_distance_m": 0.08768004127393168,
+            "distance_m": 0.12182210734438688,
+            "success": false,
+            "steps": 60,
+            "goal_xyz": [
+              -0.05685412056121935,
+              0.003902729704490129,
+              0.5343198636078559
+            ],
+            "grasp_center_xyz": [
+              0.06424210417785779,
+              -0.0015190489343749696,
+              0.5464415181220462
+            ],
+            "command9": [
+              92.60259246826172,
+              87.53932189941406,
+              85.60275268554688,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": -149.52646996088325
+          },
+          {
+            "seed": 10045,
+            "initial_distance_m": 0.11671800129784556,
+            "distance_m": 0.1505419267256983,
+            "success": false,
+            "steps": 60,
+            "goal_xyz": [
+              -0.08409583780593244,
+              0.014077923290807239,
+              0.5261329200600975
+            ],
+            "grasp_center_xyz": [
+              0.06425239311215801,
+              -0.001519510224777009,
+              0.5464404101434472
+            ],
+            "command9": [
+              92.6025161743164,
+              87.53804016113281,
+              85.6021499633789,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": -183.9581110674727
+          },
+          {
+            "seed": 10046,
+            "initial_distance_m": 0.05866501903014239,
+            "distance_m": 0.09256261658788612,
+            "success": false,
+            "steps": 60,
+            "goal_xyz": [
+              -0.02774256579557713,
+              -0.01125473687578077,
+              0.5428612214321646
+            ],
+            "grasp_center_xyz": [
+              0.06423692890338403,
+              -0.001518814429016493,
+              0.5464420535464054
+            ],
+            "command9": [
+              92.6023941040039,
+              87.54014587402344,
+              85.60282135009766,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "physical_run": false,
+            "return": -114.3941011931669
+          }
+        ],
+        "n": 6,
+        "successes": 1,
+        "success_rate": 0.16666666666666666,
+        "mean_final_distance_m": 0.08613490083657331,
+        "physical_run_ids": [],
+        "evaluation_domain": "simulation",
+        "independent_from_training_episodes": true,
+        "split_role": "engineering_development_evaluation",
+        "sealed_final_test": false
+      },
+      "limitations": [
+        "Engineering reach pilot, not a sock task",
+        "Simulated fixed base; three active joints",
+        "Estimated actuator/contact physics",
+        "No physical validation",
+        "No calibrated real camera transfer"
+      ]
+    }
+  },
+  "progress": 1.0,
+  "error": null,
+  "frame_available": true
+}
