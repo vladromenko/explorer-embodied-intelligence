@@ -105,7 +105,7 @@ class LabVisionService:
                 valid=True;reason=None
             except ValueError as error:reason=str(error)
         with self.lock:selections=list(deepcopy(self.selections).values())
-        return dict(schema='explorer_lab06_vision_status_v1',project_id='06',camera=self.source.status(),
+        return dict(schema='explorer_lab06_vision_status_v1',project_id='06',camera=self.source.metadata(),
             perception=cv,segmentation_available=cv.get('available') is True and cv.get('model',{}).get('task')=='instance_segmentation',
             vlm=dict(model_staged=self.model_staged,worker=semantic,
                 inference_qualified=any(row.get('outcome')=='SEMANTIC_RESULT' for row in semantic.get('receipts',[]))),

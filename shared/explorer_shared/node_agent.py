@@ -697,13 +697,18 @@ class NodeAgent:
             for item in calibrations:
                 item['verified_on_connected_hardware']=any(profile['calibration_sha256']==item['sha256'] for profile in station['roles'].values())
         observer = self.observer.snapshot() if self.observer else {"available": False, "state": "not_configured"}
+        try:
+            lab_vision=self.lab_vision.snapshot() if self.lab_vision else None
+        except Exception as error:
+            # Optional semantics/geometry must not take camera/station inventory down.
+            lab_vision={'state':'ERROR','error_type':type(error).__name__,'native_execution_enabled':False}
         cameras = self.cameras()
         return {"schema_version": 1, "node_id": self.node_id, "hostname": socket.gethostname(),
                 "wall_utc": wall_utc(), "monotonic_ns": time.monotonic_ns(), "clock_domain": self.delivery.clock_domain,
                 "hardware": {"architecture": os.uname().machine, "hailo_device_present": Path("/dev/hailo0").exists()},
                 "cameras": cameras, "serial_devices": serial, "calibrations": calibrations,
                 "perception": observer, "station": station,"mobile_observation":mobile,
-                "lab_vision":self.lab_vision.snapshot() if self.lab_vision else None,
+                "lab_vision":lab_vision,
                 "capabilities": {"physical_motion": bool(station and station['available']) or self.mode=='nano', "servo_bus_access": bool(station and station['available']),
                                  "serial_discovery": True, "joint_measurements": bool(station and station['measurements']),
                                  "calibration_verified": bool(station and len(station['roles'])==2), "arm_roles_assigned": bool(station and len(station['roles'])==2),

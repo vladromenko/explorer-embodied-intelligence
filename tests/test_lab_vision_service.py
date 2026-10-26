@@ -22,7 +22,7 @@ def rig(tmp_path):
         camera_id='pi-overview',model_sha256='a'*64,track_session_id='software-tracks',available=True,
         model={'task':'instance_segmentation'},detections=[dict(track_id=7,label='software-object',score=.8,
             box=[3/32,2/24,12/32,12/24],mask_available=True,mask_rle=encode_mask_rle(mask))])
-    source=SimpleNamespace(camera_id='pi-overview',latest=lambda:original,status=lambda:{'available':True})
+    source=SimpleNamespace(camera_id='pi-overview',latest=lambda:original,metadata=lambda:{'available':True})
     class Observer:
         pair=(original,observation)
         def snapshot(self):return deepcopy(observation)
@@ -87,3 +87,13 @@ def test_bad_optional_configuration_preserves_camera_and_detector_status(tmp_pat
     status=bad.snapshot()
     assert status['camera']['available'] and status['perception']['available']
     assert status['configuration_error'] and status['vlm']['worker']['state']=='NOT_CONFIGURED'
+
+
+def test_status_uses_the_actual_shared_camera_source_metadata_interface(tmp_path):
+    from explorer_shared.node_agent import CameraSource
+    camera=CameraSource('pi-overview','Actual cached camera interface')
+    stream=io.BytesIO();Image.new('RGB',(32,24)).save(stream,format='JPEG')
+    camera.publish(stream.getvalue(),32,24)
+    service=LabVisionService(camera,None,clock_domain='pi:software',boot_id='software',config_path=tmp_path/'absent.json')
+    assert service.snapshot()['camera']['available'] is True
+    assert service.snapshot()['vlm']['worker']['state']=='NOT_CONFIGURED'
