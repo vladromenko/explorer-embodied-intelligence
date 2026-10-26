@@ -189,3 +189,9 @@ test("observed wrapper pins current session and epoch and rejects unknown native
   assert.throws(()=>client.observedOperation("native_begin",{role:"giver"}),/typed операция/);
   await client.stop();assert.throws(()=>client.observedOperation("observed_refresh",{}),/После STOP/);
 });
+
+test('native wrapper pins server session/epoch and rejects targets, model IDs or browser ownership fields',async()=>{
+  const {client,calls}=await rig();await client.nativeOperation('native_refresh',{});assert.deepEqual(calls.at(-1),['POST','/api/cooperative/native_refresh',{session_id:'server-session',expected_epoch:'epoch-one'}]);
+  for(const fields of [{session_id:'other'},{expected_epoch:'other'},{targets:[1,2]},{model_id:'spoof'},{actor_id:'spoof'},{url:'http://foreign'}])assert.throws(()=>client.nativeOperation('native_begin',fields),/без подмены/);
+  await client.nativeOperation('native_recenter',{role:'giver',native_control_choice_id:'a'.repeat(64),observing:true,user_observed_test_confirmed:true,neutral:true});assert.equal(calls.at(-1)[2].expected_epoch,'epoch-one');await client.stop();assert.throws(()=>client.nativeOperation('native_refresh',{}),/После STOP/);
+});

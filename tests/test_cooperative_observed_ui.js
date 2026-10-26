@@ -92,3 +92,32 @@ test("another role's in-flight metadata read defers real displayed renewal witho
 test("locally blocked unsent authorize is not mislabeled as uncertain remote authorization",async()=>{
   const pending=deferred(),{client,options}=await rig();await ready(client,"giver");const invoke=options.invoke;options.invoke=(op,fields)=>op==="observed_refresh"?pending.promise:invoke(op,fields);const refreshing=client.refresh();await assert.rejects(client.authorize("giver"),/Дождитесь/);assert.deepEqual(client.snapshot().uncertain,[]);pending.resolve(setup());await refreshing;
 });
+
+async function nativeRig() {
+  const r=await rig(),nativeCalls=[];
+  const operations=()=>Object.fromEntries(['native_begin','native_resume','native_recenter','native_attach','native_lease','native_stop'].map(op=>[op,{implemented:true,available:true,choice_id:digest('a')}]));
+  r.controls={schema:'explorer_cooperative_native_controls_v1',roles:{giver:{operations:operations()},receiver:{operations:operations()}}};
+  for(const op of ['native_resume','native_recenter','native_lease'])r.controls.roles.receiver.operations[op]={implemented:false,available:false,choice_id:null};
+  r.options.invokeNative=async(op,fields)=>{nativeCalls.push([op,copy(fields)]);return op==='native_refresh'?copy(r.controls):{role:fields.role,operation:op,native_controls:copy(r.controls),API_result_claims_hardware_attainment:false};};
+  return {...r,nativeCalls};
+}
+function nativeAffirm(client,role='giver') {for(const key of ['observing','user_observed_test_confirmed','neutral'])client.nativeAffirm(role,key,true);}
+
+test('native rendering/observed watch never refreshes or starts control; separate native refresh is read only',async()=>{
+  const {client,nativeCalls,calls}=await nativeRig();cooperativeObservedPanel(client.snapshot());client.sync();assert.deepEqual(nativeCalls,[]);await client.refresh();assert.deepEqual(nativeCalls,[]);await client.nativeRefresh();assert.deepEqual(nativeCalls,[['native_refresh',{}]]);assert.deepEqual(calls,[['observed_refresh',{}]]);
+});
+test('native actions consume one server choice and separate confirmations, then reset flags without auto leases',async()=>{
+  const {client,nativeCalls}=await nativeRig();await client.nativeRefresh();await assert.rejects(client.nativeCommand('giver','native_begin'),/Лично подтвердите/);nativeAffirm(client);await client.nativeCommand('giver','native_begin');assert.deepEqual(nativeCalls.at(-1),['native_begin',{role:'giver',native_control_choice_id:digest('a'),observing:true,user_observed_test_confirmed:true,neutral:true}]);assert.deepEqual(client.snapshot().nativeFlags.giver,{observing:false,user_observed_test_confirmed:false,neutral:false});assert.equal(nativeCalls.length,2);await assert.rejects(client.nativeCommand('giver','native_resume'),/Лично подтвердите/);
+});
+test('unimplemented Pi operations, unadvertised action and stale native choices cannot issue requests',async()=>{
+  const {client,nativeCalls,clock}=await nativeRig();await client.nativeRefresh();nativeAffirm(client,'receiver');await assert.rejects(client.nativeCommand('receiver','native_resume'),/недоступно/);await assert.rejects(client.nativeCommand('receiver','action'),/реализованное/);clock.value+=1501;await assert.rejects(client.nativeCommand('receiver','native_begin'),/недоступно/);assert.deepEqual(nativeCalls,[['native_refresh',{}]]);
+});
+test('native recenter requires neutral again, success does not automatically resume',async()=>{
+  const {client,nativeCalls}=await nativeRig();await client.nativeRefresh();client.nativeAffirm('giver','observing',true);client.nativeAffirm('giver','user_observed_test_confirmed',true);await assert.rejects(client.nativeCommand('giver','native_recenter'),/нейтральный/);client.nativeAffirm('giver','neutral',true);await client.nativeCommand('giver','native_recenter');assert.equal(nativeCalls.length,2);assert.equal(nativeCalls.at(-1)[0],'native_recenter');assert.equal(nativeCalls.some(([op])=>op==='native_resume'),false);
+});
+test('unknown native reply is retained as uncertain; refresh never retries and only explicit exact stop can resolve it',async()=>{
+  const r=await nativeRig();await r.client.nativeRefresh();nativeAffirm(r.client);const invoke=r.options.invokeNative;r.options.invokeNative=async(op,fields)=>{if(op==='native_begin'){r.nativeCalls.push([op,fields]);throw new Error('unknown native return');}return invoke(op,fields);};await assert.rejects(r.client.nativeCommand('giver','native_begin'),/unknown/);assert.deepEqual(r.client.snapshot().nativeUncertain,['giver']);await r.client.nativeRefresh();nativeAffirm(r.client);await assert.rejects(r.client.nativeCommand('giver','native_resume'),/не подтверждён/);assert.equal(r.nativeCalls.filter(([op])=>op==='native_begin').length,1);await r.client.nativeCommand('giver','native_stop');assert.deepEqual(r.client.snapshot().nativeUncertain,[]);
+});
+test('blur while native request is pending drops its late controls and never reuses old flags on focus',async()=>{
+  const r=await nativeRig(),pending=deferred();await r.client.nativeRefresh();nativeAffirm(r.client);r.options.invokeNative=async()=>pending.promise;const operation=r.client.nativeCommand('giver','native_begin');r.client.setVisible(false);pending.resolve({role:'giver',operation:'native_begin',native_controls:r.controls});assert.deepEqual(await operation,{ignored:true});r.client.setVisible(true);assert.equal(r.client.snapshot().nativeControls,null);assert.equal(r.client.snapshot().nativeFlags.giver.observing,false);await assert.rejects(r.client.nativeCommand('giver','native_begin'),/недоступно/);
+});

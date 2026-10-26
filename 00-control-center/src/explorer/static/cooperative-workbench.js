@@ -262,7 +262,13 @@
       const session=sessionRequired();
       return operation(name,{...copy(fields),session_id:session.session_id,expected_epoch:session.epoch},name==="observed_revoke");
     }
-    return {snapshot,refresh,edit,chooseSkill,chooseSession,propose,confirm,createSession,registerZone,recordStart,recordStage,recordFinish,step,stop,confirmEvidence,review,aggregate,trainingPlan,train,shadow,warmModels,observedOperation};
+    function nativeOperation(name,fields={}) {
+      const operations=["native_begin","native_resume","native_recenter","native_attach","native_lease","native_stop"],allowed=["role","native_control_choice_id","observing","user_observed_test_confirmed","neutral"];
+      if ((name!=="native_refresh" && !operations.includes(name)) || !fields || typeof fields!=="object" || Array.isArray(fields) || Object.keys(fields).some(key=>!(name==="native_refresh" ? [] : allowed).includes(key))) throw new Error("Нужна отдельная typed операция управления без подмены сессии или epoch");
+      const session=sessionRequired();
+      return operation(name,{...copy(fields),session_id:session.session_id,expected_epoch:session.epoch},name==="native_stop");
+    }
+    return {snapshot,refresh,edit,chooseSkill,chooseSession,propose,confirm,createSession,registerZone,recordStart,recordStage,recordFinish,step,stop,confirmEvidence,review,aggregate,trainingPlan,train,shadow,warmModels,observedOperation,nativeOperation};
   }
 
   function cooperativeWorkbenchPanel(view = {}) {

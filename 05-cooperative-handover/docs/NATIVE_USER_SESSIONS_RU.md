@@ -80,3 +80,17 @@ owners. Проверяются отдельность begin/resume/attach, от�
 и auto lease, actor/role/epoch/one-use/expiry, authentic native identifiers,
 publication-gate negative, late STOP cleanup, новый owner и explicit recenter.
 Реальные native RPC, HOME, arm/chassis команды и deployments не выполнялись.
+
+Браузер 05 подключён к этим операциям отдельным typed wrapper. После связывания
+наблюдаемых разрешений пользователь явно нажимает «Обновить доступные действия
+управления». Ответ даёт только текущие серверные one-use choices. Перед каждым
+действием нужно заново подтвердить наблюдение и текущий тест; begin/recenter
+также требуют нейтрального ввода. Подтверждения не сохраняются между действиями,
+сессиями, переходами, blur или logout. Клиент принимает выбор не старше1.5s;
+сервер независимо проверяет2s, текущую native identity и точную session/epoch.
+Pi resume/recenter/lease остаются недоступными, если их нет в native ABI.
+Неизвестный ответ не повторяется. После него доступны read-only refresh и
+отдельный exact native STOP; общий STOP остаётся в основном workbench.
+Native begin/resume/attach и продление не вызываются наблюдением камеры,
+периодическим refresh, рендерингом или переходом на страницу. Ответ не
+утверждает измеренного достижения, удержания или передачи предмета.
