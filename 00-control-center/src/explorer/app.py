@@ -831,6 +831,17 @@ from .lab_skill_api import install_router as install_lab_skill_routes
 install_lab_skill_routes(app,lambda:STORE)
 
 
+@app.post('/api/lab/source-shadow')
+async def so101_source_shadow(request: Request):
+    from .so101_shadow_job import shadow_request
+    try:
+        body=await request.json()
+        if not isinstance(body,dict) or set(body)!={'model_job_id'}:raise ValueError('Choose one completed source model; only model_job_id is accepted')
+        settings=await asyncio.to_thread(shadow_request,STORE,body['model_job_id'])
+        return STORE.create_job('so101_skill_shadow',_SO101_SOURCE_PROJECT,settings)
+    except (ValueError,KeyError,TypeError) as error:raise HTTPException(400,str(error)) from error
+
+
 @app.get('/learning/so101')
 @app.get('/learning/so101/')
 def legacy_so101_lab():

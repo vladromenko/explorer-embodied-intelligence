@@ -564,6 +564,11 @@ class NodeAgent:
         if mode == "pi" and arms_configuration.exists():
             from .so101_station import SO101Station
             self.station = SO101Station(arms_configuration,self.state_dir,self.sources['pi-overview'])
+        self.so101_observations=None
+        if self.station is not None:
+            from .so101_observation import SO101CachedObservation
+            self.so101_observations=SO101CachedObservation(self.sources['pi-overview'],self.station,
+                clock_domain=self.delivery.clock_domain,boot_id=self.delivery.clock_domain.rsplit(':',1)[-1])
         if mode == "pi" and hailo_model and "pi-overview" in self.sources:
             from .hailo_observer import HailoObserver
             self.observer = HailoObserver(self.sources["pi-overview"], hailo_model, self.delivery.emit)
@@ -929,6 +934,17 @@ def make_handler(agent):
             elif path.startswith('/station/') and agent.station is not None:
                 if path=='/station/status':
                     self._json(200,agent.station.status())
+                elif path=='/station/observation':
+                    if urlsplit(self.path).query:raise ValueError('Source observation takes no query parameters')
+                    self._json(200,agent.so101_observations.create())
+                elif len(parts)==4 and parts[:2]==['station','observations'] and parts[3]=='frame':
+                    if urlsplit(self.path).query:raise ValueError('Pinned source JPEG takes no query parameters')
+                    raw,metadata=agent.so101_observations.frame(parts[2])
+                    self.send_response(200)
+                    for name,value in {'Content-Type':'image/jpeg','Content-Length':len(raw),'Cache-Control':'no-store',
+                        'X-Observation-ID':metadata['observation_id'],'X-Frame-ID':metadata['frame_id'],
+                        'X-JPEG-SHA256':metadata['frame_sha256'],'X-Boot-ID':metadata['frame_boot_id']}.items():self.send_header(name,str(value))
+                    self.end_headers();self.wfile.write(raw)
                 elif path=='/station/recordings':
                     self._json(200,{'recordings':agent.station.recordings()})
                 elif len(parts)==4 and parts[1]=='recordings' and parts[3]=='download':

@@ -1,0 +1,46 @@
+{
+  "schema": "explorer_actual_same_owner_mount_v1",
+  "commit": "b6d575e1ec1245fd39ba36c583221ec07c7c49a3",
+  "source_mounted": true,
+  "rolled_back": false,
+  "after_services": {
+    "explorer-web": {
+      "MainPID": "160739",
+      "ActiveState": "active"
+    },
+    "explorer-camera": {
+      "MainPID": "2347",
+      "ActiveState": "active"
+    },
+    "explorer-mcu": {
+      "MainPID": "2356",
+      "ActiveState": "active"
+    },
+    "explorer-control": {
+      "MainPID": "2413",
+      "ActiveState": "active"
+    }
+  },
+  "passive_startup_ROS": {
+    "sha256": "716f7e013b9c6841ccd5995984bd10396a31a125ba011e6cc5640210801f751e",
+    "topics": [
+      "/arm6_joints",
+      "/explorer/request"
+    ],
+    "received_count": 0,
+    "passive_only": true
+  },
+  "arm_command_reference_files_unchanged": true,
+  "all_six_original_config_hashes_match": true,
+  "default_execution_permission": false,
+  "original_source_files_matched_to_retained_factory": 155,
+  "native_dispatch_receipts": 0,
+  "new_publishers_created": 0,
+  "physical_control_api_calls": 0,
+  "source_startup_current_boot_zero_commands_verified": true,
+  "physical_endpoint_replacement_tested": false,
+  "physical_handover_tested": false,
+  "whole_task_completed": false,
+  "qualification_scope": "Same original web owner mounted; passive ROS startup observation and unchanged original configuration/reference bytes. No observed grant, HOME, policy input or physical skill test.",
+  "private_receipt_sha256": "7b54c2e7226ba4c416104d8745954cfb2c98bc09430307087f4b98fd2d75a20a"
+}
