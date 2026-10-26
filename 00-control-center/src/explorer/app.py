@@ -175,6 +175,12 @@ def actions_required():
          'detail':'Роли подтверждены по исходным калибровкам и регистрам подключённых двигателей.' if calibrated else 'Станция проверяет подключённые руки.'},
         {'id':'demonstrations', 'title':'Записать полные показы выбранной задачи', 'status':'NEEDS_DEMONSTRATIONS',
          'detail':'Видео без действий не считается экспертной демонстрацией. Мастер начинает с 3–5 технических эпизодов.'},
+        {'id':'geometry', 'title':'Измерить регистрацию SO-101 и ROSMASTER', 'status':'NEEDS_PHYSICAL_MEASUREMENTS',
+         'detail':'Нужны нули и направления суставов относительно URDF, общие оси и отдельная кривая раскрытия. До измерений прямой teaching/transfer остаётся UNREGISTERED.'},
+        {'id':'handover_scene', 'title':'Подготовить видимую общую зону двух роботов', 'status':'NEEDS_PHYSICAL_SCENE',
+         'detail':'На текущем Pi-ракурсе нет ROSMASTER и общей зоны передачи. Нужны видимость обеих рук, лёгкий предмет и отдельная проверка удержания. Шасси не двигать.'},
+        {'id':'fleet_access', 'title':'Восстановить служебный SSH-доступ для новых релизов', 'status':'NEEDS_ACCESS',
+         'detail':'Наблюдения Pi/Nano работают. Новый публичный ключ Homebrain ещё не принят Pi; удалённый новый backend не объявляется развёрнутым.'},
         {'id':'venue', 'title':'Определить конференцию и официальный срок статьи', 'status':'UNCONFIRMED',
          'detail':'Название конференции и CFP не подтверждены. Начало декабря — ориентир пользователя, а не проверенный deadline.'},
         {'id':'disk', 'title':'Проверить содержимое внешнего APFS-диска перед подготовкой хранилища', 'status':'PENDING_IDENTIFICATION',
@@ -212,12 +218,19 @@ def state():
             blockers=['Физический результат пока не подтверждён'], latest_job=project_jobs[0] if project_jobs else None))
     disk = shutil.disk_usage(STORE.root)
     nodes=node_states()
-    operational=any(node.get('capabilities',{}).get('physical_motion') for node in nodes)
+    operational=any(node.get('online') and node.get('capabilities',{}).get('physical_motion') for node in nodes)
     return dict(schema_version=1, nodes=nodes, experiments=experiments, jobs=jobs,
+        acceptance=acceptance(),constraints={'chassis_motion':'PROHIBITED_BY_OWNER','controller_configuration':'PRESERVE_ORIGINAL'},
         skills=STORE.skills(), research=research_status(), storage={'free_bytes':disk.free,'total_bytes':disk.total,'root':str(STORE.root)},
         capabilities={'station_rollout':True},
         admission={'physical_enabled':operational, 'owner_authorization':'Разрешено владельцем при видимости на камере Pi либо подтверждённом присутствии',
             'reasons':['Доступность управления и результаты обучения показаны отдельно. Физическая проверка обученных навыков ещё не завершена.'], 'controller_settings_unchanged':True})
+
+
+@app.get('/api/acceptance')
+def acceptance():
+    path=ROOT/'_registry/acceptance.json'
+    return json.loads(path.read_text()) if path.is_file() else {'overall_status':'IN_PROGRESS','software_integrated':False,'criteria':[]}
 
 
 @app.get('/api/research')
