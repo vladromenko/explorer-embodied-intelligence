@@ -2241,6 +2241,37 @@
         }
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-MANIPULATION-SELECTIVE-DAGGER-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/manipulation_selective_repair.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:01-autonomous-learning/docs/MANIPULATION_SELECTIVE_REPAIR_VALIDATION.json",
+          "role": "Actual current-state feedbackteacher qualification, counterfactual labels and independent rejected candidate"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_SIMULATION_EVIDENCE",
+      "changes_and_reason": "Model-based placement recovery queries separated from learner dispatches; beta0 learner states and verified teacherrecovery targets. NewstagequalityUNKNOWN when freshrollouts never reachgate; candidate rejected. No H4 gain/physical claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest 01-autonomous-learning/tests/test_manipulation_selective_repair.py -q",
+          "result": "10 passed; actual4000Adamupdates,1qualifiedteacherrecovery,66counterfactualqueries,independent0/2",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

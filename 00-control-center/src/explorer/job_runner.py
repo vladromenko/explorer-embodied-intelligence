@@ -224,6 +224,14 @@ def main(job_id):
             sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
             from explorer_sim.manipulation_curriculum import run_manipulation_curriculum
             result=run_manipulation_curriculum(store,job,config)
+        elif job['kind'] in ('mobile_manipulation','manipulation_selective_repair'):
+            sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
+            if job['kind']=='mobile_manipulation':
+                from explorer_sim.mobile_manipulation import run_mobile_manipulation
+                result=run_mobile_manipulation(store,job)
+            else:
+                from explorer_sim.manipulation_selective_repair import run_manipulation_selective_repair
+                result=run_manipulation_selective_repair(store,job,config)
         elif job['kind']=='program_trace':
             source=store.job(job['config'].get('source_job_id',''))
             if not source or source['kind']!='skill_cycle' or source['status']!='completed':
