@@ -1685,6 +1685,62 @@
       "activation_status": "ACTIVE_SOURCE_IMPLEMENTATION",
       "qualification_scope": "Executed development engineering route with rejected candidate; no sealed final test, reliable task success, H5 or physical qualification",
       "dependency_exception": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds"
+    },
+    {
+      "method_id": "AW0_PROGRAM_TRACE_EXPORT",
+      "implementation_id": "IMPL-AW0-ROUTEB-TRACE-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/program_trace.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://github.com/ZhuoyangLiu2005/agentic-wam/blob/7ad228bebb897bf01705cc10171e1d88cf5e9b22/docs/CODE_ANNOTATION.md",
+          "sha256": "34c44a5f90cc3d829b4dfbb812cab2074746f78d962c228636f2fd842b988424",
+          "role": "Primary RouteB task-program/frame-alignment idea; inspected cached pinned document; no upstream code copied/imported"
+        },
+        {
+          "url": "project-file:01-autonomous-learning/src/explorer_sim/skill_cycle.py",
+          "sha256": "b0776fa90b734d703df0841eb7c0919986bf88da301f28e2fca67aee49d6dd64",
+          "role": "Actual two-stage executor; exact frozen implementation binds phase/model mapping"
+        },
+        {
+          "url": "project-file:research/methods/AW0_FEASIBILITY_20261026.md",
+          "role": "Fleet feasibility decision: no stock AW weights/installation, no neural memory claim"
+        }
+      ],
+      "upstream_repo": "https://github.com/ZhuoyangLiu2005/agentic-wam",
+      "upstream_commit": "7ad228bebb897bf01705cc10171e1d88cf5e9b22",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED_OWN_EXPORTER_NO_UPSTREAM_CODE_COPIED",
+      "model_license": "NOT_APPLICABLE_NO_MODEL_LOADED",
+      "data_license": "PRIVATE_LOCAL_SIMULATED_TRACE_EVIDENCE",
+      "changes_and_reason": "Apply RouteB idea as an offline declarative two-reach descriptor and exact per-native-row phase/action sidecar for existing actual executor evidence. Keep model/checkpoint provenance, episode order, evaluator-assisted transition source and failed/unknown outcomes explicit. Unknown executor/library binding stays unlabelled; no visual inference/future privileged events in actor, no AW execution or memory module.",
+      "source_sha256": {
+        "program_trace.py": "ebac3f8b4b7d5f5164a519db2254f7f7058baa6ff405e95a7e40960f853f4037"
+      },
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest -q 01-autonomous-learning/tests/test_program_trace.py",
+          "result": "7 passed; aligned arrays, source hashes, continuous time/commands, unknown mapping/outcome, idempotence and isolation",
+          "date": "2026-10-26"
+        },
+        {
+          "command": "export_program_trace actual private skill-cycle source",
+          "source_run_id": "1a23e3f18f7d43108a114e22a7127857",
+          "result": "240aligned/labelled rows,4stages,2failed episodes,2evaluator transitions;idempotent;noAW/neural/hardwareexecution",
+          "receipt_sha256": "4baf4f0dc5af57e02b129d4ae04c7e730ccd5a4b55203964cfb382ac5decc107"
+        }
+      ],
+      "validation_receipt": "01-autonomous-learning/docs/PROGRAM_TRACE_VALIDATION.json",
+      "hardware_run_ids": [],
+      "activation_status": "ACTIVE_SOURCE_IMPLEMENTATION",
+      "qualification_scope": "Offline phase/action trace idea applied to already-executed simulation evidence; not AW0 execution, success, neural memory or H1-H5 qualification"
     }
   ],
   "preserved_legacy_exclusions": [

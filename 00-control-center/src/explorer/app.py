@@ -277,7 +277,7 @@ def datasets():
 @app.post('/api/jobs')
 async def create_job(request: Request):
     body = await request.json()
-    if body.get('kind') not in ('sim_pilot', 'train_act', 'dagger','skill_cycle','world_model','virtual_transfer', 'handover_test','station_shadow','station_rollout') or body.get('project_id') not in (*TITLES.keys(),'personal'):
+    if body.get('kind') not in ('sim_pilot', 'train_act', 'dagger','skill_cycle','program_trace','world_model','virtual_transfer', 'handover_test','station_shadow','station_rollout') or body.get('project_id') not in (*TITLES.keys(),'personal'):
         raise HTTPException(400, 'Unsupported job')
     config = body.get('config', {})
     if not isinstance(config, dict):

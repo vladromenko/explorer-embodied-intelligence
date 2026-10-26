@@ -174,6 +174,13 @@ def main(job_id):
             sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
             from explorer_sim.skill_cycle import run_skill_cycle
             result=run_skill_cycle(store,job)
+        elif job['kind']=='program_trace':
+            source=store.job(job['config'].get('source_job_id',''))
+            if not source or source['kind']!='skill_cycle' or source['status']!='completed':
+                raise ValueError('Program trace requires a completed skill-cycle source')
+            sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
+            from explorer_sim.program_trace import export_program_trace
+            result=export_program_trace(store.root/'jobs'/source['id']/'result.json',folder/'program_trace')
         elif job['kind'] in ('virtual_transfer', 'handover_test'):
             from .transfer import run_virtual_experiment
             result = run_virtual_experiment(store, job, config)
