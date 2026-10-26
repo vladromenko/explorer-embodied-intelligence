@@ -1,0 +1,26 @@
+{
+  "scope": "Archived integrator receipts; no new device access or hardware test performed by this audit",
+  "records": [
+    {
+      "canonical_source_path": "_registry/evidence/nano-camera-handoff.json",
+      "archived_path": "research/experiments/nano-cpu-cache-20261026/nano-camera-handoff.json",
+      "sha256": "fc2a7cc33897ed1d5c36212e113b6244cf8d3db40bdc66d3aacaab01e74f6982",
+      "copied_without_modification": true
+    },
+    {
+      "canonical_source_path": "_registry/evidence/nano-cpu-cache-live.json",
+      "archived_path": "research/experiments/nano-cpu-cache-20261026/nano-cpu-cache-live.json",
+      "sha256": "0846ee2f6a9c215d609b9a16d14429462a7ef7d422e84dfaf01643d3ea988366",
+      "copied_without_modification": true
+    },
+    {
+      "canonical_source_path": "_registry/evidence/controller-settings-recheck.json",
+      "archived_path": "research/experiments/nano-cpu-cache-20261026/controller-settings-recheck.json",
+      "sha256": "14dfa06190f2e7eb9442b04fd7ae106e736140318f47ff722dba9a07b227ac64",
+      "copied_without_modification": true
+    }
+  ],
+  "quality_statistics_provenance": "RGB native mean about 0.24/255, maximum 11, depth about 74% valid are integrator-reported context; these three receipts do not contain those numerical probe values. Do not represent them as independently extracted from the JSON receipts.",
+  "gpu_repair_claimed": false,
+  "physical_task_validated": false
+}
