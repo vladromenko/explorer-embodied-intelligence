@@ -257,3 +257,30 @@ def test_result_contract_and_job_source_request_binding(tmp_path):
     assert result['total_payload_bytes']==result['actual_payload_bytes']
     assert result['missing_dependencies_count']==result['missing_dependency_count']
     assert result['independent_restore_verified'] is True and result['verification']=='PARTIAL'
+
+
+def test_source_job_raw_metadata_SQL_byte_budget_precedes_any_body_fetch(tmp_path,monkeypatch):
+    from explorer import research_export_job as worker
+    store,source,folder=sources(tmp_path)
+    adversarial_result_sql(store,source['id'],{'oversize-private-fixture':'x'*8192})
+    connect=worker.sqlite3.connect;queries=[]
+    def traced(*args,**kwargs):
+        db=connect(*args,**kwargs);db.set_trace_callback(queries.append);return db
+    monkeypatch.setattr(worker.sqlite3,'connect',traced)
+    with pytest.raises(ResearchExportBlocked,match='SOURCE_JOB_METADATA_TOTAL_BOUND_EXCEEDED'):
+        worker._source_jobs(store,[source['id']],max_inline_bytes=1024)
+    assert any('LENGTH(CAST(config AS BLOB))' in query for query in queries)
+    assert not any('SELECT id,kind,project_id,status,config,result,error' in query for query in queries)
+    assert not any('oversize-private-fixture' in query for query in queries)
+
+
+def test_source_job_metadata_budget_is_total_across_parents_before_raw_fetch(tmp_path):
+    from explorer import research_export_job as worker
+    store,source,folder=sources(tmp_path)
+    second=store.create_job('software_qualification','04',{})
+    store.update_job(second['id'],status='completed',result={'body':'y'*900})
+    adversarial_result_sql(store,source['id'],{'body':'x'*900})
+    with pytest.raises(ResearchExportBlocked,match='SOURCE_JOB_METADATA_TOTAL_BOUND_EXCEEDED'):
+        worker._source_jobs(store,[source['id'],second['id']],max_inline_bytes=1500)
+    with pytest.raises(ResearchExportBlocked,match='SOURCE_JOB_METADATA_BUDGET_INVALID'):
+        worker._source_jobs(store,[source['id']],max_inline_bytes=64*1024**2)

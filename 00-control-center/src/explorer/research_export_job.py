@@ -77,23 +77,35 @@ def _hash(path, *, max_bytes=LIMITS['max_file_bytes']):
     return checksum, before.st_size
 
 
-def _source_jobs(store, ids, *, allow_missing=False):
+def _source_jobs(store, ids, *, allow_missing=False, max_inline_bytes=16 * 1024**2):
+    if type(max_inline_bytes) is not int or not 1<=max_inline_bytes<=32*1024**2:
+        raise ResearchExportBlocked('SOURCE_JOB_METADATA_BUDGET_INVALID')
     rows = {}
     with closing(sqlite3.connect(Path(store.path).resolve().as_uri() + '?mode=ro', uri=True)) as db:
         db.row_factory = sqlite3.Row
         db.execute('PRAGMA query_only=ON');db.execute('BEGIN')
+        metadata={};total=0
         for ident in ids:
-            row = db.execute('SELECT id,kind,project_id,status,config,result,error,created,updated,progress FROM jobs WHERE id=?', (ident,)).fetchone()
+            row=db.execute('''SELECT id,kind,status,
+                COALESCE(LENGTH(CAST(config AS BLOB)),0)+COALESCE(LENGTH(CAST(result AS BLOB)),0)+COALESCE(LENGTH(CAST(error AS BLOB)),0) AS body_bytes
+                FROM jobs WHERE id=?''',(ident,)).fetchone()
             if row is None:
                 if not allow_missing:
                     raise ResearchExportBlocked('SOURCE_JOB_NOT_FOUND', ident)
             else:
-                body = dict(row)
-                if body['status'] not in TERMINAL:
+                total+=row['body_bytes']
+                if total>max_inline_bytes:
+                    raise ResearchExportBlocked('SOURCE_JOB_METADATA_TOTAL_BOUND_EXCEEDED')
+                if row['status'] not in TERMINAL:
                     raise ResearchExportBlocked('SOURCE_JOB_NOT_TERMINAL', ident)
-                if body['kind'] == 'research_export':
+                if row['kind'] == 'research_export':
                     raise ResearchExportBlocked('RECURSIVE_EXPORT_NOT_ALLOWED', ident)
-                rows[ident] = body
+                metadata[ident]=row
+        # No Python config/result/error value is materialized before the whole
+        # requested cohort has passed the bounded SQL byte-size preflight.
+        for ident in metadata:
+            row=db.execute('SELECT id,kind,project_id,status,config,result,error,created,updated,progress FROM jobs WHERE id=?',(ident,)).fetchone()
+            rows[ident]=dict(row)
     return rows
 
 
