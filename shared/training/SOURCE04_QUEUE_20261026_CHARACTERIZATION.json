@@ -1,0 +1,17 @@
+{
+  "schema": "explorer_source04_checkpoint_queue_characterization_v1",
+  "source_commit": "73bacf2d8171a2a00c2841471543d1a05d51aec5",
+  "ACT_updates": 8,
+  "DP_updates": 8,
+  "DP_resumed_from_step": 4,
+  "ACT_qualification_sha256": "8e160ecdd1972cfc7825359c4caaca53ceab68ac4bd1ae3e23be360b6df0c304",
+  "DP_qualification_sha256": "41257487a13d35975ae360e8dd821f17d0090f7e9935f13e16da99f6fa1ceb4c",
+  "prior_ACT_qualification_sha256": "f480a34f5615790c42bfffb943d37f36b45f1cc059e05dde73765753624b32b0",
+  "prior_DP_qualification_sha256": "a0d462f9adb5d92dc95aafadeff61838f1914be1e49297590b616e43c54c8520",
+  "ACT_model_weights_sha256": "4305ead320fe9c301a960317b1f4ec852150b61125d8607a2ebbf5dd9ea6c5b1",
+  "DP_model_weights_sha256": "149e662f58be6c77a2043c26eb0e41b45eabe61334993569ade0a271d41c87e5",
+  "weights_equal_prior_qualification": true,
+  "physical_io": false,
+  "production_worker_integration_qualified": false,
+  "task_success_claimed": false
+}
