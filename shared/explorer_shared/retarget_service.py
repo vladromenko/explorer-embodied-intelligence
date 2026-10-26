@@ -42,7 +42,7 @@ class PiRetargetService:
     reads remain owned by SO101Station. Local epochs discard queued UI events and
     a concurrent STOP cannot be undone by an old start/recenter response.
     """
-    def __init__(self, geometry, station, camera, state_dir, client=None):
+    def __init__(self, geometry, station, camera, state_dir, client=None, *, target_camera=None):
         self.geometry, self.station, self.camera, self.client = geometry, station, camera, client
         self.lock = threading.RLock()
         self.epoch, self.mode, self.error = uuid.uuid4().hex, 'IDLE', None
@@ -54,11 +54,13 @@ class PiRetargetService:
         self.remote_cancel_required = False
         self.state_dir = Path(state_dir)
         self.journal_lock = threading.Lock()
+        self.recorder,self.target_camera=None,target_camera
 
     @classmethod
     def from_config(cls, geometry, station, camera, state_dir, config_dir):
         settings = Path(config_dir)/'arm-retarget-peer.json'
         client = None
+        target_camera = None
         if settings.is_file():
             if settings.stat().st_size > 16384:
                 raise ValueError('Direct-arm peer metadata exceeds its bound')
@@ -70,7 +72,9 @@ class PiRetargetService:
             if not isinstance(token, str) or len(token) < 16:
                 raise ValueError('The existing private Nano observer token is required')
             client = NanoArmHTTPClient(body['nano_url'], token)
-        return cls(geometry, station, camera, state_dir, client)
+            from .retarget_recording import NanoSnapshotClient
+            target_camera = NanoSnapshotClient(body['nano_url'], token)
+        return cls(geometry, station, camera, state_dir, client, target_camera=target_camera)
 
     def start_worker(self):
         if self.thread is None:
@@ -118,6 +122,7 @@ class PiRetargetService:
                 last_result=copy.deepcopy(self.last_result), error=self.error, cached_samples_consumed=self.sample_count,
                 run_id=self.run_dir.name if self.run_dir else None, operator_lease='unchanged_original_operator_held',
                 loop='coalesced_one_cached_sample_per_explicit_held_event', controller_configuration_writes=0,
+                recording=self.recorder.status() if self.recorder is not None else None,
                 physical_acceptance_confirmed=False, chassis_requests=0)
 
     def _observing(self, body):
@@ -177,6 +182,20 @@ class PiRetargetService:
                 self.lifecycle_inflight = False
 
     def command(self, operation, body):
+        if operation == 'record/start':
+            if self.recorder is None:raise ValueError('Direct recorder is unavailable')
+            self._observing(body)
+            with self.lock:
+                self._match({'control_epoch':body.get('expected_control_epoch')})
+                expected,run_id=self.epoch,self.run_dir.name if self.run_dir else None
+            result=self.recorder.start(control_epoch=expected,run_id=run_id,registration=self.geometry.status(),
+                name=body.get('name','Показ SO-101 → ROSMASTER'),task=body.get('task'))
+            with self.lock:changed=self.epoch!=expected
+            if changed:self.recorder.finish(result['recording_id'],'unknown')
+            return result
+        if operation == 'record/finish':
+            if self.recorder is None:raise ValueError('Direct recorder is unavailable')
+            return self.recorder.finish(body.get('recording_id'),body.get('outcome','unknown'))
         if operation == 'start':
             return self._begin(body)
         if operation == 'recenter':
@@ -237,8 +256,13 @@ class PiRetargetService:
                     expected, active = self.epoch, self.mode == 'ACTIVE' and not self.lifecycle_inflight
                     self.step_inflight = active
                 if active:
+                    ticket=None;measured=None;result=None;action_started=time.monotonic_ns()
                     try:
+                        if self.recorder is not None:
+                            ticket=self.recorder.capture(expected,self.run_dir.name if self.run_dir else None)
+                        action_started=time.monotonic_ns()
                         measured = self._measurement()
+                        action_started=time.monotonic_ns()
                         result = self.session.step(measured)
                         with self.lock:
                             if self.epoch == expected:
@@ -249,6 +273,7 @@ class PiRetargetService:
                                     self.mode, self.epoch = self.session.state, uuid.uuid4().hex
                         self._journal('cached_source_step', source_measurement=measured, result=result)
                     except Exception as error:
+                        result={'state':'CONTROL_STEP_INTERRUPTED','error_type':type(error).__name__}
                         with self.lock:
                             self.error = type(error).__name__+': '+str(error)
                         try:
@@ -256,6 +281,10 @@ class PiRetargetService:
                         except Exception:
                             pass
                     finally:
+                        if self.recorder is not None and ticket is not None:
+                            self.recorder.append(ticket,measured or {'measured':False,'reason':'source_measurement_unavailable'},
+                                result or {'state':'UNKNOWN_OUTCOME'},action_started_ns=action_started,
+                                action_completed_ns=time.monotonic_ns())
                         with self.lock:
                             self.step_inflight = False
 
@@ -263,7 +292,9 @@ class PiRetargetService:
         self.shutdown.set();self.pending.set()
         if self.thread:
             self.thread.join(timeout=10)
-        self.stop()
+        try:self.stop()
+        finally:
+            if self.recorder is not None:self.recorder.close()
 
 
 def nano_gateway(geometry, legacy_bridge):

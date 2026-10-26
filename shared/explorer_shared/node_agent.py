@@ -493,6 +493,9 @@ class NodeAgent:
             except (OSError, ValueError, TypeError, KeyError) as error:
                 self.arm_retarget = PiRetargetService(geometry, self.station, self.sources.get('pi-overview'), self.state_dir)
                 self.arm_retarget.error = 'Private direct-arm peer configuration is invalid: '+type(error).__name__
+            from .retarget_recording import RetargetRecorder
+            self.arm_retarget.recorder = RetargetRecorder(self.state_dir/'retarget-recordings',self.sources.get('pi-overview'),
+                self.delivery.emit,clock_domain=self.delivery.clock_domain,target_camera=self.arm_retarget.target_camera)
 
     def start(self):
         for source in self.sources.values():
@@ -710,6 +713,12 @@ def make_handler(agent):
             parts = path.strip("/").split("/")
             if path == '/arm-retarget/status':
                 self._json(200, agent.retarget_status())
+            elif agent.mode == 'pi' and path == '/arm-retarget/recordings':
+                self._json(200, {'recordings':agent.arm_retarget.recorder.recordings()})
+            elif agent.mode == 'pi' and len(parts)==4 and parts[:2]==['arm-retarget','recordings']:
+                if parts[3]=='download':self._download(agent.arm_retarget.recorder.archive(parts[2]),parts[2])
+                elif parts[3]=='manifest':self._json(200, agent.arm_retarget.recorder.manifest(parts[2]))
+                else:raise LookupError('Unknown direct recording endpoint')
             elif agent.mobile_records is not None and path=='/mobile/recordings':
                 self._json(200,{'recordings':agent.mobile_records.recordings()+(agent.mobile_capture.recordings() if agent.mobile_capture else [])})
             elif agent.mobile_records is not None and len(parts)==4 and parts[:2]==['mobile','recordings'] and parts[3]=='download':
@@ -768,6 +777,9 @@ def make_handler(agent):
             self.send_header("X-Wall-UTC", frame.wall_utc)
             self.send_header("X-Monotonic-NS", str(frame.monotonic_ns))
             self.send_header("X-Timestamp-Basis", frame.timestamp_basis)
+            self.send_header("X-Clock-Domain", agent.delivery.clock_domain)
+            if frame.source_wall_utc is not None:
+                self.send_header("X-Source-Wall-UTC", frame.source_wall_utc)
 
         def _stream(self, source):
             if not agent.stream_slots.acquire(blocking=False):

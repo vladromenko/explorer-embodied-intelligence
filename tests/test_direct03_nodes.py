@@ -61,6 +61,7 @@ def http_nodes(tmp_path, monkeypatch):
     nano_url = 'http://127.0.0.1:'+str(nano_server.server_port)
     station = StationCache(g)
     pi = node_agent.NodeAgent('pi','pi',tmp_path/'pi-state',TOKEN,sources={},retarget_config_dir=config)
+    pi.arm_retarget.close()
     pi.station = station
     pi.arm_retarget = PiRetargetService(g,station,Camera(),tmp_path/'pi-state',NanoArmHTTPClient(nano_url,TOKEN))
     pi.arm_retarget.start_worker()
