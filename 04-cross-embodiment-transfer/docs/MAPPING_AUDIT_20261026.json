@@ -1,0 +1,232 @@
+{
+  "schema": "explorer_transfer04_mapping_audit_v1",
+  "A": [
+    {
+      "id": "source_URDF_and_named_native_contract",
+      "status": "RESOLVED",
+      "source_urdf_sha256": "3a65d2d35e68a8d2f0c2cc176d19b884506543c93ba72980145b80abe276022c",
+      "names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ]
+    },
+    {
+      "id": "source_calibration_SHA_and_encoder_delta",
+      "status": "RESOLVED",
+      "calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+      "profile_id": "mapping04-49b713b3324ce8d8e4b072ce",
+      "homing_offset_reapplied": false
+    },
+    {
+      "id": "source_new_calibration_midrange_convention",
+      "status": "RESOLVED_FOR_PREVIEW_SIM_SHADOW",
+      "document_sha256": "c6df213e471e4573ba6384cb957e9eee9644f5d671272f98f67d28866333f747",
+      "physical_registration_not_inferred": true
+    },
+    {
+      "id": "target_factory_native_servo_coordinate_adapter",
+      "status": "RESOLVED",
+      "source_sha256": "6dbfbcaa238b04e2ddb61e08d43f1ebee250e8bfd8ca273d83ff2e1008df6b2f",
+      "target_urdf_sha256": "9ee94f15a2473ba04c84c552bae47f7dd2bd734b8b3700f3fe25d752c3eace4b"
+    },
+    {
+      "id": "target_observed_gripper_open_close_direction",
+      "status": "RESOLVED",
+      "source_sha256": "ed275d5b774814963fc855009a4f93715ffbe4657796b2ed32f9c1c9718e11cb",
+      "open_command_deg": 30,
+      "empty_closed_command_deg": 170,
+      "metric_aperture_not_inferred": true
+    },
+    {
+      "id": "existing_stationary_camera_to_arm4_reference",
+      "status": "RESOLVED_WITH_ORIGINAL_SCOPE",
+      "source_sha256": "89c3370055d6436911de5f394048ac2d1d3892585e1fc773c6eb666070d07a77",
+      "camera_to_mount": [
+        [
+          0.016549137236173187,
+          0.9996176887008756,
+          0.022149548379142354,
+          -0.05080040639920698
+        ],
+        [
+          -0.9997658064323368,
+          0.016852423269582546,
+          -0.013576749192736612,
+          0.008390836326068152
+        ],
+        [
+          -0.013944832212667187,
+          -0.021919677612468377,
+          0.9996624777340108,
+          0.0796749412518667
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "validated_joints": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "scope": "stationary_frames_after_completed_factory_robotio_commands",
+      "translation_error_max_m": 0.0056209455429707365,
+      "moving_frame_use_qualified": false
+    }
+  ],
+  "B": [
+    {
+      "id": "source_URDF_unit_axis_alignment",
+      "required_for": "physical_registration",
+      "reason": "Encoder delta is computed, but unit-specific CAD axis/zero agreement is not an observed external pose measurement",
+      "wizard_step": "joint_reference_views"
+    },
+    {
+      "id": "source_and_target_metric_gripper_aperture",
+      "required_for": "physical_contact_transfer",
+      "reason": "Known empty-open/closed commands do not establish metric aperture or contact force",
+      "wizard_step": "gripper_scale_views"
+    },
+    {
+      "id": "current_source_target_object_goal_registration",
+      "required_for": "physical_scene_registration",
+      "reason": "Source/target robot-camera/object frame identities need current measured artifacts; old stationary arm4 scope is retained",
+      "wizard_step": "object_goal_views"
+    }
+  ],
+  "C": [
+    {
+      "id": "qualified06_object_skill_source",
+      "reason": "A stationary hold / four recorded predictions is not an independent source candy-to-box skill",
+      "development_allowed_with": "explicit_SCRIPTED_SIM_fixture_not_a_learned_source_skill"
+    }
+  ],
+  "all_computable_mapping_A_resolved": true,
+  "source_profile": {
+    "schema": "explorer_source_coordinate_profile04_v1",
+    "basis": "official_encoder_delta_and_documented_new_URDF_midrange_convention",
+    "joint_names": [
+      "shoulder_pan",
+      "shoulder_lift",
+      "elbow_flex",
+      "wrist_flex",
+      "wrist_roll",
+      "gripper"
+    ],
+    "joint_units": [
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "normalized_0_100"
+    ],
+    "source_calibration_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+    "source_urdf_sha256": "3a65d2d35e68a8d2f0c2cc176d19b884506543c93ba72980145b80abe276022c",
+    "zero_convention_document_sha256": "c6df213e471e4573ba6384cb957e9eee9644f5d671272f98f67d28866333f747",
+    "encoder_resolution": 4096,
+    "joints": {
+      "shoulder_pan": {
+        "scale_rad_per_native_unit": 0.020115399115292885,
+        "offset_rad": 0.0,
+        "encoder_range": [
+          853,
+          3475
+        ],
+        "homing_offset_reapplied": false,
+        "max_quantization_error_rad": 0.0015343553863686413
+      },
+      "shoulder_lift": {
+        "scale_rad_per_native_unit": 0.01827417265165052,
+        "offset_rad": 0.0,
+        "encoder_range": [
+          834,
+          3216
+        ],
+        "homing_offset_reapplied": false,
+        "max_quantization_error_rad": 0.0015343553863686413
+      },
+      "elbow_flex": {
+        "scale_rad_per_native_unit": 0.016977642350169016,
+        "offset_rad": 0.0,
+        "encoder_range": [
+          878,
+          3091
+        ],
+        "homing_offset_reapplied": false,
+        "max_quantization_error_rad": 0.0015343553863686413
+      },
+      "wrist_flex": {
+        "scale_rad_per_native_unit": 0.01798264512824048,
+        "offset_rad": 0.0,
+        "encoder_range": [
+          858,
+          3202
+        ],
+        "homing_offset_reapplied": false,
+        "max_quantization_error_rad": 0.0015343553863686413
+      },
+      "wrist_roll": {
+        "scale_rad_per_native_unit": 0.031415926535897934,
+        "offset_rad": 0.0,
+        "encoder_range": [
+          0,
+          4095
+        ],
+        "homing_offset_reapplied": false,
+        "max_quantization_error_rad": 0.0015343553863686413
+      }
+    },
+    "exact_encoder_arithmetic": true,
+    "physical_URDF_registration_measured": false,
+    "physical_execution_authorized": false,
+    "allowed_scopes": [
+      "preview",
+      "simulation",
+      "shadow"
+    ],
+    "physical_reference_note": "Encoder arithmetic is proven; actual unit axis/zero alignment remains separately observed geometry evidence",
+    "profile_id": "mapping04-49b713b3324ce8d8e4b072ce"
+  },
+  "source_qualification_evidence": {
+    "source_domain": "physical",
+    "independent_object_skill_qualified": false,
+    "source_policy_closed_loop_evaluated": false,
+    "source_type": "historical_hold_only",
+    "existing_policy_runtime_receipt_sha256": "67becd0728fdbc074b5ba4fbcf7b385a3a097a3d73cb4ed3d17acf91b2fd9552"
+  },
+  "historical_blocked_mapping_causes": {
+    "source_urdf_sha256_mismatch": "A_empty_profile_autobound_actual_SHA",
+    "source_named_native_contract_mismatch": "A_empty_profile_autobound_exact_names_units",
+    "radian_mapping_basis_missing": "A_encoder_arithmetic_and_nominal_convention_computed",
+    "physical_source_requires_measured_radian_reference_pairs": "B_only_physical_unit_registration_not_a_software_FK_blocker",
+    "source_calibration_sha256_not_bound": "A_original_bytes_SHA_verified",
+    "five_joint_sign_scale_zero": "A_numeric_encoder_scale_computed; B_actual_unit_pose_registration_separate"
+  },
+  "physical_execution_authorized": false,
+  "controller_settings_modified": false,
+  "source_data_modified": false,
+  "official_arithmetic_source": {
+    "motors/motors_bus.py": "6ce6109e32590ac2830f6995d13bb478b1a984695cc9ca59c0763ff091666393",
+    "motors/feetech/feetech.py": "0460413cd6a641cede015ac19ac53d2cfe9c343af1bd18ed74e1951229f64ff2",
+    "motors/feetech/tables.py": "71f7f7beb17169781bd26a33b165ed4c5c3df7b9c477d36860f9d6011eb00428",
+    "robots/so_follower/so_follower.py": "debe2661e7e44761a74f7cb6aaa83838a0771f91d86f80f42fa822ebb9cdd74b"
+  },
+  "qualification_scope": "Known-source arithmetic and legacy artifact audit; no physical movement, bus query or learned object skill qualification"
+}
