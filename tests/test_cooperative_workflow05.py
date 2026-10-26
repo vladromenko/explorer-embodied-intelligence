@@ -107,6 +107,21 @@ def test_stop_while_waiting_rejects_late_confirmation_and_old_epoch(tmp_path):
     with pytest.raises(ValueError):service.request_step(row['session_id'],'giver_holding',expected_epoch=row['epoch'])
 
 
+@pytest.mark.parametrize('domain',['observation_only','shadow'])
+def test_full_manual_annotations_never_enter_bound_physical_release_guard(tmp_path,domain):
+    guards=[]
+    def physical_guard(row):
+        guards.append(row)
+        raise ValueError('An unbound physical transport cannot serve annotation-only evidence')
+    service,row,_,calls,_=fixture(tmp_path,execution_domain=domain,giver={'arm_release_guard':physical_guard})
+    zone(service,row)
+    for event in ('giver_holding','offer_ready','receiver_ready','receiver_at_object','receiver_closed',
+                  'receiver_hold_confirmed','release_requested','giver_released','transfer_confirmed','receiver_finished'):
+        current=run_step(service,row,event)
+        assert current['status'] in ('READY_FOR_OBSERVED_STEPS','COMPLETED')
+    assert current['protocol_completed'] and guards==calls==[]
+
+
 def test_wrong_phase_rejected_before_any_provider_and_policy_default_blocked(tmp_path):
     submits=[]
     service,row,inbox,calls,_=fixture(tmp_path,mode='giver_policy_receiver_manual',giver={'submit_observed':lambda *args:submits.append(args)})

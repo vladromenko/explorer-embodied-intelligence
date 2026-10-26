@@ -463,7 +463,7 @@ class CooperativeWorkflow:
                 observations.extend(asdict(item) for item in stationary)
                 facts={'both_stationary':True}
                 provider=self.registry.provider('giver',spec['subskills']['giver'])
-                if provider is not None and callable(provider.arm_release_guard):
+                if row['execution_domain']=='user_observed_physical_test' and provider is not None and callable(provider.arm_release_guard):
                     self._fresh(row,epoch)
                     observations.append({'native_giver_dual_hold_guard':provider.arm_release_guard(deepcopy(row))})
                 elif row['execution_domain']=='user_observed_physical_test':
