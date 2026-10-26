@@ -7,6 +7,7 @@ capture cannot retroactively complete an older trial or close its whole OS.
 from __future__ import annotations
 
 import base64
+from collections.abc import Mapping
 from dataclasses import dataclass
 import hashlib
 import inspect
@@ -17,6 +18,7 @@ import os
 from pathlib import Path, PurePosixPath
 import platform
 import sys
+from types import MappingProxyType
 
 SCHEMA='explorer_stationary_sim_initial_state_v1'
 PROFILE='explorer_manipulation_stationary_initial_v1'
@@ -102,6 +104,43 @@ class InitialStateBundle:
     def sha256(self):return digest(canonical(self.document))
 
 
+@dataclass(frozen=True)
+class _InitialInputSnapshot:
+    document_bytes:bytes
+    payloads:Mapping[str,bytes]
+
+
+def _snapshot_bundle(bundle):
+    """Own immutable bytes/mapping before hashing, callbacks or native mutation."""
+    if not isinstance(bundle,InitialStateBundle) or not isinstance(bundle.payloads,dict):
+        raise InitialStateRejected('Typed initial snapshot bundle required')
+    # Built-in copy does not retain the caller's mapping or invoke its overrides.
+    payloads=dict.copy(bundle.payloads)
+    if not 0<len(payloads)<=512 or any(type(raw) is not bytes for raw in payloads.values()) or sum(map(len,payloads.values()))>MAX_PAYLOAD_BYTES:
+        raise InitialStateRejected('Bounded immutable initial payload bytes required')
+    try:document=canonical(bundle.document)
+    except (TypeError,ValueError,RuntimeError) as error:raise InitialStateRejected('Initial manifest cannot be snapshotted') from error
+    if len(document)>MAX_PROFILE_BYTES:raise InitialStateRejected('Initial manifest exceeds bounded JSON size')
+    return _InitialInputSnapshot(document,MappingProxyType(payloads))
+
+
+def _snapshot_source_bindings(bindings):
+    """Freeze the actual declared locators/hashes; no source bytes are read here."""
+    if not isinstance(bindings,dict) or not 0<len(bindings)<=128:raise InitialStateRejected('Explicit trusted source role bindings required')
+    result={}
+    for role,entry in dict.copy(bindings).items():
+        if not isinstance(role,str) or not role or len(role)>160 or '/' in role or '\\' in role or not isinstance(entry,dict):
+            raise InitialStateRejected('Bounded named source binding required')
+        copied=dict.copy(entry)
+        if not isinstance(copied.get('path'),(str,Path)) or not isinstance(copied.get('sha256'),str):raise InitialStateRejected('Source locator/hash data required')
+        copied['path']=str(copied['path'])
+        result[role]=copied
+    try:raw=canonical(result)
+    except (TypeError,ValueError,RuntimeError) as error:raise InitialStateRejected('Source bindings cannot be snapshotted') from error
+    if len(raw)>MAX_PROFILE_BYTES:raise InitialStateRejected('Source bindings exceed bounded JSON size')
+    return raw
+
+
 def _read_native(raw,state_size):
     import numpy as np
     if type(state_size) is not int or not 0<state_size<=MAX_ARRAY_BYTES//8:raise InitialStateRejected('Bounded native state size required')
@@ -127,16 +166,17 @@ def _member(name):
 
 
 def save_initial_bundle(bundle,folder):
-    validate_bundle(bundle,bundle.sha256);folder=Path(folder)
+    snapshot=_snapshot_bundle(bundle);checksum=digest(snapshot.document_bytes)
+    _validate_snapshot(snapshot,checksum);folder=Path(folder)
     if folder.exists() or folder.is_symlink():raise InitialStateRejected('New immutable snapshot folder required')
     folder.mkdir(mode=0o700,parents=True)
-    for name,raw in dict(bundle.payloads,**{'manifest.json':canonical(bundle.document)}).items():
+    for name,raw in dict(snapshot.payloads,**{'manifest.json':snapshot.document_bytes}).items():
         path=folder/_member(name);path.parent.mkdir(mode=0o700,parents=True,exist_ok=True)
         with path.open('xb') as stream:os.chmod(path,0o600);stream.write(raw);stream.flush();os.fsync(stream.fileno())
     descriptor=os.open(folder,os.O_RDONLY|os.O_DIRECTORY)
     try:os.fsync(descriptor)
     finally:os.close(descriptor)
-    return dict(manifest_sha256=bundle.sha256,files=len(bundle.payloads)+1)
+    return dict(manifest_sha256=checksum,files=len(snapshot.payloads)+1)
 
 
 def load_initial_bundle(folder,*,expected_sha256):
@@ -297,19 +337,23 @@ def capture_initial_trial(provider,*,scenario,source_bindings):
 
 
 def validate_bundle(bundle,expected_sha256):
-    if not isinstance(bundle,InitialStateBundle) or bundle.sha256!=expected_sha256 or bundle.document.get('schema')!=SCHEMA or bundle.document.get('profile')!=PROFILE:
+    return _validate_snapshot(_snapshot_bundle(bundle),expected_sha256)
+
+
+def _validate_snapshot(snapshot,expected_sha256):
+    document=json.loads(snapshot.document_bytes);payloads=snapshot.payloads
+    if digest(snapshot.document_bytes)!=expected_sha256 or not isinstance(document,dict) or document.get('schema')!=SCHEMA or document.get('profile')!=PROFILE:
         raise InitialStateRejected('Expected source-bound initial snapshot SHA/profile required')
-    if not isinstance(bundle.payloads,dict) or not 0<len(bundle.payloads)<=512:raise InitialStateRejected('Bounded initial payload inventory required')
-    if set(bundle.payloads)!=set(bundle.document['payloads']) or sum(map(len,bundle.payloads.values()))>MAX_PAYLOAD_BYTES:
+    if set(payloads)!=set(document['payloads']):
         raise InitialStateRejected('Initial snapshot payload inventory changed')
-    for name,raw in bundle.payloads.items():
+    for name,raw in payloads.items():
         _member(name)
         if name=='manifest.json':raise InitialStateRejected('Reserved snapshot member')
-        if type(raw) is not bytes or len(raw)!=bundle.document['payloads'][name]['bytes'] or digest(raw)!=bundle.document['payloads'][name]['sha256']:
+        if len(raw)!=document['payloads'][name]['bytes'] or digest(raw)!=document['payloads'][name]['sha256']:
             raise InitialStateRejected('Initial snapshot payload bytes changed')
-    if bundle.document.get('physical_io') is not False or bundle.document.get('retroactive_capture') is not False or bundle.document.get('original_runtime_OS_closure')!='PARTIAL':
+    if document.get('physical_io') is not False or document.get('retroactive_capture') is not False or document.get('original_runtime_OS_closure')!='PARTIAL':
         raise InitialStateRejected('Initial snapshot cannot authorize hardware or complete original OS closure')
-    return bundle.document
+    return document
 
 
 def _validate_profile_state(env,provider,profile,decoded):
@@ -381,12 +425,13 @@ def restore_initial_trial(provider,bundle,*,expected_sha256,expected_source_bind
     """Validate all bound bytes/runtime BEFORE applying any initial SIM state."""
     import mujoco
     import numpy as np
-    doc=validate_bundle(bundle,expected_sha256);env=_profile(provider)
-    if len(bundle.payloads.get('profile-state.json',b''))>MAX_PROFILE_BYTES:raise InitialStateRejected('Initial mutable profile exceeds bounded JSON size')
-    profile=json.loads(bundle.payloads['profile-state.json'])
+    snapshot=_snapshot_bundle(bundle);bindings_bytes=_snapshot_source_bindings(expected_source_bindings)
+    doc=_validate_snapshot(snapshot,expected_sha256);payloads=snapshot.payloads;env=_profile(provider)
+    if len(payloads.get('profile-state.json',b''))>MAX_PROFILE_BYTES:raise InitialStateRejected('Initial mutable profile exceeds bounded JSON size')
+    profile=json.loads(payloads['profile-state.json'])
     decoded={name:decode(profile[name]) for name in ('environment','evaluator','derived','warnings','options','provider')}
     _validate_profile_state(env,provider,profile,decoded)
-    identity,unused=_source_payloads(expected_source_bindings)
+    identity,unused=_source_payloads(json.loads(bindings_bytes))
     if identity!=doc['source_bindings'] or _runtime()!=doc['runtime']:
         raise InitialStateRejected('Initial snapshot source/runtime differs before restore')
     if _class_identity(env)!=doc['environment_class'] or _class_identity(env.evaluator)!=doc['evaluator_class'] or _class_identity(provider)!=doc['provider_class']:
@@ -411,7 +456,7 @@ def restore_initial_trial(provider,bundle,*,expected_sha256,expected_source_bind
         if isinstance(current,np.ndarray) and (not isinstance(value,np.ndarray) or value.shape!=current.shape or value.dtype!=current.dtype):
             raise InitialStateRejected('Visualization option ABI differs')
     if len(decoded['warnings'])!=len(env.data.warning):raise InitialStateRejected('Native warning inventory differs')
-    native=_read_native(bundle.payloads['native-integration.npy'],doc['state_size'])
+    native=_read_native(payloads['native-integration.npy'],doc['state_size'])
     if native.dtype!=np.dtype('float64') or native.shape!=(doc['state_size'],) or doc['state_spec_value']!=int(mujoco.mjtState.mjSTATE_INTEGRATION) or len(native)!=mujoco.mj_stateSize(env.model,mujoco.mjtState.mjSTATE_INTEGRATION) or not np.isfinite(native).all():
         raise InitialStateRejected('Initial snapshot native integration ABI differs')
     python_state=None if profile['python_rng'] is None else decode(profile['python_rng'])
