@@ -12,18 +12,18 @@ HEAVY_JOBS=('sim_pilot','train_act','rosmaster_skill_train','so101_skill_train',
     'manipulation_selective_repair','policy_transfer','fault_repair')
 PHYSICAL_JOBS=('station_rollout','handover_physical')
 INFERENCE_JOBS=('station_shadow','station_rollout','so101_skill_shadow','rosmaster_skill_shadow','cooperative_policy_warm')
-DATA_JOBS=('station_import','mobile_import','retarget_import','camera_recording','program_trace','research_export')
+DATA_JOBS=('station_import','mobile_import','retarget_import','camera_recording','program_trace','research_export','study_export')
 TERMINAL=('completed','failed','cancelled')
 
 
 def default_metadata(job):
     config=job.get('config') or {};heavy=job['kind'] in HEAVY_JOBS;inference=job['kind'] in INFERENCE_JOBS
     source_shadow=job['kind'] in ('so101_skill_shadow','rosmaster_skill_shadow')
-    warm=job['kind']=='cooperative_policy_warm';export=job['kind']=='research_export'
+    warm=job['kind']=='cooperative_policy_warm';study=job['kind']=='study_export';export=job['kind'] in ('research_export','study_export')
     gpu=False if source_shadow or warm or export else config.get('device')=='cuda' or inference and config.get('device')!='cpu'
     size,batch=config.get('image_size',64),config.get('batch_size',2)
     measured_compact=job['kind']=='so101_skill_train' and type(size) is int and 32<=size<=64 and type(batch) is int and 1<=batch<=2
-    memory=(4 if warm else .5 if export else 2 if source_shadow else 4 if gpu or heavy and not measured_compact else 2 if heavy else .75 if inference else .25)*GIB
+    memory=(4 if warm else 2 if study else .5 if export else 2 if source_shadow else 4 if gpu or heavy and not measured_compact else 2 if heavy else .75 if inference else .25)*GIB
     payload=config.get('estimated_payload_bytes');estimated_export=export and type(payload) is int and payload>=0
     disk=int((2 if heavy else .25)*GIB)+(3*payload if estimated_export else 0)
     budget=dict(cpu_cores=4 if warm else 2 if heavy or source_shadow else 1,memory_bytes=int(memory),disk_bytes=disk,gpu_slots=int(gpu))
@@ -44,7 +44,7 @@ def validate_options(job,previous,options):
         metadata['priority']=value
     if 'preemptible' in options:
         value=options['preemptible']
-        if type(value) is not bool or job['kind'] in PHYSICAL_JOBS+INFERENCE_JOBS+('research_export',) and value:raise ValueError('Native inference, export and physical jobs cannot become checkpoint-preemptible training')
+        if type(value) is not bool or job['kind'] in PHYSICAL_JOBS+INFERENCE_JOBS+('research_export','study_export') and value:raise ValueError('Native inference, export and physical jobs cannot become checkpoint-preemptible training')
         metadata['preemptible']=value
     if 'dependencies' in options:
         values=options['dependencies']
@@ -100,9 +100,9 @@ def queue_plan(jobs,schedules,resources,active=(),*,service_seconds=None,now=Non
     starts=[];ranking=[]
     for negative,created,identity,job,metadata in sorted(ranked,key=lambda item:item[:3]):
         budget=metadata['resources'];reasons=dependency_reasons(metadata,by_id);ranking.append(identity)
-        if job['kind']=='research_export':
+        if job['kind'] in ('research_export','study_export'):
             estimate=(job.get('config') or {}).get('estimated_payload_bytes')
-            if type(estimate) is not int or estimate<0:reasons.append('research_export_payload_estimate_missing_or_invalid')
+            if type(estimate) is not int or estimate<0:reasons.append(job['kind']+'_payload_estimate_missing_or_invalid')
         if metadata.get('not_before') is not None and now<metadata['not_before']:reasons.append('scheduled_time_not_reached')
         if budget['cpu_cores']>cpu_capacity-cpu_used:reasons.append('cpu_concurrency_budget_exhausted')
         if budget['cpu_cores']>cpu_capacity:reasons.append('job_CPU_budget_exceeds_host_worker_pool')

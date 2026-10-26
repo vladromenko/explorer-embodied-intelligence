@@ -240,6 +240,9 @@ def main(job_id):
         elif job['kind']=='rosmaster_skill_shadow':
             from .rosmaster_shadow_job import run_rosmaster_shadow
             result=run_rosmaster_shadow(store,job,config)
+        elif job['kind']=='study_export':
+            from .study_job import run_study_export
+            result=run_study_export(store,job,job['config'])
         elif job['kind']=='research_export':
             from .research_export_job import run_research_export
             result=run_research_export(store,job,job['config'])

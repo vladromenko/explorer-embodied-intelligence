@@ -38,4 +38,14 @@ Unit fixtures синтетические: проверяют отрицател�
 
 Manifest SHA `7a27d6d16cf7bf00ae13c4ed7c95cb425be7b4d7af0d0f2dc452ceeed7eebdd9`; TAR SHA `8539784570ddecfa664f59ca7b2a97b4939549df423b658b3419e6fb8ff28fdb`; private qualification SHA `4b8b08d65d96bd329d4267247f88b152fc9f8f7a0050d43679e351988c0ac37e`.
 
-Наблюдавшийся transient `ru_maxrss` parent процесса: 879 140 864 bytes; это не комбинированный cgroup memory proof. Для будущего queue worker рекомендуется резерв 2 GiB, CPU1, GPU0 и disk не менее 3×logical bytes+256 MiB. Этот источник пока не является новым зарегистрированным job kind и не обходит scheduler.
+Наблюдавшийся transient `ru_maxrss` parent процесса: 879 140 864 bytes; это не комбинированный cgroup memory proof. Для будущего queue worker рекомендуется резерв 2 GiB, CPU1, GPU0 и disk не менее 3×logical bytes+256 MiB. Это измерение standalone parent, а не production/cgroup qualification нового worker; typed queue reservation описан ниже.
+
+## Typed shared queue
+
+`explorer.study_job.request_settings(store, study_id)` вызывается сервером **до** `Store.create_job('study_export', '06', settings)`. Он делает только ограниченный обход/lstat metadata и сохраняет immutable request sidecar; не читает/хеширует source payloads, не вызывает `inspect_study` и не импортирует Torch. Исходные большие campaign-файлы фиксируются stat fingerprint; небольшие зарегистрированные context/evaluator bytes связаны заранее известными SHA, чтобы та же immutable release-copy могла быть прочитана worker в другом каталоге. Их действительные SHA проверяются только в worker. В settings уже есть точный неотрицательный `estimated_payload_bytes`.
+
+`run_study_export(store, job, job['config'])` работает только для durable running `study_export` с теми же source-request fields. Он проверяет immutable sidecar/stat inventory, выполняет реальную инспекцию, CAS export, USTAR, независимый unpack и restore в новом filesystem root. Сам worker уже изолирован от CC; здесь restore выполняется в том же worker PID, что явно записывается `independent_restore_process=false`. Отдельный new-PID restore доказан предыдущим standalone qualifier и не выдаётся за каждый queue job.
+
+Бюджет: CPU1, 2 GiB памяти, GPU0, nonpreemptible, один общий ingest/disk/network slot; disk=3×estimated payload+256 MiB. Для соблюдения дискового бюджета redundant `.staging-bundle` удаляется **только после** подтверждённого TAR unpack в окончательный `bundle`. Затем сохраняются bundle, TAR и полный restored root. Оригиналы и отрицательные свидетельства не удаляются. Любая ошибка/отмена оставляет partial outputs без completed receipt; повтор прерванного задания требует нового job, не перезаписывает старые попытки. Поддержка exact optimizer resume к этому виду jobs не заявляется.
+
+`download_validation(store, job_id)` принимает только 32hex ID завершённого typed job, проверяет фиксированный `<state>/jobs/<id>/study.tar`, его SHA и размер. Клиент не передаёт filesystem paths. API/UI подключения остаются в основном CC приложении. Новый lazy branch не меняет training math и не обновляет историческое controller proof bc01/515.
