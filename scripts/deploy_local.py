@@ -4,6 +4,7 @@ import argparse
 import json
 import shlex
 import socket
+import re
 import subprocess
 from pathlib import Path
 
@@ -125,6 +126,9 @@ WantedBy=default.target
         host = 'explorer-pi' if node['id'] == 'pi' else 'explorer'
         if host in args.nodes:
             env = 'EXPLORER_NODE_TOKEN=' + node['token'] + '\nEXPLORER_INGEST_TOKEN=' + config['ingest_token'] + '\nEXPLORER_CENTRAL_URL=' + config['public_url'] + '\n'
+            if node['id']=='pi' and node.get('hailo_model'):
+                if not re.fullmatch(r'/[A-Za-z0-9_./-]+',node['hailo_model']):raise ValueError('A literal absolute Hailo asset path is required')
+                env+='EXPLORER_HAILO_MODEL='+node['hailo_model']+'\n'
             write(host,'.config/explorer/node.env',env)
             node_unit = '''[Unit]
 Description=Explorer camera and event agent

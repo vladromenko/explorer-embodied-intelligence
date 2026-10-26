@@ -989,7 +989,7 @@ def main(argv=None):
     parser.add_argument("--camera-device")
     parser.add_argument("--calibration-dir", action="append", type=Path, default=[])
     parser.add_argument("--central-url", default=os.environ.get("EXPLORER_CENTRAL_URL"))
-    parser.add_argument("--hailo-model", default="/usr/share/hailo-models/yolov8m_h10.hef")
+    parser.add_argument("--hailo-model", default=os.environ.get('EXPLORER_HAILO_MODEL',"/usr/share/hailo-models/yolov8m_h10.hef"))
     parser.add_argument("--no-hailo", action="store_true")
     args = parser.parse_args(argv)
     agent = NodeAgent(args.node_id or args.mode, args.mode, args.state_dir,
