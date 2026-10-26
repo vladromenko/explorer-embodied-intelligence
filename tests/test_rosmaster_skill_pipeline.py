@@ -82,6 +82,36 @@ def test_feedback_stays_null_while_literal_nine_neutral_coordinates_are_valid(tm
     with pytest.raises(PipelineBlocked,match='CALIBRATION_MISSING'):calibrated_goal(frame['sample'],lambda name:corpus.read(corpus.train[0],name))
 
 
+def test_unseen_valid_runtime_sensor_blocks_predict_before_network_without_masking_measurement(tmp_path):
+    path,_=fixture_aggregate(tmp_path);corpus=CanonicalCorpus(path);episode=corpus.train[0];frame=episode['frames'][0]
+    training_mask=frame['masks'].copy();index=FEATURE_NAMES.index('goal.0');assert training_mask[index]
+    training_mask[index]=False
+    normalizer=TrainNormalizer([frame['values']],[training_mask],[frame['action']])
+    actor=RosmasterSkillPolicy.__new__(RosmasterSkillPolicy);actor.model={};actor.normalizer=normalizer
+    class ForbiddenNetwork:
+        def predict_action_chunk(self,*args,**kwargs):raise AssertionError('OOD observation must fail before network inference')
+    actor.policy=ForbiddenNetwork()
+    observation=deepcopy(frame['sample']);observation.pop('action');unchanged=deepcopy(observation);validity=frame['masks'].copy()
+    with pytest.raises(PipelineBlocked,match='UNTRAINED_VALID_SENSOR_FEATURES: goal.0'):
+        actor.predict(observation,lambda name:corpus.read(episode,name),verify_observation=lambda *args:episode['report']['channels'])
+    assert observation==unchanged and observation['channels']['goal']['mask'] is True
+    assert np.array_equal(frame['masks'],validity) and frame['masks'][index]
+
+
+def test_runtime_normalizer_preserves_genuine_zero_and_validity_and_rejects_corrupt_counts():
+    values=np.zeros(len(FEATURE_NAMES),np.float32);masks=np.zeros(len(FEATURE_NAMES),bool);masks[:9]=True
+    normalizer=TrainNormalizer([values],[masks],[np.zeros(9)])
+    result=normalizer.runtime_state(values,masks)
+    assert np.array_equal(result[len(FEATURE_NAMES):len(FEATURE_NAMES)+9],np.ones(9))
+    assert np.array_equal(result[:9],np.zeros(9)) and np.array_equal(normalizer.count[:9],np.ones(9))
+    for count in (-1.,.5):
+        document=normalizer.document();document['valid_training_counts'][0]=count
+        with pytest.raises(PipelineBlocked,match='COUNTS_INVALID'):TrainNormalizer.from_document(document)
+    document=normalizer.document();document['scales'][0]=0
+    with pytest.raises(PipelineBlocked,match='SCALE_INVALID'):TrainNormalizer.from_document(document)
+    with pytest.raises(PipelineBlocked,match='VALIDITY_SCHEMA_INVALID'):normalizer.runtime_state(values,masks.astype(float))
+
+
 def test_actor_feature_allowlist_never_reads_privileged_simulator_object_truth(tmp_path):
     path,_=fixture_aggregate(tmp_path);corpus=CanonicalCorpus(path);episode=corpus.train[0];sample=deepcopy(episode['frames'][0]['sample'])
     original=sensor_features(sample,lambda name:corpus.read(episode,name))

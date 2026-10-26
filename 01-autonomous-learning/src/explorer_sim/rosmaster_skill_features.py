@@ -107,6 +107,13 @@ class TrainNormalizer:
         masks=np.asarray(masks,bool)
         normalized=np.where(masks,(np.asarray(values)-self.mean)/self.scale,0.)
         return np.concatenate([normalized,masks.astype(np.float32)]).astype(np.float32)
+    def runtime_state(self,values,masks):
+        values=np.asarray(values);validity=np.asarray(masks)
+        if values.shape!=(len(FEATURE_NAMES),) or validity.shape!=values.shape or validity.dtype.kind!='b':raise PipelineBlocked('RUNTIME_FEATURE_VALUES_OR_VALIDITY_SCHEMA_INVALID')
+        if not np.isfinite(values[validity]).all():raise PipelineBlocked('RUNTIME_VALID_FEATURE_NONFINITE')
+        unseen=validity&(self.count==0)
+        if unseen.any():raise PipelineBlocked('UNTRAINED_VALID_SENSOR_FEATURES',','.join(np.asarray(FEATURE_NAMES)[unseen].tolist()))
+        return self.state(values,validity)
     def action(self,values):return ((np.asarray(values)-self.action_mean)/self.action_scale).astype(np.float32)
     def native_action(self,values):return np.asarray(values)*self.action_scale+self.action_mean
     @classmethod
@@ -118,6 +125,7 @@ class TrainNormalizer:
             if value.shape!=(size,) or not np.isfinite(value).all():raise PipelineBlocked('MODEL_NORMALIZATION_VALUES_INVALID',key)
             setattr(instance,name,value)
         if np.any(instance.scale<=0) or np.any(instance.action_scale<=0):raise PipelineBlocked('MODEL_NORMALIZATION_SCALE_INVALID')
+        if np.any(instance.count<0) or np.any(instance.count!=np.floor(instance.count)):raise PipelineBlocked('MODEL_NORMALIZATION_COUNTS_INVALID')
         return instance
     def document(self):
         return dict(schema='rosmaster_train_only_sensor_normalization_v1',feature_names=list(FEATURE_NAMES),feature_units=list(FEATURE_UNITS),mask_names=[name+'.valid' for name in FEATURE_NAMES],

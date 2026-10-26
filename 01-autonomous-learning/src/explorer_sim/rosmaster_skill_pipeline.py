@@ -95,10 +95,11 @@ class RosmasterSkillPolicy:
         sample=deepcopy(observation)
         for name,record in (sample.get('channels') or {}).items():record['_model_admitted']=(admitted.get(name) or {}).get('admitted') is True
         rgb=rgb_image(channel(sample,'camera_rgb'),read_payload);values,masks,_=sensor_features(sample,read_payload)
+        normalized=self.normalizer.runtime_state(values,masks)
         resized=np.asarray(Image.fromarray(rgb).resize((self.image_size,self.image_size),Image.Resampling.BILINEAR))
-        inputs={IMAGE_KEY:prepare_rgb(resized[None]),'observation.state':torch.from_numpy(self.normalizer.state(values,masks)[None])}
+        inputs={IMAGE_KEY:prepare_rgb(resized[None]),'observation.state':torch.from_numpy(normalized[None])}
         with torch.inference_mode():action=self.normalizer.native_action(self.policy.predict_action_chunk(inputs)[0,0].cpu().numpy())
-        feature=np.concatenate([self.normalizer.state(values,masks),rgb.mean(axis=(0,1))/255.,rgb.std(axis=(0,1))/255.])
+        feature=np.concatenate([normalized,rgb.mean(axis=(0,1))/255.,rgb.std(axis=(0,1))/255.])
         try:phase=self.phase_model.predict(feature);phase_diagnostic=None
         except PipelineBlocked as error:
             if self.candidate=='hybrid':raise
