@@ -1,0 +1,41 @@
+{
+  "export": {
+    "files": 1898,
+    "manifest_path": "/mnt/explorer-data/explorer-work/research-export-qualification-v8b-20261026/bundle/manifest.json",
+    "manifest_sha256": "8c0b70df5ebaa27cdf93f2730aa8ff805418147a960ffe7e33f965df359a1e42",
+    "total_payload_bytes": 75116485,
+    "verification": "PARTIAL"
+  },
+  "exporter_commit": "7ffa80a",
+  "exporter_source_sha256": "e37f0f74648e760a956cf5e559504dc0756cc66178c51100e9f22c647c23552c",
+  "independent_restore": {
+    "files": 1898,
+    "independent_destination": true,
+    "manifest_sha256": "8c0b70df5ebaa27cdf93f2730aa8ff805418147a960ffe7e33f965df359a1e42",
+    "metric_checks": [],
+    "originals_required": false,
+    "physical_actions_authorized": false,
+    "schema": "explorer_research_export_restore_v1",
+    "scientific_success_claimed": false,
+    "scope": "explicit_selected_dependency_graph_not_whole_state_or_scientific_success",
+    "source_manifest_rewritten": false,
+    "total_payload_bytes": 75116485,
+    "verification": "PARTIAL"
+  },
+  "learned_policy_claimed": false,
+  "limitations": [
+    "Single nominal SCRIPTED_SIM scenario, not learned or physical skill",
+    "Actual bundle remains PARTIAL: target canonical episode metadata and frozen benchmark series absent",
+    "UI/API research_export job is not connected by this helper atomic"
+  ],
+  "original_files_modified": false,
+  "physical_io": false,
+  "physical_success_claimed": false,
+  "qualification_path": "/mnt/explorer-data/explorer-work/research-export-qualification-v8b-20261026/qualification.json",
+  "qualification_receipt_sha256": "6f95dc67dd5dee26e85ffa2453ad56a3f04804d4649d2090e4a2612967577d2e",
+  "schema": "explorer_research_export_qualification_v1",
+  "single_nominal_scenario_only": true,
+  "source_method": "SCRIPTED_SIM",
+  "source_trial_frames": 439,
+  "source_trial_result_sha256": "c10a41ee3fedcb5fbc0f467a50ba9ad569e4208413b1d91d8845b1317140a11a"
+}

@@ -410,3 +410,42 @@ def test_independent_verifier_rechecks_graph_and_parent_table_after_manifest_reb
     raw=canonical(body);manifest.write_bytes(raw)
     with pytest.raises(ExportRejected,match='parent edge table'):
         verify_export(manifest,sha(raw))
+
+
+def test_real_Store_registry_and_events_use_readonly_whitelisted_tables(tmp_path,monkeypatch):
+    from explorer.store import Store
+    from explorer_shared.contracts import event
+    store=Store(tmp_path/'real-Store-temp')
+    job=store.create_job('software_qualification','06',{'_execution_commit':'a'*40,'experiment_numbering_version':2})
+    store.update_job(job['id'],status='failed',result={'outcome':'UNKNOWN'},error='software-only interruption retained')
+    original=event('temp-fixture','06',dict(job_id=job['id'],outcome='UNKNOWN',intervention=True))
+    store.ingest(original)
+    with store.connect() as db:
+        db.execute('INSERT INTO sessions VALUES (?,?,?)',('private-session',999999,'private-csrf'))
+        db.execute('INSERT INTO tickets VALUES (?,?)',('private-ticket',999999))
+        config=db.execute('SELECT config FROM jobs WHERE id=?',(job['id'],)).fetchone()[0]
+    import explorer.research_export as adapter
+    connect=adapter.sqlite3.connect
+    reads=[]
+    def readonly_only(*args,**kwargs):
+        assert args[0].endswith('?mode=ro') and kwargs['uri'] is True
+        db=connect(*args,**kwargs)
+        def authorize(operation,table,column,*unused):
+            if operation==sqlite3.SQLITE_READ:
+                reads.append(table)
+                if table in {'sessions','tickets','nodes','outbox','job_scheduling'}:
+                    return sqlite3.SQLITE_DENY
+            if operation in {sqlite3.SQLITE_INSERT,sqlite3.SQLITE_UPDATE,sqlite3.SQLITE_DELETE}:
+                return sqlite3.SQLITE_DENY
+            return sqlite3.SQLITE_OK
+        db.set_authorizer(authorize)
+        return db
+    with monkeypatch.context() as context:
+        context.setattr(adapter.sqlite3,'connect',readonly_only)
+        registry=registry_from_store(store,[job['id']],dependency_inventory_complete=True)
+    nodes={row['id']:row for row in registry['nodes']}
+    assert nodes['job:'+job['id']+':config']['inline_utf8']==config
+    assert nodes['event:'+original['event_id']]['inline_utf8']==canonical(original).decode()
+    assert not set(reads)&{'sessions','tickets','nodes','outbox','job_scheduling'}
+    result=export_evidence(tmp_path/'bundle',registry,{'state':store.root},protocol_path=CONTRACT,protocol_sha256=sha(CONTRACT.read_bytes()))
+    assert restore_export(result['manifest_path'],result['manifest_sha256'],tmp_path/'restore')['verification']=='VERIFIED_COMPLETE'
