@@ -1,0 +1,100 @@
+"""Official ACT6 offline learner for one immutable Experiment06 skill cohort.
+
+No robot/replay CLI/camera/serial/network or simulator execution. Source simulation
+fixtures remain SIMULATION-only cards, regardless of task labels or loss values.
+"""
+import json
+from pathlib import Path
+import time
+
+import numpy as np
+from PIL import Image
+import torch
+
+from .dataset_export import verify_lerobot_v3,load_episode
+from .pilot import parameters,sha,state_digest,write_json
+from .recorded_training import RecordedChunks,offline_evaluation
+from .student import IMAGE_KEY,make_act_policy,optimize_act,save_reload_act,preprocessing_config,framework_info
+from explorer_shared.contracts import digest
+from explorer_shared.so101_station import NAMES,UNITS,LOW,HIGH
+
+
+def _verify(store,path,expected):
+    path=Path(path).resolve()
+    if not path.is_relative_to(Path(store.root).resolve()) or not path.is_file() or sha(path)!=expected:raise ValueError('Pinned Experiment06 dataset artifact changed or escaped managed state')
+    return path
+
+
+def run_so101_skill_train(store,job):
+    config=job.get('config') or {}
+    if job.get('kind')!='so101_skill_train' or job.get('project_id')!='06' or config.get('device','cpu')!='cpu':raise ValueError('This learner owns CPU Experiment06 ACT6 only')
+    source=_verify(store,config['aggregate_manifest'],config['aggregate_manifest_sha256']);outer=json.loads(source.read_text())
+    if outer.get('schema')!='explorer_so101_skill_dataset_v1' or outer.get('action_contract_id')!='so101_follower_calibrated_position6_v1':raise ValueError('A source-bound native SO101 whole-skill dataset is required')
+    if any(config.get(key)!=outer.get(key) for key in ('skill_id','skill_version','spec_sha256')) or outer.get('action_names')!=list(NAMES) or outer.get('action_units')!=UNITS:raise ValueError('Queued skill/version or coordinate contract differs')
+    for name,expected in outer['source_files_sha256'].items():_verify(store,source.parent/name,expected)
+    view_path=_verify(store,source.parent/outer['internal_view'],outer['source_files_sha256'][outer['internal_view']]);view=json.loads(view_path.read_text())
+    if view['state_basis']!='measured_state' or view['action_basis']!='dispatched_command' or view['action_normalization']!={'low':LOW,'high':HIGH}:raise ValueError('ACT6 needs measured follower state and unchanged native issued-command units')
+    official=source.parent/outer['official_dataset'];provenance=json.loads((official/'explorer_provenance.json').read_text())
+    official_readback=verify_lerobot_v3(official,provenance['repo_id'],view_path)
+    train=[row for row in view['episodes'] if row['split']=='train'];development=[row for row in view['episodes'] if row['split']=='development']
+    if not train or not development or any(row['split'] not in ('train','development') for row in view['episodes']):raise ValueError('Whole source train/development groups required; sealed payload must be absent')
+    settings=parameters({key:config[key] for key in ('act_steps','batch_size','image_size','chunk_size','seed','device') if key in config})
+    if settings['act_steps']<1:raise ValueError('Actual positive optimizer budget required')
+    torch.set_num_threads(2)
+    folder=Path(store.root)/'jobs'/job['id'];folder.mkdir(parents=True,exist_ok=True);result_path=folder/'result.json'
+    if result_path.is_file():
+        saved=json.loads(result_path.read_text())
+        if saved['aggregate_manifest_sha256']!=sha(source):raise ValueError('Completed learner belongs to another cohort')
+        for name,expected in saved['checkpoint_sha256'].items():_verify(store,folder/'student_act'/name,expected)
+        if not any(card['id']==saved['skill_card']['id'] for card in store.skills()):store.add_skill(saved['skill_card'])
+        return saved
+    def update(progress,phase):
+        current=store.job(job['id'])
+        if current and current['status'] in ('cancelled','cancel_requested'):raise InterruptedError('Experiment06 training cancelled')
+        store.update_job(job['id'],progress=progress,result={'phase':phase,'physical_io':False,'skill_id':outer['skill_id']})
+    samples=RecordedChunks(view_path,view,train,settings['chunk_size'],settings['image_size'])
+    samples.resume_context.update(source_signature=sha(source),skill_id=outer['skill_id'],skill_version=outer['skill_version'],spec_sha256=outer['spec_sha256'])
+    samples.resume_context['learner_implementation_sha256']=sha(__file__)
+    samples.resume_context['source_files']+=[{'path':str(source),'sha256':sha(source)}]
+    preview=samples[0];Image.fromarray(samples.cache['rgb'][0]).save(folder/'frame.jpg')
+    write_json(folder/'frame.json',{'source':'actual_selected_native_dataset_RGB','source_episode_id':train[0]['source_episode_id'],'live_camera':False})
+    update(.05,'verified_official_dataset_and_original_native_provenance')
+    policy=make_act_policy(settings,state_dim=6,action_dim=6);initial=state_digest(policy);started=time.monotonic()
+    optimizer,losses,_=optimize_act(policy,samples,settings,folder,update,.1,.8,checkpoint_interval=8)
+    inputs={key:preview[key].unsqueeze(0) for key in (IMAGE_KEY,'observation.state')}
+    preprocessing=preprocessing_config(np.asarray(LOW,np.float32),np.asarray(HIGH,np.float32),range(6))
+    preprocessing.update(state_basis='measured_state',action_names=list(NAMES),action_units=UNITS,action_contract_id=outer['action_contract_id'],
+        official_robot_use_degrees=False,hardware_executor='existing_native_Pi_station_only',ACT_language_input=False)
+    reloaded,checkpoint,error=save_reload_act(policy,optimizer,folder,preprocessing,inputs,'cpu')
+    validation=RecordedChunks(view_path,view,development,settings['chunk_size'],settings['image_size'])
+    evaluation=offline_evaluation(reloaded,validation,'cpu',list(NAMES),UNITS,np.asarray(LOW),np.asarray(HIGH))
+    for name,expected in outer['source_files_sha256'].items():_verify(store,source.parent/name,expected)
+    if sha(source)!=config['aggregate_manifest_sha256']:raise ValueError('Whole-skill source changed during optimizer run')
+    weights_changed=state_digest(policy)!=initial
+    if not weights_changed:raise RuntimeError('No optimizer weight change; no trained card registered')
+    hashes={path.name:sha(path) for path in checkpoint.iterdir() if path.is_file()};kind=outer['source_kind'];simulation=kind=='SIMULATION'
+    result=dict(trained=True,framework='LeRobot',framework_version='0.6.1',algorithm='official ACT6 RGB+measured_follower6→issued_native_follower6',
+        skill_id=outer['skill_id'],skill_version=outer['skill_version'],spec_sha256=outer['spec_sha256'],action_contract_id=outer['action_contract_id'],
+        source_kind=kind,source_type='SIMULATION' if simulation else 'SO101_RECORDED_DEMONSTRATIONS',status='trained_offline_only',
+        aggregate_manifest_sha256=sha(source),source_manifest_path=str(source),source_manifest_sha256=sha(source),
+        internal_view_manifest_sha256=sha(view_path),official_dataset_readback=official_readback,
+        optimizer_steps=len(losses),loss_first=float(losses[0]['loss']),loss_last=float(losses[-1]['loss']),weights_changed=True,
+        training_resume=optimizer.explorer_resume_info,save_reload_passed=True,reload_max_abs_error=error,
+        checkpoint_dir=str(checkpoint),checkpoint_sha256=hashes,checkpoint_content_sha256=digest(hashes),evaluation=evaluation,
+        training_original_episode_ids=outer['receipt']['accepted_train_original_episode_ids'],development_original_episode_ids=outer['receipt']['accepted_development_original_episode_ids'],
+        sealed_original_episode_ids=outer['receipt']['sealed_original_episode_ids'],sealed_payload_used=False,
+        physical_io=False,simulator_executed=False,physical_success_inferred=False,rollout_success_claimed=False,elapsed_s=time.monotonic()-started,**framework_info())
+    card=dict(id='so101-act-'+job['id'],task=outer['skill_spec']['title'],source_type=result['source_type'],source_kind=kind,status='trained_offline_only',
+        action_contract={'id':outer['action_contract_id'],'names':list(NAMES),'units':UNITS,'state_basis':'measured_state','official_robot_use_degrees':False},
+        lineage={'job_id':job['id'],'skill_id':outer['skill_id'],'skill_version':outer['skill_version'],'spec_sha256':outer['spec_sha256'],
+            'dataset_manifest_sha256':sha(source),'checkpoint_sha256':digest(hashes),'training_original_episode_ids':result['training_original_episode_ids'],
+            'development_original_episode_ids':result['development_original_episode_ids'],'sealed_original_episode_ids':result['sealed_original_episode_ids'],
+            'methods':['ACT_LEROBOT_0_6_1','ENGINEERING_GLUE']},evaluation=evaluation,
+        deployment_scope='SIMULATION_ONLY' if simulation else 'OFFLINE_SHADOW_PENDING_SEPARATE_OBSERVED_TEST',
+        limitations=['Offline development chunk MAE is not full-task rollout success','Source operator labels are BC targets, not learned-policy physical validation',
+            'No physical commands, robot connection or controller changes','Sealed source payload excluded','Task text is metadata; ACT has no language input'])
+    result['skill_card']=card;write_json(folder/'provenance.json',{'aggregate_sha256':sha(source),'settings':settings,'source_kind':kind,'physical_io':False})
+    write_json(result_path,result)
+    if not any(value['id']==card['id'] for value in store.skills()):store.add_skill(card)
+    update(.99,'official_ACT6_optimizer_and_save_reload_verified_offline_only')
+    return result
