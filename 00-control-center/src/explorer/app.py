@@ -10,6 +10,7 @@ import json
 import re
 import secrets
 import shutil
+import threading
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -32,6 +33,20 @@ STATIC = Path(__file__).parent / 'static'
 STATIC.mkdir(exist_ok=True)
 CLIENT = httpx.AsyncClient(timeout=4, trust_env=False)
 LOGIN_ATTEMPTS = {}
+COOPERATIVE_SERVICE = None
+COOPERATIVE_SERVICE_STORE = None
+COOPERATIVE_SERVICE_LOCK = threading.RLock()
+
+
+def cooperative_service():
+    global COOPERATIVE_SERVICE,COOPERATIVE_SERVICE_STORE
+    with COOPERATIVE_SERVICE_LOCK:
+        if COOPERATIVE_SERVICE is None:
+            from .cooperative_service import CooperativeService
+            COOPERATIVE_SERVICE=CooperativeService(CONFIG,STORE)
+            COOPERATIVE_SERVICE_STORE=STORE
+        if COOPERATIVE_SERVICE_STORE is not STORE:raise RuntimeError('Cooperative service belongs to a different state; close it before replacing the store')
+        return COOPERATIVE_SERVICE
 
 
 async def poll_nodes():
@@ -74,9 +89,13 @@ async def poll_nodes():
 
 @asynccontextmanager
 async def lifespan(app):
+    global COOPERATIVE_SERVICE,COOPERATIVE_SERVICE_STORE
     task = asyncio.create_task(poll_nodes())
     yield
     task.cancel()
+    with COOPERATIVE_SERVICE_LOCK:
+        service=COOPERATIVE_SERVICE;COOPERATIVE_SERVICE=None;COOPERATIVE_SERVICE_STORE=None
+    if service is not None:await asyncio.to_thread(service.close)
     await CLIENT.aclose()
 
 
@@ -845,6 +864,42 @@ from .skill_workflow_api import install_skill_workflow_routes
 install_skill_workflow_routes(app,lambda:STORE)
 from .lab_skill_api import install_router as install_lab_skill_routes
 install_lab_skill_routes(app,lambda:STORE)
+
+
+@app.get('/api/cooperative')
+async def cooperative_state(request: Request):
+    values=request.query_params.getlist('session_id')
+    if request.query_params and (set(request.query_params)!={'session_id'} or len(values)!=1 or not re.fullmatch('[0-9a-f]{32}',values[0])):
+        raise HTTPException(400,'Choose one current cooperative session')
+    try:return await asyncio.to_thread(lambda:cooperative_service().snapshot(values[0] if values else None))
+    except FileNotFoundError as error:raise HTTPException(404,'Cooperative session does not exist') from error
+    except (ValueError,KeyError,TypeError) as error:raise HTTPException(409,str(error)) from error
+
+
+@app.post('/api/cooperative/{operation}')
+async def cooperative_operation(operation: str,request: Request):
+    if operation not in {'propose_skill','confirm_skill','create_session','register_zone','record_start','record_stage','record_finish','step','stop','confirm_evidence','review_recording','aggregate','training_plan','train','shadow','attach_native_giver'}:
+        raise HTTPException(404,'Unsupported cooperative workflow operation')
+    try:
+        body=await request.json()
+        if not isinstance(body,dict):raise ValueError('Cooperative request must be an object')
+        actor=session_actor(request)
+        return await asyncio.to_thread(lambda:cooperative_service().command(operation,body,authenticated_actor=actor))
+    except FileNotFoundError as error:raise HTTPException(404,'Original cooperative source does not exist') from error
+    except (ValueError,KeyError,TypeError,RuntimeError) as error:
+        return JSONResponse({'detail':str(error),'reasons':getattr(error,'reasons',[])},409)
+
+
+@app.get('/api/cooperative/artifacts/{kind}/{identity}')
+async def cooperative_artifact(kind: str,identity: str,request: Request):
+    roles=request.query_params.getlist('role')
+    if (not re.fullmatch('[0-9a-f]{32}',identity) or kind not in ('zone','recording') or
+            set(request.query_params)-{'role'} or len(roles)>1 or roles and roles[0] not in ('giver','receiver')):
+        raise HTTPException(400,'Exact managed cooperative artifact required')
+    try:
+        path,mime=await asyncio.to_thread(lambda:cooperative_service().artifact(kind,identity,roles[0] if roles else None))
+        return FileResponse(path,media_type=mime,headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'})
+    except (FileNotFoundError,ValueError,KeyError) as error:raise HTTPException(404,'Original cooperative artifact is unavailable') from error
 
 
 @app.post('/api/lab/source-shadow')

@@ -30,3 +30,13 @@ test("solution acceptance requires shown overlay and explicit confirmations",asy
   const html=tabletopCalibrationPanel({status:state,error:'<script>move()</script>'});
   assert.ok(html.includes("&lt;script&gt;"));assert.ok(!html.includes("<script>"));assert.ok(html.includes('data-calibration-field="corner_3_z"'));
 });
+test("a new solution or edited measurements invalidate prior axes and mount confirmations",async () => {
+  let state={...fixture(),session:{session_id:"s",revision:"r1",solutions:[{solution_id:"first",artifact_sha256:"b".repeat(64)}]}};let posts=0;
+  const client=createTabletopCalibrationClient({get:async () => structuredClone(state),post:async () => {posts++;return structuredClone(state);}});
+  await client.refresh(true);client.solutionDisplayed("first");client.edit("confirm_axes_overlay",true);client.edit("confirm_mount_unchanged",true);
+  state.session={...state.session,revision:"r2",solutions:[{solution_id:"second",artifact_sha256:"c".repeat(64)}]};await client.refresh(true);
+  assert.equal(client.snapshot().draft.confirm_axes_overlay,false);assert.equal(client.snapshot().displayedSolution,null);
+  client.solutionDisplayed("second");client.edit("confirm_axes_overlay",true);client.edit("confirm_mount_unchanged",true);client.edit("corner_0_x","42");
+  client.solutionDisplayed("second");client.edit("confirm_axes_overlay",true);client.edit("confirm_mount_unchanged",true);
+  await assert.rejects(client.accept(),/Измерения изменены/);assert.equal(posts,0);
+});

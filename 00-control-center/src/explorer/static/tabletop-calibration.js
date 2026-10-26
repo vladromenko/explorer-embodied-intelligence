@@ -5,9 +5,15 @@
   const rows = value => Array.isArray(value) ? value : [];
   const base = "/api/lab/vision/calibration/";
   function createTabletopCalibrationClient(options) {
-    let status = null, error = null, busy = false, updatedAt = 0, displayed = null, displayedSolution = null, newSeries = false, epoch = 0;
+    let status = null, error = null, busy = false, updatedAt = 0, displayed = null, displayedSolution = null, newSeries = false, epoch = 0, measurementsDirty = false;
     const draft = {}, notify = () => options.onChange?.();
-    function snapshot() { return {status,error,busy,updatedAt,displayed,displayedSolution,newSeries,draft:{...draft}}; }
+    function clearAcceptance() { displayedSolution = null; draft.confirm_axes_overlay = false; draft.confirm_mount_unchanged = false; }
+    function adopt(value) {
+      const binding = state => JSON.stringify([state?.session?.session_id,state?.session?.solutions?.at(-1)?.solution_id,state?.trusted_context]);
+      if (binding(value) !== binding(status)) { clearAcceptance(); measurementsDirty = false; }
+      status = value;
+    }
+    function snapshot() { return {status,error,busy,updatedAt,displayed,displayedSolution,newSeries,measurementsDirty,draft:{...draft}}; }
     async function refresh(force = false) {
       if (busy || !force && Date.now() - updatedAt < 5000) return;
       const expected = ++epoch;
@@ -15,15 +21,15 @@
         const session = !newSeries && status?.session?.session_id;
         const value = await options.get(base + "status" + (session ? "?session_id=" + encodeURIComponent(session) : ""));
         if (expected !== epoch) return;
-        status = newSeries ? {...value,session:null,ready_to_solve:false} : value;
+        adopt(newSeries ? {...value,session:null,ready_to_solve:false} : value);
         updatedAt = Date.now(); displayed = null; error = null;
       } catch (failure) { if (expected === epoch) error = failure.message; }
       notify();
     }
     async function operation(name, body) {
       if (busy) throw new Error("Дождитесь завершения текущего запроса");
-      epoch++; busy = true; error = null; notify();
-      try { status = await options.post(base + name, body); updatedAt = Date.now(); displayed = null; newSeries = false; return status; }
+      epoch++; busy = true; error = null; if (name === "solve") clearAcceptance(); notify();
+      try { adopt(await options.post(base + name, body)); updatedAt = Date.now(); displayed = null; newSeries = false; return status; }
       catch (failure) { error = failure.message; throw failure; }
       finally { busy = false; notify(); }
     }
@@ -33,7 +39,7 @@
     function solutionDisplayed(solutionId) {
       if (status?.session?.solutions?.at(-1)?.solution_id === solutionId && displayedSolution !== solutionId) { displayedSolution = solutionId; notify(); }
     }
-    function edit(name, value) { draft[name] = value; }
+    function edit(name, value) { if (!name.startsWith("confirm_")) { clearAcceptance(); measurementsDirty = true; } draft[name] = value; }
     function revision() {
       const session = status?.session;
       if (!session || newSeries) throw new Error("Сначала сохраните виды доски");
@@ -61,6 +67,8 @@
       return operation("solve", {request_id:crypto.randomUUID(),...revision(),measurements});
     }
     async function accept() {
+      if (measurementsDirty) throw new Error("Измерения изменены; выполните новый расчёт перед применением");
+      if (["QUEUED","RUNNING"].includes(status?.session?.state)) throw new Error("Дождитесь нового расчёта и проверьте его оси");
       const solution = status?.session?.solutions?.at(-1);
       if (!solution || displayedSolution !== solution.solution_id || draft.confirm_axes_overlay !== true || draft.confirm_mount_unchanged !== true) throw new Error("Проверьте наложение осей на опорном снимке и подтвердите крепление");
       return operation("accept", {request_id:crypto.randomUUID(),...revision(),solution_id:solution.solution_id,solution_sha256:solution.artifact_sha256,
@@ -90,7 +98,7 @@
       <button type="submit" class="button primary" ${disabled || !status.ready_to_solve ? "disabled" : ""}>Рассчитать привязку</button></form>
       ${rows(status.solve_blockers).length ? `<p class="form-hint">Для расчёта ещё требуется: ${rows(status.solve_blockers).map(esc).join("; ")}</p>` : ""}
       ${session.last_failure ? `<p class="form-error">Расчёт отклонён: ${rows(session.last_failure.reasons).map(esc).join("; ")}</p>` : ""}
-      ${solution ? `<p>Расчёт сохранён. Проверьте границу измеренной области и направление осей на опорном снимке выше. Доска должна оставаться в этом месте для проверки текущего кадра.</p>${confirm("confirm_axes_overlay","На опорном снимке проверены граница и оси")}${confirm("confirm_mount_unchanged","Камера и основание с момента измерений не перемещались")}<button type="button" class="button primary" data-calibration="accept" ${disabled || data.displayedSolution !== solution.solution_id ? "disabled" : ""}>Применить к метрической сетке</button>` : ""}
+      ${solution ? `<p>Расчёт сохранён. Проверьте границу измеренной области и направление осей на опорном снимке выше. Доска должна оставаться в этом месте для проверки текущего кадра.</p>${confirm("confirm_axes_overlay","На опорном снимке проверены граница и оси")}${confirm("confirm_mount_unchanged","Камера и основание с момента измерений не перемещались")}<button type="button" class="button primary" data-calibration="accept" ${disabled || data.measurementsDirty || ["QUEUED","RUNNING"].includes(session.state) || data.displayedSolution !== solution.solution_id ? "disabled" : ""}>Применить к метрической сетке</button>` : ""}
       ${status.active ? `<p>Привязка применена к сетке. Область ограничена измеренным следом доски; высота предмета и контакт требуют отдельных измерений.</p>` : ""}
       ${data.error ? `<p class="form-error" role="alert">${esc(data.error)}</p>` : ""}</div></section>`;
   }

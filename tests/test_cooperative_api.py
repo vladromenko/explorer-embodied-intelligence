@@ -1,0 +1,40 @@
+"""Thin authenticated API over explicit service fixtures, no device/network."""
+import hashlib
+import importlib
+
+from fastapi.testclient import TestClient
+
+from explorer.store import Store
+
+
+def test_cooperative_routes_pin_session_scope_actor_and_managed_artifact(tmp_path,monkeypatch):
+    module=importlib.import_module('explorer.app');store=Store(tmp_path/'state');calls=[]
+    source=tmp_path/'managed.jpg';raw=b'\xff\xd8original-software-fixture\xff\xd9';source.write_bytes(raw)
+    class Service:
+        def snapshot(self,session=None):calls.append(('GET',session));return {'schema':'fixture-only','selected_session':session}
+        def command(self,operation,body,*,authenticated_actor):
+            calls.append(('POST',operation,body,authenticated_actor));return {'result':{'operation':operation},'snapshot':self.snapshot(body.get('session_id'))}
+        def artifact(self,kind,ident,role):calls.append(('artifact',kind,ident,role));return source,'image/jpeg'
+    service=Service();monkeypatch.setattr(module,'cooperative_service',lambda:service)
+    monkeypatch.setattr(module,'STORE',store)
+    monkeypatch.setattr(module,'CONFIG',dict(module.CONFIG,nodes=[],password_salt='fixture',password_hash=hashlib.pbkdf2_hmac('sha256',b'fixture',b'fixture',310000).hex()))
+    with TestClient(module.app) as client:
+        assert client.get('/api/cooperative').status_code==401 and calls==[]
+        assert client.post('/api/login',json={'password':'fixture'}).status_code==200
+        headers={'X-Explorer-CSRF':client.cookies['explorer_csrf']};ident='a'*32
+        assert client.get('/api/cooperative?session_id='+ident).json()['selected_session']==ident
+        before=len(calls)
+        assert client.get('/api/cooperative?session_id=../bad').status_code==400
+        assert client.get('/api/cooperative?session_id='+ident+'&session_id='+ident).status_code==400
+        assert client.get('/api/cooperative?path=/etc/passwd').status_code==400
+        assert len(calls)==before
+        assert client.post('/api/cooperative/record_start',json={}).status_code==403
+        assert client.post('/api/cooperative/authorize',json={},headers=headers).status_code==404
+        body={'session_id':ident,'actor_id':'spoofed','expected_epoch':'current-fixture'}
+        assert client.post('/api/cooperative/step',json=body,headers=headers).status_code==200
+        command=next(row for row in calls if row[0]=='POST')
+        assert command[-1].startswith('authenticated-session:') and command[-1]!='spoofed'
+        media=client.get('/api/cooperative/artifacts/zone/'+ident+'?role=giver')
+        assert media.status_code==200 and media.content==raw and media.headers['cache-control']=='no-store'
+        assert client.get('/api/cooperative/artifacts/zone/'+ident+'?file=/etc/passwd').status_code==400
+        assert client.post('/api/cooperative/step',json=[],headers=headers).status_code==409
