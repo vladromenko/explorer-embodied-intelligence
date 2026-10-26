@@ -23,6 +23,8 @@ Our research question is whether \emph{evidence-constrained update acceptance}, 
 
 Action chunking and generative imitation are established approaches \citep{act,diffusion}. Interactive imitation addresses distribution shift \citep{dagger}. PPO is an established simulation optimizer \citep{ppo}. Sequential manipulation benchmarks and hierarchical skill libraries already study retention, replay and composition \citep{libero,lotus}. We use these as explicit algorithmic and evaluation references. A symbolic skill graph is not a reproduction of a learned hierarchical controller, and geometric retargeting is not evidence of cross-embodiment policy transfer.
 
+AW-0 couples code, video and actions with reusable skill libraries \citep{aw0}; its source release additionally includes optional recurrent code memory, disabled by default \citep{aw0code}. These are close antecedents to memory and program reuse in our system, which establish no novelty claim by themselves. Our untested comparison concerns evidence-constrained update acceptance under matched budgets. AW-0 has not been executed or compared experimentally here.
+
 \section{Evidence-constrained update protocol}
 \subsection{Records and interfaces}
 Each candidate skill has a checkpoint digest, source-data lineage, action representation, joint order, units, coordinate frames, compatible robot and observation contract. Each episode records the protocol version, acquisition session, time domain, commands, available measurements, intervention events and evidence references. Outcomes are \textsc{success}, \textsc{failure} or \textsc{unknown}. Simulation, offline replay and physical execution belong to separate domains.

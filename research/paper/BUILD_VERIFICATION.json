@@ -6,15 +6,22 @@
   "all_fonts_type1_embedded": true,
   "font_audit_includes_figure_xobjects": true,
   "source_sha256": {
-    "main.tex": "828cde1e536401e9dec2e7b85744128c48119b3ac440004ced5942fa80903820",
-    "references.bib": "f93bffe5d75880c998621af3011cba6de9c2b3d6c543dcc0012ecb80011631bb",
+    "main.tex": "3396f3160275d8f379e0991693481f5083c67aa3def946e2ea2d9bbad8320734",
+    "references.bib": "ab2dcc11587f140b55922f9f2a45ac6e36af8ac4943309adbece9bcd3762ee9f",
     "IEEEtran.cls": "d63d4bf27f29603a733d06e27ba5fbb40488acf9d1d696354a88b886758f70a7",
     "figures/engineering_checks.pdf": "d6bf39f9529ca1c4fb1ee3e4fe73971e5d77501c7ce0e48e7584fb802724c98b"
   },
-  "pdf_sha256": "dc8cc97412508ecfe9338b406e29ae4f516d5204e957fd0b447c7e92c8aff222",
-  "render_cache": "venues/rss2027/render/page-1.png,page-2.png,page-3.png",
+  "pdf_sha256": "e2222b53bf3f10c21a82d272ab8b3f9038636dbe6b3b7552e164c489bb7e96ba",
+  "render_cache": "/Users/vladromenko/Library/Caches/Explorer/aw0-paper-render-20261026",
   "render_reviewed": true,
   "submission_ready": false,
-  "scope": "Engineering evidence only. Corrected success-only selector primary: ACT 1/6; historical all-12-episode ACT 2/6 archived without a filtering-benefit claim. No H1-H5 or independent physical-task qualification.",
-  "primary_engineering_evidence_sha256": "970f6026ed27fcd8d8a6411094b1072ac0f5f41775d9f3092a625891e3858bab"
+  "scope": "Engineering evidence only. Corrected success-only selector primary: ACT 1/6; historical all-12-episode ACT 2/6 archived without a filtering-benefit claim. No H1-H5 or independent physical-task qualification. Closest AW-0 prior art and its pinned optional-memory source acknowledged. AW-0 was not executed or compared; no generic code/memory novelty claimed.",
+  "primary_engineering_evidence_sha256": "970f6026ed27fcd8d8a6411094b1072ac0f5f41775d9f3092a625891e3858bab",
+  "native_compiler_success": true,
+  "diagnostics": {
+    "undefined_citations": false,
+    "overfull_boxes": false,
+    "underfull_hbox_warnings": 5,
+    "visual_review": "All three pages inspected; no clipping, overlaps or missing citations. Underfull spacing notices only."
+  }
 }
