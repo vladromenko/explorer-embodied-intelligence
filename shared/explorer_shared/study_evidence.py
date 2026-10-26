@@ -165,6 +165,10 @@ def inspect_study(definition):
         else:
             started,trial,parameters,result,trace,archive=[read_json(base/name) for name in
                 ('trial-started.json','trial.json','parameters.json','target/result.json','target/target-trace.json','source-archive/manifest.json')]
+            if started.get('frozen_protocol_sha256')!=protocol['sha256'] or started.get('physical_io') is not False:
+                raise StudyRejected('Started attempt is not bound to this frozen simulation protocol')
+            if 'driver_sha256' in protocol and (started.get('driver_sha256')!=protocol['driver_sha256'] or trial.get('checkpoint_sha256')!=protocol['driver_sha256']):
+                raise StudyRejected('Scripted implementation checkpoint differs from frozen driver')
             if started['scenario']!=scenario or parameters['scenario']!=scenario or trial.get('scenario')!=scenario:
                 raise StudyRejected('Scenario/RNG seed changed across its original receipts')
             for name,key in [('target/result.json','result_sha256'),('target/target-trace.json','target_trace_sha256'),('source-archive/manifest.json','source_archive_manifest_sha256')]:
@@ -188,6 +192,9 @@ def inspect_study(definition):
                 bindings[source['resolved_path']]=bindings[source['original_locator']];archive_bytes+=source['bytes']
             if archive_bytes!=archive['total_source_bytes'] or len(archive['files'])!=expected['source_archive_files']:
                 raise StudyRejected('Original source archive accounting changed')
+            verification=read_json(base/'source-verification.json')
+            if verification.get('physical_io') is not False or verification.get('trial_result_sha256')!=expected['result_sha256'] or verification.get('after_trial',{}).get('manifest_sha256')!=expected['source_archive_manifest_sha256'] or verification.get('after_trial',{}).get('files')!=len(archive['files']) or verification.get('after_trial',{}).get('originals_rechecked') is not True:
+                raise StudyRejected('Recorded post-trial source-verification receipt is unbound')
             source_trace=read_json(base/'source-trace.json')
             if result['source_manifest_sha256']!=sha_file(base/'source-trace.json'):
                 raise StudyRejected('Geometric source trace binding changed')
@@ -283,6 +290,10 @@ def inspect_study(definition):
         executed_implementation=dict(logical_path='context/frozen-benchmark.py',sha256=definition.benchmark.sha256,scope='allowlisted_pure_statistical_evaluator_only'),
         file_manifest=[files[name] for name in sorted(files)],file_count=len(files),total_logical_bytes=sum(row['bytes'] for row in files.values()),
         benchmark_recomputation=dict(verified=recomputed is not None,report=recomputed,scope='Recorded independent result/phase/terminal evidence→original trial rows→allowlisted frozen statistical evaluator; no dynamics/contact recomputation'),
+        dependency_closure=dict(recorded_required_payloads='PARTIAL' if any(row['code']=='RECORDED_ATTEMPT_FILES_MISSING' for row in gaps) else 'VERIFIED',
+            frozen_benchmark='VERIFIED' if recomputed is not None else 'PARTIAL',
+            scene_and_cad_assets='PARTIAL' if any(row['code'] in ('SCENE_ASSET_NOT_RESOLVED','TARGET_CAD_NOT_ARCHIVED') for row in gaps) else 'VERIFIED',
+            original_runtime='PARTIAL',full_initial_rng_and_reset_state='NOT_RECORDED',original_dynamics_reexecution='UNQUALIFIED'),
         target_partition='development',target_optimizer_allowed=False,source_method='SCRIPTED_SIM',learned_policy_executed=False,
         physical_success_claimed=False,physical_io=False,master_prompt_completed=False)
     document['inspection_sha256']=hashlib.sha256(canonical(document)).hexdigest()

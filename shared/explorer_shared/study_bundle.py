@@ -187,7 +187,7 @@ def archive_study_bundle(bundle,archive,*,expected_manifest_sha256):
     names=['manifest.json']+sorted({row['object'] for row in manifest['files']})
     with archive.open('xb') as output:
         os.chmod(archive,0o600)
-        with tarfile.open(fileobj=output,mode='w',format=tarfile.PAX_FORMAT) as stream:
+        with tarfile.open(fileobj=output,mode='w',format=tarfile.USTAR_FORMAT) as stream:
             for name in names:
                 path=regular(Path(bundle)/name,Path(bundle));info=tarfile.TarInfo(name)
                 info.size=path.stat().st_size;info.mode=0o600;info.uid=info.gid=0;info.mtime=0
@@ -197,11 +197,53 @@ def archive_study_bundle(bundle,archive,*,expected_manifest_sha256):
         archive_sha256=sha_file(archive),archive_bytes=archive.stat().st_size,compression='none')
 
 
+def _preflight_ustar(archive):
+    """Bound TAR headers before tarfile can allocate an extended-header body.
+
+    Our exported names fit USTAR without PAX/GNU extensions. Rejecting all
+    extension/sparse/link/directory headers keeps parser memory independent of
+    attacker-declared extended metadata sizes.
+    """
+    seen=set();total=0
+    with Path(archive).open('rb') as stream:
+        header=stream.read(512)
+        while header and header!=b'\0'*512:
+            if len(header)!=512 or header[156:157] not in (b'0',b'\0') or header[345:500].strip(b'\0'):
+                raise StudyRejected('Only plain bounded USTAR regular headers are supported')
+            if header[257:263] not in (b'ustar\0',b'ustar '):
+                raise StudyRejected('Portable study archive must use USTAR regular files')
+            try:
+                name=header[:100].split(b'\0',1)[0].decode('ascii')
+                size_text=header[124:136].rstrip(b'\0 ').lstrip(b' ')
+                check_text=header[148:156].rstrip(b'\0 ').lstrip(b' ')
+                if not size_text or any(value not in b'01234567' for value in size_text):raise ValueError('octal size required')
+                size=int(size_text,8);recorded_check=int(check_text,8)
+            except (ValueError,UnicodeDecodeError) as error:
+                raise StudyRejected('Malformed bounded USTAR header') from error
+            if sum(header[:148])+8*32+sum(header[156:])!=recorded_check:
+                raise StudyRejected('USTAR header checksum changed')
+            name=relative_name(name)
+            if name in seen or not (name=='manifest.json' or re.fullmatch(r'objects/[0-9a-f]{64}\.blob',name)):
+                raise StudyRejected('Only unique regular CAS members may be unpacked')
+            total+=size;seen.add(name)
+            if size>(MAX_MANIFEST_BYTES if name=='manifest.json' else MAX_FILE_BYTES) or len(seen)>MAX_FILES+1 or total>MAX_BYTES+MAX_MANIFEST_BYTES:
+                raise StudyRejected('USTAR declared inventory exceeds its byte bound')
+            stream.seek(((size+511)//512)*512,1);header=stream.read(512)
+        if header!=b'\0'*512:
+            raise StudyRejected('Truncated portable archive')
+        # A deterministic USTAR archive has at least two end blocks and only
+        # bounded all-zero padding. Concatenated archives are not evidence.
+        padding=stream.read(10241)
+        if len(padding)<512 or len(padding)>10240 or any(padding):
+            raise StudyRejected('Unaccounted trailing archive payload')
+
+
 def unpack_study_archive(archive,destination,*,expected_archive_sha256,expected_manifest_sha256):
     """Strict regular-file TAR extraction with both caller-pinned identities."""
     archive=Path(archive)
     if archive.is_symlink() or not archive.is_file() or archive.stat().st_size>MAX_BYTES+32*1024**2 or sha_file(archive)!=checksum(expected_archive_sha256):
         raise StudyRejected('Archive bytes differ from their trusted receipt or bound')
+    _preflight_ustar(archive)
     destination=_new_directory(destination);seen=set();total=0
     with tarfile.open(archive,mode='r:') as stream:
         for member in stream:

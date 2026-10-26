@@ -43,7 +43,7 @@ def study(tmp_path):
     protocol_file_sha=write(campaign/'frozen-protocol.json',protocol);trials=[];audit_rows=[]
     for number,scenario in enumerate(scenarios):
         identity=scenario['id'];base=campaign/identity;success=number==0
-        write(base/'trial-started.json',dict(scenario=scenario));write(base/'parameters.json',dict(scenario=scenario))
+        write(base/'trial-started.json',dict(scenario=scenario,frozen_protocol_sha256=protocol['sha256'],physical_io=False));write(base/'parameters.json',dict(scenario=scenario))
         source_trace_sha=write(base/'source-trace.json',dict(schema='synthetic_geometric_source',partition='train'))
         mesh_sha=write(base/'source-archive/objects/mesh.stl',b'synthetic mesh bytes; never executed')
         archive=dict(schema='explorer_source_archive_v1',scope='explicit_source_inventory_bytes_not_complete_OS_or_scientific_success',
@@ -78,6 +78,8 @@ def study(tmp_path):
             independent_evaluation=report,failure=None if success else 'settle failed',full_target_simulation_success=success,
             source_split=dict(partition='train'),optimizer_partition_allowed=True,eligible_as_simulation_expert=success)
         result_sha=write(base/'target/result.json',result)
+        write(base/'source-verification.json',dict(physical_io=False,trial_result_sha256=result_sha,
+            after_trial=dict(manifest_sha256=archive_sha,files=1,originals_rechecked=True)))
         trial=dict(trial_id=identity,run_id='synthetic',task_id='placement',condition='SCRIPTED_SIM',
             protocol_sha256=protocol['sha256'],source_domain='SIMULATION',checkpoint_sha256='a'*64,
             checkpoint_basis='SCRIPTED_SIM_implementation_SHA_not_a_learned_checkpoint',evidence_artifact_ids=[identity],
@@ -178,3 +180,24 @@ def test_only_server_registered_study_ids_and_allowlisted_evaluator(study,tmp_pa
         with pytest.raises(StudyRejected):registered_definition(identity)
     untrusted=tmp_path/'untrusted.py';write(untrusted,b'raise RuntimeError("must never execute")')
     with pytest.raises(StudyRejected):inspect_study(replace(study,benchmark=ContextFile(untrusted,sha_file(untrusted),'untrusted')))
+
+
+def test_extended_header_rejected_before_tarfile_allocation(tmp_path,monkeypatch):
+    archive=tmp_path/'extended.tar'
+    with tarfile.open(archive,'w',format=tarfile.PAX_FORMAT) as stream:
+        info=tarfile.TarInfo('objects/'+'0'*64+'.blob');info.pax_headers={'comment':'x'*2000};info.size=1
+        stream.addfile(info,io.BytesIO(b'x'))
+    called=[]
+    monkeypatch.setattr(tarfile,'open',lambda *a,**k:called.append(True))
+    with pytest.raises(StudyRejected,match='plain bounded USTAR'):
+        unpack_study_archive(archive,tmp_path/'unpacked',expected_archive_sha256=sha_file(archive),expected_manifest_sha256='0'*64)
+    assert not called and not (tmp_path/'unpacked').exists()
+
+
+def test_export_source_mutation_and_source_link_rejected(study,tmp_path):
+    inspection=inspect_study(study)
+    image=study.campaign_root/'synthetic-success/target/rgb/000000.png';image.write_bytes(b'changed')
+    with pytest.raises(StudyRejected):export_study_bundle(inspection,tmp_path/'changed-bundle')
+    assert not (tmp_path/'changed-bundle/manifest.json').exists()
+    image.unlink();image.symlink_to(study.audit.path)
+    with pytest.raises(StudyRejected,match='Symlinks'):inspect_study(study)
