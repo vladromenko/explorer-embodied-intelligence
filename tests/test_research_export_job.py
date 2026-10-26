@@ -284,3 +284,26 @@ def test_source_job_metadata_budget_is_total_across_parents_before_raw_fetch(tmp
         worker._source_jobs(store,[source['id'],second['id']],max_inline_bytes=1500)
     with pytest.raises(ResearchExportBlocked,match='SOURCE_JOB_METADATA_BUDGET_INVALID'):
         worker._source_jobs(store,[source['id']],max_inline_bytes=64*1024**2)
+
+
+def test_native_CDR_and_lossless_float_depth_are_preserved_as_files_and_inside_original_archive(tmp_path):
+    import io
+    import numpy as np
+    from PIL import Image
+    store,source,folder=sources(tmp_path)
+    values=np.array([[.125,np.nan,np.inf],[-np.inf,0,4.75]],dtype=np.float32)
+    image=io.BytesIO();Image.fromarray(values).save(image,format='TIFF');depth=image.getvalue()
+    cdr=b'\x00\x01\x00\x00EXPLICIT_SOFTWARE_CDR_FIXTURE\x00\xff'
+    (folder/'sensor.cdr').write_bytes(cdr);(folder/'depth.tiff').write_bytes(depth)
+    native=folder/'original-native.tar'
+    with tarfile.open(native,'w') as archive:
+        for name,payload in [('sources/raw-scan.cdr',cdr),('frames/depth.tif',depth)]:
+            info=tarfile.TarInfo(name);info.size=len(payload);archive.addfile(info,io.BytesIO(payload))
+    original=native.read_bytes();settings=request_settings(store,[source['id']]);job=launch(store,settings)
+    result=run_research_export(store,job,settings)
+    with tarfile.open(result['evidence_tar_path']) as archive:
+        payloads=[archive.extractfile(member).read() for member in archive if member.isfile()]
+    assert cdr in payloads and depth in payloads and original in payloads
+    assert native.read_bytes()==original and (folder/'sensor.cdr').read_bytes()==cdr and (folder/'depth.tiff').read_bytes()==depth
+    with Image.open(io.BytesIO(next(raw for raw in payloads if raw==depth))) as restored:
+        np.testing.assert_array_equal(np.asarray(restored),values)

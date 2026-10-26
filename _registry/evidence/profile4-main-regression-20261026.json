@@ -1,0 +1,40 @@
+{
+  "execution_commit": "826a4304960995f7da9c5bb0d18172e05744a7cf",
+  "source": "/mnt/explorer-data/explorer-work/regression-profile4-main-20261026/source",
+  "basetemp": "/mnt/explorer-data/explorer-work/regression-profile4-main-20261026/pytest",
+  "MemoryMax": "5GiB",
+  "MemorySwapMax": 0,
+  "CPUQuota": "250%",
+  "hardware_IO": false,
+  "actual_mesh_path": "/home/jetsonnx/.local/share/explorer/state/assets/m3_reference/meshes",
+  "MUJOCO_GL": "egl",
+  "schema": "explorer_profile4_main_regression_v1",
+  "execution_result": {
+    "passed": 1161,
+    "skipped": 21,
+    "failed": 1,
+    "pytest_elapsed_s": 275.17,
+    "process_elapsed_s": 280.76242113113403
+  },
+  "failure": {
+    "test": "tests/test_runtime_integration.py::test_authenticated_new_jobs_reject_wrong_project_and_unavailable_source",
+    "cause": "Old exact API dictionary equality rejected the additive typed current source04 catalog; legacy sources remained unchanged.",
+    "fixed_without_production_code_change": true,
+    "followup_targeted_tests_passed": 32,
+    "followup_elapsed_s": 2.78
+  },
+  "additional_lossless_native_formats": {
+    "extensions": [
+      ".cdr",
+      ".tif",
+      ".tiff"
+    ],
+    "standalone_and_original_tar_bytes_preserved": true,
+    "float32_depth_NaN_Inf_pixels_preserved": true,
+    "targeted_tests_passed": 23,
+    "elapsed_s": 2.34
+  },
+  "full_suite_rerun_claimed": false,
+  "controller_settings_written": false,
+  "whole_master_prompt_complete": false
+}

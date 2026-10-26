@@ -89,4 +89,8 @@ def test_authenticated_new_jobs_reject_wrong_project_and_unavailable_source(tmp_
         assert client.post('/api/jobs',json=body,headers=headers).status_code==400
     response=client.post('/api/jobs',json={'kind':'manipulation','project_id':'01','config':{'task':'sock_to_basket'}},headers=headers)
     assert response.status_code==200 and response.json()['status']=='queued'
-    assert client.get('/api/transfer/sources').json()=={'sources':[]}
+    catalog=client.get('/api/transfer/sources').json()
+    assert catalog['sources']==[]
+    assert catalog['current']['choices']==[]
+    assert catalog['current']['source_experiment']=='04' and catalog['current']['target_experiment']=='06'
+    assert catalog['current']['joint_head_copy_allowed'] is False and catalog['current']['physical_execution_authorized'] is False

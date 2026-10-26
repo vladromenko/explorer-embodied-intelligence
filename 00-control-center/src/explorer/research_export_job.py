@@ -28,7 +28,7 @@ ID = re.compile(r'[0-9a-f]{32}')
 TERMINAL = {'completed', 'failed', 'cancelled'}
 EXTENSIONS = {'.json', '.jsonl', '.ndjson', '.npz', '.npy', '.png', '.jpg', '.jpeg',
     '.webp', '.mp4', '.safetensors', '.pt', '.stl', '.obj', '.urdf', '.xml', '.py',
-    '.onnx', '.hef', '.tar'}
+    '.onnx', '.hef', '.tar', '.cdr', '.tif', '.tiff'}
 PAYLOAD_TREES = {'artifacts', 'datasets', 'episodes', 'assets', 'qualification'}
 MANIFEST_POINTERS = {'dataset_manifest', 'source_manifest_path', 'source_manifest',
     'embodied_manifest', 'model_manifest', 'manifest_path', 'source_archive_path',
