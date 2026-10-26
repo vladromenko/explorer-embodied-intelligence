@@ -28,7 +28,7 @@
   }
   function createCooperativeWorkbenchClient(options) {
     if (typeof options?.get !== "function" || typeof options?.post !== "function") throw new Error("Нужен доверенный HTTP-клиент");
-    let data = null, error = "", busy = false, busyAction = "", generation = 0, readSequence = 0, selectedSkill = "", selectedSession = "", lastResult = null;
+    let data = null, error = "", busy = false, busyAction = "", generation = 0, readSequence = 0, selectedSkill = "", selectedSession = "", lastResult = null, trainingPlanReceipt = null, aggregateReceipt = null;
     const stops = {}, draft = {name:"Передать предмет ROSMASTER → SO101 и завершить задачу",object_description:"",receiver_goal_description:"",outcome_criteria:"",mode:"both_manual",giver_choice_id:"",receiver_choice_id:"",giver_model_id:"",receiver_model_id:"",phase_maps:{giver:{},receiver:{}},scene:"",object_instance:"",split:"train",giver_input_mode:"keyboard",receiver_input_mode:"leader",execution_domain:"observation_only",stationary_chassis_confirmed:false,native_variants:{giver:"",receiver:""},zone_checked:false,zone_observing:false,record_phase:"",finish:freshFinish(),review:{status:"unknown",whole_episode_seen:false,phase_outcomes:{},native_episode_choice_ids:{giver:"",receiver:""}},evidence:{}};
     const storage = options.storage ?? (typeof sessionStorage !== "undefined" ? sessionStorage : null);
     const storageKey = options.storageKey || "explorer.cooperative-workbench.v1";
@@ -60,7 +60,7 @@
       } catch (_) { /* Explicit server save remains authoritative. */ }
     }
     const notify = () => {persist();options.onChange?.();};
-    function snapshot() { return copy({data,error,busy,busyAction,selectedSkill,selectedSession,draft,stops,lastResult}); }
+    function snapshot() { return copy({data,error,busy,busyAction,selectedSkill,selectedSession,draft,stops,lastResult,trainingPlanReceipt,aggregateReceipt}); }
     function current() { return selected(snapshot()); }
     function adopt(value) {
       if (!value || typeof value !== "object") throw new Error("Сервер не вернул состояние кооперации");
@@ -87,6 +87,7 @@
     }
     async function operation(name, body, isStop = false) {
       if (busy && !isStop) throw new Error("Дождитесь текущего запроса; STOP доступен всегда");
+      const skillPin = current().skill ? key(current().skill) : null;
       const epoch = ++generation; readSequence++; busy = true; busyAction = name; error = ""; notify();
       try {
         const reply = await options.post(`/api/cooperative/${name}`,copy(body));
@@ -94,6 +95,9 @@
         readSequence++; // An earlier GET, including one started during POST, cannot replace this response.
         if (reply?.snapshot) adopt(reply.snapshot);
         lastResult = {operation:name,result:copy(reply?.result ?? reply)};
+        if (name === "training_plan") trainingPlanReceipt = {skillKey:skillPin,result:copy(lastResult.result)};
+        if (name === "aggregate") aggregateReceipt = {skillKey:skillPin,result:copy(lastResult.result)};
+        if (["review_recording","record_finish"].includes(name)) {trainingPlanReceipt = null;aggregateReceipt = null;}
         if (name === "propose_skill" && reply?.result?.spec) selectedSkill = key(reply.result);
         if (name === "create_session" && reply?.result?.session_id) selectedSession = reply.result.session_id;
         if (!reply?.snapshot) await refresh();
@@ -111,7 +115,7 @@
       if (["giver_choice_id","receiver_choice_id"].includes(path)) { const role = path.split("_")[0];draft.phase_maps[role] = {};draft[role+"_model_id"] = ""; }
       persist();if (render) notify();
     }
-    function chooseSkill(value) { if (selectedSkill !== value) clearObservationChecks();selectedSkill = value;selectedSession = "";notify(); }
+    function chooseSkill(value) { if (selectedSkill !== value) {clearObservationChecks();trainingPlanReceipt = null;aggregateReceipt = null;}selectedSkill = value;selectedSession = "";notify(); }
     function chooseSession(value) {
       const session = sessions(data).find(row => row.session_id === value);
       if (value && !session) throw new Error("Выберите серверную сессию");
@@ -186,9 +190,14 @@
       return operation("review_recording",{session_id:session.session_id,recording_id:recording,object_instance_id:session.object_instance_id,whole_episode_seen:true,outcome:draft.review.status,phase_outcomes:phaseOutcomes,native_episode_choice_ids:copy(draft.review.native_episode_choice_ids),expected_epoch:session.epoch});
     }
     function aggregate() { const row = skillRequired();return operation("aggregate",{skill_id:row.spec.skill_id,version:row.spec.version}); }
+    function train() {
+      const row = skillRequired(), pinned = key(row);
+      if (!row.confirmed || trainingPlanReceipt?.skillKey !== pinned || trainingPlanReceipt.result?.ready !== true || aggregateReceipt?.skillKey !== pinned || !/^[a-f0-9]{64}$/.test(aggregateReceipt.result?.aggregate_manifest_sha256 || "")) throw new Error("Сначала соберите допущенный общий агрегат и проверьте реальный native-план этой версии");
+      return operation("train",{skill_id:row.spec.skill_id,version:row.spec.version,settings:{}});
+    }
     function trainingPlan() { const row = skillRequired();return operation("training_plan",{skill_id:row.spec.skill_id,version:row.spec.version}); }
     function shadow() { const session = sessionRequired();if (!["giver","receiver"].every(role => data?.model_adapters_bound?.[role] === true && current().skill?.spec?.subskills?.[role]?.model_id)) throw new Error("Для shadow нужны обе закреплённые модели и реальные серверные адаптеры наблюдения / inference");return operation("shadow",{session_id:session.session_id,expected_epoch:session.epoch}); }
-    return {snapshot,refresh,edit,chooseSkill,chooseSession,propose,confirm,createSession,registerZone,recordStart,recordStage,recordFinish,step,stop,confirmEvidence,review,aggregate,trainingPlan,shadow};
+    return {snapshot,refresh,edit,chooseSkill,chooseSession,propose,confirm,createSession,registerZone,recordStart,recordStage,recordFinish,step,stop,confirmEvidence,review,aggregate,trainingPlan,train,shadow};
   }
 
   function cooperativeWorkbenchPanel(view = {}) {
@@ -238,8 +247,13 @@
     }).join("") : "";
     const review = session?.last_recording_id ? `<details><summary>Независимый разбор завершённого показа</summary>${check("review.whole_episode_seen","Просмотрел весь исходный показ и конкретный предмет",draft.review?.whole_episode_seen)}${select("review.status","Полный исход",Object.entries(outcomes),draft.review?.status)}<div class="form-grid">${phases.map(phase => select(`review.phase_outcomes.${phase}`,labels[phase] || phase,[["","Выберите исход"],...Object.entries(outcomes)],draft.review?.phase_outcomes?.[phase] || "")).join("")}</div>${["giver","receiver"].map(role => select(`review.native_episode_choice_ids.${role}`,role === "giver" ? "Завершённый оригинал ROSMASTER" : "Завершённый оригинал SO101",[["","Нет выбранного допущенного оригинала"],...episodeChoices(data,session,role).map(row => [choiceID(row),row.name || row.title || "Исходный показ · "+(row.status || "допуск проверяется")])],draft.review?.native_episode_choice_ids?.[role] || "")).join("")}<p>Отсутствующий оригинал остаётся недоступным. Ручной ввод ID, подмена intent на dispatch и перенос sealed в train не выполняются.</p>${sourceReviewLinks}${button("review","Сохранить независимый разбор",busy)}</details>` : "";
     const shadowReady = ["giver","receiver"].every(role => data?.model_adapters_bound?.[role] === true && skill?.spec?.subskills?.[role]?.model_id);
+    const trainReady = Boolean(skill?.confirmed && view.trainingPlanReceipt?.skillKey === key(skill) && view.trainingPlanReceipt?.result?.ready === true && view.aggregateReceipt?.skillKey === key(skill) && /^[a-f0-9]{64}$/.test(view.aggregateReceipt?.result?.aggregate_manifest_sha256 || ""));
+    const trainResult = view.lastResult?.operation === "train" ? `<section><h3>Раздельные задачи в общей очереди</h3>${["giver","receiver"].map(role => {
+      const job = view.lastResult.result?.jobs?.[role], error = view.lastResult.result?.errors?.[role];
+      return `<p>${role === "giver" ? "ROSMASTER9D" : "SO1016D"}: ${job ? "задача "+esc(String(job.id).slice(0,8))+" · "+esc(job.status) : "задача не подтверждена"}</p>${error ? `<p class="form-error">${esc(error)}</p>` : ""}`;
+    }).join("")}<p class="form-hint">Частичный результат сохраняется сервером. Это отдельные native datasets/models; coordinator не объявляется обученной моделью, физический запуск не разрешается.</p></section>` : "";
     const results = view.lastResult ? `<div role="status"><p>Серверный результат: ${esc(view.lastResult.operation)}</p>${reasons(view.lastResult.result?.blockers || view.lastResult.result?.reasons)}${view.lastResult.result?.ready != null ? `<p>${view.lastResult.result.ready ? "План готов в заявленной сервером области" : "Есть незакрытые требования"}</p>` : ""}</div>` : "";
-    return `<section class="panel cooperative-workbench"><div class="panel-heading" style="position:sticky;top:0;z-index:2;background:var(--panel,var(--bg))"><div><p class="eyebrow">05 · Совместный навык</p><h2>Передать предмет и завершить действие</h2></div><div class="teleop-actions">${button("refresh","Обновить состояние")}${button("stop","STOP · остановить текущую сессию",!session)}</div></div><div class="panel-body"><p>Общий навык связывает проверенные версии ROSMASTER и SO101. Шасси неподвижно. Данные, модели и clocks двух роботов остаются раздельными. Свободный текст описывает SkillSpec и не добавляет ACT языковой вход.</p>${view.error ? `<p class="form-error" role="alert">${esc(view.error)}</p>` : ""}${!data ? '<p>Состояние ещё не загружено. Обновление читает сервер и не запускает действия.</p>' : ""}${cameras}${skillSelect}${spec}${creation}${newSession}${sessionSelect}${session ? `<p class="form-hint">Сцена: ${esc(session.scene_id)} · предмет: ${esc(session.object_instance_id)} · ${esc(session.split)} · ${esc(session.execution_domain)}</p>${reasons(state.metadata_and_recording_blockers)}${reasons(state.observed_execution_blockers)}` : ""}${zone}${recording}${protocol}${pending}${review}${skill ? `<section><h3>Данные → план обучения → shadow</h3>${button("aggregate","Собрать только допущенные пары показов",busy)}${button("training-plan","Проверить план двух native обучений",busy)}${button("shadow","Проверить отдельные модели без команд",busy || stopped || !session || !shadowReady)}${!shadowReady ? '<p class="form-hint">Shadow заблокирован: требуются обе закреплённые модели и реальные серверные adapters наблюдения/inference.</p>' : ""}<p class="form-hint">Агрегат не означает, что обучение запущено; план не означает готовность физического навыка. Shadow использует реальные серверные наблюдения и не отправляет команды. Исполнение и deploy выбираются отдельно после квалификации.</p>${results}</section>` : ""}</div></section>`;
+    return `<section class="panel cooperative-workbench" style="min-width:0;overflow-wrap:anywhere"><div class="panel-heading" style="position:sticky;top:0;z-index:2;background:var(--panel,var(--bg))"><div><p class="eyebrow">05 · Совместный навык</p><h2>Передать предмет и завершить действие</h2></div><div class="teleop-actions">${button("refresh","Обновить состояние")}${button("stop","STOP · остановить текущую сессию",!session)}</div></div><div class="panel-body"><p>Общий навык связывает проверенные версии ROSMASTER и SO101. Шасси неподвижно. Данные, модели и clocks двух роботов остаются раздельными. Свободный текст описывает SkillSpec и не добавляет ACT языковой вход.</p>${view.error ? `<p class="form-error" role="alert">${esc(view.error)}</p>` : ""}${!data ? '<p>Состояние ещё не загружено. Обновление читает сервер и не запускает действия.</p>' : ""}${cameras}${skillSelect}${spec}${creation}${newSession}${sessionSelect}${session ? `<p class="form-hint">Сцена: ${esc(session.scene_id)} · предмет: ${esc(session.object_instance_id)} · ${esc(session.split)} · ${esc(session.execution_domain)}</p>${reasons(state.metadata_and_recording_blockers)}${reasons(state.observed_execution_blockers)}` : ""}${zone}${recording}${protocol}${pending}${review}${skill ? `<section><h3>Данные → план обучения → shadow</h3>${button("aggregate","Собрать только допущенные пары показов",busy)}${button("training-plan","Проверить план двух native обучений",busy)}${button("train","Поставить две native-задачи обучения в общую очередь",busy || !trainReady)}${!trainReady ? '<p class="form-hint">Для enqueue нужны допущенный парный train/development агрегат и готовый план этой точной версии. Все допуски повторно проверяет сервер.</p>' : ""}${button("shadow","Проверить отдельные модели без команд",busy || stopped || !session || !shadowReady)}${!shadowReady ? '<p class="form-hint">Shadow заблокирован: требуются обе закреплённые модели и реальные серверные adapters наблюдения/inference.</p>' : ""}<p class="form-hint">Агрегат не означает, что обучение запущено; план не означает готовность физического навыка. Shadow использует реальные серверные наблюдения и не отправляет команды. Исполнение и deploy выбираются отдельно после квалификации.</p>${results}${trainResult}</section>` : ""}</div></section>`;
   }
 
   function bindCooperativeWorkbench(root,client,onError = () => {}) {
@@ -257,7 +271,7 @@
     };
     const click = event => {
       const button = event.target?.closest?.("[data-coop-action]");if (!button || !root.contains(button) || button.disabled) return;
-      const actions = {refresh:() => client.refresh(),confirm:() => client.confirm(),"register-zone":() => client.registerZone(),"record-start":() => client.recordStart(),"record-stage":() => client.recordStage(),"record-finish":() => client.recordFinish(),step:() => client.step(button.dataset.coopEvent),stop:() => client.stop(),evidence:() => client.confirmEvidence(button.dataset.coopChallenge),review:() => client.review(),aggregate:() => client.aggregate(),"training-plan":() => client.trainingPlan(),shadow:() => client.shadow()};
+      const actions = {refresh:() => client.refresh(),confirm:() => client.confirm(),"register-zone":() => client.registerZone(),"record-start":() => client.recordStart(),"record-stage":() => client.recordStage(),"record-finish":() => client.recordFinish(),step:() => client.step(button.dataset.coopEvent),stop:() => client.stop(),evidence:() => client.confirmEvidence(button.dataset.coopChallenge),review:() => client.review(),aggregate:() => client.aggregate(),"training-plan":() => client.trainingPlan(),train:() => client.train(),shadow:() => client.shadow()};
       if (actions[button.dataset.coopAction]) failure(actions[button.dataset.coopAction]);
     };
     for (const [type,handler] of [["input",input],["change",change],["submit",submit],["click",click]]) root.addEventListener(type,handler);
