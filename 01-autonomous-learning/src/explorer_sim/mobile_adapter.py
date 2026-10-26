@@ -1,7 +1,9 @@
 """Pure v3 mobile-command snapshot conversion. ENGINEERING_GLUE.
 
-Inputs are existing files only. Labels are future controller-reported command
-snapshots, never measured motion or a fabricated hardware application event.
+Inputs are existing files only. Labels are future host-reported target snapshots,
+never proven publication, MCU receipt, measured motion or hardware application.
+Legacy applied_action/arm_command_sent_at names and contract claims stay unchanged
+in source_originals; the derived metadata explicitly limits their interpretation.
 """
 from decimal import Decimal, ROUND_HALF_EVEN
 import fcntl
@@ -84,7 +86,7 @@ def _read_native(path, fps, split):
             if row.get("executed_action_source") != "operator_manual_control" or row.get("measured_arm_angles") is not False:
                 raise ValueError("Manual commanded-state provenance is required; measured motion is not inferred")
             if "applied_action" not in row:
-                raise ValueError("applied_action is missing; command/proposed_manual_action are not substituted for accepted labels")
+                raise ValueError("applied_action is missing; command/proposed_manual_action are not substituted for recorded target labels")
             state, action = _vector(row.get("observation_state"), "observation_state"), _vector(row["applied_action"], "applied_action")
             if "command" in row and not np.allclose(_vector(row["command"], "command"), action, atol=1e-6, rtol=0):
                 raise ValueError("Legacy command differs from the documented v3 applied_action snapshot")
@@ -128,9 +130,9 @@ def _pair_native(native):
             pairs.append({"observation_index": index, "action_index": index + 1, "stamp": action_stamp})
         else:
             excluded.append({"observation_index": index, "action_index": index + 1,
-                             "reason": "Next accepted-command snapshot is not later than the current observation/record timestamp"})
+                             "reason": "Next host-target snapshot is not later than the current observation/record timestamp"})
     if not pairs:
-        raise ValueError("No causal future accepted-command snapshot follows an observation; original events remain available for analysis")
+        raise ValueError("No causal future host-target snapshot follows an observation; original events remain available for analysis")
     return pairs, excluded
 
 
@@ -256,18 +258,23 @@ def _write(staging, path, source, native, inputs, pairs, excluded, segments, gap
         "source_manifest_sha256": inputs[path.name], "source_fingerprint": fingerprint, "source_files_sha256": artifacts,
         "source_input_sha256": inputs, "source_hash_basis": "Computed at import; v3 recorder does not store capture-time JPEG hashes", "source_episode_metadata": source, "action_names": ACTION_NAMES, "action_units": UNITS,
         "action_normalization": {"low": LOW.tolist(), "high": HIGH.tolist()}, "state_basis": "command_estimate",
-        "state_estimation_method": "source_command_or_trajectory_estimate", "action_basis": "controller_reported_issued_command_snapshot",
+        "state_estimation_method": "source_command_or_trajectory_estimate", "action_basis": "host_reported_target_snapshot",
+        "dispatch_confirmed": False,
+        "source_action_field": "applied_action",
+        "source_contract_claims": {"arm_action": SAMPLE_CONTRACT["arm_action"], "base_action": SAMPLE_CONTRACT["base_action"],
+                                   "executed_action_source": "operator_manual_control", "independently_verified": False},
         "clock_domain": "explorer-nano:declared-unix-wall-clock", "native_timestamp_basis": {
             "kind": "unix_wall_clock", "comparison_basis": "v3 source contract explicitly declares unix_seconds",
-            "clock_alignment_verified": False, "missing_arm_publication_timestamp_sentinel": -1, "unit_conversion": "Stored decimal float seconds rounded to ns; raw seconds and JSONL retained",
-            "action_time_definition": "Next row state_stamp: controller-reported command snapshot, not a newly dispatched 9D action or physical application"},
+            "clock_alignment_verified": False, "missing_arm_host_record_timestamp_sentinel": -1, "unit_conversion": "Stored decimal float seconds rounded to ns; raw seconds and JSONL retained",
+            "arm_command_sent_wall_unix_ns_basis": "Raw arm_command_sent_at: ManualArm host prepublication record time (source may fall back to arm.at); no publication or MCU receipt is proved",
+            "action_time_definition": "Next row state_stamp: host-reported target snapshot, not a newly dispatched 9D action, proven publication, MCU acceptance or physical application"},
         "fps": fps, "contains_physical_recordings": True, "joint_measurements_claimed": False, "physical_success_inferred": False,
         "source_camera_feature": "wrist_rgb", "source_frame_identity_basis": "Source image_stamp plus JPEG SHA; recorder does not retain a frame UUID",
-        "timestamp_uncertainty": "ROS image-header acquisition estimate versus controller/recorder Unix wall time. No clock offset was invented. Exposure latency, body-command publication time and physical application are unmeasured; original arm publication time is separate.",
+        "timestamp_uncertainty": "ROS image-header acquisition estimate versus host/recorder Unix wall time. No clock offset was invented. Exposure latency, body-command publication time and physical application are unmeasured; raw arm_command_sent_at is a host prepublication record time (possibly arm.at fallback), not dispatch/MCU proof.",
         "resampling": {"method": "causal_previous_mobile_pair_hold", "original_count": len(native), "native_pair_count": len(pairs),
             "converted_count": sum(item["frames"] for item in episodes), "gap_threshold_periods": 3, "gaps": gaps,
             "segments": metadata, "excluded_pairs": excluded, "unpaired_tail_source_index": len(native) - 1,
-            "grid_basis": "Nominal wall-time grid of accepted snapshot labels; not sensor capture or new hardware dispatch",
+            "grid_basis": "Nominal wall-time grid of host target snapshot labels; not sensor capture, proven publication or new hardware dispatch",
             "hold_semantics": "Most recent past native pair only. Repeated image/state/command labels are held estimates, not new measurements"},
         "task": source.get("name", "Imitate the recorded mobile demonstration"), "episodes": episodes,
         "training_admission": {"source_quality_usable": isinstance(source.get("quality"), dict) and source["quality"].get("usable") is True,

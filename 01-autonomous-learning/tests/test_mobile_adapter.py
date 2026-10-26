@@ -49,14 +49,18 @@ def write_rows(folder, rows):
     (folder / "samples.jsonl").write_text("".join(json.dumps(row) + "\n" for row in rows))
 
 
-def test_current_inputs_future_accepted_snapshot_and_original_bytes_preserved(tmp_path):
+def test_current_inputs_future_host_target_and_original_bytes_preserved(tmp_path):
     path, source, rows = mobile_fixture(tmp_path / "source")
     inputs = {p.name: sha(p) for p in path.parent.iterdir()}
     target = tmp_path / "converted"
     result = convert_mobile_episode(path, target)
     assert not result["joint_measurements_claimed"] and not result["physical_success_inferred"]
     assert result["state_basis"] == "command_estimate"
-    assert result["action_basis"] == "controller_reported_issued_command_snapshot"
+    assert result["action_basis"] == "host_reported_target_snapshot"
+    assert result["dispatch_confirmed"] is False
+    assert result["source_action_field"] == "applied_action"
+    assert result["source_contract_claims"]["arm_action"] == "applied_servo_endpoint"
+    assert result["source_contract_claims"]["independently_verified"] is False
     descriptor = result["episodes"][0]
     loaded = load_episode(target / "manifest.json", descriptor, result)
     np.testing.assert_allclose(loaded["state"][0], rows[0]["observation_state"])
@@ -110,7 +114,7 @@ def test_parallel_camera_state_times_allowed_but_both_precede_label(tmp_path):
     assert loaded["timestamps"]["frame_wall_unix_ns"][0] < loaded["timestamps"]["action_wall_unix_ns"][0]
 
 
-def test_hold_snapshot_keeps_old_arm_publication_timestamp_honestly(tmp_path):
+def test_hold_snapshot_keeps_old_host_prepublication_record_time_honestly(tmp_path):
     path, source, rows = mobile_fixture(tmp_path / "source")
     for row in rows:
         row["arm_command_sent_at"] = 999
@@ -120,6 +124,41 @@ def test_hold_snapshot_keeps_old_arm_publication_timestamp_honestly(tmp_path):
     loaded = load_episode(target / "manifest.json", manifest["episodes"][0], manifest)
     assert np.all(loaded["auxiliary_timestamps"]["arm_command_sent_wall_unix_ns"] == 999_000_000_000)
     assert "not a newly dispatched 9D action" in manifest["native_timestamp_basis"]["action_time_definition"]
+    assert "host prepublication record time" in manifest["native_timestamp_basis"]["arm_command_sent_wall_unix_ns_basis"]
+    assert manifest["dispatch_confirmed"] is False
+
+
+def test_null_host_timestamp_keeps_raw_original_null_and_explicit_absence_sentinel(tmp_path):
+    path, source, rows = mobile_fixture(tmp_path / "source")
+    for row in rows:
+        row["arm_command_sent_at"] = None
+        row["dds_acknowledged"] = True  # Source claim does not prove MCU receipt or dispatch.
+    write_rows(path.parent, rows)
+    original = (path.parent / "samples.jsonl").read_bytes()
+    target = tmp_path / "converted"
+    manifest = convert_mobile_episode(path, target)
+    loaded = load_episode(target / "manifest.json", manifest["episodes"][0], manifest)
+    assert np.all(loaded["auxiliary_timestamps"]["arm_command_sent_wall_unix_ns"] == -1)
+    assert manifest["native_timestamp_basis"]["missing_arm_host_record_timestamp_sentinel"] == -1
+    assert manifest["dispatch_confirmed"] is False
+    assert (target / "source_originals/samples.jsonl").read_bytes() == original
+    assert (path.parent / "samples.jsonl").read_bytes() == original
+    assert json.loads((target / "source_originals/episode.json").read_text())["sample_contract"] == SAMPLE_CONTRACT
+
+
+def test_existing_stored_manifest_is_returned_without_rewriting_historical_metadata(tmp_path):
+    path, source, rows = mobile_fixture(tmp_path / "source")
+    target = tmp_path / "converted"
+    manifest = convert_mobile_episode(path, target)
+    # Simulate a previously produced manifest; this edit exists only in the test tree.
+    manifest["action_basis"] = "controller_reported_issued_command_snapshot"
+    manifest.pop("dispatch_confirmed")
+    write_json(target / "manifest.json", manifest)
+    before = {str(p.relative_to(target)): p.read_bytes() for p in target.rglob("*") if p.is_file()}
+    saved = convert_mobile_episode(path, target)
+    assert saved["action_basis"] == "controller_reported_issued_command_snapshot"
+    assert "dispatch_confirmed" not in saved
+    assert {str(p.relative_to(target)): p.read_bytes() for p in target.rglob("*") if p.is_file()} == before
 
 
 def test_jitter_selects_past_pair_and_splits_large_gaps(tmp_path):
