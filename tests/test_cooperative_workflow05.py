@@ -123,6 +123,28 @@ def test_full_manual_annotations_never_enter_bound_physical_release_guard(tmp_pa
     assert current['protocol_completed'] and guards==calls==[]
 
 
+@pytest.mark.parametrize('current_authority',[True,False])
+def test_observed_manual_release_requires_current_both_owners_and_only_authorizes_boundary(tmp_path,current_authority):
+    grants=[]
+    def authorize(row,proof):
+        grants.append((row,proof));return {'grant_id':'fake-native-metadata','opening_command_sent':False}
+    service,row,_,calls,_=fixture(tmp_path,execution_domain='user_observed_physical_test',giver={
+        'arm_release_guard':lambda row:{'armed':True,'native_commands':0},
+        'prepare_release':lambda row,after:{'challenge':{'challenge_id':'fake-native-challenge'},'after_receiver_command_id':'original-receiver-close'},
+        'authorize_manual_release':authorize})
+    service.authority=lambda row:{'explicit_user_observed_test_current':current_authority}
+    zone(service,row)
+    for event in ('giver_holding','offer_ready','receiver_ready','receiver_at_object','receiver_closed','receiver_hold_confirmed'):
+        assert run_step(service,row,event)['status']=='READY_FOR_OBSERVED_STEPS'
+    result=run_step(service,row,'release_requested')
+    if current_authority:
+        assert result['protocol_state']=='RELEASE' and len(grants)==1 and not result['dispatch_receipts']
+        assert grants[0][1]['native_release_challenge']['challenge']['challenge_id']=='fake-native-challenge'
+        assert calls==[] and result['observation_receipts'][-1]['native_opening_command_sent'] is False
+    else:
+        assert not grants and result['status']=='STOPPED' and len(calls)==2
+
+
 def test_wrong_phase_rejected_before_any_provider_and_policy_default_blocked(tmp_path):
     submits=[]
     service,row,inbox,calls,_=fixture(tmp_path,mode='giver_policy_receiver_manual',giver={'submit_observed':lambda *args:submits.append(args)})

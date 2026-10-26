@@ -390,6 +390,19 @@ class CooperativeWorkflow:
                 fsm.apply(event,event_id=operation,now_ns=self.clock(),both_stationary=True)
                 observations.extend((asdict(held),asdict(giver_still),asdict(receiver_still)))
                 already_applied=True
+                if row['execution_domain']=='user_observed_physical_test' and not self._policy_role(row,'giver'):
+                    authority=self.authority(deepcopy(row))
+                    if (authority.get('explicit_user_observed_test_current') is not True or giver_provider is None or
+                            not callable(giver_provider.authorize_manual_release)):
+                        raise ValueError('Both current observed native owners and manual giver release boundary required')
+                    self._fresh(row,epoch);self._phase_current(fsm)
+                    if not fsm._valid_hold(fsm.hold,self.clock(),'receiver_holds_object'):
+                        raise ValueError('Fresh receiver hold is required for manual native release authorization')
+                    grant=giver_provider.authorize_manual_release(deepcopy(row),{
+                        'receiver_hold_evidence':asdict(fsm.hold),'received_clock_domain':self.domain,
+                        'native_release_challenge':deepcopy(release_challenge),'operator_confirmation_receipt':deepcopy(held.source_receipt)})
+                    self._fresh(row,epoch);self._phase_current(fsm)
+                    observations.append({'manual_giver_native_release_authorization':grant,'native_opening_command_sent':False})
             if command and self._policy_role(row,command[0]):
                 if row['execution_domain']!='user_observed_physical_test':
                     raise ValueError('Policy transport is disabled outside a separate user-observed physical test; use shadow')

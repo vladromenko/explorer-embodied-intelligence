@@ -229,6 +229,34 @@ class NativeCooperativeOwner:
             if not 0<=self.mux.tap.clock()-record['monotonic_ns']<=2_000_000_000:
                 raise ValueError('Native policy observation expired')
             return jpeg,deepcopy(record)
+    def prepare(self,body):
+        self.activation.require(body.get('authorization_id'))
+        if body.get('observing') is not True or body.get('neutral') is not True:raise ValueError('Explicit USER observed neutral selection required')
+        with self.mux.teleop.lock:
+            if (self.mux.active or not self.mux.teleop.stop_latched or any(abs(value)>1e-8 for value in self.mux.teleop.inputs.values()) or
+                    self.guard.armed or self.activation.receipt(body.get('authorization_id')) is None):
+                raise ValueError('Exact current observed STOP and neutral owner required before preparation')
+            # Exact audited original ManualTeleop ABI. No new input driver.
+            result=self.mux.teleop.select_source('keyboard',True,True)
+            return {'source_selection':result,'native':self.mux.status(),'native_begin_performed':False}
+    def manual_resume(self,body):
+        self.activation.require(body.get('authorization_id'))
+        if self.activation.status().get('input_mode') not in ('keyboard','browser_gamepad') or body.get('observing') is not True:
+            raise ValueError('Exact separately USER-observed keyboard/gamepad input required')
+        with self.mux.teleop.lock:
+            self.guard._match(body);bound=self.guard.binding
+            if (self.mux.active or bound['authorization_id']!=body.get('authorization_id') or
+                    self.mux.teleop.generation!=body.get('expected_native_generation') or
+                    self.mux.teleop.generation!=bound['native_generation'] or not self.mux.teleop.stop_latched or
+                    self.activation.receipt(body.get('authorization_id')) is None):
+                raise ValueError('Exact neutral original manual generation/STOP required')
+            result=self.mux.teleop.resume('keyboard',True)
+            try:self.mux._base_drive([0.,0.,0.])  # explicit USER action, genuine original zero receipt only.
+            except Exception:
+                self.guard.revoke('MANUAL_RESUME_NEUTRAL_DELIVERY_UNKNOWN');self.mux.teleop.stop()
+                raise
+            return {'source_resume':result,'native':self.mux.status(),'manual_generation':self.mux.teleop.generation,
+                'neutral_base_host_request_returned':True,'native_operator_lease_automatically_renewed':False}
     def register_constraint(self,body):
         self.activation.require(body.get('authorization_id'))
         selected=verify_constraint(body.get('constraint'),binding=body)
@@ -269,8 +297,22 @@ class NativeCooperativeOwner:
         self.guard._current();self.guard._match(body)
         return self.mux.keyboard_base_input(body.get('control_epoch'),{},observing=body.get('observing'))
     def stop(self,body):
-        self.guard._match(body);self.mux._check(body.get('control_epoch'))
-        self.guard.revoke('EXPLICIT_COOPERATIVE_STOP');return self.mux.stop(body['control_epoch'])
+        self.guard._match(body)
+        if body.get('control_epoch') is not None:
+            self.mux._check(body.get('control_epoch'))
+            self.guard.revoke('EXPLICIT_COOPERATIVE_STOP');return self.mux.stop(body['control_epoch'])
+        with self.mux.teleop.lock:
+            self.guard._match(body);bound=self.guard.binding
+            current=self.activation.current_authorization_id()
+            if (self.mux.active or self.mux.teleop.owner!='keyboard' or
+                    type(body.get('expected_native_generation')) is not int or
+                    body['expected_native_generation']!=self.mux.teleop.generation or
+                    body['expected_native_generation']!=bound['native_generation'] or
+                    body.get('authorization_id')!=bound['authorization_id'] or
+                    current not in (None,bound['authorization_id'])):
+                raise ValueError('Old manual STOP cannot affect another native generation/authorization')
+            self.guard.revoke('EXPLICIT_SCOPED_MANUAL_COOPERATIVE_STOP')
+            return self.mux.teleop.stop()
     def input(self,body):
         if not isinstance(body.get('action9'),list) or any(type(value) not in (int,float) for value in body['action9']):
             raise ValueError('Explicit finite numeric native action9 required')
@@ -343,7 +385,8 @@ class NativeCooperativeOwner:
         return {'schema':'explorer_native_cooperative_owner_v1','policy':deepcopy(self.policy),
             'registered_action_constraint':deepcopy(self.action_constraint),
             'capabilities':{'stationary_base_constraint_schema':'explorer_cooperative_stationary_base_constraint_v1',
-                'raw_policy9_projection_provenance_required_when_registered':True},
+                'raw_policy9_projection_provenance_required_when_registered':True,
+                'explicit_user_prepare':True,'explicit_user_manual_resume':True,'scoped_manual_stop':True},
             'release_boundary':self.guard.status(),'native':self.mux.status(),'same_original_stream_worker':True,
             'controller_settings_written':False,'native_dispatch_proof':'read actual correlated dispatch ring',
             'automatic_lease_heartbeat':False,'physical_qualification':False}
@@ -372,6 +415,10 @@ def mount_native_cooperative_api(app,owner,*,authenticate,allowed,operation,acti
             'X-Clock-Domain':source['clock_domain']})
     @app.post(prefix+'bind')
     def bind(request:Request,body:dict):allowed(request,body);return operation(owner.guard.bind,body)
+    @app.post(prefix+'prepare')
+    def prepare(request:Request,body:dict):allowed(request,body);return operation(owner.prepare,body)
+    @app.post(prefix+'manual/resume')
+    def manual_resume(request:Request,body:dict):allowed(request,body);return operation(owner.manual_resume,body)
     @app.post(prefix+'constraint/register')
     def register_constraint(request:Request,body:dict):allowed(request,body);return operation(owner.register_constraint,body)
     @app.post(prefix+'begin')

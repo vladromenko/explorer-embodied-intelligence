@@ -31,19 +31,20 @@ class OriginalArm(Arm):
 
 class Activation:
     def __init__(self,tick):
-        self.valid=True;self.tick=tick;self.mode='cooperative_policy';self.epoch=None
+        self.valid=True;self.tick=tick;self.mode='cooperative_policy';self.epoch=None;self.id='auth'
         self.jpeg=b'\xff\xd8original-cached-only\xff\xd9'
         self.camera=SimpleNamespace(snapshot=self.snapshot)
     def snapshot(self,with_jpeg=False):
         return {'jpeg':self.jpeg,'jpeg_sha256':hashlib.sha256(self.jpeg).hexdigest(),'frame_id':'original-native-camera',
                 'received_monotonic_ns':self.tick(),'timestamp_basis':'cached_receive_not_exposure'}
-    def status(self):return {'input_mode':self.mode,'execution_permission':self.valid}
+    def status(self):return {'input_mode':self.mode,'execution_permission':self.valid,'authorization_id':self.id if self.valid else None}
     def require(self,identity):
-        if identity!='auth' or not self.valid:raise ValueError('No current observed authorization')
+        if identity!=self.id or not self.valid:raise ValueError('No current observed authorization')
         return True
     def allowed(self):return self.valid
     def revoke(self,*args,**kwargs):self.valid=False;return {'revoked':True}
-    def receipt(self,identity):return {'observed_owner':'fixture'} if self.valid and identity=='auth' else None
+    def receipt(self,identity):return {'observed_owner':'fixture'} if self.valid and identity==self.id else None
+    def current_authorization_id(self):return self.id if self.valid else None
     def transition(self,callback,identity):self.require(identity);return callback()
 
 

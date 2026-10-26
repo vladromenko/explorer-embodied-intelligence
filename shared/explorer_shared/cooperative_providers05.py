@@ -42,6 +42,7 @@ class NativeSkillProvider:
     prepare_release:Callable|None=None
     native_dispatch_receipts:bool=False
     authoritative_release_deadline:bool=False
+    authorize_manual_release:Callable|None=None
 
 
 class CooperativeProviders:
@@ -87,6 +88,7 @@ class CooperativeProviders:
                 'shadow_supported':callable(provider.predict_shadow),
                 'native_dispatch_receipts':provider.native_dispatch_receipts,
                 'authoritative_release_deadline':provider.authoritative_release_deadline,
+                'manual_release_authorization_supported':callable(provider.authorize_manual_release),
                 'action_contract':deepcopy(ROLE_CONTRACTS[role]),'source_sha256':digest(result),
                 'physical_execution_authorized':False}
     def training_requests(self,spec,settings=None):

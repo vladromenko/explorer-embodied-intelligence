@@ -203,6 +203,9 @@ class ObservedNativeActivation:
             if self.authorization is None or self.authorization['authorization_id']!=authorization_id:
                 return None
             return deepcopy(self.authorization['receipt'])
+    def current_authorization_id(self):
+        """Memory-only identity for scoped cleanup under the original owner lock."""
+        with self.lock:return self.authorization['authorization_id'] if self.authorization is not None else None
     def base_allowed(self):
         if not self.allowed():return False
         if not self.mux.teleop.stop_latched and not self.mux.clock()<self.mux.teleop.lease:return False

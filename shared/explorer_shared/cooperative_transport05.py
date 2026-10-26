@@ -24,8 +24,10 @@ class NativeGiverPolicyTransport:
     def _post(self,operation,body):return self.request('POST','/legacy/explorer/cooperative/'+operation,body)
     def observe_state(self):
         state=self.request('GET','/legacy/explorer/cooperative/status',None)
+        activation=self.request('GET','/legacy/explorer/retarget/activation/status',None)
         native=state.get('native') or {};bound=(state.get('release_boundary') or {}).get('binding') or {}
-        ready=(native.get('active') is True and native.get('state')=='ACTIVE' and native.get('native_owner')=='keyboard' and
+        ready=(activation.get('execution_permission') is True and activation.get('authorization_id')==self.binding.get('authorization_id') and
+            activation.get('input_mode')=='cooperative_policy' and native.get('active') is True and native.get('state')=='ACTIVE' and native.get('native_owner')=='keyboard' and
             native.get('control_epoch')==self.epoch and native.get('native_lease_remaining_s',0)>0 and
             (state.get('release_boundary') or {}).get('reference_fault') is None and
             all(bound.get(key)==self.binding.get(key) for key in ('run_id','object_id','coordinator_epoch','authorization_id')))
@@ -33,6 +35,7 @@ class NativeGiverPolicyTransport:
             registered=state.get('registered_action_constraint') or {}
             ready=ready and registered.get('constraint')==self.action_constraint and registered.get('authorization_id')==self.binding.get('authorization_id')
         return {'current_native_owner_ready':ready,'source_receipt':deepcopy(state),
+                'observed_activation_receipt':deepcopy(activation),
                 'clock_domain':self.domain,'received_ns':self.clock(),'attained_stationarity':None}
     def arm_release_guard(self,session):
         self._session(session)
@@ -131,3 +134,29 @@ class NativeGiverPolicyTransport:
     def stop(self,run_id):
         if run_id!=self.binding['run_id']:raise ValueError('STOP belongs to another cooperative run')
         return self._post('stop',self._body())
+
+
+class NativeGiverManualTransport(NativeGiverPolicyTransport):
+    """Same manual executor/hold boundary, never a model or hidden input loop."""
+    def __init__(self,request,binding,native_generation,*,clock_domain,clock=time.monotonic_ns,receiver_command=None):
+        self.generation=native_generation
+        super().__init__(request,binding,None,lambda command:None,clock_domain=clock_domain,clock=clock,receiver_command=receiver_command)
+    def _body(self):return {**super()._body(),'expected_native_generation':self.generation}
+    def observe_state(self):
+        state=self.request('GET','/legacy/explorer/cooperative/status',None)
+        activation=self.request('GET','/legacy/explorer/retarget/activation/status',None)
+        native=state.get('native') or {};boundary=state.get('release_boundary') or {};bound=boundary.get('binding') or {}
+        ready=(activation.get('execution_permission') is True and activation.get('authorization_id')==self.binding['authorization_id'] and
+            activation.get('input_mode') in ('keyboard','browser_gamepad') and native.get('active') is False and
+            native.get('native_owner')=='keyboard' and native.get('stop_latched') is False and
+            native.get('owner_generation')==self.generation and native.get('native_lease_remaining_s',0)>0 and
+            boundary.get('reference_fault') is None and bound.get('native_control_epoch') is None and
+            bound.get('native_generation')==self.generation and all(bound.get(key)==self.binding.get(key) for key in
+                ('run_id','object_id','coordinator_epoch','authorization_id')))
+        return {'current_native_owner_ready':ready,'source_receipt':{'native':state,'activation':activation},
+            'clock_domain':self.domain,'received_ns':self.clock(),'attained_stationarity':None,'policy_model_required':False}
+    def submit_observed(self,command,authorization=None):raise ValueError('Manual giver never submits hidden policy or target actions')
+    def authorize_manual_release(self,session,authorization):
+        self._session(session)
+        if not self.observe_state()['current_native_owner_ready']:raise ValueError('Exact current observed manual giver required')
+        return self._authorize_release(authorization)

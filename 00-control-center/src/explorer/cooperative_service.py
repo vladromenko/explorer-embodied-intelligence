@@ -151,6 +151,7 @@ class CooperativeService:
             'stop':lambda run:self._stop_native(role,run),
             'arm_release_guard':self._arm_guard if role=='giver' else None,
             'prepare_release':self._prepare_release if role=='giver' else None,
+            'authorize_manual_release':self._authorize_manual_release if role=='giver' else None,
             # Capability describes this concrete binder; readiness still checks
             # current owner/model/observation and defaults authority to false.
             'native_dispatch_receipts':role=='giver','authoritative_release_deadline':role=='giver'}
@@ -334,6 +335,11 @@ bound first; default construction cannot turn on policy execution.
         transport=self.transports.get((row['session_id'],'giver'))
         if transport is None:raise ValueError('Current observed original giver binding required')
         return transport.prepare_release(row,after)
+    def _authorize_manual_release(self,row,authorization):
+        transport=self.transports.get((row['session_id'],'giver'))
+        callback=getattr(transport,'authorize_manual_release',None)
+        if not callable(callback):raise ValueError('Exact current manual giver native release boundary required')
+        return callback(row,authorization)
     def snapshot(self,session_id=None):
         workbench=self.workflow.snapshot();selected=self.workflow.snapshot(session_id) if session_id else None
         for row in workbench['sessions']:
