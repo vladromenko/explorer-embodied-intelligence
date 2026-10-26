@@ -278,7 +278,7 @@ function experimentPage(project) {
   } else {
     content += notice(project.id === "02" ? "Два разных материала" : "Запись наблюдения с камеры", project.id === "02" ? "Полный показ записывается через штатный ROSMASTER вместе с его командами и наблюдениями. Отдельная кнопка «Записать наблюдение» сохраняет только видео камеры." : "Сейчас мастер сохраняет видео сцены. Такой материал отмечается как наблюдение и не выдаётся за синхронизированный обучающий эпизод.");
     content += `<div class="overview-grid"><div><div id="camera-slot"></div>${project.id === "02" ? `<div class="spaced-section">${keyboardPanel()}</div><div class="spaced-section">${episodePanel()}</div>` : ""}</div><div class="side-stack">${readinessCard(project)}${flow(project)}</div></div>`;
-    if (project.id === "02") content += `<div class="spaced-section">${mobileTrainingPanel()}</div>`;
+    if (project.id === "02") content += `<div class="spaced-section">${mobileTrainingPanel()}</div>` + demonstrationWizardPanel("02");
     if (project.id === "05") content += handoverRuntimePanel();
   }
   content += `<div class="spaced-section">${jobsPanel(jobs, "Запуски этого опыта")}</div>`;

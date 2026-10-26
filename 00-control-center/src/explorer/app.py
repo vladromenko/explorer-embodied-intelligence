@@ -335,6 +335,25 @@ def transfer_sources():
     return {'sources':policy_transfer_sources(STORE)}
 
 
+@app.get('/api/demonstration-wizard')
+def demonstration_plan(project_id: str,task_id: str='pick_and_place'):
+    from .demonstration_wizard import plan
+    try:
+        return plan(STORE,project_id,task_id)
+    except ValueError as error:
+        raise HTTPException(400,str(error)) from error
+
+
+@app.post('/api/demonstration-wizard/annotation')
+async def demonstration_review(request: Request):
+    from .demonstration_wizard import annotate
+    body=await request.json()
+    try:
+        return await asyncio.to_thread(annotate,STORE,body.get('project_id'),body.get('task_id'),body)
+    except (ValueError,TypeError) as error:
+        raise HTTPException(409,str(error)) from error
+
+
 @app.api_route('/api/retarget/{operation}',methods=['GET','POST'])
 async def retarget_proxy(operation: str,request: Request):
     if (request.method=='GET' and operation!='status') or (request.method=='POST' and operation not in ('start','recenter','lease','stop')):
