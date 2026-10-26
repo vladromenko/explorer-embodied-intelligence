@@ -117,18 +117,20 @@ def test_real_official_061_writer_finalize_and_reader_preserve_all_accepted_trai
     with pytest.raises(ValueError,match='already exists'):qualify_station_dataset([v[2] for v in values],tmp_path/'aggregate',skill_id='software-skill',skill_version=1)
 
 
-@pytest.mark.parametrize('fault',['session','calibration','duplicate','changed_source'])
+@pytest.mark.parametrize('fault',['session','scene','calibration','duplicate','changed_source','bound_skill'])
 def test_original_source_group_identity_and_immutable_binding_guards(tmp_path,fault):
     values=four_sources(tmp_path);bindings=[v[2] for v in values]
     if fault=='duplicate':bindings[1]=copy.deepcopy(bindings[0])
-    elif fault=='session':
+    elif fault in ('session','scene'):
         for selected in (0,2):
-            path,source,_=values[selected];source['session_id']='same-original-session';path.write_text(json.dumps(source));bindings[selected]=binding(path,source)
+            path,source,_=values[selected];source['session_id' if fault=='session' else 'scene_id']='same-original-group';path.write_text(json.dumps(source));bindings[selected]=binding(path,source)
     elif fault=='calibration':
         path,source,_=values[2];source['calibration_metadata']['follower']['calibration_sha256']='f'*64;path.write_text(json.dumps(source));bindings[2]=binding(path,source)
+    elif fault=='bound_skill':
+        path,source,_=values[0];source['source_context']={'skill_id':'another-recorded-skill','skill_version':1};path.write_text(json.dumps(source));bindings[0]=binding(path,source)
     else:
         path,source,_=values[0];source['name']='changed after immutable assignment';path.write_text(json.dumps(source))
-    messages={'session':'session crosses','calibration':'calibration identities differ','duplicate':'Duplicate original','changed_source':'source SHA changed'}
+    messages={'session':'session crosses','scene':'scene crosses','bound_skill':'Recorded source skill/version differs','calibration':'calibration identities differ','duplicate':'Duplicate original','changed_source':'source SHA changed'}
     with pytest.raises(ValueError,match=messages[fault]):qualify_station_dataset(bindings,tmp_path/'rejected',skill_id='software-skill',skill_version=1)
     assert not (tmp_path/'rejected').exists()
 
