@@ -1,0 +1,57 @@
+{
+  "optimizer_steps": 8,
+  "optimizer_steps_in_new_process": 4,
+  "pause_completed_steps": 4,
+  "physical_io": false,
+  "production_state_writes": false,
+  "receipts": [
+    {
+      "path": "/mnt/explorer-data/explorer-work/qualification-checkpoint-processes-20261026/pytest/test_actual_process_checkpoint0/process-pause-receipt.json",
+      "receipt": {
+        "backend": "act",
+        "completed_steps": 8,
+        "old_process_gone": true,
+        "paused_pid": 1979635,
+        "physical_io": false,
+        "resident_bytes_before_pause": 608153600,
+        "resumed_from_step": 4,
+        "resumed_pid": 1979756,
+        "weights_optimizer_losses_exactly_equal": true
+      },
+      "sha256": "1f785d0c43c9910a429a05c457fb4bb0fa96c9ae21ac8227dbc3ebcdbdf5f36c"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/qualification-checkpoint-processes-20261026/pytest/test_actual_process_checkpoint1/process-pause-receipt.json",
+      "receipt": {
+        "backend": "diffusion",
+        "completed_steps": 8,
+        "old_process_gone": true,
+        "paused_pid": 1979891,
+        "physical_io": false,
+        "resident_bytes_before_pause": 586629120,
+        "resumed_from_step": 4,
+        "resumed_pid": 1979976,
+        "weights_optimizer_losses_exactly_equal": true
+      },
+      "sha256": "b97aed37a1cbd890e01f145c60c235eb8f9922e4e3f74a1813314a0b4ed2d72f"
+    }
+  ],
+  "runtime_observation": {
+    "hardware_io": false,
+    "process_peak_RSS_bytes": 483647488,
+    "production_state_writes": false,
+    "pytest_exit_code": 0,
+    "scope": "Stochastic software ACT/DP optimizers in separate processes; not officialmodelbenchmark",
+    "source_sha256": {
+      "shared/explorer_shared/learning/act_backend.py": "ee972e9bc0d78a3fae1b5f0ba0486dab4aa29cb37084f2cc0fae63c2b3054eaf",
+      "shared/explorer_shared/learning/artifacts.py": "c218abfc061878c85fdc7651df1de95beb2727d2afc4de193ba4b6d284d8d626",
+      "shared/explorer_shared/learning/checkpoint_control.py": "4f62174e05516718299024be500677fb17948591830153fcc811f40d77959380",
+      "shared/explorer_shared/learning/diffusion_backend.py": "137e141c3a991ac3efd6c89fe8ce56eb9244820ef8d20e80094a2d1bfa9f24e6",
+      "shared/explorer_shared/learning/diffusion_optimizer.py": "3dd8c064f31c1de50aa3cd8a188cadaf6a51230abb4baf32a36215aabe615ee0"
+    }
+  },
+  "schema": "explorer_shared_optimizer_process_pause_qualification_v1",
+  "scope": "Stochastic custom software policies through shared real ACT/DP optimizer loops, not official-model or queue-controller qualification",
+  "source_commit": "4b440a5",
+  "task_success_claimed": false
+}

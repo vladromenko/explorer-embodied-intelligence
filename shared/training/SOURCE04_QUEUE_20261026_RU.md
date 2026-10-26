@@ -31,3 +31,15 @@ source/runtime/save/resume; worker-controller qualification и GPU qualification
 имеют отдельные source graphs и receipts. Public production queue readiness этим
 запуском не приписана. Камеры, serial, Hub, simulator и motor APIs не запускались;
 private qualification Store не является production-state.
+
+Отдельные контрольные области:
+
+- `OPTIMIZER_PROCESS_PAUSE_20261026_QUALIFICATION.json`: два реальных отдельных
+  процесса для каждого stochastic software ACT/DP fixture, пауза после4 updates,
+  exit75, старый PID отсутствует, новый PID продолжает4 updates. Веса, optimizer
+  и losses точно равны uninterrupted8. Эти маленькие custom policies проверяют
+  общий optimizer/RNG/sampler механизм, не официальный model benchmark.
+- `ROSMASTER_ACT106_20261026_QUEUE_CPU_QUALIFICATION.json`: официальный ACT,
+  state106/action9,8CPU updates, reload0,10 независимых development samples,
+  loss.990500→.369949. Процесс RSS1,135,349,760B. Данные синтетические;
+  никакой learned rollout, CUDA qualification или physical success не приписаны.
