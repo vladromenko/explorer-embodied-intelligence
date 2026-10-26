@@ -113,7 +113,8 @@ def test_full_manual_annotations_never_enter_bound_physical_release_guard(tmp_pa
     def physical_guard(row):
         guards.append(row)
         raise ValueError('An unbound physical transport cannot serve annotation-only evidence')
-    service,row,_,calls,_=fixture(tmp_path,execution_domain=domain,giver={'arm_release_guard':physical_guard})
+    service,row,_,calls,_=fixture(tmp_path,execution_domain=domain,giver={
+        'arm_release_guard':physical_guard,'prepare_release':lambda *args:physical_guard(args[0])})
     zone(service,row)
     for event in ('giver_holding','offer_ready','receiver_ready','receiver_at_object','receiver_closed',
                   'receiver_hold_confirmed','release_requested','giver_released','transfer_confirmed','receiver_finished'):

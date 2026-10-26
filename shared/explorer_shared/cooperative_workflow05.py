@@ -365,7 +365,7 @@ class CooperativeWorkflow:
             if event=='release_requested':
                 receiver_after=self._last_command(row,'receiver')
                 giver_provider=self.registry.provider('giver',spec['subskills']['giver'])
-                if giver_provider is not None and callable(giver_provider.prepare_release):
+                if row['execution_domain']=='user_observed_physical_test' and giver_provider is not None and callable(giver_provider.prepare_release):
                     release_challenge=giver_provider.prepare_release(deepcopy(row),receiver_after)
                     if receiver_after is None:receiver_after=release_challenge.get('after_receiver_command_id')
                     self._fresh(row,epoch)
