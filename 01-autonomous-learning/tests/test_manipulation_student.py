@@ -123,3 +123,24 @@ def test_completed_run_checks_nested_evaluator_receipts_not_only_trace_arrays(tm
     receipt.write_text('{"success": true}')
     with pytest.raises(ValueError, match='checksum mismatch'):
         _complete(tmp_path, 'signature')
+
+
+def test_zero_action_failed_source_is_retained_without_replay_or_expert_targets(tmp_path, monkeypatch):
+    import explorer_sim.manipulation_student as module
+    def failed_script(env, folder, seed, scripted):
+        folder.mkdir(parents=True)
+        np.savez_compressed(folder/'trajectory.npz', rgb=np.empty((0, 240, 320, 3), np.uint8))
+        result = dict(seed=seed, n_actions=0, evaluator={'success': False},
+            error='IK could not produce an initial request', trajectory_sha256=sha(folder/'trajectory.npz'))
+        (folder/'result.json').write_text(json.dumps(result))
+        return result
+    def forbidden_replay(*args):
+        raise AssertionError('A zero-action source has no initial command to replay')
+    monkeypatch.setattr(module, 'record_rollout', failed_script)
+    monkeypatch.setattr(module, 'replay_trajectory', forbidden_replay)
+    monkeypatch.setattr(module, '_publish_frame', lambda *args, **kwargs: None)
+    manifest, baseline = module._prepare_dataset(object(), tmp_path, parameters({'demonstration_episodes': 1}), lambda *args: None)
+    assert not manifest['episodes'] and manifest['expert_source_count'] == 0
+    assert len(baseline) == 1 and baseline[0]['error']
+    assert baseline[0]['replay'] is None
+    assert (Path(baseline[0]['source_directory'])/'result.json').is_file()

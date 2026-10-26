@@ -78,5 +78,13 @@
     "Short-budget learned ACT did not grasp or complete either full trial; scripted successes do not establish learned manipulation",
     "PPO remains a separate privileged teacher pilot; this job uses an explicitly labelled scripted truth/IK baseline",
     "No physical controllers, robot motion, real contact calibration, mobile kitchen navigation or H1-H5 gain tested"
-  ]
+  ],
+  "source_revision_note": "The recorded 8-update integration covers receipt hashing, source snapshots and SkillCard integration; a subsequent zero-action failed-demonstration guard has a separate regression test. Exact module SHA of the measured run is retained below.",
+  "zero_action_failed_demonstration_regression": {
+    "behavior": "Retain original failure and empty trajectory, skip native replay, exclude from expert targets",
+    "passed": true,
+    "command": "EXPLORER_SIM_MESH_DIR=<actual verified CAD> MUJOCO_GL=egl python -m pytest 01-autonomous-learning/tests/test_manipulation_student.py -q",
+    "passed_tests": 10,
+    "skipped_expensive_repeat": 1
+  }
 }

@@ -175,11 +175,11 @@ def _prepare_dataset(env, folder, settings, update):
         seed = settings['seed'] + index
         source = folder / 'demonstrations' / ('scripted-' + str(seed))
         result = record_rollout(env, source, seed, scripted=True)
-        replay = replay_trajectory(env, source)
+        replay = replay_trajectory(env, source) if result['n_actions'] else None
         write_json(source / 'native-replay.json', replay)
         result.update(source_directory=str(source), source_result_sha256=sha(source / 'result.json'), replay=replay)
         baselines.append(result)
-        if result['evaluator']['success'] and not result['error'] and replay['within_1e_minus_9']:
+        if result['evaluator']['success'] and not result['error'] and replay and replay['within_1e_minus_9']:
             with np.load(source / 'trajectory.npz', allow_pickle=False) as raw:
                 state = raw['state_command9'].astype(np.float32)
                 action = np.column_stack((raw['dispatched_endpoint6'], np.zeros((len(state), 3)))).astype(np.float32)
