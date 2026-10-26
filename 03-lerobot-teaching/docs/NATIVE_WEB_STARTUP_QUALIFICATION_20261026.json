@@ -3,7 +3,7 @@
     {
       "actuator_requests": [],
       "adapter_source_sha256": {
-        "native_activation.py": "8dba0d36835069b39ffe43b38916c54172dc99031b38b3785e70108e7a95aac3",
+        "native_activation.py": "2b0000917e3ba982904526046c78c0dcaee5e1e37c25128c619ac0d728d3d103",
         "native_owner_mount.py": "72bcbeffd92742287aa3edf01280a26c1c14f720f61a24560d401e58bbb2eafe",
         "native_stream03.py": "3846deecbe65d70dd46646ba2b92ec9efc525af35514f593e60a0c4288571160",
         "native_stream03_api.py": "f430fa95d564338fcf1c14ed44759c1acdb4559271426650802371bc6bf98c52",
@@ -22,7 +22,7 @@
         "native_mux": 404,
         "teleop": 200
       },
-      "receipt_sha256": "c1e51d36ba97e092629a357bba73646a830852805c36008dfddeee465f2ab5db",
+      "receipt_sha256": "a3ec9a08f1201b38f5d9f31d623e3680ebc726e0fcc170d6949f963ef11c21b0",
       "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
       "source_startup_zero_actuator_requests": true,
       "startup_threads": 11,
@@ -49,7 +49,7 @@
         }
       ],
       "adapter_source_sha256": {
-        "native_activation.py": "8dba0d36835069b39ffe43b38916c54172dc99031b38b3785e70108e7a95aac3",
+        "native_activation.py": "2b0000917e3ba982904526046c78c0dcaee5e1e37c25128c619ac0d728d3d103",
         "native_owner_mount.py": "72bcbeffd92742287aa3edf01280a26c1c14f720f61a24560d401e58bbb2eafe",
         "native_stream03.py": "3846deecbe65d70dd46646ba2b92ec9efc525af35514f593e60a0c4288571160",
         "native_stream03_api.py": "f430fa95d564338fcf1c14ed44759c1acdb4559271426650802371bc6bf98c52",
@@ -68,7 +68,7 @@
         "native_mux": 404,
         "teleop": 200
       },
-      "receipt_sha256": "dc6dcf47fa13175b899350ea31afc9cb72fd8d5312cb02c465d3c3e68ed4f810",
+      "receipt_sha256": "1f4a8d5224137a86e4a1ce7214b7e80a22d253bf56c2c291657827e1afe75b70",
       "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
       "source_startup_zero_actuator_requests": false,
       "startup_threads": 11,
@@ -78,7 +78,7 @@
     {
       "actuator_requests": [],
       "adapter_source_sha256": {
-        "native_activation.py": "8dba0d36835069b39ffe43b38916c54172dc99031b38b3785e70108e7a95aac3",
+        "native_activation.py": "2b0000917e3ba982904526046c78c0dcaee5e1e37c25128c619ac0d728d3d103",
         "native_owner_mount.py": "72bcbeffd92742287aa3edf01280a26c1c14f720f61a24560d401e58bbb2eafe",
         "native_stream03.py": "3846deecbe65d70dd46646ba2b92ec9efc525af35514f593e60a0c4288571160",
         "native_stream03_api.py": "f430fa95d564338fcf1c14ed44759c1acdb4559271426650802371bc6bf98c52",
@@ -102,7 +102,7 @@
         "native_mux": 200,
         "teleop": 200
       },
-      "receipt_sha256": "61494e1c0b9cc38fa1a4720e59386917e4aca98b003d08b6019c8367ee21b2de",
+      "receipt_sha256": "a9070730b1ba626823258d8c185ec5a29d29d493769f18080885c4a37522844e",
       "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
       "source_startup_zero_actuator_requests": true,
       "startup_threads": 11,
@@ -112,7 +112,7 @@
     {
       "actuator_requests": [],
       "adapter_source_sha256": {
-        "native_activation.py": "8dba0d36835069b39ffe43b38916c54172dc99031b38b3785e70108e7a95aac3",
+        "native_activation.py": "2b0000917e3ba982904526046c78c0dcaee5e1e37c25128c619ac0d728d3d103",
         "native_owner_mount.py": "72bcbeffd92742287aa3edf01280a26c1c14f720f61a24560d401e58bbb2eafe",
         "native_stream03.py": "3846deecbe65d70dd46646ba2b92ec9efc525af35514f593e60a0c4288571160",
         "native_stream03_api.py": "f430fa95d564338fcf1c14ed44759c1acdb4559271426650802371bc6bf98c52",
@@ -134,7 +134,7 @@
       "original_owner_restarted": false,
       "physical_commands": 0,
       "readonly_http": {},
-      "receipt_sha256": "e12013538b3ae1fcfe1c9cc2d6385af014934d32474d174c3cac793832d84b19",
+      "receipt_sha256": "6b3c7172a1734ceacdac12156a85f49478ee86d9b59132335bc1bf7c71babe5d",
       "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
       "source_startup_zero_actuator_requests": false,
       "startup_threads": 0,
@@ -160,7 +160,7 @@
   },
   "schema": "explorer_native_web_startup_qualification_summary_v1",
   "targeted_tests": {
-    "passed": 101,
+    "passed": 104,
     "skipped": 0
   }
 }

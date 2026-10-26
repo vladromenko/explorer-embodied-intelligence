@@ -160,6 +160,31 @@ def test_failed_old_camera_check_cannot_revoke_a_new_user_authorization(tmp_path
     assert gate.authorization['authorization_id']==new['authorization_id'] and gate.allowed()
 
 
+@pytest.mark.parametrize('kind',['revoke','global_stop','owner_generation_change'])
+def test_late_observed_confirmation_after_revoke_or_native_change_cannot_authorize(tmp_path,kind):
+    client,gate,mux,teleop,arm,tick,jpeg=fixture(tmp_path)
+    challenge=gate.challenge();body={key:True for key in ('observing','neutral','space_clear','user_observed_test_confirmed')}
+    body.update(challenge_id=challenge['challenge_id'],displayed_jpeg_sha256=challenge['frame']['jpeg_sha256'],actor_id='mock-owner')
+    entered,release=threading.Event(),threading.Event();original=gate.camera.snapshot;errors=[]
+    def snapshot(**kwargs):
+        if threading.current_thread().name=='late-authorize':
+            entered.set();assert release.wait(2)
+        return original(**kwargs)
+    gate.camera.snapshot=snapshot
+    def late():
+        try:gate.authorize(body)
+        except Exception as error:errors.append(error)
+    worker=threading.Thread(name='late-authorize',target=late);worker.start();assert entered.wait(2)
+    if kind=='global_stop':mux._stop_all()
+    elif kind=='owner_generation_change':teleop.generation+=1
+    else:gate.revoke('EXPLICIT_OPERATOR_REVOKE')
+    release.set();worker.join(2)
+    assert len(errors)==1 and not gate.allowed() and gate.authorization is None
+    gate.camera.snapshot=original
+    with client:new,_=authorize(client)
+    assert new['execution_permission'] and arm.calls==[] and arm.publications==[]
+
+
 def test_node_binary_proxy_requires_auth_and_returns_only_pinned_typed_frame(tmp_path,monkeypatch):
     monkeypatch.setattr(Path,'home',lambda:tmp_path/'home')
     agent=node_agent.NodeAgent('nano','nano',tmp_path/'node',TOKEN,sources={},legacy_dir=tmp_path/'original/data',

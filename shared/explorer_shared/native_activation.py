@@ -51,6 +51,7 @@ class ObservedNativeActivation:
     def __init__(self,mux,camera,*,clock=time.monotonic_ns):
         self.mux,self.camera,self.clock=mux,camera,clock
         self.lock=threading.RLock();self.pending=None;self.authorization=None;self.revoked_reason='NOT_AUTHORIZED'
+        self.revision=0
         self.events=[]
     def _event(self,kind,**value):
         event={'event_id':uuid.uuid4().hex,'kind':kind,'boot_id':self.mux.tap.boot_id,
@@ -61,9 +62,10 @@ class ObservedNativeActivation:
     def challenge(self):
         frame=self.camera.snapshot(with_jpeg=True);native=self.mux.status()
         with self.lock:
+            self.revision+=1
             ident=uuid.uuid4().hex
             self.pending={'challenge_id':ident,'frame':frame,'native_generation':native['owner_generation'],
-                          'control_epoch':native['control_epoch']}
+                          'control_epoch':native['control_epoch'],'revision':self.revision}
             return {'schema':'explorer_native_observed_challenge_v1','challenge_id':ident,
                     'frame':{key:value for key,value in frame.items() if key!='jpeg'},
                     'native_generation':native['owner_generation'],'control_epoch':native['control_epoch'],
@@ -86,26 +88,33 @@ class ObservedNativeActivation:
             raise ValueError('Bounded explicit operator identity required')
         if not all(body.get(key) is True for key in ('observing','neutral','space_clear','user_observed_test_confirmed')):
             raise ValueError('Separate explicit current user-observed test confirmation required')
-        native=self.mux.status()
-        if (native['active'] or native.get('stop_latched') is not True or
-                any(abs(value)>1e-8 for value in self.mux.teleop.inputs.values())):
-            raise ValueError('Existing native STOP and neutral inputs required before observed authorization')
-        self.camera.snapshot()  # current source remains live, independently of pinned frame
         with self.lock:
-            pending=self.pending
-            if (pending is None or body.get('challenge_id')!=pending['challenge_id'] or
-                    body.get('displayed_jpeg_sha256')!=pending['frame']['jpeg_sha256'] or
-                    not 0<=self.clock()-pending['frame']['received_monotonic_ns']<=2_000_000_000 or
-                    native['owner_generation']!=pending['native_generation'] or
-                    native['control_epoch']!=pending['control_epoch']):
-                raise ValueError('Pinned displayed camera challenge or native ownership changed')
-            receipt=self._event('EXPLICIT_USER_OBSERVED_AUTHORIZATION',challenge_id=pending['challenge_id'],
-                displayed_jpeg_sha256=pending['frame']['jpeg_sha256'],camera_frame=deepcopy({
-                    key:value for key,value in pending['frame'].items() if key!='jpeg'}),
-                actor_id=body.get('actor_id'),qualification_scope='observed_session_permission_not_attainment')
-            self.authorization={'authorization_id':receipt['event_id'],'receipt':receipt,
-                'generation':self.mux.teleop.generation,'native_epoch':None}
-            self.pending=None;self.revoked_reason=None
+            expected_revision=self.revision
+        self.camera.snapshot()  # current source remains live, independently of pinned frame
+        # Same order as original STOP invalidation: teleop -> activation. Camera
+        # I/O is outside both locks; revoke/STOP during it permanently fences the
+        # pending confirmation. Re-read ownership at the actual attach boundary.
+        with self.mux.teleop.lock:
+            native=self.mux.status()
+            if (native['active'] or native.get('stop_latched') is not True or
+                    any(abs(value)>1e-8 for value in self.mux.teleop.inputs.values())):
+                raise ValueError('Existing native STOP and neutral inputs required before observed authorization')
+            with self.lock:
+                pending=self.pending
+                if (pending is None or expected_revision!=self.revision or pending['revision']!=expected_revision or
+                        body.get('challenge_id')!=pending['challenge_id'] or
+                        body.get('displayed_jpeg_sha256')!=pending['frame']['jpeg_sha256'] or
+                        not 0<=self.clock()-pending['frame']['received_monotonic_ns']<=2_000_000_000 or
+                        native['owner_generation']!=pending['native_generation'] or
+                        native['control_epoch']!=pending['control_epoch']):
+                    raise ValueError('Pinned displayed camera challenge or native ownership changed')
+                receipt=self._event('EXPLICIT_USER_OBSERVED_AUTHORIZATION',challenge_id=pending['challenge_id'],
+                    displayed_jpeg_sha256=pending['frame']['jpeg_sha256'],camera_frame=deepcopy({
+                        key:value for key,value in pending['frame'].items() if key!='jpeg'}),
+                    actor_id=body.get('actor_id'),qualification_scope='observed_session_permission_not_attainment')
+                self.authorization={'authorization_id':receipt['event_id'],'receipt':receipt,
+                    'generation':self.mux.teleop.generation,'native_epoch':None}
+                self.pending=None;self.revoked_reason=None
         return self.status()
     def bind_epoch(self,epoch,authorization_id):
         with self.lock:
@@ -130,6 +139,7 @@ class ObservedNativeActivation:
             if expected_authorization_id is not None and (
                     self.authorization is None or self.authorization['authorization_id']!=expected_authorization_id):
                 return {'revoked':False,'reason':'SUPERSEDED_AUTHORIZATION','physical_command_count':0}
+            self.revision+=1;self.pending=None
             if self.authorization is not None:
                 self._event('OBSERVED_AUTHORIZATION_REVOKED',reason=reason,
                             authorization_id=self.authorization['authorization_id'])
