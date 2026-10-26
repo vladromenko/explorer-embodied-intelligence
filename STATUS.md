@@ -70,9 +70,15 @@ revision CAS, durable source/PID/boot/nonce, cancel-wins и checkpoint pause→e
 Текущие source04 ACT/DP math proofs сохраняют original native6 SIM и reload0.
 ACT9 CUDA graph3:12tests/8updates/reload0; teacher1/1, независимая попытка0/1.
 GPU resume с прежними nondeterministic flags НЕ совпал побитно; отрицательный
-результат сохранён. Отдельный strict deterministic fixture затем прошёл
-8vs4+newPID4 точно/42.73s. Production GPU resume пока не квалифицирован:
-явный ограниченный профиль и свежая source-bound проверка ещё выполняются.
+результат сохранён. После отдельного fixture исправлен порядок startup: профиль
+настраивается до первого CUDA device probe; прежний отказ до optimizer сохранён.
+Новый production profile4:13actual tests/71.41s,8updates/reload0; отдельный
+4→exit75→новыйPID4 прошёл42.52s с точными model/optimizer/loss/всеми RNG/sampler.
+Профиль ограничен state9/action9, image64/batch2/chunk4 FP32. Source6/106 CUDA
+не допущены. Актуальные CPU ACT6/DP6/106 повторно исполнены; веса ACT6/DP6
+совпали с прежними, новый source signature сохранён отдельно. Привязка к
+кандидату826a430 опубликована после проверки16 source SHA и runtime; активный
+центральный c8be649 ещё не переключён. [Точные области](shared/training/PROFILE4_ACTUAL_20261026_RU.md).
 
 Реальные source04/calibration API и веб-формы подключены: original frame/SHA,
 10 diverse intrinsics views, отдельный reference, пользовательские измерения,
@@ -106,8 +112,30 @@ state сохранены. T5 ext4 смонтирован в `/mnt/explorer-data`
 Остаются полезные программные пункты: завершить warm two-model05 actor и
 явный пользовательский observed flow; включить новую центральную очередь/UI;
 source04 DP live-history shadow; source-bound transfer06 dataset/student/eval;
-portable export UI; исправление и независимая оценка предметных политик;
+общий Pi current-user permission и source04 observed evaluation owner;
+исправление и независимая оценка предметных политик;
 научные сравнения, повторы/ablations и широкая recovery campaign.102 full texts
 и35 deep reviews не подтверждают гипотезы автоматически. Физические шаги
 отдельны в [веб-чеклисте](EVENING_CHECKLIST_RU.md); программные блокеры
 не перекладываются на пользователя. Весь мастер-промпт остаётся открытым.
+
+В main экспорт Research Hub уже подключён к общей очереди и скачиванию.
+Отдельный настоящий API→Supervisor→bootstrap→worker прогон завершён0.873s:
+133120bytes TAR,7files, SHA и две независимые копии проверены, original SQL
+неизменён. Это private fixture с сохранёнными реальными SCRIPTED_SIM receipt/
+video bytes, не новая научная попытка и не production job. Результат PARTIAL
+с3 незакрытыми зависимостями; первый harness/reap отказ сохранён отдельно.
+[Свидетельство](_registry/evidence/research-export-public-queue-20261026.json).
+
+Фактическая загрузка двух отдельных native CPU моделей и2 predictions каждой
+прошла6.07s/peak895504384bytes. Это проверка конкретных SIM checkpoints при
+2 CPU threads; произвольные будущие пары и физический runtime ею не допущены.
+[Точный scope](_registry/evidence/cooperative-dual-cpu-finite-20261026.json).
+В main добавлен current source04→06 каталог с явными A/C blockers и неизменяемым
+событием выбора source; dimension6, loss и старый hold не означают object skill.
+
+Новая полная регрессия frozen826a430 сейчас выполняется отдельно от
+production-state:5GiB/swap0/CPU250%, EGL и фактические CAD meshes. Последние
+118 Node tests и60 targeted Python tests прошли; после новых source API/SQL
+ограничений отдельно38passed и24 browser-bootstrap checks. Все новые55 Python
+файлов/изменений проверены против5de105e: новых continue operators нет.
