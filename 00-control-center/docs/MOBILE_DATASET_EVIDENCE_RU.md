@@ -98,3 +98,34 @@ model не подтверждён. У записи18 кадров обнаруж
 кадров к метаданным камеры; это отдельный фактический дефект источника, не повод
 подменять метаданные. Официальный ACT forward/backward/readback именно по мобильному
 конвертеру ещё не запускался; готовность физического навыка не заявляется.
+
+## Общий downstream опытов02 и03
+
+`inspect_rosmaster_import` принимает те же аргументы, что `inspect_mobile_import`
+(старое имя сохранено). Поддерживаются `mobile_import` и `retarget_import`: полный
+канонический ROSMASTER9D контракт одинаков, различается исходный input adapter.
+Новый03 импорт передаёт `result.embodied_manifest` и первоначальный `recording_id`
+(или config.episode_id/config.recording_id); ID конверта обязан совпасть. Сам
+retarget/page/project не доказывает наличие всех девяти команд. Старый raw архив
+сверяется с retained original SHA и остаётся analysis-only; rawleader не выдаётся
+за частичный экспертный навык. Его исходные файлы не изменяются.
+
+`input_mode`, `input_mode_verified`, `demonstration_input_provenance` исходят только
+из optional source-bound `input_adapter_provenance` авторитетного модуля (1d5c952).
+Registry import_kind/project хранятся отдельно: они не определяют, как сформирована
+команда. Без source-bound record mode=UNKNOWN. Верифицированная запись содержит
+id/version/input_mode и source SHA; изменение mode вне исходного JSON pointer не
+получает verified. `source_project_basis` явно различает source-bound identity и
+registry-only происхождение.
+
+Command-estimate профиль допускает намеренно выключенный measured feedback как
+null/maskFalse при реальных исходных reference/boot, непрерывной истории, точных
+preceding-command9 и native9D dispatch/timing. Inspector не включает feedback и не
+считает его отсутствие отдельным отказом. Настоящие нулевые neutral coordinates
+сохраняются во всех девяти координатах. Capability/navigation/3D и физическое
+достижение цели не следуют из допуска ограниченного ACT baseline.
+
+Дополнительно три временные проверки: одинаковый9D контракт для keyboard02 и
+SO101leader03, verified input-mode/source SHA; отсутствие feedback без подмены
+значений; unbound mode остаётсяUNKNOWN; исторический raw03 byte-verified, но не
+обучающий. Всего13 inspector tests, без железа/обучения/сетевых запросов.

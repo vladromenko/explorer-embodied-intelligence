@@ -10,7 +10,7 @@ import pytest
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT/'00-control-center/src'),str(ROOT/'01-autonomous-learning/src'),str(ROOT/'shared')]
-from explorer.mobile_dataset_evidence import inspect_mobile_import,mobile_evidence_summary,file_sha256
+from explorer.mobile_dataset_evidence import inspect_mobile_import,inspect_rosmaster_import,mobile_evidence_summary,file_sha256
 from explorer_sim.mobile_observation_adapter import convert_mobile_observation
 
 SPEC=importlib.util.spec_from_file_location('existing_mobile_observation_fixtures',ROOT/'01-autonomous-learning/tests/test_mobile_observation_adapter.py')
@@ -183,3 +183,76 @@ def test_raw_JPEG_integrity_and_camera_frame_binding_failures_are_separate_facts
     assert evidence['raw_rgb_verified_count']==9
     assert evidence['raw_integrity_errors']==['RGB_camera_SHA_binding_mismatch:row_3']
     assert not evidence['admitted_for_training'] and not evidence['rgb_verified']
+
+
+def shared_command_estimate_fixture(tmp_path,kind,project,input_mode):
+    try:
+        import explorer_shared.embodied_episode as contract
+    except ImportError:
+        pytest.skip('authoritative command-estimate module not integrated in this worktree yet')
+    source=Path(contract.__file__).resolve().parents[2]/'tests/test_embodied_episode.py'
+    spec=importlib.util.spec_from_file_location('shared_ROSMASTER_source_fixtures',source)
+    fixture=importlib.util.module_from_spec(spec);spec.loader.exec_module(fixture)
+    facts,images=fixture.command_estimate_facts()
+    facts['project_id']=facts['identity']['project_id']=project
+    facts['input_adapter']={'id':input_mode,'version':'1','input_mode':input_mode}
+    envelope,payloads=fixture.package(facts,images)
+    folder=tmp_path/'native';folder.mkdir(parents=True)
+    for name,raw in payloads.items():(folder/name).write_bytes(raw)
+    path=folder/'canonical.json';path.write_text(json.dumps(envelope))
+    return {'id':'shared-'+kind,'kind':kind,'project_id':project,'status':'completed',
+        'config':{'recording_id':envelope['episode_id']},
+        'result':{'recording_id':envelope['episode_id'],'embodied_manifest':str(path)}},path
+
+
+def test_02_keyboard_and_03_leader_share_one_full9D_contract_with_feedback_masked_off(tmp_path):
+    outputs=[]
+    for kind,project,mode in [('mobile_import','02','keyboard'),('retarget_import','03','so101_leader')]:
+        job,path=shared_command_estimate_fixture(tmp_path/project,kind,project,mode)
+        original={str(item):item.read_bytes() for item in path.parent.iterdir() if item.is_file()}
+        report=inspect_rosmaster_import(job,managed_root=tmp_path,include_manifest=True)
+        assert report['admitted_for_training'],report['reasons']
+        assert report['action9_verified'] and report['causal_verified'] and report['retained_originals_verified']
+        assert report['input_mode']==mode and report['input_mode_verified']
+        assert report['demonstration_input_provenance']['source_sha256']==file_sha256(path.parent/'facts.json')
+        assert report['source_project_id']==project and report['source_project_basis']=='source_bound_original_identity'
+        assert report['native_dispatch_receipts_verified'] and not report['physical_success_validated']
+        assert not report['mobile_embodied']['channels']['joint_feedback']['mask']
+        assert report['mobile_embodied']['raw_simultaneous_actions'][0]['values']==[0.]*9
+        assert report['mobile_embodied']['raw_simultaneous_actions'][0]['mask']==[True]*9
+        assert not report['mobile_embodied']['capability_admission']['navigation']['evidence_admitted']
+        assert original=={str(item):item.read_bytes() for item in path.parent.iterdir() if item.is_file()}
+        outputs.append(report)
+    assert outputs[0]['mobile_embodied']['action_contract_id']==outputs[1]['mobile_embodied']['action_contract_id']
+    assert outputs[0]['mobile_embodied']['admission_profile']==outputs[1]['mobile_embodied']['admission_profile']
+
+
+def test_input_adapter_origin_is_not_inferred_from_page_or_unbound_extra_fields(tmp_path):
+    job,path=shared_command_estimate_fixture(tmp_path,'retarget_import','03','so101_leader')
+    envelope=json.loads(path.read_text());envelope['input_adapter']['input_mode']='keyboard'
+    path.write_text(json.dumps(envelope))
+    report=inspect_rosmaster_import(job,managed_root=tmp_path)
+    assert report['admitted_for_training']  # Optional origin failure never fabricates a different action contract.
+    assert report['input_mode']=='UNKNOWN' and not report['input_mode_verified']
+    assert report['demonstration_input_provenance']['verified'] is False
+    assert report['source_project_id']=='03'
+
+
+def test_old_raw_03_import_is_retained_verified_analysis_only_and_never_a_partial_expert(tmp_path):
+    folder=tmp_path/'old-raw';folder.mkdir()
+    original={'format':'explorer_so101_rosmaster_retarget_raw_v1','recording_id':'old-native-recording','state':'completed','outcome':'unknown'}
+    path=folder/'manifest.json';path.write_text(json.dumps(original));(folder/'samples.jsonl').write_text('')
+    files={item.name:file_sha256(item) for item in folder.iterdir() if item.is_file()}
+    job={'id':'old03','kind':'retarget_import','project_id':'03','status':'completed','config':{'recording_id':original['recording_id']},
+        'result':{'recording_id':original['recording_id'],'observation_manifest':str(path),'source_files_sha256':files,
+            'source_observations':9,'training_admission':'analysis_only','block_reasons':['no_native_9D_dispatch']}}
+    report=inspect_rosmaster_import(job,managed_root=tmp_path)
+    assert report['original_episode_id']=='old-native-recording' and report['retained_originals_verified']
+    assert report['raw_frames_recorded']==9 and not report['admitted_for_training'] and not report['action9_verified']
+    assert report['input_mode']=='UNKNOWN' and not report['input_mode_verified']
+    assert report['source_project_id']=='03' and report['source_project_basis']=='import_job_registry_only'
+    assert 'raw_retarget_source_not_a_canonical_9D_episode' in report['reasons']
+    assert not report['legacy_RGB9D_contract_admitted'] and not report['physical_success_validated']
+    (folder/'samples.jsonl').write_text('changed')
+    report=inspect_rosmaster_import(job,managed_root=tmp_path)
+    assert not report['retained_originals_verified'] and any('SHA mismatch' in reason for reason in report['reasons'])

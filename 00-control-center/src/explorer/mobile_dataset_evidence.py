@@ -264,6 +264,7 @@ def _embodied_evidence(path,manifest,original_episode_id,include_envelope=False)
             'channels':{},'phases_verified':False,'scene_split_verified':False,'model_input_plan':None,'source_integrity':False}
     inspected=inspect_embodied_episode(original_bytes if original_bytes is not None else envelope,source_payloads=payloads)
     inspected['source_artifacts']=artifacts;inspected['envelope_binding']=binding
+    inspected['source_project_id']=envelope.get('project_id') if isinstance(envelope,dict) and inspected.get('source_kind') in ('physical','simulation') else None
     if include_envelope:inspected['envelope']=envelope
     return inspected
 
@@ -407,15 +408,24 @@ def _inspect_legacy_mobile_import(job,*,managed_root=None,include_manifest=False
 
 
 
-def inspect_mobile_import(job,*,managed_root=None,include_manifest=False,max_episode_bytes=268435456,training_jobs=()):
+def inspect_rosmaster_import(job,*,managed_root=None,include_manifest=False,max_episode_bytes=268435456,training_jobs=()):
     """Inspect full ROSMASTER evidence independently of its optional legacy ACT view.
 
     Full structural admission comes only from the authoritative embodied contract.
     Expert success, split eligibility and actual model usage remain separate facts.
     A missing command-estimate9 NPZ never causes measured sensor zero-filling.
     """
-    report=_inspect_legacy_mobile_import(job,managed_root=managed_root,include_manifest=include_manifest,
+    result=job.get('result') or {}
+    legacy_job=job
+    if job.get('kind')=='retarget_import':
+        legacy_job=dict(job,result={'frames':result.get('source_observations',0),'observation_only':True})
+    report=_inspect_legacy_mobile_import(legacy_job,managed_root=managed_root,include_manifest=include_manifest,
         max_episode_bytes=max_episode_bytes,training_jobs=training_jobs)
+    if report['original_episode_id'] is None:
+        report['original_episode_id']=(job.get('config') or {}).get('recording_id',result.get('recording_id'))
+    report.update(import_kind=job.get('kind'),import_job_project_id=job.get('project_id'),
+        source_project_id=job.get('project_id'),source_project_basis='import_job_registry_only',
+        input_mode='UNKNOWN',input_mode_verified=False,demonstration_input_provenance=None)
     report['legacy_RGB9D_view']={key:report.get(key) for key in (
         'legacy_RGB9D_contract_admitted','rgb_verified','action9_verified','causal_verified','state_basis',
         'action_basis','source_quality_usable','source_training_admission_usable','episodes','manifest_path','manifest_sha256')}
@@ -424,7 +434,7 @@ def inspect_mobile_import(job,*,managed_root=None,include_manifest=False,max_epi
     report['legacy_RGB9D_view']['reasons']=list(report['reasons'])
     report['legacy_RGB9D_view']['missing_facts']=list(report['missing_facts'])
     result=job.get('result') or {};common=[];canonical=None;seen=set()
-    if job.get('kind')!='mobile_import':common.append('not_a_mobile_import')
+    if job.get('kind') not in ('mobile_import','retarget_import'):common.append('not_a_ROSMASTER_import')
     if job.get('status')!='completed':common.append('mobile_import_not_completed')
     try:
         # The original native canonical document is a first-class source. Converted
@@ -448,6 +458,31 @@ def inspect_mobile_import(job,*,managed_root=None,include_manifest=False,max_epi
         common.append('embodied_evidence_inspection_failed:'+type(error).__name__+':'+str(error))
         canonical={'admitted_for_training':False,'reasons':list(common),'channels':{},'source_integrity':False}
     report['mobile_embodied']=canonical
+    if canonical.get('source_project_id') in ('02','03'):
+        report.update(source_project_id=canonical['source_project_id'],source_project_basis='source_bound_original_identity')
+    adapter=canonical.get('input_adapter_provenance')
+    report['demonstration_input_provenance']=adapter
+    if isinstance(adapter,dict) and adapter.get('verified') is True:
+        report.update(input_mode=adapter.get('input_mode'),input_mode_verified=True)
+    report['native_dispatch_receipts_verified']=canonical.get('source_kind')=='physical' and canonical.get('action9_verified') is True
+    report['simulated_dispatch_receipts_verified']=canonical.get('source_kind')=='simulation' and canonical.get('action9_verified') is True
+    report['canonical_samples_recorded']=canonical.get('sample_count')
+    if job.get('kind')=='retarget_import' and not canonical.get('envelope_binding'):
+        try:
+            original=_managed(result['observation_manifest'],managed_root);metadata=_json(original)
+            total=0
+            for name,expected in (result.get('source_files_sha256') or {}).items():
+                source=_member(original.parent,name);total+=source.stat().st_size
+                if total>max_episode_bytes:raise ValueError('Retarget raw evidence exceeds inspection byte budget')
+                if file_sha256(source)!=expected:raise ValueError('Retarget retained raw source SHA mismatch')
+            verified=bool(result.get('source_files_sha256')) and (result.get('source_files_sha256') or {}).get(original.name)==file_sha256(original)
+            if metadata.get('recording_id')!=report['original_episode_id']:raise ValueError('Raw retarget recording belongs to another original episode')
+            report.update(retained_originals_verified=verified,raw_source_manifest_path=str(original),original_recording_sha256=file_sha256(original),
+                completed_recording=metadata.get('state')=='completed',operator_outcome=metadata.get('outcome','unknown'))
+            report['legacy_RGB9D_view']['reasons'].extend(result.get('block_reasons') or [])
+            report['legacy_RGB9D_view']['reasons'].append('raw_retarget_source_not_a_canonical_9D_episode')
+        except (OSError,ValueError,KeyError,TypeError) as error:
+            report['legacy_RGB9D_view']['reasons'].append('retarget_raw_evidence_failed:'+str(error))
     report['embodied_source_files']={item['path']:item['sha256'] for item in canonical.get('source_artifacts',[])}
     report['phase_labels_verified']=canonical.get('phases_verified') is True
     report['scene_split_verified']=canonical.get('scene_split_verified') is True
@@ -455,6 +490,7 @@ def inspect_mobile_import(job,*,managed_root=None,include_manifest=False,max_epi
         'state_feature_semantics':'exact source-bound prior-command9 only when recorded; never synthesized from measured joint and odometry channels',
         'full_embodied_sensor_fusion_verified':False,'recorded_does_not_imply_model_used':True}
     if canonical.get('envelope_binding'):
+        report['retained_originals_verified']=(canonical.get('source_integrity') or {}).get('all_declared_payloads_verified') is True
         for key in ('completed_recording','operator_outcome','operator_success','source_quality_usable','rgb_verified','action9_verified','causal_verified'):
             if key in canonical:report[key]=canonical[key]
         for target,key in (('original_session_id','session_id'),('scene_id','scene_id'),('split','split')):
@@ -473,8 +509,15 @@ def inspect_mobile_import(job,*,managed_root=None,include_manifest=False,max_epi
     return report
 
 
+
+def inspect_mobile_import(job,*,managed_root=None,include_manifest=False,max_episode_bytes=268435456,training_jobs=()):
+    """Compatibility name for the shared downstream ROSMASTER9D inspector."""
+    return inspect_rosmaster_import(job,managed_root=managed_root,include_manifest=include_manifest,
+        max_episode_bytes=max_episode_bytes,training_jobs=training_jobs)
+
+
 def mobile_evidence_summary(jobs,*,managed_root=None,training_jobs=()):
-    imports=[inspect_mobile_import(job,managed_root=managed_root,training_jobs=training_jobs) for job in jobs if job.get('kind')=='mobile_import']
+    imports=[inspect_mobile_import(job,managed_root=managed_root,training_jobs=training_jobs) for job in jobs if job.get('kind') in ('mobile_import','retarget_import')]
     return {'schema':'explorer_mobile_evidence_summary_v1','imports':imports,
         'counts':{'imported':len(imports),'raw_frames_recorded':sum(item.get('raw_frames_recorded') or 0 for item in imports),
             'admitted_for_training':sum(item['admitted_for_training'] for item in imports),
