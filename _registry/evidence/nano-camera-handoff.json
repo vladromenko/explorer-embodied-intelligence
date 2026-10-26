@@ -1,0 +1,34 @@
+{
+  "original_state": {
+    "MainPID": "0",
+    "RequiredBy": "",
+    "WantedBy": "explorer.target",
+    "ActiveState": "failed",
+    "UnitFileState": "disabled"
+  },
+  "original_fragment_path": "/home/vlad/.config/systemd/user/explorer-perception.service",
+  "original_sha256": "73734e0fc4e8f7c40d9baa3e4d3b0065e28c0816af57866f7de720639071281a",
+  "original_mode": 436,
+  "original_uid": 1000,
+  "original_gid": 1000,
+  "backup_path": "/home/vlad/.local/state/explorer/native-perception-unit-20261026/explorer-perception.service",
+  "backup_sha256": "73734e0fc4e8f7c40d9baa3e4d3b0065e28c0816af57866f7de720639071281a",
+  "controller_settings_changed": false,
+  "masked_link_target": "/dev/null",
+  "masked_link_verified": true,
+  "after": {
+    "MainPID": "0",
+    "RequiredBy": "",
+    "WantedBy": "explorer.target",
+    "ActiveState": "failed",
+    "UnitFileState": "masked"
+  },
+  "cache": {
+    "MainPID": "14754",
+    "RequiredBy": "",
+    "WantedBy": "default.target",
+    "ActiveState": "active",
+    "UnitFileState": "enabled"
+  },
+  "daemon_reload": true
+}

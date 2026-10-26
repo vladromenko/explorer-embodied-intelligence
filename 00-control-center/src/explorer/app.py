@@ -244,16 +244,42 @@ def jobs():
     return {'jobs':STORE.jobs()}
 
 
+@app.get('/api/datasets')
+def datasets():
+    found={}
+    roots=[(STORE.root/name).resolve() for name in ('datasets','jobs')]
+    for job in STORE.jobs(1000):
+        result=job.get('result') or {}
+        candidate=result.get('dataset_manifest')
+        if not candidate and job['kind']=='sim_pilot' and job['status']=='completed':
+            candidate=str(STORE.root/'jobs'/job['id']/'dataset/manifest.json')
+        if candidate and job['status']=='completed':
+            path=Path(candidate).resolve()
+            if path.is_file() and any(path.is_relative_to(root) for root in roots):
+                try:
+                    data=json.loads(path.read_text())
+                    if data.get('format') in ('explorer_npz_episode_v1','explorer_robot_episode_v1'):
+                        found[data['dataset_id']]=dict(id=data['dataset_id'],name=data.get('task',data['dataset_id']),
+                            dataset_manifest=str(path),source=data.get('source'),state_basis=data.get('state_basis','command_estimate'),
+                            action_basis=data.get('action_basis','simulated_command'),
+                            episodes=[{key:row.get(key) for key in ('id','split','frames','outcome')} for row in data['episodes']])
+                except (ValueError,KeyError,OSError):
+                    pass
+    return {'datasets':list(found.values())}
+
+
 @app.post('/api/jobs')
 async def create_job(request: Request):
     body = await request.json()
-    if body.get('kind') not in ('sim_pilot', 'train_act', 'virtual_transfer', 'handover_test','station_shadow','station_rollout') or body.get('project_id') not in (*TITLES.keys(),'personal'):
+    if body.get('kind') not in ('sim_pilot', 'train_act', 'world_model','virtual_transfer', 'handover_test','station_shadow','station_rollout') or body.get('project_id') not in (*TITLES.keys(),'personal'):
         raise HTTPException(400, 'Unsupported job')
     config = body.get('config', {})
     if not isinstance(config, dict):
         raise HTTPException(400, 'Job configuration must be an object')
     if '_execution_commit' in config:
         raise HTTPException(400,'Execution provenance is assigned by the worker')
+    if body['kind']=='world_model' and config.get('device','cpu')!='cpu':
+        raise HTTPException(400,'This world-model benchmark currently uses the verified CPU path')
     if body['kind']=='station_shadow':
         config['shadow']=True
     if body['kind']=='station_rollout':
@@ -271,7 +297,7 @@ async def job_operation(job_id: str, operation: str):
     desired = {'pause':'pause_requested', 'resume':'resume_requested', 'cancel':'cancel_requested'}
     if operation not in desired or job['status'] in ('completed', 'failed', 'cancelled'):
         raise HTTPException(409, 'Operation is not valid for this job')
-    if operation in ('pause','resume') and job['kind'] not in ('sim_pilot','train_act'):
+    if operation in ('pause','resume') and job['kind'] not in ('sim_pilot','train_act','world_model'):
         raise HTTPException(409,'Pause and resume apply to training. Stop an interactive attempt and start a fresh one.')
     STORE.update_job(job_id, status=desired[operation])
     if operation=='cancel' and job['kind']=='station_rollout' and (job.get('result') or {}).get('control_epoch'):

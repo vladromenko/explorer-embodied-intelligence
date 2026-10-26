@@ -145,6 +145,10 @@ def main(job_id):
         elif job['kind'] == 'train_act':
             from .simulation import run_train_act
             result = run_train_act(store, job, config)
+        elif job['kind']=='world_model':
+            sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
+            from explorer_sim.world_model import run_world_model
+            result=run_world_model(store,job)
         elif job['kind'] in ('virtual_transfer', 'handover_test'):
             from .transfer import run_virtual_experiment
             result = run_virtual_experiment(store, job, config)

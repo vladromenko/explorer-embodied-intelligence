@@ -116,6 +116,10 @@ TimeoutStopSec=20
 WantedBy=default.target
 '''.format(mode=node['id'],port=node['port'],python='%h/.local/share/explorer/servo-venv/bin/python' if node['id']=='pi' else '/usr/bin/python3')
             service(host,'explorer-observer',node_unit)
+            if node['id']=='nano':
+                adopted=remote(host,['python3','-c','import pathlib;h=pathlib.Path.home();print(int((h/".local/state/explorer/native-perception-unit-20261026/receipt.json").is_file() and (h/".config/systemd/user/explorer-perception.service").is_symlink() and (h/".config/systemd/user/explorer-perception.service").resolve()==pathlib.Path("/dev/null")))']).strip()==b'1'
+                if adopted:
+                    service(host,'explorer-nano-camera-cache',(ROOT/'scripts/explorer-nano-camera-cache.service').read_text())
     print('Deployed. Existing ROSMASTER controller settings were not written or restarted.')
 
 

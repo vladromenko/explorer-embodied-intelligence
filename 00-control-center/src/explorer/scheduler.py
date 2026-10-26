@@ -68,9 +68,9 @@ def supervise(config, store):
             elif process is None and job['status']=='pause_requested':
                 store.update_job(job_id,status='paused')
             elif process is None and job['status'] in ('queued', 'resume_requested'):
-                training = job['kind'] in ('sim_pilot', 'train_act')
+                training = job['kind'] in ('sim_pilot', 'train_act','world_model')
                 inference=job['kind'] in ('station_shadow','station_rollout')
-                busy = any(store.job(key)['kind'] in ('sim_pilot', 'train_act') for key in processes)
+                busy = any(store.job(key)['kind'] in ('sim_pilot', 'train_act','world_model') for key in processes)
                 inference_busy=any(store.job(key)['kind'] in ('station_shadow','station_rollout') for key in processes)
                 memory_ok = psutil.virtual_memory().available > 2.5 * 1024 ** 3
                 if (not training or not busy) and (not inference or not inference_busy) and (not (training or inference) or memory_ok):
