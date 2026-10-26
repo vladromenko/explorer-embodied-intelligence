@@ -243,6 +243,9 @@ def main(job_id):
         elif job['kind']=='research_export':
             from .research_export_job import run_research_export
             result=run_research_export(store,job,job['config'])
+        elif job['kind']=='cooperative_policy_warm':
+            from .cooperative_policy_job import run_cooperative_policy_session
+            result=run_cooperative_policy_session(store,job,config)
         elif job['kind'] == 'so101_skill_train':
             if job['config'].get('backend','act')=='diffusion':
                 from .so101_diffusion_training import run_so101_diffusion_train

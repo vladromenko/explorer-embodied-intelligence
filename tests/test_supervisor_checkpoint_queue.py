@@ -215,9 +215,10 @@ def test_cancel_or_pause_after_bootstrap_admitted_metadata_is_rechecked_before_a
     assert store.job(job['id'])['status']==('cancelled' if operation=='cancel' else 'pause_requested')
 
 
-def test_job_runner_final_entry_guard_never_makes_a_folder_or_dispatches_cancelled_job(tmp_path,monkeypatch):
+@pytest.mark.parametrize('kind',['unsupported_software_fixture','cooperative_policy_warm','research_export'])
+def test_job_runner_final_entry_guard_never_makes_a_folder_or_dispatches_cancelled_job(tmp_path,monkeypatch,kind):
     from explorer import job_runner
-    store=Store(tmp_path/'state');job=store.create_job('unsupported_software_fixture','01',{});store.request_job_operation(job['id'],'cancel')
+    store=Store(tmp_path/'state');job=store.create_job(kind,'01',{});store.request_job_operation(job['id'],'cancel')
     monkeypatch.setattr(job_runner,'load',lambda:dict(data_dir=str(store.root)))
     monkeypatch.delenv('EXPLORER_WORKER_LEASE_NONCE',raising=False)
     job_runner.main(job['id'])
