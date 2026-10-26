@@ -1,0 +1,426 @@
+{
+  "schema": "explorer_BC_PPO_full_object_qualification_receipt_v1",
+  "run_id": "97b6bc8af5834472a8b4fcd590db6f08",
+  "host": "homebrain",
+  "result_path": "/home/jetsonnx/.local/share/explorer/state/qualification/manipulation-bc-ppo-20261026/jobs/97b6bc8af5834472a8b4fcd590db6f08/bc-ppo-result.json",
+  "result_sha256": "6c8fa417a64a0e7bfefebd2657faad66a98b0a7bede8fba8306ca39f10947d90",
+  "implementation_sha256": "21d09fea35718f8e21bfbb9f14fb6ee1a79b9015b809e953510e4aced6384195",
+  "context": {
+    "cad_mesh_sha256": {
+      "Camera.STL": "12d7158cdf2fab1072f2bd3989726e854a20d1fe717206cb7edc114afe59fdbe",
+      "DCW2.STL": "085efb1ffed33d9440071886bf1c2ce769facda5e45fd7e1ab24d4d55298d1a1",
+      "Gripping.STL": "e35ed860419dad49687084f9c8493f43c81cfece5b421d7e63944d27d22d63f7",
+      "arm1.STL": "d12f701abb74171df8ed3179b3885d10c6af2863f29d13e52bcce2d0d8933643",
+      "arm2.STL": "6ec3d8c7b02106560f61035e03a034637b988d153319d87bb50994e96728271e",
+      "arm3.STL": "74e309203df8ed80e57962a5ccc871909163cb07c1b1f6db0628233684360a98",
+      "arm4.STL": "8f74b107bdaba930ea482c95e6685d5cf5dccb3923a1e6d8b9280b7986811cda",
+      "arm5.STL": "1a52a732e4664ac3b703968416446b76d67067a78632b520d33858a80a26a281",
+      "arm_base_Link.STL": "bbd67c0a59cdbb8fd02c567e8ddff62bde72d3cae753ee63da7681f98f29871c",
+      "base_link.STL": "82897ec12100b78d8f33800edd7be19f86de3ffbc3574ed446f1d2bf04079f4a",
+      "llink1.STL": "0acf2b0ea73e9eb63e3ef9fec5637f0a151dae108ac3eed58ffd98f0062a6c9d",
+      "llink2.STL": "e356dfad82f1468a6c80e20fe127df4b7b40c395398cf5cb85a1522d9691b31c",
+      "llink3.STL": "81f1c9f5ab75d86362d7e227fda6018c87488db713bd9621f6eb761bbec3109d",
+      "lwheel1.STL": "e629352d69aaef698c948505f046fb241b1d9a7e734f0417a06dfe2d383eacfd",
+      "lwheel2.STL": "f07f85985d6c189b71d839a0d44bf3e893eacfd76dccc4f954b63d247a78ae1b",
+      "rlink1.STL": "9e3bb9c0d08d3d177e01a532d275f108f514eb4be13e857c0a596c61c32891a6",
+      "rlink2.STL": "ff22b15d51ff0d96cddcaa74b6056c9e5f88e1abe6886023a2a90ca80ec3230d",
+      "rlink3.STL": "bcf76ccbadf426c3e7ec6135f0fd09c0669b54735e7de91bbee92276b5404b25",
+      "rwheel1.STL": "7218e9bea1d0862cacd44b0a8a72e207085d367a022843bfd4e6be23f6786fff",
+      "rwheel2.STL": "f8daf44a79b1b3d5bdec95ef3885e8151f3a39f21f93c2bf2e8fcbf09d57c323"
+    },
+    "options": {
+      "bc_steps": 2000,
+      "demonstration_episodes": 3,
+      "evaluation_episodes": 2,
+      "horizon": 600,
+      "ppo_steps": 2048,
+      "seed": 8421,
+      "task": "candy_to_tray"
+    },
+    "source_sha256": {
+      "/home/jetsonnx/work/explorer-wizard/01-autonomous-learning/src/explorer_sim/manipulation.py": "eca8067c93605936109af9109f8ce1a89db8be5eb1aa7573f3a831fce63cda3a",
+      "/home/jetsonnx/work/explorer-wizard/01-autonomous-learning/src/explorer_sim/manipulation_curriculum.py": "21d09fea35718f8e21bfbb9f14fb6ee1a79b9015b809e953510e4aced6384195",
+      "/home/jetsonnx/work/explorer-wizard/01-autonomous-learning/src/explorer_sim/manipulation_env.py": "a0bf6c275002d6a9ce457d1e38cbbc188b8edd13cfe1adbfa3026d533c8ffe8a",
+      "/home/jetsonnx/work/explorer-wizard/01-autonomous-learning/src/explorer_sim/pilot.py": "45712fd7df9fc3cd27af82e0e12ed1a4d8bcb110c6b920efb718da97989cdcf0",
+      "/home/jetsonnx/work/explorer-wizard/01-autonomous-learning/src/legacy/config/arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+      "/home/jetsonnx/work/explorer-wizard/01-autonomous-learning/src/legacy/config/explorer.srdf": "dba83e73a95a6a85e936f0900d2aefadbb434b89302da92d680b56f983b023a7",
+      "/home/jetsonnx/work/explorer-wizard/01-autonomous-learning/src/legacy/config/explorer.urdf": "9ee94f15a2473ba04c84c552bae47f7dd2bd734b8b3700f3fe25d752c3eace4b",
+      "/home/jetsonnx/work/explorer-wizard/01-autonomous-learning/src/legacy/simulator/explorer_model.py": "2c46df3f6a81a2395132cd89bc702737c088171b83d3e05bb7eb63f5b4657d87",
+      "/home/jetsonnx/work/explorer-wizard/01-autonomous-learning/src/legacy/simulator/model_config.json": "4ba8966fbea5837c300145e1c57fa05a817d2240ffa67ee0e786b14eada56e48"
+    },
+    "versions": {
+      "mujoco": "3.17.0",
+      "numpy": "2.2.6",
+      "stable-baselines3": "2.9.0",
+      "torch": "2.11.0"
+    }
+  },
+  "elapsed_s": 364.3171502269979,
+  "train_seeds": [
+    8421,
+    8422,
+    8423
+  ],
+  "admitted_expert_seeds": [
+    8421,
+    8422,
+    8423
+  ],
+  "development_seeds": [
+    18421,
+    18422
+  ],
+  "scripted_experts": [
+    {
+      "seed": 8421,
+      "steps": 448,
+      "evaluator": {
+        "bilateral_substeps": 6541,
+        "carried_above_target": true,
+        "contact_substeps": 6587,
+        "final": {
+          "above_rim": false,
+          "bottom_supported": true,
+          "free_of_fingers": true,
+          "height_bounds_m": [
+            0.007892244579735697,
+            0.027892244579792877
+          ],
+          "inside_all_points": true,
+          "pad_force_N": [
+            0.0,
+            0.0
+          ],
+          "settled": true,
+          "support_force_N": 0.12360599986089205,
+          "within_rim": true
+        },
+        "grasped": true,
+        "lifted": true,
+        "max_height_gain_m": 0.23457525653435785,
+        "settled_seconds": 0.5420000000000004,
+        "substeps": 11200,
+        "success": true
+      },
+      "phase_counts": {
+        "approach": 72,
+        "carry": 72,
+        "close": 72,
+        "descend": 52,
+        "lift": 72,
+        "place": 52,
+        "release": 56
+      },
+      "sha256": "d3e8f74e9486e8418e269a5c24ee1092a1c37b8b2b6f9d9bb8c865469ef212f0"
+    },
+    {
+      "seed": 8422,
+      "steps": 448,
+      "evaluator": {
+        "bilateral_substeps": 6544,
+        "carried_above_target": true,
+        "contact_substeps": 6623,
+        "final": {
+          "above_rim": false,
+          "bottom_supported": true,
+          "free_of_fingers": true,
+          "height_bounds_m": [
+            0.007892244579750627,
+            0.02789224457978058
+          ],
+          "inside_all_points": true,
+          "pad_force_N": [
+            0.0,
+            0.0
+          ],
+          "settled": true,
+          "support_force_N": 0.1236059997761934,
+          "within_rim": true
+        },
+        "grasped": true,
+        "lifted": true,
+        "max_height_gain_m": 0.23415889170494275,
+        "settled_seconds": 0.5420000000000004,
+        "substeps": 11200,
+        "success": true
+      },
+      "phase_counts": {
+        "approach": 72,
+        "carry": 72,
+        "close": 72,
+        "descend": 52,
+        "lift": 72,
+        "place": 52,
+        "release": 56
+      },
+      "sha256": "d89d7663305668eb4be0b2b108938274ed1c6699ee0b6f6ccff789101567ebc5"
+    },
+    {
+      "seed": 8423,
+      "steps": 448,
+      "evaluator": {
+        "bilateral_substeps": 6542,
+        "carried_above_target": true,
+        "contact_substeps": 6630,
+        "final": {
+          "above_rim": false,
+          "bottom_supported": true,
+          "free_of_fingers": true,
+          "height_bounds_m": [
+            0.007892244579772998,
+            0.02789224457978571
+          ],
+          "inside_all_points": true,
+          "pad_force_N": [
+            0.0,
+            0.0
+          ],
+          "settled": true,
+          "support_force_N": 0.12360600000434319,
+          "within_rim": true
+        },
+        "grasped": true,
+        "lifted": true,
+        "max_height_gain_m": 0.23404595110390092,
+        "settled_seconds": 0.5420000000000004,
+        "substeps": 11200,
+        "success": true
+      },
+      "phase_counts": {
+        "approach": 72,
+        "carry": 72,
+        "close": 72,
+        "descend": 52,
+        "lift": 72,
+        "place": 52,
+        "release": 56
+      },
+      "sha256": "585b2f68fc3b6ac316311a1628f65bff67f024287f81e35fc4c4308d84a20de5"
+    }
+  ],
+  "actor_supervision": {
+    "optimizer_steps": 2000,
+    "samples": 1344,
+    "first_loss": 0.06706196814775467,
+    "last_loss": 0.00028955438756383955,
+    "critic_parameters_changed": false,
+    "phase_weight_mass": {
+      "approach": 0.14285714285714285,
+      "carry": 0.14285714285714285,
+      "close": 0.14285714285714285,
+      "descend": 0.14285714285714285,
+      "lift": 0.14285714285714285,
+      "place": 0.14285714285714285,
+      "release": 0.14285714285714285
+    }
+  },
+  "bc_checkpoint_sha256": "30af8b4ebd42652279724b98c3af7a938aadc637b59093df893a5fc10bb96af3",
+  "bc_reload_action_max_abs_error": 0.0,
+  "bc_evaluation": {
+    "n": 2,
+    "successes": 0,
+    "grasped": 2,
+    "lifted": 2,
+    "carried": 2,
+    "episodes": [
+      {
+        "seed": 18421,
+        "evaluator": {
+          "bilateral_substeps": 3807,
+          "carried_above_target": true,
+          "contact_substeps": 3824,
+          "final": {
+            "above_rim": false,
+            "bottom_supported": false,
+            "free_of_fingers": true,
+            "height_bounds_m": [
+              -0.00010775542028276797,
+              0.019892244579850397
+            ],
+            "inside_all_points": false,
+            "pad_force_N": [
+              0.0,
+              0.0
+            ],
+            "settled": true,
+            "support_force_N": 0.0,
+            "within_rim": true
+          },
+          "grasped": true,
+          "lifted": true,
+          "max_height_gain_m": 0.3756434112976926,
+          "settled_seconds": 0.0,
+          "substeps": 15000,
+          "success": false
+        },
+        "n_actions": 600,
+        "trajectory_sha256": "03283e98c14819f2d7a51b8dbdffe71a6324a5ff06f73b6a9e7e5bfa5d015452"
+      },
+      {
+        "seed": 18422,
+        "evaluator": {
+          "bilateral_substeps": 3635,
+          "carried_above_target": true,
+          "contact_substeps": 3664,
+          "final": {
+            "above_rim": false,
+            "bottom_supported": false,
+            "free_of_fingers": true,
+            "height_bounds_m": [
+              -0.00010775542031803836,
+              0.023892244579885622
+            ],
+            "inside_all_points": false,
+            "pad_force_N": [
+              0.0,
+              0.0
+            ],
+            "settled": true,
+            "support_force_N": 0.0,
+            "within_rim": true
+          },
+          "grasped": true,
+          "lifted": true,
+          "max_height_gain_m": 0.3733063431908207,
+          "settled_seconds": 0.0,
+          "substeps": 15000,
+          "success": false
+        },
+        "n_actions": 600,
+        "trajectory_sha256": "a7abbde0780b8647ab16171b65cecf661ab76b3314c6039faa316401dd124bb0"
+      }
+    ]
+  },
+  "ppo": {
+    "actual_optimizer_steps": 96,
+    "actual_timesteps": 2048,
+    "checkpoint_sha256": "fc8c1a6d1aa5f6fde3fbba182b933e1ba06010240fd2dc133414b2880a65f757",
+    "optimizer_epochs": 48,
+    "reload_action_max_abs_error": 0.0,
+    "weights_changed": true
+  },
+  "ppo_evaluation": {
+    "n": 2,
+    "successes": 0,
+    "grasped": 0,
+    "lifted": 0,
+    "carried": 0,
+    "episodes": [
+      {
+        "seed": 18421,
+        "evaluator": {
+          "bilateral_substeps": 0,
+          "carried_above_target": false,
+          "contact_substeps": 0,
+          "final": {
+            "above_rim": false,
+            "bottom_supported": false,
+            "free_of_fingers": true,
+            "height_bounds_m": [
+              -0.00010775542021043867,
+              0.01989224457978956
+            ],
+            "inside_all_points": false,
+            "pad_force_N": [
+              0.0,
+              0.0
+            ],
+            "settled": true,
+            "support_force_N": 0.0,
+            "within_rim": true
+          },
+          "grasped": false,
+          "lifted": false,
+          "max_height_gain_m": 1.0210678774887072e-05,
+          "settled_seconds": 0.0,
+          "substeps": 15000,
+          "success": false
+        },
+        "n_actions": 600,
+        "trajectory_sha256": "7f7de390cd34f2a52ee3890fd8f9564ef2303f90c71f83818953dc9b43ab1b16"
+      },
+      {
+        "seed": 18422,
+        "evaluator": {
+          "bilateral_substeps": 0,
+          "carried_above_target": false,
+          "contact_substeps": 0,
+          "final": {
+            "above_rim": false,
+            "bottom_supported": false,
+            "free_of_fingers": true,
+            "height_bounds_m": [
+              -0.00010775542021043867,
+              0.01989224457978956
+            ],
+            "inside_all_points": false,
+            "pad_force_N": [
+              0.0,
+              0.0
+            ],
+            "settled": true,
+            "support_force_N": 0.0,
+            "within_rim": true
+          },
+          "grasped": false,
+          "lifted": false,
+          "max_height_gain_m": 1.0210678774881868e-05,
+          "settled_seconds": 0.0,
+          "substeps": 15000,
+          "success": false
+        },
+        "n_actions": 600,
+        "trajectory_sha256": "25db16bb3f514b2c804c18258b4f18aa0d96268f54d70b278919d382514495a8"
+      }
+    ]
+  },
+  "ppo_native_replay": {
+    "actions_reexecuted": 600,
+    "evaluator": {
+      "bilateral_substeps": 0,
+      "carried_above_target": false,
+      "contact_substeps": 0,
+      "final": {
+        "above_rim": false,
+        "bottom_supported": false,
+        "free_of_fingers": true,
+        "height_bounds_m": [
+          -0.00010775542021043867,
+          0.01989224457978956
+        ],
+        "inside_all_points": false,
+        "pad_force_N": [
+          0.0,
+          0.0
+        ],
+        "settled": true,
+        "support_force_N": 0.0,
+        "within_rim": true
+      },
+      "grasped": false,
+      "lifted": false,
+      "max_height_gain_m": 1.0210678774887072e-05,
+      "settled_seconds": 0.0,
+      "substeps": 15000,
+      "success": false
+    },
+    "max_abs_native_state_error": 0.0,
+    "native_state_spec": "mjSTATE_INTEGRATION",
+    "within_1e_minus_9": true
+  },
+  "incumbent_file_preserved": true,
+  "development_candidate_accepted": false,
+  "privileged_actor": true,
+  "physical_execution": false,
+  "learned_full_task_success_established": false,
+  "hypotheses_status": "UNTESTED_HYPOTHESIS",
+  "observed_failure": "BC completed grasp/lift/carry but final object outside tray without bottom support; PPO candidate regressed before grasp",
+  "causal_explanation": "Not established by this pilot; raw actions and contact traces retained",
+  "limitations": [
+    "Privileged simulator observations; this is not visual or hardware deployment",
+    "Small fixed-base development scenes; no mobile kitchen or broad mastery claim",
+    "Scripted BC expert baseline is distinct from scratch PPO and from learned rollouts",
+    "No exact update-level post-reboot PPO continuation; interrupted attempts retained separately",
+    "Two matched development conditions are not a sealed final test"
+  ]
+}
