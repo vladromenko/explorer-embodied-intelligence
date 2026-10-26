@@ -54,6 +54,7 @@ function bootstrap(route) {
     setTimeout: (fn, ms) => { timeouts.push({ fn, ms }); return timeouts.length; }, clearTimeout() {},
     requestAnimationFrame: fn => frames.push(fn), scrollTo() {},
     addEventListener(name, fn) { const list = events.get(name) || []; list.push(fn); events.set(name, list); },
+    removeEventListener(name, fn) { events.set(name,(events.get(name) || []).filter(value=>value!==fn)); },
     fetch: async (url, options = {}) => {
       requests.push({ url, method: options.method || "GET", options });
       if (options.method && options.method !== "GET") throw new Error("No real or implicit POST permitted in bootstrap qualification");
@@ -187,6 +188,19 @@ test("uncertain native STOP preserves the login instead of discarding cleanup cr
   assert.ok(!rig.calls.some(call => call.url === "/api/logout")); assert.deepEqual(rig.assignments, []);
   assert.equal(rig.run("keyboard.stopUnconfirmed"), true);
   assert.match(rig.document.querySelector("#toast").textContent, /STOP/);
+});
+test("source evaluation logout confirms its cancellation before deleting credentials; uncertainty keeps login",async()=>{
+  for(const failure of [false,true]) {
+    const rig=await controlled(),id="b".repeat(32),previous=rig.context.fetch;
+    rig.context.fetch=async(url,options={})=>url==="/api/lab/source-evaluations" ? {ok:true,status:200,json:async()=>({models:[],attempts:[{id,status:"running",context:{},result:{phase:"awaiting_source_observed_grant"},phase:{},phases:[]}]})} : previous(url,options);
+    await rig.run("sourceEvaluation.refresh()");rig.run(`sourceEvaluation.selectAttempt("${id}")`);
+    if(failure)rig.hooks.set(`/api/jobs/${id}/cancel`,()=>{throw new Error("source STOP outcome unknown");});
+    await rig.document.querySelector("#logout-button").listeners.get("click")[0]();await pump(rig);
+    assert.ok(rig.calls.some(call=>call.url===`/api/jobs/${id}/cancel`));
+    assert.equal(rig.calls.some(call=>call.url==="/api/logout"),!failure);
+    assert.equal(rig.run("sourceEvaluation.snapshot().watching"),false);
+    if(!failure)assert.ok(rig.calls.findIndex(call=>call.url===`/api/jobs/${id}/cancel`)<rig.calls.findIndex(call=>call.url==="/api/logout"));
+  }
 });
 module.exports = { bootstrap, flush, pump, controlled };
 

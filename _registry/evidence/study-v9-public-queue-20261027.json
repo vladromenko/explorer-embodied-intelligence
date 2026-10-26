@@ -1,0 +1,77 @@
+{
+  "actual_Supervisor_bootstrap_job_runner_subprocess": true,
+  "actual_auth_CSRF": true,
+  "actual_cgroup_budget": {
+    "CPUQuota": "100%",
+    "MemoryMax": 2147483648,
+    "MemorySwapMax": 0,
+    "measured_CPU_usage_ns": 99110895000,
+    "measured_memory_peak_bytes": 1477967872,
+    "measured_swap_peak_bytes": 0,
+    "unit_exit_status": 0
+  },
+  "actual_payload_bytes": 301174250,
+  "archive_bytes": 150620160,
+  "archive_sha256": "8539784570ddecfa664f59ca7b2a97b4939549df423b658b3419e6fb8ff28fdb",
+  "dependency_closure": {
+    "frozen_benchmark": "VERIFIED",
+    "full_initial_rng_and_reset_state": "NOT_RECORDED",
+    "original_dynamics_reexecution": "UNQUALIFIED",
+    "original_runtime": "PARTIAL",
+    "recorded_required_payloads": "VERIFIED",
+    "scene_and_cad_assets": "VERIFIED"
+  },
+  "download_independent_new_PID_restore": {
+    "original_open_attempts": 0,
+    "original_path_denial_positive_control": true,
+    "pid": 2035767,
+    "restore": {
+      "benchmark_recomputed": true,
+      "completeness": "PARTIAL",
+      "file_count": 7640,
+      "inspection_sha256": "3e6ea3e0a4859b6485d4d206c06c09f758ef9f81e18ff0b9e0b462769017caa0",
+      "manifest_sha256": "7a27d6d16cf7bf00ae13c4ed7c95cb425be7b4d7af0d0f2dc452ceeed7eebdd9",
+      "original_paths_read": false,
+      "original_programs_executed": false,
+      "physical_io": false,
+      "physics_executed": false,
+      "schema": "explorer_study_independent_restore_receipt_v1",
+      "study_id": "transfer-hover-development-v9-20261026",
+      "target_optimizer_allowed": false
+    }
+  },
+  "elapsed_s": 168.92752303899033,
+  "execution_commit": "3ba6a8e3e4f8214c6224afd8d3f8dcd5bf7153a9",
+  "files": 7640,
+  "initial_launch_failure_retained": {
+    "cause": "Incorrect explicit release identifier; missing RELEASE_COMMIT rejected before any configuration/Store/output/source payload access",
+    "production_state_used": false
+  },
+  "job_id": "4a12ef97b2b94965b62aa75b71db47b0",
+  "learned_policy_executed": false,
+  "manifest_sha256": "7a27d6d16cf7bf00ae13c4ed7c95cb425be7b4d7af0d0f2dc452ceeed7eebdd9",
+  "master_prompt_completed": false,
+  "original_sha256_unchanged": true,
+  "outcomes": {
+    "v9-in-yawminus-7334": "FAILURE",
+    "v9-near-left-7332": "FAILURE",
+    "v9-newjitter-7331": "SUCCESS",
+    "v9-out-yawplus-7333": "SUCCESS"
+  },
+  "physical_IO": false,
+  "recorded_attempt_ids": [
+    "v9-newjitter-7331",
+    "v9-near-left-7332",
+    "v9-out-yawplus-7333",
+    "v9-in-yawminus-7334"
+  ],
+  "schema": "explorer_registered_study_actual_public_queue_v1",
+  "scope": "Actual registered four-attempt SCRIPTED_SIM Study in a private temporary Store; original payloads read-only; no production jobs or devices",
+  "study_id": "transfer-hover-development-v9-20261026",
+  "verification": "PARTIAL",
+  "worker_independent_root_restore_verified": true,
+  "worker_launch_count": null,
+  "worker_launch_count_scope": "No cumulative launch counter exists; durable bootstrap_admitted/worker_entry_admitted, verified pinned process exit and process_exit_code0 observed",
+  "worker_reaped": true,
+  "worker_restore_in_separate_PID": false
+}
