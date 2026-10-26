@@ -1,0 +1,35 @@
+{
+  "schema": "explorer_native_numeric_stream_qualification_v1",
+  "scope": "EXACT_ORIGINAL_RUCKIG_NUMERICAL_REPLAY_ONLY_NO_ROS_OR_DEVICES",
+  "physical_commands": 0,
+  "ROS_imported": false,
+  "servo_owner_created": false,
+  "iterations": 180,
+  "native_period_s": 0.04,
+  "native_lookahead_s": 0.08,
+  "changed_steps": 38,
+  "last_settled": true,
+  "last_position": [
+    109.20000000000002,
+    77.2000000000003,
+    96.39999999999951,
+    90.0,
+    93.19999999999999,
+    90.0
+  ],
+  "last_velocity": [
+    3.40767884106517e-17,
+    2.2332757869769432e-13,
+    -1.1133618351444349e-13,
+    0.0,
+    -5.022605852094945e-17,
+    0.0
+  ],
+  "compute_ns": 76047134,
+  "ruckig_version": "0.15.3",
+  "python_executable": "/home/vlad/Explorer/.venv/bin/python3",
+  "source_sha256": "ee5300c7731b47806201e5509e8cad69e275f4e87812fb79d91964638159fd7c",
+  "motion_config_sha256_before": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+  "motion_config_sha256_after": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+  "native_web_main_pid": "2418"
+}
