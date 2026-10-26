@@ -123,13 +123,16 @@ class Store:
                 raise ValueError('Only a terminal failed/cancelled data import can be retried')
             child=db.execute("SELECT * FROM jobs WHERE json_extract(config,'$.retry_of_job_id')=? ORDER BY created DESC LIMIT 1",(job_id,)).fetchone()
             if child:return self.decode_job(child)
-            settings=json.loads(old['config']);settings.pop('_execution_commit',None)
+            original_settings=json.loads(old['config'])
+            projected=self.experiment_projection.identity(db,'job',old['id'],old['project_id'],declared_version=original_settings.get('experiment_numbering_version'))
+            from .experiment_projection import project_document
+            settings=project_document(original_settings,numbering_version=projected.get('original_numbering_version',1))
+            for key in ('_execution_commit','_gpu_binding_sha256','_policy_runtime_binding_sha256'):settings.pop(key,None)
             settings['retry_of_job_id']=job_id
             ident=uuid.uuid4().hex;now=time.time()
             db.execute('INSERT INTO jobs(id,kind,project_id,status,created,updated,config) VALUES (?,?,?,?,?,?,?)',
                 (ident,old['kind'],old['project_id'],'queued',now,now,json.dumps(settings)))
             from .experiment_projection import record_runtime_identity
-            projected=self.experiment_projection.identity(db,'job',old['id'],old['project_id'],declared_version=settings.get('experiment_numbering_version'))
             settings['source_numbering_version']=projected.get('original_numbering_version',1)
             settings['experiment_numbering_version']=2
             settings['experiment_slug']=projected.get('experiment_slug')
@@ -189,7 +192,8 @@ class Store:
                 terminal=saved['payload']['status']
             else:
                 projected=self.experiment_projection.identity(db,'job',job_id,row['project_id'],declared_version=json.loads(row['config']).get('experiment_numbering_version'))
-                body=event('nx',projected['project_id'],{'kind':'job.finalized','job_id':job_id,'status':terminal,'result':result},run_id=job_id)
+                body=event('nx',projected['project_id'],{'kind':'job.finalized','job_id':job_id,'status':terminal,'result':result,
+                    'experiment_numbering_version':projected.get('original_numbering_version',1)},run_id=job_id)
                 body['event_id']=ident
                 db.execute('INSERT INTO events VALUES (?,?,?,?,?)',(ident,'nx',time.time(),body['sha256'],canonical(body).decode()))
             db.execute('UPDATE jobs SET status=?,progress=?,result=?,error=NULL,updated=? WHERE id=?',
@@ -269,12 +273,17 @@ class Store:
             from .experiment_projection import record_runtime_identity
             project=card.get('project_id',card.get('owner_experiment'))
             parent=card.get('lineage',{}).get('job_id')
-            if project is None and parent:
+            projected=None
+            if parent:
                 row=db.execute('SELECT project_id,config FROM jobs WHERE id=?',(parent,)).fetchone()
                 if row:
                     projected=self.experiment_projection.identity(db,'job',parent,row['project_id'],declared_version=json.loads(row['config']).get('experiment_numbering_version'))
-                    project=projected.get('experiment_slug',projected['project_id'])
-            if project is not None:record_runtime_identity(db,'skill',card['id'],project,numbering_version=card.get('experiment_numbering_version',2))
+            epoch=card.get('experiment_numbering_version',(projected or {}).get('original_numbering_version',2))
+            if project is None and projected:project=projected.get('experiment_slug',projected['project_id'])
+            if project is not None:
+                from explorer_shared.experiments import experiment_slug
+                if projected and experiment_slug(project,numbering_version=epoch)!=projected.get('experiment_slug'):raise ValueError('SkillCard experiment conflicts with its immutable parent lineage')
+                record_runtime_identity(db,'skill',card['id'],project,numbering_version=epoch)
 
     def skills(self):
         with self.connect() as db:

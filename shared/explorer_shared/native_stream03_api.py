@@ -75,7 +75,7 @@ def mount_native_stream_api(app, mux, *, token, observed_test_permit=lambda:Fals
 
         @app.post('/api/explorer/retarget/activation/revoke')
         def activation_revoke(request:Request,body:dict):
-            authenticate(request);return activation.revoke('EXPLICIT_OPERATOR_REVOKE')
+            authenticate(request);return activation.revoke('EXPLICIT_OPERATOR_REVOKE',expected_authorization_id=body.get('expected_authorization_id'))
 
     @app.get('/api/explorer/retarget/dispatch')
     def dispatch(request:Request, after_sequence:int=0):

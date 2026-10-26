@@ -976,6 +976,9 @@ def make_handler(agent):
                 elif retarget:
                     self._json(200, agent.retarget_command(path.removeprefix('/arm-retarget/'), payload))
                 elif station:
+                    if path=='/station/record/stage':
+                        self._json(200,agent.station.record_stage(payload))
+                        return
                     if path == '/station/stop' and agent.mode == 'pi':
                         agent.arm_retarget.stop()
                     direct = agent.arm_retarget.status() if agent.mode == 'pi' else {}

@@ -103,6 +103,17 @@ def test_challenge_expiry_changed_hash_and_missing_user_test_confirmation_are_re
     assert not gate.allowed() and arm.calls==[]
 
 
+def test_late_web_revoke_for_old_authorization_does_not_revoke_a_new_explicit_session(tmp_path):
+    client,gate,mux,teleop,arm,tick,jpeg=fixture(tmp_path)
+    with client:
+        old,_=authorize(client);new,_=authorize(client)
+        assert old['authorization_id']!=new['authorization_id']
+        response=client.post('/api/explorer/retarget/activation/revoke',headers={'Authorization':'Bearer '+TOKEN},json={'expected_authorization_id':old['authorization_id']})
+        assert response.status_code==200 and response.json()['revoked'] is False
+        assert gate.status()['authorization_id']==new['authorization_id'] and gate.allowed()
+    assert not arm.publications and not teleop.native_drive
+
+
 def test_status_during_recenter_transition_cannot_revoke_new_clutched_epoch(tmp_path):
     client,gate,mux,teleop,arm,tick,jpeg=fixture(tmp_path)
     with client:auth,_=authorize(client)

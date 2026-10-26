@@ -95,7 +95,7 @@ class ExperimentProjection:
                 current=canonical_experiment(original,numbering_version=epoch);slug=experiment_slug(original,numbering_version=epoch)
         except ValueError:return dict(project_id=original,experiment_numbering_version=epoch)
         result=dict(project_id=current,experiment_slug=slug,experiment_numbering_version=2,original_numbering_version=epoch)
-        if current!=original:result.update(legacy_experiment_id=original,original_numbering_version=epoch)
+        if original is not None and current!=original:result.update(legacy_experiment_id=original,original_numbering_version=epoch)
         return result
 
 

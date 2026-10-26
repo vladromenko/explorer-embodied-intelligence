@@ -73,7 +73,7 @@ function bootstrap(route) {
     run: source => vm.runInContext(source, context) };
 }
 
-for (const route of ["/", "/experiments/01", "/experiments/02", "/experiments/03", "/experiments/04", "/experiments/06", "/learning/so101"]) {
+for (const route of ["/", "/experiments/01", "/experiments/02", "/experiments/03", "/experiments/04", "/experiments/05", "/experiments/06", "/learning/so101", "/evening"]) {
   test(`actual deferred browser module graph bootstraps ${route} without implicit control requests`, async () => {
     const rig = bootstrap(route); await flush();
     assert.equal(rig.run("model.error"), null);
@@ -107,6 +107,7 @@ async function controlled() {
   rig.calls = []; rig.hooks = new Map();
   const original = rig.context.fetch;
   rig.context.fetch = async (url, options = {}) => {
+    if(url==="/api/robot/explorer/retarget/activation/status")return {ok:true,status:200,json:async()=>({execution_permission:rig.permissionDenied!==true,authorization_id:"explicit-software-fixture-grant",input_mode:rig.run('manualInputOwner?.owner === "gamepad" ? "browser_gamepad" : "keyboard"'),chassis_motion_allowed:false})};
     if (options.method === "POST") {
       const call = { url, operation: url.split("/").at(-1), body: JSON.parse(options.body || "{}"), options };
       rig.calls.push(call);
@@ -120,6 +121,11 @@ async function controlled() {
   await rig.run("browserGamepad.select(0)");
   return rig;
 }
+test("missing observed permission blocks the actual browser graph before native select or resume",async()=>{
+  const rig=await controlled();rig.permissionDenied=true;
+  assert.equal((await started(rig,"keyboard")).status,"rejected");
+  assert.ok(!rig.calls.some(row=>["select","resume"].includes(row.operation)));
+});
 function started(rig, name) {
   return rig.run(name === "keyboard" ? "keyboard.start()" : "browserGamepad.connect()").then(
     () => ({ status: "fulfilled" }), error => ({ status: "rejected", error }));

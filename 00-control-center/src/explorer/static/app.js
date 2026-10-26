@@ -118,6 +118,19 @@ async function api(path, options = {}) {
   return response.status === 204 ? {} : response.json();
 }
 const post = (path, body = {}, options = {}) => api(path, { method: "POST", body: JSON.stringify(body), ...options });
+const observedNative = createObservedNativeClient({api,now:()=>performance.now(),
+  createURL:blob=>URL.createObjectURL(blob),revokeURL:url=>URL.revokeObjectURL(url),
+  decode:async url=>{const image=document.createElement("img");image.src=url;await image.decode();},
+  frame:async id=>{
+    const response=await fetch(`/api/native-activation/frame/${encodeURIComponent(id)}`,{credentials:"same-origin",cache:"no-store"});
+    if(!response.ok)throw new Error("Точный native-кадр недоступен; обновите запрос");
+    const bytes=await response.arrayBuffer();
+    if(bytes.byteLength>2*1024**2 || !window.crypto?.subtle)throw new Error("Нужен HTTPS и проверяемый ограниченный JPEG");
+    const checksum=Array.from(new Uint8Array(await window.crypto.subtle.digest("SHA-256",bytes)),b=>b.toString(16).padStart(2,"0")).join("");
+    if(checksum!==response.headers.get("X-JPEG-SHA256"))throw new Error("Контрольная сумма native-кадра не совпала");
+    return {blob:new Blob([bytes],{type:"image/jpeg"}),sha256:checksum,frame_id:response.headers.get("X-Frame-ID"),boot_id:response.headers.get("X-Boot-ID")};
+  },onChange:()=>{if(path()==="/evening"||rosmasterDemonstrationRoute()){model.forceRender=true;render();}}
+});
 function toast(message, error = false) {
   const node = document.querySelector("#toast");
   clearTimeout(toastTimeout); node.textContent = message; node.classList.toggle("error", error); node.hidden = false;
@@ -129,7 +142,7 @@ function navigate(url) { if (path() !== url && (stationLab.owned || stationLab.p
 
 function navigation() {
   const item = (href, label, symbol, ordinal) => `<a href="${href}" data-link class="nav-item ${path() === href ? "active" : ""}" ${path() === href ? 'aria-current="page"' : ""}>${ordinal ? `<span class="nav-number">${ordinal}</span>` : icon(symbol, "nav-icon")}<span>${label}</span></a>`;
-  document.querySelector("#navigation").innerHTML = item("/", "Обзор станции", "overview") + '<div class="nav-section-label">Исследовательские опыты</div>' + PROJECTS.map((project) => item(`/experiments/${project.id}`, ["Автономное обучение", "Обучение ROSMASTER", "Leader → ROSMASTER", "Две руки LeRobot", "Совместная передача", "Перенос навыков"][Number(project.id) - 1], "", project.id)).join("") + '<div class="nav-divider"></div>' + item("/research", "Исследования", "research") + item("/skills", "Библиотека навыков", "skills") + item("/infrastructure", "Оборудование", "server");
+  document.querySelector("#navigation").innerHTML = item("/", "Обзор станции", "overview") + '<div class="nav-section-label">Исследовательские опыты</div>' + PROJECTS.map((project) => item(`/experiments/${project.id}`, ["Автономное обучение", "Обучение ROSMASTER", "Leader → ROSMASTER", "Две руки LeRobot", "Совместная передача", "Перенос навыков"][Number(project.id) - 1], "", project.id)).join("") + '<div class="nav-divider"></div>' + item("/research", "Исследования", "research") + item("/skills", "Библиотека навыков", "skills") + item("/infrastructure", "Оборудование", "server") + item("/evening", "Наблюдаемая проверка", "check");
 }
 
 function nodes() { return array(model.state?.nodes); }
@@ -241,7 +254,8 @@ function syncCamera() {
 }
 
 function filterManualKeysForCurrentOwnerConstraints(keys) {
-  // The current owner's explicit ban applies even before the first state reply.
+  // Prohibited by default; only a current native observed-session grant opens it.
+  if(observedNative.chassisAllowed())return keys;
   return keys.filter(key => !["KeyW", "KeyS", "KeyA", "KeyD", "KeyQ", "KeyE"].includes(key));
 }
 function rosmasterCameraReady() {
@@ -286,9 +300,9 @@ const browserGamepad = ExplorerBrowserGamepad.install({
   cameraReady: rosmasterCameraReady, now: () => performance.now(), post,
   controls: async () => { await loadRobot(); return model.robot.controls; }, nativeState: () => model.robot.teleop || {},
   claim: () => claimManualInput("gamepad"), ownershipCurrent: ownsManualInput,
-  beforeConnect: async token => { await stopKeyboard(true); await waitManualIdle(keyboard, token); if (keyboard.stopUnconfirmed) throw new Error("STOP клавиатуры не подтверждён."); },
+  beforeConnect: async token => { await stopKeyboard(true); await waitManualIdle(keyboard, token); if (keyboard.stopUnconfirmed) throw new Error("STOP клавиатуры не подтверждён."); await observedNative.requirePermission("browser_gamepad"); },
   filterKeys: filterManualKeysForCurrentOwnerConstraints,
-  chassisProhibited: () => true,
+  chassisProhibited: () => !observedNative.chassisAllowed(),
   render: () => { model.forceRender = true; render(); }, error: message => toast(message, true)
 });
 keyboard.options = {
@@ -300,6 +314,7 @@ keyboard.options = {
     if (!await manualPreview.ensureFresh()) throw new Error("Дождитесь свежих кадров ROSMASTER.");
     if (!model.robot.controls) await loadRobot();
     if (!ExplorerBrowserGamepad.qualifiedControls(model.robot.controls)) throw new Error("Штатная раскладка explorer-manual-v2 не подтверждена.");
+    await observedNative.requirePermission("keyboard");
   },
   changed: () => { if (rosmasterDemonstrationRoute()) { model.forceRender = true; render(); } }
 };
@@ -421,12 +436,12 @@ function experiment02Page(project) {
   const jobs = model.jobs.filter(job => ["02", "03"].includes(projectId(job.project_id)));
   const teaching = demonstrationTeaching(), active = teaching.active;
   const status = active ? `Идёт запись · ${text(active.name, active.id)}` : "Запись остановлена";
-  const guide = leader ? `<section class="panel spaced-section"><div class="panel-heading"><h2>Leader → рука · клавиатура → база</h2></div><div class="panel-body keyboard-guide"><p>Рука ROSMASTER получает команды от измеряемого SO-101 leader. Recenter задаёт видимый новый epoch относительно текущей командной оценки цели.</p><p><kbd>W</kbd>/<kbd>S</kbd> вперёд/назад, <kbd>A</kbd>/<kbd>D</kbd> mecanum, <kbd>Q</kbd>/<kbd>E</kbd> поворот. Шасси сейчас не двигать: клавиши базы заблокированы.</p><p><kbd>Space</kbd>/<kbd>Esc</kbd> — STOP. Ручное зеркало не создаёт датасет.</p></div></section>` : ExplorerBrowserGamepad.keyboardGuide(model.robot.controls || {});
+  const guide = leader ? `<section class="panel spaced-section"><div class="panel-heading"><h2>Leader → рука · клавиатура → база</h2></div><div class="panel-body keyboard-guide"><p>Рука ROSMASTER получает команды от измеряемого SO-101 leader. Recenter задаёт видимый новый epoch относительно текущей командной оценки цели.</p><p><kbd>W</kbd>/<kbd>S</kbd> вперёд/назад, <kbd>A</kbd>/<kbd>D</kbd> mecanum, <kbd>Q</kbd>/<kbd>E</kbd> поворот. ${observedNative.chassisAllowed() ? "Разрешён отдельный наблюдаемый тест базы; удерживайте кнопку передачи движений." : "Клавиши базы заблокированы до отдельного разрешения наблюдаемого теста."}</p><p><kbd>Space</kbd>/<kbd>Esc</kbd> — STOP. Ручное зеркало не создаёт датасет.</p></div></section>` : ExplorerBrowserGamepad.keyboardGuide(model.robot.controls || {});
   const modes = leader ? `<section class="panel"><div class="panel-heading"><h2>Источник показа · SO-101 leader</h2></div><div class="panel-body"><div class="teleop-actions"><button class="button ${direct03.demoMode !== "record" ? "primary" : "secondary"}" type="button" data-action="direct03-mode" data-demo-mode="mirror">Зеркало · без записи</button><button class="button ${direct03.demoMode === "record" ? "primary" : "secondary"}" type="button" data-action="direct03-mode" data-demo-mode="record">Запись показа для обучения</button></div><p>Обучение, проверка и модели общие с опытом 02. Отличается только способ управления рукой во время демонстрации.</p></div></section>` : "";
   const controls = leader ? modes + direct03Panel() : keyboardPanel() + ExplorerBrowserGamepad.panel(browserGamepad.status());
   const recordPanel = !leader || direct03.demoMode === "record" ? `<div class="spaced-section">${episodePanel()}${episodeStagePanel()}</div>` : notice("Зеркало без обучения", "Включение ручного контура не создаёт эпизод. Для демонстраций выберите режим записи и подтверждённую версию навыка.");
   return heading("Обучение ROSMASTER", "Единый мобильный манипулятор: восприятие, база, рука и захват. Общие 9D данные, охват показов, обучение и версии навыка.", `Исследовательский опыт / ${project.id}`) +
-    notice("Шасси физически не двигать", "Действует запрет владельца. Направления базы блокируются; исходные настройки штатного исполнителя сохранены. Движение рук — только в отдельной проверке под наблюдением пользователя.") +
+    notice(observedNative.chassisAllowed()?"Наблюдаемый тест шасси разрешён":"Шасси по умолчанию заблокировано", "Любое движение — только в отдельной проверке под текущим наблюдением пользователя. Исходные настройки штатного исполнителя сохранены.") + '<a class="button secondary" href="/evening" data-link>Открыть мастер наблюдаемой сессии</a>' +
     `<div class="experiment02-layout"><aside class="experiment02-aside"><div id="camera-slot"></div><div class="manual-session-status" role="status"><strong>${esc(status)}</strong><span id="manual-camera-status">${rosmasterCameraReady() ? "Свежие кадры ROSMASTER получены" : "Ожидаем свежий кадр ROSMASTER"}</span><span>Предпросмотр ≈ 5 кадров/с; исходная запись сохраняет свою частоту.</span></div>${guide}${leader ? `<section class="panel spaced-section"><div class="panel-heading"><h3>Измерения leader</h3></div><div class="panel-body">${stationMeasurements(true)}</div></section>` : ""}</aside><div class="experiment02-workflow">` +
     controls + skillWorkflowPanel() + recordPanel +
     `<div class="spaced-section">${mobileEvidencePanel(mobileEvidence.snapshot(), {preview: manualPreview.state(), teaching})}</div><div class="spaced-section">${jobsPanel(jobs, "Обучение и проверка ROSMASTER")}</div><div class="spaced-section">${recordingsPanel(project.id)}</div></div></div>`;
@@ -590,6 +605,14 @@ function recordingsPanel(project) {
   return `<section class="panel"><div class="panel-heading"><div><h2>Сохранённые наблюдения</h2><p>Видео сцены — отдельный тип исследовательского материала</p></div><button type="button" class="button secondary small" data-action="record" ${project ? `data-project="${project}"` : ""}>${icon("record")}Записать</button></div><div class="panel-body">${list.length ? `<div class="recording-list">${list.slice(0, 12).map((entry) => `<article class="recording-row"><div><h3>${esc(text(entry.title, text(entry.id, entry.recording_id || "Наблюдение")))}</h3><p>${esc(cameraLabel(cameras().find((camera) => camera.id === (entry.camera_id || entry.config?.camera_id)) || { id: entry.camera_id || entry.config?.camera_id }))} · ${esc(dateTime(entry.created_at || entry.wall_utc || entry.created))}${number(defined(entry.duration_s, entry.config?.duration_s)) !== null ? ` · ${defined(entry.duration_s, entry.config?.duration_s)} с` : ""}</p><div class="recording-label">Запись камеры · обучающий эпизод не подтверждён</div></div>${badge(entry.status || "not_validated")}</article>`).join("")}</div>` : empty("Записей пока нет", "Сохраните короткое наблюдение с выбранной камеры. Готовая запись появится здесь.", "camera")}</div></section>`;
 }
 function labPage() { return stationPage(SO101_SOURCE_PROJECT); }
+function eveningPage() {
+  const labels={READY:"Готово",PHYSICAL_ACTION:"Действие пользователя",SOFTWARE_BLOCKER:"Доработка Homebrain"};
+  const checks=array(model.evening?.checks);
+  return heading("Подготовка наблюдаемой проверки","Текущее состояние, понятные физические действия и оставшаяся работа Homebrain. Исходная задача остаётся активной.","Explorer / Вечерняя проверка")+
+    `<section class="panel"><div class="panel-heading"><h2>Что уже готово и что требуется</h2></div><div class="panel-body">${checks.length?checks.map(row=>`<article class="recording-row"><h3>${esc(row.title)} · ${esc(labels[row.status]||row.status)}</h3><p>${esc(row.detail)}</p></article>`).join(""):"<p>Обновляем фактическое состояние backend…</p>"}<p>Код, очереди и API не заменяют успешное выполнение задачи. Непроверенные физические результаты и гипотезы остаются открытыми.</p></div></section>`+
+    observedNativePanel(observedNative.snapshot())+
+    `<section class="panel spaced-section"><div class="panel-heading"><h2>После подготовки</h2></div><div class="panel-body"><a class="button secondary" data-link href="/experiments/02">02 · Клавиатура и геймпад</a> <a class="button secondary" data-link href="/experiments/03">03 · Зеркало и показ ROSMASTER</a> <a class="button secondary" data-link href="${SO101_SOURCE_ROUTE}">04 · Показ и обучение SO101</a> <a class="button secondary" data-link href="${TRANSFER_ROUTE}">06 · Перенос навыка</a><p>Сначала проверяйте входы геймпада без подключения управления. Запись, обучение, shadow и физический запуск выполняются отдельными явными действиями.</p></div></section>`;
+}
 
 function updateHeader() {
   const online = nodes().filter((node) => node.online === true).length; const total = nodes().length;
@@ -613,6 +636,7 @@ function render() {
   else if (route === "/research") { title = "Исследования"; markup = researchPage(); }
   else if (route === "/skills") { title = "Библиотека навыков"; markup = skillsPage(); }
   else if (route === "/infrastructure") { title = "Оборудование"; markup = infrastructurePage(); }
+  else if (route === "/evening") { title = "Наблюдаемая проверка"; markup = eveningPage(); }
   else if (route === "/learning/so101") { title = "Моя лаборатория"; markup = labPage(); }
   else if (route === "/") markup = dashboard();
   else markup = heading("Раздел не найден", "Вернитесь к обзору станции или выберите опыт в меню.") + '<a href="/" class="button primary" data-link>Открыть обзор</a>';
@@ -667,6 +691,7 @@ async function refresh(forceExtras = false) {
       }
     }
     if (activeProject()?.id === "01" && (forceExtras || Date.now() - worldLearning.lastLoad > 20000)) await refreshWorldDatasets();
+    if(path()==="/evening")model.evening=await api("/api/evening");
     if (stationRoute()) await pollStation(forceExtras);
     if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path())) await labVision.refresh(forceExtras);
     if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path()) && (forceExtras || Date.now() - labSkillsLoadedAt > 15000)) { labSkillsLoadedAt = Date.now(); await labSkills.refresh(); }
@@ -723,7 +748,7 @@ dialog.addEventListener("cancel", (event) => { if (record.busy) event.preventDef
 
 document.addEventListener("click", async (event) => {
   const link = event.target.closest("a[data-link]");
-  if (link && !event.metaKey && !event.ctrlKey && !event.shiftKey && event.button === 0) { event.preventDefault(); model.forceRender = true; navigate(link.getAttribute("href")); return; }
+  if (link && !event.metaKey && !event.ctrlKey && !event.shiftKey && event.button === 0) { event.preventDefault(); observedNative.cancelPending(); model.forceRender = true; navigate(link.getAttribute("href")); return; }
   const button = event.target.closest("button");
   if (!button || button.disabled) return;
   const action = button.dataset.action;
@@ -863,6 +888,27 @@ document.querySelector("#logout-button").addEventListener("click", async () => {
 });
 window.addEventListener("popstate", () => { if ((keyboard.active || keyboard.starting) && path() !== "/experiments/02") stopKeyboard(true); model.forceRender = true; render(); });
 window.addEventListener("blur", () => { if (keyboard.active || keyboard.starting) stopKeyboard(true); });
+window.addEventListener("blur", () => {const owned=observedNative.snapshot().activation?.execution_permission;observedNative.cancelPending();if(owned)void observedNative.revoke().catch(error=>toast(error.message,true));});
+window.addEventListener("pagehide", () => {if(observedNative.snapshot().activation?.execution_permission)void observedNative.revoke().catch(()=>{});else observedNative.cancelPending();});
+document.addEventListener("change", event=>{
+  if(event.target.dataset?.observedConfirm)observedNative.configure({confirmations:{[event.target.dataset.observedConfirm]:event.target.checked}});
+  if(event.target.dataset?.observedField)observedNative.configure({[event.target.dataset.observedField]:event.target.checked});
+  if(event.target.matches?.("[data-observed-mode]"))observedNative.configure({inputMode:event.target.value});
+});
+document.addEventListener("click",async event=>{
+  const button=event.target.closest?.("button[data-observed-action],button[data-observed-capture]");
+  if(!button||button.disabled)return;
+  button.disabled=true;
+  try{
+    if(button.dataset.observedCapture)await observedNative.capture(button.dataset.observedCapture);
+    else{
+      const operations={refresh:()=>observedNative.refresh(),freeze:()=>observedNative.freeze(),authorize:()=>observedNative.authorize(),revoke:()=>observedNative.revoke(),home:()=>observedNative.home(),accept:()=>observedNative.acceptRegistration()};
+      if(!operations[button.dataset.observedAction])throw new Error("Неизвестный шаг наблюдаемой проверки");
+      await operations[button.dataset.observedAction]();
+    }
+  }catch(error){toast(error.message,true);}
+  finally{model.forceRender=true;render();}
+});
 window.addEventListener("pagehide", () => { if (keyboard.active || keyboard.starting) stopKeyboard(true); });
 window.addEventListener("focus", () => { if (rosmasterDemonstrationRoute() && !document.hidden) void manualPreview.start(); });
 document.addEventListener("focusin", (event) => { if ((keyboard.active || keyboard.starting) && event.target.closest("input,select,textarea,[contenteditable=true]")) stopKeyboard(true); });

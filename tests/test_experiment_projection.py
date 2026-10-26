@@ -135,6 +135,8 @@ def test_retry_derives_original_epoch_on_server_and_keeps_raw_parent(tmp_path):
     assert retry['project_id']=='04' and retry['original_numbering_version']==2
     assert retry['config']['source_numbering_version']==1
     assert retry['config']['experiment_numbering_version']==2
+    assert retry['config']['project_id']=='04'
+    assert retry['config']['legacy_provenance']['original_document_sha256']==digest(config)
     assert '_execution_commit' not in retry['config']
     assert store.job('failed')['config']==config
     assert store.retry_import_job('failed')['id']==retry['id']

@@ -305,6 +305,22 @@ def operator_actions():
     return {'actions':actions_required()}
 
 
+@app.get('/api/evening')
+async def evening():
+    from .evening import evening_status
+    async def probe(node_id,path):
+        node=next((row for row in CONFIG['nodes'] if row['id']==node_id),None)
+        if node is None:return dict(available=False)
+        try:
+            response=await CLIENT.get('http://'+node['host']+':'+str(node['port'])+path,headers={'Authorization':'Bearer '+node['token']})
+            return dict(available=response.is_success,body=response.json() if response.is_success else {},http_status=response.status_code)
+        except (httpx.HTTPError,ValueError):return dict(available=False)
+    names=('native','reference','source','vision')
+    values=await asyncio.gather(probe('nano','/legacy/explorer/retarget/status'),probe('nano','/legacy/explorer/retarget/reference'),
+        probe('pi','/arm-retarget/status'),probe('pi','/lab/vision/status'))
+    return evening_status(dict(zip(names,values)))
+
+
 @app.post('/api/events')
 async def ingest(request: Request):
     try:
@@ -459,7 +475,9 @@ async def mobile_capture_proxy(operation: str,request: Request):
 async def rosmaster_capture_transport(operation,request,*,project_id):
     """One capture lifecycle service; native transport differs by input owner."""
     get_allowed=operation in ('capabilities','status','recordings') or re.fullmatch(r'recordings/[0-9a-f]{32}/(manifest|download)',operation)
-    if (request.method=='GET' and not get_allowed) or (request.method=='POST' and operation not in ('start','recenter','lease','stop','record/start','record/stage','record/finish','import')):
+    post_allowed=('start','recenter','lease','stop','record/start','record/stage','record/finish','import')
+    if project_id=='03':post_allowed+=('calibration/status','calibration/preview','calibration/capture','calibration/accept')
+    if (request.method=='GET' and not get_allowed) or (request.method=='POST' and operation not in post_allowed):
         raise HTTPException(404)
     if operation=='import':
         body=await request.json()
@@ -479,6 +497,7 @@ async def rosmaster_capture_transport(operation,request,*,project_id):
         capture_intent=None;capture_id=None;review={};finishing_id=None
         if body is not None:
             if not isinstance(body,dict):raise HTTPException(400,'Direct request must be an object')
+            if operation=='calibration/capture':body['actor_id']=session_actor(request)
             context=body.pop('skill_context',None);capture_id=body.pop('skill_capture_id',None);review=body.pop('skill_review',{})
             if operation=='record/start':
                 from .skill_workflow import prepare_capture_request
@@ -681,6 +700,7 @@ async def robot_proxy(path: str, request: Request):
         review={}
         if body is not None:
             if not isinstance(body,dict):raise HTTPException(400,'Native request must be an object')
+            if path=='explorer/retarget/activation/authorize':body['actor_id']=session_actor(request)
             context=body.pop('skill_context',None)
             capture_id=body.pop('skill_capture_id',None)
             review=body.pop('skill_review',{})
@@ -740,11 +760,33 @@ async def robot_proxy(path: str, request: Request):
         raise HTTPException(400,str(error)) from error
 
 
+def session_actor(request):
+    return 'authenticated-session:'+hashlib.sha256(request.cookies.get('explorer_session','').encode()).hexdigest()[:24]
+
+
+@app.get('/api/native-activation/frame/{challenge_id}')
+async def native_activation_frame(challenge_id: str,request: Request):
+    if not re.fullmatch('[0-9a-f]{32}',challenge_id) or request.url.query:raise HTTPException(400,'Exact native observed challenge required')
+    node=next((row for row in CONFIG['nodes'] if row['id']=='nano'),None)
+    if node is None:raise HTTPException(503,'Nano is not configured')
+    try:
+        response=await CLIENT.get('http://'+node['host']+':'+str(node['port'])+'/native-activation/frame/'+challenge_id,
+            headers={'Authorization':'Bearer '+node['token']})
+        if not response.is_success:raise HTTPException(response.status_code,'Pinned native observed frame unavailable; refresh the challenge')
+        jpeg=response.content;checksum=response.headers.get('X-JPEG-SHA256')
+        if (len(jpeg)>2*1024**2 or not jpeg.startswith(b'\xff\xd8') or not jpeg.endswith(b'\xff\xd9') or
+                hashlib.sha256(jpeg).hexdigest()!=checksum):raise HTTPException(503,'Pinned native JPEG checksum mismatch')
+        names=('X-JPEG-SHA256','X-Frame-ID','X-Monotonic-NS','X-Boot-ID')
+        if not all(response.headers.get(name) for name in names):raise HTTPException(503,'Native frame identity headers missing')
+        return Response(jpeg,media_type='image/jpeg',headers={name:response.headers[name] for name in names})
+    except httpx.HTTPError as error:raise HTTPException(503,'Pinned native camera unavailable') from error
+
+
 @app.api_route('/api/station/{path:path}', methods=['GET','POST'])
 async def station_proxy(path: str, request: Request):
     node = next(node for node in CONFIG['nodes'] if node['id']=='pi')
     allowed_get = {'status','recordings'}
-    allowed_post = {'teleop/start','teleop/recenter','policy/start','stop','record/start','record/finish','action'}
+    allowed_post = {'teleop/start','teleop/recenter','policy/start','stop','record/start','record/stage','record/finish','action'}
     if path not in (allowed_get if request.method=='GET' else allowed_post):
         raise HTTPException(404)
     try:
