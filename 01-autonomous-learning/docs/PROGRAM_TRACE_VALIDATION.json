@@ -1,0 +1,63 @@
+{
+  "AW0_executed": false,
+  "clock_domain": "source_mujoco_simulation_time_per_episode_not_global_monotonic",
+  "context": {
+    "exporter_source_sha256": "ebac3f8b4b7d5f5164a519db2254f7f7058baa6ff405e95a7e40960f853f4037",
+    "source_files_sha256": {
+      "/Users/vladromenko/Desktop/Explorer/_registry/private/engineering_runs/skill-cycle-20261026/jobs/1a23e3f18f7d43108a114e22a7127857/attempts/a520f79fc728496e84f4eafd67a807b9/composition/episode_000_stage0.npz": "01ef9f89ede7bcf28e9e32b6efd99089cbfad41b1f96b63224cd925cda1de0f0",
+      "/Users/vladromenko/Desktop/Explorer/_registry/private/engineering_runs/skill-cycle-20261026/jobs/1a23e3f18f7d43108a114e22a7127857/attempts/a520f79fc728496e84f4eafd67a807b9/composition/episode_000_stage1.npz": "51a92115a8c863731209f972c750728a7d7ddc9fd3896edd8b41e5a854cf58c1",
+      "/Users/vladromenko/Desktop/Explorer/_registry/private/engineering_runs/skill-cycle-20261026/jobs/1a23e3f18f7d43108a114e22a7127857/attempts/a520f79fc728496e84f4eafd67a807b9/composition/episode_001_stage0.npz": "1aed0a63fb732e660e17e234b5a478f835cfafbb807b226f22638b5f1caefe24",
+      "/Users/vladromenko/Desktop/Explorer/_registry/private/engineering_runs/skill-cycle-20261026/jobs/1a23e3f18f7d43108a114e22a7127857/attempts/a520f79fc728496e84f4eafd67a807b9/composition/episode_001_stage1.npz": "c7732daf8ee5a907c76780c6261a549c022553b8a4a83387cb328d02d5a8a04b",
+      "/Users/vladromenko/Desktop/Explorer/_registry/private/engineering_runs/skill-cycle-20261026/jobs/1a23e3f18f7d43108a114e22a7127857/attempts/a520f79fc728496e84f4eafd67a807b9/composition/summary.json": "44ac5749f9e3234ae9e8eb3054d8bf3a99ab2ca19d3eeee0b1c77f78f7a42443",
+      "/Users/vladromenko/Desktop/Explorer/_registry/private/engineering_runs/skill-cycle-20261026/jobs/1a23e3f18f7d43108a114e22a7127857/result.json": "04537958eee149be26afff146eea40cab1f50c090be8d197770d956388f39ebe"
+    },
+    "source_result_sha256": "04537958eee149be26afff146eea40cab1f50c090be8d197770d956388f39ebe"
+  },
+  "dispatched_action_basis": "simulator_command_target_not_measured_joint_position",
+  "executor_version_recognized": true,
+  "frames": 240,
+  "label_role": "offline_targets_and_analysis_only",
+  "labelled_frames": 240,
+  "library_checkpoint_hash_basis": "inherited_complete_skill_cycle_record_not_reloaded_by_exporter",
+  "neural_memory_enabled": false,
+  "output_sha256": {
+    "episode_order.json": "f713cfb9d923fdb24d844cb190986479d0ce439c6be43f48dcd0ceb9eb17db71",
+    "events.json": "a5f23837c80e5ee0f8e56c88fbd55b502bac66a1cad29eb417e38c27eb022f70",
+    "program.json": "01b4379a7690b945244ee7007e0e0b27c2824b8144aa7d58707477ba18673d91",
+    "trace.jsonl": "6118c5db505e6fcb82ee47e42fe5765e38f0c34ca3f1fbfbab3d814e2e5ff21a"
+  },
+  "physical_io": false,
+  "privileged_transition_events_not_actor_inputs": true,
+  "program_declaration_basis": "version_bound_offline_description_of_existing_executor",
+  "program_id": "23020d0c0a0a62c8cee6c6211bbbb2944deee84290580828f967a19e3ba94d87",
+  "schema": "explorer_program_trace_export_v1",
+  "source_actor_inputs_unchanged": true,
+  "source_episode_count": 2,
+  "source_originals_unchanged": true,
+  "source_outcomes": [
+    false,
+    false
+  ],
+  "source_program_predeclared": false,
+  "state_basis": "source_command_estimate",
+  "unknown_executor_mapping": false,
+  "upstream": {
+    "commit": "7ad228bebb897bf01705cc10171e1d88cf5e9b22",
+    "document": "docs/CODE_ANNOTATION.md",
+    "document_sha256": "34c44a5f90cc3d829b4dfbb812cab2074746f78d962c228636f2fd842b988424",
+    "repo": "https://github.com/ZhuoyangLiu2005/agentic-wam",
+    "route": "B_task_program"
+  },
+  "visual_annotation_performed": false,
+  "weights_loaded": false,
+  "validation": {
+    "date": "2026-10-26",
+    "source_run_id": "1a23e3f18f7d43108a114e22a7127857",
+    "private_export_directory": "/Users/vladromenko/Desktop/Explorer/_registry/private/engineering_runs/program-trace-20261026-v2",
+    "actual_receipt_sha256": "4baf4f0dc5af57e02b129d4ae04c7e730ccd5a4b55203964cfb382ac5decc107",
+    "private_export_bytes": 261108,
+    "actual_idempotent_recheck_passed": true,
+    "tests": "7 file-only tests passed;36 combined tests passed,1existing explicit pilot integration skip; actual private-source export separately verified",
+    "source_kind": "actual complete simulation skill_cycle; not synthetic fixture credit"
+  }
+}
