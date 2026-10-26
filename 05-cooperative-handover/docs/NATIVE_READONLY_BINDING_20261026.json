@@ -1,0 +1,51 @@
+{
+  "schema": "explorer_native_readonly_binding_probe_v1",
+  "captured_unix_s": 1793007797.3641682,
+  "physical_commands": 0,
+  "controller_setting_writes": 0,
+  "source_private_path": "/home/jetsonnx/.local/state/explorer-work/handover-bindings/native-readonly-probe.json",
+  "source_private_sha256": "5da58a495ecf5908a40aef91a1fc9d1304960a2dae7cb91cb82613981be4fdbf",
+  "rows": [
+    {
+      "method": "GET",
+      "path": "/legacy/arm/trajectory",
+      "status_code": 404,
+      "response_sha256": "11b6399a50cc652dc92997459b3be17d03bec06b65d28e30f19cc7523e35d1b4",
+      "fields": {
+        "error": "Operation is outside the existing manual interface"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/legacy/arm/feedback",
+      "status_code": 200,
+      "response_sha256": "128b70bbceef83d30845dc8cc8181c53aeaff532cd83ddf71856701bcffeb305",
+      "fields": {
+        "command_echo_is_measurement": false,
+        "force_measured": false,
+        "measured": {
+          "age_s": null,
+          "available": false,
+          "hardware_readback_impossible": false,
+          "reason": "NO_PUBLISHER_IN_CURRENT_ROS_GRAPH",
+          "units": "degree",
+          "values": null
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/legacy/arm/manual",
+      "status_code": 200,
+      "response_sha256": "acfa88a12a09a793d5e35685c820badb988e5013062e3a70e2bac3db12703dbf",
+      "fields": {
+        "ready": true,
+        "busy": false,
+        "estimated_only": true,
+        "reference_source": "automatic_factory_startup"
+      }
+    }
+  ],
+  "interpretation": "No measured stationary feedback, force measurement or correlated native dispatch qualification established",
+  "physical_handover_status": "NOT_VALIDATED"
+}
