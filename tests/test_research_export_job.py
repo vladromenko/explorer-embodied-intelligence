@@ -29,6 +29,12 @@ def launch(store,settings):
     return store.job(job['id'])
 
 
+def adversarial_result_sql(store, job_id, value):
+    """TEMP fixture corruption, bypassing the correct immutable terminal API."""
+    with store.connect() as db:
+        db.execute('UPDATE jobs SET result=? WHERE id=?', (json.dumps(value), job_id))
+
+
 def test_worker_real_Store_exports_registered_TAR_after_independent_restore_and_safe_download(tmp_path):
     store,source,folder=sources(tmp_path)
     with store.connect() as db:
@@ -117,7 +123,7 @@ def test_new_file_or_changed_job_row_after_enqueue_cannot_be_silently_ignored(tm
     with pytest.raises(ResearchExportBlocked,match='SOURCE_FOLDER_CHANGED'):
         run_research_export(store,job,settings)
     (folder/'late.json').unlink()
-    store.update_job(source['id'],result={'new':'revision'})
+    adversarial_result_sql(store,source['id'],{'new':'revision'})
     with pytest.raises(ResearchExportBlocked,match='SOURCE_JOBS_CHANGED'):
         run_research_export(store,job,settings)
 
@@ -179,10 +185,10 @@ def test_fixed_download_rejects_tamper_wrong_kind_wrong_path_and_symlink(tmp_pat
     with pytest.raises(ResearchExportBlocked,match='COMPLETED_RESEARCH_EXPORT'):
         download_validation(store,source['id'])
     changed=dict(result,evidence_tar_path=str(folder/'trace.json'))
-    store.update_job(job['id'],result=changed)
+    adversarial_result_sql(store,job['id'],changed)
     with pytest.raises(ResearchExportBlocked,match='PATH_INVALID'):
         download_validation(store,job['id'])
-    store.update_job(job['id'],result=result)
+    adversarial_result_sql(store,job['id'],result)
     path=Path(result['evidence_tar_path']);raw=path.read_bytes();path.write_bytes(raw+b'CHANGED')
     with pytest.raises(ResearchExportBlocked,match='SHA_OR_SIZE'):
         download_validation(store,job['id'])
@@ -208,7 +214,7 @@ def test_logical_state_symlink_keeps_historical_absolute_payload_references_usab
     data=actual/'datasets'/'legacy';data.mkdir(parents=True)
     episode=data/'episode.npz';episode.write_bytes(b'IMMUTABLE_OLD_ABSOLUTE_REFERENCE')
     manifest=data/'manifest.json';manifest.write_bytes(canonical({'source_files_sha256':{str(logical/'datasets/legacy/episode.npz'):sha(episode.read_bytes())}}))
-    store.update_job(source['id'],result=dict(dataset_manifest=str(logical/'datasets/legacy/manifest.json'),dataset_manifest_sha256=sha(manifest.read_bytes())))
+    adversarial_result_sql(store,source['id'],dict(dataset_manifest=str(logical/'datasets/legacy/manifest.json'),dataset_manifest_sha256=sha(manifest.read_bytes())))
     config=request_settings(alias_store,[source['id']]);job=launch(alias_store,config)
     result=run_research_export(alias_store,job,config)
     with tarfile.open(result['evidence_tar_path']) as archive:
