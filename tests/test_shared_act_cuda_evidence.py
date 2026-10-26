@@ -3,7 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from explorer.qualification_bindings import PIPELINES
+from explorer.qualification_bindings import V2_PIPELINES
 
 ROOT=Path(__file__).parents[1]
 
@@ -28,10 +28,11 @@ def test_actual_shared_cuda_evidence_preserves_exact_result_and_all_measured_gra
     assert receipt['runtime_identity']==before['runtime']==binding['binding']['binding']['runtime_identity']
     assert receipt['official_implementation_sha256']==before['official_implementation_sha256']
     assert receipt['official_implementation_sha256']==binding['binding']['binding']['official_implementation_sha256']
-    assert set(receipt['pipeline_source_sha256'])==set(PIPELINES['manipulation_student'])
+    # Historical exact graph2 bytes stay evidence for their original source;
+    # selection against current graph3 is independently rejected by the binder.
+    assert set(receipt['pipeline_source_sha256'])==set(V2_PIPELINES['manipulation_student'])
     recorded=result['provenance']['context']['source_sha256']
     for name,digest in receipt['pipeline_source_sha256'].items():
-        assert sha(ROOT/name)==digest
         assert any(source.endswith('/'+name) and measured==digest for source,measured in recorded.items())
     assert receipt['pipeline_graph_version']==2 and len(receipt['pipeline_source_sha256'])==14
     assert result['student']['official_saved_processors_executed'] and result['student']['parameter_device']=='cuda:0'

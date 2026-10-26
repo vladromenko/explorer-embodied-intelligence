@@ -24,12 +24,15 @@ LEGACY_PIPELINES = {
         'explorer_sim/recorded_training.py','explorer_sim/student.py','legacy/simulator/explorer_model.py',
         'legacy/simulator/environment.py','legacy/simulator/model_config.json','legacy/config/explorer.urdf','legacy/config/arm-motion.json')),
 }
-SHARED_ACT_SOURCES = ('shared/explorer_shared/learning/act_backend.py',
-                      'shared/explorer_shared/learning/artifacts.py')
-PIPELINES = {kind: names + SHARED_ACT_SOURCES for kind, names in LEGACY_PIPELINES.items()}
-PIPELINES['manipulation_student'] += ('01-autonomous-learning/src/explorer_sim/pilot.py',
+V2_SHARED_ACT_SOURCES = ('shared/explorer_shared/learning/act_backend.py',
+                         'shared/explorer_shared/learning/artifacts.py')
+CHECKPOINT_CONTROL_SOURCE='shared/explorer_shared/learning/checkpoint_control.py'
+SHARED_ACT_SOURCES=V2_SHARED_ACT_SOURCES+(CHECKPOINT_CONTROL_SOURCE,)
+V2_PIPELINES = {kind: names + V2_SHARED_ACT_SOURCES for kind, names in LEGACY_PIPELINES.items()}
+V2_PIPELINES['manipulation_student'] += ('01-autonomous-learning/src/explorer_sim/pilot.py',
                                      '01-autonomous-learning/src/explorer_sim/dataset_export.py')
-PIPELINES['train_act'] += ('01-autonomous-learning/src/explorer_sim/dataset_export.py',)
+V2_PIPELINES['train_act'] += ('01-autonomous-learning/src/explorer_sim/dataset_export.py',)
+PIPELINES={kind:names+(CHECKPOINT_CONTROL_SOURCE,) for kind,names in V2_PIPELINES.items()}
 PACKAGES = ('torch','torchvision','lerobot','numpy','mujoco')
 OFFICIAL_ACT_SOURCES = ('lerobot/policies/act/configuration_act.py',
     'lerobot/policies/act/modeling_act.py','lerobot/policies/act/processor_act.py',
@@ -122,7 +125,10 @@ def pipeline_sources(release, kind):
     student=root/'01-autonomous-learning/src/explorer_sim/student.py'
     declares_shared='explorer_shared.learning.act_backend' in student.read_text()
     shared_present=any((root/name).exists() for name in SHARED_ACT_SOURCES)
-    return PIPELINES[kind] if declares_shared or shared_present else LEGACY_PIPELINES[kind]
+    if not declares_shared and not shared_present:return LEGACY_PIPELINES[kind]
+    backend=root/V2_SHARED_ACT_SOURCES[0]
+    declares_checkpoint=backend.is_file() and 'checkpoint_control' in backend.read_text()
+    return PIPELINES[kind] if declares_checkpoint or (root/CHECKPOINT_CONTROL_SOURCE).exists() else V2_PIPELINES[kind]
 
 
 def pipeline_hashes(release,kind):
@@ -131,7 +137,8 @@ def pipeline_hashes(release,kind):
 
 
 def pipeline_graph_version(release,kind):
-    return 2 if pipeline_sources(release,kind)==PIPELINES[kind] else 1
+    selected=pipeline_sources(release,kind)
+    return 3 if selected==PIPELINES[kind] else 2 if selected==V2_PIPELINES[kind] else 1
 
 
 def _measured_official_sources(receipt,runtime):
@@ -184,6 +191,30 @@ def _qualified_sources(receipt,kind,proof=None):
     raise ValueError('This measured receipt does not qualify the selected source pipeline; backend-only is insufficient')
 
 
+def _tensor_profile(receipt,graph_version,proof=None):
+    if graph_version<3:return None
+    profile=receipt.get('qualified_tensor_profile')
+    keys={'device','precision','state_dimension','action_dimension','image_size','batch_size','chunk_size'}
+    if (not isinstance(profile,dict) or set(profile)!=keys or profile.get('device')!='cuda' or profile.get('precision')!='float32'
+            or any(type(profile.get(key)) is not int or profile[key]<1 for key in keys-{'device','precision'})
+            or profile['state_dimension']!=receipt.get('state_dimension') or profile['action_dimension']!=receipt.get('action_dimension')):
+        raise ValueError('New GPU graph requires its explicit actual measured tensor profile')
+    if proof is not None:
+        settings=proof.get('provenance',{}).get('context',{}).get('settings',{})
+        if any(settings.get(key)!=profile[key] for key in ('device','image_size','batch_size','chunk_size')):
+            raise ValueError('GPU tensor profile differs from the actual optimizer result settings')
+    return profile
+
+
+def _check_job_tensor_profile(job,profile):
+    if profile is not None:
+        config=job.get('config')
+        if not isinstance(config,dict):raise ValueError('Current GPU dispatch requires explicit typed job settings')
+        defaults={'device':'cpu','image_size':64,'batch_size':8,'chunk_size':16}
+        actual={key:config.get(key,default) for key,default in defaults.items()}
+        if any(type(actual[key]) is not int for key in ('image_size','batch_size','chunk_size')) or any(actual[key]!=profile[key] for key in actual):raise ValueError('GPU job image/batch/chunk/device exceeds or differs from its narrowly measured tensor profile')
+
+
 def _immutable(root,group,data):
     checksum=hashlib.sha256(data).hexdigest()
     folder=root/group;folder.mkdir(parents=True,exist_ok=True)
@@ -217,6 +248,7 @@ def publish_gpu_binding(qualification_path,release,kind,executable,registry_root
         raise ValueError('Pinned pipeline source differs from the actual measured qualification')
     runtime=runtime_identity(executable)
     official=_measured_official_sources(receipt,runtime)
+    profile=_tensor_profile(receipt,pipeline_graph_version(release,kind),proof)
     dimensions=receipt.get('action_dimension')
     if type(dimensions) is not int or dimensions not in (6,9) or receipt.get('state_dimension')!=dimensions:
         raise ValueError('Actual qualification must explicitly record matching six- or nine-axis state/action dimensions')
@@ -237,6 +269,7 @@ def publish_gpu_binding(qualification_path,release,kind,executable,registry_root
         'pipeline_graph_version':pipeline_graph_version(release,kind),
         'pipeline_source_sha256':expected,'runtime_identity':runtime,'qualification_receipt_sha256':receipt_id,
         **({'official_implementation_sha256':official} if official is not None else {}),
+        **({'qualified_tensor_profile':profile} if profile is not None else {}),
         'qualification_result_sha256':proof_id,'scope':receipt.get('scope'),'physical_skill_qualified':False,
         'state_dimension':dimensions,'action_dimension':dimensions,
         'binding_basis':'recorded_measured_pipeline_hashes_match_execution_source_not_latest_checkout'}
@@ -282,6 +315,9 @@ def qualified_gpu_binding(job,release,executable,registry_root,*,required_bindin
                     proof=json.loads(proof_path.read_text())
                 measured=_qualified_sources(receipt,kind,proof)
                 if any(measured.get(name)!=digest for name,digest in expected.items()):raise ValueError('Binding has no matching measured source evidence')
+                profile=_tensor_profile(receipt,graph_version,proof)
+                if profile is not None and body.get('qualified_tensor_profile')!=profile:raise ValueError('Binding tensor profile differs from measured optimizer settings')
+                _check_job_tensor_profile(job,profile)
                 return {'executable':str(Path(executable).absolute()),'binding_sha256':path.stem,
                     'binding_path':str(path),'execution_commit':release.name,'qualification_receipt_sha256':receipt_id}
             except (ValueError,KeyError,OSError) as error:errors.append(type(error).__name__+': '+str(error))

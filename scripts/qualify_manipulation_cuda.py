@@ -34,7 +34,7 @@ def qualify(root, output):
         pipeline_graph_version,publish_gpu_binding,qualified_gpu_binding)
     from explorer_shared.learning.artifacts import sha,write_json
     code=pipeline_hashes(root,'manipulation_student')
-    if pipeline_graph_version(root,'manipulation_student')!=2:raise ValueError('Current shared ACT graph required')
+    if pipeline_graph_version(root,'manipulation_student')!=3:raise ValueError('Current checkpoint-aware shared ACT graph required')
     runtime_before=runtime_identity(sys.executable)
     package=importlib.metadata.distribution('lerobot')
     names=('lerobot/policies/act/configuration_act.py','lerobot/policies/act/modeling_act.py',
@@ -61,13 +61,16 @@ def qualify(root, output):
     result_path=results[0];result=json.loads(result_path.read_text());student=result['student']
     if not (student['optimizer_steps']==8 and student['weights_changed'] and student['save_reload_passed']
             and student['official_saved_processors_executed'] and student['parameter_device'].startswith('cuda')
+            and student['parameter_dtype']=='torch.float32'
             and student['TF32_enabled'] is False and result['scripted_baseline']['successes']==1
             and result['evaluation']['n']==1 and result['evaluation']['episodes'][0]['native_replay']['within_1e_minus_9']):
         raise ValueError('Actual result does not establish narrow ACT9 CUDA path')
     receipt=dict(schema='explorer_shared_act9_cuda_qualification_v2',passed=True,
         scope='Current shared compact nine-axis official ACT CUDA; real CAD contact teacher,8updates,saved processors,independent32step RGB+command9 evaluation. Software only.',
-        qualified_job_kinds=['manipulation_student'],pipeline_graph_version=2,
+        qualified_job_kinds=['manipulation_student'],pipeline_graph_version=3,
         state_dimension=9,action_dimension=9,optimizer_steps=8,weights_changed=True,
+        qualified_tensor_profile=dict(device='cuda',precision='float32',state_dimension=9,action_dimension=9,
+            **{name:result['provenance']['context']['settings'][name] for name in ('image_size','batch_size','chunk_size')}),
         official_saved_processors_executed=True,pipeline_source_sha256=code,
         framework_versions=result['provenance']['context']['versions'],lerobot=importlib.metadata.version('lerobot'),
         runtime_identity=runtime_after,official_implementation_sha256=official,
@@ -86,7 +89,7 @@ def qualify(root, output):
                      'Own CPU/RSS cgroup does not isolate every Jetson unified GPU allocation'])
     write_json(output/'qualification.json',receipt)
     binding=publish_gpu_binding(output/'qualification.json',root,'manipulation_student',sys.executable,output/'immutable-source-bindings')
-    verified=qualified_gpu_binding({'kind':'manipulation_student'},root,sys.executable,output/'immutable-source-bindings',required_binding_sha256=binding['binding_sha256'])
+    verified=qualified_gpu_binding({'kind':'manipulation_student','config':result['provenance']['context']['settings']},root,sys.executable,output/'immutable-source-bindings',required_binding_sha256=binding['binding_sha256'])
     write_json(output/'binding-verification.json',dict(binding=binding,selected=verified,hardware_io=False))
     print(json.dumps({key:receipt[key] for key in ('passed','optimizer_steps','reload_max_abs_error',
         'process_peak_RSS_bytes','cuda_peak_allocated_bytes','cgroup_peak_memory_bytes','independent_development_successes')}))

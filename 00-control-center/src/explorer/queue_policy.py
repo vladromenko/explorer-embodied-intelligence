@@ -11,20 +11,22 @@ HEAVY_JOBS=('sim_pilot','train_act','rosmaster_skill_train','so101_skill_train',
     'manipulation','manipulation_student','manipulation_benchmark','manipulation_curriculum','mobile_manipulation',
     'manipulation_selective_repair','policy_transfer','fault_repair')
 PHYSICAL_JOBS=('station_rollout','handover_physical')
-INFERENCE_JOBS=('station_shadow','station_rollout')
+INFERENCE_JOBS=('station_shadow','station_rollout','so101_skill_shadow')
 DATA_JOBS=('station_import','mobile_import','retarget_import','camera_recording','program_trace')
 TERMINAL=('completed','failed','cancelled')
 
 
 def default_metadata(job):
     config=job.get('config') or {};heavy=job['kind'] in HEAVY_JOBS;inference=job['kind'] in INFERENCE_JOBS
-    gpu=config.get('device')=='cuda' or inference and config.get('device')!='cpu'
-    measured_compact=job['kind']=='so101_skill_train' and config.get('image_size',64)<=64 and config.get('batch_size',2)<=2
-    memory=(4 if gpu or heavy and not measured_compact else 2 if heavy else .75 if inference else .25)*GIB
-    budget=dict(cpu_cores=2 if heavy else 1,memory_bytes=int(memory),disk_bytes=int((2 if heavy else .25)*GIB),gpu_slots=int(gpu))
+    source_shadow=job['kind']=='so101_skill_shadow'
+    gpu=False if source_shadow else config.get('device')=='cuda' or inference and config.get('device')!='cpu'
+    size,batch=config.get('image_size',64),config.get('batch_size',2)
+    measured_compact=job['kind']=='so101_skill_train' and type(size) is int and 32<=size<=64 and type(batch) is int and 1<=batch<=2
+    memory=(2 if source_shadow else 4 if gpu or heavy and not measured_compact else 2 if heavy else .75 if inference else .25)*GIB
+    budget=dict(cpu_cores=2 if heavy or source_shadow else 1,memory_bytes=int(memory),disk_bytes=int((2 if heavy else .25)*GIB),gpu_slots=int(gpu))
     return dict(schema='explorer_job_scheduling_v1',job_id=job['id'],experiment_slug=job.get('experiment_slug','unresolved:'+job['project_id']),
         project_id=job['project_id'],experiment_numbering_version=2,skill_id=config.get('skill_id'),skill_version=config.get('skill_version'),
-        backend=config.get('backend','act' if job['kind'] in ('train_act','rosmaster_skill_train','so101_skill_train','manipulation_student') else None),
+        backend=config.get('backend','act' if job['kind'] in ('train_act','rosmaster_skill_train','so101_skill_train','manipulation_student','so101_skill_shadow') else None),
         dataset_sha256=config.get('aggregate_manifest_sha256',config.get('dataset_manifest_sha256')),
         priority=0,preemptible=job['kind'] in HEAVY_JOBS,dependencies=[],not_before=None,resources=budget,
         resource_budget_basis='conservative_reservation_not_measured_peak',physical_execution_authorized=False)
@@ -77,16 +79,18 @@ def queue_plan(jobs,schedules,resources,active=(),*,service_seconds=None,now=Non
     """
     now=time.time() if now is None else now;service_seconds=service_seconds or {};by_id={job['id']:job for job in jobs}
     reserve=2.5*GIB;cpu_capacity=max(1,resources['cpu_count']-min(2,max(0,resources['cpu_count']-1)))
-    cpu_used=sum(item['resources']['cpu_cores'] for item in active if not item.get('process_stopped',False))
+    # Unsupported SIGSTOP pauses retain their resource lease, including the
+    # CPU reservation needed to resume without silently exceeding concurrency.
+    cpu_used=sum(item['resources']['cpu_cores'] for item in active)
     gpu_used=sum(item['resources']['gpu_slots'] for item in active)
     growth=sum(max(0,item['resources']['memory_bytes']-max(0,item.get('resident_memory_bytes',0))) for item in active)
     memory_left=resources['available_memory_bytes']-reserve-growth;disk_left=resources['free_disk_bytes']-GIB
     waiting={};ranked=[];running_ids={item['job_id'] for item in active}
-    data_used=sum(by_id.get(item['job_id'],{}).get('kind') in DATA_JOBS for item in active if not item.get('process_stopped',False))
-    inference_used=sum(by_id.get(item['job_id'],{}).get('kind') in INFERENCE_JOBS for item in active if not item.get('process_stopped',False))
+    data_used=sum(by_id.get(item['job_id'],{}).get('kind') in DATA_JOBS for item in active)
+    inference_used=sum(by_id.get(item['job_id'],{}).get('kind') in INFERENCE_JOBS for item in active)
     for job in jobs:
         if job['status'] in ('queued','resume_requested') and job['id'] not in running_ids:
-            metadata=schedules[job['id']];age=max(0,now-job['created']);role=metadata['experiment_slug']
+            metadata=schedules[job['id']];age=metadata.get('_waiting_age_s',max(0,now-job['created']));role=metadata['experiment_slug']
             protected=30 if job['kind'] in PHYSICAL_JOBS else 20 if job['kind'] in INFERENCE_JOBS else 5 if job['kind'] in DATA_JOBS else 0
             score=protected+metadata['priority']+age/30-service_seconds.get(role,0)/30
             ranked.append((-score,job['created'],job['id'],job,metadata))
@@ -95,11 +99,14 @@ def queue_plan(jobs,schedules,resources,active=(),*,service_seconds=None,now=Non
         budget=metadata['resources'];reasons=dependency_reasons(metadata,by_id);ranking.append(identity)
         if metadata.get('not_before') is not None and now<metadata['not_before']:reasons.append('scheduled_time_not_reached')
         if budget['cpu_cores']>cpu_capacity-cpu_used:reasons.append('cpu_concurrency_budget_exhausted')
+        if budget['cpu_cores']>cpu_capacity:reasons.append('job_CPU_budget_exceeds_host_worker_pool')
         if job['kind'] in DATA_JOBS and data_used>=1:reasons.append('single_ingest_disk_network_budget_occupied')
         if job['kind'] in INFERENCE_JOBS and inference_used>=1:reasons.append('single_interactive_inference_budget_occupied')
         if budget['gpu_slots']+gpu_used>1:reasons.append('single_heavy_GPU_or_inference_slot_occupied')
         if budget['memory_bytes']>memory_left:reasons.append('available_UMA_memory_below_reserve_plus_budgets')
+        if budget['memory_bytes']+reserve>resources.get('total_memory_bytes',float('inf')):reasons.append('job_memory_budget_exceeds_host_UMA_capacity')
         if budget['disk_bytes']>disk_left:reasons.append('disk_reserve_plus_job_budget_unavailable')
+        if budget['disk_bytes']+GIB>resources.get('total_disk_bytes',float('inf')):reasons.append('job_disk_budget_exceeds_host_storage_capacity')
         if job['kind'] in HEAVY_JOBS and resources.get('load_1m',0)>=max(1,resources['cpu_count']-1):reasons.append('host_cpu_reserve_busy')
         for zone in resources.get('thermal',[]):
             trip=zone.get('existing_hot_critical_trip_c')

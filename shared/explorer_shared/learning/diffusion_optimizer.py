@@ -15,6 +15,7 @@ import torch
 from torch.utils.data import default_collate
 from .artifacts import sha,state_digest,write_json
 from . import diffusion_backend
+from . import checkpoint_control
 from .act_backend import (_plain,_resume_signature,_BatchPlan,_save_resume,_restore_rng,_rng_state)
 
 def optimize_diffusion(policy, samples, settings, folder, update, progress_start=.60, progress_end=.85,
@@ -98,6 +99,11 @@ def _optimize_diffusion_locked(policy, samples, settings, folder, update, progre
             "dataset_state": samples.resume_state_dict() if hasattr(samples, "resume_state_dict") else None})
     if signature is not None and not loaded:
         save()
+    control=checkpoint_control.OptimizerCheckpointControl(folder,'diffusion',signature,completed)
+    def validate_pause_source():
+        current,_=_resume_signature(policy,samples,settings,context,checkpoint_interval)
+        if current!=signature:raise ValueError('Diffusion source changed before durable pause')
+    control.maybe_pause(completed,save,validate_pause_source)
     for step in range(completed, settings["optimizer_steps"]):
         batch = default_collate([samples[index] for index in plan.next()])
         batch = {key: value.to(device) for key, value in batch.items()}
@@ -128,6 +134,9 @@ def _optimize_diffusion_locked(policy, samples, settings, folder, update, progre
                 update(progress_start + (progress_end - progress_start) * completed / settings["optimizer_steps"], "optimizing_official_lerobot_diffusion")
             finally:
                 _restore_rng(rng)
+        if completed==1 or checkpoint_due:control.announce('optimizing',completed)
+        control.maybe_pause(completed,save,validate_pause_source)
+    control.announce('optimizer_finished',completed)
     optimizer.explorer_resume_info = {"supported": signature is not None, "checkpoint_loaded": loaded,
         "resumed_from_step": resumed_from, "completed_steps": completed,
         "optimizer_steps_executed_this_process": completed - resumed_from,

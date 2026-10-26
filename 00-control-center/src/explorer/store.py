@@ -223,6 +223,12 @@ class Store:
             rows = db.execute('SELECT * FROM jobs ORDER BY created DESC LIMIT ?', (limit,)).fetchall()
         return [self.decode_job(row) for row in rows]
 
+    def queue_jobs(self):
+        """All nonterminal jobs plus old dependency rows, from the same jobs table."""
+        with self.connect() as db:
+            rows=db.execute("SELECT * FROM jobs WHERE status NOT IN ('completed','failed','cancelled') OR id IN (SELECT value FROM job_scheduling,json_each(metadata,'$.dependencies')) ORDER BY created").fetchall()
+        return [self.decode_job(row) for row in rows]
+
     def job(self, job_id):
         with self.connect() as db:
             row = db.execute('SELECT * FROM jobs WHERE id=?', (job_id,)).fetchone()
@@ -289,6 +295,9 @@ class Store:
         from .queue_policy import default_metadata,validate_options
         job=self.job(job_id)
         if job is None:raise ValueError('Unknown job')
+        if options is not None and not isinstance(options,dict):raise ValueError('Scheduling options must be an object')
+        if options and job['status'] in ('completed','failed','cancelled'):raise ValueError('Terminal scheduling history is immutable')
+        if options and job['status']!='queued' and set(options)&{'dependencies','not_before','resources'}:raise ValueError('Active scheduling dependencies/budgets cannot change; adjust priority/preemption only')
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE');row=db.execute('SELECT * FROM job_scheduling WHERE job_id=?',(job_id,)).fetchone()
             old=json.loads(row['metadata']) if row else default_metadata(job);old_revision=row['revision'] if row else digest(old)
@@ -329,6 +338,18 @@ class Store:
         if not isinstance(experiment_slug,str) or type(seconds) not in (int,float) or not math.isfinite(seconds) or seconds<0:raise ValueError('Finite nonnegative budget-service charge required')
         with self.connect() as db:
             db.execute('INSERT INTO scheduler_usage VALUES(?,?,?) ON CONFLICT(experiment_slug) DO UPDATE SET service_s=service_s+excluded.service_s,updated=excluded.updated',(experiment_slug,seconds,time.time()))
+
+    def claim_job_start(self,job_id):
+        with self.connect() as db:
+            return bool(db.execute("UPDATE jobs SET status='running',updated=? WHERE id=? AND status IN ('queued','resume_requested')",(time.time(),job_id)).rowcount)
+
+    def request_job_operation(self,job_id,operation):
+        from .queue_policy import PHYSICAL_JOBS
+        job=self.job(job_id);desired={'pause':'pause_requested','resume':'resume_requested','cancel':'cancel_requested'}
+        if job is None or operation not in desired or job['status'] in ('completed','failed','cancelled'):raise ValueError('Operation is not valid for this job')
+        if operation in ('pause','resume') and job['kind'] in PHYSICAL_JOBS:raise ValueError('Physical attempts require a fresh observed attempt, never pause/resume')
+        self.update_schedule_runtime(job_id,user_control_generation=uuid.uuid4().hex,user_pause_requested=operation=='pause',auto_resume=False)
+        self.update_job(job_id,status=desired[operation]);return self.job(job_id)
 
     def add_skill(self, card):
         required = {'id', 'task', 'source_type', 'action_contract', 'lineage', 'evaluation', 'status', 'limitations'}

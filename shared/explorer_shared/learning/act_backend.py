@@ -25,6 +25,7 @@ from packaging.version import Version
 
 from .artifacts import sha, state_digest, write_json
 from . import artifacts
+from . import checkpoint_control
 
 IMAGE_KEY = "observation.images.overview"
 
@@ -167,7 +168,8 @@ def _resume_signature(policy, samples, settings, context, interval):
     for item in context.get("source_files", []):
         if not Path(item["path"]).is_file() or sha(item["path"]) != item["sha256"]:
             raise ValueError("ACT resume source checksum changed: " + str(item["path"]))
-    implementations = {"act_backend": sha(__file__), "artifacts": sha(artifacts.__file__)}
+    implementations = {"act_backend": sha(__file__), "artifacts": sha(artifacts.__file__),
+                       "checkpoint_control": sha(checkpoint_control.__file__)}
     for label, cls in [("dataset", type(samples)), ("policy", type(policy))]:
         path = inspect.getsourcefile(cls)
         if path and Path(path).is_file():
@@ -282,6 +284,11 @@ def _optimize_act_locked(policy, samples, settings, folder, update, progress_sta
             "dataset_state": samples.resume_state_dict() if hasattr(samples, "resume_state_dict") else None})
     if signature is not None and not loaded:
         save()
+    control=checkpoint_control.OptimizerCheckpointControl(folder,'act',signature,completed) if signature is not None else None
+    def validate_pause_source():
+        current,_=_resume_signature(policy,samples,settings,context,checkpoint_interval)
+        if current!=signature:raise ValueError('ACT source changed before durable pause')
+    if control:control.maybe_pause(completed,save,validate_pause_source)
     for step in range(completed, settings["act_steps"]):
         batch = default_collate([samples[index] for index in plan.next()])
         batch = {key: value.to(device) for key, value in batch.items()}
@@ -312,6 +319,10 @@ def _optimize_act_locked(policy, samples, settings, folder, update, progress_sta
                 update(progress_start + (progress_end - progress_start) * completed / settings["act_steps"], "optimizing_official_lerobot_act")
             finally:
                 _restore_rng(rng)
+        if control:
+            if completed==1 or checkpoint_due:control.announce('optimizing',completed)
+            control.maybe_pause(completed,save,validate_pause_source)
+    if control:control.announce('optimizer_finished',completed)
     optimizer.explorer_resume_info = {"supported": signature is not None, "checkpoint_loaded": loaded,
         "resumed_from_step": resumed_from, "completed_steps": completed,
         "optimizer_steps_executed_this_process": completed - resumed_from,

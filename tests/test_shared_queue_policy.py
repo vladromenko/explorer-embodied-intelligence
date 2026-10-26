@@ -72,3 +72,7 @@ def test_inference_priority_fairshare_roles_and_aging_nonstarvation_are_determin
     assert plan([a,new],now=1000,edits={'old':{'priority':-10},'new':{'priority':10}})['ranked'][0]=='old'
     inference=job('shadow',role='04',kind='station_shadow')
     assert plan([job('training'),inference])['ranked'][0]=='shadow'
+    native=job('source04-shadow',role='04',kind='so101_skill_shadow')
+    budget=default_metadata(native)['resources']
+    assert budget['cpu_cores']==2 and budget['memory_bytes']==2*GIB and budget['gpu_slots']==0
+    assert plan([job('training'),native])['ranked'][0]=='source04-shadow'
