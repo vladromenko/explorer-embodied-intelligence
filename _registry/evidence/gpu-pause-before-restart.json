@@ -1,0 +1,22 @@
+{
+  "id": "3857f04346ba456290aabe521f4bd340",
+  "kind": "train_act",
+  "project_id": "personal",
+  "status": "paused",
+  "created": 1792983952.445278,
+  "updated": 1792983967.816802,
+  "config": {
+    "dataset_manifest": "/home/jetsonnx/.local/share/explorer/state/datasets/station-a7b9d1ba98bc4f0da0fdc52280727211/manifest.json",
+    "act_steps": 240,
+    "device": "cuda",
+    "optimizer_steps": 240,
+    "_execution_commit": "3c64df919148eeb2d4fb1faeb1021e34538db50c"
+  },
+  "result": {
+    "phase": "optimizing_official_lerobot_act",
+    "source": "explicit_recorded_episodes"
+  },
+  "progress": 0.1875,
+  "error": null,
+  "frame_available": true
+}

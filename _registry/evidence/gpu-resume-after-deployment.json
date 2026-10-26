@@ -1,0 +1,120 @@
+{
+  "id": "3857f04346ba456290aabe521f4bd340",
+  "kind": "train_act",
+  "project_id": "personal",
+  "status": "completed",
+  "created": 1792983952.445278,
+  "updated": 1792984641.4223638,
+  "config": {
+    "dataset_manifest": "/home/jetsonnx/.local/share/explorer/state/datasets/station-a7b9d1ba98bc4f0da0fdc52280727211/manifest.json",
+    "act_steps": 240,
+    "device": "cuda",
+    "optimizer_steps": 240,
+    "_execution_commit": "3c64df919148eeb2d4fb1faeb1021e34538db50c"
+  },
+  "result": {
+    "trained": true,
+    "algorithm": "official LeRobot ACT",
+    "official_module": "lerobot.policies.act.modeling_act",
+    "status": "trained_offline_only",
+    "source_dataset_id": "station-a7b9d1ba98bc4f0da0fdc52280727211",
+    "source_manifest_sha256": "4fb2b7a1ddfea6fbda347e32d798d85baabdc3cef5ef3a838714989a4a45d13b",
+    "source_manifest_path": "/home/jetsonnx/.local/share/explorer/state/datasets/station-a7b9d1ba98bc4f0da0fdc52280727211/manifest.json",
+    "feature_dimension": 6,
+    "state_basis": "measured_state",
+    "optimizer_steps": 240,
+    "weights_changed": true,
+    "training_resume": {
+      "supported": true,
+      "checkpoint_loaded": true,
+      "resumed_from_step": 25,
+      "completed_steps": 240,
+      "optimizer_steps_executed_this_process": 215,
+      "checkpoint_interval": 25,
+      "signature": "ce61a782feaa285f98057553495e80fdfa2ba70c0539ae7be4f07a2174544a0d",
+      "active_optimizer_elapsed_s": 40.421653842000524,
+      "non_durable_updates_may_be_replayed": true,
+      "retained_history_is_not_total_compute_across_failed_attempts": true,
+      "rng_sources": [
+        "python",
+        "numpy_global",
+        "torch_cpu",
+        "all_initialized_cuda",
+        "explicit_batch_sampler"
+      ]
+    },
+    "save_reload_passed": true,
+    "reload_max_abs_error": 0.0,
+    "checkpoint_sha256": {
+      "config.json": "5f6cec6de8606b3417a33dbbe2943d9ed137dfb05b18afd5a4d5a833871ebf20",
+      "explorer_preprocessing.json": "078d8acbe21dbf0a19e90210fb303adcc4dd5f1cfa4d71ea5f26101deef81724",
+      "model.safetensors": "f674a7404ad3d6e2924448b6883ccc987f92c394414c4dbb29329ea0690d5ad3"
+    },
+    "evaluation": {
+      "domain": "offline_demonstration_chunks",
+      "independent_episode_split": false,
+      "available": false,
+      "reason": "No development episodes supplied",
+      "physical_run_ids": []
+    },
+    "physical_io": false,
+    "simulator_executed": false,
+    "elapsed_s": 37.22095912999794,
+    "framework_versions": {
+      "torch": "2.12.0+cu132",
+      "torchvision": "0.27.0+cu132"
+    },
+    "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds",
+    "skill_card": {
+      "id": "act-offline-3857f04346ba456290aabe521f4bd340",
+      "task": "Engineering position-hold recording only; no object manipulation or expert task demonstration",
+      "source_type": "user_selected_action_labelled_episodes",
+      "status": "trained_offline_only",
+      "action_contract": {
+        "names": [
+          "shoulder_pan",
+          "shoulder_lift",
+          "elbow_flex",
+          "wrist_flex",
+          "wrist_roll",
+          "gripper"
+        ],
+        "units": [
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "calibrated_normalized_-100_100",
+          "normalized_0_100"
+        ],
+        "state_basis": "measured_state"
+      },
+      "lineage": {
+        "job_id": "3857f04346ba456290aabe521f4bd340",
+        "dataset_id": "station-a7b9d1ba98bc4f0da0fdc52280727211",
+        "source_manifest_sha256": "4fb2b7a1ddfea6fbda347e32d798d85baabdc3cef5ef3a838714989a4a45d13b",
+        "methods": [
+          "ACT_LEROBOT_0_6_1",
+          "ENGINEERING_GLUE"
+        ]
+      },
+      "evaluation": {
+        "domain": "offline_demonstration_chunks",
+        "independent_episode_split": false,
+        "available": false,
+        "reason": "No development episodes supplied",
+        "physical_run_ids": []
+      },
+      "limitations": [
+        "Offline diagnostic errors do not establish rollout success",
+        "No physical validation from this job",
+        "Sealed test episodes excluded",
+        "No robot or simulator execution"
+      ]
+    },
+    "execution_commit": "3c64df919148eeb2d4fb1faeb1021e34538db50c"
+  },
+  "progress": 1.0,
+  "error": null,
+  "frame_available": true
+}

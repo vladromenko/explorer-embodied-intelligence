@@ -1,0 +1,259 @@
+{
+  "recordings": [
+    "beffb7e30c3a4fab8c27f27af49b2b01",
+    "eb01eafe44f5420d9b5ba9e402ecdc66"
+  ],
+  "stale_finish_http": 409,
+  "no_physical_commands": true,
+  "jobs": [
+    {
+      "id": "960416999a7348bbbc4eb6b41f1c9adf",
+      "kind": "mobile_import",
+      "project_id": "02",
+      "status": "completed",
+      "created": 1792984711.5185812,
+      "updated": 1792984718.1850371,
+      "config": {
+        "episode_id": "eb01eafe44f5420d9b5ba9e402ecdc66",
+        "_execution_commit": "486b5b28f1882dff584eb4c00708478e14f21d6c"
+      },
+      "result": {
+        "episode_id": "eb01eafe44f5420d9b5ba9e402ecdc66",
+        "observation_only": true,
+        "observation_manifest": "/home/jetsonnx/.local/share/explorer/state/episodes/mobile/eb01eafe44f5420d9b5ba9e402ecdc66/episode.json",
+        "source_archive_sha256": "bf260427a452085466cdf7f1a9ef80740374dc2ea78c0ae1294a08659e827992",
+        "source_original_retained": true,
+        "physical_success_inferred": false,
+        "frames": 9,
+        "telemetry_rows": 9,
+        "state_basis": "partial_raw_observation",
+        "training_admission": {
+          "source_quality_usable": false,
+          "operator_success_label": false,
+          "physical_validation_inferred": false
+        },
+        "dataset_manifest": null,
+        "action_names": [],
+        "action_basis": null,
+        "dispatch_confirmed": false,
+        "lerobot_v3": null,
+        "qualification": {
+          "raw_rows": 9,
+          "qualified_rows": 0,
+          "causal_pairs": 0,
+          "quality": {
+            "usable": false,
+            "reasons": [
+              "legacy_quality_minimum_12_observations_and_5_seconds_not_met",
+              "legacy_quality_fewer_than_5_distinct_commands",
+              "no_strictly_future_adjacent_command_snapshot"
+            ],
+            "native_observations": 0,
+            "causal_pairs": 0,
+            "duration_s": 0,
+            "operator_success_label": false
+          },
+          "rejected_rows": [
+            {
+              "source_index": 0,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 1,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 2,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 3,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 4,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 5,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 6,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 7,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 8,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            }
+          ],
+          "excluded_pairs": [],
+          "fatal_reasons": [],
+          "rejection_counts": {
+            "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT": 9
+          }
+        },
+        "result_scope": "Raw observations plus qualified host-target labels only where available; no physical success inferred",
+        "execution_commit": "486b5b28f1882dff584eb4c00708478e14f21d6c"
+      },
+      "progress": 1.0,
+      "error": null,
+      "frame_available": false
+    },
+    {
+      "id": "37f469d8efe74c5c86438eb9118a29f8",
+      "kind": "mobile_import",
+      "project_id": "02",
+      "status": "completed",
+      "created": 1792984710.322072,
+      "updated": 1792984714.584906,
+      "config": {
+        "episode_id": "beffb7e30c3a4fab8c27f27af49b2b01",
+        "_execution_commit": "486b5b28f1882dff584eb4c00708478e14f21d6c"
+      },
+      "result": {
+        "episode_id": "beffb7e30c3a4fab8c27f27af49b2b01",
+        "observation_only": true,
+        "observation_manifest": "/home/jetsonnx/.local/share/explorer/state/episodes/mobile/beffb7e30c3a4fab8c27f27af49b2b01/episode.json",
+        "source_archive_sha256": "4999363e938187f3e8c946e45013a6dc0ed2b72dce7a34219ef0b1bc70d313a9",
+        "source_original_retained": true,
+        "physical_success_inferred": false,
+        "frames": 9,
+        "telemetry_rows": 9,
+        "state_basis": "partial_raw_observation",
+        "training_admission": {
+          "source_quality_usable": false,
+          "operator_success_label": false,
+          "physical_validation_inferred": false
+        },
+        "dataset_manifest": null,
+        "action_names": [],
+        "action_basis": null,
+        "dispatch_confirmed": false,
+        "lerobot_v3": null,
+        "qualification": {
+          "raw_rows": 9,
+          "qualified_rows": 0,
+          "causal_pairs": 0,
+          "quality": {
+            "usable": false,
+            "reasons": [
+              "legacy_quality_minimum_12_observations_and_5_seconds_not_met",
+              "legacy_quality_fewer_than_5_distinct_commands",
+              "no_strictly_future_adjacent_command_snapshot"
+            ],
+            "native_observations": 0,
+            "causal_pairs": 0,
+            "duration_s": 0,
+            "operator_success_label": false
+          },
+          "rejected_rows": [
+            {
+              "source_index": 0,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 1,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 2,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 3,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 4,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 5,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 6,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 7,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            },
+            {
+              "source_index": 8,
+              "reason": "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT"
+            }
+          ],
+          "excluded_pairs": [],
+          "fatal_reasons": [],
+          "rejection_counts": {
+            "unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT": 9
+          }
+        },
+        "result_scope": "Raw observations plus qualified host-target labels only where available; no physical success inferred",
+        "execution_commit": "486b5b28f1882dff584eb4c00708478e14f21d6c"
+      },
+      "progress": 1.0,
+      "error": null,
+      "frame_available": false
+    }
+  ],
+  "last": {
+    "elapsed_s": 2.013137383999492,
+    "finished_at": 1792984710.566553,
+    "format": "explorer_mobile_observation_episode_v1",
+    "frames": 9,
+    "id": "eb01eafe44f5420d9b5ba9e402ecdc66",
+    "joint_state_source": "unknown_arm_pose_preserved",
+    "label_source": "operator",
+    "last_frame_sha256": "3603104cb26a19c9771510fab718af3952a01785cbf56d607a380277c01e7572",
+    "last_heartbeat_at": 1792984708.5508265,
+    "last_source_status_at": 1792984710.2889705,
+    "motion_commands": 0,
+    "name": "Compute-only automatic capture B at low battery",
+    "native_9d_contract_satisfied": false,
+    "object_metadata": {},
+    "observing": false,
+    "outcome": "unknown",
+    "physical_sample_rate_hz": 5,
+    "polls": 9,
+    "project_id": "02",
+    "quality": {
+      "analysis_usable": true,
+      "captured_any_source": true,
+      "reason": "observation_only_unverified_9d_arm_action_contract",
+      "usable": false
+    },
+    "requested_duration_s": 2,
+    "samples": 9,
+    "session": "eb01eafe44f5420d9b5ba9e402ecdc66",
+    "source": "read_only_existing_mobile_cache",
+    "source_available": {
+      "arm-telemetry-fault.json": true,
+      "camera-frame.json": true,
+      "frame-raw.jpg": true,
+      "rgbd-cache-metadata.json": true,
+      "rgbd-snapshot.npz": true,
+      "status.json": true
+    },
+    "source_errors": {},
+    "source_type": "mobile_observation",
+    "stage": "observation",
+    "stage_annotations": [],
+    "started_at": 1792984708.5508265,
+    "started_wall_utc": "2026-10-26T03:18:28.550827+00:00",
+    "state": "complete",
+    "stored_bytes": 17435628,
+    "timestamp_policy": "Original source stamps retained verbatim; collector times separately labelled; no frame-stamp relabel",
+    "training_admission": {
+      "operator_success_label": false,
+      "reason": "Observation-only cache capture; native causal 9D arm/state/action contract is unverified",
+      "source_quality_usable": false
+    }
+  }
+}

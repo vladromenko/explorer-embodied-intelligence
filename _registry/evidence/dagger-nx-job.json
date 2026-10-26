@@ -1,0 +1,1011 @@
+{
+  "id": "23eb8ea681894833872cffa8023e86c6",
+  "kind": "dagger",
+  "project_id": "01",
+  "status": "completed",
+  "created": 1792985517.4496717,
+  "updated": 1792985705.4103293,
+  "config": {
+    "source_job_id": "7a2877b5c47f49acaa04c164961e7fcd",
+    "initial_act_steps": 120,
+    "act_steps": 120,
+    "device": "cpu",
+    "_execution_commit": "486b5b28f1882dff584eb4c00708478e14f21d6c"
+  },
+  "result": {
+    "task": "one_round_dagger_fixed_base_reach",
+    "status": "simulation_development_evaluated",
+    "physical_io": false,
+    "sealed_final_test": false,
+    "method_ids": [
+      "DAGGER_ROSS_2011",
+      "PPO_SB3_2_9",
+      "ACT_LEROBOT_0_6_1",
+      "EXPLORER_CAD_MUJOCO",
+      "ENGINEERING_GLUE"
+    ],
+    "source_context": {
+      "source_files_sha256": {
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0000.npz": "249ad0f2c560fb6df8996401102dd9b87efd865de93268df100c79119b8150b2",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0001.npz": "a6c2ca4532f7e9586a6f07097273c4f85987bb0dc46f418cc1df101cf1282120",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0002.npz": "d73f1de37678d0fa9f0de00980079e450860895d80cf25e8dcf85cfbb0a97b87",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0003.npz": "60c31aab6c7782fa92c3c6d26e78b083810a2ed83932214d1cc6a242668c2790",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0004.npz": "9f9fbd615ef184cc38f2fb29d81085182f519600237be413c95a858331b81e29",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0005.npz": "582042b58e07c0f1c44d552a3220cdbb2f81c0578ab7ac6af3718c1a1f541c0b",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0006.npz": "e6e942cd76a310adecee9bfa0c2a9f1be28ba886c2de5f50ed4e9924874e7a5e",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0007.npz": "3322b04f345929d88e22551e95d58ca69d67cf563f47e98a4a84a61114fcd135",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0008.npz": "ffc3c06bfe0e514254e32133ffa7659b8a43570462b3d2e74c2f74143daa9956",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0009.npz": "63cb285c01ecb6a3e84ee5a65fabc7d901ab034cfb7a75013a2096abe928daf2",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0010.npz": "4c8f2ff44b055f14b571058705de5365e7d8fc0566883710c083676290cc1438",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0011.npz": "432a87e93cfa1d8d27d627974a4b475327a3f1a0d7f1758409c50b5d888c43e0",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/result.json": "98cf528f1bc19037c45a3ea255b100283584c37c97e144fc2a24c71c02750c0a",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/teacher_ppo.zip": "13c113b77edb49c3672f2a46bdf6f3ff3308e56172693cdbe82f84ae8d3478ed",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/manifest.json": "326c2662ff8094783abc6393f99d5686d4f26daa0c7a2390018122447f0fbb32",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/provenance.json": "da11259866d351c3f4fa41ff48c5dd93beb4bbd32ddd88196265a7b29b715a8a",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/model.xml": "db8d23eadca2434f44365b86610c3e60d27d46a51482f2bd63ad7bf013f2ef56"
+      },
+      "settings": {
+        "seed": 52041,
+        "initial_act_steps": 120,
+        "act_steps": 120,
+        "collection_episodes": 4,
+        "evaluation_episodes": 6,
+        "horizon": 60,
+        "image_size": 64,
+        "chunk_size": 8,
+        "batch_size": 8,
+        "device": "cpu"
+      },
+      "seed_plan": {
+        "collection": [
+          54041,
+          54042,
+          54043,
+          54044
+        ],
+        "development": [
+          62041,
+          62042,
+          62043,
+          62044,
+          62045,
+          62046
+        ],
+        "blocked_source_seeds": [
+          41,
+          2041,
+          2042,
+          2043,
+          2044,
+          2045,
+          2046,
+          2047,
+          2048,
+          2049,
+          2050,
+          2051,
+          2052,
+          10040,
+          10041,
+          10042,
+          10043,
+          10044,
+          10045,
+          10046
+        ],
+        "collection_role": "development_training_only",
+        "evaluation_role": "engineering_development_evaluation",
+        "development_observations_fit": false,
+        "sealed_final_test": false,
+        "beta": 0.0,
+        "rounds": 1
+      },
+      "cad_mesh_sha256": {
+        "Camera.STL": "12d7158cdf2fab1072f2bd3989726e854a20d1fe717206cb7edc114afe59fdbe",
+        "DCW2.STL": "085efb1ffed33d9440071886bf1c2ce769facda5e45fd7e1ab24d4d55298d1a1",
+        "Gripping.STL": "e35ed860419dad49687084f9c8493f43c81cfece5b421d7e63944d27d22d63f7",
+        "arm1.STL": "d12f701abb74171df8ed3179b3885d10c6af2863f29d13e52bcce2d0d8933643",
+        "arm2.STL": "6ec3d8c7b02106560f61035e03a034637b988d153319d87bb50994e96728271e",
+        "arm3.STL": "74e309203df8ed80e57962a5ccc871909163cb07c1b1f6db0628233684360a98",
+        "arm4.STL": "8f74b107bdaba930ea482c95e6685d5cf5dccb3923a1e6d8b9280b7986811cda",
+        "arm5.STL": "1a52a732e4664ac3b703968416446b76d67067a78632b520d33858a80a26a281",
+        "arm_base_Link.STL": "bbd67c0a59cdbb8fd02c567e8ddff62bde72d3cae753ee63da7681f98f29871c",
+        "base_link.STL": "82897ec12100b78d8f33800edd7be19f86de3ffbc3574ed446f1d2bf04079f4a",
+        "llink1.STL": "0acf2b0ea73e9eb63e3ef9fec5637f0a151dae108ac3eed58ffd98f0062a6c9d",
+        "llink2.STL": "e356dfad82f1468a6c80e20fe127df4b7b40c395398cf5cb85a1522d9691b31c",
+        "llink3.STL": "81f1c9f5ab75d86362d7e227fda6018c87488db713bd9621f6eb761bbec3109d",
+        "lwheel1.STL": "e629352d69aaef698c948505f046fb241b1d9a7e734f0417a06dfe2d383eacfd",
+        "lwheel2.STL": "f07f85985d6c189b71d839a0d44bf3e893eacfd76dccc4f954b63d247a78ae1b",
+        "rlink1.STL": "9e3bb9c0d08d3d177e01a532d275f108f514eb4be13e857c0a596c61c32891a6",
+        "rlink2.STL": "ff22b15d51ff0d96cddcaa74b6056c9e5f88e1abe6886023a2a90ca80ec3230d",
+        "rlink3.STL": "bcf76ccbadf426c3e7ec6135f0fd09c0669b54735e7de91bbee92276b5404b25",
+        "rwheel1.STL": "7218e9bea1d0862cacd44b0a8a72e207085d367a022843bfd4e6be23f6786fff",
+        "rwheel2.STL": "f8daf44a79b1b3d5bdec95ef3885e8151f3a39f21f93c2bf2e8fcbf09d57c323"
+      },
+      "dagger_source_sha256": "29f6c1bc3bd7ad008afbc7a97c9fb09b1ca91158c77196c63b6b1bff234cf591",
+      "student_source_sha256": "ce4610c12b13ca8689fb96dee26aebb274fbb2bf8b8fd88b730b040a99e0a866",
+      "pilot_source_sha256": "45712fd7df9fc3cd27af82e0e12ed1a4d8bcb110c6b920efb718da97989cdcf0",
+      "legacy_model_source_sha256": "2c46df3f6a81a2395132cd89bc702737c088171b83d3e05bb7eb63f5b4657d87"
+    },
+    "seed_plan": {
+      "collection": [
+        54041,
+        54042,
+        54043,
+        54044
+      ],
+      "development": [
+        62041,
+        62042,
+        62043,
+        62044,
+        62045,
+        62046
+      ],
+      "blocked_source_seeds": [
+        41,
+        2041,
+        2042,
+        2043,
+        2044,
+        2045,
+        2046,
+        2047,
+        2048,
+        2049,
+        2050,
+        2051,
+        2052,
+        10040,
+        10041,
+        10042,
+        10043,
+        10044,
+        10045,
+        10046
+      ],
+      "collection_role": "development_training_only",
+      "evaluation_role": "engineering_development_evaluation",
+      "development_observations_fit": false,
+      "sealed_final_test": false,
+      "beta": 0.0,
+      "rounds": 1
+    },
+    "artifacts_dir": "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6",
+    "before": {
+      "episodes": [
+        {
+          "seed": 62041,
+          "initial_distance_m": 0.12244700482095748,
+          "distance_m": 0.08478719359567526,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            -0.08593994804257815,
+            0.03237724415122879,
+            0.5241616241833025
+          ],
+          "grasp_center_xyz": [
+            -0.007928549021984886,
+            0.007284874508894827,
+            0.5459208246836144
+          ],
+          "command9": [
+            100.33052825927734,
+            97.99827575683594,
+            87.97483825683594,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -99.0491311958548
+        },
+        {
+          "seed": 62042,
+          "initial_distance_m": 0.06470148571935855,
+          "distance_m": 0.10019430024311367,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            0.09174870393130496,
+            0.016507406234307055,
+            0.5415095501127057
+          ],
+          "grasp_center_xyz": [
+            -0.007922671790762854,
+            0.007285160780581295,
+            0.5459214489860746
+          ],
+          "command9": [
+            100.3323745727539,
+            97.99878692626953,
+            87.97286224365234,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -122.96188160341816
+        },
+        {
+          "seed": 62043,
+          "initial_distance_m": 0.04409101889151046,
+          "distance_m": 0.08174454729071234,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            0.07359924393923478,
+            0.0012263912796443548,
+            0.5457706001877615
+          ],
+          "grasp_center_xyz": [
+            -0.007920356232600236,
+            0.007284687318675034,
+            0.5459217580229194
+          ],
+          "command9": [
+            100.33230590820312,
+            97.99787902832031,
+            87.97354125976562,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -100.96972524695717
+        },
+        {
+          "seed": 62044,
+          "initial_distance_m": 0.04108133434813971,
+          "distance_m": 0.07761677382680966,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            0.06968916512300483,
+            0.008299489705514765,
+            0.5452808774041369
+          ],
+          "grasp_center_xyz": [
+            -0.00791832344119484,
+            0.007284468039983371,
+            0.5459219928837855
+          ],
+          "command9": [
+            100.33251190185547,
+            97.9977798461914,
+            87.97321319580078,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -95.93932196395124
+        },
+        {
+          "seed": 62045,
+          "initial_distance_m": 0.09822886001250195,
+          "distance_m": 0.1351726796862918,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            0.1267111610353036,
+            0.004390103888240394,
+            0.5342400780814508
+          ],
+          "grasp_center_xyz": [
+            -0.00792472667976402,
+            0.007285299986227473,
+            0.5459212129707818
+          ],
+          "command9": [
+            100.3320541381836,
+            97.99891662597656,
+            87.97314453125,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -165.03631381523678
+        },
+        {
+          "seed": 62046,
+          "initial_distance_m": 0.1255443964967158,
+          "distance_m": 0.08778368013278397,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            -0.09079997856772151,
+            0.02432680370880573,
+            0.522549505552676
+          ],
+          "grasp_center_xyz": [
+            -0.00791927230949237,
+            0.00728297306905392,
+            0.5459219436992521
+          ],
+          "command9": [
+            100.33024597167969,
+            97.9971923828125,
+            87.97415161132812,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -102.62798150751489
+        }
+      ],
+      "n": 6,
+      "successes": 0,
+      "success_rate": 0.0,
+      "mean_final_distance_m": 0.09454986246256443,
+      "physical_run_ids": [],
+      "evaluation_domain": "simulation",
+      "independent_from_training_episodes": true,
+      "split_role": "engineering_development_evaluation",
+      "sealed_final_test": false
+    },
+    "after": {
+      "episodes": [
+        {
+          "seed": 62041,
+          "initial_distance_m": 0.12244700482095748,
+          "distance_m": 0.13004668827030955,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            -0.08593994804257815,
+            0.03237724415122879,
+            0.5241616241833025
+          ],
+          "grasp_center_xyz": [
+            0.03749667822636918,
+            -0.0009327887082911393,
+            0.5479520032536954
+          ],
+          "command9": [
+            99.41505432128906,
+            93.04776000976562,
+            84.2196044921875,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -156.5972617469449
+        },
+        {
+          "seed": 62042,
+          "initial_distance_m": 0.06470148571935855,
+          "distance_m": 0.05734942594907364,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            0.09174870393130496,
+            0.016507406234307055,
+            0.5415095501127057
+          ],
+          "grasp_center_xyz": [
+            0.03749659397310712,
+            -0.0009327771712321226,
+            0.547952004967266
+          ],
+          "command9": [
+            99.41509246826172,
+            93.04778289794922,
+            84.21958923339844,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -68.42201984332532
+        },
+        {
+          "seed": 62043,
+          "initial_distance_m": 0.04409101889151046,
+          "distance_m": 0.036233112606661975,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            0.07359924393923478,
+            0.0012263912796443548,
+            0.5457706001877615
+          ],
+          "grasp_center_xyz": [
+            0.03749636221151947,
+            -0.0009327375237687701,
+            0.5479520086621006
+          ],
+          "command9": [
+            99.41507720947266,
+            93.0478286743164,
+            84.2195816040039,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -43.05276285596587
+        },
+        {
+          "seed": 62044,
+          "initial_distance_m": 0.04108133434813971,
+          "distance_m": 0.03359684381661577,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            0.06968916512300483,
+            0.008299489705514765,
+            0.5452808774041369
+          ],
+          "grasp_center_xyz": [
+            0.037496323206816624,
+            -0.0009327297139445819,
+            0.5479520135647148
+          ],
+          "command9": [
+            99.41506958007812,
+            93.04781341552734,
+            84.21961212158203,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -39.91134969420902
+        },
+        {
+          "seed": 62045,
+          "initial_distance_m": 0.09822886001250195,
+          "distance_m": 0.09041951968298279,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            0.1267111610353036,
+            0.004390103888240394,
+            0.5342400780814508
+          ],
+          "grasp_center_xyz": [
+            0.037496026994788274,
+            -0.0009326800146863697,
+            0.5479520206628992
+          ],
+          "command9": [
+            99.41505432128906,
+            93.0478515625,
+            84.2196273803711,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -108.07886347998124
+        },
+        {
+          "seed": 62046,
+          "initial_distance_m": 0.1255443964967158,
+          "distance_m": 0.13320486210603075,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            -0.09079997856772151,
+            0.02432680370880573,
+            0.522549505552676
+          ],
+          "grasp_center_xyz": [
+            0.03749732160263873,
+            -0.0009328903359112069,
+            0.5479519840626648
+          ],
+          "command9": [
+            99.41500091552734,
+            93.04769897460938,
+            84.21953582763672,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -160.39137282024683
+        }
+      ],
+      "n": 6,
+      "successes": 0,
+      "success_rate": 0.0,
+      "mean_final_distance_m": 0.08014174207194574,
+      "physical_run_ids": [],
+      "evaluation_domain": "simulation",
+      "independent_from_training_episodes": true,
+      "split_role": "engineering_development_evaluation",
+      "sealed_final_test": false
+    },
+    "privileged_teacher_reference": {
+      "episodes": [
+        {
+          "seed": 62041,
+          "initial_distance_m": 0.12244700482095748,
+          "distance_m": 0.02265460277447477,
+          "success": true,
+          "steps": 18,
+          "goal_xyz": [
+            -0.08593994804257815,
+            0.03237724415122879,
+            0.5241616241833025
+          ],
+          "grasp_center_xyz": [
+            -0.0793809041040425,
+            0.011101617673071336,
+            0.5283518136114219
+          ],
+          "command9": [
+            95.7306900024414,
+            102.74214172363281,
+            98.17256927490234,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": 1.0871418501619226
+        },
+        {
+          "seed": 62042,
+          "initial_distance_m": 0.06470148571935855,
+          "distance_m": 0.020488310746501946,
+          "success": true,
+          "steps": 4,
+          "goal_xyz": [
+            0.09174870393130496,
+            0.016507406234307055,
+            0.5415095501127057
+          ],
+          "grasp_center_xyz": [
+            0.09305831596275399,
+            -0.003931018395625093,
+            0.5420810325874099
+          ],
+          "command9": [
+            93.60107421875,
+            83.43759155273438,
+            84.6388931274414,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": 7.287944316815369
+        },
+        {
+          "seed": 62043,
+          "initial_distance_m": 0.04409101889151046,
+          "distance_m": 0.0031410517639282026,
+          "success": true,
+          "steps": 3,
+          "goal_xyz": [
+            0.07359924393923478,
+            0.0012263912796443548,
+            0.5457706001877615
+          ],
+          "grasp_center_xyz": [
+            0.07351695726901823,
+            -0.0018904090857858981,
+            0.5453898239153455
+          ],
+          "command9": [
+            92.44886016845703,
+            85.36653900146484,
+            86.5053482055664,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": 8.470845090812517
+        },
+        {
+          "seed": 62044,
+          "initial_distance_m": 0.04108133434813971,
+          "distance_m": 0.010054138476505997,
+          "success": true,
+          "steps": 3,
+          "goal_xyz": [
+            0.06968916512300483,
+            0.008299489705514765,
+            0.5452808774041369
+          ],
+          "grasp_center_xyz": [
+            0.07022035026775533,
+            -0.0017257803086107213,
+            0.5458263166680619
+          ],
+          "command9": [
+            92.41323852539062,
+            85.72823333740234,
+            86.75677490234375,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": 7.264084775853026
+        },
+        {
+          "seed": 62045,
+          "initial_distance_m": 0.09822886001250195,
+          "distance_m": 0.013015481403963594,
+          "success": true,
+          "steps": 5,
+          "goal_xyz": [
+            0.1267111610353036,
+            0.004390103888240394,
+            0.5342400780814508
+          ],
+          "grasp_center_xyz": [
+            0.1267556486268684,
+            -0.00858044802601073,
+            0.5331604670075749
+          ],
+          "command9": [
+            95.12166595458984,
+            79.93160247802734,
+            81.53113555908203,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": 10.122153256431766
+        },
+        {
+          "seed": 62046,
+          "initial_distance_m": 0.1255443964967158,
+          "distance_m": 0.021522539706666455,
+          "success": true,
+          "steps": 12,
+          "goal_xyz": [
+            -0.09079997856772151,
+            0.02432680370880573,
+            0.522549505552676
+          ],
+          "grasp_center_xyz": [
+            -0.0840350280433654,
+            0.004312853397085053,
+            0.526660095868923
+          ],
+          "command9": [
+            92.19447326660156,
+            102.85113525390625,
+            99.03390502929688,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": 5.57567543730209
+        }
+      ],
+      "n": 6,
+      "successes": 6,
+      "success_rate": 1.0,
+      "mean_final_distance_m": 0.015146020812006828,
+      "physical_run_ids": [],
+      "evaluation_domain": "simulation",
+      "independent_from_training_episodes": true,
+      "split_role": "engineering_development_evaluation",
+      "sealed_final_test": false
+    },
+    "collection": {
+      "episodes": [
+        {
+          "seed": 54041,
+          "initial_distance_m": 0.047641982410846044,
+          "distance_m": 0.08396498819938729,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            0.07599258801140561,
+            0.010136435048483421,
+            0.5448885910338811
+          ],
+          "grasp_center_xyz": [
+            -0.007917580957730493,
+            0.0072842936148296965,
+            0.5459220687243553
+          ],
+          "command9": [
+            100.33245849609375,
+            97.99801635742188,
+            87.97272491455078,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -103.54339711203122
+        },
+        {
+          "seed": 54042,
+          "initial_distance_m": 0.05471971615782721,
+          "distance_m": 0.018844437363269833,
+          "success": true,
+          "steps": 5,
+          "goal_xyz": [
+            -0.0249127594072562,
+            -0.0002018051520792768,
+            0.5436224538012279
+          ],
+          "grasp_center_xyz": [
+            -0.00777310361112137,
+            0.007280238013340212,
+            0.5459384954241313
+          ],
+          "command9": [
+            100.3310546875,
+            98.0000228881836,
+            87.97540283203125,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": 5.759397467336009
+        },
+        {
+          "seed": 54043,
+          "initial_distance_m": 0.04265685088554578,
+          "distance_m": 0.007791981596240989,
+          "success": true,
+          "steps": 4,
+          "goal_xyz": [
+            -0.012932341268552841,
+            0.0004158047126505397,
+            0.5451798509240882
+          ],
+          "grasp_center_xyz": [
+            -0.009147418796725478,
+            0.0071968955279537224,
+            0.5458171471134894
+          ],
+          "command9": [
+            100.0,
+            97.99897003173828,
+            87.9762191772461,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": 6.939778434629581
+        },
+        {
+          "seed": 54044,
+          "initial_distance_m": 0.04153211669831463,
+          "distance_m": 0.07809763151534242,
+          "success": false,
+          "steps": 60,
+          "goal_xyz": [
+            0.07017091296464809,
+            0.00818552533473089,
+            0.5452315903394709
+          ],
+          "grasp_center_xyz": [
+            -0.007918468585923119,
+            0.007284466454457595,
+            0.5459219744715283
+          ],
+          "command9": [
+            100.33247375488281,
+            97.99784088134766,
+            87.97315979003906,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "physical_run": false,
+          "return": -96.51838243276144
+        }
+      ],
+      "n": 4,
+      "successes": 2,
+      "success_rate": 0.5,
+      "mean_final_distance_m": 0.047174759668560134,
+      "physical_run_ids": [],
+      "evaluation_domain": "simulation",
+      "independent_from_training_episodes": true,
+      "split_role": "engineering_development_evaluation",
+      "sealed_final_test": false
+    },
+    "initial_training": {
+      "optimizer_steps": 120,
+      "actor_samples": 47,
+      "weights_before_sha256": "9440f348f13ff4683cd19998fbd1368aefb67962557cdad9aef05e36490cf74f",
+      "weights_after_sha256": "e281a10cb4aa4e373557b556745b7e4fdc92753538871c72284fb7aa0387285a",
+      "weights_changed": true,
+      "save_reload_passed": true,
+      "reload_max_abs_error": 0.0,
+      "checkpoint_dir": "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/round0_expert/student_act",
+      "checkpoint_sha256": {
+        "config.json": "5a1056188f424b8ec15c63516f8a77362efdcce99edb84e7b6286d67c7da1219",
+        "explorer_preprocessing.json": "a05990724159b83148b6a547a6fef90d1883e2f53523526616f021403cd01bc8",
+        "model.safetensors": "c8caa0286cec9deb507d2e52ddedacbe0e45a61c0cadc3f8ee573f2035c937b8"
+      },
+      "losses_first_last": [
+        1.1581871509552002,
+        0.11325255781412125
+      ],
+      "elapsed_s": 59.35778471800222
+    },
+    "aggregated_training": {
+      "optimizer_steps": 120,
+      "actor_samples": 176,
+      "weights_before_sha256": "e281a10cb4aa4e373557b556745b7e4fdc92753538871c72284fb7aa0387285a",
+      "weights_after_sha256": "f855cf5e583bd984324d32406416143a617f9de6f6cf1bce3dedacd2285682de",
+      "weights_changed": true,
+      "save_reload_passed": true,
+      "reload_max_abs_error": 0.0,
+      "checkpoint_dir": "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/round1_aggregated/student_act",
+      "checkpoint_sha256": {
+        "config.json": "51e7850bcd8af61fdb4c7e32eef24fd7f98cfab82287da8f54ad53da09a2d843",
+        "explorer_preprocessing.json": "796e28407d61c8e6141aaecb423547d896951b67d9c9c96a1c905c1e2cba81b6",
+        "model.safetensors": "cca04a330efd2bd568909d64d564824d763f78a73e8fe3c9913bf8957323c3e5"
+      },
+      "losses_first_last": [
+        0.10467139631509781,
+        0.0698937326669693
+      ],
+      "elapsed_s": 60.29453446600019
+    },
+    "expert_training_episodes": 10,
+    "excluded_source_episodes": [
+      {
+        "id": "episode_0008",
+        "split": "imitation_train",
+        "success": false,
+        "reason": "Only explicitly successful training demonstrations are expert targets"
+      },
+      {
+        "id": "episode_0009",
+        "split": "imitation_train",
+        "success": false,
+        "reason": "Only explicitly successful training demonstrations are expert targets"
+      }
+    ],
+    "correction_episodes": 4,
+    "teacher_query_labels": 129,
+    "valid_corrections_from_failed_learner_episodes": 120,
+    "correction_manifest_sha256": "5b151cef18545235d8658992f8fcc4c90cffa5aef58d5f0f293bce2170964e5a",
+    "learner_executed_actions_used_as_targets": false,
+    "original_sources_unchanged": true,
+    "teacher_query_recovery_executed": false,
+    "primary_success_rate_delta": 0.0,
+    "mean_final_distance_delta_m": -0.014408120390618687,
+    "primary_improvement_observed": false,
+    "limitations": [
+      "One development round; no sealed final test or statistical recovery guarantee",
+      "No matched extra-BC-update control; any observed gain cannot be uniquely attributed to aggregation",
+      "Fixed simulated base and three active CAD arm axes only; no cloth, kitchen, contact or hardware qualification",
+      "Privileged learned PPO teacher can be wrong on learner-visited states; finite queries are not task-success guarantees"
+    ],
+    "elapsed_s": 183.879362519001,
+    "framework_versions": {
+      "torch": "2.11.0",
+      "torchvision": "0.26.0"
+    },
+    "framework_compatibility_note": "Torch/torchvision versions lie within LeRobot 0.6.1 declared bounds",
+    "artifact_sha256": {
+      "after.json": "5c2715193ef417d79ea3344422c08ce9c5f8cbc47241a72f4ef58cea2e7d8262",
+      "before.json": "cdc79c660be673d438a70cce098f84ad13ee935b4ed7a5e74d08f6fb92943894",
+      "collection.json": "e8eb6fbe60f66d37ee50409de816074283d0de52de0af16c3cd95b9003618f5a",
+      "corrections/episode_0000.npz": "21e3e64a46bfb5e37e7fc1d031ac330a3c466eece1df91dc8dac99f912128056",
+      "corrections/episode_0001.npz": "0e740353ba80dbea06689e773f8a5cc438655825a89c32746c8a0a391b39c4ce",
+      "corrections/episode_0002.npz": "88b70b3dfe16664a3c328eab863afc91df4354636d9f74677f29662221f9e6c6",
+      "corrections/episode_0003.npz": "5a0115b38295e2883af3947b2984bb1ce65ba89851946201947d66e6d1f00ff1",
+      "corrections/manifest.json": "5b151cef18545235d8658992f8fcc4c90cffa5aef58d5f0f293bce2170964e5a",
+      "development_after/episode_0000.npz": "8daae75efc9dcda3a4c5756824ae2ce94931e581aaf5648944cb00301e3cebd9",
+      "development_after/episode_0001.npz": "16f552650b35f2e3f5fc19612c3d76e462b6c915ca91828f6cb683572c5f2151",
+      "development_after/episode_0002.npz": "6ca8afa72db0bf63a6395bf922f35766c69bc2e04528ac35aca337944f0cf441",
+      "development_after/episode_0003.npz": "dd1d5e8dbda1933e2eea5f8b4a6e31427c5c26640ffbbde391551cc5ee90fde8",
+      "development_after/episode_0004.npz": "d253932401a78debaeb77c451fbd82bc0036dc7d26e7dd5c81109513ab25a24d",
+      "development_after/episode_0005.npz": "84614595d58106bf990e79ee8269284fa00a3c3b95dce1a9381a8c30a0570384",
+      "development_after/manifest.json": "647074d2046af46e2b6d74f14100346539f67d87f9c8d464cb2d0c16d4546209",
+      "development_before/episode_0000.npz": "f59f2401981817cd5dd2d0502711bb14b88d68a80bab84b4601a655e1cb30db3",
+      "development_before/episode_0001.npz": "e2d2b0ab2e0002e83de5eb87ab542ae057a57be413ced544feb03b4d17faacf9",
+      "development_before/episode_0002.npz": "672394a09b9ad0e6f95ddc878add74c9e9b83665cd2caf5fe4aea87b731cdc40",
+      "development_before/episode_0003.npz": "feb747b355a0eb787fa0e7f9f33ff6c6558825793870c5fc544ccbe6c2a42028",
+      "development_before/episode_0004.npz": "16e0b0bdde3bdd569867b5364d7a051cbe1ebfbcad7ce165bd4267351a7db9ac",
+      "development_before/episode_0005.npz": "06b733018e277418b44abe9d174b86101d72ecac2215cb0a46e3c1e5741c5c9b",
+      "development_before/manifest.json": "f9ca7d5061548441bf678fcb20d18b82a805c55a79f0bf29588cd270a6361f1d",
+      "frame.jpg": "e740b49676ef8336e95e0971bf3a0df9689b65ceec9d2238df974f3eca577a9e",
+      "frame.json": "37ba8b67f96f7eb7d816311ae4b6b48268adf709956134d88165d476960a50ee",
+      "model.xml": "db8d23eadca2434f44365b86610c3e60d27d46a51482f2bd63ad7bf013f2ef56",
+      "provenance.json": "7285c3c7b1eb6a10eb8cd06a4d618c22efbad579976f775e067d0d0402449d76",
+      "round0_expert/act_optimizer.pt": "63afd34086aa75c7ba1e584506128a3b2c686f437e569a0db885843f53c45fb7",
+      "round0_expert/act_resume/optimizer.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "round0_expert/act_training.json": "1aa829f54515b46422c5213a2e52a0874fcfcddef74151ddd3693424f1581348",
+      "round0_expert/student_act/config.json": "5a1056188f424b8ec15c63516f8a77362efdcce99edb84e7b6286d67c7da1219",
+      "round0_expert/student_act/explorer_preprocessing.json": "a05990724159b83148b6a547a6fef90d1883e2f53523526616f021403cd01bc8",
+      "round0_expert/student_act/model.safetensors": "c8caa0286cec9deb507d2e52ddedacbe0e45a61c0cadc3f8ee573f2035c937b8",
+      "round0_expert/training_result.json": "5802c67364f737ebc98f1088fb7438cd0e8d72e657d4a1d139af9d3dece12324",
+      "round1_aggregated/act_optimizer.pt": "d2ceb503c43822c479313d236ec97570fcc0c925ed4cc357d1172b5468babe77",
+      "round1_aggregated/act_resume/optimizer.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "round1_aggregated/act_training.json": "f977c371cf6bfd849b175691ba295a8f613066ba4320c2f6d098ede624d34255",
+      "round1_aggregated/student_act/config.json": "51e7850bcd8af61fdb4c7e32eef24fd7f98cfab82287da8f54ad53da09a2d843",
+      "round1_aggregated/student_act/explorer_preprocessing.json": "796e28407d61c8e6141aaecb423547d896951b67d9c9c96a1c905c1e2cba81b6",
+      "round1_aggregated/student_act/model.safetensors": "cca04a330efd2bd568909d64d564824d763f78a73e8fe3c9913bf8957323c3e5",
+      "round1_aggregated/training_result.json": "740d41bbc0c8a6d962f27983651e1202234dab309551b6b671dca546cec40f99"
+    },
+    "execution_commit": "486b5b28f1882dff584eb4c00708478e14f21d6c"
+  },
+  "progress": 1.0,
+  "error": null,
+  "frame_available": true
+}

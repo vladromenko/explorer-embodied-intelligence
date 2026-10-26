@@ -270,7 +270,8 @@ function experimentPage(project) {
   let content = heading(project.title, project.subtitle, `Исследовательский опыт / ${project.id}`, action);
   if (state.summary) content += notice("Текущее состояние опыта", text(state.summary));
   if (project.id === "01") {
-    const job = jobs.find((entry) => entry.kind === "sim_pilot" && !TERMINAL_JOBS.includes(entry.status)) || jobs.find((entry) => entry.kind === "sim_pilot");
+    const rendered = (entry) => ["sim_pilot", "dagger", "skill_cycle"].includes(entry.kind);
+    const job = jobs.find((entry) => rendered(entry) && !TERMINAL_JOBS.includes(entry.status)) || jobs.find(rendered);
     content += `<div class="two-column">${simulationPanel(job)}${simulationForm()}</div><div class="spaced-section">${flow(project)}</div>`;
     content += simulationPilotMetrics() + simulationAdvancedPanel();
     content += `<div class="spaced-section">${worldTrainingPanel()}</div>`;
