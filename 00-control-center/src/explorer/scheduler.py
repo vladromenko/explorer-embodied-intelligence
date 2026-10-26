@@ -9,7 +9,17 @@ import time
 import psutil
 from pathlib import Path
 
-HEAVY_JOBS = ('sim_pilot', 'train_act', 'world_model', 'dagger', 'skill_cycle', 'manipulation', 'manipulation_student', 'policy_transfer')
+HEAVY_JOBS = ('sim_pilot', 'train_act', 'world_model', 'dagger', 'skill_cycle', 'manipulation', 'manipulation_student', 'policy_transfer', 'fault_repair')
+PHYSICAL_JOBS = ('station_rollout', 'handover_physical')
+
+
+def recover_jobs(store):
+    """Resume software computation; old physical authorizations never survive restart."""
+    for job in store.jobs(10000):
+        if job['kind'] in PHYSICAL_JOBS and job['status'] not in ('completed','failed','cancelled'):
+            store.update_job(job['id'],status='cancelled',error='Supervisor restarted; a fresh explicit observed physical attempt is required')
+        elif job['status'] in ('running','pause_requested','resume_requested'):
+            store.update_job(job['id'],status='queued',error='Supervisor restarted; resuming from persisted artifacts')
 
 
 def host_resources(root):
@@ -80,9 +90,7 @@ def supervise(config, store):
     lock = (store.root / 'scheduler.lock').open('w')
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     processes = {}
-    for job in store.jobs(10000):
-        if job['status'] in ('running', 'pause_requested', 'resume_requested'):
-            store.update_job(job['id'], status='queued', error='Supervisor restarted; resuming from persisted artifacts')
+    recover_jobs(store)
     while True:
         jobs = list(reversed(store.jobs(10000)))
         for job in jobs:

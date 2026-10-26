@@ -77,6 +77,37 @@ def prepare_policy_transfer(store, options):
     return bound
 
 
+def handover_readiness(config):
+    """Fresh authenticated read-only probes. Missing dispatch proof stays blocked."""
+    import httpx
+    from explorer_shared.handover_adapters import inspect_native_observability
+    nano=next((node for node in config['nodes'] if node['id']=='nano'),None)
+    pi=next((node for node in config['nodes'] if node['id']=='pi'),None)
+    if nano is None or pi is None:
+        return {'ready':False,'blockers':['Both robot nodes must be configured'],'physical_execution':False}
+    with httpx.Client(timeout=4,trust_env=False) as client:
+        def request(method,path,body=None):
+            response=client.request(method,'http://'+nano['host']+':'+str(nano['port'])+path,
+                headers={'Authorization':'Bearer '+nano['token']},json=body)
+            response.raise_for_status()
+            return response.json()
+        try:
+            observed=inspect_native_observability(request)
+        except (httpx.HTTPError,ValueError):
+            observed={'available':False,'native_dispatch_qualified':False,'measured_joint_feedback':False}
+        try:
+            response=client.get('http://'+pi['host']+':'+str(pi['port'])+'/station/status',headers={'Authorization':'Bearer '+pi['token']})
+            response.raise_for_status();station=response.json()
+            receiver={'available':station.get('available') is True,'measured_joint_cache':bool(station.get('measurements')),
+                'control_epoch':station.get('control_epoch'),'mode':station.get('mode')}
+        except (httpx.HTTPError,ValueError):
+            receiver={'available':False,'measured_joint_cache':False}
+    return {'ready':False,'scope':'fresh_read_only_native_observability','nano':observed,'receiver':receiver,
+        'blockers':['BLOCKED_NATIVE_DISPATCH','BLOCKED_RELEASE_DEADLINE_AT_NATIVE_BOUNDARY',
+            'Common measured zone and independent object hold/transfer evidence still required'],
+        'physical_execution':False,'controller_settings_writes':0,'chassis_commands':0}
+
+
 def file_sha256(path):
     result = hashlib.sha256()
     with Path(path).open('rb') as stream:

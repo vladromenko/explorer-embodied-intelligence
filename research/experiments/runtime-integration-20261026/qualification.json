@@ -1,0 +1,31 @@
+{
+  "host": "homebrain",
+  "date": "2026-10-26",
+  "main_source": "1d21908",
+  "central_runtime": "80eae2e0c193ec24fa0fb0b9da19bb99bc26aeda",
+  "tests": {
+    "command": "EXPLORER_SIM_MESH_DIR=<verified CAD> MUJOCO_GL=egl EXPLORER_RUN_POLICY_TRANSFER_INTEGRATION=1 python -m pytest tests 01-autonomous-learning/tests 04-cross-embodiment-transfer/tests 05-cooperative-handover/tests research/benchmark/tests -q",
+    "passed": 341,
+    "skipped": 5,
+    "elapsed_s": 52.06,
+    "scope": "Before fault/adapters/recovery source integration; optional long cycles separately qualified"
+  },
+  "http_routes": {
+    "authenticated": true,
+    "status": 200,
+    "paths": [
+      "/experiments/01",
+      "/experiments/03",
+      "/experiments/04",
+      "/experiments/05",
+      "/static/workflows.js",
+      "/static/direct03.js",
+      "/static/demonstration-wizard.js"
+    ]
+  },
+  "graphical_browser_probe": "UNAVAILABLE_no_CUA_browser_provider",
+  "software_integration_complete": false,
+  "physical_task_success_claimed": false,
+  "controller_settings_written": false,
+  "chassis_motion": false
+}

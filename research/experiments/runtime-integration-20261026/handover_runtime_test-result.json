@@ -1,0 +1,67 @@
+{
+  "scope": "software_transport_coordinator_qualification",
+  "cases": [
+    {
+      "scenario": "normal",
+      "passed": true,
+      "protocol_completed": true,
+      "state": "SO101_FINISH",
+      "dispatched_operations": [
+        "offer",
+        "approach",
+        "close",
+        "release",
+        "finish"
+      ],
+      "error": null,
+      "journal": "/home/jetsonnx/.local/share/explorer/state/jobs/996326dac4c24adaa181ef9723289d11/normal/handover-journal.jsonl"
+    },
+    {
+      "scenario": "disconnect",
+      "passed": true,
+      "protocol_completed": false,
+      "state": "SAFE_STOP",
+      "dispatched_operations": [
+        "offer",
+        "approach"
+      ],
+      "error": "ConnectionError: Injected software transport disconnect",
+      "journal": "/home/jetsonnx/.local/share/explorer/state/jobs/996326dac4c24adaa181ef9723289d11/disconnect/handover-journal.jsonl"
+    },
+    {
+      "scenario": "wrong_object",
+      "passed": true,
+      "protocol_completed": false,
+      "state": "SAFE_STOP",
+      "dispatched_operations": [
+        "offer",
+        "approach",
+        "close"
+      ],
+      "error": "ValueError: Evidence belongs to another run/object/command or predates dispatch",
+      "journal": "/home/jetsonnx/.local/share/explorer/state/jobs/996326dac4c24adaa181ef9723289d11/wrong_object/handover-journal.jsonl"
+    },
+    {
+      "scenario": "expired_hold",
+      "passed": true,
+      "protocol_completed": false,
+      "state": "SAFE_STOP",
+      "dispatched_operations": [
+        "offer",
+        "approach",
+        "close"
+      ],
+      "error": "ValueError: Independent hold measurement or explicit operator confirmation required",
+      "journal": "/home/jetsonnx/.local/share/explorer/state/jobs/996326dac4c24adaa181ef9723289d11/expired_hold/handover-journal.jsonl"
+    }
+  ],
+  "passed": true,
+  "physics_simulation": false,
+  "physical_execution": false,
+  "physical_success_not_tested": true,
+  "method_ids": [
+    "HANDOVER_VERIFIED_FSM",
+    "ENGINEERING_GLUE"
+  ],
+  "execution_commit": "80eae2e0c193ec24fa0fb0b9da19bb99bc26aeda"
+}

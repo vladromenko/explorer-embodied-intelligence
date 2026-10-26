@@ -174,6 +174,10 @@ def main(job_id):
             sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
             from explorer_sim.skill_cycle import run_skill_cycle
             result=run_skill_cycle(store,job)
+        elif job['kind']=='fault_repair':
+            sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
+            from explorer_sim.fault_repair import run_fault_repair
+            result=run_fault_repair(store,job,config)
         elif job['kind']=='program_trace':
             source=store.job(job['config'].get('source_job_id',''))
             if not source or source['kind']!='skill_cycle' or source['status']!='completed':

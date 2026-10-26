@@ -2024,6 +2024,68 @@
         }
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-CONTROLLED-FAULT-REPAIR-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/fault_repair.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:01-autonomous-learning/docs/FAULT_REPAIR_VALIDATION.json",
+          "role": "Existing contracts and executable evidence; no source copied"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Actual CAD finite-dynamics probes; competing delay/bias models, independent encoder/FK reference and AMBIGUOUS abstention. Model compensation only, no H4 validation.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest 01-autonomous-learning/tests/test_fault_repair.py -q",
+          "result": "10 passed with actual CAD;28 archived matched simulation executions",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-HANDOVER-BINDING-001",
+      "function_or_module": "shared/explorer_shared/handover_adapters.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:05-cooperative-handover/docs/NATIVE_BINDINGS_RU.md",
+          "role": "Existing contracts and executable evidence; no source copied"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Existing M3 gateway binding requires actual dispatch proof and native release permit boundary; durable authenticated operator challenges across processes; missing evidence blocks.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest tests/test_handover_adapters.py -q",
+          "result": "26 passed;71 combined route/runtime tests; actual Nano GET-only observability, no actuator execution",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

@@ -6,7 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 from fastapi.responses import JSONResponse
 
-from explorer.scheduler import HEAVY_JOBS, admission
+from explorer.scheduler import HEAVY_JOBS, admission, recover_jobs
 from explorer.store import Store
 from explorer.transfer import prepare_policy_transfer, policy_transfer_sources, run_handover_runtime_test
 
@@ -22,6 +22,19 @@ def test_heavy_jobs_reserve_ui_memory_disk_cpu_and_existing_thermal_headroom():
         result=admission(job,dict(host,**changed))
         assert not result['admitted'] and any(reason in r for r in result['reasons'])
     assert admission(job,dict(host,thermal=[{'name':'cpu','temperature_c':80,'existing_hot_critical_trip_c':None}]))['admitted']
+
+
+@pytest.mark.parametrize('status',['queued','running','paused','pause_requested','resume_requested'])
+def test_supervisor_recovery_never_reuses_old_physical_observation_authorization(tmp_path,status):
+    store=Store(tmp_path)
+    physical=store.create_job('station_rollout','personal',{'observing':True,'expected_control_epoch':'old-epoch'})
+    software=store.create_job('train_act','01',{})
+    store.update_job(physical['id'],status=status)
+    store.update_job(software['id'],status='running')
+    recover_jobs(store)
+    assert store.job(physical['id'])['status']=='cancelled'
+    assert 'fresh explicit' in store.job(physical['id'])['error']
+    assert store.job(software['id'])['status']=='queued'
 
 
 def test_real_source_selector_keeps_hashes_and_does_not_guess_mapping(tmp_path,monkeypatch):

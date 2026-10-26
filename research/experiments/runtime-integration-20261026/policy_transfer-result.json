@@ -1,0 +1,79 @@
+{
+  "request_signature": "17e74870a1aa1ed81ba1122edf639976155f4f8ec496465b33b6acb509cd65ce",
+  "source_radian_mapping_basis": null,
+  "scope": "offline_policy_output_transfer_with_independent_virtual_tracking",
+  "source_policy_executed": true,
+  "source_observations": "recorded_replay_not_closed_loop_source_execution",
+  "physical_execution": false,
+  "physical_source_recording": true,
+  "source_task": "Engineering position-hold recording only; no object manipulation or expert task demonstration",
+  "gripper_transfer": "not_attempted_separate_aperture_calibration_required",
+  "orientation_constrained": false,
+  "learned_object_skill_transfer_claimed": false,
+  "physical_skill_success_not_tested": true,
+  "status": "blocked_mapping",
+  "mapping_problems": [
+    "source_urdf_sha256_mismatch",
+    "source_named_native_contract_mismatch",
+    "radian_mapping_basis_missing",
+    "physical_source_requires_measured_radian_reference_pairs",
+    "source_calibration_sha256_not_bound",
+    "shoulder_pan:missing_verified_sign_scale_zero",
+    "shoulder_lift:missing_verified_sign_scale_zero",
+    "elbow_flex:missing_verified_sign_scale_zero",
+    "wrist_flex:missing_verified_sign_scale_zero",
+    "wrist_roll:missing_verified_sign_scale_zero"
+  ],
+  "predicted_actions": 4,
+  "executed_stages": {
+    "official_ACT_inference": 4,
+    "source_FK_and_target_IK": 0,
+    "independent_MuJoCo_tracking": 0
+  },
+  "independent_virtual_attempts": 0,
+  "independent_virtual_passed": 0,
+  "unsupported_indices": [],
+  "elapsed_s": 9.477170767000644,
+  "processor_origin": "official_factory_identity_pair_plus_explicit_Explorer_adapter",
+  "matching_official_processors_executed": true,
+  "explorer_adapter_applied": true,
+  "source_artifacts_modified": false,
+  "provenance": {
+    "checkpoint_files_sha256": {
+      "config.json": "5f6cec6de8606b3417a33dbbe2943d9ed137dfb05b18afd5a4d5a833871ebf20",
+      "explorer_preprocessing.json": "078d8acbe21dbf0a19e90210fb303adcc4dd5f1cfa4d71ea5f26101deef81724",
+      "model.safetensors": "f674a7404ad3d6e2924448b6883ccc987f92c394414c4dbb29329ea0690d5ad3"
+    },
+    "manifest_sha256": "4fb2b7a1ddfea6fbda347e32d798d85baabdc3cef5ef3a838714989a4a45d13b",
+    "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+    "episode_sha256": "80d7e741d239bce5d36958d34ce3a8650d088fc4744a7a33a2649ac7d38cd691",
+    "split": "train",
+    "mapping_profile_sha256": null,
+    "training_receipt_sha256": "b8943e80295bde1d53794976e09c34e685843f0d3cf5fcd25d00d8612ff51c58",
+    "checkpoint_contract_sha256": null,
+    "source_urdf_sha256": "3a65d2d35e68a8d2f0c2cc176d19b884506543c93ba72980145b80abe276022c",
+    "target_urdf_sha256": "9ee94f15a2473ba04c84c552bae47f7dd2bd734b8b3700f3fe25d752c3eace4b",
+    "implementation_sha256": "d2df6f7e08c3ed83208130ea27d0850d46c9a24e11915b7c17ecc8f036b20908",
+    "official_sources_sha256": {
+      "policies/act/modeling_act.py": "a6c1a49c5daafa513b9abee9b986205d327e25c70ed13623ab2e6c0ab6b1f577",
+      "policies/act/configuration_act.py": "35a60c0dd3c811b137b5eb035bdbd40d40e2c24ba0cda61756052e6e1c829282",
+      "policies/act/processor_act.py": "247d3b13c93568c1fb35349716f8c3b6a53c2e7a5c8b098928471172b0bf0ef2",
+      "policies/factory.py": "af515f27ffff6c7420f5ef445349e9bf73af161ef62f2477dd35dd95b8cd23bd"
+    },
+    "lerobot_version": "0.6.1"
+  },
+  "method_ids": [
+    "ACT_LEROBOT_0_6_1",
+    "SO101_URDF_FK_IK",
+    "OBJECT_RELATIVE_RETARGET",
+    "EXPLORER_CAD_MUJOCO",
+    "ENGINEERING_GLUE"
+  ],
+  "trace_sha256": "e403060afffcb0e9eba78d10d826c485ae351b682c1cc67837d46aef0b082104",
+  "framework_versions": {
+    "torch": "2.11.0",
+    "torchvision": "0.26.0"
+  },
+  "framework_compatibility_note": "Torch/torchvision versions lie within LeRobot 0.6.1 declared bounds",
+  "execution_commit": "80eae2e0c193ec24fa0fb0b9da19bb99bc26aeda"
+}
