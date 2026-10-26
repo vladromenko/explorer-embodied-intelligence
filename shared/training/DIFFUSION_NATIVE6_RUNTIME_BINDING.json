@@ -1,0 +1,34 @@
+{
+  "schema": "explorer_native6_diffusion_source_qualification_binding_v1",
+  "qualification_result": "/mnt/explorer-data/explorer-work/qualification-dp6/consumer-20261026-a/test_same_accepted_whole_skill0/qualification.json",
+  "qualification_result_sha256": "5fd1e99aa1f0550e6bfb1645ee79312a88a0391336e0b897c5f78a70d87d02d6",
+  "actual_scope": "same immutable accepted5originals → officialDataset4episodes32frames → Diffusion6 4+restart4 → native-loader → SIMULATION_ONLY card; no rollout",
+  "actual_runtime_executable": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/bin/python",
+  "runtime_binding_sha256": "b5e1dbada08fb70d24a0a3bad08ca4f85a696f29b1617918dd8a5f253e272070",
+  "implementation_sha256": {
+    "shared/explorer_shared/learning/history_windows.py": "cad221cc249521ed1fe37b340f12c483ba12a48b01f7459f8c85c4aeee2ca795",
+    "shared/explorer_shared/learning/diffusion_optimizer.py": "dd0d1876e4be1d9de2d3bc8149a822d7e571502fc0350b81f79258553b7ba2c3",
+    "shared/explorer_shared/learning/diffusion_policy.py": "141db2020785dc6337215737c04e8431442f3329c42137d5c6285a289d722a8b",
+    "shared/explorer_shared/learning/diffusion_backend.py": "615dc208f8166a55d229cb979157c9a7929b838c04fa6eaa2472c15d77317434",
+    "shared/explorer_shared/experiments.py": "850e6ead668df62fbdc545baba767dd3ad8676b5dbe8199d18aebef53a9ca94e",
+    "00-control-center/src/explorer/so101_diffusion_training.py": "d679478c3be13cd23b7a7ae2a8b45f2abe38365c5ff7e4dbf48a6c23a348c40c"
+  },
+  "cgroup_limits_verified_at_launch": {
+    "MemoryMax_bytes": 4294967296,
+    "MemorySwapMax_bytes": 0,
+    "CPUQuota_cores": 2,
+    "own_unit": "explorer-diffusion-qual-native6-20261026-a.service"
+  },
+  "actual_test_result": "1 passed in22.37s; unit exit0/26.272s",
+  "full_pipeline_peak_memory_bytes": null,
+  "peak_memory_measurement_status": "Not recorded in initial4+4 test; separate matched uninterrupted reference has measured peak and identical weights",
+  "production_state_writes": false,
+  "source_original_spec_owner_experiment": "06",
+  "canonical_runtime_project_id": "04",
+  "historical_source_SHA_and_bytes_preserved": true,
+  "new_role_basis": "explicit experiment_id(so101_source_learning), not numeric reinterpretation",
+  "public_queue_integration_qualified": false,
+  "physical_rollout_qualified": false,
+  "matched_reference_receipt": "shared/training/DIFFUSION_NATIVE6_MATCHED_REFERENCE.json",
+  "optimizer_state_comparison_receipt": "shared/training/DIFFUSION_NATIVE6_OPTIMIZER_COMPARISON.json"
+}
