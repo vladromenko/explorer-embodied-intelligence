@@ -38,8 +38,8 @@ def parameters(config):
             raise ValueError('Invalid visual manipulation ' + name)
         result[name] = value
     result['task'], result['device'] = config.get('task', TASKS[0]), config.get('device', 'cpu')
-    if result['task'] not in TASKS or result['device'] != 'cpu':
-        raise ValueError('Select a supported complete manipulation task and CPU runtime')
+    if result['task'] not in TASKS or result['device'] not in ('cpu', 'cuda'):
+        raise ValueError('Select a supported complete manipulation task and CPU/CUDA runtime')
     return result
 
 
@@ -57,11 +57,14 @@ def actor_inputs(rgb, command9, image_size):
 
 class VisualACTController:
     """Official saved processor pair around explicit fixed Explorer normalization."""
-    def __init__(self, policy, checkpoint, image_size):
+    def __init__(self, policy, checkpoint, image_size, device='cpu'):
         from lerobot.policies.factory import make_pre_post_processors
         self.policy, self.image_size = policy, image_size
+        self.device = device
+        if str(next(policy.parameters()).device) != device and not (device == 'cuda' and str(next(policy.parameters()).device) == 'cuda:0'):
+            raise ValueError('ACT controller device differs from loaded policy parameters')
         self.pre, self.post = make_pre_post_processors(policy.config, pretrained_path=str(checkpoint),
-            preprocessor_overrides={'device_processor': {'device': 'cpu'}})
+            preprocessor_overrides={'device_processor': {'device': device}})
         self.reset()
 
     def reset(self):
@@ -204,10 +207,27 @@ def _prepare_dataset(env, folder, settings, update):
     return manifest, baselines
 
 
+def _cuda_backend_qualification():
+    if not torch.cuda.is_available():
+        raise RuntimeError('Requested CUDA is unavailable in this interpreter')
+    receipt = Path.home()/'.local/share/explorer/state/qualification/act-cu132-fp32-20261026/qualification.json'
+    if not receipt.is_file():
+        raise ValueError('Actual compact ACT CUDA backend qualification is missing')
+    tested = json.loads(receipt.read_text())
+    if (tested.get('passed') is not True or tested.get('tf32_enabled') is not False
+            or tested.get('framework_versions', {}).get('torch') != str(torch.__version__)
+            or tested.get('compute_capability') != list(torch.cuda.get_device_capability())
+            or tested.get('lerobot') != importlib.metadata.version('lerobot')):
+        raise ValueError('Installed CUDA backend differs from the actual compact ACT qualification')
+    return {'path':str(receipt), 'sha256':sha(receipt), 'scope':tested['scope'],
+        'nine_axis_manipulation_not_inferred_from_six_axis_backend_receipt':True}
+
+
 def _run_locked(store, job, folder, settings, assets):
     context = dict(settings=settings, source_sha256={str(p): sha(p) for p in _sources()},
         cad_mesh_sha256={p.name: sha(p) for p in sorted(assets.glob('*.STL'))},
-        versions={p: importlib.metadata.version(p) for p in ('mujoco', 'lerobot', 'torch', 'numpy')})
+        versions={p: importlib.metadata.version(p) for p in ('mujoco', 'lerobot', 'torch', 'numpy')},
+        cuda_backend_qualification=_cuda_backend_qualification() if settings['device']=='cuda' else None)
     identity = hashlib.sha256(json.dumps(context, sort_keys=True, allow_nan=False).encode()).hexdigest()
     completed = _complete(folder, identity)
     if completed:
@@ -254,16 +274,16 @@ def _run_locked(store, job, folder, settings, assets):
             policy = make_act_policy(settings, state_dim=9, action_dim=9)
             initial = state_digest(policy)
             optimizer, losses, started = optimize_act(policy, samples, settings, folder, update, .30, .80)
-            inputs = {key: preview[key].unsqueeze(0) for key in (IMAGE_KEY, 'observation.state')}
+            inputs = {key: preview[key].unsqueeze(0).to(settings['device']) for key in (IMAGE_KEY, 'observation.state')}
             adapter = preprocessing_config(LOW, HIGH, range(6))
             adapter.update(action_names=ACTION_NAMES, action_units=manifest['action_units'],
                 task=settings['task'], base_fixture=True, command_state_not_measured=True)
-            reloaded, checkpoint, reload_error = save_reload_act(policy, optimizer, folder, adapter, inputs, 'cpu')
+            reloaded, checkpoint, reload_error = save_reload_act(policy, optimizer, folder, adapter, inputs, settings['device'])
             from lerobot.policies.factory import make_pre_post_processors
             pre, post = make_pre_post_processors(policy.config)
             pre.save_pretrained(checkpoint, push_to_hub=False, config_filename='policy_preprocessor.json')
             post.save_pretrained(checkpoint, push_to_hub=False, config_filename='policy_postprocessor.json')
-            controller = VisualACTController(reloaded, checkpoint, settings['image_size'])
+            controller = VisualACTController(reloaded, checkpoint, settings['image_size'], settings['device'])
             episodes = []
             for index, seed in enumerate(provenance['development_seeds']):
                 target = folder / 'development' / ('ACT-'+str(seed))
@@ -279,7 +299,8 @@ def _run_locked(store, job, folder, settings, assets):
                 update(.80+.18*(index+1)/settings['evaluation_episodes'], 'independent_full_task_visual_ACT_rollouts')
             result = dict(status='trained_and_development_evaluated', trained=True, task=settings['task'],
                 source='contact_verified_scripted_IK_to_official_visual_ACT', actual_workers=1,
-                student=dict(algorithm='official LeRobot ACT', official_module=type(policy).__module__,
+                student=dict(algorithm='official LeRobot ACT', official_module=type(policy).__module__, device=settings['device'],
+                    parameter_device=str(next(policy.parameters()).device), TF32_enabled=bool(torch.backends.cuda.matmul.allow_tf32) if settings['device']=='cuda' else None,
                     optimizer_steps=len(losses), weights_changed=initial != state_digest(policy),
                     checkpoint_dir=str(checkpoint), checkpoint_sha256={p.name: sha(p) for p in checkpoint.iterdir() if p.is_file()},
                     save_reload_passed=True, reload_max_abs_error=reload_error, training_resume=optimizer.explorer_resume_info,
@@ -335,7 +356,7 @@ def _run_locked(store, job, folder, settings, assets):
 
 
 def run_manipulation_student(store, job):
-    """Serial CPU job, stable optimizer resume, immutable source and no robot IO."""
+    """Serial learner, stable optimizer resume, qualified backend and no robot IO."""
     identity = job['id']
     if not isinstance(identity, str) or Path(identity).name != identity or identity in ('.', '..'):
         raise ValueError('Invalid visual manipulation job ID')

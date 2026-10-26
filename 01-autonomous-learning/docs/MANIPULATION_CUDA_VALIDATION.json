@@ -1,0 +1,63 @@
+{
+  "passed": true,
+  "scope": "Actual compact nine-axis RGB+preceding-command9 official ACT optimizer/reload/processors and short independent CAD manipulation rollout only",
+  "physical_skill_validated": false,
+  "task_success_claimed": false,
+  "device": "cuda",
+  "parameter_device": "cuda:0",
+  "compute_capability": [
+    8,
+    7
+  ],
+  "compiled_architectures": [
+    "sm_80",
+    "sm_90",
+    "sm_100",
+    "sm_110",
+    "sm_120"
+  ],
+  "framework_versions": {
+    "torch": "2.12.0+cu132",
+    "torchvision": "0.27.0+cu132"
+  },
+  "lerobot": "0.6.1",
+  "TF32_enabled": false,
+  "optimizer_steps": 8,
+  "weights_changed": true,
+  "save_reload_max_abs_error": 0.0,
+  "actual_optimizer_elapsed_seconds": 3.0159275350015378,
+  "official_saved_processors_executed": true,
+  "actor_inputs": [
+    "RGB",
+    "preceding_command9_estimate"
+  ],
+  "state_dimension": 9,
+  "action_dimension": 9,
+  "image_size": 64,
+  "batch_size": 2,
+  "chunk_size": 4,
+  "full_contact_scripted_demonstrations": 1,
+  "independent_short_rollout": {
+    "n": 1,
+    "successes": 0,
+    "horizon": 32,
+    "native_replay_max_error": 0.0
+  },
+  "result_path": "/home/jetsonnx/.local/share/explorer/state/qualification/manipulation-act9-cuda-20261026/rehearsal/test_actual_official_act_full_0/jobs/visual-cycle/visual-manipulation-result.json",
+  "result_sha256": "7501adf26b2a24a659e604cb1669e35aeacc7adc22a6edaa7c82162aaa05c89d",
+  "implementation_sha256": "3659097616ffc6540558477fcf284516343fd5e986124506fde52d036d37ae00",
+  "source_backend_qualification": {
+    "nine_axis_manipulation_not_inferred_from_six_axis_backend_receipt": true,
+    "path": "/home/jetsonnx/.local/share/explorer/state/qualification/act-cu132-fp32-20261026/qualification.json",
+    "scope": "Compact six-axis official ACT only; synthetic tensors, no physical skill validation",
+    "sha256": "9665b3b2e4ea78d3c4bf8469bd3b21dbe02c0ef61733a9358dfe7d901119016a"
+  },
+  "tests": {
+    "passed": 11,
+    "skipped": 0,
+    "warnings": 1,
+    "elapsed_seconds": 74.38
+  },
+  "compatibility_warning": "PyTorch explicitly warns that Orin CC8.7 is outside this wheel supported CC set. The recorded narrow operations actually executed; broader CUDA compatibility is not asserted.",
+  "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds"
+}

@@ -29,7 +29,7 @@ def test_visual_actor_accepts_only_rgb_and_preceding_named_command_estimate():
         actor_inputs(rgb, np.r_[np.nan, command[1:]], 64)
 
 
-@pytest.mark.parametrize('config', [{'horizon': True}, {'act_steps': 0}, {'device': 'cuda'},
+@pytest.mark.parametrize('config', [{'horizon': True}, {'act_steps': 0}, {'device': 'mps'},
                                      {'task': 'cookie_delivery'}, {'evaluation_episodes': -1}])
 def test_invalid_or_unqualified_student_config_is_rejected(config):
     with pytest.raises(ValueError):
@@ -95,10 +95,14 @@ def test_actual_official_act_full_object_development_cycle(tmp_path):
         def skills(self): return self.cards
         def add_skill(self, card): self.cards.append(card)
     result = run_manipulation_student(Store(), dict(id='visual-cycle', config=dict(task='candy_to_tray', seed=321041,
-        demonstration_episodes=1, act_steps=8, batch_size=2, chunk_size=4, evaluation_episodes=1, horizon=32)))
+        demonstration_episodes=1, act_steps=8, batch_size=2, chunk_size=4, evaluation_episodes=1, horizon=32,
+        device=os.environ.get('EXPLORER_MANIPULATION_STUDENT_TEST_DEVICE','cpu'))))
     assert result['trained'] and result['student']['optimizer_steps'] == 8
     assert result['student']['weights_changed'] and result['student']['save_reload_passed']
     assert result['student']['official_saved_processors_executed']
+    assert result['student']['device'] == os.environ.get('EXPLORER_MANIPULATION_STUDENT_TEST_DEVICE','cpu')
+    if result['student']['device']=='cuda':
+        assert result['student']['parameter_device'].startswith('cuda') and result['student']['TF32_enabled'] is False
     assert result['scripted_baseline']['successes'] == 1
     assert result['evaluation']['n'] == 1 and result['evaluation']['disjoint_training_seeds']
     assert result['evaluation']['episodes'][0]['native_replay']['within_1e_minus_9']
@@ -108,7 +112,8 @@ def test_actual_official_act_full_object_development_cycle(tmp_path):
     assert 'development/ACT-331041/result.json' in result['artifact_sha256']
     assert 'demonstrations/scripted-321041/result.json' in result['artifact_sha256']
     saved = run_manipulation_student(Store(), dict(id='visual-cycle', config=dict(task='candy_to_tray', seed=321041,
-        demonstration_episodes=1, act_steps=8, batch_size=2, chunk_size=4, evaluation_episodes=1, horizon=32)))
+        demonstration_episodes=1, act_steps=8, batch_size=2, chunk_size=4, evaluation_episodes=1, horizon=32,
+        device=os.environ.get('EXPLORER_MANIPULATION_STUDENT_TEST_DEVICE','cpu'))))
     assert saved['artifact_sha256'] == result['artifact_sha256']
 
 
