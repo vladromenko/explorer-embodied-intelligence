@@ -89,3 +89,64 @@ def test_immutable_bundle_files_roundtrip_and_reject_path_symlink_extra_and_tamp
     bad=InitialStateBundle(dict(document,payloads={'../escape':dict(bytes=1,sha256=digest(b'x'))}),{'../escape':b'x'})
     with pytest.raises(InitialStateRejected):save_initial_bundle(bad,tmp_path/'bad')
     assert not (tmp_path/'escape').exists()
+
+
+def initial_profile_fixture():
+    from explorer_sim.manipulation_env import HOME
+    from explorer_shared.sim_initial_state import ENV_STATE,EVALUATOR_FIELDS,DERIVED_FIELDS,OPTION_FIELDS
+    Env=type('ExplicitFakeInitialEnv',(SimpleNamespace,),{'__module__':'explorer_sim.manipulation_env'})
+    environment=dict(command=HOME.copy(),command_before=HOME.copy(),requested=HOME.copy(),raw_action=np.zeros(6),phase='uncontrolled',steps=0,
+        last_distance=np.float64(.1),record_substeps=True,substep_trace=[])
+    evaluator={name:0. for name in EVALUATOR_FIELDS}
+    evaluator.update(goal=np.array([.22,.19,0.]),half=np.array([.073,.063]),initial_height=.01,rim=.044,dt=.002,
+        grasped=False,lifted=False,carried=False,success=False,substeps=0,contact_substeps=0,bilateral_substeps=0,last={})
+    options={name:np.zeros(1,dtype=np.uint8) for name in OPTION_FIELDS}
+    options.update(label=0,frame=0,bvh_depth=1,flex_layer=0)
+    derived={name:np.zeros(1) for name in DERIVED_FIELDS}
+    provider=SimpleNamespace(phase_evidence_map={'approach':['approach_proximity']})
+    env=Env(**environment,evaluator=SimpleNamespace(**evaluator),options=SimpleNamespace(**options),data=SimpleNamespace(**derived,warning=[SimpleNamespace(number=0,lastinfo=0)]))
+    profile=dict(environment=encode(environment),static=encode({}),evaluator=encode(evaluator),options=encode(options),derived=encode(derived),
+        warnings=encode([dict(number=0,lastinfo=0)]),provider=encode(dict(sequence=0,phase_results={},phase_evidence_map=provider.phase_evidence_map)),
+        env_rng={'attribute_present':False,'state':None},action_space_rng={'attribute_present':False,'state':None},observation_space_rng={'attribute_present':False,'state':None},
+        env_seed_attribute_present=True,env_seed=417,numpy_legacy_rng=encode(np.random.RandomState(17).get_state()),
+        python_random_present=False,python_rng=None,renderer_initialized=False,joint_q_aliases_qids=True)
+    assert set(environment)==set(ENV_STATE)
+    return env,provider,profile
+
+
+@pytest.mark.parametrize('change',['warning_overflow','warning_type','command_shape','endpoint_bound','outcome_latch','provider_fields','seed_shape','option_enum'])
+def test_resealed_malformed_profile_is_rejected_before_native_setters_heavy_reads_or_state_changes(monkeypatch,change):
+    import mujoco
+    from explorer_shared import sim_initial_state as initial
+    env,provider,profile=initial_profile_fixture();native_calls=[];source_reads=[]
+    before=canonical(encode({name:getattr(env,name) for name in initial.ENV_STATE}));rng_before=canonical(encode(np.random.get_state()))
+    if change.startswith('warning'):
+        values=decode(profile['warnings']);values[0]['number']=2**40 if change=='warning_overflow' else 'not-an-int';profile['warnings']=encode(values)
+    elif change=='command_shape':
+        values=decode(profile['environment']);values['command']=np.zeros(7);profile['environment']=encode(values)
+    elif change=='endpoint_bound':
+        values=decode(profile['environment']);values['requested'][0]=1000;profile['environment']=encode(values)
+    elif change=='outcome_latch':
+        values=decode(profile['evaluator']);values['success']=True;profile['evaluator']=encode(values)
+    elif change=='provider_fields':
+        values=decode(profile['provider']);values['unregistered']=True;profile['provider']=encode(values)
+    elif change=='seed_shape':profile['env_seed']=encode(np.array([417]))
+    else:
+        values=decode(profile['options']);values['label']=999;profile['options']=encode(values)
+    raw=canonical(profile);document=dict(schema=SCHEMA,profile=PROFILE,payloads={'profile-state.json':dict(bytes=len(raw),sha256=digest(raw))},
+        physical_io=False,retroactive_capture=False,original_runtime_OS_closure='PARTIAL')
+    bundle=InitialStateBundle(document,{'profile-state.json':raw})
+    monkeypatch.setattr(initial,'_profile',lambda value:env)
+    monkeypatch.setattr(initial,'_source_payloads',lambda value:source_reads.append(True))
+    monkeypatch.setattr(mujoco,'mj_setState',lambda *args:native_calls.append(True))
+    with pytest.raises(InitialStateRejected):initial.restore_initial_trial(provider,bundle,expected_sha256=bundle.sha256,expected_source_bindings={})
+    assert native_calls==[] and source_reads==[]
+    assert canonical(encode({name:getattr(env,name) for name in initial.ENV_STATE}))==before
+    assert canonical(encode(np.random.get_state()))==rng_before
+
+
+def test_actual_profile_types_pass_complete_preflight_without_mutation():
+    from explorer_shared.sim_initial_state import _validate_profile_state
+    env,provider,profile=initial_profile_fixture()
+    decoded={name:decode(profile[name]) for name in ('environment','evaluator','derived','warnings','options','provider')}
+    _validate_profile_state(env,provider,profile,decoded)

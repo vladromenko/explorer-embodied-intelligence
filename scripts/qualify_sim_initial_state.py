@@ -7,6 +7,7 @@ never amend historical V9 records or confer their missing initial state.
 """
 from __future__ import annotations
 import argparse
+from copy import deepcopy
 import json
 import os
 from pathlib import Path
@@ -17,7 +18,7 @@ import time
 
 import numpy as np
 from explorer_shared.sim_initial_state import (InitialStateRejected,canonical,capture_initial_trial,
-    restore_initial_trial,save_initial_bundle,load_initial_bundle,digest,_runtime)
+    restore_initial_trial,save_initial_bundle,load_initial_bundle,digest,_runtime,InitialStateBundle,encode,decode)
 
 
 def write(path,value):
@@ -81,6 +82,37 @@ def verify(target,output):
     summary=json.loads((output/'producer-summary.json').read_bytes())
     snapshot=load_initial_bundle(output/'initial',expected_sha256=summary['snapshot_sha256'])
     write(output/'verifier-runtime-before-restore.json',_runtime())
+    import mujoco
+    original_set_state=mujoco.mj_setState;native_calls=[];cases=[]
+    def observed_set_state(*args,**kwargs):
+        native_calls.append(True);return original_set_state(*args,**kwargs)
+    mujoco.mj_setState=observed_set_state
+    try:
+        for name in ('warning_overflow','command_shape','seed_shape','provider_field'):
+            profile=json.loads(snapshot.payloads['profile-state.json'])
+            if name=='warning_overflow':
+                values=decode(profile['warnings']);values[0]['lastinfo']=2**40;profile['warnings']=encode(values)
+            elif name=='command_shape':
+                values=decode(profile['environment']);values['command']=np.zeros(7);profile['environment']=encode(values)
+            elif name=='seed_shape':profile['env_seed']=encode(np.array([417]))
+            else:
+                values=decode(profile['provider']);values['unknown']='rejected';profile['provider']=encode(values)
+            raw=canonical(profile);payloads=dict(snapshot.payloads);payloads['profile-state.json']=raw
+            document=deepcopy(snapshot.document);document['payloads']['profile-state.json']=dict(bytes=len(raw),sha256=digest(raw))
+            malformed=InitialStateBundle(document,payloads)
+            before_native=target.env.integration_state().tobytes()
+            before_python=canonical(encode(dict(evaluator=vars(target.env.evaluator),env_rng=target.env.__dict__['_np_random'].bit_generator.state,
+                numpy_rng=np.random.get_state(),python_rng=random.getstate())))
+            try:restore_initial_trial(target,malformed,expected_sha256=malformed.sha256,expected_source_bindings=source_bindings())
+            except InitialStateRejected:pass
+            else:raise AssertionError('Resealed malformed initial profile accepted: '+name)
+            assert not native_calls and before_native==target.env.integration_state().tobytes()
+            assert before_python==canonical(encode(dict(evaluator=vars(target.env.evaluator),env_rng=target.env.__dict__['_np_random'].bit_generator.state,
+                numpy_rng=np.random.get_state(),python_rng=random.getstate())))
+            write(output/('rejected-'+name+'-profile.json'),profile)
+            cases.append(dict(case=name,valid_resealed_manifest_sha256=malformed.sha256,rejected_before_native_state_set=True,native_and_RNG_unchanged=True))
+        write(output/'malformed-initial-profile-rejections.json',cases)
+    finally:mujoco.mj_setState=original_set_state
     receipt=restore_initial_trial(target,snapshot,expected_sha256=summary['snapshot_sha256'],expected_source_bindings=source_bindings())
     write(output/'verifier-initial-restore.json',receipt);write(output/'verifier-rng.json',rng_values(target))
     commands=json.loads((output/'commands.json').read_bytes());states,reports=execute(target,commands)
@@ -116,6 +148,7 @@ def coordinate(output,started):
         native_states_bitwise_equal=exact,maximum_native_error=error,independent_reports_equal=reports_equal,RNG_draws_equal=rng_equal,
         unknown_profile_rejected_before_mutation=summary['unknown_profile_rejected_before_mutation'],
         capture_did_not_advance_native_or_env_RNG=summary['capture_did_not_advance_native_or_env_RNG'],
+        resealed_malformed_mutable_profiles=json.loads((output/'malformed-initial-profile-rejections.json').read_bytes()),
         compiled_MJB_bytes=summary['compiled_MJB_bytes'],total_snapshot_payload_bytes=summary['total_snapshot_payload_bytes'],
         renderer_created=summary['renderer_created'],initial_RGB_render_reexecution='UNQUALIFIED',original_runtime_OS_closure='PARTIAL',
         physical_io=False,learned_policy_executed=False,no_retrospective_V9_amendment=True,

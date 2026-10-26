@@ -23,6 +23,7 @@ PROFILE='explorer_manipulation_stationary_initial_v1'
 MAX_ARRAY_BYTES=16*1024**2
 MAX_PAYLOAD_BYTES=256*1024**2
 MAX_MODEL_BYTES=256*1024**2
+MAX_PROFILE_BYTES=8*1024**2
 ENV_STATE=('command','command_before','requested','raw_action','phase','steps','last_distance','record_substeps','substep_trace')
 ENV_STATIC=('task','horizon','period','goal','half','rim','velocity','qids','dids','joint_q','servo_ids','pad_ids','object_geom_ids','object_id','support_ids')
 ENV_ALLOWED=set(ENV_STATE+ENV_STATIC+('xml','model','data','evaluator','renderer','options','action_space','observation_space','_np_random','_np_random_seed'))
@@ -199,6 +200,9 @@ def _generator_state(owner):
 
 def _restore_generator(owner,record):
     import numpy as np
+    if (not isinstance(record,dict) or set(record)!={'attribute_present','state'} or type(record['attribute_present']) is not bool or
+            not record['attribute_present'] and record['state'] is not None):
+        raise InitialStateRejected('Exact existing-generator presence/state record required')
     state=None if record['state'] is None else decode(record['state'])
     if state is None:
         if record['attribute_present']:owner.__dict__['_np_random']=None
@@ -280,6 +284,7 @@ def capture_initial_trial(provider,*,scenario,source_bindings):
         provider=encode(dict(sequence=provider.sequence,phase_results=provider.phase_results,phase_evidence_map=provider.phase_evidence_map)),
         renderer_initialized=env.renderer is not None,joint_q_aliases_qids=env.joint_q is env.qids)
     payloads['profile-state.json']=canonical(state_doc)
+    if len(payloads['profile-state.json'])>MAX_PROFILE_BYTES:raise InitialStateRejected('Initial mutable profile exceeds bounded JSON size')
     if sum(map(len,payloads.values()))>MAX_PAYLOAD_BYTES:raise InitialStateRejected('Initial snapshot payload budget exceeded')
     document=dict(schema=SCHEMA,profile=PROFILE,scenario=encode(scenario),boundary='after_reset_before_first_observe_or_dispatch',
         environment_class=_class_identity(env),evaluator_class=_class_identity(env.evaluator),provider_class=_class_identity(provider),
@@ -307,11 +312,80 @@ def validate_bundle(bundle,expected_sha256):
     return bundle.document
 
 
+def _validate_profile_state(env,provider,profile,decoded):
+    """Validate native setters and every recorded mutable field before mutation."""
+    import mujoco
+    import numpy as np
+    fields={'environment','static','evaluator','derived','warnings','options','provider','env_rng','action_space_rng','observation_space_rng',
+        'env_seed_attribute_present','env_seed','numpy_legacy_rng','python_random_present','python_rng','renderer_initialized','joint_q_aliases_qids'}
+    if not isinstance(profile,dict) or set(profile)!=fields:raise InitialStateRejected('Exact initial mutable profile fields required')
+    for name in ('env_seed_attribute_present','python_random_present','renderer_initialized','joint_q_aliases_qids'):
+        if type(profile[name]) is not bool:raise InitialStateRejected('Typed initial-state boolean required: '+name)
+    if (profile['python_random_present'] is False)!=(profile['python_rng'] is None):raise InitialStateRejected('Python RNG presence differs from state')
+    seed=decode(profile['env_seed'])
+    if profile['env_seed_attribute_present']:
+        if seed is not None and (type(seed) is not int or seed < -1):raise InitialStateRejected('Original Gym seed integer/unknown sentinel required')
+    elif seed is not None:raise InitialStateRejected('Unused environment seed cannot be invented')
+    expected={'environment':set(ENV_STATE),'evaluator':EVALUATOR_FIELDS,'derived':set(DERIVED_FIELDS),'options':set(OPTION_FIELDS),
+        'provider':{'sequence','phase_results','phase_evidence_map'}}
+    for name,keys in expected.items():
+        if not isinstance(decoded[name],dict) or set(decoded[name])!=keys:raise InitialStateRejected('Initial mutable field inventory differs: '+name)
+    state=decoded['environment'];evaluation=decoded['evaluator'];native=decoded['provider']
+    source=sys.modules[type(env).__module__]
+    low,high=np.asarray(source.LOW),np.asarray(source.HIGH)
+    for name in ('command','command_before','requested','raw_action'):
+        actual=getattr(env,name);value=state[name]
+        if not isinstance(value,np.ndarray) or not isinstance(actual,np.ndarray) or value.shape!=(6,) or value.dtype!=actual.dtype or not np.isfinite(value).all():
+            raise InitialStateRejected('Initial endpoint array ABI differs: '+name)
+        if name!='raw_action' and (np.any(value<low) or np.any(value>high)):raise InitialStateRejected('Initial endpoint outside original SIM profile: '+name)
+    if (type(state['steps']) is not int or state['steps']!=0 or type(state['record_substeps']) is not bool or
+            type(state['substep_trace']) is not list or state['substep_trace'] or not isinstance(state['phase'],str) or not 0<len(state['phase'])<=160):
+        raise InitialStateRejected('Exact pre-first-step SIM boundary required')
+    if not isinstance(state['last_distance'],(int,float,np.number)) or isinstance(state['last_distance'],(bool,np.bool_)) or not math.isfinite(state['last_distance']) or state['last_distance']<0:
+        raise InitialStateRejected('Finite initial distance required')
+    for name in ('goal','half'):
+        value=evaluation[name];actual=getattr(env.evaluator,name)
+        if not isinstance(value,np.ndarray) or value.shape!=actual.shape or value.dtype!=actual.dtype or not np.array_equal(value,actual):
+            raise InitialStateRejected('Independent evaluator geometry ABI differs: '+name)
+    for name in ('initial_height','rim','dt','grasp_seconds','lift_seconds','settle_seconds','max_height_gain'):
+        value=evaluation[name]
+        if not isinstance(value,(int,float,np.number)) or isinstance(value,(bool,np.bool_)) or not math.isfinite(value):raise InitialStateRejected('Finite evaluator scalar required: '+name)
+    if any(evaluation[name]!=getattr(env.evaluator,name) for name in ('rim','dt')):raise InitialStateRejected('Original evaluator timing/geometry changed')
+    if any(type(evaluation[name]) is not bool or evaluation[name] for name in ('grasped','lifted','carried','success')):
+        raise InitialStateRejected('Before-first-command evaluator cannot contain outcome latches')
+    if (any(type(evaluation[name]) is not int or evaluation[name]!=0 for name in ('substeps','contact_substeps','bilateral_substeps')) or
+            any(evaluation[name]!=0 for name in ('grasp_seconds','lift_seconds','settle_seconds','max_height_gain')) or type(evaluation['last']) is not dict or evaluation['last']):
+        raise InitialStateRejected('Before-first-command independent evaluator counters differ')
+    if (type(native['sequence']) is not int or native['sequence']!=0 or type(native['phase_results']) is not dict or native['phase_results'] or
+            native['phase_evidence_map']!=provider.phase_evidence_map):raise InitialStateRejected('Initial provider phase boundary differs')
+    warnings=decoded['warnings']
+    if type(warnings) is not list or len(warnings)!=len(env.data.warning):raise InitialStateRejected('Native warning inventory differs')
+    for record in warnings:
+        if (type(record) is not dict or set(record)!={'number','lastinfo'} or
+                any(type(record[name]) is not int or not -(2**31)<=record[name]<2**31 for name in ('number','lastinfo')) or record['number']<0):
+            raise InitialStateRejected('Native warning setters require exact bounded C-int fields')
+    for name,array in decoded['derived'].items():
+        current=np.asarray(getattr(env.data,name))
+        if not isinstance(array,np.ndarray) or array.shape!=current.shape or array.dtype!=current.dtype:raise InitialStateRejected('Derived native array ABI differs')
+    for name,value in decoded['options'].items():
+        current=getattr(env.options,name)
+        if isinstance(current,np.ndarray):
+            if not isinstance(value,np.ndarray) or value.shape!=current.shape or value.dtype!=current.dtype:raise InitialStateRejected('Visualization option array ABI differs')
+        elif type(value) is not int or not -(2**31)<=value<2**31:raise InitialStateRejected('Visualization option requires bounded C-int')
+    for name,enum in (('label',mujoco.mjtLabel),('frame',mujoco.mjtFrame)):
+        allowed={int(value) for key,value in enum.__members__.items() if not key.startswith('mjN')}
+        if decoded['options'][name] not in allowed:raise InitialStateRejected('Visualization option enum differs: '+name)
+
+
 def restore_initial_trial(provider,bundle,*,expected_sha256,expected_source_bindings):
     """Validate all bound bytes/runtime BEFORE applying any initial SIM state."""
     import mujoco
     import numpy as np
     doc=validate_bundle(bundle,expected_sha256);env=_profile(provider)
+    if len(bundle.payloads.get('profile-state.json',b''))>MAX_PROFILE_BYTES:raise InitialStateRejected('Initial mutable profile exceeds bounded JSON size')
+    profile=json.loads(bundle.payloads['profile-state.json'])
+    decoded={name:decode(profile[name]) for name in ('environment','evaluator','derived','warnings','options','provider')}
+    _validate_profile_state(env,provider,profile,decoded)
     identity,unused=_source_payloads(expected_source_bindings)
     if identity!=doc['source_bindings'] or _runtime()!=doc['runtime']:
         raise InitialStateRejected('Initial snapshot source/runtime differs before restore')
@@ -322,10 +396,8 @@ def restore_initial_trial(provider,bundle,*,expected_sha256,expected_source_bind
     current_assets={Path(path).name:expected for path,expected in provider.mesh_files.items()}
     if current_assets!={name:row['sha256'] for name,row in doc['assets'].items()} or any(digest(_bytes(path))!=expected for path,expected in provider.mesh_files.items()):
         raise InitialStateRejected('Initial snapshot actual CAD assets differ')
-    profile=json.loads(bundle.payloads['profile-state.json'])
     if canonical(encode({name:getattr(env,name) for name in ENV_STATIC}))!=canonical(profile['static']):
         raise InitialStateRejected('Initial snapshot environment configuration differs')
-    decoded={name:decode(profile[name]) for name in ('environment','evaluator','derived','warnings','options','provider')}
     if set(decoded['environment'])!=set(ENV_STATE) or set(decoded['evaluator'])!=EVALUATOR_FIELDS or set(decoded['derived'])!=set(DERIVED_FIELDS) or set(decoded['options'])!=set(OPTION_FIELDS):
         raise InitialStateRejected('Initial snapshot mutable field inventory differs')
     if decoded['environment']['steps']!=0 or decoded['environment']['substep_trace'] or decoded['provider']['sequence']!=0 or decoded['provider']['phase_results'] or decoded['provider']['phase_evidence_map']!=provider.phase_evidence_map:
