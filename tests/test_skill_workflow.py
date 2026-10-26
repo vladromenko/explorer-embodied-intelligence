@@ -122,7 +122,8 @@ def test_templates_custom_and_revision_never_offer_partial_robot_contract(tmp_pa
         assert spec['action_profile']['names']==list(ACTION_NAMES) and spec['state_profile']['preceding_command9']['manufactured_from_joints_and_odometry'] is False
         assert set(spec['observation_contract']['channels'])==set(service.OBSERVATION_CHANNELS)
         assert len(spec['coverage_plan']['variants'])==5 and spec['constraints']['chassis_motion_forbidden']
-        assert not spec['pipeline']['implemented'] and not spec['pipeline']['arbitrary_Russian_instruction_conditioning']
+        assert 'implemented' not in spec['pipeline'] and spec['pipeline']['availability_basis']=='current_runtime_pipeline_overlay_not_immutable_task_fact'
+        assert not spec['pipeline']['arbitrary_Russian_instruction_conditioning']
     custom=proposal('Переложи красный носок в синюю корзину')
     assert custom['task_type']=='mobile_manipulation' and custom['object']['name']=='красный носок'
     assert custom['goal']['name']=='синюю корзину' and 'not_certain_NLU' in custom['proposal_basis']
@@ -193,7 +194,9 @@ def test_all_canonical_train_dev_aggregate_preserves_original_envelope_payloads_
     store=Store(tmp_path);selected,_,rows=prepared(store);identity=selected['spec']['skill_id']
     state=workflow(store,identity,1)
     assert state['data_ready'] and not state['train_ready'] and state['counts']['covered_variants']==5
-    assert state['next_action']['kind']=='resolve_pipeline'
+    assert state['next_action']['kind']=='resolve_source_inputs'
+    assert state['runtime_pipeline']['implemented'] and state['runtime_pipeline']['job_kind']=='rosmaster_skill_train'
+    assert all('EXPLICIT_RECORDED_PRIOR_COMMAND9_REQUIRED' in row['blockers'] for row in state['source_preflight'])
     before={str(path):sha(path) for _,path,_ in rows}
     result=build_aggregate(store,identity,1);manifest=result['manifest'];aggregate=Path(result['dataset_manifest'])
     assert manifest['schema']=='explorer_unified_embodied_skill_dataset_v1' and len(manifest['episodes'])==4
@@ -451,3 +454,62 @@ def test_verified_native_adapter_and_source_project_are_preserved_independently_
     assert provenance['source_project_id']=='03' and provenance['import_job_project_id']=='02'
     assert provenance['input_mode']=='so101_leader' and provenance['input_mode_verified']
     assert provenance['provenance']['source_sha256']==sha(path.parent/'facts.json')
+
+
+def test_legacy_spec_immutable_false_pipeline_uses_runtime_overlay_without_changing_SHA(tmp_path):
+    store=Store(tmp_path);legacy=proposal(preset='sock_to_basket');identity=legacy['skill_id']
+    legacy['pipeline']=dict(pipeline_class=legacy['pipeline']['pipeline_class'],implemented=False,job_kind=None)
+    legacy['missing_facts'] += [dict(id=name,required_for='training',reason='Historical code blocker') for name in sorted(service.CODE_BACKEND_FACTS)]
+    legacy['missing_facts'].append(dict(id='unresolved_task_contact_definition',required_for='training',reason='A genuine task fact must remain'))
+    with store.connect() as db:record=service._append(db,'spec',dict(spec=legacy,request_id='historical-v1',intent=dict(text='',preset='sock_to_basket')))
+    selected=confirm_skill(store,identity,1,service.digest(legacy))
+    with store.connect() as db:before=db.execute('SELECT body FROM events WHERE event_id=?',(record['event_id'],)).fetchone()['body']
+    state=workflow(store,identity,1)
+    assert state['spec']==legacy and state['spec_sha256']==selected['spec_sha256']
+    assert state['spec']['pipeline']['implemented'] is False
+    assert state['runtime_pipeline']['implemented'] and state['runtime_pipeline']['job_kind']=='rosmaster_skill_train'
+    assert state['effective_pipeline']['state_dimension']==106 and state['effective_pipeline']['action_dimension']==9
+    assert set(state['runtime_pipeline']['resolved_legacy_code_blockers'])==service.CODE_BACKEND_FACTS
+    remaining={fact['id'] for fact in state['runtime_missing_facts']}
+    assert not service.CODE_BACKEND_FACTS&remaining and 'unresolved_task_contact_definition' in remaining
+    assert 'unresolved_task_contact_definition' in state['training_blockers']
+    assert not state['train_ready'] and not state['runtime_pipeline']['physical_execution_ready']
+    with store.connect() as db:after=db.execute('SELECT body FROM events WHERE event_id=?',(record['event_id'],)).fetchone()['body']
+    assert before==after
+
+
+def test_real_canonical_inputs_enable_one_common_CPU_queue_without_running_an_optimizer(tmp_path):
+    from test_rosmaster_skill_pipeline import fixture_aggregate
+    path,store=fixture_aggregate(tmp_path);manifest=json.loads(path.read_text());identity=manifest['skill_id']
+    state=workflow(store,identity,1,project_id='03')
+    assert state['data_ready'] and state['training_data_ready'] and state['train_ready']
+    assert all(row['baseline_ready'] for row in state['source_preflight'])
+    request=training_request(store,identity,1,dict(act_steps=8,batch_size=2,image_size=32,chunk_size=2),project_id='03')
+    assert request['kind']=='rosmaster_skill_train' and request['project_id']=='03'
+    assert request['config']['device']=='cpu' and request['config']['skill_workflow']['model_input_state_dimension']==106
+    assert request['config']['skill_workflow']['output_action_dimension']==9
+    assert service.validate_rosmaster_training_request(store,request,server_generated=True)
+    with pytest.raises(WorkflowBlocked):service.validate_rosmaster_training_request(store,request)
+    with pytest.raises(WorkflowBlocked,match='DEVICE_NOT_QUALIFIED'):training_request(store,identity,1,dict(device='cuda'))
+    before={str(file):sha(file) for file in path.parent.rglob('*') if file.is_file()}
+    first=enqueue_training(store,identity,1,dict(act_steps=8,batch_size=2,image_size=32,chunk_size=2),project_id='03')
+    second=enqueue_training(store,identity,1,dict(act_steps=8,batch_size=2,image_size=32,chunk_size=2),project_id='02')
+    assert first['id']==second['id'] and first['status']=='queued'
+    assert len([job for job in store.jobs(10000) if job['kind']=='rosmaster_skill_train'])==1
+    assert all(sha(name)==expected for name,expected in before.items())
+    assert not (store.root/'jobs'/first['id']/'student_act').exists()
+    assert not store.skills()
+    node=shutil.which('node')
+    if node:
+        fixture=tmp_path/'ready-workflow.json';fixture.write_text(json.dumps(state))
+        renderer=Path(__file__).parents[1]/'00-control-center/src/explorer/static/skill-workflow.js'
+        program="const fs=require('fs'),vm=require('vm'),assert=require('assert');const c={structuredClone,document:{addEventListener(){}},window:{location:{pathname:'/experiments/03'}},model:{jobs:[]},array:x=>Array.isArray(x)?x:[],esc:x=>String(x),kv:(a,b)=>a+b,count:x=>x,render(){},queueMicrotask(){}};vm.createContext(c);vm.runInContext(fs.readFileSync(process.argv[1],'utf8'),c);c.fixture=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));vm.runInContext('skillWorkflowUI.loaded=true;skillWorkflowUI.state=fixture;skillWorkflowResetDraft()',c);const html=vm.runInContext('skillWorkflowPanel()',c);assert.equal((html.match(/data-skill-action=\"train\"/g)||[]).length,1);assert(!/data-skill-action=\"train\" disabled/.test(html));assert(html.includes('реализованы offline ACT9'));"
+        result=subprocess.run([node,'-e',program,str(renderer),str(fixture)],capture_output=True,text=True)
+        assert result.returncode==0,result.stdout+result.stderr
+
+
+def test_runtime_pipeline_overlay_import_is_controlplane_lightweight():
+    root=Path(__file__).parents[1]
+    code="import sys;sys.path[:0]="+repr([str(root/'shared'),str(root/'00-control-center/src')])+";from explorer.skill_workflow import runtime_pipeline;p=runtime_pipeline();assert p['implemented'];assert p['job_kind']=='rosmaster_skill_train';assert 'torch' not in sys.modules;assert 'mujoco' not in sys.modules"
+    result=subprocess.run([__import__('sys').executable,'-c',code],capture_output=True,text=True)
+    assert result.returncode==0,result.stdout+result.stderr

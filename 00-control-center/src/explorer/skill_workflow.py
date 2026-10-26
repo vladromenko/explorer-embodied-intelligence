@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import sys
 import time
 import uuid
 
@@ -42,6 +43,66 @@ EVENT_PREFIX = 'skill.workflow.'
 ROSMASTER_PROJECTS=('02','03')
 INPUT_MODES=('keyboard_gamepad','so101_leader_retarget')
 WORKFLOW_FAMILY='rosmaster_shared_demonstration_pipeline_v1'
+CODE_BACKEND_FACTS={'perception_goal_tracking_backend','navigation_training_backend','hierarchy_coordinator_recovery_backend'}
+
+
+def runtime_pipeline():
+    """Current source capabilities overlay; never rewrite an immutable SkillSpec."""
+    try:
+        source=Path(__file__).resolve().parents[3]/'01-autonomous-learning'/'src'
+        if str(source) not in sys.path and source.is_dir():sys.path.insert(0,str(source))
+        from explorer_sim.rosmaster_skill_pipeline import pipeline_capabilities
+        caps=deepcopy_document(pipeline_capabilities())
+        if not isinstance(caps,dict) or caps.get('schema')!='rosmaster_skill_pipeline_capabilities_v1':raise ValueError('Unknown runtime pipeline capabilities schema')
+        implemented=(caps.get('end_to_end_implemented') is True and caps.get('action_contract_id')==UNIFIED_ACTION_CONTRACT and
+            caps.get('action_dimension')==9 and caps.get('fused_state_dimension')==106 and caps.get('job_kind')=='rosmaster_skill_train')
+        resolved=sorted(CODE_BACKEND_FACTS) if implemented and caps.get('hybrid_implemented') is True else []
+        return dict(schema='explorer_runtime_skill_pipeline_v1',implemented=implemented,job_kind=caps.get('job_kind') if implemented else None,
+            primary_candidate='official_ACT9_RGB_available_sensor_fusion',hybrid_implemented=caps.get('hybrid_implemented') is True,
+            state_dimension=caps.get('fused_state_dimension'),action_dimension=9,qualified_devices=list(caps.get('qualified_devices') or []),
+            resolved_legacy_code_blockers=resolved,capabilities=caps,capabilities_sha256=digest(caps),physical_execution_ready=False,skill_mastery_claimed=False)
+    except (ImportError,OSError,ValueError) as error:
+        return dict(schema='explorer_runtime_skill_pipeline_v1',implemented=False,job_kind=None,qualified_devices=[],resolved_legacy_code_blockers=[],
+            reason='shared_backend_import_or_contract_unavailable:'+str(error),physical_execution_ready=False,skill_mastery_claimed=False)
+
+
+def deepcopy_document(value):return json.loads(json.dumps(value,allow_nan=False))
+
+
+def _source_preflight(decisions):
+    results=[]
+    for row in decisions:
+        if row['accepted']:
+            report=(row.get('evidence') or {}).get('mobile_embodied') or {};channels=report.get('channels') or {};binding=row['binding'];blockers=[]
+            prior=channels.get('preceding_command9') or {}
+            if prior.get('admitted') is not True:blockers.append('EXPLICIT_RECORDED_PRIOR_COMMAND9_REQUIRED')
+            if report.get('rgb_verified') is not True:blockers.append('REAL_RGB_REQUIRED')
+            if not blockers and not _candidate_rgb_headers_ready(report):blockers.append('REAL_RGB_PAYLOAD_NOT_DECODABLE')
+            if report.get('action9_verified') is not True or report.get('causal_verified') is not True:blockers.append('CAUSAL_DISPATCH9_REQUIRED')
+            capabilities=report.get('capability_admission') or {};navigation=capabilities.get('navigation') or {}
+            hybrid_missing=[] if navigation.get('evidence_admitted') is True else ['NAVIGATION_SENSOR_OR_GEOMETRY_EVIDENCE_NOT_READY']
+            results.append(dict(original_episode_id=binding['original_episode_id'],split=binding['split'],baseline_ready=not blockers,blockers=blockers,
+                hybrid_sensor_preflight_ready=not hybrid_missing,hybrid_missing=hybrid_missing,hybrid_full_inference_qualification=False,source_kind=report.get('source_kind')))
+    return results
+
+
+def _candidate_rgb_headers_ready(report):
+    """Read-only media preflight; complete decoding repeats before queue/optimizer."""
+    from PIL import Image
+    paths={row['relative_name']:Path(row['path']) for row in report.get('source_artifacts') or []};checked=set()
+    try:
+        for sample in (report.get('envelope') or {}).get('samples',[]):
+            image=(sample['channels']['camera_rgb'].get('value') or {});name=image.get('source_file')
+            if name not in checked:
+                path=paths[name];checked.add(name)
+                if image.get('encoding') in ('rgb8','RGB8'):
+                    if path.stat().st_size!=image['width']*image['height']*3:return False
+                else:
+                    with Image.open(path) as decoded:
+                        if decoded.mode!='RGB' or decoded.size!=(image['width'],image['height']):return False
+                        decoded.verify()
+        return bool(checked)
+    except (OSError,ValueError,KeyError,TypeError):return False
 
 
 def _context(project_id='02',input_mode=None):
@@ -167,22 +228,18 @@ def _derive(spec):
         masks='only_actual_unavailable_or_invalid_measurements_never_phase_nonparticipation',
         sensor_identity_calibration_required=True,power_role='recorded_context_not_a_new_motor_or_charging_setting')
     try:
-        from explorer_shared.embodied_episode import hierarchy_plan,sensor_contract
-        hierarchy=hierarchy_plan(spec)
+        from explorer_shared.embodied_episode import sensor_contract
         spec['observation_contract']['canonical_sensor_contract']=sensor_contract()
     except ImportError:
-        hierarchy=dict(schema='explorer_embodied_hierarchy_plan_v1',action_contract_id=UNIFIED_ACTION_CONTRACT,
-            simultaneous_9d=True,full_hierarchy_status='BLOCKED',missing_channels=list(OBSERVATION_CHANNELS),
-            stages=[],scope='internal_components_of_one_mobile_manipulator_not_separate_tasks')
+        spec['observation_contract']['canonical_sensor_contract_reference']='explorer_shared.embodied_episode.sensor_contract'
     spec['pipeline']=dict(pipeline_class='unified_rosmaster_perception_goal_navigation_contact_ACT_BC_coordinator_recovery',
-        implemented=False,job_kind=None,hierarchy_plan=hierarchy,full_task_required=True,
+        availability_basis='current_runtime_pipeline_overlay_not_immutable_task_fact',job_kind_reference='rosmaster_skill_train',full_task_required=True,
+        candidates=['official_ACT9_RGB_available_sensor_fusion','calibrated_goal_Astar_navigation_ACT9_contact_observed_phase_coordinator_recovery'],
+        hierarchy_components=['calibrated_perception_goal','navigation_baseline','ACT9_contact_coordinated_motion','observed_phase_coordinator_recovery'],
         observations='canonical_RGB_depth_calibration_lidar_odom_pose_velocity_IMU_joints_masks_gripper_clocks_detection_goal_power_context',
         action_contract_id=UNIFIED_ACTION_CONTRACT,arbitrary_Russian_instruction_conditioning=False,
-        internal_ACT_BC_component='legacy_RGB_state9_reader_exists_but_is_not_a_full_embodied_skill_pipeline')
+        model_input_provenance='recorded_admitted_actually_used_separate; legacy_single_clip_readers_not_a_shared_aggregate_training_fallback')
     missing += [dict(id='canonical_multisensor_episode_admission',required_for='full_pipeline',reason='Общая схема RGB/depth/калибровок, LiDAR, odometry, IMU, суставов/масок, захвата и часов сохраняет реально недоступные измерения как UNKNOWN; command-estimate требует source-bound reference/boot/native dispatch, не включения feedback'),
-        dict(id='perception_goal_tracking_backend',required_for='training',reason='Нужен проверенный perception/goal tracking в общей иерархии'),
-        dict(id='navigation_training_backend',required_for='training',reason='Нужен настоящий odometry/trajectory navigation baseline; RGB+9D ACT не заменяет его'),
-        dict(id='hierarchy_coordinator_recovery_backend',required_for='training',reason='Полный hierarchy/coordinator/recovery ещё не реализован как обучающий backend'),
         dict(id='owner_chassis_prohibition',required_for='recording',reason='Шасси перемещать запрещено; только неподвижная сцена / допустимые targeted показы с тем же полным 9D-контрактом')]
     spec['missing_facts'] = missing
     spec['success']['verification_basis'] = 'operator_review_of_complete_task_not_automatic_contact_measurement'
@@ -532,6 +589,13 @@ def workflow(store,skill_id,version=None,*,inspector=None,project_id='02',input_
             attempts=len(assigned),targeted_or_recovery_accepted=sum(row['accepted'] and row['binding'].get('episode_scope','whole_episode')!='whole_episode' for row in assigned),covered=bool(approved),next_repeat_number=len(assigned)+1))
     covered={split:sum(row['covered'] and row['split']==split for row in variants) for split in SPLITS}
     accepted=[row for row in decisions if row['accepted']]
+    pipeline=runtime_pipeline();source_preflight=_source_preflight(decisions)
+    runtime_facts=[deepcopy_document(item) for item in spec.get('missing_facts',[]) if item.get('id') not in pipeline['resolved_legacy_code_blockers']]
+    source_blockers=[]
+    for item in source_preflight:
+        for code in item['blockers']:
+            identifier='source_input:'+code+':'+item['original_episode_id'];source_blockers.append(identifier)
+            runtime_facts.append(dict(id=identifier,code=code,original_episode_id=item['original_episode_id'],required_for='training',reason='Источник '+item['original_episode_id']+': '+code))
     counts=dict(accepted_originals=len(accepted),rejected_originals=len(decisions)-len(accepted),assigned_originals=len(decisions),
         covered_variants=sum(row['covered'] for row in variants),planned_variants=len(variants),
         accepted_train_originals=sum(row['binding']['split']=='train' for row in accepted),
@@ -539,8 +603,8 @@ def workflow(store,skill_id,version=None,*,inspector=None,project_id='02',input_
         sealed_originals=sum(row['binding']['split']=='sealed_test' for row in accepted))
     reasons=[]
     if not selected['confirmed']:reasons.append('skill_spec_not_confirmed')
-    if not spec['pipeline']['implemented']:reasons.append('pipeline_not_implemented_for_this_task_type')
-    reasons += [item['id'] for item in spec['missing_facts'] if item['required_for']=='training']
+    if not pipeline['implemented']:reasons.append('runtime_shared_pipeline_unavailable')
+    reasons += [item['id'] for item in runtime_facts if item.get('required_for')=='training']
     for split,minimum in (('train',3),('development',1),('sealed_test',1)):
         if covered[split]<minimum:reasons.append('need_'+str(minimum)+'_distinct_'+split+'_variants')
     missing=next((row for row in variants if not row['covered']),None)
@@ -551,15 +615,16 @@ def workflow(store,skill_id,version=None,*,inspector=None,project_id='02',input_
             repeat_number=missing['next_repeat_number'],initial_robot=missing['initial_robot'],initial_object=missing['initial_object'],goal_position=missing['goal_position'],
             reason=('Повторите полный показ после исправления: '+', '.join(failures[-1]['reasons'])) if failures else 'Эти начальные условия ещё не покрыты одобренным полным показом',
             suggested_next_batch=1)
-    elif reasons:next_action=dict(kind='resolve_pipeline',reason='Показы сохранены, но выбранный полный pipeline пока заблокирован',suggested_next_batch=0)
+    elif reasons:next_action=dict(kind='resolve_source_inputs' if source_blockers else 'resolve_pipeline',reason='Canonical показы сохранены; перед общим обучением исправьте конкретные требования входов: '+', '.join(reasons),suggested_next_batch=0)
     elif not training:next_action=dict(kind='train_all_accepted',reason='Начальный технический охват собран. Обучите одну модель на всех принятых train-показах с отдельной development-сессией.',suggested_next_batch=0)
     else:next_action=dict(kind='independent_full_task_check',reason='Нужны отдельные полные попытки обученной модели. Offline chunk error и пять показов не подтверждают владение навыком; sealed записи не дообучаются.',suggested_next_batch=0)
     data_blockers=[reason for reason in reasons if reason.startswith('need_')]
     data_ready=selected['confirmed'] and not data_blockers
     phase_coverage={phase['id']:{variant['variant_id']:sum(row['accepted'] and row['binding']['variant_id']==variant['variant_id'] and row['binding'].get('phase_outcomes',{}).get(phase['id'])=='success' for row in decisions) for variant in variants} for phase in spec['stages']}
     return dict(schema='explorer_skill_workflow_v1',**selected,variants=variants,sessions=sessions,counts=counts,covered_by_split=covered,
+        runtime_pipeline=pipeline,effective_pipeline=deepcopy_document(pipeline),runtime_missing_facts=runtime_facts,source_preflight=source_preflight,
         workflow_family=WORKFLOW_FAMILY,context=context,compatible_source_projects=list(ROSMASTER_PROJECTS),shared_downstream=True,
-        train_ready=not reasons,data_ready=data_ready,data_blockers=data_blockers,training_blockers=list(dict.fromkeys(reasons)),next_action=next_action,phase_variant_coverage=phase_coverage,
+        train_ready=not reasons,data_ready=data_ready,training_data_ready=data_ready and not source_blockers,data_blockers=data_blockers,training_blockers=list(dict.fromkeys(reasons)),next_action=next_action,phase_variant_coverage=phase_coverage,
         recording_allowed=selected['confirmed'],recording_conditions=['chassis_must_remain_stationary_under_current_owner_prohibition'],
         recording_blockers=[],
         assignments=[dict(binding=row['binding'],accepted=row['accepted'],reasons=row['reasons'],
@@ -679,7 +744,7 @@ def build_aggregate(store,skill_id,version,*,inspector=None):
         source_files_sha256={name:expected for name,(_,expected) in files.items()},
         optional_internal_legacy_RGB9D_view=component_name,preceding_command9_manufactured=False,
         source_kinds=sorted({row['evidence']['mobile_embodied']['source_kind'] for row in included}),cross_episode_split_checked=True,
-        full_hierarchy_training_implemented=False,physical_success_inferred=False,method_ids=['ENGINEERING_GLUE'])
+        runtime_implementation_availability_is_not_dataset_fact=True,physical_success_inferred=False,method_ids=['ENGINEERING_GLUE'])
     content=digest(core);manifest=dict(core,aggregate_content_id=content,dataset_id='unified-skill-'+spec['skill_id']+'-v'+str(version)+'-'+content[:16]);data=canonical(manifest)
     destination=Path(store.root)/'datasets'/'skill-workflows'/spec['skill_id']/('v'+str(version).zfill(4))/content
     if destination.exists():
@@ -712,16 +777,20 @@ def training_request(store,skill_id,version,settings=None,*,inspector=None,proje
     allowed={'seed','act_steps','batch_size','image_size','chunk_size','device'}
     if not isinstance(settings,dict) or set(settings)-allowed:raise ValueError('Choose supported learner settings only')
     values=dict(seed=41,act_steps=120,batch_size=8,image_size=64,chunk_size=8,device='cpu');values.update(settings)
-    for name,low,high in (('seed',0,1000000),('act_steps',1,100000),('batch_size',1,64),('image_size',32,224),('chunk_size',1,100)):
+    for name,low,high in (('seed',0,1000000),('act_steps',1,100000),('batch_size',1,32),('image_size',32,224),('chunk_size',1,100)):
         if type(values[name]) is not int or not low<=values[name]<=high:raise ValueError('Invalid offline training '+name)
     if values['device'] not in ('cpu','cuda'):raise ValueError('Explicit CPU/CUDA learner required')
+    pipeline=runtime_pipeline()
+    if not pipeline['implemented']:raise WorkflowBlocked(['runtime_shared_pipeline_unavailable'])
+    if values['device'] not in pipeline['qualified_devices']:raise WorkflowBlocked(['FUSED_ACT_DEVICE_NOT_QUALIFIED:'+values['device']])
     state=workflow(store,skill_id,version,inspector=inspector,project_id=project_id,input_mode=context['input_mode'])
     if not state['train_ready']:raise WorkflowBlocked(state['training_blockers'])
     aggregate=build_aggregate(store,skill_id,version,inspector=inspector)
     lineage={key:aggregate[key] for key in ('skill_id','skill_version','spec_sha256','aggregate_sha256','aggregate_content_id','training_original_episode_ids','development_original_episode_ids','sealed_original_episode_ids')}
     lineage.update(pipeline_class=aggregate['manifest']['skill_spec']['pipeline']['pipeline_class'],training_scope='whole_unified_rosmaster_skill',action_contract_id=UNIFIED_ACTION_CONTRACT,
-        workflow_family=WORKFLOW_FAMILY,compatible_source_projects=list(ROSMASTER_PROJECTS),request_context=context)
-    return dict(kind=state['spec']['pipeline']['job_kind'],project_id=project_id,config=dict(values,dataset_manifest=aggregate['dataset_manifest'],skill_workflow=lineage))
+        workflow_family=WORKFLOW_FAMILY,compatible_source_projects=list(ROSMASTER_PROJECTS),request_context=context,runtime_pipeline_capabilities_sha256=pipeline['capabilities_sha256'],
+        model_input_state_dimension=pipeline['state_dimension'],output_action_dimension=9)
+    return dict(kind=pipeline['job_kind'],project_id=project_id,config=dict(values,dataset_manifest=aggregate['dataset_manifest'],skill_workflow=lineage))
 
 
 def register_training_job(store,job):
@@ -873,8 +942,22 @@ def validate_rosmaster_training_request(store,body,*,server_generated=False):
     if not isinstance(lineage,dict) or lineage.get('action_contract_id')!=UNIFIED_ACTION_CONTRACT:raise WorkflowBlocked(['verified_unified_skill_lineage_required'])
     with store.connect() as db:selected=_get_spec(db,lineage.get('skill_id'),lineage.get('skill_version'))
     if not selected['confirmed'] or selected['spec_sha256']!=lineage.get('spec_sha256'):raise WorkflowBlocked(['confirmed_current_skill_definition_required'])
-    pipeline=selected['spec']['pipeline']
+    pipeline=runtime_pipeline()
     if pipeline.get('implemented') is not True or body.get('kind')!=pipeline.get('job_kind'):raise WorkflowBlocked(['real_full_perception_navigation_contact_coordinator_recovery_backend_not_implemented'])
+    if lineage.get('training_scope')!='whole_unified_rosmaster_skill' or lineage.get('workflow_family')!=WORKFLOW_FAMILY:raise WorkflowBlocked(['whole_shared_skill_training_scope_required'])
+    if lineage.get('runtime_pipeline_capabilities_sha256')!=pipeline.get('capabilities_sha256'):raise WorkflowBlocked(['current_runtime_pipeline_capabilities_required'])
+    if (body.get('config') or {}).get('device','cpu') not in pipeline['qualified_devices']:raise WorkflowBlocked(['FUSED_ACT_DEVICE_NOT_QUALIFIED'])
+    path=_local(store.root,(body.get('config') or {}).get('dataset_manifest'))
+    if _sha(path)!=lineage.get('aggregate_sha256'):raise WorkflowBlocked(['verified_aggregate_sha256_required'])
+    from explorer_sim.rosmaster_skill_pipeline import CanonicalCorpus,PipelineBlocked
+    try:corpus=CanonicalCorpus(path)
+    except PipelineBlocked as error:raise WorkflowBlocked(['SOURCE_PIPELINE_PREFLIGHT:'+error.code+':'+error.detail]) from error
+    if corpus.skill_id!=lineage['skill_id'] or corpus.version!=lineage['skill_version'] or corpus.manifest.get('skill_spec_sha256')!=lineage['spec_sha256']:raise WorkflowBlocked(['aggregate_skill_spec_lineage_mismatch'])
+    if corpus.manifest.get('aggregate_content_id')!=lineage.get('aggregate_content_id'):raise WorkflowBlocked(['aggregate_content_identity_mismatch'])
+    for name,episodes in (('training_original_episode_ids',corpus.train),('development_original_episode_ids',corpus.development)):
+        declared=lineage.get(name);actual=[row['descriptor']['source_episode_id'] for row in episodes]
+        if not isinstance(declared,list) or len(declared)!=len(set(declared)) or set(declared)!=set(actual):raise WorkflowBlocked(['aggregate_source_split_lineage_mismatch:'+name])
+    if set(lineage.get('sealed_original_episode_ids') or [])!=set(corpus.sealed_ids):raise WorkflowBlocked(['aggregate_sealed_lineage_mismatch'])
     return True
 
 
@@ -884,10 +967,10 @@ def validate_02_training_request(store,body,*,server_generated=False):
 
 
 def enqueue_training(store,skill_id,version,settings=None,*,inspector=None,project_id='02',input_mode=None):
-    """One transaction for a future qualified job and its immutable reservation.
+    """One transaction for a qualified shared job and its immutable reservation.
 
-    The current complete hierarchy is deliberately blocked before any job row.
     Preparing immutable artifacts precedes the short SQLite write transaction.
+    Missing source/candidate inputs block before any job row.
     """
     context=_context(project_id,input_mode)
     prepared=training_request(store,skill_id,version,settings,inspector=inspector,project_id=project_id,input_mode=context['input_mode'])
