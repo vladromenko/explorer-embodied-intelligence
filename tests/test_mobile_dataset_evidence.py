@@ -36,6 +36,10 @@ def test_complete_converted_RGB9D_contract_is_bound_to_actual_retained_originals
     before={str(p):file_sha256(p) for p in tmp_path.rglob('*') if p.is_file()}
     evidence=inspect_mobile_import(job,managed_root=tmp_path,include_manifest=True)
     assert evidence['legacy_RGB9D_contract_admitted'],evidence['reasons']
+    assert evidence['legacy_RGB9D_view']['manifest_path']==conversion['dataset_manifest']
+    assert evidence['legacy_RGB9D_view']['manifest_sha256']==file_sha256(Path(conversion['dataset_manifest']))
+    assert evidence['legacy_RGB9D_view']['manifest']['format']=='explorer_robot_episode_v1'
+    assert not evidence['legacy_RGB9D_view']['canonical_sample_correspondence_verified']
     assert not evidence['admitted_for_training'] and not evidence['mobile_embodied']['admitted_for_training']
     assert 'mobile_embodied_admission_denied' in evidence['reasons']
     assert evidence['rgb_verified'] and evidence['action9_verified'] and evidence['causal_verified']

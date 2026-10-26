@@ -418,7 +418,9 @@ def inspect_mobile_import(job,*,managed_root=None,include_manifest=False,max_epi
         max_episode_bytes=max_episode_bytes,training_jobs=training_jobs)
     report['legacy_RGB9D_view']={key:report.get(key) for key in (
         'legacy_RGB9D_contract_admitted','rgb_verified','action9_verified','causal_verified','state_basis',
-        'action_basis','source_quality_usable','source_training_admission_usable','episodes')}
+        'action_basis','source_quality_usable','source_training_admission_usable','episodes','manifest_path','manifest_sha256')}
+    if include_manifest:report['legacy_RGB9D_view']['manifest']=report.get('manifest')
+    report['legacy_RGB9D_view']['canonical_sample_correspondence_verified']=False
     report['legacy_RGB9D_view']['reasons']=list(report['reasons'])
     report['legacy_RGB9D_view']['missing_facts']=list(report['missing_facts'])
     result=job.get('result') or {};common=[];canonical=None;seen=set()
