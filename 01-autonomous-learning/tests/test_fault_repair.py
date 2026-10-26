@@ -144,3 +144,45 @@ def test_transient_reach_that_leaves_goal_does_not_pass_final_task_predicate():
     result = execute_trial(Plant(),31,FaultSpec(),dict(repair_authorized=False),repair=False,horizon=24)
     assert result['first_success_s'] is not None
     assert not result['success'] and result['final_hold_steps'] == 0
+
+
+def test_completed_job_identity_binds_cad_assets_and_engine_version(tmp_path,monkeypatch):
+    import json
+    import explorer_sim.fault_repair as module
+    from types import SimpleNamespace
+    assets = tmp_path/'assets';assets.mkdir()
+    mesh = assets/'software-fixture.STL';mesh.write_bytes(b'explicit-software-cache-fixture')
+    monkeypatch.setattr(module,'resolve_mesh_dir',lambda *_:assets)
+    job = dict(id='completed-fixture',config={})
+    folder = tmp_path/'jobs'/job['id'];folder.mkdir(parents=True)
+    original = module.execution_identity(module.settings({}),assets)
+    saved = dict(request_signature=original['request_signature'],artifact_sha256={})
+    (folder/'fault-repair-result.json').write_text(json.dumps(saved))
+    store = SimpleNamespace(root=tmp_path)
+    assert module.run_fault_repair(store,job) == saved
+    mesh.write_bytes(b'changed-CAD-must-not-reuse-completed-result')
+    with pytest.raises(ValueError,match='source or settings differ'):
+        module.run_fault_repair(store,job)
+    mesh.write_bytes(b'explicit-software-cache-fixture')
+    version = module.importlib.metadata.version
+    monkeypatch.setattr(module.importlib.metadata,'version',lambda name:'different-MuJoCo-engine' if name=='mujoco' else version(name))
+    with pytest.raises(ValueError,match='source or settings differ'):
+        module.run_fault_repair(store,job)
+
+
+def test_actual_entry_keeps_job_identity_and_checks_completed_raw_artifacts(meshes,tmp_path):
+    from types import SimpleNamespace
+    calls = []
+    def update(job_id,**body):
+        assert job_id == 'actual-finite-run'
+        calls.append(body)
+    store = SimpleNamespace(root=tmp_path,update_job=update)
+    job = dict(id='actual-finite-run',config=dict(scenarios=['nominal'],evaluation_episodes=1,horizon=24,mesh_dir=meshes))
+    result = run_fault_repair(store,job)
+    assert calls and result['versions']['mujoco']
+    assert result['cad_mesh_sha256'] and result['cases'][0]['diagnosis']['causes'] == ['nominal_within_probe_resolution']
+    assert run_fault_repair(store,job) == result
+    artifact = Path(result['actual_attempt'])/'nominal/probe-measurements.npz'
+    artifact.write_bytes(b'changed-raw-measurements')
+    with pytest.raises(ValueError,match='artifact checksum'):
+        run_fault_repair(store,job)

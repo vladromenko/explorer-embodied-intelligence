@@ -335,6 +335,17 @@ def _summary(episodes):
         mean_success_latency_s=float(np.mean([item['first_success_s'] for item in episodes if item.get('first_success_s') is not None])) if any(item.get('first_success_s') is not None for item in episodes) else None)
 
 
+def execution_identity(options, mesh_dir):
+    source_paths = [Path(__file__), Path(__file__).with_name('pilot.py'),
+        Path(__file__).parents[1]/'legacy/simulator/explorer_model.py',
+        Path(__file__).parents[1]/'legacy/simulator/model_config.json',
+        Path(__file__).parents[1]/'legacy/config/explorer.urdf', Path(__file__).parents[1]/'legacy/config/explorer.srdf']
+    context = dict(options=options, source_sha256={str(path):sha(path) for path in source_paths},
+        cad_mesh_sha256={path.name:sha(path) for path in sorted(Path(mesh_dir).glob('*.STL'))},
+        versions={name:importlib.metadata.version(name) for name in ('mujoco','numpy')})
+    return dict(context, request_signature=hashlib.sha256(json.dumps(context,sort_keys=True).encode()).hexdigest())
+
+
 def run_fault_repair(store, job, config=None):
     """Durable, offline simulation entry; no hidden actuator/controller writes."""
     options = settings(job.get('config'))
@@ -343,12 +354,10 @@ def run_fault_repair(store, job, config=None):
         raise ValueError('Invalid fault-repair job identity')
     folder = Path(store.root)/'jobs'/identity
     folder.mkdir(parents=True, exist_ok=True)
-    source_paths = [Path(__file__), Path(__file__).with_name('pilot.py'),
-        Path(__file__).parents[1]/'legacy/simulator/explorer_model.py',
-        Path(__file__).parents[1]/'legacy/simulator/model_config.json',
-        Path(__file__).parents[1]/'legacy/config/explorer.urdf', Path(__file__).parents[1]/'legacy/config/explorer.srdf']
-    source_hashes = {str(path):sha(path) for path in source_paths}
-    signature = hashlib.sha256(json.dumps(dict(options=options,source_sha256=source_hashes),sort_keys=True).encode()).hexdigest()
+    mesh_dir = resolve_mesh_dir((job.get('config') or {}).get('mesh_dir'))
+    execution = execution_identity(options, mesh_dir)
+    signature, source_hashes = execution['request_signature'], execution['source_sha256']
+    source_paths = [Path(name) for name in source_hashes]
     with (folder/'.fault-repair-owner.lock').open('a') as lock:
         try:
             fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -364,7 +373,6 @@ def run_fault_repair(store, job, config=None):
                     raise ValueError('Completed fault-repair artifact checksum mismatch')
             return saved
         attempt = folder/'attempts'/uuid.uuid4().hex;attempt.mkdir(parents=True)
-        mesh_dir = resolve_mesh_dir((job.get('config') or {}).get('mesh_dir'))
         plant = FaultedReach(mesh_dir, horizon=options['horizon'])
         started = time.monotonic()
         records = []
@@ -395,7 +403,7 @@ def run_fault_repair(store, job, config=None):
                     baseline.append(execute_trial(plant, seed, fault, diagnosis, repair=False, horizon=options['horizon']))
                     repaired.append(execute_trial(plant, seed, fault, diagnosis, repair=True, horizon=options['horizon']))
                 write_json(case_folder/'matched-development-trials.json',dict(baseline=baseline,targeted_repair=repaired))
-                record = dict(scenario_id=scenario_id, injection_audit=asdict(fault), probe_selection=selection,
+                record = dict(scenario_id=scenario_id, injection_audit=json.loads(json.dumps(asdict(fault))), probe_selection=selection,
                     probe_seed=probe_seed, development_seeds=seeds, diagnosis=diagnosis,
                     unmodified=_summary(baseline), targeted_repair=_summary(repaired),
                     paired_final_distance_change_m=[after['distance_m']-before['distance_m'] for before,after in zip(baseline,repaired)],
@@ -405,8 +413,8 @@ def run_fault_repair(store, job, config=None):
             result = dict(schema='explorer_controlled_fault_repair_v1', request_signature=signature, created_wall_utc=utc(),
                 options=options, actual_attempt=str(attempt), cases=records, elapsed_s=time.monotonic()-started,
                 source_sha256=source_hashes,
-                cad_mesh_sha256={path.name:sha(path) for path in sorted(mesh_dir.glob('*.STL'))},
-                model_xml_sha256=sha(attempt/'model.xml'), versions={name:importlib.metadata.version(name) for name in ('mujoco','numpy')},
+                cad_mesh_sha256=execution['cad_mesh_sha256'],
+                model_xml_sha256=sha(attempt/'model.xml'), versions=execution['versions'],
                 method_ids=['EXPLORER_CAD_MUJOCO','ENGINEERING_GLUE'], physical_run=False,
                 scope='controlled_faults_and_model_based_selective_compensation_in_CAD_fixed_base_reach',
                 diagnostic_fault_labels_consumed=False, full_fine_tuning_baseline_executed=False,
@@ -416,8 +424,8 @@ def run_fault_repair(store, job, config=None):
                     'Explicit simulated joint encoders, not evidence of ROSMASTER measured joint feedback',
                     'Fixed-base reach only; friction/contact causes cannot be identified without object contact',
                     'No learned policy/fine-tuning comparison; H4 remains untested'])
-            if any(sha(Path(name)) != expected for name,expected in source_hashes.items()):
-                raise ValueError('Fault-repair source changed during execution; attempt retained')
+            if execution_identity(options, mesh_dir) != execution:
+                raise ValueError('Fault-repair source, CAD assets or engine changed during execution; attempt retained')
             result['artifact_sha256'] = {str(path.relative_to(folder)):sha(path) for path in attempt.rglob('*') if path.is_file()}
             write_json(folder/'fault-repair-result.json',result)
             return result
