@@ -346,14 +346,13 @@ def build_aggregate(store,skill_id,version):
 
 
 def enqueue_training(store,skill_id,version,body=None):
-    body=body or {};aggregate=build_aggregate(store,skill_id,version)
-    settings={key:body[key] for key in ('act_steps','image_size','batch_size','chunk_size','seed') if key in body}
-    settings=dict(act_steps=120,image_size=64,batch_size=4,chunk_size=16,seed=0)|settings
-    if body.get('device','cpu')!='cpu':raise ValueError('Initial SO101 source training uses CPU only')
-    for key,value in settings.items():
-        if type(value) is not int or value<0 or (key!='seed' and value<1):raise ValueError('Finite positive integer ACT settings required')
-    if not 1<=settings['act_steps']<=20000 or not 32<=settings['image_size']<=160 or not 1<=settings['batch_size']<=16 or not 1<=settings['chunk_size']<=64:raise ValueError('ACT settings exceed bounded CPU workflow')
-    config=dict(settings,device='cpu',skill_id=skill_id,skill_version=version,spec_sha256=aggregate['spec_sha256'],**experiment_identity(SOURCE_ROLE),
+    from .training_options import so101_training_settings
+    body=body or {};settings=so101_training_settings(body)
+    if settings['backend']=='diffusion':
+        from .policy_runtime import qualified_diffusion_runtime
+        qualified_diffusion_runtime()
+    aggregate=build_aggregate(store,skill_id,version)
+    config=dict(settings,skill_id=skill_id,skill_version=version,spec_sha256=aggregate['spec_sha256'],**experiment_identity(SOURCE_ROLE),
         aggregate_manifest=aggregate['aggregate_manifest'],aggregate_manifest_sha256=aggregate['aggregate_manifest_sha256'],source_kind=aggregate['source_kind'])
     with store.connect() as db:
         db.execute('BEGIN IMMEDIATE');request=body.get('request_id')

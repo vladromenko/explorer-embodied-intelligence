@@ -294,6 +294,12 @@ def skills():
     return {'skills':STORE.skills()}
 
 
+@app.get('/api/policy-backends')
+def policy_backends():
+    from .policy_runtime import policy_backend_status
+    return policy_backend_status()
+
+
 @app.get('/api/operator-actions')
 def operator_actions():
     return {'actions':actions_required()}
@@ -350,7 +356,7 @@ async def create_job(request: Request):
     config = body.get('config', {})
     if not isinstance(config, dict):
         raise HTTPException(400, 'Job configuration must be an object')
-    if any(key in config for key in ('_execution_commit','_gpu_binding_sha256','source_numbering_version','numbering_provenance')):
+    if any(key.startswith('_') or key in ('source_numbering_version','numbering_provenance') for key in config):
         raise HTTPException(400,'Execution provenance is assigned by the worker')
     if body['project_id'] in ('02','03'):
         from .skill_workflow import validate_02_training_request

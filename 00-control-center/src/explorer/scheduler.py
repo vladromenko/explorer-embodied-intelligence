@@ -65,6 +65,13 @@ def admission(job, resources):
 
 
 def executable_for(job,release=None,store=None):
+    if job['kind']=='so101_skill_train' and job.get('config',{}).get('backend','act')=='diffusion':
+        from .policy_runtime import qualified_diffusion_runtime
+        selection=qualified_diffusion_runtime(release)
+        pinned=job['config'].get('_policy_runtime_binding_sha256')
+        if pinned is not None and pinned!=selection['binding_sha256']:raise ValueError('Pinned policy runtime differs from the current measured source binding')
+        if store is not None:store.pin_job_policy_binding(job['id'],selection['binding_sha256'])
+        return selection['executable']
     if job['kind'] in ('train_act','sim_pilot','manipulation_student') and job.get('config',{}).get('device')=='cuda':
         from .qualification_bindings import qualified_gpu_binding
         if release is None:

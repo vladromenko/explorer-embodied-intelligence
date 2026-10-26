@@ -196,6 +196,18 @@ class Store:
                 (terminal,1,json.dumps(result,allow_nan=False),time.time(),job_id))
         return terminal
 
+    def pin_job_policy_binding(self,job_id,binding_sha256):
+        if not re.fullmatch('[0-9a-f]{64}',binding_sha256):raise ValueError('Policy runtime binding requires an immutable SHA256')
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            row=db.execute('SELECT config FROM jobs WHERE id=?',(job_id,)).fetchone()
+            if row is None:raise ValueError('Unknown job')
+            settings=json.loads(row['config']);previous=settings.get('_policy_runtime_binding_sha256')
+            if previous is not None and previous!=binding_sha256:raise ValueError('Existing policy runtime binding cannot silently change')
+            settings['_policy_runtime_binding_sha256']=binding_sha256
+            db.execute('UPDATE jobs SET config=? WHERE id=?',(json.dumps(settings),job_id))
+        return binding_sha256
+
     def jobs(self, limit=100):
         with self.connect() as db:
             rows = db.execute('SELECT * FROM jobs ORDER BY created DESC LIMIT ?', (limit,)).fetchall()

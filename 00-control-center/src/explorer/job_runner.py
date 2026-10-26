@@ -233,9 +233,14 @@ def main(job_id):
             from explorer_shared.learning.rosmaster_skill_pipeline import train_rosmaster_skill
             result = train_rosmaster_skill(store,job)
         elif job['kind'] == 'so101_skill_train':
-            sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
-            from explorer_sim.so101_skill_training import run_so101_skill_train
-            result = run_so101_skill_train(store,job)
+            if job['config'].get('backend','act')=='diffusion':
+                from .so101_diffusion_training import run_so101_diffusion_train
+                result=run_so101_diffusion_train(store,job)
+            elif job['config'].get('backend','act')=='act':
+                sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
+                from explorer_sim.so101_skill_training import run_so101_skill_train
+                result = run_so101_skill_train(store,job)
+            else:raise ValueError('Unknown SO101 source policy backend')
         elif job['kind']=='world_model':
             sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
             from explorer_sim.world_model import run_world_model
