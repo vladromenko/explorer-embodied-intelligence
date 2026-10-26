@@ -13,8 +13,12 @@ from explorer_shared.native_stream03_api import mount_native_stream_api
 from test_native_cooperative05 import fixture,start,confirmed
 
 
-def setup(*,emit=True):
-    source,mux,teleop,arm,publisher,tap,activation,now,binding=fixture();epoch,model=start(source,mux,binding)
+def setup(*,emit=True,constraint_factory=None):
+    source,mux,teleop,arm,publisher,tap,activation,now,binding=fixture();constraint=None
+    if constraint_factory:
+        constraint=constraint_factory(binding,{'model_id':'actual-source-model','checkpoint_sha256':'a'*64,'spec_sha256':'b'*64})
+        source.register_constraint({**binding,'constraint':constraint})
+    epoch,model=start(source,mux,binding)
     app=FastAPI();mount_native_stream_api(app,mux,token='private-fixture-token',observed_test_permit=activation.allowed,
         reference_reader=source.reference,activation=activation,cooperative=source)
     client=TestClient(app);calls=[];pending=[]
@@ -32,7 +36,7 @@ def setup(*,emit=True):
         observation=request('GET','/legacy/explorer/cooperative/observation',None)
         return {'action_contract':ROLE_CONTRACTS['giver'],'model':model,'action9':[90.]*5+[80. if command['operation']=='release' else 91.]+[0.,0.,0.],
             'source_sequence':mux.sequence+1,'source_observation':observation}
-    transport=NativeGiverPolicyTransport(request,binding,epoch,predict,clock_domain='NX:test-boot',timeout_s=.04,
+    transport=NativeGiverPolicyTransport(request,binding,epoch,predict,clock_domain='NX:test-boot',timeout_s=.04,action_constraint=constraint,
         receiver_command=lambda:{'actual_native_host_dispatch':True,'command_id':'receiver-close-actual','source_receipt':{'native_mock_write':True}})
     command={'command_id':'actual-command-1','run_id':binding['run_id'],'object_id':binding['object_id'],'role':'giver',
         'coordinator_epoch':binding['coordinator_epoch'],'operation':'offer','reference':model}

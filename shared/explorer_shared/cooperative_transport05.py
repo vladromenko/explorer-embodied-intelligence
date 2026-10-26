@@ -9,14 +9,16 @@ import time
 
 from .cooperative_contract05 import digest,ROLE_CONTRACTS
 from .handover_runtime import DispatchReceipt
+from .cooperative_action_constraint05 import verify_constraint,project_stationary_action
 
 
 class NativeGiverPolicyTransport:
     def __init__(self,request,binding,control_epoch,action_provider,*,clock_domain,
-                 receiver_command=None,clock=time.monotonic_ns,sleep=time.sleep,timeout_s=1.):
+                 receiver_command=None,clock=time.monotonic_ns,sleep=time.sleep,timeout_s=1.,action_constraint=None):
         self.request,self.binding,self.epoch,self.predict=request,deepcopy(binding),control_epoch,action_provider
         self.domain,self.clock,self.sleep,self.timeout=clock_domain,clock,sleep,timeout_s
         self.receiver_command=receiver_command
+        self.action_constraint=verify_constraint(action_constraint,binding=binding) if action_constraint is not None else None
         if not callable(request) or not callable(action_provider):raise ValueError('Authenticated request and actual native model callback required')
     def _body(self):return {**deepcopy(self.binding),'control_epoch':self.epoch}
     def _post(self,operation,body):return self.request('POST','/legacy/explorer/cooperative/'+operation,body)
@@ -27,6 +29,9 @@ class NativeGiverPolicyTransport:
             native.get('control_epoch')==self.epoch and native.get('native_lease_remaining_s',0)>0 and
             (state.get('release_boundary') or {}).get('reference_fault') is None and
             all(bound.get(key)==self.binding.get(key) for key in ('run_id','object_id','coordinator_epoch','authorization_id')))
+        if self.action_constraint is not None:
+            registered=state.get('registered_action_constraint') or {}
+            ready=ready and registered.get('constraint')==self.action_constraint and registered.get('authorization_id')==self.binding.get('authorization_id')
         return {'current_native_owner_ready':ready,'source_receipt':deepcopy(state),
                 'clock_domain':self.domain,'received_ns':self.clock(),'attained_stationarity':None}
     def arm_release_guard(self,session):
@@ -81,9 +86,14 @@ class NativeGiverPolicyTransport:
         if (page.get('schema')!='explorer_native_dispatch_page_v1' or not page.get('boot_id') or not page.get('clock_domain') or
                 type(cursor) is not int or cursor<0):raise ValueError('Original native dispatch cursor not available')
         native_boot,native_domain=page['boot_id'],page['clock_domain']
+        action=predicted['action9'];projection=None
+        if self.action_constraint is not None:
+            verify_constraint(self.action_constraint,binding=self.binding,model=predicted['model'])
+            action,projection=project_stationary_action(action,self.action_constraint)
         body={**self._body(),'command_id':command['command_id'],'source_sequence':predicted['source_sequence'],
-            'action9':predicted['action9'],'source_observation':deepcopy(predicted['source_observation']),
+            'action9':action,'source_observation':deepcopy(predicted['source_observation']),
             'model':deepcopy(predicted['model'])}
+        if projection is not None:body.update(raw_policy_action9=deepcopy(predicted['action9']),coordinator_action_projection=projection)
         accepted=self._post('input',body)
         if accepted.get('accepted') is not True:raise ValueError('Native latest-intent API rejected prediction')
         deadline=self.clock()+int(self.timeout*1e9)
@@ -99,9 +109,14 @@ class NativeGiverPolicyTransport:
                             source.get('cooperative',{}).get('object_id')!=command['object_id'] or
                             source.get('cooperative',{}).get('coordinator_epoch')!=command['coordinator_epoch'] or
                             source.get('cooperative',{}).get('native_control_epoch')!=self.epoch or
-                            source.get('policy')!=predicted['model'] or source.get('source_target_sha256')!=digest(predicted['action9']) or
+                            source.get('policy')!=predicted['model'] or source.get('source_target_sha256')!=digest(action) or
                             source.get('state_source')!='policy_prediction_not_measured_leader'):
                         raise ValueError('Native publication source identity mismatch')
+                    if projection is not None and (source.get('raw_policy_action9')!=predicted['action9'] or
+                            source.get('raw_policy_action9_sha256')!=digest(predicted['action9']) or
+                            source.get('coordinator_action_projection')!=projection or
+                            (source.get('native_constraint_registration') or {}).get('constraint')!=self.action_constraint):
+                        raise ValueError('Actual native raw9/constraint projection provenance mismatch')
                     if release_grant is not None:
                         proof=(receipt.get('original_payload') or {}).get('cooperative_publication_boundary') or {}
                         if not proof.get('opening') or (proof.get('guard_grant') or {}).get('grant_id')!=release_grant.get('grant_id'):

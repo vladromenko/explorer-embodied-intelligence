@@ -22,6 +22,7 @@ POST_PATHS = {'control', 'teleop/select', 'teleop/mode', 'teleop/speed', 'teleop
 POST_PATHS |= {'explorer/retarget/begin', 'explorer/retarget/recenter', 'explorer/retarget/resume',
                'explorer/retarget/input', 'explorer/retarget/base', 'explorer/retarget/stop'}
 POST_PATHS |= {'explorer/retarget/activation/authorize','explorer/retarget/activation/revoke','arm/prepare'}
+POST_PATHS |= {'explorer/cooperative/constraint/register'}
 POST_PATHS |= {'explorer/cooperative/'+operation for operation in ('bind','begin','recenter','resume','lease','input','stop',
     'guard/arm','guard/challenge','guard/authorize','guard/revoke','guard/reset')}
 

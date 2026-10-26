@@ -14,6 +14,7 @@ from collections import OrderedDict
 from .cooperative_contract05 import digest,ROLE_CONTRACTS
 from .contracts import action_vector
 from .handover import HandoverFSM
+from .cooperative_action_constraint05 import verify_constraint,project_stationary_action
 
 
 def identity(value):
@@ -197,7 +198,7 @@ class NativeReceiverHoldBoundary:
 class NativeCooperativeOwner:
     def __init__(self,mux,activation,reference_reader,*,target_limits):
         self.mux,self.activation,self.reference=mux,activation,reference_reader
-        self.limits=target_limits;self.guard=NativeReceiverHoldBoundary(mux,activation);self.policy=None
+        self.limits=target_limits;self.guard=NativeReceiverHoldBoundary(mux,activation);self.policy=None;self.action_constraint=None
         self.frames=OrderedDict();self.frame_lock=threading.Lock()
         self.original_publisher=mux.arm.pub
         mux.arm.pub=ExistingPublisherBoundary(self.original_publisher,self.guard)
@@ -228,6 +229,18 @@ class NativeCooperativeOwner:
             if not 0<=self.mux.tap.clock()-record['monotonic_ns']<=2_000_000_000:
                 raise ValueError('Native policy observation expired')
             return jpeg,deepcopy(record)
+    def register_constraint(self,body):
+        self.activation.require(body.get('authorization_id'))
+        selected=verify_constraint(body.get('constraint'),binding=body)
+        with self.mux.teleop.lock:
+            self.guard._match(body)
+            if (self.mux.active or not self.mux.teleop.stop_latched or self.guard.armed or
+                    self.activation.receipt(body.get('authorization_id')) is None):
+                raise ValueError('Register constraint only in this exact observed STOP before explicit begin')
+            self.action_constraint={'constraint':selected,'authorization_id':body['authorization_id'],
+                'registration_id':uuid.uuid4().hex,'boot_id':self.mux.tap.boot_id,'clock_domain':self.mux.tap.clock_domain,
+                'registered_native_ns':self.mux.tap.clock(),'native_command_sent':False,'controller_settings_written':False}
+            return deepcopy(self.action_constraint)
     def begin(self,body):
         if self.activation.status().get('input_mode')!='cooperative_policy':
             raise ValueError('Separate observed cooperative_policy authorization required')
@@ -236,10 +249,15 @@ class NativeCooperativeOwner:
         identity(model.get('model_id'))
         if (not model.get('model_id') or any(not isinstance(model.get(key),str) or not re.fullmatch('[0-9a-f]{64}',model[key])
                 for key in ('checkpoint_sha256','spec_sha256'))):raise ValueError('Pinned real policy/model source required')
+        registered=self.action_constraint
+        if registered is not None:
+            verify_constraint(registered['constraint'],binding=body,model=model)
+            if registered['authorization_id']!=body.get('authorization_id'):raise ValueError('Constraint belongs to another observed authorization')
         self.reference()  # Pure existing same-boot reference guard; no HOME.
         with self.mux.teleop.lock:
             with self.guard.lock:
                 self.guard._match(body)
+                if self.action_constraint is not registered:raise ValueError('Constraint changed before native begin')
                 result=self.mux.begin(observing=body.get('observing'),neutral=body.get('neutral'))
                 self.mux.source_mode='cooperative_policy'
                 self.guard.bind_control_epoch(result['control_epoch']);self.policy=deepcopy(model)
@@ -256,9 +274,20 @@ class NativeCooperativeOwner:
     def input(self,body):
         if not isinstance(body.get('action9'),list) or any(type(value) not in (int,float) for value in body['action9']):
             raise ValueError('Explicit finite numeric native action9 required')
-        action=action_vector(body.get('action9',[]));mux=self.mux;epoch=body.get('control_epoch')
+        action=action_vector(body.get('action9',[]));mux=self.mux;epoch=body.get('control_epoch');projection=None
+        registered=self.action_constraint
+        # Source JSON/hash validation stays outside the original control lock.
+        # The immutable object identity is fenced again at the native boundary.
+        if registered is not None or body.get('coordinator_action_projection') is not None:
+            if registered is None or registered['authorization_id']!=body.get('authorization_id'):
+                raise ValueError('Native registered same-authorization coordinator constraint required')
+            selected=verify_constraint(registered['constraint'],binding=body,model=body.get('model'))
+            projected,projection=project_stationary_action(body.get('raw_policy_action9'),selected)
+            if action!=projected or body.get('coordinator_action_projection')!=projection:
+                raise ValueError('Raw9/projected requested9/registered constraint receipt differs')
         command_id=identity(body.get('command_id'))
         with mux.teleop.lock:
+            if self.action_constraint is not registered:raise ValueError('Constraint changed before native input')
             self.guard._current();self.guard._match(body);mux._check(epoch)
             if (mux.source_mode!='cooperative_policy' or self.policy is None or body.get('model')!=self.policy or mux.state!='ACTIVE' or
                     mux.clock()>=mux.teleop.lease or mux.clock()>=mux.intent_deadline):
@@ -294,6 +323,9 @@ class NativeCooperativeOwner:
                 'target_clock_domain':mux.tap.clock_domain,'target_boot_id':mux.tap.boot_id,
                 'conversion':'target_minus_current_command_estimate_divided_by_original_streaming_lookahead',
                 'measured_feedback_claimed':False,'action_contract':deepcopy(ROLE_CONTRACTS['giver'])}
+            if projection is not None:source.update(raw_policy_action9=deepcopy(projection['raw_policy_action9']),
+                raw_policy_action9_sha256=projection['raw_policy_action9_sha256'],
+                coordinator_action_projection=deepcopy(projection),native_constraint_registration=deepcopy(registered))
             # This is the original real base request, not zeros invented from a
             # stationary-mode flag. It does not refresh the observation lease.
             mux._base_drive(action[6:])
@@ -309,6 +341,9 @@ class NativeCooperativeOwner:
                     'command_id':body['command_id'],'control_epoch':epoch,'source_sequence':sequence}
     def status(self):
         return {'schema':'explorer_native_cooperative_owner_v1','policy':deepcopy(self.policy),
+            'registered_action_constraint':deepcopy(self.action_constraint),
+            'capabilities':{'stationary_base_constraint_schema':'explorer_cooperative_stationary_base_constraint_v1',
+                'raw_policy9_projection_provenance_required_when_registered':True},
             'release_boundary':self.guard.status(),'native':self.mux.status(),'same_original_stream_worker':True,
             'controller_settings_written':False,'native_dispatch_proof':'read actual correlated dispatch ring',
             'automatic_lease_heartbeat':False,'physical_qualification':False}
@@ -337,6 +372,8 @@ def mount_native_cooperative_api(app,owner,*,authenticate,allowed,operation,acti
             'X-Clock-Domain':source['clock_domain']})
     @app.post(prefix+'bind')
     def bind(request:Request,body:dict):allowed(request,body);return operation(owner.guard.bind,body)
+    @app.post(prefix+'constraint/register')
+    def register_constraint(request:Request,body:dict):allowed(request,body);return operation(owner.register_constraint,body)
     @app.post(prefix+'begin')
     def begin(request:Request,body:dict):
         allowed(request,body);return operation(activation.transition,lambda:owner.begin(body),body.get('authorization_id'))

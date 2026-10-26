@@ -21,6 +21,7 @@ from explorer_shared.cooperative_native05 import NativeMetadataRecorder,public_c
 from explorer_shared.cooperative_providers05 import existing_workflow_providers,contract_projection,phase_ids
 from explorer_shared.cooperative_recording05 import CachedNodeObservation,CooperativeRecorder,write_original,write_projection,canonical,sha_file
 from explorer_shared.cooperative_transport05 import NativeGiverPolicyTransport
+from explorer_shared.cooperative_action_constraint05 import stationary_constraint
 from explorer_shared.cooperative_workflow05 import CooperativeWorkflow,LEGAL_STATES
 from explorer_shared.handover_adapters import OperatorEvidenceInbox
 from . import skill_workflow as mobile
@@ -287,7 +288,7 @@ class CooperativeService:
 No select/begin/resume/lease is called. A real Root-owned model adapter must be
 bound first; default construction cannot turn on policy execution.
 """
-        row=self.workflow.snapshot(session_id);reference=self.workflow.skill(row['skill_id'],row['skill_version'])['spec']['subskills']['giver']
+        row=self.workflow.snapshot(session_id);spec=self.workflow.skill(row['skill_id'],row['skill_version'])['spec'];reference=spec['subskills']['giver']
         if (row['epoch']!=body.get('expected_epoch') or row['execution_domain']!='user_observed_physical_test' or
                 body.get('observing') is not True or body.get('user_observed_test_confirmed') is not True or
                 not callable(self.models.get('giver'))):raise ValueError('Explicit current observed session and actual model adapter required')
@@ -297,7 +298,8 @@ bound first; default construction cannot turn on policy execution.
         if expected is None:raise ValueError('Actual pinned model/checkpoint unavailable')
         def predict(command):return self.models['giver'](deepcopy(command['reference']),dispatch=False,command=deepcopy(command))
         transport=NativeGiverPolicyTransport(self._request('giver'),binding,body.get('control_epoch'),predict,
-            clock_domain=self.domain,clock=self.clock,receiver_command=self._receiver_command)
+            clock_domain=self.domain,clock=self.clock,receiver_command=self._receiver_command,
+            action_constraint=stationary_constraint(spec,row,{key:expected[key] for key in ('model_id','checkpoint_sha256','spec_sha256')}))
         state=transport.observe_state()
         if not state['current_native_owner_ready']:raise ValueError('Original native owner does not confirm this exact already observed session')
         with self.lock:
