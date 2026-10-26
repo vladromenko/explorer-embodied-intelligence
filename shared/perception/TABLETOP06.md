@@ -114,3 +114,39 @@ late cancelled results. VLM output is semantic text only, never metric geometry,
 contact evidence or motor commands. Actual inference, mask integration, measured
 table calibration, supervised grasp qualification and UI wiring are separate
 remaining steps; this document does not claim them complete.
+
+## Exclusive event-driven VLM binding
+
+`explorer_shared.lab_semantics.EventSemanticWorker` receives a frozen
+`CachedFrame`, its exact selection and a bounded prompt on an explicit event.
+It keeps one active and one coalesced pending request. Cancellation or a newer
+request invalidates late results; no result can emit a motor command. Receipts
+include source-frame/selection hashes, prompt/hash, model identity, start/end
+ticks in the original local domain and the actual semantic response.
+
+The extended `HailoObserver.semantic_slot()` requests that **its own CV worker**
+close/release its inference context, then acknowledges release. It does not
+stop camera capture, touch serial buses or modify native control settings.
+Only after that acknowledgement does the semantic factory open a VDevice/VLM.
+Successful semantic close permits the CV worker to recreate its original model.
+Model/inference failures with positive resource-release proof resume CV. An
+unknown release keeps inference paused with `semantic_release_unknown`, while
+camera/serial ownership remains unchanged; opening another accelerator context
+would falsely assume release. Source/mock tests cover that distinction.
+
+`HailoVLMBackend` binds the Pi's inspected Python5.1.1 VLM constructor/generate/
+clear_context/release methods. Its constructor checks the exact archived model
+receipt/file hash before hardware imports/creation. It feeds a logged source
+crop as RGB336×336, caps generated tokens and returns semantic text/input hash.
+Neither that crop transform nor the text is fed to metric grounding. This is
+an executable binding, but it has not yet run on the actual Pi in this commit.
+The caller must instantiate the worker inside the existing observer process,
+never start another camera owner or run a parallel CLI demo.
+
+Actual staging completed: archived official Qwen2-VL2B5.1.1 artifact,
+2,344,333,123 bytes, SHA256
+`ae02a43fd4cf62ae3da4b6535cc0e2827c214635da34d4053914d9e70924a751`.
+Homebrain downloaded the exact official URL, then the Pi independently hashed
+the streamed copy before atomic rename. Weights and local download/transfer
+receipts are managed assets outside Git. No inference was performed during
+staging; observer/camera/serial services and driver versions were unchanged.

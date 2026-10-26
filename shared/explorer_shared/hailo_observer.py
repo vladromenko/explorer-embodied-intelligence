@@ -6,6 +6,7 @@ shared/perception/PROVENANCE.md. Importing this module never opens a device.
 from __future__ import annotations
 
 from contextlib import ExitStack
+from contextlib import contextmanager
 from dataclasses import dataclass
 import hashlib
 import math
@@ -188,6 +189,11 @@ class HailoObserver:
         self.state = {"available": False, "state": "not_started", "detections": [],
                       "evidence_type": "vision_estimate", "contact_verified": False}
         self.thread = None
+        self._semantic_owner = threading.Lock()
+        self._pause_requested = threading.Event()
+        self._paused = threading.Event()
+        self._wake = threading.Event()
+        self._semantic_release_unknown = False
 
     def start(self):
         self.thread = threading.Thread(target=self._work, name="hailo-observer", daemon=True)
@@ -202,8 +208,40 @@ class HailoObserver:
 
     def close(self):
         self.stop_event.set()
+        self._wake.set()
         if self.thread:
             self.thread.join(timeout=5)
+
+    @contextmanager
+    def semantic_slot(self, timeout_s=10.):
+        """Release only the CV accelerator context, preserving camera/servo owners.
+
+        The slot's release proof is set by the semantic worker ONLY after its
+        own backend closes successfully. Unknown release keeps CV paused.
+        """
+        if not self._semantic_owner.acquire(timeout=timeout_s):
+            raise TimeoutError('Another semantic owner holds the accelerator slot')
+        slot = {'backend_released': False, 'backend_created': False}
+        try:
+            if (self._semantic_release_unknown or not self.thread or not self.thread.is_alive() or
+                    self.stop_event.is_set()):
+                raise RuntimeError('CV observer unavailable or previous semantic release unknown')
+            self._pause_requested.set()
+            self._wake.set()
+            if not self._paused.wait(timeout_s):
+                self._pause_requested.clear()
+                self._wake.set()
+                raise TimeoutError('CV context did not confirm release')
+            yield slot
+        finally:
+            if slot['backend_created'] and not slot['backend_released']:
+                self._semantic_release_unknown = True
+                with self.lock:
+                    self.state.update(available=False, state='semantic_release_unknown')
+            elif not self._semantic_release_unknown:
+                self._pause_requested.clear()
+                self._wake.set()
+            self._semantic_owner.release()
 
     def _work(self):
         detector = None
@@ -212,8 +250,21 @@ class HailoObserver:
             tracker = IoUTracker()
             last_frame, last_event, signature = None, 0.0, None
             while not self.stop_event.is_set():
-                frame = self.source.latest()
-                if frame and frame.frame_id != last_frame and frame.bgr is not None:
+                if self._pause_requested.is_set():
+                    if detector is not None:
+                        detector.close()
+                        detector = None
+                    with self.lock:
+                        self.state.update(available=False, state=('semantic_release_unknown' if self._semantic_release_unknown
+                                                                else 'cv_released_for_semantic_request'))
+                    self._paused.set()
+                else:
+                    self._paused.clear()
+                    if detector is None:
+                        detector = self.detector_factory(self.model_path)
+                        last_frame = None
+                frame = self.source.latest() if detector is not None else None
+                if detector is not None and frame and frame.frame_id != last_frame and frame.bgr is not None:
                     detections, elapsed = detector.detect(frame.bgr)
                     now = time.monotonic()
                     detections = tracker.update(detections, now)
@@ -230,10 +281,12 @@ class HailoObserver:
                         self.emit({"kind": "perception.observation", **observation})
                         last_event, signature = now, current
                     last_frame = frame.frame_id
-                self.stop_event.wait(self.period)
+                self._wake.wait(self.period)
+                self._wake.clear()
         except Exception as exc:
             with self.lock:
                 self.state.update(available=False, state="unavailable", error=type(exc).__name__)
         finally:
             if detector:
                 detector.close()
+            self._paused.clear()
