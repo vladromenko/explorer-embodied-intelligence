@@ -4,6 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 import sys
+import threading
 
 import numpy as np
 import pytest
@@ -283,3 +284,46 @@ def test_explicit_plan_rejection_does_not_cancel_a_foreign_original_owner(tmp_pa
     result = session.step(sample(g, 2, [3., -60., 90., -30., 0., 75.]))["target_receipt"]
     assert result["state"] == "REJECTED" and not result["motion_start_requested"]
     assert not any(operation.endswith(("stop", "start")) for operation, _ in original.calls)
+
+
+def test_start_cannot_overtake_a_stop_waiting_for_network_delivery(tmp_path):
+    g, original, unused, unused_session = route(tmp_path)
+    entered, delivered = threading.Event(), threading.Event()
+    def request(operation, body=None):
+        if operation == 'arm/trajectory/stop':
+            entered.set()
+            assert delivered.wait(3)
+        return original.request(operation, body)
+    gateway = NanoArmGateway(request, g.status())
+    session = PiNanoRetargetSession(g, DirectClientFixture(gateway))
+    session.start(sample(g), observing=True)
+    thread = threading.Thread(target=session.stop)
+    thread.start()
+    try:
+        assert entered.wait(3)
+        assert gateway.status()['pending_stops'] == 1
+        with pytest.raises(ValueError, match='Refresh'):
+            session.start(sample(g, 2), observing=True)
+    finally:
+        delivered.set();thread.join(3)
+    assert not thread.is_alive()
+    assert gateway.status()['pending_stops'] == 0
+    assert session.start(sample(g, 3), observing=True)['state'] == 'ACTIVE'
+
+
+def test_lost_stop_delivery_requires_successful_explicit_stop_before_restart(tmp_path):
+    g, original, unused, unused_session = route(tmp_path)
+    fail = True
+    def request(operation, body=None):
+        if operation == 'arm/trajectory/stop' and fail:
+            raise TimeoutError('Delivery not known')
+        return original.request(operation, body)
+    gateway = NanoArmGateway(request, g.status())
+    session = PiNanoRetargetSession(g, DirectClientFixture(gateway))
+    session.start(sample(g), observing=True)
+    with pytest.raises(TimeoutError):session.stop()
+    assert gateway.status()['stop_delivery_uncertain']
+    with pytest.raises(ValueError):session.start(sample(g, 2), observing=True)
+    fail = False
+    gateway.cancel_all()
+    assert session.start(sample(g, 3), observing=True)['state'] == 'ACTIVE'

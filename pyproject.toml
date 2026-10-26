@@ -23,4 +23,5 @@ package-dir = {explorer="00-control-center/src/explorer", explorer_shared="share
 explorer = ["static/*"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "01-autonomous-learning/tests", "05-cooperative-handover/tests"]
+testpaths = ["tests", "01-autonomous-learning/tests", "04-cross-embodiment-transfer/tests", "05-cooperative-handover/tests"]
+pythonpath = ["shared", "00-control-center/src", "01-autonomous-learning/src"]

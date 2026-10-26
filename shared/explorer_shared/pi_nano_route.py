@@ -31,6 +31,7 @@ class NanoArmGateway:
         self.epoch, self.owner, self.mode = uuid.uuid4().hex, None, "IDLE"
         self.sequence, self.target_session, self.inflight = -1, None, False
         self.last, self.reason = None, None
+        self.pending_stops, self.stop_uncertain = 0, False
 
     def _request(self, operation, body=None):
         if operation not in OPERATIONS:
@@ -75,6 +76,7 @@ class NanoArmGateway:
             return {"state": self.mode, "control_epoch": self.epoch, "owner_id": self.owner,
                     "registration": self.registration, "target_session": self.target_session,
                     "last_sequence": self.sequence, "inflight": self.inflight, "reason": self.reason,
+                    "pending_stops": self.pending_stops, "stop_delivery_uncertain": self.stop_uncertain,
                     "target": target, "target_reference": reference, "last_receipt": copy.deepcopy(self.last),
                     "chassis_requests": 0, "dispatch_confirmed": False, "physical_stop_confirmed": False}
 
@@ -87,7 +89,7 @@ class NanoArmGateway:
             raise ValueError("An explicit observed owner start is required")
         with self.lock:
             expected = self.epoch
-            if body.get("expected_control_epoch") != expected or self.mode == "ACTIVE" or self.inflight:
+            if body.get("expected_control_epoch") != expected or self.mode == "ACTIVE" or self.inflight or self.pending_stops or self.stop_uncertain:
                 raise ValueError("Refresh the original direct-arm session before starting")
         current = self.status(refresh=True)
         if current["target"].get("busy"):
@@ -95,7 +97,7 @@ class NanoArmGateway:
         if current["target_reference"] is None:
             return {**current, "state": "TARGET_REFERENCE_UNKNOWN"}
         with self.lock:
-            if self.epoch != expected or self.mode == "ACTIVE":
+            if self.epoch != expected or self.mode == "ACTIVE" or self.inflight or self.pending_stops or self.stop_uncertain:
                 raise ValueError("Direct session changed during start")
             self.epoch, self.owner, self.mode = uuid.uuid4().hex, body["owner_id"], "ACTIVE"
             self.sequence, self.target_session, self.reason = -1, None, None
@@ -186,15 +188,27 @@ class NanoArmGateway:
         return self.status()
 
     def stop(self, body):
-        with self.lock:
-            self._match(body)
-        return self.cancel_all("Explicit direct-arm STOP")
+        return self.cancel_all("Explicit direct-arm STOP", expected_owner=body)
 
-    def cancel_all(self, reason="Operator STOP"):
+    def cancel_all(self, reason="Operator STOP", *, expected_owner=None):
         """Authenticated global STOP integration; also usable after an ambiguous reply."""
         with self.lock:
+            if expected_owner is not None:
+                self._match(expected_owner)
+            if not self.pending_stops:
+                self.stop_uncertain = False
+            self.pending_stops += 1
             self._invalidate(reason)
-        original = self._request("arm/trajectory/stop", {})
+        try:
+            original = self._request("arm/trajectory/stop", {})
+        except Exception:
+            with self.lock:
+                self.stop_uncertain = True
+                self.mode = "UNKNOWN_OUTCOME"
+            raise
+        finally:
+            with self.lock:
+                self.pending_stops -= 1
         return {**self.status(), "original_stop": original, "new_start_required": True}
 
 
