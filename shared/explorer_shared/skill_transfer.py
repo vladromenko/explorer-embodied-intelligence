@@ -30,6 +30,17 @@ SOURCE_SLUG='so101_source_learning'
 SOURCE_CONTRACT='so101_follower_calibrated_position6_v1'
 TARGET_CONTRACT='rosmaster_joint9_position6_velocity3_v1'
 SCHEMA='explorer_skill_transfer_source_trace_v1'
+INITIAL_CAPTURE_SCHEMA='explorer_transfer_initial_capture_request_v1'
+INITIAL_CAPTURE_HELPER='explorer_manipulation_stationary_initial_v1'
+
+
+def initial_state_capture_config(*,source_bindings=None,scenario=None):
+    """Explicit server-side opt-in; no provider/model allocation or device IO."""
+    from . import sim_initial_state as initial
+    if source_bindings is not None and not isinstance(source_bindings,dict):raise TransferBlocked('INITIAL_CAPTURE_SOURCE_BINDINGS_REQUIRED','A')
+    if scenario is not None and not isinstance(scenario,dict):raise TransferBlocked('INITIAL_CAPTURE_SCENARIO_REQUIRED','A')
+    return dict(schema=INITIAL_CAPTURE_SCHEMA,helper_id=INITIAL_CAPTURE_HELPER,
+        helper_sha256=sha(Path(initial.__file__).read_bytes()),source_bindings=deepcopy(source_bindings or {}),scenario=deepcopy(scenario or {}))
 
 
 def _member(root,name):
@@ -273,12 +284,52 @@ def _immutable(path,raw):
     with path.open('xb') as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
 
 
-def record_target_trial(source_bundle,mapper,target,folder,*,target_version,target_skill_spec,seed,max_steps=2000):
+def _capture_initial_state(target,folder,request,source_bundle,provider,target_version,target_skill_spec,seed):
+    """One registered capture only; before first render/observe/advance."""
+    from . import sim_initial_state as initial
+    if (not isinstance(request,dict) or set(request)!={'schema','helper_id','helper_sha256','source_bindings','scenario'} or
+            request.get('schema')!=INITIAL_CAPTURE_SCHEMA or request.get('helper_id')!=INITIAL_CAPTURE_HELPER):
+        raise TransferBlocked('REGISTERED_INITIAL_CAPTURE_REQUEST_REQUIRED','A')
+    if initial.PROFILE!=INITIAL_CAPTURE_HELPER:raise TransferBlocked('REGISTERED_INITIAL_CAPTURE_PROFILE_CHANGED','A')
+    helper=Path(initial.__file__).resolve();recorder=Path(__file__).resolve()
+    if request['helper_sha256']!=sha(helper.read_bytes()):raise TransferBlocked('INITIAL_CAPTURE_HELPER_SOURCE_CHANGED','A')
+    if not isinstance(request['source_bindings'],dict) or not isinstance(request['scenario'],dict):raise TransferBlocked('INITIAL_CAPTURE_SOURCE_BINDINGS_AND_SCENARIO_REQUIRED','A')
+    if 'seed' in request['scenario'] and (type(request['scenario']['seed']) is not type(seed) or request['scenario']['seed']!=seed):raise TransferBlocked('INITIAL_CAPTURE_DECLARED_SEED_DIFFERS_FROM_RESET','A')
+    source=source_bundle['document'];bindings=deepcopy(request['source_bindings'])
+    reserved=dict(initial_capture_helper=dict(path=str(helper),sha256=request['helper_sha256']),
+        target_trial_recorder=dict(path=str(recorder),sha256=sha(recorder.read_bytes())),
+        transfer_source_manifest=dict(path=source_bundle['manifest_path'],sha256=source_bundle['manifest_sha256']))
+    for role,entry in reserved.items():
+        if role in bindings and bindings[role]!=entry:raise TransferBlocked('INITIAL_CAPTURE_RESERVED_SOURCE_BINDING_CHANGED','A',role)
+        bindings[role]=entry
+    scenario=dict(seed=seed,task_type=source['task_type'],skill_id=source['skill_id'],source_skill_version=source['skill_version'],
+        target_skill_version=target_version,target_skill_spec_sha256=digest(target_skill_spec),source_manifest_sha256=source_bundle['manifest_sha256'],
+        target_action_contract_id=TARGET_CONTRACT,target_provider_identity_sha256=digest(provider),declared_trial_scenario=deepcopy(request['scenario']))
+    # The helper owns its stationary-profile/native ABI and resource limits.
+    # MJB can be ~153MiB: retain files, never inline/copy binary payloads into result.
+    bundle=initial.capture_initial_trial(target,scenario=scenario,source_bindings=bindings)
+    manifest_sha256=bundle.sha256;initial.validate_bundle(bundle,manifest_sha256)
+    destination=folder/'initial-state';receipt=initial.save_initial_bundle(bundle,destination)
+    if receipt.get('manifest_sha256')!=manifest_sha256:raise TransferBlocked('INITIAL_CAPTURE_SAVE_SHA_DIFFERS','A')
+    manifest=destination/'manifest.json'
+    if not manifest.is_file() or manifest.is_symlink():raise TransferBlocked('INITIAL_CAPTURE_MANIFEST_WRITE_UNVERIFIED','A')
+    manifest_raw=manifest.read_bytes()
+    if sha(manifest_raw)!=manifest_sha256:raise TransferBlocked('INITIAL_CAPTURE_MANIFEST_WRITE_UNVERIFIED','A')
+    saved=json.loads(manifest_raw);payloads=deepcopy(saved['payloads'])
+    return dict(status='RECORDED',requested=True,helper_id=INITIAL_CAPTURE_HELPER,helper_sha256=request['helper_sha256'],
+        boundary='after_target_reset_before_first_observe_or_advance',manifest_path=str(manifest.resolve()),manifest_sha256=manifest_sha256,
+        artifact_folder='initial-state',files=receipt['files'],total_payload_bytes=sum(row['bytes'] for row in payloads.values()),
+        payloads=payloads,scenario_sha256=digest(_json_value(scenario)),source_bindings=deepcopy(saved.get('source_bindings') or {}),
+        restore_reexecution_verified=False,initial_RGB_render_reexecution='UNQUALIFIED',original_runtime_OS_closure='PARTIAL',physical_io=False)
+
+
+def record_target_trial(source_bundle,mapper,target,folder,*,target_version,target_skill_spec,seed,max_steps=2000,initial_state_capture=None):
     """Finite-dynamics provider only; all actual dispatch/measurements are saved.
 
     target.reset/observe/advance/report are deliberately injected. Its observation
     contains target-rendered RGB + literal preceding command9, and advance returns
     actual dispatched9 + independent evaluator. No source RGB is used as input.
+    Initial capture is an explicit registered opt-in, never a retroactive claim.
     """
     source=source_bundle['document'];folder=Path(folder)
     if folder.exists():raise TransferBlocked('NEW_IMMUTABLE_TARGET_TRIAL_DIRECTORY_REQUIRED','A')
@@ -291,9 +342,24 @@ def record_target_trial(source_bundle,mapper,target,folder,*,target_version,targ
     provider=deepcopy(getattr(target,'provider_identity',{}))
     if provider.get('kind') not in ('MOCK','MUJOCO_CAD') or not provider.get('implementation_sha256') or not provider.get('target_model_sha256'):raise TransferBlocked('SOURCE_BOUND_TARGET_PROVIDER_IDENTITY_REQUIRED','A')
     physics_provider=provider['kind']=='MUJOCO_CAD' and bool(provider.get('engine_version')) and bool(provider.get('cad_mesh_sha256'))
+    capture_request=deepcopy(initial_state_capture)
+    initial_state=dict(status='NOT_RECORDED',requested=capture_request is not None,
+        reason='CAPTURE_NOT_REQUESTED' if capture_request is None else 'TARGET_RESET_OR_CAPTURE_NOT_COMPLETED',
+        boundary='after_target_reset_before_first_observe_or_advance',restore_reexecution_verified=False,physical_io=False)
     folder.mkdir(parents=True);rows=[];failure=None;source_index=0;seen_frames=set()
     try:
         target.reset(seed=seed)
+        if capture_request is not None:
+            initial_state.update(status='CAPTURE_FAILED',reason='REGISTERED_CAPTURE_DID_NOT_COMPLETE')
+            try:initial_state=_capture_initial_state(target,folder,capture_request,source_bundle,provider,target_version,target_skill_spec,seed)
+            except Exception as error:
+                initial_state['error_type']=type(error).__name__;initial_state['detail']=str(error)
+                manifest=folder/'initial-state'/'manifest.json'
+                if manifest.is_file() and not manifest.is_symlink() and manifest.stat().st_size<=8*1024**2:
+                    initial_state.update(artifact_folder='initial-state',manifest_path=str(manifest.resolve()),
+                        manifest_sha256=sha(manifest.read_bytes()),artifact_retained_but_capture_unverified=True)
+                if isinstance(error,TransferBlocked):raise
+                raise TransferBlocked('INITIAL_STATE_CAPTURE_FAILED_BEFORE_TARGET_DISPATCH','A',str(error)) from error
         for source_index,frame in enumerate(source['frames']):
             reached=False;attempts=0
             phase_budget=frame.get('maximum_target_steps',max_steps)
@@ -353,6 +419,7 @@ def record_target_trial(source_bundle,mapper,target,folder,*,target_version,targ
         skill_id=source['skill_id'],source_split=deepcopy(source['split']),source_kind='simulation',source_skill_version=source['skill_version'],target_skill_version=target_version,target_skill_spec_sha256=digest(target_skill_spec),seed=seed,
         target_provider=provider,target_embodiment='ROSMASTER_unified_mobile_manipulator',target_action_contract_id=TARGET_CONTRACT,action_names=list(ACTION_NAMES),action_units=list(ACTION_UNITS),
         simultaneous_9d=True,geometry_lineage=mapper.lineage,target_trace_sha256=sha(trace_raw),frames=len(rows),last_source_frame_index=source_index,failure=failure,independent_evaluation=report,
+        initial_state=initial_state,
         full_target_simulation_success=bool(full_success and not failure),eligible_for_target_dataset=bool(full_success and not failure),optimizer_partition_allowed=source['split']['partition']=='train',eligible_as_simulation_expert=bool(full_success and not failure and source['split']['partition']=='train'),
         software_contract_only=not physics_provider,learned_target_actor_executed=False,physical_io=False,physical_success_validated=False,source_RGB_reused_as_target=False,source_files_sha256=source_bundle['source_files_sha256'])
     for path,expected in source_bundle['source_files_sha256'].items():
