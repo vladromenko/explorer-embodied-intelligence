@@ -73,6 +73,8 @@ def test_coordinator_job_runs_fault_scenarios_and_reuses_journal_without_replay(
 
 
 def test_authenticated_new_jobs_reject_wrong_project_and_unavailable_source(tmp_path,monkeypatch):
+    isolated=tmp_path/'app-import-config.json';isolated.write_text(json.dumps(dict(data_dir=str(tmp_path/'import-state'),nodes=[])))
+    monkeypatch.setenv('EXPLORER_CONFIG',str(isolated))
     import explorer.app as module
     monkeypatch.setattr(module,'STORE',Store(tmp_path))
     client=TestClient(module.app)

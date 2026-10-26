@@ -1,12 +1,15 @@
 """Actual auth/CSRF API and durable metadata; no worker or hardware started."""
 import hashlib
 import importlib
+import json
 from fastapi.testclient import TestClient
 
 from explorer.store import Store
 
 
 def test_queue_metadata_CAS_preserves_raw_scientific_job_and_explicit_pause_intent(tmp_path,monkeypatch):
+    isolated=tmp_path/'app-import-config.json';isolated.write_text(json.dumps(dict(data_dir=str(tmp_path/'import-state'),nodes=[])))
+    monkeypatch.setenv('EXPLORER_CONFIG',str(isolated))
     module=importlib.import_module('explorer.app');store=Store(tmp_path/'state')
     first=store.create_job('so101_skill_train','04',{'backend':'act','original_setting':'preserve-me'})
     second=store.create_job('rosmaster_skill_train','03',{'backend':'act'})
