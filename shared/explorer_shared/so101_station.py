@@ -184,8 +184,12 @@ class SO101Station:
             values = self.buses[role].sync_read('Present_Position')
         return [float(values[name]) for name in NAMES]
 
-    def _write(self, target):
+    def _write(self, target, *, observed_context=None):
         with self.bus_lock:
+            publication_gate=getattr(self,'publication_gate',None)
+            if observed_context is not None and publication_gate is not None:
+                values=dict(zip(NAMES,target))
+                return publication_gate.publish(observed_context,lambda:self.buses['follower'].sync_write('Goal_Position',values))
             self.buses['follower'].sync_write('Goal_Position',dict(zip(NAMES,target)))
 
     def _enable_hold(self):
@@ -234,12 +238,16 @@ class SO101Station:
                             publication_gate.measured_hold_returned(self.control_epoch,follower,measured_at,time.monotonic_ns())
                         else:
                             accepted = [min(HIGH[i],max(LOW[i],float(value))) for i,value in enumerate(target)]
-                            self._write(accepted)
-                            dispatched_at = time.monotonic_ns()
-                            self.last_command=dict(control_epoch=self.control_epoch,sequence=self.action_sequence,requested=list(target),
-                                dispatched=accepted,monotonic_ns=dispatched_at,clock_domain=self.clock_domain,
-                                source_observation=dict(self.action_source or {}))
-                            self._sample(frame,follower,target,accepted,measured_at,dispatched_at)
+                            if self._write(accepted,observed_context=(self.control_epoch,self.mode,target)) is False:
+                                self._end_session()
+                                self._write(follower)
+                                publication_gate.measured_hold_returned(self.control_epoch,follower,measured_at,time.monotonic_ns())
+                            else:
+                                dispatched_at = time.monotonic_ns()
+                                self.last_command=dict(control_epoch=self.control_epoch,sequence=self.action_sequence,requested=list(target),
+                                    dispatched=accepted,monotonic_ns=dispatched_at,clock_domain=self.clock_domain,
+                                    source_observation=dict(self.action_source or {}))
+                                self._sample(frame,follower,target,accepted,measured_at,dispatched_at)
                 self.last_periods.append(begin - previous)
                 self.last_periods = self.last_periods[-300:]
                 previous = begin

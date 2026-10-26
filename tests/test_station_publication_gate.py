@@ -87,3 +87,46 @@ def test_one_already_entered_native_write_returning_after_revoke_remains_truthfu
     assert len(samples)==1 and len(bus.writes)==2 and revoked==[True]
     assert list(bus.writes[0][1].values())==station.last_command['dispatched']==[10.,0.,0.,0.,0.,50.]
     assert list(bus.writes[1][1].values())==[0.,0.,0.,0.,0.,50.]
+
+
+def test_revoke_after_worker_precheck_before_original_write_admission_blocks_target_and_sample(tmp_path,monkeypatch):
+    station,provider,selected,start,bus,samples,tick,StopAfter,_=worker_rig(tmp_path,monkeypatch)
+    grant=start();old=station.control_epoch;original=station._write;revoked=[]
+    def before_write(target,**kwargs):
+        if kwargs.get('observed_context') is not None and not revoked:
+            assert bus.writes==[]
+            provider.revoke('REVOKED_BEFORE_WRITE_ENTRY',expected_grant_id=grant['grant_id'],expected_control_epoch=old)
+            revoked.append(True)
+        return original(target,**kwargs)
+    station._write=before_write;station.stop_event=StopAfter();station._work()
+    assert station.error is None and station.mode=='idle' and revoked==[True]
+    assert samples==[] and len(bus.writes)==1
+    assert list(bus.writes[0][1].values())==[0.,0.,0.,0.,0.,50.]
+    assert provider.publication_gate.status()['last_measured_hold']['denied_native_epoch']==old
+
+
+def test_revoke_while_target_waits_for_original_bus_lock_is_seen_at_write_admission(tmp_path,monkeypatch):
+    import threading
+    station,provider,selected,start,bus,samples,tick,StopAfter,_=worker_rig(tmp_path,monkeypatch)
+    grant=start();old=station.control_epoch;entered=threading.Event();release=threading.Event();original=station.bus_lock
+    class WaitingBusLock:
+        count=0
+        def __enter__(self):
+            self.count+=1
+            if self.count==3:  # two original measured reads then the target write
+                entered.set();assert release.wait(2)
+            return original.__enter__()
+        def __exit__(self,*args):return original.__exit__(*args)
+    station.bus_lock=WaitingBusLock();station.stop_event=StopAfter()
+    software_positions=station._positions
+    def measured_read(role):
+        with station.bus_lock:return software_positions(role)
+    station._positions=measured_read
+    worker=threading.Thread(target=station._work);worker.start()
+    try:
+        assert entered.wait(1) and bus.writes==[]
+        assert provider.revoke('REVOKED_DURING_BUS_WAIT',expected_grant_id=grant['grant_id'],expected_control_epoch=old)['revoked']
+    finally:release.set();worker.join(3)
+    assert not worker.is_alive() and station.error is None and station.mode=='idle'
+    assert samples==[] and len(bus.writes)==1
+    assert list(bus.writes[0][1].values())==[0.,0.,0.,0.,0.,50.]

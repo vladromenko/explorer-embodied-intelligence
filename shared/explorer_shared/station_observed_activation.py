@@ -5,6 +5,7 @@ station instance only after a separate explicit user-observed authorization.
 No new servo loop, camera, motor setting, lease duration or calibration write.
 """
 from collections import OrderedDict
+from contextlib import nullcontext
 from copy import deepcopy
 import hashlib
 import math
@@ -92,8 +93,11 @@ class StationObservedPermission:
         if current is not None and (expected_control_epoch is not None and current['data']['control_epoch']!=expected_control_epoch or
                 expected_binding is not None and current['data']['binding']!=binding(expected_binding)):
             return {'revoked':False,'reason':'SUPERSEDED_NATIVE_EPOCH_OR_MODEL_BINDING','native_command_called':False}
-        if current is not None:current['revoked'].set()
-        if expected_grant_id is None and pending is not None:pending['revoked'].set()
+        # This lock covers only an already-admitted position write, never
+        # camera/native-command I/O or the original Station lock.
+        with self.publication_gate.publication_lock if self.publication_gate is not None else nullcontext():
+            if current is not None:current['revoked'].set()
+            if expected_grant_id is None and pending is not None:pending['revoked'].set()
         with self.lock:
             self.revision+=1
             if current is not None:self._retire(current,str(reason)[:160])
@@ -234,7 +238,8 @@ class StationObservedPermission:
         if record is None or record['data']['binding']!=selected:raise ValueError('Exact owned current/revoked grant required for scoped STOP')
         if not body.get('expected_control_epoch') or body['expected_control_epoch']!=record['data']['control_epoch']:
             raise ValueError('Old STOP cannot revoke a newer native epoch; exact expected_control_epoch required')
-        record['revoked'].set()
+        with self.publication_gate.publication_lock if self.publication_gate is not None else nullcontext():
+            record['revoked'].set()
         with self.station.lock:
             with self.lock:
                 if (self.grant is not None and self.grant is not record or self.station.control_epoch!=record['data']['control_epoch'] or

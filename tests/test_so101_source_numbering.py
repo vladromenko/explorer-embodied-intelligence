@@ -116,7 +116,21 @@ def _without_recording_identity_metadata(method):
         assert [ast.dump(node) for node in gate.body]==[ast.dump(node) for node in denied]
         # Only this exact publication-permission wrapper is removed; the whole
         # original accepted/write/receipt/sample body still matches its old SHA.
-        target.body=gate.orelse
+        accepted,admission=gate.orelse
+        assert ast.dump(accepted)==ast.dump(ast.parse('accepted = [min(HIGH[i],max(LOW[i],float(value))) for i,value in enumerate(target)]').body[0])
+        assert isinstance(admission,ast.If)
+        assert ast.dump(admission.test)==ast.dump(ast.parse('self._write(accepted,observed_context=(self.control_epoch,self.mode,target)) is False',mode='eval').body)
+        assert [ast.dump(node) for node in admission.body]==[ast.dump(node) for node in denied]
+        target.body=[accepted,ast.parse('self._write(accepted)').body[0]]+admission.orelse
+    if method.name=='_write':
+        assert len(method.args.kwonlyargs)==1 and method.args.kwonlyargs[0].arg=='observed_context'
+        assert ast.dump(method.args.kw_defaults[0])==ast.dump(ast.Constant(value=None))
+        method.args.kwonlyargs=[];method.args.kw_defaults=[]
+        assert len(method.body)==1 and isinstance(method.body[0],ast.With)
+        body=method.body[0].body
+        wrapper=ast.parse("publication_gate=getattr(self,'publication_gate',None)\nif observed_context is not None and publication_gate is not None:\n    values=dict(zip(NAMES,target))\n    return publication_gate.publish(observed_context,lambda:self.buses['follower'].sync_write('Goal_Position',values))").body
+        assert [ast.dump(node) for node in body[:2]]==[ast.dump(node) for node in wrapper]
+        method.body[0].body=body[2:]
     if method.name=='status':
         fields=[(call,keyword) for call in ast.walk(method) if isinstance(call,ast.Call)
                 for keyword in call.keywords if keyword.arg=='recording_identity_fence']

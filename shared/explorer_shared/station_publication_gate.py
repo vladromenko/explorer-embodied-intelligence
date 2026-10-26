@@ -6,14 +6,29 @@ gated; legacy unowned epochs retain the original behavior.
 """
 from collections import deque
 from copy import deepcopy
+import threading
 
 
 class StationPublicationGate:
     def __init__(self,provider):
+        self.publication_lock=threading.RLock()
         self.provider=provider;self.events=deque(maxlen=64);self.last=None;self.last_measured_hold=None
     def __call__(self,control_epoch,mode,target):
-        provider=self.provider;now=provider.clock();station=provider.station
+        return self._decision(control_epoch,mode,target)
+    def publish(self,context,write):
+        """Admission after original bus-lock wait/argument preparation.
+
+        Revoke serializes with this narrow position-write admission only. A
+        write already admitted may return; it remains recorded truthfully.
+        """
+        with self.publication_lock:
+            if self._decision(*context) is not True:return False
+            write()
+            return True
+    def _decision(self,control_epoch,mode,target):
+        provider=self.provider;station=provider.station
         with provider.lock:
+            now=provider.clock()
             records=([provider.grant] if provider.grant is not None else [])+list(provider.retired.values())
             managed=[record for record in records if record['data']['control_epoch']==control_epoch]
             if not managed:return True
