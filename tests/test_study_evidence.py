@@ -111,6 +111,8 @@ def test_independent_tar_restore_without_originals(study,tmp_path):
     inspection=inspect_study(study);original={name:sha_file(path) for name,path in inspection.sources.items()}
     bundle=tmp_path/'bundle';receipt=export_study_bundle(inspection,bundle)
     archive=tmp_path/'study.tar';tar_receipt=archive_study_bundle(bundle,archive,expected_manifest_sha256=receipt['manifest_sha256'])
+    second=archive_study_bundle(bundle,tmp_path/'study-second.tar',expected_manifest_sha256=receipt['manifest_sha256'])
+    assert second['archive_sha256']==tar_receipt['archive_sha256']
     moved=study.campaign_root.parent.rename(tmp_path/'original-now-unavailable')
     assert not study.campaign_root.exists()
     unpacked=tmp_path/'unpacked'

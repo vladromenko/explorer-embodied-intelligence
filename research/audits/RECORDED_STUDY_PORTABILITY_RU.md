@@ -30,3 +30,12 @@
 Команда читает только зарегистрированные originals, создаёт CAS/TAR, независимо распаковывает и запускает restore в новом PID. До restore child устанавливает Python audit guard, запрещающий открытие каждого исходного study-файла. Затем повторно проверяются SHA всех originals. Сохраняются реализация, runtime экспортёра, исходные SHA и отдельные receipts. Команда не обращается к сети, базе jobs, камерам или роботам. Выходной каталог квалификации не должен находиться в production state.
 
 Unit fixtures синтетические: проверяют отрицательный исход, immutable target partition, порчу исходных RGB/CAD/protocol, отсутствие отрицательного result, дополнительную started attempt, object tamper, ложное COMPLETE/learned/optimizer, TAR traversal/links и restore после переименования всего оригинального дерева в недоступный путь. Это не физические данные.
+
+
+## Реальное свидетельство 2026-10-27
+
+`_registry/evidence/study-v9-recorded-portability-20261027.json` связывает actual run на commit `81bc463`: 7 640 оригинальных файлов, 301 174 250 логических bytes, 6 817 CAS objects (142 072 541 bytes), TAR 150 620 160 bytes. За 93.57 s выполнены export, независимые unpack/restore в новом PID и точное восстановление frozen report: SUCCESS=2, FAILURE=2, исключений нет. Все исходные SHA после qualification неизменны; child запрещал открытия 7 640 исходных путей и не попытался их читать. Новых dynamics/render/optimizer/device вызовов нет.
+
+Manifest SHA `7a27d6d16cf7bf00ae13c4ed7c95cb425be7b4d7af0d0f2dc452ceeed7eebdd9`; TAR SHA `8539784570ddecfa664f59ca7b2a97b4939549df423b658b3419e6fb8ff28fdb`; private qualification SHA `4b8b08d65d96bd329d4267247f88b152fc9f8f7a0050d43679e351988c0ac37e`.
+
+Наблюдавшийся transient `ru_maxrss` parent процесса: 879 140 864 bytes; это не комбинированный cgroup memory proof. Для будущего queue worker рекомендуется резерв 2 GiB, CPU1, GPU0 и disk не менее 3×logical bytes+256 MiB. Этот источник пока не является новым зарегистрированным job kind и не обходит scheduler.

@@ -1,0 +1,206 @@
+{
+  "all_attempts_retained": true,
+  "archive": {
+    "archive_bytes": 150620160,
+    "archive_sha256": "8539784570ddecfa664f59ca7b2a97b4939549df423b658b3419e6fb8ff28fdb",
+    "compression": "none",
+    "manifest_sha256": "7a27d6d16cf7bf00ae13c4ed7c95cb425be7b4d7af0d0f2dc452ceeed7eebdd9",
+    "schema": "explorer_study_archive_receipt_v1"
+  },
+  "completeness": "PARTIAL",
+  "dependency_closure": {
+    "frozen_benchmark": "VERIFIED",
+    "full_initial_rng_and_reset_state": "NOT_RECORDED",
+    "original_dynamics_reexecution": "UNQUALIFIED",
+    "original_runtime": "PARTIAL",
+    "recorded_required_payloads": "VERIFIED",
+    "scene_and_cad_assets": "VERIFIED"
+  },
+  "elapsed_s": 93.56573365599615,
+  "export": {
+    "completeness": "PARTIAL",
+    "file_count": 7640,
+    "manifest_sha256": "7a27d6d16cf7bf00ae13c4ed7c95cb425be7b4d7af0d0f2dc452ceeed7eebdd9",
+    "object_count": 6817,
+    "physical_io": false,
+    "schema": "explorer_study_bundle_export_receipt_v1",
+    "study_id": "transfer-hover-development-v9-20261026",
+    "target_optimizer_allowed": false,
+    "total_logical_bytes": 301174250,
+    "total_object_bytes": 142072541
+  },
+  "frozen_benchmark_report": {
+    "excluded": [],
+    "groups": [
+      {
+        "attempts": 4,
+        "condition": "SCRIPTED_SIM_hover_release_v8_frozen",
+        "conditional_on_known_success_rate": 0.5,
+        "confirmed_success_rate": 0.5,
+        "counts": {
+          "FAILURE": 2,
+          "SUCCESS": 2,
+          "UNKNOWN": 0
+        },
+        "interventions": 0,
+        "known_outcome_wilson95": [
+          0.15003898915214958,
+          0.8499610108478504
+        ],
+        "safety_stops": 0,
+        "source_domain": "SIMULATION",
+        "success_rate_identification_bounds": [
+          0.5,
+          0.5
+        ],
+        "task_id": "candy_to_tray",
+        "trial_ids": [
+          "v9-newjitter-7331",
+          "v9-near-left-7332",
+          "v9-out-yawplus-7333",
+          "v9-in-yawminus-7334"
+        ]
+      }
+    ],
+    "inference_note": "Episodes are experimental units; frames are not independent trials. Unknown outcomes remain explicit.",
+    "protocol_id": "transfer-hover-SCRIPTED_SIM-development-v9-20261026",
+    "protocol_sha256": "7bc5db9056d99de459b299036fa9e240650a190bb270ce481664afba673ba744",
+    "run_ids": [
+      "transfer-hover-development-v9"
+    ],
+    "schema_version": "1.0",
+    "total_recorded_attempts": 4
+  },
+  "implementation_sha256": {
+    "00-control-center/src/explorer/study_registry.py": "5aff9549be2f4b5d1de83cfa526e45a5e92e6aa8d0be46dd4fc4d3ee01c3271b",
+    "scripts/qualify_registered_study.py": "c62798d4f61161f06a320a396976e805496008e25a4d511b0d9009abe7d6e16d",
+    "shared/explorer_shared/study_bundle.py": "e7a035b8d237c5e6ed382c04e9b544135dc34ace812569ac83c5e2f6bdd86522",
+    "shared/explorer_shared/study_evidence.py": "d15d555c5dd56a0da41b8144fa93ba68dba4f2a8ea6697c487de151873f46f56"
+  },
+  "implementation_source_commit": "81bc46310394236a7f68e81d7bb44559754437ab",
+  "independent_restore": {
+    "benchmark_recomputed": true,
+    "blocked_original_open_attempts": 0,
+    "completeness": "PARTIAL",
+    "file_count": 7640,
+    "inspection_sha256": "3e6ea3e0a4859b6485d4d206c06c09f758ef9f81e18ff0b9e0b462769017caa0",
+    "manifest_sha256": "7a27d6d16cf7bf00ae13c4ed7c95cb425be7b4d7af0d0f2dc452ceeed7eebdd9",
+    "original_paths_denied": 7640,
+    "original_paths_read": false,
+    "original_programs_executed": false,
+    "original_read_guard": "python_audit_open_deny_exact_original_paths",
+    "physical_io": false,
+    "physics_executed": false,
+    "schema": "explorer_study_independent_restore_receipt_v1",
+    "study_id": "transfer-hover-development-v9-20261026",
+    "target_optimizer_allowed": false
+  },
+  "inspection_sha256": "3e6ea3e0a4859b6485d4d206c06c09f758ef9f81e18ff0b9e0b462769017caa0",
+  "learned_source_or_target_policy": false,
+  "legacy_source_train_optimizer_flags_preserved": true,
+  "master_prompt_completed": false,
+  "memory_measurement": {
+    "qualifier_parent_ru_maxrss_bytes": 879140864,
+    "recommended_future_worker_reservation_bytes": 2147483648,
+    "scope": "parent process only, not cgroup/combined child bound"
+  },
+  "no_new_physics_or_optimizer": true,
+  "original_files_unchanged": true,
+  "outcomes": {
+    "v9-in-yawminus-7334": "FAILURE",
+    "v9-near-left-7332": "FAILURE",
+    "v9-newjitter-7331": "SUCCESS",
+    "v9-out-yawplus-7333": "SUCCESS"
+  },
+  "physical_io": false,
+  "physical_success_claimed": false,
+  "private_qualification_directory": "/mnt/explorer-data/explorer-work/study-v9-portability-20261027-strict",
+  "qualification_receipt_sha256": "4b8b08d65d96bd329d4267247f88b152fc9f8f7a0050d43679e351988c0ac37e",
+  "required_original_reexecution_gaps": [
+    {
+      "code": "ORIGINAL_RUNTIME_INVENTORY_NOT_CLOSED",
+      "detail": {
+        "portable_payload_integrity_verified": true,
+        "recorded_scope": "explicit_source_inventory_bytes_not_complete_OS_or_scientific_success",
+        "unclosed": [
+          "full_OS_and_system_libraries",
+          "NumPy_compiled_runtime",
+          "MuJoCo_Python_extension_and_remaining_transitive_dependencies"
+        ]
+      },
+      "required_for_original_reexecution": true,
+      "scope": "v9-newjitter-7331"
+    },
+    {
+      "code": "FULL_INITIAL_RNG_AND_NATIVE_STATE_NOT_RECORDED",
+      "detail": "Seed, scenario and post-step integration states are retained; no full initial RNG/native-state receipt",
+      "required_for_original_reexecution": true,
+      "scope": "v9-newjitter-7331"
+    },
+    {
+      "code": "ORIGINAL_RUNTIME_INVENTORY_NOT_CLOSED",
+      "detail": {
+        "portable_payload_integrity_verified": true,
+        "recorded_scope": "explicit_source_inventory_bytes_not_complete_OS_or_scientific_success",
+        "unclosed": [
+          "full_OS_and_system_libraries",
+          "NumPy_compiled_runtime",
+          "MuJoCo_Python_extension_and_remaining_transitive_dependencies"
+        ]
+      },
+      "required_for_original_reexecution": true,
+      "scope": "v9-near-left-7332"
+    },
+    {
+      "code": "FULL_INITIAL_RNG_AND_NATIVE_STATE_NOT_RECORDED",
+      "detail": "Seed, scenario and post-step integration states are retained; no full initial RNG/native-state receipt",
+      "required_for_original_reexecution": true,
+      "scope": "v9-near-left-7332"
+    },
+    {
+      "code": "ORIGINAL_RUNTIME_INVENTORY_NOT_CLOSED",
+      "detail": {
+        "portable_payload_integrity_verified": true,
+        "recorded_scope": "explicit_source_inventory_bytes_not_complete_OS_or_scientific_success",
+        "unclosed": [
+          "full_OS_and_system_libraries",
+          "NumPy_compiled_runtime",
+          "MuJoCo_Python_extension_and_remaining_transitive_dependencies"
+        ]
+      },
+      "required_for_original_reexecution": true,
+      "scope": "v9-out-yawplus-7333"
+    },
+    {
+      "code": "FULL_INITIAL_RNG_AND_NATIVE_STATE_NOT_RECORDED",
+      "detail": "Seed, scenario and post-step integration states are retained; no full initial RNG/native-state receipt",
+      "required_for_original_reexecution": true,
+      "scope": "v9-out-yawplus-7333"
+    },
+    {
+      "code": "ORIGINAL_RUNTIME_INVENTORY_NOT_CLOSED",
+      "detail": {
+        "portable_payload_integrity_verified": true,
+        "recorded_scope": "explicit_source_inventory_bytes_not_complete_OS_or_scientific_success",
+        "unclosed": [
+          "full_OS_and_system_libraries",
+          "NumPy_compiled_runtime",
+          "MuJoCo_Python_extension_and_remaining_transitive_dependencies"
+        ]
+      },
+      "required_for_original_reexecution": true,
+      "scope": "v9-in-yawminus-7334"
+    },
+    {
+      "code": "FULL_INITIAL_RNG_AND_NATIVE_STATE_NOT_RECORDED",
+      "detail": "Seed, scenario and post-step integration states are retained; no full initial RNG/native-state receipt",
+      "required_for_original_reexecution": true,
+      "scope": "v9-in-yawminus-7334"
+    }
+  ],
+  "schema": "explorer_recorded_study_portability_evidence_v1",
+  "source_method": "SCRIPTED_SIM_privileged_geometric_teacher",
+  "study_id": "transfer-hover-development-v9-20261026",
+  "target_optimizer_allowed": false,
+  "target_partition": "development"
+}
