@@ -1,0 +1,40 @@
+{
+  "schema": "explorer_rosmaster_pipeline_software_qualification_v1",
+  "domain": "temporary_synthetic_sensor_fixtures_NOT_hardware_or_science",
+  "raw_artifacts": "/tmp/explorer-rosmaster-pipeline-qualification-20261026/test_actual_eight_official_ACT0/model",
+  "tests": "10 passed in22.37s",
+  "actual_optimizer_steps": 8,
+  "weights_changed": true,
+  "initial_loss": 0.9905003309249878,
+  "final_loss": 0.3699488639831543,
+  "save_reload_passed": true,
+  "reload_max_abs_error": 0.0,
+  "device": "cpu",
+  "input_state_dimension": 106,
+  "output_action_dimension": 9,
+  "independent_development_samples": 10,
+  "hybrid_evaluated_samples": 10,
+  "hybrid_blocked_reasons": {},
+  "aggregate_sha256": "fe839f94112069b9b0cd23aa186b82d23f06a2eb732c5d2dc23a112d43b2a0e0",
+  "model_manifest_sha256": "b0c33831f3805959fe4368ec744d9e3b379f91e3d8789dd87a1f6beb1c9db49c",
+  "implementation_sha256": {
+    "rosmaster_skill_features.py": "8be3b3de4711ecd1cce0705ecd590093b01a05daab4692c65587eb40b578918b",
+    "rosmaster_skill_hybrid.py": "2e07294f4c197bd3f03cdd03743501ef73601101e3f01b876faafd4d721d5d44",
+    "rosmaster_skill_pipeline.py": "9a4e78dbd09744e6260ee8283de04e8b9b04d82418c0ab6dca2ac86fbc06b022"
+  },
+  "checkpoint_sha256": {
+    "config.json": "98709dd1d8a9a7b8042b516c8da05c6e7bd850052d110e9bdb4ae2db6ce03d9b",
+    "explorer_preprocessing.json": "fd015d7af4357c5d3e441d6fcfd971930412acfa277d6adbef96f2807ceb8cc0",
+    "model.safetensors": "dc58119198b0dfa94bd3b3f787ebdbcb2ef9deaa3bce4d55c6fb2a38938d55c2"
+  },
+  "source_kind": [
+    "simulation"
+  ],
+  "whole_task_success": "NOT_EVALUATED",
+  "physical_io": false,
+  "simulator_executed": false,
+  "learned_rollout_executed": false,
+  "whole_skill_mastered": false,
+  "H1_H5_status": "UNTESTED",
+  "controlplane_import_torch": false
+}
