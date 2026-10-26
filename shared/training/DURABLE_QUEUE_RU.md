@@ -19,6 +19,12 @@ Semantic slug, skill/version, backend, dataset SHA и GPU slot выводятс�
 проверенные DAG dependencies, not_before и бюджеты выше server minimum.
 На работающем задании меняются только priority/preemptible. Неизвестный
 dataset SHA остаётся null, не выводится из несуществующего доказательства.
+Проверка текущего job status и изменение metadata выполняются в одной SQLite
+транзакции. Worker claim привязан к точной revision выбранного плана: если
+бюджет или зависимости изменились после планирования, процесс не стартует,
+а следующий tick заново проверяет актуальный план. Новые source/runtime pins
+завершённым или отменяемым jobs не добавляются; повтор существующего pin
+возвращает значение без пересериализации исторического config.
 
 Pure queue_plan учитывает role service+неограниченный aging, зависимости и их
 failure/cancel/wait причины. Два CPU ядра оставлены control/camera; worker
@@ -63,3 +69,5 @@ receipt не допускает224px/batch32 или иные непровере�
 вместе с исходниками/runtime; число updates и seed не подменяют shape profile.
 source04 `so101_skill_shadow` — отдельный CPU-only inference class:2CPU/2GiB,
 GPU0, один interactive slot. Он не получает Diffusion runtime/history допуск.
+`rosmaster_skill_shadow` использует тот же общий serial inference slot и бюджет,
+но сохраняет отдельный ROSMASTER state106/action9 model contract.
