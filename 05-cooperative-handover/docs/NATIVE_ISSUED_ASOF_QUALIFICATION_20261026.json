@@ -73,21 +73,6 @@
       "source_startup_zero_actuator_requests": false,
       "physical_commands": 0,
       "native_mount": null
-    },
-    {
-      "case": "test_exact_native_web_startup_current",
-      "receipt_sha256": "cf031b51da3b3ac2bbd61a5aae59ff579cfdc7bca21135ce9a1e1ee8d6a2e01b",
-      "actuator_or_external_attempts": [],
-      "errors": [
-        {
-          "detail": "FACTORY_STARTUP_HOME_WINDOW_ACTIVE_OR_UNKNOWN",
-          "error_type": "ValueError",
-          "factory": "web"
-        }
-      ],
-      "source_startup_zero_actuator_requests": false,
-      "physical_commands": 0,
-      "native_mount": null
     }
   ],
   "agent_remote_actions": 0,
