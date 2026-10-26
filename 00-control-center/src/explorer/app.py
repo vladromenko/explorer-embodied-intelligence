@@ -499,7 +499,34 @@ async def shared_queue_status():
 @app.get('/api/transfer/sources')
 def transfer_sources():
     from .transfer import policy_transfer_sources
-    return {'sources':policy_transfer_sources(STORE)}
+    from .transfer_source import current_source_choices
+    return {'sources':policy_transfer_sources(STORE),'current':current_source_choices(STORE)}
+
+
+@app.post('/api/transfer/source-selection')
+async def transfer_source_selection(request:Request):
+    from .transfer_source import prepare_qualified_source,SourceBlocked
+    from explorer_shared.contracts import canonical,digest,event
+    try:
+        body=await request.json()
+        if (request.query_params or not isinstance(body,dict) or set(body)!={'model_job_id','evaluation_job_id'} or
+                any(not isinstance(value,str) or not re.fullmatch('[0-9a-f]{32}',value) for value in body.values())):
+            raise ValueError('Select one current source model and its independent evaluation; no paths or source metadata are accepted')
+        binding=await asyncio.to_thread(prepare_qualified_source,STORE,body['model_job_id'],body['evaluation_job_id'])
+        payload={'type':'transfer.source.selected','binding':binding}
+        envelope=event('nx',_TRANSFER_PROJECT,payload);envelope['event_id']='transfer.source.selected:'+digest(binding)
+        envelope['experiment_numbering_version']=2;envelope['experiment_slug']='cross_embodiment_transfer'
+        try:await asyncio.to_thread(STORE.ingest,envelope)
+        except ValueError:
+            # A repeated explicit selection returns its first immutable envelope;
+            # its original wall clock and scientific bytes are never replaced.
+            with STORE.connect() as db:previous=db.execute('SELECT body FROM events WHERE event_id=?',(envelope['event_id'],)).fetchone()
+            if previous is None or canonical(json.loads(previous['body'])['payload'])!=canonical(payload):raise
+            envelope=json.loads(previous['body'])
+        return dict(schema='explorer_transfer_source_selection_v1',selection_event_id=envelope['event_id'],
+            binding_sha256=digest(binding),binding=binding,target_job_created=False,physical_execution_authorized=False)
+    except SourceBlocked as error:return JSONResponse({'detail':str(error),'blockers':error.blockers},409)
+    except (ValueError,OSError,KeyError,TypeError) as error:raise HTTPException(400,str(error)) from error
 
 
 @app.get('/api/handover/readiness')

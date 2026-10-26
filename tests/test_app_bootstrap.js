@@ -74,7 +74,7 @@ function bootstrap(route) {
     run: source => vm.runInContext(source, context) };
 }
 
-for (const route of ["/", "/experiments/01", "/experiments/02", "/experiments/03", "/experiments/04", "/experiments/05", "/experiments/06", "/learning/so101", "/evening", "/queue"]) {
+for (const route of ["/", "/experiments/01", "/experiments/02", "/experiments/03", "/experiments/04", "/experiments/05", "/experiments/06", "/learning/so101", "/evening", "/queue", "/research"]) {
   test(`actual deferred browser module graph bootstraps ${route} without implicit control requests`, async () => {
     const rig = bootstrap(route); await flush();
     assert.equal(rig.run("model.error"), null);
@@ -226,4 +226,11 @@ test("visual ACT UI keeps CPU default and sends only explicit verified native9 C
   const request=JSON.parse(rig.run("JSON.stringify(visualACTRequest())"));
   assert.equal(request.device,"cuda");assert.equal(request.image_size,64);assert.equal(request.batch_size,2);assert.equal(request.chunk_size,4);
   assert.ok(!request.cuda_execution_profile);assert.ok(rig.requests.every(item=>item.method==="GET"));
+});
+
+test("current transfer catalog distinguishes model/software/object proof and keeps legacy analysis separate",async()=>{
+  const rig=bootstrap("/experiments/06");await flush();
+  rig.run('workflow.currentSources={choices:[{job_id:"a".repeat(32),backend:"diffusion",skill_id:"source-skill",skill_version:3,technical_source_ready:true,source_object_rollout_qualified:false,eligible_for_transfer:false,blockers:[{category:"A",detail:"<owner missing>"},{category:"C",detail:"Нет полной предметной попытки"}]}]};workflow.sourceModel="a".repeat(32);');
+  const html=rig.run("policyTransferPanel()");assert.match(html,/native6/);assert.match(html,/&lt;owner missing&gt;/);assert.match(html,/Исторический анализ/);
+  assert.ok(html.includes('data-workflow="select_current_source" disabled'));assert.ok(rig.requests.every(item=>item.method==="GET"));
 });

@@ -713,6 +713,7 @@ async function refresh(forceExtras = false) {
     if (activeProject()?.id === "05" && (forceExtras || Date.now()-cooperativeLoadedAt>3000)) { cooperativeLoadedAt=Date.now(); await cooperativeWorkbench.refresh(); }
     if (path() === "/queue" && (forceExtras || Date.now()-sharedQueueLoadedAt>3000)) { sharedQueueLoadedAt=Date.now(); await sharedQueue.refresh(); }
     if (path() === "/research" && (forceExtras || Date.now()-researchExportLoadedAt>5000)) { researchExportLoadedAt=Date.now(); await researchExport.refresh(); }
+    if (activeProject()?.id === TRANSFER_PROJECT && workflow.currentSources === null && !workflow.loading) await loadTransferSources();
     if (stationRoute()) await pollStation(forceExtras);
     if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path())) await Promise.all([labVision.refresh(forceExtras),tabletopCalibration.refresh(forceExtras)]);
     if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path()) && (forceExtras || Date.now() - labSkillsLoadedAt > 15000)) { labSkillsLoadedAt = Date.now(); await labSkills.refresh(); }

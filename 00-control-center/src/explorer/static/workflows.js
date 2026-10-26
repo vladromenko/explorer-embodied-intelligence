@@ -1,6 +1,6 @@
 "use strict";
 // ENGINEERING_GLUE: explicit jobs and their retained outcomes, with no motor API.
-const workflow = { task: "candy_to_tray", sources: [], source: "", sourceError: "", loading: false, handover: null, visualDevice: "cpu", visualProfile: null, visualProfileError: "" };
+const workflow = { task: "candy_to_tray", sources: [], source: "", sourceError: "", loading: false, handover: null, visualDevice: "cpu", visualProfile: null, visualProfileError: "", currentSources: null, sourceModel: "", sourceEvaluation: "", sourceSelection: null };
 const workflowTask = (task) => ({ candy_to_tray: "Конфета → лоток", sock_to_basket: "Носок → корзина" }[task] || task);
 async function loadVisualACTProfile() {
   try { workflow.visualProfile=await api("/api/visual-act/profile");workflow.visualProfileError=""; }
@@ -23,11 +23,17 @@ function manipulationPanel() {
 async function loadTransferSources() {
   if (workflow.loading) return;
   workflow.loading = true;
-  try { workflow.sources = array((await api("/api/transfer/sources")).sources); workflow.sourceError = ""; }
+  try { const data=await api("/api/transfer/sources");workflow.sources=array(data.sources);workflow.currentSources=data.current || null;workflow.sourceError=""; }
   catch (error) { workflow.sourceError = error.message; }
   finally { workflow.loading = false; model.forceRender = true; render(); }
 }
-function policyTransferPanel() {
+function currentTransferSourcePanel() {
+  const choices=array(workflow.currentSources?.choices),chosen=choices.find(row=>row.job_id===workflow.sourceModel),traces=array(chosen?.qualified_trace_choices);
+  const ready=chosen?.eligible_for_transfer===true && traces.some(row=>row.evaluation_job_id===workflow.sourceEvaluation);
+  return `<section class="panel spaced-section"><div class="panel-heading"><div><p class="eyebrow">04 → 06</p><h2>Исходный навык SO101 и независимая проверка</h2></div><button type="button" class="button secondary" data-workflow="sources">Обновить каталог</button></div><div class="panel-body"><p>Обученная модель и выполненный предметный навык проверяются отдельно. Исходник сохраняет native6, цель ROSMASTER — отдельную9D реализацию с новой версией того же навыка.</p>${workflow.sourceError ? `<p class="form-error">${esc(workflow.sourceError)}</p>` : ""}<label class="form-field">Текущая source04 модель<select id="transfer-current-model"><option value="">Выберите завершённое обучение SO101</option>${choices.map(row=>`<option value="${esc(row.job_id)}" ${row.job_id===workflow.sourceModel ? "selected" : ""}>${esc(row.task || row.skill_id || row.job_id.slice(0,8))} · ${esc(row.backend || "проверяется")} · версия ${esc(row.skill_version)}</option>`).join("")}</select></label>${chosen ? `<p>${chosen.technical_source_ready ? "Checkpoint и происхождение проверены" : "Технические проверки не завершены"}. ${chosen.source_object_rollout_qualified ? "Предметная попытка источника подтверждена" : "Полная предметная попытка источника не подтверждена"}.</p><ul class="form-error">${array(chosen.blockers).map(reason=>`<li>${esc(reason.category)} · ${esc(reason.detail || reason.code)}</li>`).join("")}</ul><label class="form-field">Независимая полная попытка источника<select id="transfer-current-evaluation"><option value="">Выберите подтверждённую попытку</option>${traces.map(row=>`<option value="${esc(row.evaluation_job_id)}" ${row.evaluation_job_id===workflow.sourceEvaluation ? "selected" : ""}>${esc(row.evaluation_job_id.slice(0,8))} · ${esc(row.source_domain)} · ${esc(row.split)}</option>`).join("")}</select></label>` : `<p>${workflow.currentSources ? "В каталоге " + choices.length + " текущих моделей. Исторические hold/checkpoint остаются анализом и не доказывают предметный навык." : "Загрузите каталог текущих моделей и их свидетельств."}</p>`}<button type="button" class="button primary" data-workflow="select_current_source" ${!ready || workflow.loading ? "disabled" : ""}>Зафиксировать проверенный источник для06</button>${workflow.sourceSelection ? `<p role="status">Источник сохранён: ${esc(workflow.sourceSelection.binding?.skill_id)} · версия ${esc(workflow.sourceSelection.binding?.source_skill_version)}. Целевое обучение и исполнение отдельно; движение этим действием не разрешается.</p>` : ""}<p class="form-hint">A — остаётся программная интеграция; B — отдельный наблюдаемый тест пользователя; C — ещё нет научного свидетельства полного навыка. Выбор источника не копирует6D head на ROSMASTER и не запускает целевой робот.</p></div></section>`;
+}
+function policyTransferPanel() { return currentTransferSourcePanel()+`<details class="spaced-section"><summary>Исторический анализ ACT6 и геометрического переноса</summary>${legacyPolicyTransferPanel()}</details>`; }
+function legacyPolicyTransferPanel() {
   if (!workflow.sources.some((source) => source.job_id === workflow.source)) workflow.source = workflow.sources[0]?.job_id || "";
   const jobs = model.jobs.filter((job) => job.kind === "policy_transfer");
   const busy = jobs.some((job) => !TERMINAL_JOBS.includes(job.status));
@@ -42,12 +48,21 @@ document.addEventListener("change", (event) => {
   if (event.target.id === "manipulation-task") workflow.task = event.target.value;
   if (event.target.id === "visual-act-device") workflow.visualDevice = event.target.value;
   if (event.target.id === "transfer-source") workflow.source = event.target.value;
+  if (event.target.id === "transfer-current-model") {workflow.sourceModel=event.target.value;workflow.sourceEvaluation="";workflow.sourceSelection=null;model.forceRender=true;render();}
+  if (event.target.id === "transfer-current-evaluation") {workflow.sourceEvaluation=event.target.value;workflow.sourceSelection=null;model.forceRender=true;render();}
 });
 document.addEventListener("click", async (event) => {
   const button = event.target.closest("button[data-workflow]");
   if (!button || button.disabled) return;
   const kind = button.dataset.workflow;
   if (kind === "sources") { await loadTransferSources(); return; }
+  if (kind === "select_current_source") {
+    const source=array(workflow.currentSources?.choices).find(row=>row.job_id===workflow.sourceModel);
+    if (source?.eligible_for_transfer!==true || !array(source.qualified_trace_choices).some(row=>row.evaluation_job_id===workflow.sourceEvaluation)) {toast("Выберите подтверждённый source и его независимую попытку",true);return;}
+    const pin={model_job_id:workflow.sourceModel,evaluation_job_id:workflow.sourceEvaluation};
+    button.disabled=true;try {const result=await post("/api/transfer/source-selection",pin);if (workflow.sourceModel===pin.model_job_id && workflow.sourceEvaluation===pin.evaluation_job_id) {workflow.sourceSelection=result;model.forceRender=true;render();}} catch(error) {toast(error.message,true);} finally {button.disabled=false;}
+    return;
+  }
   if (kind === "handover_readiness") {
     button.disabled = true;
     try { workflow.handover = await api("/api/handover/readiness"); model.forceRender = true; render(); }

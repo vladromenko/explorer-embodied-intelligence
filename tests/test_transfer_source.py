@@ -2,6 +2,7 @@
 from copy import deepcopy
 import hashlib
 import json
+import os
 from pathlib import Path
 import sqlite3
 import subprocess
@@ -70,7 +71,9 @@ def inspect(store,job,admission,**kwargs):
 
 def test_controlplane_import_has_no_torch_robot_or_camera_factory():
     code="import sys;import explorer.transfer_source;assert 'torch' not in sys.modules;assert not any(n.startswith('lerobot.robots') for n in sys.modules)"
-    run=subprocess.run([sys.executable,'-c',code],capture_output=True,text=True,timeout=15)
+    root=Path(__file__).resolve().parents[1]
+    environment=dict(os.environ,PYTHONPATH=os.pathsep.join(str(root/name) for name in ('00-control-center/src','shared')))
+    run=subprocess.run([sys.executable,'-c',code],capture_output=True,text=True,timeout=15,env=environment)
     assert run.returncode==0,run.stderr
 
 

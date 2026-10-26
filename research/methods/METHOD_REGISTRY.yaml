@@ -4621,6 +4621,31 @@
       },
       "test_evidence": [],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-CURRENT-SOURCE04-TRANSFER06-BINDING-20261026",
+      "function_or_module": "00-control-center/src/explorer/transfer_source.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Verify current native6 ACT/Diffusion model Spec/cohort/checkpoint/processors separately from independent full object rollout; server-qualified source trace retains native6 and target9 version lineage, with software and scientific blockers exposed.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
