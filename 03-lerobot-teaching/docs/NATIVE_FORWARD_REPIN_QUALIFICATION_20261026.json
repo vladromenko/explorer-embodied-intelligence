@@ -1,0 +1,49 @@
+{
+  "schema": "explorer_native_forward_repin_source_qualification_v1",
+  "qualification_kind": "retained_exact_factory_with_injected_external_drivers_not_hardware",
+  "targeted_tests_passed": 23,
+  "exact_forward_factory_tests_passed": 2,
+  "cases": [
+    {
+      "case": "test_exact_forward_repin_full_0",
+      "receipt_sha256": "b53b76ee9987de374a0fc97e22ccd1449dad5a2dde7850fd0ca669909e657345",
+      "source_modules_pinned": 154,
+      "actuator_or_external_attempts": [],
+      "errors": [],
+      "native_mount": {
+        "default_execution_permission": false,
+        "global_stop_wrapped": true,
+        "same_existing_arm": true,
+        "same_existing_teleop": true
+      },
+      "physical_commands": 0
+    },
+    {
+      "case": "test_exact_forward_repin_full_1",
+      "receipt_sha256": "cf031b51da3b3ac2bbd61a5aae59ff579cfdc7bca21135ce9a1e1ee8d6a2e01b",
+      "source_modules_pinned": 154,
+      "actuator_or_external_attempts": [],
+      "errors": [
+        {
+          "detail": "FACTORY_STARTUP_HOME_WINDOW_ACTIVE_OR_UNKNOWN",
+          "error_type": "ValueError",
+          "factory": "web"
+        }
+      ],
+      "native_mount": null,
+      "physical_commands": 0
+    }
+  ],
+  "source_files_sha256": {
+    "shared/explorer_shared/native_owner_repin.py": "257479a119c6b6693615bc1802065f05f6ff4074f055869dff8e45370a3ef8b4",
+    "tests/test_native_owner_repin.py": "91cdbf0b4d1ee3dca1acbcaa870b0c12de29418f504306da67769dea65f9bfb9",
+    "tests/test_native_repin_startup_qualification.py": "4efe07c561c8badc3cef55ad1de6fbad9085b10596e1929940f0e1755854b45e"
+  },
+  "original_owner_restarted": false,
+  "physical_commands_executed": 0,
+  "controller_settings_written": false,
+  "feedback_enabled": false,
+  "new_publishers": 0,
+  "all_source_requirements_complete": false,
+  "physical_handover_qualified": false
+}
