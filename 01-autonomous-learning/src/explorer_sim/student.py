@@ -5,13 +5,23 @@ explicit preprocessing are Explorer glue; checkpoint save/reload is official.
 Methods: ACT_LEROBOT_0_6_1, ENGINEERING_GLUE.
 """
 import importlib.metadata
+import dataclasses
+from enum import Enum
+import fcntl
+import hashlib
+import inspect
+import json
+import os
 from pathlib import Path
+import random
+import re
 import time
+import uuid
 
 import numpy as np
 from PIL import Image
 import torch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, default_collate
 from packaging.version import Version
 
 from .pilot import HIGH, LOW, sha, state_digest, summarize, write_frame, write_json
@@ -30,6 +40,10 @@ def prepare_rgb(images):
 class EpisodeChunks(Dataset):
     def __init__(self, directory, manifest, chunk_size):
         self.episodes, self.indices, self.chunk_size = [], [], chunk_size
+        source_files = [{"path": str((Path(directory) / d["file"]).resolve()), "sha256": d["sha256"]}
+                        for d in manifest["episodes"]]
+        self.resume_context = {"source_signature": hashlib.sha256(json.dumps(manifest, sort_keys=True).encode()).hexdigest(),
+                               "source_files": source_files, "chunk_size": chunk_size}
         self.excluded_failed_episode_ids=[]
         for descriptor in manifest["episodes"]:
             failed=isinstance(descriptor.get('outcome'),dict) and descriptor['outcome'].get('success') is False
@@ -95,18 +109,228 @@ def make_act_policy(settings, state_dim=9, action_dim=9):
     return ACTPolicy(config).to(device)
 
 
-def optimize_act(policy, samples, settings, folder, update, progress_start=.60, progress_end=.85):
-    device, config = settings["device"], policy.config
-    loader = DataLoader(samples, batch_size=min(settings["batch_size"], len(samples)), shuffle=True,
-                        num_workers=0, generator=torch.Generator().manual_seed(settings["seed"]))
-    optimizer = torch.optim.AdamW(policy.get_optim_params(), lr=config.optimizer_lr, weight_decay=1e-4)
-    iterator, losses, started = iter(loader), [], time.monotonic()
-    for step in range(settings["act_steps"]):
+def _plain(value):
+    if dataclasses.is_dataclass(value):
+        return _plain(dataclasses.asdict(value))
+    if isinstance(value, dict):
+        return {str(k): _plain(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_plain(v) for v in value]
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, Enum):
+        return _plain(value.value)
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    if isinstance(value, torch.Tensor) and value.numel() == 1:
+        return value.detach().cpu().item()
+    if hasattr(value, "value"):
+        return _plain(value.value)
+    if hasattr(value, "__dict__"):
+        return _plain(vars(value))
+    raise TypeError("Unsupported ACT resume signature value: " + type(value).__name__)
+
+
+def _rng_state():
+    numpy = np.random.get_state()
+    return {"python": random.getstate(), "numpy": {"kind": numpy[0], "keys": numpy[1].tolist(),
+            "position": numpy[2], "has_gauss": numpy[3], "cached_gaussian": numpy[4]},
+            "torch_cpu": torch.get_rng_state(),
+            "cuda_initialized": torch.cuda.is_initialized(),
+            "torch_cuda": torch.cuda.get_rng_state_all() if torch.cuda.is_initialized() else []}
+
+
+def _restore_rng(value):
+    random.setstate(value["python"])
+    numpy = value["numpy"]
+    np.random.set_state((numpy["kind"], np.asarray(numpy["keys"], np.uint32), numpy["position"],
+                         numpy["has_gauss"], numpy["cached_gaussian"]))
+    torch.set_rng_state(value["torch_cpu"].cpu())
+    if value["cuda_initialized"]:
+        if not torch.cuda.is_available() or len(value["torch_cuda"]) != torch.cuda.device_count():
+            raise ValueError("ACT resume CUDA RNG device set changed")
+        torch.cuda.set_rng_state_all([v.cpu() for v in value["torch_cuda"]])
+
+
+class _BatchPlan:
+    """One-process deterministic sampler; complete permutation/cursor is durable."""
+    def __init__(self, count, batch_size, seed):
+        self.count, self.batch_size = count, batch_size
+        self.generator = torch.Generator().manual_seed(seed)
+        self.order, self.cursor, self.epoch = [], 0, 0
+
+    def next(self):
+        if self.cursor == len(self.order):
+            # Preserve the former public DataLoader(generator=..., shuffle=True)
+            # index sequence, including its iterator/epoch generator draws. The
+            # index-only loader never reads source samples or global RNG.
+            orders = list(DataLoader(range(self.count), batch_size=self.count, shuffle=True,
+                                    num_workers=0, generator=self.generator))
+            self.order = orders[0].tolist()
+            self.cursor = 0
+            self.epoch += 1
+        end = min(self.count, self.cursor + self.batch_size)
+        indices = self.order[self.cursor:end]
+        self.cursor = end
+        return indices
+
+    def state_dict(self):
+        return {"order": self.order, "cursor": self.cursor, "epoch": self.epoch,
+                "generator_state": self.generator.get_state()}
+
+    def load_state_dict(self, value):
+        order = value["order"]
+        if (order and sorted(order) != list(range(self.count))) or not 0 <= value["cursor"] <= len(order):
+            raise ValueError("ACT resume sampler permutation/cursor is invalid")
+        self.order, self.cursor, self.epoch = order, value["cursor"], value["epoch"]
+        self.generator.set_state(value["generator_state"].cpu())
+
+
+def _fsync_directory(path):
+    descriptor = os.open(path, os.O_RDONLY)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _atomic_file(path, writer):
+    temporary = path.with_name("." + path.name + "." + uuid.uuid4().hex + ".tmp")
+    try:
+        with temporary.open("wb") as stream:
+            writer(stream)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+        _fsync_directory(path.parent)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def _resume_signature(policy, samples, settings, context, interval):
+    if (not isinstance(context.get("source_signature"), str) or len(context["source_signature"]) != 64
+            or any(c not in "0123456789abcdef" for c in context["source_signature"])):
+        raise ValueError("ACT resume_context requires a SHA256 source_signature")
+    for item in context.get("source_files", []):
+        if not Path(item["path"]).is_file() or sha(item["path"]) != item["sha256"]:
+            raise ValueError("ACT resume source checksum changed: " + str(item["path"]))
+    implementations = {"student": sha(__file__)}
+    for label, cls in [("dataset", type(samples)), ("policy", type(policy))]:
+        path = inspect.getsourcefile(cls)
+        if path and Path(path).is_file():
+            implementations[label] = sha(path)
+    packages = {}
+    for name in ("torchvision", "lerobot"):
         try:
-            batch = next(iterator)
-        except StopIteration:
-            iterator = iter(loader)
-            batch = next(iterator)
+            packages[name] = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            packages[name] = "NOT_INSTALLED"
+    metadata = {"schema_version": 1, "source_context": _plain(context), "settings": _plain(settings),
+        "model_config": _plain(policy.config), "dataset_class": type(samples).__module__ + "." + type(samples).__qualname__,
+        "dataset_length": len(samples), "checkpoint_interval": interval, "implementation_sha256": implementations,
+        "parameters": [(k, list(v.shape), str(v.dtype)) for k, v in policy.state_dict().items()],
+        "trainable_parameters": [name for name, value in policy.named_parameters() if value.requires_grad],
+        "runtime": {"torch": str(torch.__version__), "numpy": np.__version__,
+                    "packages": packages,
+                    "torch_num_threads": torch.get_num_threads(),
+                    "deterministic_algorithms": torch.are_deterministic_algorithms_enabled(),
+                    "matmul_precision": torch.get_float32_matmul_precision(),
+                    "cuda_matmul_tf32": torch.backends.cuda.matmul.allow_tf32,
+                    "cudnn_tf32": torch.backends.cudnn.allow_tf32, "cudnn_benchmark": torch.backends.cudnn.benchmark,
+                    "cudnn_deterministic": torch.backends.cudnn.deterministic}}
+    return hashlib.sha256(json.dumps(metadata, sort_keys=True, allow_nan=False).encode()).hexdigest(), metadata
+
+
+def _save_resume(directory, payload):
+    directory.mkdir(exist_ok=True)
+    _fsync_directory(directory.parent)
+    name = f"state-{payload['completed_steps']:08d}-{uuid.uuid4().hex}.pt"
+    path = directory / name
+    old = json.loads((directory / "latest.json").read_text()) if (directory / "latest.json").is_file() else None
+    _atomic_file(path, lambda stream: torch.save(payload, stream))
+    pointer = {"checkpoint": name, "sha256": sha(path), "completed_steps": payload["completed_steps"],
+               "signature": payload["signature"], "previous_checkpoint": old["checkpoint"] if old else None}
+    encoded = json.dumps(pointer, sort_keys=True).encode()
+    _atomic_file(directory / "latest.json", lambda stream: stream.write(encoded))
+    keep = {name, pointer["previous_checkpoint"]}
+    for candidate in directory.glob("state-*.pt"):
+        if (candidate.name not in keep and not candidate.is_symlink()
+                and re.fullmatch(r"state-[0-9]{8}-[0-9a-f]{32}\.pt", candidate.name)):
+            candidate.unlink()
+    _fsync_directory(directory)
+    return pointer
+
+
+def optimize_act(policy, samples, settings, folder, update, progress_start=.60, progress_end=.85,
+                 resume_context=None, checkpoint_interval=25):
+    """One optimizer writer per job; preserve the existing public call/return."""
+    directory = Path(folder) / "act_resume"
+    directory.mkdir(parents=True, exist_ok=True)
+    with (directory / "optimizer.lock").open("a") as owner:
+        try:
+            fcntl.flock(owner, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise RuntimeError("Another ACT optimizer owns this job directory") from error
+        return _optimize_act_locked(policy, samples, settings, folder, update, progress_start, progress_end,
+                                    resume_context, checkpoint_interval)
+
+
+def _optimize_act_locked(policy, samples, settings, folder, update, progress_start, progress_end,
+                         resume_context, checkpoint_interval):
+    """Actual optimizer continuation; untyped legacy Datasets remain non-resumable."""
+    device, config = settings["device"], policy.config
+    folder = Path(folder)
+    folder.mkdir(parents=True, exist_ok=True)
+    if len(samples) < 1 or settings["act_steps"] < 1 or settings["batch_size"] < 1:
+        raise ValueError("ACT optimization requires nonempty samples and positive steps/batch size")
+    if isinstance(checkpoint_interval, bool) or not isinstance(checkpoint_interval, int) or checkpoint_interval < 1:
+        raise ValueError("ACT checkpoint interval must be a positive integer")
+    context = resume_context if resume_context is not None else getattr(samples, "resume_context", None)
+    signature, metadata = _resume_signature(policy, samples, settings, context, checkpoint_interval) if context is not None else (None, None)
+    optimizer = torch.optim.AdamW(policy.get_optim_params(), lr=config.optimizer_lr, weight_decay=1e-4)
+    plan = _BatchPlan(len(samples), min(settings["batch_size"], len(samples)), settings["seed"])
+    losses, completed, elapsed_before = [], 0, 0.0
+    directory = folder / "act_resume"
+    pointer_path = directory / "latest.json"
+    loaded = pointer_path.is_file()
+    if loaded:
+        pointer = json.loads(pointer_path.read_text())
+        name = pointer["checkpoint"]
+        if Path(name).name != name or sha(directory / name) != pointer["sha256"]:
+            raise ValueError("ACT resume checkpoint path/checksum mismatch; retained for diagnosis")
+        if signature is None or pointer["signature"] != signature:
+            raise ValueError("ACT resume source/settings/implementation signature changed; checkpoint retained")
+        payload = torch.load(directory / name, map_location="cpu", weights_only=True)
+        if (payload.get("schema_version") != 1 or payload["signature"] != signature or payload["metadata"] != metadata
+                or pointer["completed_steps"] != payload["completed_steps"]):
+            raise ValueError("ACT resume payload signature mismatch")
+        losses, completed = payload["losses"], payload["completed_steps"]
+        if (len(losses) != completed or completed > settings["act_steps"]
+                or [row["step"] for row in losses] != list(range(1, completed + 1))):
+            raise ValueError("ACT resume loss/optimizer step history is inconsistent")
+        steps = [int(v["step"].item()) for v in payload["optimizer"]["state"].values() if "step" in v]
+        if (completed and (not steps or max(steps) != completed)) or (not completed and steps):
+            raise ValueError("ACT resume optimizer state does not match the durable step history")
+        policy.load_state_dict(payload["model"], strict=True)
+        optimizer.load_state_dict(payload["optimizer"])
+        plan.load_state_dict(payload["sampler"])
+        if payload.get("dataset_state") is not None:
+            samples.load_resume_state_dict(payload["dataset_state"])
+        elapsed_before = payload["active_elapsed_s"]
+        _restore_rng(payload["rng"])
+    resumed_from = completed
+    started = time.monotonic() - elapsed_before
+    initial_weights = payload["initial_weights_sha256"] if loaded else state_digest(policy)
+    def save():
+        return _save_resume(directory, {"schema_version": 1, "signature": signature, "metadata": metadata,
+            "completed_steps": completed, "model": policy.state_dict(), "optimizer": optimizer.state_dict(),
+            "sampler": plan.state_dict(), "rng": _rng_state(), "losses": losses,
+            "initial_weights_sha256": initial_weights, "active_elapsed_s": time.monotonic() - started,
+            "dataset_state": samples.resume_state_dict() if hasattr(samples, "resume_state_dict") else None})
+    if signature is not None and not loaded:
+        save()
+    for step in range(completed, settings["act_steps"]):
+        batch = default_collate([samples[index] for index in plan.next()])
         batch = {key: value.to(device) for key, value in batch.items()}
         policy.train()
         optimizer.zero_grad(set_to_none=True)
@@ -116,12 +340,35 @@ def optimize_act(policy, samples, settings, folder, update, progress_start=.60, 
         loss.backward()
         norm = torch.nn.utils.clip_grad_norm_(policy.parameters(), 1.0, error_if_nonfinite=True)
         optimizer.step()
-        losses.append({"step": step + 1, "loss": float(loss.detach().cpu()),
-                       "gradient_norm": float(norm.detach().cpu()), **terms})
-        if (step + 1) % 10 == 0 or step + 1 == settings["act_steps"]:
+        losses.append(_plain({"step": step + 1, "loss": float(loss.detach().cpu()),
+                       "gradient_norm": float(norm.detach().cpu()), **terms}))
+        completed = step + 1
+        checkpoint_due = completed % checkpoint_interval == 0 or completed == settings["act_steps"]
+        if signature is not None and checkpoint_due:
+            if completed == settings["act_steps"]:
+                final_signature, _ = _resume_signature(policy, samples, settings, context, checkpoint_interval)
+                if final_signature != signature:
+                    raise ValueError("ACT source/settings/implementation changed during optimization")
+            save()
+        if completed % 10 == 0 or checkpoint_due:
             write_json(folder / "act_training.json", {"losses": losses, "device": device,
                        "elapsed_s": time.monotonic() - started, "official_implementation": "lerobot.policies.act.ACTPolicy"})
-            update(progress_start + (progress_end - progress_start) * (step + 1) / settings["act_steps"], "optimizing_official_lerobot_act")
+            # UI/logging callbacks cannot change the learner's random sequence.
+            rng = _rng_state()
+            try:
+                update(progress_start + (progress_end - progress_start) * completed / settings["act_steps"], "optimizing_official_lerobot_act")
+            finally:
+                _restore_rng(rng)
+    optimizer.explorer_resume_info = {"supported": signature is not None, "checkpoint_loaded": loaded,
+        "resumed_from_step": resumed_from, "completed_steps": completed,
+        "optimizer_steps_executed_this_process": completed - resumed_from,
+        "checkpoint_interval": checkpoint_interval, "signature": signature,
+        "active_optimizer_elapsed_s": time.monotonic() - started,
+        "non_durable_updates_may_be_replayed": True, "retained_history_is_not_total_compute_across_failed_attempts": True,
+        "rng_sources": ["python", "numpy_global", "torch_cpu", "all_initialized_cuda", "explicit_batch_sampler"]}
+    write_json(folder / "act_training.json", {"losses": losses, "device": device,
+        "elapsed_s": time.monotonic() - started, "official_implementation": "lerobot.policies.act.ACTPolicy",
+        "training_resume": optimizer.explorer_resume_info})
     return optimizer, losses, started
 
 
@@ -193,6 +440,7 @@ def train_and_evaluate_act(env, evaluation_env, folder, settings, manifest, seed
     return {"status": "trained_and_simulation_evaluated", "trained": True,
             "algorithm": "official LeRobot ACT", "lerobot_version": importlib.metadata.version("lerobot"),
             "official_module": type(policy).__module__, "optimizer_steps": len(losses),
+            "training_resume": optimizer.explorer_resume_info,
             "weights_changed": initial_digest != state_digest(policy),
             "parameter_count": sum(parameter.numel() for parameter in policy.parameters()),
             "device": device, "checkpoint_dir": str(checkpoint),

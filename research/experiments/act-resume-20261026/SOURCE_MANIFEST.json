@@ -1,0 +1,18 @@
+{
+  "scope": "Actual local test/proof outputs; checkpoint tensors remain outside Git",
+  "source_outputs": [
+    {
+      "source_path": "/tmp/explorer-act-resume-validation/PILOT_RESUME_PROOF_V2.json",
+      "archived_path": "research/experiments/act-resume-20261026/PILOT_RESUME_PROOF.json",
+      "sha256": "02a6a481d0d1155117ec4a71123c2fd08d2a6832987fc6383ac0e945c9e7fc80",
+      "copied_without_modification": true
+    },
+    {
+      "source_path": "/tmp/explorer-act-resume-validation/resume-tests-final.xml",
+      "archived_path": "research/experiments/act-resume-20261026/resume-tests.xml",
+      "sha256": "6e27906f8a039a72c1497bb0fe117c950a949b23daddce86ddc09b73958e0615",
+      "copied_without_modification": true
+    }
+  ],
+  "derived_proof_sha256": "70c559670f1d8222b57d758e6d232b6662fd5f484fc46be65aed01fa0d3ad1f7"
+}

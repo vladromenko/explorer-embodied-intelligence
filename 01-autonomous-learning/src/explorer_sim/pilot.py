@@ -79,15 +79,15 @@ def completed_result(folder):
     return result
 
 
-def preserve_interrupted_attempt(folder):
+def preserve_interrupted_attempt(folder, keep=()):
     if (folder / "provenance.json").exists():
         archive = folder / "interrupted_attempts" / uuid.uuid4().hex
         archive.mkdir(parents=True)
         names = ["provenance.json", "frame.jpg", "frame.json", "model.xml", "teacher_ppo.zip", "dataset",
                  "act_training.json", "act_evaluation.json", "student_act", "act_optimizer.pt",
-                 "lerobot_v3", "lerobot_v3-readback.json"]
+                 "lerobot_v3", "lerobot_v3-readback.json", "pilot_actor_source.json"]
         for name in names:
-            if (folder / name).exists():
+            if name not in keep and (folder / name).exists():
                 shutil.move(str(folder / name), str(archive / name))
 
 
@@ -351,7 +351,21 @@ def run_pilot(store, job, root):
         if card and not any(item["id"] == card["id"] for item in store.skills()):
             store.add_skill(card)
         return saved
-    preserve_interrupted_attempt(folder)
+    actor_phase = None
+    if (folder / "act_resume/latest.json").is_file():
+        phase_path = folder / "pilot_actor_source.json"
+        if not phase_path.is_file():
+            raise ValueError("ACT checkpoint exists without immutable completed-teacher phase; original artifacts retained")
+        actor_phase = json.loads(phase_path.read_text())
+        if actor_phase["settings"] != settings:
+            raise ValueError("Pilot ACT resume settings changed")
+        for name, expected in actor_phase["source_files_sha256"].items():
+            source = (folder / name).resolve()
+            if not source.is_relative_to(folder.resolve()) or sha(source) != expected:
+                raise ValueError("Pilot ACT resume source phase checksum changed")
+    preserved = {"provenance.json", "model.xml", "teacher_ppo.zip", "dataset", "lerobot_v3",
+                 "lerobot_v3-readback.json", "pilot_actor_source.json"} if actor_phase else set()
+    preserve_interrupted_attempt(folder, keep=preserved)
     assets = resolve_mesh_dir(os.environ.get("EXPLORER_SIM_MESH_DIR") or
                               Path(root) / "_registry/private/assets/m3_reference/meshes")
     started = time.monotonic()
@@ -367,7 +381,13 @@ def run_pilot(store, job, root):
                   "training_seed": settings["seed"],
                   "independent_evaluation_seeds": [settings["seed"] + 10000 + i for i in range(settings["evaluation_episodes"])],
                   "not_validated": ["sock_manipulation", "real_contact_physics", "physical_transfer", "mobile_navigation"]}
-    write_json(folder / "provenance.json", provenance)
+    if actor_phase:
+        original = json.loads((folder / "provenance.json").read_text())
+        if {k: v for k, v in original.items() if k != "created_wall_utc"} != {k: v for k, v in provenance.items() if k != "created_wall_utc"}:
+            raise ValueError("Pilot ACT resume implementation/assets/runtime changed")
+        provenance = original
+    else:
+        write_json(folder / "provenance.json", provenance)
 
     def update(progress, phase):
         store.update_job(job["id"], progress=progress, result={"phase": phase, "engineering_pilot": True})
@@ -378,50 +398,60 @@ def run_pilot(store, job, root):
     try:
         observation, _ = env.reset(seed=settings["seed"])
         write_frame(env, folder, "Checksum-verified CAD ROSMASTER: actual MuJoCo reach scene")
-        (folder / "model.xml").write_text(env.xml)
+        if not actor_phase:
+            (folder / "model.xml").write_text(env.xml)
 
         class NoMotion:
             def predict(self, observation, deterministic=True):
                 return np.zeros(3, np.float32), None
 
-        result["no_motion_baseline"] = evaluate_teacher(NoMotion(), evaluation_env,
-            provenance["independent_evaluation_seeds"], folder, "No-motion baseline in the same CAD reach scenes")
-        policy = PPO("MlpPolicy", env, seed=settings["seed"], device="cpu", n_steps=128,
-                     batch_size=64, n_epochs=5, learning_rate=3e-4,
-                     policy_kwargs={"net_arch": [64, 64]}, verbose=0)
-        initial_digest = state_digest(policy.policy)
+        if actor_phase:
+            result = actor_phase["result"]
+            dataset = json.loads((folder / "dataset/manifest.json").read_text())
+            teacher_evaluation = result["teacher"]["evaluation"]
+        else:
+            result["no_motion_baseline"] = evaluate_teacher(NoMotion(), evaluation_env,
+                provenance["independent_evaluation_seeds"], folder, "No-motion baseline in the same CAD reach scenes")
+            policy = PPO("MlpPolicy", env, seed=settings["seed"], device="cpu", n_steps=128,
+                         batch_size=64, n_epochs=5, learning_rate=3e-4,
+                         policy_kwargs={"net_arch": [64, 64]}, verbose=0)
+            initial_digest = state_digest(policy.policy)
 
-        class Progress(BaseCallback):
-            def _on_step(self):
-                if self.num_timesteps % 128 == 0:
-                    update(.05 + .35 * min(1, self.num_timesteps / settings["teacher_steps"]), "optimizing_real_ppo_teacher")
-                    write_frame(env, folder, f"Actual PPO optimization: {self.num_timesteps} simulator steps")
-                return True
+            class Progress(BaseCallback):
+                def _on_step(self):
+                    if self.num_timesteps % 128 == 0:
+                        update(.05 + .35 * min(1, self.num_timesteps / settings["teacher_steps"]), "optimizing_real_ppo_teacher")
+                        write_frame(env, folder, f"Actual PPO optimization: {self.num_timesteps} simulator steps")
+                    return True
 
-        update(.02, "optimizing_real_ppo_teacher")
-        policy.learn(total_timesteps=settings["teacher_steps"], callback=Progress())
-        teacher_path = folder / "teacher_ppo.zip"
-        policy.save(teacher_path)
-        reloaded = PPO.load(teacher_path, device="cpu")
-        check_observation, _ = evaluation_env.reset(seed=settings["seed"] + 9999)
-        before_action, _ = policy.predict(check_observation, deterministic=True)
-        after_action, _ = reloaded.predict(check_observation, deterministic=True)
-        reloaded_ok = bool(np.allclose(before_action, after_action, atol=1e-7))
-        if not reloaded_ok:
-            raise RuntimeError("PPO checkpoint reload mismatch")
-        teacher_evaluation = evaluate_teacher(reloaded, evaluation_env, provenance["independent_evaluation_seeds"], folder)
-        result["teacher"] = {"algorithm": "Stable-Baselines3 PPO", "privileged_state": True,
-                             "device": "cpu",
-                             "environment_timesteps": int(policy.num_timesteps),
-                             "optimizer_updates": int(policy._n_updates),
-                             "weights_changed": initial_digest != state_digest(policy.policy),
-                             "checkpoint": str(teacher_path), "sha256": sha(teacher_path),
-                             "save_reload_passed": reloaded_ok, "evaluation": teacher_evaluation}
-        dataset = collect_dataset(reloaded, env, folder, settings, update)
-        result["dataset"] = {"id": dataset["dataset_id"], "manifest_sha256": sha(folder / "dataset/manifest.json"),
-                             "episode_count": len(dataset["episodes"]),
-                             "successful_teacher_episodes": sum(item["outcome"]["success"] for item in dataset["episodes"])}
-        result["dataset"]["official_export"] = export_dataset_if_available(folder)
+            update(.02, "optimizing_real_ppo_teacher")
+            policy.learn(total_timesteps=settings["teacher_steps"], callback=Progress())
+            teacher_path = folder / "teacher_ppo.zip"
+            policy.save(teacher_path)
+            reloaded = PPO.load(teacher_path, device="cpu")
+            check_observation, _ = evaluation_env.reset(seed=settings["seed"] + 9999)
+            before_action, _ = policy.predict(check_observation, deterministic=True)
+            after_action, _ = reloaded.predict(check_observation, deterministic=True)
+            reloaded_ok = bool(np.allclose(before_action, after_action, atol=1e-7))
+            if not reloaded_ok:
+                raise RuntimeError("PPO checkpoint reload mismatch")
+            teacher_evaluation = evaluate_teacher(reloaded, evaluation_env, provenance["independent_evaluation_seeds"], folder)
+            result["teacher"] = {"algorithm": "Stable-Baselines3 PPO", "privileged_state": True,
+                                 "device": "cpu",
+                                 "environment_timesteps": int(policy.num_timesteps),
+                                 "optimizer_updates": int(policy._n_updates),
+                                 "weights_changed": initial_digest != state_digest(policy.policy),
+                                 "checkpoint": str(teacher_path), "sha256": sha(teacher_path),
+                                 "save_reload_passed": reloaded_ok, "evaluation": teacher_evaluation}
+            dataset = collect_dataset(reloaded, env, folder, settings, update)
+            result["dataset"] = {"id": dataset["dataset_id"], "manifest_sha256": sha(folder / "dataset/manifest.json"),
+                                 "episode_count": len(dataset["episodes"]),
+                                 "successful_teacher_episodes": sum(item["outcome"]["success"] for item in dataset["episodes"])}
+            result["dataset"]["official_export"] = export_dataset_if_available(folder)
+            paths = ["provenance.json", "teacher_ppo.zip", "dataset/manifest.json", "model.xml"] + [
+                "dataset/" + d["file"] for d in dataset["episodes"]]
+            write_json(folder / "pilot_actor_source.json", {"schema_version": 1, "settings": settings,
+                "result": result, "source_files_sha256": {name: sha(folder / name) for name in paths}})
         if settings["act_steps"] > 0:
             from .student import train_and_evaluate_act
             try:
@@ -432,7 +462,9 @@ def run_pilot(store, job, root):
                                      "error": str(exc), "trained": False}
         else:
             result["student"] = {"status": "not_requested", "algorithm": "official LeRobot ACT", "trained": False}
-        result.update(elapsed_s=time.monotonic() - started, provenance_sha256=sha(folder / "provenance.json"))
+        result.update(elapsed_s=time.monotonic() - started, provenance_sha256=sha(folder / "provenance.json"),
+            phase_resume={"completed_teacher_and_dataset_reused": bool(actor_phase), "mid_ppo_optimizer_resumed": False,
+                          "elapsed_s_scope": "current worker attempt; earlier attempts retain their own evidence"})
         student = result["student"]
         evaluated = student.get("trained", False)
         card = {"id": "sim-reach-" + job["id"], "task": result["task"],

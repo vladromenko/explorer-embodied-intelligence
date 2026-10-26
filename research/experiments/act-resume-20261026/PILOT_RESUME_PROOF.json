@@ -1,0 +1,49 @@
+{
+  "scope": "Actual simulation-only completed PPO teacher/dataset reused; ACT restart25+5. No mid-PPO optimizer/collector or physical-task claim.",
+  "phase_resume": {
+    "completed_teacher_and_dataset_reused": true,
+    "mid_ppo_optimizer_resumed": false,
+    "elapsed_s_scope": "current worker attempt; earlier attempts retain their own evidence"
+  },
+  "training_resume": {
+    "supported": true,
+    "checkpoint_loaded": true,
+    "resumed_from_step": 25,
+    "completed_steps": 30,
+    "optimizer_steps_executed_this_process": 5,
+    "checkpoint_interval": 25,
+    "signature": "7474d57831119f0d1c427b5c6b1a3cf496a413a5ef5b5fa10a94dc1fd6405569",
+    "active_optimizer_elapsed_s": 0.9700763319851831,
+    "non_durable_updates_may_be_replayed": true,
+    "retained_history_is_not_total_compute_across_failed_attempts": true,
+    "rng_sources": [
+      "python",
+      "numpy_global",
+      "torch_cpu",
+      "all_initialized_cuda",
+      "explicit_batch_sampler"
+    ]
+  },
+  "teacher_timesteps": 4096,
+  "teacher_sha256_unchanged": "13d36823e78e2358ddf56feed99c24441d25047b2f685a42b46cd00904a22f26",
+  "source_dataset_sha256_unchanged": {
+    "episode_0006.npz": "fb271b0426858adf9af59bc26e495672288e6e4235f05d4697cb073a45074f5a",
+    "episode_0007.npz": "e6c8524efbc7cd6e8f2bd9cd5cb1a4ce75b4d7439093ffe1d60db870e13afbf8",
+    "episode_0005.npz": "b1f97f7478717bb838821e56a7338f2241bb34d07ffe0ad7ef1816d2b0ee5971",
+    "episode_0011.npz": "59fb2d62dfe4f4ea05f6f6c1a1d249f2a0ab8e1e32462a4ba3bf2f8c9cf5a27b",
+    "episode_0010.npz": "876de214e84dfcc30c931141f733e26e0a07d5a881d824ff6aee0764740e88c6",
+    "episode_0004.npz": "6cefba41d83fd4d74568365a456038b5fbf9bbd063627a74fb4c61d66f9f18d7",
+    "episode_0000.npz": "c07374136eadab275c577dd0f1702a986da2bcb1114f25a8555a8f3600c16af2",
+    "episode_0001.npz": "9be9167d3bebf65936cc7eac23781203492f0c37210a8d2235067d48f16f5b0e",
+    "episode_0003.npz": "4b2d0e9f4726e2574a419458c553ea7eb7bf3c9b17d0381f4a19e25efb770dba",
+    "episode_0002.npz": "e94f3baaac831638ff6d9d8c07178e06fac384dca142868e3b7798634d90c6b5",
+    "manifest.json": "fc7a700e7afa68497e1ed48f57d1c1077bc1ce765b3925a58da53670b7c3b75c",
+    "episode_0009.npz": "edc55f5284ccb02f58a409b2715de723bd10ee2fd07ee76bbc9be2c7fe33ab25",
+    "episode_0008.npz": "614684697c243fc894686ae21a5aa11132b747bd2e2c82ac2ecfaa3708fdec13"
+  },
+  "result_path": "/tmp/explorer-act-resume-validation/pilot/jobs/completed-teacher-act-resume-v2/result.json",
+  "result_sha256": "4639640849a6d2219bd021f58cb82de13ec72ade9364a8acbdfc7aabb69770aa",
+  "physical_io": false,
+  "student_source_sha256": "ce4610c12b13ca8689fb96dee26aebb274fbb2bf8b8fd88b730b040a99e0a866",
+  "pilot_source_sha256": "45712fd7df9fc3cd27af82e0e12ed1a4d8bcb110c6b920efb718da97989cdcf0"
+}

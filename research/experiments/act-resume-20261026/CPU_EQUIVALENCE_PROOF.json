@@ -1,0 +1,80 @@
+{
+  "scope": "Actual CPU equivalence with freshly constructed Dataset/model on restart; no GPU/physical/H1-H5 claim",
+  "cases": [
+    {
+      "case": "stochastic_toy_Python_NumPy_Torch_dropout_CPU",
+      "continuous_completed_steps": 12,
+      "resumed_from_step": 4,
+      "updates_this_restarted_process": 8,
+      "bitwise_equal_components": {
+        "model": true,
+        "optimizer": true,
+        "losses": true,
+        "sampler": true,
+        "rng": true
+      },
+      "model_max_abs_error": 0.0,
+      "source_signature": "88152e065652a56241774e446fcba65057fd408ad972da27021aba96baeb48da",
+      "runtime": {
+        "torch": "2.14.1",
+        "numpy": "2.5.4",
+        "packages": {
+          "torchvision": "0.29.1",
+          "lerobot": "0.6.1"
+        },
+        "torch_num_threads": 4,
+        "deterministic_algorithms": false,
+        "matmul_precision": "highest",
+        "cuda_matmul_tf32": false,
+        "cudnn_tf32": true,
+        "cudnn_benchmark": false,
+        "cudnn_deterministic": false
+      },
+      "cuda_rng_exercised": false,
+      "checkpoint_artifacts_retained_at": "/tmp/explorer-act-resume-validation/equivalence-fixtures-final/test_stochastic_cpu_restart_ma0"
+    },
+    {
+      "case": "actual_official_ACT_6D_VAE_CPU",
+      "continuous_completed_steps": 4,
+      "resumed_from_step": 2,
+      "updates_this_restarted_process": 2,
+      "bitwise_equal_components": {
+        "model": true,
+        "optimizer": true,
+        "losses": true,
+        "sampler": true,
+        "rng": true
+      },
+      "model_max_abs_error": 0.0,
+      "source_signature": "e9abb0abc4ede4796b27d03a61fbc5be2943ec926b01c658f1df51d947fb5a08",
+      "runtime": {
+        "torch": "2.14.1",
+        "numpy": "2.5.4",
+        "packages": {
+          "torchvision": "0.29.1",
+          "lerobot": "0.6.1"
+        },
+        "torch_num_threads": 4,
+        "deterministic_algorithms": false,
+        "matmul_precision": "highest",
+        "cuda_matmul_tf32": false,
+        "cudnn_tf32": true,
+        "cudnn_benchmark": false,
+        "cudnn_deterministic": false
+      },
+      "cuda_rng_exercised": false,
+      "checkpoint_artifacts_retained_at": "/tmp/explorer-act-resume-validation/equivalence-fixtures-final/test_actual_official_act_resum0"
+    }
+  ],
+  "source_sha256": {
+    "01-autonomous-learning/src/explorer_sim/student.py": "ce4610c12b13ca8689fb96dee26aebb274fbb2bf8b8fd88b730b040a99e0a866",
+    "01-autonomous-learning/src/explorer_sim/recorded_training.py": "4d2ae6b7aeda964c2e61e2584975a3d6702146e11847fc724325f088bf095aa2",
+    "01-autonomous-learning/src/explorer_sim/pilot.py": "45712fd7df9fc3cd27af82e0e12ed1a4d8bcb110c6b920efb718da97989cdcf0",
+    "01-autonomous-learning/tests/test_act_resume.py": "6d0c5ac6446a8665aa573051c1ee95cf4c5d6b04407db1a8329af7bd7956394d"
+  },
+  "framework_versions": {
+    "torch": "2.14.1",
+    "torchvision": "0.29.1"
+  },
+  "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds"
+}

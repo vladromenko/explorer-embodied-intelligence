@@ -22,6 +22,11 @@ class RecordedChunks(Dataset):
     """At most one compressed source episode is cached, never the whole corpus."""
     def __init__(self, manifest_path, manifest, descriptors, chunk_size, image_size):
         self.path, self.manifest, self.descriptors = Path(manifest_path), manifest, descriptors
+        self.resume_context = {"source_signature": sha(self.path),
+            "source_files": [{"path": str(self.path.resolve()), "sha256": sha(self.path)}] +
+                [{"path": str((self.path.parent / d["file"]).resolve()), "sha256": d["sha256"]} for d in descriptors],
+            "training_episode_ids": [d.get("id", d["file"]) for d in descriptors],
+            "chunk_size": chunk_size, "image_size": image_size}
         self.chunk_size, self.image_size = chunk_size, image_size
         self.cache, self.cached_episode, self.indices = None, None, []
         for episode_index, descriptor in enumerate(descriptors):
@@ -173,6 +178,7 @@ def train_recorded_act(store, job):
               "source_manifest_sha256": source_digest, "source_manifest_path": str(source_path),
               "feature_dimension": len(names), "state_basis": preprocessing["state_basis"],
               "optimizer_steps": len(losses), "weights_changed": state_digest(policy) != initial_digest,
+              "training_resume": optimizer.explorer_resume_info,
               "save_reload_passed": True, "reload_max_abs_error": reload_error,
               "checkpoint_sha256": {path.name: sha(path) for path in sorted(checkpoint.iterdir()) if path.is_file()},
               "evaluation": evaluation, "physical_io": False, "simulator_executed": False,

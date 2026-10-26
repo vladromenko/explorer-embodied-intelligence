@@ -1,0 +1,23 @@
+{
+  "scoped_resume_validation": "PASS",
+  "new_tests_passed": 6,
+  "selected_learner_adapter_suite_passed": 32,
+  "existing_integration_tests_skipped": 4,
+  "research_tests_passed": 13,
+  "model_optimizer_losses_sampler_exercised_rng_bitwise_equal": true,
+  "actual_completed_teacher_phase_reused": true,
+  "mid_ppo_optimizer_or_collector_resumed": false,
+  "cuda_equivalence_tested": false,
+  "physical_task_validated": false,
+  "global_provenance_gate": "PENDING_ROOT_MOBILE_CAPTURE_REGISTRATION",
+  "global_gate_errors": [
+    "Scientific module has no provenance record: shared/explorer_shared/mobile_capture.py"
+  ],
+  "method_record_count": 33,
+  "source_sha256": {
+    "01-autonomous-learning/src/explorer_sim/student.py": "ce4610c12b13ca8689fb96dee26aebb274fbb2bf8b8fd88b730b040a99e0a866",
+    "01-autonomous-learning/src/explorer_sim/recorded_training.py": "4d2ae6b7aeda964c2e61e2584975a3d6702146e11847fc724325f088bf095aa2",
+    "01-autonomous-learning/src/explorer_sim/pilot.py": "45712fd7df9fc3cd27af82e0e12ed1a4d8bcb110c6b920efb718da97989cdcf0",
+    "01-autonomous-learning/tests/test_act_resume.py": "6d0c5ac6446a8665aa573051c1ee95cf4c5d6b04407db1a8329af7bd7956394d"
+  }
+}

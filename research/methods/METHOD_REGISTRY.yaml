@@ -1477,6 +1477,61 @@
       "activation_status": "ACTIVE_SOURCE_IMPLEMENTATION",
       "qualification_scope": "Two development engineering runs; no sealed final test, causal matched-update ablation or independently branched recovery verification",
       "dependency_exception": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds"
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-ACT-OPTIMIZER-RESTART-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/student.py:optimize_act",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.pytorch.org/docs/2.14/notes/randomness.html",
+          "role": "RNG-source and numerical reproducibility boundaries; primary documentation inspected"
+        },
+        {
+          "url": "https://docs.pytorch.org/docs/2.14/generated/torch.cuda.get_rng_state_all.html",
+          "role": "Capture all visible CUDA RNG states after runtime initialization; GPU equivalence separately untested here"
+        },
+        {
+          "url": "project-file:01-autonomous-learning/tests/test_act_resume.py",
+          "role": "Actual stochastic CPU and official ACT interrupt/restart equivalence, source/counter integrity and atomic pointer fault checks"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_CHECKPOINT_ADAPTER",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "INHERITS_SELECTED_POLICY_CHECKPOINT",
+      "data_license": "PRIVATE_OWNER_INPUT_RIGHTS_UNCHANGED",
+      "changes_and_reason": "Durable fsynced versioned model/AdamW/RNG/sampler/loss checkpoints around maintained ACT; verifies source/settings/implementation/runtime signatures and original data. Explicit index plan preserves prior public DataLoader shuffle sequence. Two committed versions, one optimizer writer per job, unchanged public positional signature/three-value return. Reuses a completed PPO teacher/data phase for ACT restart; no mid-PPO collector or optimizer continuation claim.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false,
+        "official_act_cpu_restart_equivalence_tested": true,
+        "cuda_restart_equivalence_tested": false,
+        "mid_ppo_restart_tested": false,
+        "completed_teacher_dataset_reuse_tested": true,
+        "physical_task_validated": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest 01-autonomous-learning/tests/test_act_resume.py -q",
+          "result": "6 passed in 2.89 s; fresh Dataset/model on restart; model/optimizer/loss/sampler/all exercised RNG state bitwise equal",
+          "path": "research/experiments/act-resume-20261026/CPU_EQUIVALENCE_PROOF.json",
+          "source_json_sha256": "70c559670f1d8222b57d758e6d232b6662fd5f484fc46be65aed01fa0d3ad1f7",
+          "scope": "Stochastic toy12 versus4+8, actual official six-axis ACT4 versus2+2, CPU only. Actual Torch2.14.1/vision0.29.1 execution exception outside LeRobot declared upper bounds; no whole-framework or GPU qualification."
+        },
+        {
+          "run_id": "completed-teacher-act-resume-v2",
+          "path": "research/experiments/act-resume-20261026/PILOT_RESUME_PROOF.json",
+          "source_json_sha256": "02a6a481d0d1155117ec4a71123c2fd08d2a6832987fc6383ac0e945c9e7fc80",
+          "scope": "Actual CAD/MuJoCo run with completed4096-step PPO and12episodes preserved: ACT resumes25→30, executes only5 additional updates. Teacher and all13 source dataset files byte hashes unchanged; no mid-PPO restart or physical-task result."
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
