@@ -315,7 +315,8 @@ def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None):
         implementation_sha256={Path(__file__).name:_sha(__file__), 'rosmaster_skill_features.py':_sha(Path(__file__).with_name('rosmaster_skill_features.py')),'rosmaster_skill_hybrid.py':_sha(Path(__file__).with_name('rosmaster_skill_hybrid.py'))},
         offline_evaluation=evaluation,physical_execution_qualified=False,whole_skill_mastered=False,method_ids=['ACT_LEROBOT_0_6_1','ENGINEERING_GLUE'])
     _write(folder/'model_manifest.json',model)
-    card=dict(id='rosmaster-skill-'+_sha(folder/'model_manifest.json')[:24],task=corpus.spec.get('title'),status='trained_offline_candidate_only',
+    source_type='simulation' if model['source_kind']==['simulation'] else 'physical_demonstrations' if model['source_kind']==['physical'] else 'mixed_simulation_and_physical_demonstrations'
+    card=dict(id='rosmaster-skill-'+_sha(folder/'model_manifest.json')[:24],task=corpus.spec.get('title'),source_type=source_type,status='trained_offline_candidate_only',
         action_contract=dict(id=ACTION_CONTRACT_ID,names=list(ACTION_NAMES),units=list(ACTION_UNITS),dimension=9,neutral_channels_retained=True),
         lineage=dict(skill_id=corpus.skill_id,skill_version=corpus.version,aggregate_sha256=corpus.sha256,model_manifest_sha256=_sha(folder/'model_manifest.json'),workflow_family='rosmaster_shared_demonstration_pipeline_v1',compatible_source_projects=['02','03']),
         model_input_schema=preprocessing,recorded_channels=model['recorded_channels'],admitted_channels=model['admitted_channels'],model_used_channels=used_channels,checkpoint_sha256=model['weights_sha256'],

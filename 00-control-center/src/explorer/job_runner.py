@@ -204,6 +204,14 @@ def main(job_id):
         elif job['kind'] == 'train_act':
             from .simulation import run_train_act
             result = run_train_act(store, job, config)
+        elif job['kind'] == 'rosmaster_skill_train':
+            sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
+            from explorer_sim.rosmaster_skill_pipeline import train_rosmaster_skill
+            result = train_rosmaster_skill(store,job)
+        elif job['kind'] == 'so101_skill_train':
+            sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
+            from explorer_sim.so101_skill_training import run_so101_skill_train
+            result = run_so101_skill_train(store,job)
         elif job['kind']=='world_model':
             sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
             from explorer_sim.world_model import run_world_model

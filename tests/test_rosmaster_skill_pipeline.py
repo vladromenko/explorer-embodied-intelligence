@@ -200,12 +200,22 @@ def test_worker_rejects_changed_or_missing_queued_source_lineage_before_optimize
     assert not called
 
 
-def test_actual_eight_official_ACT_optimizer_steps_fused_state_full9_save_reload_and_heldout_metrics(tmp_path):
+def test_actual_eight_official_ACT_optimizer_steps_fused_state_full9_save_reload_and_heldout_metrics(tmp_path,monkeypatch):
     pytest.importorskip('lerobot')
     import torch
     from explorer_sim.student import IMAGE_KEY
-    path,_=fixture_aggregate(tmp_path);before=CanonicalCorpus(path);source_hashes=deepcopy(before.source_files)
-    result=train_pipeline(path,tmp_path/'model',settings=dict(act_steps=8,batch_size=2,image_size=32,chunk_size=2,threads=1))
+    from explorer import job_runner
+    from explorer.skill_workflow import enqueue_training
+    from explorer.scheduler import HEAVY_JOBS
+    path,store=fixture_aggregate(tmp_path);before=CanonicalCorpus(path);source_hashes=deepcopy(before.source_files)
+    job=enqueue_training(store,before.skill_id,before.version,dict(act_steps=8,batch_size=2,image_size=32,chunk_size=2),project_id='03')
+    assert job['kind']=='rosmaster_skill_train' and job['kind'] in HEAVY_JOBS
+    monkeypatch.setattr(job_runner,'load',lambda:dict(root=str(Path(__file__).parents[1]),data_dir=str(store.root)))
+    job_runner.main(job['id'])
+    completed=store.job(job['id']);assert completed['status']=='completed',completed.get('error')
+    result=completed['result']
+    card=next(row for row in store.skills() if row['id']==result['skill_card']['id'])
+    assert card['source_type']=='simulation' and card['lineage']['job_id']==job['id']
     assert result['trained'] and result['optimizer_steps']==8 and result['weights_changed']
     assert result['save_reload_passed'] and result['reload_max_abs_error']<=1e-6
     assert result['output_action_dimension']==9 and result['feature_dimension']==len(FEATURE_NAMES)*2
