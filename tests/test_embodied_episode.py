@@ -425,6 +425,19 @@ def test_native_snapshot_reference_requires_original_factory_guard_and_prior_ref
     assert inspect(facts,images)['admitted_for_dataset']
 
 
+def test_partial_available_intrinsics_stay_recorded_without_inventing_missing_extrinsics():
+    facts,images=command_estimate_facts()
+    record=facts['samples'][0]['channels']['camera_calibration']
+    record.update(present=True,available=True,value={'intrinsics':[1,0,1,0,1,1,0,0,1],
+        'distortion':[0,0,0,0,0],'extrinsics':None},mask={'intrinsics':True,'distortion':True,'extrinsics':False})
+    report=inspect(facts,images)
+    assert report['admitted_for_dataset'],report['missing_facts']
+    channel=report['channels']['camera_calibration']
+    assert channel['available'] and channel['recorded'] and channel['declaration_admitted']
+    assert not channel['admitted'] and channel['sample_masks'][0]['extrinsics'] is False
+    assert facts['samples'][0]['channels']['camera_calibration']['value']['extrinsics'] is None
+
+
 @pytest.mark.parametrize('mode', ['keyboard', 'browser_gamepad', 'so101_leader'])
 def test_input_adapter_identity_is_optional_and_source_bound_not_inferred_from_page(mode):
     facts, images = command_estimate_facts()

@@ -257,6 +257,8 @@ def _measured_channel(name, value):
 def _full_mask(mask, value):
     if isinstance(mask, bool):
         return mask
+    if isinstance(mask,dict):
+        return bool(mask) and set(mask).issubset(_mapping(value)) and all(item is True for item in mask.values())
     values = _mapping(value).get('values')
     return (isinstance(mask, list) and isinstance(values, list) and len(mask) == len(values) and
             all(item is True for item in mask))
@@ -275,6 +277,14 @@ def _partial_vector_declaration(name, record):
                   value.get('units') == ['m/s', 'm/s', 'rad/s'] if name == 'base_velocity' else
                   value.get('names') == list(ACTION_NAMES))
     return units_okay and record.get('available') is any(mask)
+
+
+def _partial_mapping_declaration(record):
+    mask,value=record.get('mask'),record.get('value')
+    return (isinstance(mask,dict) and bool(mask) and isinstance(value,dict) and set(mask).issubset(value) and
+            all(type(valid) is bool for valid in mask.values()) and
+            all(not valid or value[key] is not None for key,valid in mask.items()) and
+            record.get('available') is any(mask.values()))
 
 
 def _verified_outcome(record, evidence, path):
@@ -460,6 +470,8 @@ def canonicalize_episode(source_envelope, source_payloads=None):
                                 (unavailable_declared or (present and record.get('available') is True and
                                                           record.get('value') is not None and _full_mask(record.get('mask'), record.get('value')) and shape) or
                                  (present and _partial_vector_declaration(name, record))))
+            declaration_okay=declaration_okay or (recorded and present and _text(record.get('source_id')) and
+                                                   _partial_mapping_declaration(record))
             if name == 'preceding_command9' and command_estimate_profile and valid:
                 estimate = _mapping(record.get('value'))
                 allowed_receipts = {reference['reference_receipt_id']} if _text(reference.get('reference_receipt_id')) else set()
