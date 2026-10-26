@@ -1,0 +1,104 @@
+{
+  "schema": "explorer_native_forward_and_observers_actual_v1",
+  "commit": "f4cc5c37096698633aba313dbc67b2769a647dd7",
+  "same_original_native_owner": true,
+  "change_scope": "one_shared_import_path_literal_only",
+  "physical_control_API_calls": 0,
+  "all_six_original_controller_configs_unchanged": true,
+  "original_arm_reference_files_unchanged": true,
+  "only_original_web_restarted": true,
+  "original_services_before": {
+    "explorer-camera": {
+      "ActiveState": "active",
+      "MainPID": "2347"
+    },
+    "explorer-control": {
+      "ActiveState": "active",
+      "MainPID": "2413"
+    },
+    "explorer-mcu": {
+      "ActiveState": "active",
+      "MainPID": "2356"
+    },
+    "explorer-web": {
+      "ActiveState": "active",
+      "MainPID": "160739"
+    }
+  },
+  "original_services_after": {
+    "explorer-camera": {
+      "ActiveState": "active",
+      "MainPID": "2347"
+    },
+    "explorer-control": {
+      "ActiveState": "active",
+      "MainPID": "2413"
+    },
+    "explorer-mcu": {
+      "ActiveState": "active",
+      "MainPID": "2356"
+    },
+    "explorer-web": {
+      "ActiveState": "active",
+      "MainPID": "190863"
+    }
+  },
+  "passive_ROS": {
+    "counts": {
+      "/arm6_joints": 0,
+      "/explorer/request": 0
+    },
+    "observation_seconds": 20,
+    "passive_only": true,
+    "received_count": 0,
+    "schema": "explorer_native_forward_passive_ROS_v1",
+    "topics": [
+      "/arm6_joints",
+      "/explorer/request"
+    ]
+  },
+  "passive_ROS_sha256": "29b2189db4c0661f6dcc2c62180d6ca9c9e0344e071650457d90caea610080d4",
+  "web_sha256": "ca4b1c2eb64d920b71dd82e2eff7c634f4c85130c81fb06173039713d5c0e950",
+  "default_execution_permission": false,
+  "active_native_session": false,
+  "chassis_motion_allowed": false,
+  "feedback_enabled": false,
+  "physical_handover_qualified": false,
+  "whole_master_prompt_complete": false,
+  "own_observers": {
+    "pi": {
+      "commit": "f4cc5c37096698633aba313dbc67b2769a647dd7",
+      "private_env_bytes_unchanged": true,
+      "all_original_services_unchanged": true,
+      "physical_control_requests_sent": 0
+    },
+    "nano": {
+      "commit": "f4cc5c37096698633aba313dbc67b2769a647dd7",
+      "private_env_bytes_unchanged": true,
+      "all_original_services_unchanged": true,
+      "physical_control_requests_sent": 0
+    }
+  },
+  "actual_GET_verification": {
+    "pi_station_available": true,
+    "pi_station_mode": "idle",
+    "pi_station_last_command": null,
+    "pi_native6_observation_status": 200,
+    "pi_original_JPEG": {
+      "code": 200,
+      "bytes": 34956,
+      "sha256": "a8ca2b1fb7969ecfe543d331411fdf00517fc22140103dab9040fa32ac5518e1"
+    },
+    "pi_calibration_status": 200,
+    "nano_native_policy_observation_status": 503,
+    "nano_native_policy_reason": "Original owner HTTP409: existing invalid same-boot reference after retained telemetry fault. No new user-observed HOME was performed.",
+    "nano_native_capture_status": 200
+  },
+  "pre_apply_rejected_attempt": {
+    "stage": "passive_listener_topic_discovery",
+    "native_source_changed": false,
+    "web_restarted": false,
+    "retained": true,
+    "corrected_by": "Wait for actual DDS graph discovery before subscribing, then require armed passive listener before apply/restart"
+  }
+}
