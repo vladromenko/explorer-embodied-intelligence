@@ -618,6 +618,22 @@ def canonicalize_episode(source_envelope, source_payloads=None):
     }
     document['causal_verified'] = bool(samples) and all(channels[name]['admitted'] for name in required_values)
     document['capability_admission'] = _capability_admission(document)
+    adapter = _mapping(envelope.get('input_adapter'))
+    if adapter:
+        # Optional provenance is diagnostic: never infer it from project/page,
+        # and an unrelated adapter declaration cannot promote dataset admission.
+        adapter_missing = []
+        adapter_evidence = _Evidence(envelope, payloads, adapter_missing)
+        adapter_verified = (all(_text(adapter.get(key)) for key in ('id', 'version', 'input_mode')) and
+                            adapter_evidence.record(adapter, 'input_adapter'))
+        proof = _mapping(adapter.get('provenance'))
+        document['input_adapter_provenance'] = {
+            'verified': bool(adapter_verified), 'id': adapter.get('id'), 'version': adapter.get('version'),
+            'input_mode': adapter.get('input_mode'), 'source_file': proof.get('source_file'),
+            'source_sha256': proof.get('sha256'),
+        }
+    else:
+        document['input_adapter_provenance'] = None
     originals = {'envelope': envelope_bytes, 'payloads': MappingProxyType(dict(payloads))}
     return EvidenceBundle(document, MappingProxyType(originals))
 

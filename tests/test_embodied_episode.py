@@ -104,7 +104,7 @@ def package(facts=None, images=None):
 
     for key in ('identity', 'causal_protocol', 'recording', 'split', 'model_input'):
         bind(envelope[key], '/' + key)
-    for key in ('admission_profile', 'state_estimate_reference'):
+    for key in ('admission_profile', 'state_estimate_reference', 'input_adapter'):
         if key in envelope:
             bind(envelope[key], '/' + key)
     for name, domain in envelope['clock_domains'].items():
@@ -405,3 +405,18 @@ def test_partial_optional_joint_feedback_mask_is_retained_without_blocking_comma
     assert report['channels']['joint_feedback']['sample_masks'] == [[False,True,True,False,True,True]]
     assert not report['channels']['joint_feedback']['admitted']
     assert facts['samples'][0]['channels']['joint_feedback']['value']['values'][0] is None
+
+
+@pytest.mark.parametrize('mode', ['keyboard', 'browser_gamepad', 'so101_leader'])
+def test_input_adapter_identity_is_optional_and_source_bound_not_inferred_from_page(mode):
+    facts, images = command_estimate_facts()
+    facts['input_adapter'] = {'id':mode,'version':'1','input_mode':mode}
+    envelope,payloads = package(facts,images)
+    report = inspect_embodied_episode(envelope,payloads)
+    assert report['admitted_for_dataset']
+    assert report['input_adapter_provenance']['verified']
+    assert report['input_adapter_provenance']['input_mode'] == mode
+    envelope['input_adapter']['input_mode'] = 'unbound-change'
+    report = inspect_embodied_episode(envelope,payloads)
+    assert not report['input_adapter_provenance']['verified']
+    assert report['admitted_for_dataset']  # optional adapter cannot alter sensor/action proof
