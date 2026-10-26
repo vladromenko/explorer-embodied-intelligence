@@ -1,0 +1,5 @@
+# Optional overlay in its OWN persistent venv; existing qualified CPU venv remains.
+diffusers==0.38.0
+importlib_metadata==8.7.0
+zipp==3.23.0
+regex==2024.11.6

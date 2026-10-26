@@ -26,7 +26,11 @@ _ENTRIES={
         observation_contract='explicit source-bound RGB and state feature shape',action_contract='explicit source-bound native dimension/units',
         language_conditioned=False,hardware_executor_included=False,physical_execution_authorized=False),
     'diffusion':dict(id='diffusion',framework='LeRobot',framework_version='0.6.1',status='UNQUALIFIED',implementation=None,
-        reason='Candidate only: no Explorer optimizer/readback/evaluation/device qualification',physical_execution_authorized=False),
+        reason='General dataset trainer/resume/native6/GPU qualification pending; compact software receipt does not admit a skill',physical_execution_authorized=False,
+        qualified_profiles=[dict(id='diffusion_resnet18_unet32_64_ddim4_cpu_v1',qualification='COMPACT_CPU_SOFTWARE_ONLY',device='cpu',
+            state_dimension=9,action_dimension=9,image_size=64,history_steps=2,horizon=8,inference_steps=4,
+            optimizer='official Adam',actual_updates=8,production_queue_ready=False,physical_execution_authorized=False,
+            receipt='shared/training/DIFFUSION_CPU_QUALIFICATION.json',receipt_sha256='a5f96f466c6adf4e9f42bb7247c2c7c4c97e00ce5d92a33d74c7437dae53bb83')]),
     'smolvla':dict(id='smolvla',framework='LeRobot',framework_version='0.6.1',status='UNQUALIFIED',implementation=None,
         reason='Candidate only: no Explorer model/runtime/resource/conditioning qualification',physical_execution_authorized=False),
 }

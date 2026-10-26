@@ -1,0 +1,15 @@
+{
+  "schema": "explorer_isolated_policy_runtime_binding_v1",
+  "executable": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/bin/python",
+  "prefix": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu",
+  "qualification_result": "/home/jetsonnx/.local/share/explorer/state/qualification/policy-backends/20261026-diffusion-cpu/result.json",
+  "qualification_result_sha256": "a5f96f466c6adf4e9f42bb7247c2c7c4c97e00ce5d92a33d74c7437dae53bb83",
+  "configuration_files_sha256": {
+    "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/pyvenv.cfg": "cc5f0da55183c1ecfe2df2bffaa6b756626ba98e6181f4a4a3062a9c51125c3e",
+    "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/lib/python3.12/site-packages/explorer-cpu-baseline.pth": "f6706be165230014876fc1b3cd3329303f05c63bef75e60056e2e6a007c36756"
+  },
+  "extends_read_only_base_site_packages": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages",
+  "base_packages_installed_or_upgraded": false,
+  "production_queue_ready": false,
+  "scope": "compactCPU64px two-observation9D software qualification; no dataset admission/resume/native6/GPU/hardware proof"
+}
