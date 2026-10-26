@@ -32,6 +32,7 @@ def test_cached_original_metadata_survives_new_file_and_read_completion_guards_c
     start=time.monotonic_ns();received=start-50_000_000
     original=dict(frame_id='actual-original-frame',native_boot_id='boot',native_clock_domain='nano:boot',
         width=8,height=6,jpeg_sha256=hashlib.sha256(jpeg).hexdigest(),received_monotonic_ns=received,
+        camera_info_received_monotonic_ns=received-10_000_000,camera_info_completed_monotonic_ns=received-5_000_000,
         camera_info_version='original-camera-info',intrinsic_k=[10,0,4,0,10,3,0,0,1],distortion_d=[0,0,0,0,0],frame='original_optical_frame')
     raw=json.dumps(original).encode();metadata=tmp_path/'camera-frame.json';metadata.write_bytes(raw)
     camera=LegacyFileCamera(path,tmp_path/'status.json',clock_domain='nano:boot',boot_id='boot');camera.start()
