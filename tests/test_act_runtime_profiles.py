@@ -20,6 +20,7 @@ class Torch:
         self.backends=SimpleNamespace(cuda=SimpleNamespace(matmul=SimpleNamespace(allow_tf32=True)),
             cudnn=SimpleNamespace(deterministic=False,benchmark=True,allow_tf32=True))
     def are_deterministic_algorithms_enabled(self):return self.enabled
+    def is_deterministic_algorithms_warn_only_enabled(self):return False
     def get_float32_matmul_precision(self):return self.precision
     def get_default_dtype(self):return self.float32
     def use_deterministic_algorithms(self,value):self.enabled=value;self.calls.append(('deterministic',value))

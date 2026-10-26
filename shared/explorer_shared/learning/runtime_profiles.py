@@ -8,7 +8,7 @@ import os
 ACT9_CUDA_DETERMINISTIC_PROFILE = 'act9_cuda64_b2_c4_fp32_deterministic_v1'
 ACT9_TENSOR_PROFILE = dict(device='cuda', precision='float32', state_dimension=9,
     action_dimension=9, image_size=64, batch_size=2, chunk_size=4)
-ACT9_RUNTIME_CONSTRAINTS = dict(deterministic_algorithms=True, cudnn_deterministic=True,
+ACT9_RUNTIME_CONSTRAINTS = dict(deterministic_algorithms=True, deterministic_warn_only=False, cudnn_deterministic=True,
     cudnn_benchmark=False, cuda_matmul_tf32=False, cudnn_tf32=False,
     matmul_precision='highest', CUBLAS_WORKSPACE_CONFIG=':4096:8',
     NVIDIA_TF32_OVERRIDE='0', TORCH_ALLOW_TF32_CUBLAS_OVERRIDE='0')
@@ -45,7 +45,7 @@ def configure_act_runtime(settings, state_dimension, action_dimension, torch):
     if any(os.environ.get(name)!=value for name,value in ACT9_WORKER_ENVIRONMENT.items()):
         raise ValueError('Named CUDA profile requires server-provided cuBLAS/FP32 environment before worker/library startup')
     initialized = torch.cuda.is_initialized()
-    already_configured = (torch.are_deterministic_algorithms_enabled() and torch.backends.cudnn.deterministic
+    already_configured = (torch.are_deterministic_algorithms_enabled() and not torch.is_deterministic_algorithms_warn_only_enabled() and torch.backends.cudnn.deterministic
         and not torch.backends.cudnn.benchmark and not torch.backends.cuda.matmul.allow_tf32
         and not torch.backends.cudnn.allow_tf32 and torch.get_float32_matmul_precision() == 'highest')
     if initialized and not already_configured:

@@ -190,6 +190,7 @@ def _resume_signature(policy, samples, settings, context, interval):
                     "packages": packages,
                     "torch_num_threads": torch.get_num_threads(),
                     "deterministic_algorithms": torch.are_deterministic_algorithms_enabled(),
+                    "deterministic_warn_only": torch.is_deterministic_algorithms_warn_only_enabled(),
                     "matmul_precision": torch.get_float32_matmul_precision(),
                     "cuda_matmul_tf32": torch.backends.cuda.matmul.allow_tf32,
                     "cudnn_tf32": torch.backends.cudnn.allow_tf32, "cudnn_benchmark": torch.backends.cudnn.benchmark,
