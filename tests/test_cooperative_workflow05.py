@@ -206,7 +206,8 @@ def sidecar_and_native_sources(service,row,refs,*,incomplete=False):
             if sha_file(source['path'])!=source['sha256']:raise ValueError('Native source changed')
             return json.loads(open(source['path']).read())
         service.registry.providers[(role,provider.experiment_slug)]=replace(provider,inspect_episode=inspect)
-    source={'schema':'explorer_cooperative_raw_recording_v1','state':'SEALED','recording_id':ident,'context':row,
+    source={'schema':'explorer_cooperative_raw_recording_v1','state':'SEALED','recording_id':ident,
+        'context':{**row,'source_execution_domain':'SIMULATION'},
         'source_files':{'frame.jpg':{'sha256':hashlib.sha256(raw).hexdigest(),'bytes':len(raw)}},
         'native_role_sources':started,'block_reasons':['FAKE_DROP'] if incomplete else [],'dropped_packets':0,
         'samples':[{'late_after_finish':False,'roles':{'giver':{'frame_id':'nano-1'},'receiver':{'frame_id':'pi-1'}}}]}
@@ -304,3 +305,31 @@ def test_source_bound_metric_registration_and_shadow_separate_native_predictions
             'both_robot_workspaces_checked':True,'actor_id':'owner','observing':True,
             'source_files_sha256':{'unrelated.json':hashlib.sha256(b'{}').hexdigest()},
             'base_from_zone':{'giver':matrix,'receiver':matrix}},{'unrelated.json':b'{}'})
+
+
+def test_release_cannot_reset_an_expired_grasp_check_phase_with_new_fresh_hold(tmp_path):
+    service,row,inbox,calls,_=fixture(tmp_path);zone(service,row)
+    for event in ('giver_holding','offer_ready','receiver_ready','receiver_at_object'):run_step(service,row,event)
+    before=service.snapshot(row['session_id']);fsm=service._fsm(before)
+    now=[fsm.phase_started_ns+fsm.phase_timeout_ns-100];service.clock=lambda:now[0]
+    class LateFresh(Evidence):
+        def __call__(self,statement,run,obj,role,after,timeout):
+            now[0]=fsm.phase_started_ns+fsm.phase_timeout_ns+1
+            return CorrelatedEvidence(run,obj,role,after,HoldEvidence('fresh-after-phase-expired',obj,'operator',
+                'operator_confirmation',statement,False,now[0],DOMAIN,now[0],DOMAIN),{'operator':'fixture'})
+        def stationary_observation(self,run,obj,role,after,timeout):
+            return ArmObservation(role,True,now[0],DOMAIN,{'operator':'fixture'},after)
+    service.inbox=LateFresh();current=run_step(service,row,'release_requested')
+    assert current['status']=='STOPPED' and current['protocol_trace']==before['protocol_trace']
+    assert 'phase deadline expired' in current['errors'][0]['error'] and not current['dispatch_receipts']
+
+
+def test_two_missing_native_domains_are_unknown_not_equal_simulation_or_real(tmp_path):
+    service,row,_,_,refs=fixture(tmp_path);zone(service,row)
+    ident,path,body=sidecar_and_native_sources(service,service.snapshot(row['session_id']),refs)
+    for reference in body['native_episode_refs'].values():
+        native_path=reference['path'];report=json.loads(open(native_path).read());report.pop('execution_domain')
+        open(native_path,'wb').write(canonical(report));reference['sha256']=sha_file(native_path)
+    review=service.review_recording(row['session_id'],ident,body,authenticated_actor='owner',manifest_path=path)
+    assert not review['admitted_for_training']
+    assert 'ORIGINAL_ROLE_DOMAINS_NOT_EXPLICITLY_BOUND_TO_COOPERATIVE_SOURCE' in review['reasons']

@@ -122,6 +122,9 @@ class CooperativeWorkflow:
             'protocol_trace':[],'dispatch_receipts':[],'observation_receipts':[],'pending_operation':None,
             'zone_registration_id':None,'recording_id':None,'recording_source_refs':{},'errors':[]}
         row['native_variants']=deepcopy(body.get('native_variants',{}))
+        row['source_execution_domain']=body.get('source_execution_domain')
+        if row['source_execution_domain'] not in (None,'REAL','SIMULATION'):
+            raise ValueError('Explicit original source REAL/SIMULATION domain or unknown required')
         row['stationary_chassis_confirmed']=body.get('stationary_chassis_confirmed') is True
         row['proposed_native_source_contexts']=source_contexts(spec,row)
         with self.lock:
@@ -367,6 +370,7 @@ class CooperativeWorkflow:
                     receiver=pool.submit(self._stationary,row,'receiver',self._last_command(row,'receiver'))
                     held,giver_still,receiver_still=hold.result(),giver.result(),receiver.result()
                 self._fresh(row,epoch)
+                self._phase_current(fsm)
                 if any(not 0<=self.clock()-item.received_ns<=fsm.hold_ttl_ns for item in (giver_still,receiver_still)):
                     raise ValueError('Both stationary observations must remain fresh at release')
                 facts={'run_id':session_id,'receiver_role':'receiver'}
@@ -559,8 +563,12 @@ request is retained as a request, never labelled a measured observation.
             started=source.get('native_role_sources',{}).get(role) or {}
             ident=started.get('recording_id',started.get('episode_id'))
             if ident is None or report.get('original_episode_id')!=ident:reasons.append(role+':ORIGINAL_STARTED_EPISODE_ID_MISMATCH')
-        if reports['giver'].get('execution_domain')!=reports['receiver'].get('execution_domain'):
+        domains=[reports[role].get('execution_domain') for role in ('giver','receiver')]
+        if any(domain not in ('REAL','SIMULATION') for domain in domains) or len(set(domains))!=1:
             reasons.append('ROLE_EXECUTION_DOMAINS_DIFFER_NOT_ONE_REAL_COOPERATIVE_EPISODE')
+        source_domain=source.get('context',{}).get('source_execution_domain')
+        if source_domain not in ('REAL','SIMULATION') or any(domain!=source_domain for domain in domains):
+            reasons.append('ORIGINAL_ROLE_DOMAINS_NOT_EXPLICITLY_BOUND_TO_COOPERATIVE_SOURCE')
         if source.get('block_reasons') or source.get('dropped_packets'):reasons.append('DUAL_CAMERA_SIDECAR_SOURCE_INCOMPLETE')
         valid_samples=[sample for sample in source.get('samples',[]) if not sample.get('late_after_finish')]
         for role in ('giver','receiver'):
