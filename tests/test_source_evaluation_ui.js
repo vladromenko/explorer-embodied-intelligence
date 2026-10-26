@@ -8,7 +8,7 @@ const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve
 const frameMeta=(id="native-frame-one")=>({frame_id:id,jpeg_sha256:checksum,boot_id:"native-boot",camera_id:"actual-camera"});
 function fixture() {return {physical_execution_authorized:false,models:[{id:model,title:"Конфета → коробка",backend:"act",eligible:true},{id:"0".repeat(32),title:"Исторический hold",backend:"act",eligible:false,reason:"Не предметный навык"}],attempts:[{id:job,status:"running",context:{object_instance_id:"Конфета A",scene_id:"Стол слева",goal_instance_id:"Коробка B"},result:{phase:"awaiting_source_observed_grant",model_ready:true},phase:{phase_id:"approach",revision:"1".repeat(64)},phases:["approach","grasp","place"],pending_outcomes:[],timeline:[]}]};}
 function challenge() {return {challenge_id:challengeID,control_epoch:"native-epoch-1",frame:frameMeta(),execution_permission:false};}
-function grant() {return {grant_id:grantID,execution_permission:true,control_epoch:"native-epoch-1",boot_id:"native-boot",binding:{purpose:"source04_eval",model_job_id:model},displayed_frame:frameMeta()};}
+function grant() {return {grant_id:grantID,execution_permission:true,native_mode:"policy",control_epoch:"native-epoch-1",boot_id:"native-boot",binding:{purpose:"source04_eval",model_job_id:model},displayed_frame:frameMeta()};}
 async function rig(overrides={}) {
   const state=fixture(), calls=[], transport={grant:grant(),clock:100};
   const options={crypto:webcrypto,now:()=>transport.clock,get:async path=>{
@@ -125,4 +125,12 @@ test("explicit recovery of a found uncertain new preparation needs exact server 
 });
 test("input events persist an unfinished text draft across ordinary poll/rerender",async()=>{
   const {client}=await rig(),root={...events(),contains:()=>true};const cleanup=bindSourceEvaluation(root,client,()=>{}, {document:events(),window:events()});root.handlers.input({target:{dataset:{sourceEvalField:"scene_id"},value:"Незаконченный текст",disabled:false}});await client.refresh();cleanup();assert.equal(client.snapshot().draft.scene_id,"Незаконченный текст");
+});
+test("first renewal waits for SAME grant idle→policy epoch rotation, never posts preceding idle epoch",async()=>{
+  const {client,calls,transport}=await rig();transport.grant.native_mode="idle";await watching(client);const before=calls.length;
+  assert.deepEqual(await client.watchOnce(),{waitingForNativeStart:true});assert.equal(client.snapshot().watching,true);assert.deepEqual(calls.slice(before),[["GET",`${base}/${job}/permission`]]);assert.equal(calls.filter(row=>row[1].endsWith("/observe")).length,0);
+  transport.grant.native_mode="policy";transport.grant.control_epoch="actual-policy-start-epoch";await client.watchOnce();await client.displayed(client.snapshot().frame.token);const renew=calls.filter(row=>row[1].endsWith("/observe"));assert.equal(renew.length,1);assert.equal(renew[0][2].expected_control_epoch,"actual-policy-start-epoch");
+});
+test("unknown or teleoperation mode fails closed instead of waiting or renewing a source policy",async()=>{
+  for(const mode of [undefined,"teleoperation","unknown"]) {const {client,calls,transport}=await rig();await watching(client);transport.grant.native_mode=mode;await assert.rejects(client.watchOnce(),/не подтвердил режим/);assert.equal(client.snapshot().watching,false);assert.equal(calls.filter(row=>row[1].endsWith("/observe")).length,0);}
 });

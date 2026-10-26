@@ -170,6 +170,10 @@
         if (permission.execution_permission !== true || permission.grant?.grant_id !== grantID || permission.grant?.boot_id !== grant.boot_id ||
             JSON.stringify(permission.grant?.binding) !== JSON.stringify(grant.binding)) throw new Error("Наблюдаемое разрешение истекло или принадлежит другой попытке; нужен STOP и новый запуск");
         grant = copy(permission.grant);
+        // The owner rotates the same grant's epoch when its original policy/start returns.
+        // Do not prepare a renewal against the preceding idle epoch in that interval.
+        if (grant.native_mode === "idle") return {waitingForNativeStart:true};
+        if (grant.native_mode !== "policy") throw new Error("Native source ещё не подтвердил режим этой политики; наблюдение не продлено");
         const reply = await options.get(`${BASE}/${row.id}/observation`);
         if (epoch !== generation || !watching || !visible) return {ignored:true};
         const packet = reply.packet?.observation;
@@ -255,7 +259,7 @@
     const report = failure=>{clear();onError(failure);};
     function schedule() {
       clear();if (disposed || !client.snapshot().watching || document?.visibilityState === "hidden") return;
-      timer = (environment.setTimeout || surface.setTimeout)(()=>{timer=null;client.watchOnce().then(result=>{if (result?.waitingForDisplay) schedule();}).catch(report);},200);
+      timer = (environment.setTimeout || surface.setTimeout)(()=>{timer=null;client.watchOnce().then(result=>{if (result?.waitingForDisplay || result?.waitingForNativeStart) schedule();}).catch(report);},200);
     }
     function run(action) {Promise.resolve().then(action).then(schedule).catch(report);}
     const click = event=>{
