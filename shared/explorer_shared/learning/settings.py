@@ -1,4 +1,4 @@
-"""Experiment-neutral ACT numeric settings; no simulator options or imports."""
+"""ENGINEERING_GLUE: Experiment-neutral ACT numeric settings; no simulator options or imports."""
 
 
 def act_parameters(config):

@@ -59,6 +59,7 @@ else:raise AssertionError('Old graph CUDA qualification was reused')
 assert 'torch' not in sys.modules
 print(json.dumps(backend_catalogue()))
 '''
+    program='import sys;sys.path.insert(0,'+repr(str(Path(__file__).parents[1]/'shared'))+');\n'+program
     result=subprocess.run([sys.executable,'-c',program],capture_output=True,text=True,check=True,timeout=15)
     report=json.loads(result.stdout);assert report['owner']=='shared_training_platform' and report['experiments']==['01','02','03','04','05','06']
     assert all(not entry['physical_execution_authorized'] for entry in report['backends'])

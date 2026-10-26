@@ -32,7 +32,8 @@ test("03 selects Nano on entry, lab selects Pi; Nano outage never silently subst
   const fn = source.slice(source.indexOf("function syncCamera()"), source.indexOf("function filterManualKeysForCurrentOwnerConstraints"));
   const ctx = vm.createContext({ currentCamera: "pi-overview", cameraSignature: "", cameraMode: "stream", cameraImage: { getAttribute: () => "some-src" },
     cameraSelect: {}, available: [{ id: "nano-rgbd", available: true }, { id: "pi-overview", available: true }],
-    route: "/experiments/03", manualPreview: { state: () => ({ active: false }) }, cameras: () => ctx.available,
+    route: "/experiments/03", manualPreview: { state: () => ({ active: false }), start() {}, stop() {} }, cameras: () => ctx.available,
+    rosmasterDemonstrationRoute: () => ["02", "03"].includes(ctx.route.split("/").at(-1)),
     path: () => ctx.route, activeProject: () => ({ id: ctx.route.split("/").at(-1) }), cameraLabel: camera => camera.id,
     startCamera: () => {}, stationRoute: () => true, esc: String });
   vm.runInContext(fn, ctx); vm.runInContext("syncCamera()", ctx); assert.equal(ctx.currentCamera, "nano-rgbd");

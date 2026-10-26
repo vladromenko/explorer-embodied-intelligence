@@ -1,4 +1,4 @@
-"""Experiment01 episode adapters; shared ACT implementation compatibility names.
+"""ACT_LEROBOT_0_6_1, ENGINEERING_GLUE: Experiment01 episode adapters and aliases.
 
 Policy factory, optimizer, durable RNG/sampler resume, image preprocessing and
 save/reload live in explorer_shared.learning.act_backend for all experiments.

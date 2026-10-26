@@ -1,0 +1,15 @@
+{
+  "receipt_path": "/home/jetsonnx/.local/share/explorer/state/qualification/manipulation-act9-cuda-current-20261026/qualification.json",
+  "receipt_sha256": "6ee815a68a35b254aaf972903b475422b9affeff0d5a66fef3968cd68cb9a0af",
+  "binding_sha256": "2088c9c846873207c72e55e9aab44648290af34186bf3193658ae4cdef90dd60",
+  "execution_commit": "8e30cfcb5bd8747f27fd9ff9c3da1fc30833c8c8",
+  "kind": "manipulation_student",
+  "actual_updates": 8,
+  "tests_passed": 11,
+  "physical_skill_qualified": false,
+  "limitations": [
+    "PyTorch wheel warns that Orin CC8.7 is outside its listed supported architectures despite this narrow actual execution pass",
+    "No broad wheel/toolchain compatibility claim",
+    "Independent short learned trial0/1; complete task mastery not established"
+  ]
+}

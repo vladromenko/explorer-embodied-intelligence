@@ -1,0 +1,111 @@
+{
+  "captured_unix": 1793017726.5469182,
+  "scope": "actual deployed authenticated read-only pages/APIs plus legitimate PROPOSED owner sock task; no robot POSTs",
+  "requests": [
+    {
+      "path": "/api/health",
+      "HTTP": 200,
+      "bytes": 81,
+      "health": {
+        "ok": true,
+        "version": "0.1.0",
+        "commit": "8e30cfcb5bd8747f27fd9ff9c3da1fc30833c8c8"
+      }
+    },
+    {
+      "path": "/api/projects",
+      "HTTP": 200,
+      "bytes": 1310,
+      "project_ids": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06"
+      ]
+    },
+    {
+      "path": "/experiments/02",
+      "HTTP": 200,
+      "bytes": 4710
+    },
+    {
+      "path": "/experiments/03",
+      "HTTP": 200,
+      "bytes": 4710
+    },
+    {
+      "path": "/experiments/06",
+      "HTTP": 200,
+      "bytes": 4710
+    },
+    {
+      "path": "/api/skill-workflow",
+      "HTTP": 200,
+      "bytes": 5050
+    },
+    {
+      "path": "/api/mobile/evidence",
+      "HTTP": 200,
+      "bytes": 40454,
+      "counts": {
+        "imported": 3,
+        "raw_frames_recorded": 36,
+        "admitted_for_training": 0,
+        "observation_or_rejected": 3,
+        "operator_labelled_success": 0,
+        "trained_RGB9D_models": 0
+      }
+    },
+    {
+      "path": "/static/skill-workflow.js",
+      "HTTP": 200,
+      "bytes": 34720
+    },
+    {
+      "path": "/static/gamepad.js",
+      "HTTP": 200,
+      "bytes": 27397
+    },
+    {
+      "path": "/static/manual-camera.js",
+      "HTTP": 200,
+      "bytes": 7792
+    },
+    {
+      "path": "/static/mobile-evidence.js",
+      "HTTP": 200,
+      "bytes": 12580
+    },
+    {
+      "path": "/api/cameras/nano-rgbd/snapshot",
+      "HTTP": 200,
+      "bytes": 23256,
+      "frame_id": "nano-rgbd:a977637518df:63039",
+      "content_type": "image/jpeg"
+    }
+  ],
+  "legacy_redirect": {
+    "HTTP": 307,
+    "location": "/experiments/06"
+  },
+  "owner_task_proposal": {
+    "skill_id": "c6e3b41a-e2f2-4534-ac28-ea0f7c81b560",
+    "version": 1,
+    "confirmed": false,
+    "train_ready": false,
+    "blockers": [
+      "skill_spec_not_confirmed",
+      "pipeline_not_implemented_for_this_task_type",
+      "perception_goal_tracking_backend",
+      "navigation_training_backend",
+      "hierarchy_coordinator_recovery_backend",
+      "need_3_distinct_train_variants",
+      "need_1_distinct_development_variants",
+      "need_1_distinct_sealed_test_variants"
+    ],
+    "physical_motion_started": false
+  },
+  "CSRF_logout_HTTP": 200
+}

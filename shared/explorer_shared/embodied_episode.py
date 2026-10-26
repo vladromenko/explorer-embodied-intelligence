@@ -335,7 +335,7 @@ def canonicalize_episode(source_envelope, source_payloads=None):
     identity = _mapping(envelope.get('identity'))
     identity_fields = ('episode_id', 'run_id', 'project_id', 'source_kind', 'skill', 'episode_scope', 'action_contract')
     identity_okay = (all(identity.get(key) == envelope.get(key) for key in identity_fields) and
-                     envelope.get('project_id') in ('02', '03') and envelope.get('source_kind') in ('physical', 'simulation') and
+                     envelope.get('project_id') in ('02', '03', '04') and envelope.get('source_kind') in ('physical', 'simulation') and
                      evidence.record(identity, 'identity'))
     if not identity_okay:
         missing.append('identity.source_bound_episode_skill_action_contract')

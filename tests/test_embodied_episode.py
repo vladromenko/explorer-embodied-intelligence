@@ -147,6 +147,18 @@ def test_complete_mock_canonical_only_episode_and_exact_original_bytes(tmp_path)
     assert report['action9_verified'] and report['causal_verified'] and report['rgb_verified']
 
 
+def test_target_transfer04_keeps_its_own_source_identity_and_identical_dispatch_requirements():
+    facts,assets=source_facts();facts['project_id']=facts['identity']['project_id']='04'
+    envelope,payloads=package(facts,assets)
+    result=inspect_embodied_episode(envelope,payloads)
+    assert result['admitted_for_dataset'] and result['source_kind']=='simulation'
+    assert envelope['identity']['project_id']=='04' and not result['physical_qualification']
+    # A source04 label never upgrades simulated dispatch into physical evidence.
+    facts['source_kind']=facts['identity']['source_kind']='physical'
+    envelope,payloads=package(facts,assets)
+    assert not inspect_embodied_episode(envelope,payloads)['admitted_for_dataset']
+
+
 def test_nine_genuinely_zero_coordinates_are_never_split_or_masked():
     envelope, payloads = package()
     report = inspect_embodied_episode(envelope, payloads)

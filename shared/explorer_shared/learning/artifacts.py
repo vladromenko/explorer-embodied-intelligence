@@ -1,4 +1,4 @@
-"""Generic canonical artifact operations; no Torch, simulator or robot import."""
+"""ENGINEERING_GLUE: Generic canonical artifact operations; no Torch, simulator or robot import."""
 from datetime import datetime, timezone
 import hashlib
 import json

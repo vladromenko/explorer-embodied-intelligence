@@ -16,6 +16,24 @@ from .config import load
 from .store import Store
 
 
+def native_capture_import(artifact,destination,checksum,episode_id,*,required=False):
+    """Dispatch the immutable format before either legacy converter touches it."""
+    with tarfile.open(artifact) as archive:
+        try:member=archive.getmember('manifest.json')
+        except KeyError:member=None
+        if member is not None and member.isfile() and member.size<=32*1024**2:
+            manifest=json.load(archive.extractfile(member))
+        else:manifest={}
+    if manifest.get('schema')!='explorer_native_embodied_capture_manifest_v1':
+        if required:raise ValueError('Native producer returned a different immutable source format')
+        return None
+    if manifest.get('recording_id')!=episode_id:raise ValueError('Native source recording identity changed in transfer')
+    from explorer_shared.native_capture import import_native_capture
+    result=import_native_capture(artifact,checksum,destination)
+    return dict(result,episode_id=episode_id,source_archive_sha256=checksum,artifact=str(artifact),
+        source_original_retained=True,observation_manifest=result['embodied_manifest'])
+
+
 def recording(store, job, config):
     camera = job['config']['camera_id']
     node = next(node for node in config['nodes'] if camera.startswith(node['id'] + '-'))
@@ -66,6 +84,8 @@ def station_import(store, job, config):
         raise ValueError('Invalid station episode ID')
     node = next(node for node in config['nodes'] if node['id']==('nano' if mobile else 'pi'))
     source='mobile' if mobile else 'station'
+    native=mobile and job['config'].get('source_format')=='native_capture_v1'
+    if native:source='native-capture'
     with httpx.Client(timeout=60,trust_env=False) as client:
         response = client.get('http://'+node['host']+':'+str(node['port'])+'/'+source+'/recordings/'+episode_id+'/download',
             headers={'Authorization':'Bearer '+node['token']})
@@ -73,6 +93,7 @@ def station_import(store, job, config):
     digest = hashlib.sha256(response.content).hexdigest()
     if digest!=response.headers.get('X-Content-SHA256'):
         raise ValueError('Station archive transfer hash mismatch')
+    if native and digest!=job['config'].get('archive_sha256'):raise ValueError('Native source archive differs from its immutable queue binding')
     artifact = store.root/'artifacts'/digest[:2]/(digest+'.tar')
     artifact.parent.mkdir(parents=True,exist_ok=True)
     if not artifact.exists() or hashlib.sha256(artifact.read_bytes()).hexdigest()!=digest:
@@ -82,6 +103,8 @@ def station_import(store, job, config):
             stream.flush()
             os.fsync(stream.fileno())
         temporary.replace(artifact)
+    if native:
+        return native_capture_import(artifact,store.root/'episodes'/'native-mobile',digest,episode_id,required=True)
     destination = store.root/'episodes'/source/episode_id
     marker=destination/'.archive-sha256'
     if not marker.is_file() or marker.read_text().strip()!=digest:
@@ -170,6 +193,8 @@ def retarget_import(store,job,config):
         temporary.unlink()
     else:temporary.replace(artifact)
     destination=store.root/'episodes'/'retarget'/ident
+    native=native_capture_import(artifact,store.root/'episodes'/'native-retarget',expected,ident)
+    if native is not None:return native
     result=import_retarget_recording(artifact,destination,expected_archive_sha256=expected)
     original=destination/'source_originals'/'manifest.json'
     return dict(result,episode_id=ident,source_archive_sha256=expected,artifact=str(artifact),
@@ -205,8 +230,7 @@ def main(job_id):
             from .simulation import run_train_act
             result = run_train_act(store, job, config)
         elif job['kind'] == 'rosmaster_skill_train':
-            sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
-            from explorer_sim.rosmaster_skill_pipeline import train_rosmaster_skill
+            from explorer_shared.learning.rosmaster_skill_pipeline import train_rosmaster_skill
             result = train_rosmaster_skill(store,job)
         elif job['kind'] == 'so101_skill_train':
             sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))

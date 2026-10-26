@@ -28,9 +28,14 @@ def install_skill_workflow_routes(app, store_provider):
             raise HTTPException(400, 'Explicit positive skill version required')
         return value
 
+    def context(project_id='02',input_mode=None):
+        if project_id not in ('02','03'):raise HTTPException(400,'ROSMASTER workflow belongs to 02 or 03')
+        return dict(project_id=project_id,input_mode=input_mode)
+
     @router.get('')
-    async def catalogue():
-        return dict(skills=await call(service.list_skills), imports=await call(service.available_imports))
+    async def catalogue(project_id: str = '02'):
+        context(project_id)
+        return dict(skills=await call(service.list_skills,project_id=project_id), imports=await call(service.available_imports,project_id=project_id))
 
     @router.post('')
     async def proposal(body: dict):
@@ -41,8 +46,8 @@ def install_skill_workflow_routes(app, store_provider):
         return dict(capture=await call(service.capture_for_episode, episode_id))
 
     @router.get('/{skill_id}')
-    async def workflow(skill_id: str, version: int | None = None):
-        return await call(service.workflow, skill_id, version)
+    async def workflow(skill_id: str, version: int | None = None, project_id: str = '02', input_mode: str | None = None):
+        return await call(service.workflow, skill_id, version, **context(project_id,input_mode))
 
     @router.post('/{skill_id}/revision')
     async def revision(skill_id: str, body: dict):
@@ -67,6 +72,6 @@ def install_skill_workflow_routes(app, store_provider):
     @router.post('/{skill_id}/train')
     async def train(skill_id: str, body: dict):
         # Admission, aggregate reservation, queue entry and lineage commit together.
-        return await call(service.enqueue_training, skill_id, version(body), body.get('settings'))
+        return await call(service.enqueue_training, skill_id, version(body), body.get('settings'),**context(body.get('project_id','02'),body.get('input_mode')))
 
     app.include_router(router)

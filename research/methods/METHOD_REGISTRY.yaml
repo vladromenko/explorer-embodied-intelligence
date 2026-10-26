@@ -2727,7 +2727,7 @@
     {
       "method_id": "ENGINEERING_GLUE",
       "implementation_id": "IMPL-ROSMASTER-SENSOR-FUSION-001",
-      "function_or_module": "01-autonomous-learning/src/explorer_sim/rosmaster_skill_features.py",
+      "function_or_module": "shared/explorer_shared/learning/rosmaster_skill_features.py",
       "implementation_type": "ENGINEERING_GLUE",
       "sources": [
         {
@@ -2757,7 +2757,7 @@
     {
       "method_id": "ENGINEERING_GLUE",
       "implementation_id": "IMPL-ROSMASTER-HYBRID-001",
-      "function_or_module": "01-autonomous-learning/src/explorer_sim/rosmaster_skill_hybrid.py",
+      "function_or_module": "shared/explorer_shared/learning/rosmaster_skill_hybrid.py",
       "implementation_type": "ENGINEERING_GLUE",
       "sources": [
         {
@@ -2787,7 +2787,7 @@
     {
       "method_id": "ENGINEERING_GLUE",
       "implementation_id": "IMPL-ROSMASTER-SKILL-TRAINING-001",
-      "function_or_module": "01-autonomous-learning/src/explorer_sim/rosmaster_skill_pipeline.py",
+      "function_or_module": "shared/explorer_shared/learning/rosmaster_skill_pipeline.py",
       "implementation_type": "ENGINEERING_GLUE",
       "sources": [
         {
@@ -2929,6 +2929,246 @@
       "test_evidence": [
         {
           "result": "Targeted source/API/dataset/optimizer and preservation tests; physical tasks unvalidated",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-ROSMASTER-SENSOR-FUSION-001-COMPAT",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/rosmaster_skill_features.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:02-demonstration-learning/docs/ROSMASTER_SKILL_PIPELINE_RU.md",
+          "role": "Primary API or exact scoped implementation contract"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Compatibility module alias only; no duplicated algorithm. Current consumers use shared platform; retire after legacy references disappear, no earlier than2026-11-09.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "Targeted source/API/dataset/optimizer and preservation tests; physical tasks unvalidated",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-ROSMASTER-HYBRID-001-COMPAT",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/rosmaster_skill_hybrid.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:02-demonstration-learning/docs/ROSMASTER_SKILL_PIPELINE_RU.md",
+          "role": "Primary API or exact scoped implementation contract"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Compatibility module alias only; no duplicated algorithm. Current consumers use shared platform; retire after legacy references disappear, no earlier than2026-11-09.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "Targeted source/API/dataset/optimizer and preservation tests; physical tasks unvalidated",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-ROSMASTER-SKILL-TRAINING-001-COMPAT",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/rosmaster_skill_pipeline.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "https://github.com/huggingface/lerobot/tree/7e241bd630a3719a56157a497ce5d08f244784f1/src/lerobot/policies/act",
+          "role": "Primary API or exact scoped implementation contract"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Compatibility module alias only; no duplicated algorithm. Current consumers use shared platform; retire after legacy references disappear, no earlier than2026-11-09.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "Targeted source/API/dataset/optimizer and preservation tests; physical tasks unvalidated",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SHARED-ACT-BACKEND-001",
+      "function_or_module": "shared/explorer_shared/learning/act_backend.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/training/README_RU.md",
+          "role": "Exact backend extraction/qualification and pinned official upstream API"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Shared platform implementation; no experiment imports or hardware classes. ACT old8 vs shared4+resume4 bit-exact software qualification; candidates remain unqualified unless measured.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "tests/test_shared_act_backend.py actual compact official ACT, durable resume and lazy registry boundaries; no physical task",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SHARED-TRAINING-ARTIFACTS-001",
+      "function_or_module": "shared/explorer_shared/learning/artifacts.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/training/README_RU.md",
+          "role": "Exact backend extraction/qualification and pinned official upstream API"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Shared platform implementation; no experiment imports or hardware classes. ACT old8 vs shared4+resume4 bit-exact software qualification; candidates remain unqualified unless measured.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "tests/test_shared_act_backend.py actual compact official ACT, durable resume and lazy registry boundaries; no physical task",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SHARED-TRAINING-SETTINGS-001",
+      "function_or_module": "shared/explorer_shared/learning/settings.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/training/README_RU.md",
+          "role": "Exact backend extraction/qualification and pinned official upstream API"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Shared platform implementation; no experiment imports or hardware classes. ACT old8 vs shared4+resume4 bit-exact software qualification; candidates remain unqualified unless measured.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "tests/test_shared_act_backend.py actual compact official ACT, durable resume and lazy registry boundaries; no physical task",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SHARED-POLICY-REGISTRY-001",
+      "function_or_module": "shared/explorer_shared/learning/registry.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/training/README_RU.md",
+          "role": "Exact backend extraction/qualification and pinned official upstream API"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Shared platform implementation; no experiment imports or hardware classes. ACT old8 vs shared4+resume4 bit-exact software qualification; candidates remain unqualified unless measured.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "tests/test_shared_act_backend.py actual compact official ACT, durable resume and lazy registry boundaries; no physical task",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-TRANSFER-MAPPING04-001",
+      "function_or_module": "shared/explorer_shared/transfer_mapping04.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:04-cross-embodiment-transfer/docs/MAPPING_AUDIT_RU.md",
+          "role": "Read-only calibration SHA, pinned original coordinate source, exact official arithmetic comparison"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Distinguish provable native-to-radian arithmetic, known stationary handeye and observed jaw references from physical registration still missing.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "5 actual installed LeRobot arithmetic/native coordinate tests; no bus/device connection",
           "scope": "SOFTWARE_ONLY"
         }
       ],

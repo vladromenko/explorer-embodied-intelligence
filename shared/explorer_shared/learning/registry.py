@@ -1,4 +1,4 @@
-"""Lightweight policy backend registry; importing this module never loads Torch.
+"""ENGINEERING_GLUE: Lightweight policy backend registry; importing this module never loads Torch.
 
 Only offline software capability is described. Experiment adapters bind actual
 observation/action contracts and source evidence; no entry authorizes hardware.

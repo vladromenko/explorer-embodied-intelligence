@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 import httpx
 import psutil
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from .config import ROOT, load
@@ -45,6 +45,10 @@ async def poll_nodes():
                         if recording.get('archive_sha256'):
                             STORE.create_import_job('retarget_import','03',recording['recording_id'],recording['archive_sha256'])
             capture=payload.get('mobile_observation') or {}
+            if node['id']=='nano':
+                for recording in (payload.get('native_capture') or {}).get('ready_recordings',[]):
+                    if recording.get('project_id')=='02' and recording.get('producer_schema')=='explorer_native_capture_service_v1':
+                        STORE.create_import_job('mobile_import','02',recording['recording_id'],recording['archive_sha256'],source_format='native_capture_v1')
             imported={job['config'].get('episode_id') for job in STORE.jobs(10000) if job['kind']=='mobile_import'}
             for recording_id in capture.get('ready_recording_ids',[]):
                 if recording_id not in imported:
@@ -55,7 +59,7 @@ async def poll_nodes():
         await asyncio.gather(*(poll(node) for node in CONFIG['nodes']))
         from .skill_workflow import bind_import_from_capture
         for job in STORE.jobs(10000):
-            if job['kind']=='mobile_import' and job['status']=='completed':
+            if job['kind'] in ('mobile_import','retarget_import') and job['status']=='completed':
                 try:
                     await asyncio.to_thread(bind_import_from_capture,STORE,job)
                 except (ValueError,KeyError,OSError):
@@ -329,7 +333,7 @@ async def create_job(request: Request):
         raise HTTPException(400, 'Job configuration must be an object')
     if '_execution_commit' in config or '_gpu_binding_sha256' in config:
         raise HTTPException(400,'Execution provenance is assigned by the worker')
-    if body['project_id']=='02':
+    if body['project_id'] in ('02','03'):
         from .skill_workflow import validate_02_training_request
         try:validate_02_training_request(STORE,body)
         except SkillWorkflowBlocked as error:raise HTTPException(409,str(error)) from error
@@ -370,7 +374,7 @@ async def job_operation(job_id: str, operation: str):
     desired = {'pause':'pause_requested', 'resume':'resume_requested', 'cancel':'cancel_requested'}
     if operation not in desired or job['status'] in ('completed', 'failed', 'cancelled'):
         raise HTTPException(409, 'Operation is not valid for this job')
-    if operation in ('pause','resume') and job['kind'] not in ('sim_pilot','train_act','world_model','dagger','skill_cycle','manipulation','manipulation_student','manipulation_benchmark','manipulation_curriculum','mobile_manipulation','manipulation_selective_repair','policy_transfer','fault_repair'):
+    if operation in ('pause','resume') and job['kind'] not in ('sim_pilot','train_act','rosmaster_skill_train','so101_skill_train','world_model','dagger','skill_cycle','manipulation','manipulation_student','manipulation_benchmark','manipulation_curriculum','mobile_manipulation','manipulation_selective_repair','policy_transfer','fault_repair'):
         raise HTTPException(409,'Pause and resume apply to training. Stop an interactive attempt and start a fresh one.')
     STORE.update_job(job_id, status=desired[operation])
     if operation=='cancel' and job['kind']=='station_rollout' and (job.get('result') or {}).get('control_epoch'):
@@ -418,8 +422,19 @@ async def demonstration_review(request: Request):
 
 @app.api_route('/api/retarget/{operation:path}',methods=['GET','POST'])
 async def retarget_proxy(operation: str,request: Request):
-    get_allowed=operation in ('status','recordings') or re.fullmatch(r'recordings/[0-9a-f]{32}/(manifest|download)',operation)
-    if (request.method=='GET' and not get_allowed) or (request.method=='POST' and operation not in ('start','recenter','lease','stop','record/start','record/finish','import')):
+    return await rosmaster_capture_transport(operation,request,project_id='03')
+
+
+@app.api_route('/api/mobile/capture/{operation:path}',methods=['GET','POST'])
+async def mobile_capture_proxy(operation: str,request: Request):
+    if request.method=='POST' and operation not in ('record/start','record/stage','record/finish'):raise HTTPException(404)
+    return await rosmaster_capture_transport(operation,request,project_id='02')
+
+
+async def rosmaster_capture_transport(operation,request,*,project_id):
+    """One capture lifecycle service; native transport differs by input owner."""
+    get_allowed=operation in ('capabilities','status','recordings') or re.fullmatch(r'recordings/[0-9a-f]{32}/(manifest|download)',operation)
+    if (request.method=='GET' and not get_allowed) or (request.method=='POST' and operation not in ('start','recenter','lease','stop','record/start','record/stage','record/finish','import')):
         raise HTTPException(404)
     if operation=='import':
         body=await request.json()
@@ -430,12 +445,41 @@ async def retarget_proxy(operation: str,request: Request):
             return STORE.retry_import_job(job['id']) if job['status'] in ('failed','cancelled') else job
         except ValueError as error:
             raise HTTPException(409,str(error)) from error
-    node=next((node for node in CONFIG['nodes'] if node['id']=='pi'),None)
+    node=next((node for node in CONFIG['nodes'] if node['id']==('pi' if project_id=='03' else 'nano')),None)
     if node is None:
         raise HTTPException(503,'Raspberry Pi is not configured')
     try:
+        source='http://'+node['host']+':'+str(node['port'])+('/arm-retarget/' if project_id=='03' else '/native-capture/')
+        body=await request.json() if request.method=='POST' else None
+        capture_intent=None;capture_id=None;review={};finishing_id=None
+        if body is not None:
+            if not isinstance(body,dict):raise HTTPException(400,'Direct request must be an object')
+            context=body.pop('skill_context',None);capture_id=body.pop('skill_capture_id',None);review=body.pop('skill_review',{})
+            if operation=='record/start':
+                from .skill_workflow import prepare_capture_request
+                capture_intent,native_context=await asyncio.to_thread(prepare_capture_request,STORE,context,project_id=project_id)
+                capture_id=capture_intent['capture_id'];body['skill_context']=native_context
+            if operation in ('record/stage','record/finish'):
+                before=await CLIENT.get(source+'status',headers={'Authorization':'Bearer '+node['token']})
+                before.raise_for_status();snapshot=before.json();recording=snapshot.get('recording') or {}
+                active=snapshot.get('active_recording_id') if project_id=='02' else recording.get('active')
+                active=active if isinstance(active,str) else (active or {}).get('recording_id')
+                expected=body.pop('expected_id',None) or body.get('recording_id')
+                if not expected or active and active!=expected:raise HTTPException(409,'Recording session changed; no labels applied')
+                body['recording_id']=expected
+                if not capture_id:raise HTTPException(400,'Recover the original skill capture before labeling this recording')
+                from .skill_workflow import verify_capture_episode,capture_for_episode
+                await asyncio.to_thread(verify_capture_episode,STORE,capture_id,expected)
+                if operation=='record/stage':
+                    captured=await asyncio.to_thread(capture_for_episode,STORE,expected)
+                    if not captured or body.get('stage') not in {phase['id'] for phase in captured['spec']['stages']}:raise HTTPException(400,'Phase differs from the captured skill version')
+                    body['phase_id']=body.pop('stage')
+                else:
+                    finishing_id=expected
+                    from .skill_workflow import native_outcome_evidence
+                    body['outcome_evidence']=await asyncio.to_thread(native_outcome_evidence,STORE,capture_id,expected,review,body.get('outcome','unknown'))
         if operation.endswith('/download'):
-            upstream=await CLIENT.send(CLIENT.build_request('GET','http://'+node['host']+':'+str(node['port'])+'/arm-retarget/'+operation,
+            upstream=await CLIENT.send(CLIENT.build_request('GET',source+operation,
                 headers={'Authorization':'Bearer '+node['token']}),stream=True)
             if upstream.status_code!=200:
                 await upstream.aclose()
@@ -447,11 +491,64 @@ async def retarget_proxy(operation: str,request: Request):
                 finally:
                     await upstream.aclose()
             return StreamingResponse(data(),media_type='application/x-tar',headers={'X-Content-SHA256':upstream.headers.get('X-Content-SHA256','')})
-        response=await CLIENT.request(request.method,'http://'+node['host']+':'+str(node['port'])+'/arm-retarget/'+operation,
-            headers={'Authorization':'Bearer '+node['token']},json=await request.json() if request.method=='POST' else None)
-        return JSONResponse(response.json(),response.status_code)
-    except (httpx.HTTPError,ValueError) as error:
+        response=await CLIENT.request(request.method,source+operation,
+            headers={'Authorization':'Bearer '+node['token']},**({'json':body} if request.method=='POST' else {}))
+        result=response.json()
+        if response.is_success and capture_intent:
+            from .skill_workflow import capture_started
+            identity=result.get('recording_id')
+            if identity:
+                await asyncio.to_thread(capture_started,STORE,capture_id,identity)
+                result['skill_capture']=dict(capture_intent,original_episode_id=identity)
+            else:result['skill_workflow_error']='Recorder returned no original episode identity'
+        if response.is_success and capture_id and operation=='record/stage':
+            from .skill_workflow import capture_stage
+            await asyncio.to_thread(capture_stage,STORE,capture_id,body['phase_id'])
+        result_identity=result.get('recording_id') or (result.get('capture') or {}).get('recording_id')
+        if response.is_success and finishing_id and result_identity==finishing_id:
+            from .skill_workflow import capture_finished,bind_import_from_capture
+            if not isinstance(review,dict):raise HTTPException(400,'Recording review must be an object')
+            result['skill_review']=await asyncio.to_thread(capture_finished,STORE,capture_id,finishing_id,dict(review,outcome=body.get('outcome','unknown')))
+            if result.get('archive_sha256'):
+                result['import_job']=STORE.create_import_job('retarget_import' if project_id=='03' else 'mobile_import',project_id,finishing_id,result['archive_sha256'],**({'source_format':'native_capture_v1'} if project_id=='02' else {}))
+                await asyncio.to_thread(bind_import_from_capture,STORE,result['import_job'])
+        return JSONResponse(result,response.status_code)
+    except httpx.HTTPError as error:
         raise HTTPException(503,'Direct Pi→Nano route unavailable') from error
+    except SkillWorkflowBlocked as error:
+        return JSONResponse({'detail':str(error),'reasons':error.reasons},409)
+    except (ValueError,KeyError,TypeError) as error:
+        raise HTTPException(400,str(error)) from error
+
+
+@app.get('/api/lab/calibration/board.pdf')
+async def lab_calibration_board():
+    board=Path(CONFIG['root'])/'learning/so101-personal-lab/calibration/explorer-charuco-6x8-30mm-v1.pdf'
+    if not board.is_file():raise HTTPException(503,'Printable calibration board is not deployed')
+    return FileResponse(board,media_type='application/pdf',filename='explorer-charuco-print-100-percent.pdf')
+
+
+@app.api_route('/api/lab/vision/{operation:path}',methods=['GET','POST'])
+async def lab_vision_proxy(operation: str,request: Request):
+    allowed_get=operation in ('status','freeze') or re.fullmatch(r'frames/[^/]{1,200}',operation)
+    allowed_post=operation in ('select','semantic','semantic/cancel','grid')
+    if request.method=='GET' and not allowed_get or request.method=='POST' and not allowed_post:
+        raise HTTPException(404,'Tabletop vision API does not expose robot execution')
+    node=next((node for node in CONFIG['nodes'] if node['id']=='pi'),None)
+    if node is None:raise HTTPException(503,'Raspberry Pi is not configured')
+    try:
+        body=await request.json() if request.method=='POST' else None
+        if body is not None and not isinstance(body,dict):raise HTTPException(400,'Vision request must be an object')
+        upstream=await CLIENT.request(request.method,'http://'+node['host']+':'+str(node['port'])+'/lab/vision/'+operation,
+            headers={'Authorization':'Bearer '+node['token']},**({'json':body} if body is not None else {}))
+        if operation.startswith('frames/') and upstream.is_success:
+            if len(upstream.content)>10*1024**2 or not upstream.headers.get('content-type','').startswith('image/jpeg'):
+                raise HTTPException(503,'Pi returned an invalid cached JPEG')
+            headers={key:value for key,value in upstream.headers.items() if key.lower() in ('x-frame-id','x-frame-sha256','x-clock-domain','x-monotonic-ns','x-boot-id','x-timestamp-basis')}
+            return Response(upstream.content,media_type='image/jpeg',headers=dict(headers,**{'Cache-Control':'no-store'}))
+        return JSONResponse(upstream.json(),upstream.status_code)
+    except (httpx.HTTPError,ValueError) as error:
+        raise HTTPException(503,'Pi tabletop vision interface is unavailable') from error
 
 
 def find_camera(camera_id):
@@ -564,15 +661,7 @@ async def robot_proxy(path: str, request: Request):
             review=body.pop('skill_review',{})
             if path=='teaching/mobile/start':
                 from . import skill_workflow as workflow_service
-                if not isinstance(context,dict) or type(context.get('version')) is not int:
-                    raise HTTPException(400,'Select and confirm a versioned ROSMASTER skill before recording')
-                selected=await asyncio.to_thread(workflow_service.workflow,STORE,context.get('skill_id'),context['version'])
-                if selected['spec_sha256']!=context.get('spec_sha256'):
-                    raise HTTPException(409,'Skill definition changed; refresh before recording')
-                capture_intent=await asyncio.to_thread(workflow_service.begin_capture,STORE,
-                    context['skill_id'],context['version'],context.get('variant_id'),context.get('session_id'),
-                    request_id=context.get('request_id'),episode_scope=context.get('episode_scope','whole_episode'),
-                    target_phase_ids=context.get('target_phase_ids'),stationary_chassis_confirmed=context.get('stationary_chassis_confirmed') is True)
+                capture_intent,native_context=await asyncio.to_thread(workflow_service.prepare_capture_request,STORE,context,project_id='02')
                 capture_id=capture_intent['capture_id']
         if request.method=='POST' and path in ('teaching/mobile/finish','teaching/mobile/stage'):
             before=await CLIENT.get('http://'+node['host']+':'+str(node['port'])+'/legacy/teaching/mobile',headers={'Authorization':'Bearer '+node['token']})
@@ -647,6 +736,8 @@ async def station_proxy(path: str, request: Request):
 
 from .skill_workflow_api import install_skill_workflow_routes
 install_skill_workflow_routes(app,lambda:STORE)
+from .lab_skill_api import install_router as install_lab_skill_routes
+install_lab_skill_routes(app,lambda:STORE)
 
 
 @app.get('/learning/so101')

@@ -69,11 +69,15 @@ class Store:
                 (job_id, kind, project_id, 'queued', now, now, json.dumps(config, allow_nan=False)))
         return self.job(job_id)
 
-    def create_import_job(self,kind,project_id,episode_id,source_sha256=None):
+    def create_import_job(self,kind,project_id,episode_id,source_sha256=None,*,source_format=None):
         if kind not in ('station_import','mobile_import','retarget_import'):
             raise ValueError('Unknown immutable import kind')
         settings={'episode_id':episode_id}
-        if kind=='retarget_import':
+        if source_format not in (None,'native_capture_v1'):raise ValueError('Unknown source producer format')
+        if source_format=='native_capture_v1':
+            if kind!='mobile_import' or project_id!='02':raise ValueError('Native mobile import is the direct02 producer; leader03 retains its own proxy import')
+            settings['source_format']=source_format
+        if kind=='retarget_import' or source_format=='native_capture_v1':
             if not isinstance(source_sha256,str) or not re.fullmatch('[0-9a-f]{64}',source_sha256):
                 raise ValueError('Direct teaching import requires the immutable source archive SHA256')
             settings['archive_sha256']=source_sha256
@@ -83,8 +87,9 @@ class Store:
             db.execute('BEGIN IMMEDIATE')
             previous=db.execute("SELECT * FROM jobs WHERE kind=? AND json_extract(config,'$.episode_id')=? ORDER BY created DESC LIMIT 1",(kind,episode_id)).fetchone()
             if previous:
-                if kind=='retarget_import' and json.loads(previous['config']).get('archive_sha256')!=source_sha256:
+                if (kind=='retarget_import' or source_format=='native_capture_v1') and json.loads(previous['config']).get('archive_sha256')!=source_sha256:
                     raise ValueError('Conflicting direct teaching archive for the same original recording')
+                if source_format and json.loads(previous['config']).get('source_format')!=source_format:raise ValueError('Original recording producer identity changed')
                 return self.decode_job(previous)
             db.execute('INSERT INTO jobs(id,kind,project_id,status,created,updated,config) VALUES (?,?,?,?,?,?,?)',
                 (job_id,kind,project_id,'queued',now,now,json.dumps(settings)))

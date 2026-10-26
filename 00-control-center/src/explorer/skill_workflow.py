@@ -49,9 +49,7 @@ CODE_BACKEND_FACTS={'perception_goal_tracking_backend','navigation_training_back
 def runtime_pipeline():
     """Current source capabilities overlay; never rewrite an immutable SkillSpec."""
     try:
-        source=Path(__file__).resolve().parents[3]/'01-autonomous-learning'/'src'
-        if str(source) not in sys.path and source.is_dir():sys.path.insert(0,str(source))
-        from explorer_sim.rosmaster_skill_pipeline import pipeline_capabilities
+        from explorer_shared.learning.rosmaster_skill_pipeline import pipeline_capabilities
         caps=deepcopy_document(pipeline_capabilities())
         if not isinstance(caps,dict) or caps.get('schema')!='rosmaster_skill_pipeline_capabilities_v1':raise ValueError('Unknown runtime pipeline capabilities schema')
         implemented=(caps.get('end_to_end_implemented') is True and caps.get('action_contract_id')==UNIFIED_ACTION_CONTRACT and
@@ -352,10 +350,14 @@ def create_session(store,skill_id,version,body):
         if not selected['confirmed']:raise ValueError('Confirm the proposed skill version first')
         scene=_text(body.get('scene'),'сцена')
         if any(row['payload']['scene']==scene and row['payload']['split']!=body['split'] for row in _records(db,'session')):raise ValueError('A declared physical scene cannot cross dataset splits')
+        declared={name:_text(body[name],name,160) for name in ('object_instance_id','group_id') if body.get(name)}
+        for name,value in declared.items():
+            if any(row['payload'].get(name)==value and row['payload']['split']!=body['split'] for row in _records(db,'session')):raise ValueError('A declared '+name+' cannot cross dataset splits')
         payload=dict(session_id=session_id,skill_id=_uuid(skill_id),version=version,split=body['split'],
             scene=scene,description=_text(body.get('description','Отдельная сессия показов'),'сессия'),
             creation_context=context,
             historical=body.get('historical') is True,basis='operator_declared_teaching_session_not_measured_physical_independence')
+        payload.update(declared)
         record=_append(db,'session',payload,identity=EVENT_PREFIX+'session:'+session_id,project_id=context['project_id'])
         return dict(payload,session_sha256=record['sha256'])
 
@@ -833,7 +835,7 @@ def _previous_fitting_ids(store):
     return used
 
 
-def begin_capture(store,skill_id,version,variant_id,session_id,*,request_id=None,episode_scope='whole_episode',target_phase_ids=None,stationary_chassis_confirmed=False,project_id='02',input_mode=None):
+def begin_capture(store,skill_id,version,variant_id,session_id,*,request_id=None,episode_scope='whole_episode',target_phase_ids=None,stationary_chassis_confirmed=False,project_id='02',input_mode=None,phase_id=None):
     """Create a local intent; this does not start or modify native recording."""
     capture_id=_uuid(request_id or str(uuid.uuid4()))
     context=_context(project_id,input_mode)
@@ -845,13 +847,52 @@ def begin_capture(store,skill_id,version,variant_id,session_id,*,request_id=None
         targets=target_phase_ids if target_phase_ids is not None else [item['id'] for item in spec['stages']]
         if not isinstance(targets,list) or not targets or any(not isinstance(item,str) for item in targets) or len(set(targets))!=len(targets) or set(targets)-{item['id'] for item in spec['stages']}:raise ValueError('Explicit valid target phases required')
         if episode_scope=='whole_episode' and set(targets)!={item['id'] for item in spec['stages']}:raise ValueError('Whole episodes must retain every full-task target phase')
+        if phase_id is not None and phase_id not in targets:raise ValueError('Initial phase must belong to the explicitly selected task scope')
         if session['skill_id']!=spec['skill_id'] or session['version']!=version or session['split']!=variant['split']:raise ValueError('Recording context belongs to a different skill/version/split')
         payload=dict(capture_id=capture_id,skill_id=spec['skill_id'],version=version,spec_sha256=selected['spec_sha256'],variant_id=variant_id,session_id=session['session_id'],split=variant['split'],
             context=context,project_id=project_id,input_mode=context['input_mode'],workflow_family=WORKFLOW_FAMILY,
             native_payload_additions={},automatic_motion=False,episode_scope=episode_scope,target_phase_ids=targets,stationary_chassis_confirmed=True,
             action_contract_id=UNIFIED_ACTION_CONTRACT,neutral_channels_retained=True)
+        payload.update(scene_id=session['scene'],**{name:session[name] for name in ('object_instance_id','group_id') if name in session})
+        if phase_id is not None:payload['phase_id']=phase_id
         _append(db,'capture.begin',payload,identity=EVENT_PREFIX+'capture.begin:'+capture_id,project_id=project_id)
         return payload
+
+
+def prepare_capture_request(store,context,*,project_id):
+    """Shared API service: bind metadata once, independently of input transport.
+
+    The legacy recorder still receives its unchanged arguments. The new native
+    capture producer may retain native_skill_context without actuator effects.
+    Scene/object/group identity is operator-declared and never fabricated.
+    """
+    if not isinstance(context,dict) or type(context.get('version')) is not int:raise ValueError('Select and confirm a versioned ROSMASTER skill before recording')
+    selected=workflow(store,context.get('skill_id'),context['version'],project_id=project_id,input_mode=context.get('input_mode'))
+    if selected['spec_sha256']!=context.get('spec_sha256'):raise ValueError('Skill definition changed; refresh before recording')
+    capture=begin_capture(store,context['skill_id'],context['version'],context.get('variant_id'),context.get('session_id'),
+        request_id=context.get('request_id'),episode_scope=context.get('episode_scope','whole_episode'),target_phase_ids=context.get('target_phase_ids'),
+        stationary_chassis_confirmed=context.get('stationary_chassis_confirmed') is True,project_id=project_id,input_mode=context.get('input_mode'),phase_id=context.get('phase_id'))
+    native=dict(capture,skill_version=capture['version'],skill_spec_sha256=capture['spec_sha256'],skill_spec=selected['spec'])
+    native['split']=dict(partition=capture['split'],scene_id=capture['scene_id'],session_id=capture['session_id'],group_by=['scene_id','session_id','episode_id','object_instance_id'],
+        **{name:capture[name] for name in ('object_instance_id','group_id') if name in capture})
+    return capture,native
+
+
+def native_outcome_evidence(store,capture_id,episode_id,review,outcome):
+    """Explicit human observation labels, never command/contact or sensor proof."""
+    if not isinstance(review,dict) or outcome not in ('success','failure','unknown'):raise ValueError('Explicit outcome and review object required')
+    verify_capture_episode(store,capture_id,episode_id)
+    capture=capture_for_episode(store,episode_id)
+    targets=capture['target_phase_ids'];stages=review.get('completed_stages',[])
+    if not isinstance(stages,list) or any(not isinstance(name,str) for name in stages) or len(stages)!=len(set(stages)) or set(stages)-set(targets):raise ValueError('Review phases differ from the recorded task scope')
+    observed=review.get('object_and_goal_visible') is True
+    def label(status):
+        return dict(status=status,method='operator_observation',observer_id='authenticated_explorer_owner',
+            independent_of_action_commands=True,metrics=dict(operator_reviewed=True),basis='operator_report_not_independent_sensor_or_physical_validation')
+    full=observed and outcome=='success' and review.get('full_task_confirmed') is True and capture['episode_scope']=='whole_episode' and set(stages)==set(targets)
+    overall='success' if full else 'failure' if observed and outcome=='failure' else 'unknown'
+    phases={name:label('success' if observed and outcome=='success' and name in stages else 'failure' if observed and outcome=='failure' and name in stages else 'unknown') for name in targets}
+    return dict(recording_id=episode_id,operator_outcome=outcome,outcomes=dict(end_to_end=label(overall),per_phase=phases),physical_validation_inferred=False)
 
 
 def _capture(db,capture_id):
@@ -949,7 +990,7 @@ def validate_rosmaster_training_request(store,body,*,server_generated=False):
     if (body.get('config') or {}).get('device','cpu') not in pipeline['qualified_devices']:raise WorkflowBlocked(['FUSED_ACT_DEVICE_NOT_QUALIFIED'])
     path=_local(store.root,(body.get('config') or {}).get('dataset_manifest'))
     if _sha(path)!=lineage.get('aggregate_sha256'):raise WorkflowBlocked(['verified_aggregate_sha256_required'])
-    from explorer_sim.rosmaster_skill_pipeline import CanonicalCorpus,PipelineBlocked
+    from explorer_shared.learning.rosmaster_skill_pipeline import CanonicalCorpus,PipelineBlocked
     try:corpus=CanonicalCorpus(path)
     except PipelineBlocked as error:raise WorkflowBlocked(['SOURCE_PIPELINE_PREFLIGHT:'+error.code+':'+error.detail]) from error
     if corpus.skill_id!=lineage['skill_id'] or corpus.version!=lineage['skill_version'] or corpus.manifest.get('skill_spec_sha256')!=lineage['spec_sha256']:raise WorkflowBlocked(['aggregate_skill_spec_lineage_mismatch'])

@@ -1,0 +1,80 @@
+{
+  "scope": "ACTUAL_PI_NPU_COMPONENT_INFERENCE_NO_ACTUATOR_OR_GEOMETRY_QUALIFICATION",
+  "raw_receipt_path": "/home/jetsonnx/.local/state/explorer/vision-upgrade-20261026/actual-vlm-event-qualification.json",
+  "raw_receipt_sha256": "b2feb4359291ab36c7cffa5e167a29044fb86fe203c1da340088ee40afca89f8",
+  "model": {
+    "artifact_version": "5.1.1",
+    "model": "Qwen2-VL-2B-Instruct",
+    "model_sha256": "ae02a43fd4cf62ae3da4b6535cc0e2827c214635da34d4053914d9e70924a751",
+    "runtime_version": "5.1.1",
+    "semantic_only": true,
+    "source_url": "https://dev-public.hailo.ai/v5.1.1/blob/Qwen2-VL-2B-Instruct.hef"
+  },
+  "frame": {
+    "boot_id": "b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+    "camera_id": "pi-overview",
+    "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+    "frame_id": "pi-overview:679d2ea38cc2:2717",
+    "frame_sha256": "518c4aaa107ef9524136b924326a4686d8a31b3de3c803dcb700c22090ff3f02",
+    "height": 480,
+    "monotonic_ns": 58096199045581,
+    "timestamp_basis": "host_receive_estimate",
+    "width": 640
+  },
+  "semantic_outcome": "SEMANTIC_RESULT",
+  "semantic_elapsed_s": 31.498895668,
+  "sample_count": 9,
+  "camera_frames_advanced": true,
+  "CV_restored_after_semantics": true,
+  "no_station_motor_command_observed": true,
+  "segmentation_model": {
+    "architecture": "HAILO10H",
+    "dequantized_host_output": "FLOAT32",
+    "host_decoder_sources": {
+      "LICENSE": "5aa7a48615e6140973072c468e5a5df96f1b15e75d8d1ba8df155d2bd76adbf5",
+      "upstream-config.json": "65299e166aa72ceb5f7db841db00c6aeff953bed4fb3538e643cf846133b3359",
+      "upstream-cython_nms.pyx.txt": "a186acb99e9bc1561a40898004577ed9ee24353d90da3381416a7561ff782134",
+      "upstream-default-preprocess.py.txt": "04faa8f231b0e9e8ce30eb6488c7969aa2b0e8f132e81d3a30ce01a4326fd889",
+      "upstream-postprocessing.py.txt": "f75d5502c79541e6bed1554b514d05f6c7e899a8dd0758015be0d983f7594bf2"
+    },
+    "host_decoder_upstream_commit": "7b850e0444a142ada88443d675e3c3ddda18bd74",
+    "mask_threshold": 0.4,
+    "max_detections": 20,
+    "multi_label": false,
+    "name": "yolov5n_seg_h10.hef",
+    "physical_contact_verified": false,
+    "raw_head_shapes": [
+      [
+        160,
+        160,
+        32
+      ],
+      [
+        20,
+        20,
+        351
+      ],
+      [
+        40,
+        40,
+        351
+      ],
+      [
+        80,
+        80,
+        351
+      ]
+    ],
+    "runtime_api": "HailoRT5 InferModel",
+    "runtime_version": "5.1.1",
+    "score_threshold": 0.35,
+    "sha256": "edb7f33aa7212a24dca0090cfca9b83ca72cc81b7385a3225ca2cd465092b9ed",
+    "source_resolution_masks": true,
+    "task": "instance_segmentation"
+  },
+  "measured_tabletop_calibration_available": false,
+  "semantic_text_is_unverified_model_output": true,
+  "physical_skill_qualified": false,
+  "new_camera_owners": 0,
+  "controller_settings_written": false
+}

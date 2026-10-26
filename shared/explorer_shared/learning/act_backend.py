@@ -1,4 +1,4 @@
-"""Shared official LeRobot ACT software backend (no experiment or hardware IO).
+"""ENGINEERING_GLUE: Shared official LeRobot ACT software backend (no experiment or hardware IO).
 
 Extracted without optimizer/sampler/RNG/save semantics changes. Source graph
 signatures intentionally reject older implementation graphs without overwriting
