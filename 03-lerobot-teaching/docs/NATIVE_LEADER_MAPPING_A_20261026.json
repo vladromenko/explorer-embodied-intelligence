@@ -1,0 +1,110 @@
+{
+  "all_computable_A_resolved": true,
+  "device_recalibration_requested": false,
+  "force_or_contact_inferred": false,
+  "known_target_gripper_commands": {
+    "empty_visually_closed": 170,
+    "open": 30
+  },
+  "metric_aperture_known": false,
+  "no_device_calibration_rerun": true,
+  "operator_captures_fabricated": false,
+  "original_SO101_calibration_retained": true,
+  "physical_commands": 0,
+  "physical_unit_axis_registration_inferred": false,
+  "remaining_B": [
+    "observed_clutch_task_axes_and_orientation",
+    "leader_gripper_open_capture",
+    "leader_gripper_closed_capture"
+  ],
+  "schema": "explorer_native_leader_computable_mapping_A_v1",
+  "source_coordinate_profile": {
+    "allowed_scopes": [
+      "preview",
+      "simulation",
+      "shadow"
+    ],
+    "basis": "official_encoder_delta_and_documented_new_URDF_midrange_convention",
+    "encoder_resolution": 4096,
+    "exact_encoder_arithmetic": true,
+    "joint_names": [
+      "shoulder_pan",
+      "shoulder_lift",
+      "elbow_flex",
+      "wrist_flex",
+      "wrist_roll",
+      "gripper"
+    ],
+    "joint_units": [
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "normalized_0_100"
+    ],
+    "joints": {
+      "elbow_flex": {
+        "encoder_range": [
+          887,
+          3092
+        ],
+        "homing_offset_reapplied": false,
+        "max_quantization_error_rad": 0.0015343553863686413,
+        "offset_rad": 0.0,
+        "scale_rad_per_native_unit": 0.016916268134714273
+      },
+      "shoulder_lift": {
+        "encoder_range": [
+          837,
+          3201
+        ],
+        "homing_offset_reapplied": false,
+        "max_quantization_error_rad": 0.0015343553863686413,
+        "offset_rad": 0.0,
+        "scale_rad_per_native_unit": 0.01813608066687734
+      },
+      "shoulder_pan": {
+        "encoder_range": [
+          752,
+          3469
+        ],
+        "homing_offset_reapplied": false,
+        "max_quantization_error_rad": 0.0015343553863686413,
+        "offset_rad": 0.0,
+        "scale_rad_per_native_unit": 0.020844217923817993
+      },
+      "wrist_flex": {
+        "encoder_range": [
+          861,
+          3208
+        ],
+        "homing_offset_reapplied": false,
+        "max_quantization_error_rad": 0.0015343553863686413,
+        "offset_rad": 0.0,
+        "scale_rad_per_native_unit": 0.018005660459036007
+      },
+      "wrist_roll": {
+        "encoder_range": [
+          0,
+          4095
+        ],
+        "homing_offset_reapplied": false,
+        "max_quantization_error_rad": 0.0015343553863686413,
+        "offset_rad": 0.0,
+        "scale_rad_per_native_unit": 0.031415926535897934
+      }
+    },
+    "physical_URDF_registration_measured": false,
+    "physical_execution_authorized": false,
+    "physical_reference_note": "Encoder arithmetic is proven; actual unit axis/zero alignment remains separately observed geometry evidence",
+    "profile_id": "mapping04-0890fc4904917210b9008481",
+    "schema": "explorer_source_coordinate_profile04_v1",
+    "source_calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+    "source_urdf_sha256": "bc947e2fea65dfc91b0fc40e4cff0c01c6bf426687995937e62e2b0f41122db5",
+    "zero_convention_document_sha256": "c6df213e471e4573ba6384cb957e9eee9644f5d671272f98f67d28866333f747"
+  },
+  "source_coordinate_profile_sha256": "cb8af25acfa5177c6d162593c0348e1418eee0d93bb94fd3c73c8fb78ef4cd02",
+  "target_gripper_reference_sha256": "ed275d5b774814963fc855009a4f93715ffbe4657796b2ed32f9c1c9718e11cb",
+  "target_original_coordinates_sha256": "6dbfbcaa238b04e2ddb61e08d43f1ebee250e8bfd8ca273d83ff2e1008df6b2f"
+}

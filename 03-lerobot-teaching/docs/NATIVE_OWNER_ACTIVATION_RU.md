@@ -156,3 +156,11 @@ authorization отзывается. После завершённого реал
 исходного reference guard UI показывает новый pinned challenge и требует новое
 наблюдаемое подтверждение mirror перед явным start. Не переиспользовать старое
 permission, не стирать fault, не включать feedback и не auto-resume.
+
+Для отдельно наблюдаемого теста шасси authorize дополнительно принимает
+`input_mode:keyboard|browser_gamepad|so101_leader` и явный
+`owner_chassis_test_authorized:true`. DefaultFalse; это scoped permission к
+существующему executor/lease, не изменение motor limits/watchdog. Текущая
+`activation.status.chassis_motion_allowed` учитывает camera/native lease/owner.
+Для02 браузерный gamepad всё так же использует native source=keyboard;
+input_mode сохраняет честное происхождение directions bridge.

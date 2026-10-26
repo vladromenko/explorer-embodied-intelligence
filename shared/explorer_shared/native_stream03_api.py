@@ -40,6 +40,8 @@ def mount_native_stream_api(app, mux, *, token, observed_test_permit=lambda:Fals
         value=operation(reference_reader or mux.arm.status)
         return {**value,'boot_id':value.get('boot_id',mux.tap.boot_id),
                 'clock_domain':mux.tap.clock_domain,'state_source':'command_estimate',
+                'reference_read_native_monotonic_ns':mux.tap.clock(),
+                'reference_read_basis':'native_host_read_original_command_reference_not_measured_pose',
                 'measured':False,'attainment_measured':False}
 
     @app.get('/api/explorer/retarget/status')

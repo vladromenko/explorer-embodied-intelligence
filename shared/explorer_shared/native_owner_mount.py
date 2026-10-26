@@ -88,6 +88,7 @@ def mount_factory_owner(app,root,manual_arm,teleop,token,*,clock_domain,observed
     mux.observation_permit=activation.allowed
     mux.observation_evidence=activation.receipt
     mux.on_invalidate=activation.revoke
+    mux.chassis_permit=activation.base_allowed
 
     def guarded_reference():
         current=manual_arm.reference(read_status_check())

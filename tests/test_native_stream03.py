@@ -66,12 +66,12 @@ class Teleop:
         return {'stop_latched':True}
 
 
-def setup_mux(*, chassis=False, capacity=10):
+def setup_mux(*, chassis=False, capacity=10,begin=True):
     arm = Arm(); teleop = Teleop(arm); clock = [10.]
     tap = NativeDispatchTap(boot_id='boot',clock_domain='nano',capacity=capacity,clock=lambda:int(clock[0]*1e9))
     mux = NativeTeleopMux(teleop,arm,tap,chassis_motion_allowed=chassis,clock=lambda:clock[0])
     mux.install()
-    epoch = mux.begin(observing=True,neutral=True)['control_epoch']
+    epoch = mux.begin(observing=True,neutral=True)['control_epoch'] if begin else None
     return mux,teleop,arm,tap,epoch,clock
 
 
@@ -90,7 +90,9 @@ def test_mirror_needs_no_recording_and_base_keyboard_does_not_preempt_leader_arm
     mux.keyboard_base_input(epoch,{'forward':.5},observing=True)
     assert arm.calls[-1]['joints'] == [1.,2.,3.,4.,5.,6.]
     assert arm.calls[-1]['owner'] == 'keyboard' and arm.calls[-1]['coordinated'] is True
-    assert not teleop.original_arm_updates and tap.since()['receipts'] == []
+    assert not teleop.original_arm_updates
+    assert [row['kind'] for row in tap.since()['receipts']]==['base_drive_host_request']
+    assert teleop.native_drive==[[0.,0.,0.]]  # explicit observed begin only
     assert mux.status()['native_queue_length'] == 0
 
 
@@ -176,7 +178,8 @@ def test_physical_chassis_prohibition_blocks_before_original_dispatch():
         mux.keyboard_base_input(epoch,{'forward':1.},observing=True)
     with pytest.raises(PermissionError):
         teleop.drive([.1,0.,0.])
-    assert teleop.native_drive == [] and tap.since()['receipts'] == []
+    assert teleop.native_drive == [[0.,0.,0.]]
+    assert [row['original_payload']['velocity'] for row in tap.since()['receipts']]==[[0.,0.,0.]]
     with pytest.raises(ValueError):
         mux.keyboard_base_input(epoch,{'joint1_increase':1.},observing=True)
 
@@ -184,12 +187,14 @@ def test_physical_chassis_prohibition_blocks_before_original_dispatch():
 def test_only_actual_original_host_publication_creates_receipt_full9_requires_base_context():
     mux,teleop,arm,tap,epoch,_ = setup_mux()
     mux.resume(epoch,observing=True); mux.leader_intent(epoch,1,[1.]*6,evidence())
-    assert tap.since()['receipts'] == []
+    initial=tap.since()['receipts'];assert len(initial)==1 and initial[0]['kind']=='base_drive_host_request'
+    assert initial[0]['command9_mask']==[False]*6+[True]*3
     record = {'source':'timed_factory_command_estimate','q_estimated_deg':[89.]*6}
     arm._publish_command([90]*6,80,record,revision=0)
     partial = tap.since()['receipts'][-1]
-    assert partial['command9'] == [90.]*6 + [None]*3
-    assert partial['command9_mask'] == [True]*6 + [False]*3
+    assert partial['command9'] == [90.]*6 + [0.]*3
+    assert partial['command9_mask'] == [True]*9
+    assert partial['components_published_in_this_event']==list(range(6))
     teleop.stop_all()  # mock original native STOP publication, no hardware
     row = tap.since()['receipts'][-1]
     assert row['command9'] == [90.]*6 + [0.]*3
@@ -232,7 +237,7 @@ def test_native_publication_before_intent_binding_is_joined_later_by_exact_nativ
 
 
 def test_prior_command9_uses_original_ruckig_estimate_and_actual_base_context_not_target_or_ban():
-    mux,teleop,arm,tap,epoch,_ = setup_mux()
+    mux,teleop,arm,tap,epoch,_ = setup_mux(begin=False)
     tap.reference_header({'boot_id':'boot','measured':False,'servo_deg':[90]*6},'e'*64)
     arm._publish_command([92]*6,80,{'q_estimated_deg':[91.]*6})
     assert tap.since()['receipts'][-1]['preceding_command9'] is None
@@ -318,7 +323,7 @@ def test_authenticated_same_owner_api_defaults_blocked_and_accepted_is_not_dispa
                             json={'control_epoch':epoch,'source_sequence':1,'joint_velocity_deg_s':[1.]*6,
                                   'source_evidence':evidence()})
     assert response.status_code == 200 and not response.json()['native_dispatched']
-    assert client.get('/api/explorer/retarget/dispatch',headers=headers).json()['receipts'] == []
+    assert [row['kind'] for row in client.get('/api/explorer/retarget/dispatch',headers=headers).json()['receipts']]==['base_drive_host_request']
     assert client.post('/api/explorer/retarget/base',headers=headers,
                        json={'control_epoch':epoch,'actions':{'forward':1.},'observing':True}).status_code == 403
     permit[0] = False

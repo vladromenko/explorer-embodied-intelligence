@@ -34,10 +34,34 @@ class UnregisteredLeaderGeometry:
                 'leader_device_recalibration_requested':False,'physical_acceptance':False}
 
 
-def registered_native_leader_geometry(config_dir,*,root=None):
+def registered_native_leader_geometry(config_dir,*,root=None,source_calibration_path=None):
     root=Path(root or Path(__file__).resolve().parents[2]);config_dir=Path(config_dir)
     path=config_dir/'native-leader-registration.json'
     coordinates=config_dir/'factory-servo-coordinates.py'
+    # Computable encoder/URDF conventions reuse the existing calibration and
+    # exact repository factory source. No terminal copy or five generic pairs
+    # is required for these known quantities; only real observed B remains.
+    parse_error=None
+    try:
+        if path.is_file() and path.stat().st_size>128*1024:
+            raise ValueError('Cross-map exceeds metadata bound')
+        profile=json.loads(path.read_bytes()) if path.is_file() else None
+        if profile is not None and not isinstance(profile,dict):raise ValueError('Cross-map object required')
+    except (OSError,ValueError,TypeError) as error:
+        profile=None;parse_error='INVALID_CROSS_MAP:'+type(error).__name__
+    if source_calibration_path is None and isinstance(profile,dict) and profile.get('source_calibration_file'):
+        candidate=(config_dir/profile['source_calibration_file']).resolve()
+        if candidate.is_relative_to(config_dir.resolve()):source_calibration_path=candidate
+    if source_calibration_path is not None:
+        from .native_leader_registration import NativeLeaderContext,DerivedUnregisteredGeometry,derived_geometry,DERIVED
+        try:
+            context=NativeLeaderContext(root,source_calibration_path)
+            if profile is None:return DerivedUnregisteredGeometry(context,parse_error)
+            if profile.get('provenance')==DERIVED:return derived_geometry(config_dir,profile,context)
+        except (OSError,ValueError,TypeError,KeyError) as error:
+            if 'context' in locals():return DerivedUnregisteredGeometry(context,type(error).__name__+': '+str(error))
+            return UnregisteredLeaderGeometry('SOURCE_COORDINATE_A_UNAVAILABLE:'+type(error).__name__)
+    if parse_error is not None:return UnregisteredLeaderGeometry(parse_error)
     if not path.is_file():
         return UnregisteredLeaderGeometry('NORMALIZED_TO_PHYSICAL_JOINT_AXES_ZERO_SCALE_AND_GRIPPER_REFERENCE')
     try:

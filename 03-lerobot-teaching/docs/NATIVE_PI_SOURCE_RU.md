@@ -1,5 +1,11 @@
 # Pi leader → исходный native latest-intent
 
+Актуальный стандартный cross-map путь — [web-мастер](NATIVE_LEADER_WEB_WIZARD_RU.md):
+известная SO101 calibration/official normalization/new-URDF convention дают
+вычислимые A автоматически; остаются наблюдаемые task axes и2 gripper captures.
+Приведённый ниже generic measured profile — совместимость, его пять joint pairs
+и private servo-source copy не требуются стандартному мастеру.
+
 `PiNativeRetargetService` — новый default Pi NodeAgent для03. Старый
 `PiRetargetService` оставлен только для исторических данных/тестов finite ABI.
 Новый source никогда не вызывает plan/start/trajectory, не открывает serial,
@@ -13,8 +19,9 @@
 `ManualArm.stream_velocity`. Период берётся из actual native status, а не
 назначается адаптером. Native Ruckig/lease/ограничения не изменены. Сами source
 кадры lease не продлевают: только явный наблюдаемый `lease` оператора вызывает
-native base mux. Пока chassis prohibited, допускаются только нейтральные base
-inputs; факт нулевой target base для записи берётся из native host receipt,
+native base mux. Default chassis prohibited допускает нейтральные base inputs;
+свежий отдельный owner_chassis_test_authorized разрешает наблюдаемый тест на
+исходном native executor. Факт нулевой target base берётся из native host receipt,
 никогда из запрета движения.
 
 Start требует существующего native STOP, наблюдения, реальной cross-map и

@@ -51,11 +51,13 @@ class PiNativeRetargetService:
         self.error=None;self.last_result=None;self.last_lease_sequence=-1
         self.source_sequence=0;self.last_source_stamp=None;self.sample_count=0
         self.native_period=None;self.target_boot=None;self.estimate=None;self.target_camera=None
-        self.recorder=LegacyRawView(Path(state_dir)/'retarget-recordings');self.thread=None
+        self.chassis_authorized=False;self.chassis_requests=0
+        self.recorder=LegacyRawView(Path(state_dir)/'retarget-recordings');self.thread=None;self.calibration_wizard=None
 
     @classmethod
     def from_config(cls,station,state_dir,config_dir):
-        geometry=registered_native_leader_geometry(config_dir);client=None;error=None
+        calibration=(getattr(station,'configuration',{}).get('roles',{}).get('leader',{}).get('calibration'))
+        geometry=registered_native_leader_geometry(config_dir,source_calibration_path=calibration);client=None;error=None
         path=Path(config_dir)/'arm-retarget-peer.json'
         if path.is_file():
             try:
@@ -66,6 +68,10 @@ class PiNativeRetargetService:
             except (OSError,ValueError,TypeError,KeyError) as exc:
                 error='Private native peer configuration invalid: '+type(exc).__name__
         service=cls(geometry,station,state_dir,client);service.error=error
+        context=getattr(geometry,'context',None)
+        if context is not None:
+            from .native_leader_registration import NativeLeaderRegistrationWizard
+            service.calibration_wizard=NativeLeaderRegistrationWizard(context,config_dir)
         return service
 
     def start_worker(self):
@@ -94,7 +100,9 @@ class PiNativeRetargetService:
                 'cached_samples_consumed':self.sample_count,'last_result':deepcopy(self.last_result),'error':self.error,
                 'loop':'independent_latest_measured_cache_no_FIFO_no_automatic_native_lease',
                 'recording':self.recorder.status(),'recording_owner':'nano_native_common_02_03',
-                'chassis_requests':0,'controller_configuration_writes':0,'physical_acceptance_confirmed':False}
+                'calibration_wizard':self.calibration_wizard.status() if self.calibration_wizard else None,
+                'chassis_requests':self.chassis_requests,'observed_chassis_grant_received':self.chassis_authorized,
+                'controller_configuration_writes':0,'physical_acceptance_confirmed':False}
 
     def _measurement(self):
         state=self.station.status() if self.station is not None else {}
@@ -158,6 +166,7 @@ class PiNativeRetargetService:
             if native.get('execution_permission') is not True:
                 raise ValueError('NATIVE_OWNER_REQUIRES_SEPARATE_USER_OBSERVED_TEST')
             self.client.authorization_id=(native.get('activation') or {}).get('authorization_id')
+            self.chassis_authorized=native.get('chassis_motion_allowed') is True
             if native.get('active') or native.get('stop_latched') is False:
                 raise ValueError('Explicit native STOP required before selecting leader mirror')
             self.target_boot=native.get('boot_id')
@@ -249,10 +258,12 @@ class PiNativeRetargetService:
         self._observe(body)
         actions=body.get('base_actions',{})
         if (not isinstance(actions,dict) or any(key not in BASE_ACTIONS for key in actions) or
-                any(not np.isfinite(float(value)) or abs(float(value))>1e-12 for value in actions.values())):
+                any(not np.isfinite(float(value)) for value in actions.values()) or
+                (not self.chassis_authorized and any(abs(float(value))>1e-12 for value in actions.values()))):
             raise PermissionError('PHYSICAL_CHASSIS_PROHIBITED_BY_OWNER')
         result=self.client.keyboard_base(target_epoch,actions,observing=True)
         with self.lock:
+            if any(abs(float(value))>1e-12 for value in actions.values()):self.chassis_requests+=1
             self.last_result={'operator_native_lease_receipt':result,'native_dispatched':False}
         self.wake.set();return self.status()
 
@@ -282,6 +293,7 @@ class PiNativeRetargetService:
             with self.lock:
                 self.mode='CLOSED' if self.shutdown.is_set() else 'STOPPED'
                 self.target_epoch=None;self.stop_uncertain=False;self.error=None
+                self.chassis_authorized=False
             return self.status()
         except Exception as error:
             with self.lock:
@@ -298,6 +310,8 @@ class PiNativeRetargetService:
             return getattr(self,operation)(body)
         if self.shutdown.is_set():
             raise ValueError('Pi native source is permanently closed')
+        if operation.startswith('calibration/'):
+            return self._calibration_command(operation,body)
         if self.client is None:
             raise ValueError('Native target peer is not configured')
         if operation in ('activation/status','activation/challenge','activation/authorize','activation/revoke'):
@@ -318,6 +332,45 @@ class PiNativeRetargetService:
         else:
             raise ValueError('Unknown native source operation')
         self.recorder.last_status=deepcopy(result);return result
+
+    def _calibration_command(self,operation,body):
+        if self.calibration_wizard is None:
+            raise ValueError('Existing leader calibration/URDF arithmetic not available')
+        if operation=='calibration/status':return self.calibration_wizard.status()
+        if operation=='calibration/preview':
+            measured=self._measurement();return {'measured_leader':measured,
+                'preview':self.calibration_wizard.context.preview(measured['positions'])}
+        with self.lock:
+            if (self.shutdown.is_set() or self.mode in ('ACTIVE','CLUTCHING','STOPPING') or
+                    self.lifecycle_inflight or self.step_inflight or self.pending_stops):
+                raise ValueError('Stop mirror before observing or accepting a new cross-map')
+            self.lifecycle_inflight=True;expected=self.epoch
+        self.operation_lock.acquire()
+        try:
+            if operation=='calibration/capture':
+                measured=self._measurement();target=None
+                if body.get('kind')=='task_axes':
+                    if self.client is None:raise ValueError('Original native reference peer not configured')
+                    native=self.client.status()
+                    if native.get('active') or native.get('stop_latched') is not True:
+                        raise ValueError('Original native STOP required for task-axis reference capture')
+                    target=self.client.reference()
+                frame=getattr(self.station,'camera',None)
+                frame=frame.latest() if frame is not None else None
+                return self.calibration_wizard.capture(body,measured,target_reference=target,
+                    source_frame={**frame.metadata(),'jpeg':frame.jpeg} if frame is not None else None)
+            if operation=='calibration/accept':
+                result=self.calibration_wizard.accept(body)
+                geometry=registered_native_leader_geometry(self.calibration_wizard.config_dir)
+                with self.lock:
+                    if self.epoch!=expected or self.shutdown.is_set():
+                        raise ValueError('Cross-map stored as evidence; source session was stopped/closed')
+                    self.geometry=geometry;self.epoch=uuid.uuid4().hex
+                return {**result,'retarget':self.status()}
+            raise ValueError('Unknown metadata calibration operation')
+        finally:
+            with self.lock:self.lifecycle_inflight=False
+            self.operation_lock.release()
 
     def _work(self):
         while not self.shutdown.is_set():

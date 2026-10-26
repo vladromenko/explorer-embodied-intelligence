@@ -3,10 +3,10 @@
     {
       "actuator_requests": [],
       "adapter_source_sha256": {
-        "native_activation.py": "2b0000917e3ba982904526046c78c0dcaee5e1e37c25128c619ac0d728d3d103",
-        "native_owner_mount.py": "72bcbeffd92742287aa3edf01280a26c1c14f720f61a24560d401e58bbb2eafe",
-        "native_stream03.py": "3846deecbe65d70dd46646ba2b92ec9efc525af35514f593e60a0c4288571160",
-        "native_stream03_api.py": "f430fa95d564338fcf1c14ed44759c1acdb4559271426650802371bc6bf98c52",
+        "native_activation.py": "370f8c807748ffd7f0004b484b4f2826cf087e01a96fb8b0e7e828bd3b82300d",
+        "native_owner_mount.py": "f8465e1cf19b52ccc9de118f2f197c9f132fa17595dad0c8bbce9d925c6843a8",
+        "native_stream03.py": "023c9e8a2bfc368d01de16cd070cd2a0361e2ce14f10d05428a0bc9af577d928",
+        "native_stream03_api.py": "8b567ff76907b54aac89855b8b7682931500ec5f60d9947b7014fd18ce67a8dc",
         "native_web_startup_probe.py": "5b3fd65c0b9ea16a07554b7cdb09ac739a567087eeed8079f0a5a686b5d96213"
       },
       "candidate": false,
@@ -22,7 +22,7 @@
         "native_mux": 404,
         "teleop": 200
       },
-      "receipt_sha256": "a3ec9a08f1201b38f5d9f31d623e3680ebc726e0fcc170d6949f963ef11c21b0",
+      "receipt_sha256": "701f2b872d5e27f41dbd2cd0bfb38a4529184e859fc31a04e2d503a3c8540c4a",
       "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
       "source_startup_zero_actuator_requests": true,
       "startup_threads": 11,
@@ -49,10 +49,10 @@
         }
       ],
       "adapter_source_sha256": {
-        "native_activation.py": "2b0000917e3ba982904526046c78c0dcaee5e1e37c25128c619ac0d728d3d103",
-        "native_owner_mount.py": "72bcbeffd92742287aa3edf01280a26c1c14f720f61a24560d401e58bbb2eafe",
-        "native_stream03.py": "3846deecbe65d70dd46646ba2b92ec9efc525af35514f593e60a0c4288571160",
-        "native_stream03_api.py": "f430fa95d564338fcf1c14ed44759c1acdb4559271426650802371bc6bf98c52",
+        "native_activation.py": "370f8c807748ffd7f0004b484b4f2826cf087e01a96fb8b0e7e828bd3b82300d",
+        "native_owner_mount.py": "f8465e1cf19b52ccc9de118f2f197c9f132fa17595dad0c8bbce9d925c6843a8",
+        "native_stream03.py": "023c9e8a2bfc368d01de16cd070cd2a0361e2ce14f10d05428a0bc9af577d928",
+        "native_stream03_api.py": "8b567ff76907b54aac89855b8b7682931500ec5f60d9947b7014fd18ce67a8dc",
         "native_web_startup_probe.py": "5b3fd65c0b9ea16a07554b7cdb09ac739a567087eeed8079f0a5a686b5d96213"
       },
       "candidate": false,
@@ -68,7 +68,7 @@
         "native_mux": 404,
         "teleop": 200
       },
-      "receipt_sha256": "1f4a8d5224137a86e4a1ce7214b7e80a22d253bf56c2c291657827e1afe75b70",
+      "receipt_sha256": "b7bac9ad87cee8e484e2fe33c407072e106cafad673f22778591a9a49433a28a",
       "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
       "source_startup_zero_actuator_requests": false,
       "startup_threads": 11,
@@ -78,10 +78,10 @@
     {
       "actuator_requests": [],
       "adapter_source_sha256": {
-        "native_activation.py": "2b0000917e3ba982904526046c78c0dcaee5e1e37c25128c619ac0d728d3d103",
-        "native_owner_mount.py": "72bcbeffd92742287aa3edf01280a26c1c14f720f61a24560d401e58bbb2eafe",
-        "native_stream03.py": "3846deecbe65d70dd46646ba2b92ec9efc525af35514f593e60a0c4288571160",
-        "native_stream03_api.py": "f430fa95d564338fcf1c14ed44759c1acdb4559271426650802371bc6bf98c52",
+        "native_activation.py": "370f8c807748ffd7f0004b484b4f2826cf087e01a96fb8b0e7e828bd3b82300d",
+        "native_owner_mount.py": "f8465e1cf19b52ccc9de118f2f197c9f132fa17595dad0c8bbce9d925c6843a8",
+        "native_stream03.py": "023c9e8a2bfc368d01de16cd070cd2a0361e2ce14f10d05428a0bc9af577d928",
+        "native_stream03_api.py": "8b567ff76907b54aac89855b8b7682931500ec5f60d9947b7014fd18ce67a8dc",
         "native_web_startup_probe.py": "5b3fd65c0b9ea16a07554b7cdb09ac739a567087eeed8079f0a5a686b5d96213"
       },
       "candidate": true,
@@ -102,7 +102,7 @@
         "native_mux": 200,
         "teleop": 200
       },
-      "receipt_sha256": "a9070730b1ba626823258d8c185ec5a29d29d493769f18080885c4a37522844e",
+      "receipt_sha256": "74c60f054da01ffad6aac399e83686966f84f3922eaf13660b2c3179deb1ab3b",
       "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
       "source_startup_zero_actuator_requests": true,
       "startup_threads": 11,
@@ -112,10 +112,10 @@
     {
       "actuator_requests": [],
       "adapter_source_sha256": {
-        "native_activation.py": "2b0000917e3ba982904526046c78c0dcaee5e1e37c25128c619ac0d728d3d103",
-        "native_owner_mount.py": "72bcbeffd92742287aa3edf01280a26c1c14f720f61a24560d401e58bbb2eafe",
-        "native_stream03.py": "3846deecbe65d70dd46646ba2b92ec9efc525af35514f593e60a0c4288571160",
-        "native_stream03_api.py": "f430fa95d564338fcf1c14ed44759c1acdb4559271426650802371bc6bf98c52",
+        "native_activation.py": "370f8c807748ffd7f0004b484b4f2826cf087e01a96fb8b0e7e828bd3b82300d",
+        "native_owner_mount.py": "f8465e1cf19b52ccc9de118f2f197c9f132fa17595dad0c8bbce9d925c6843a8",
+        "native_stream03.py": "023c9e8a2bfc368d01de16cd070cd2a0361e2ce14f10d05428a0bc9af577d928",
+        "native_stream03_api.py": "8b567ff76907b54aac89855b8b7682931500ec5f60d9947b7014fd18ce67a8dc",
         "native_web_startup_probe.py": "5b3fd65c0b9ea16a07554b7cdb09ac739a567087eeed8079f0a5a686b5d96213"
       },
       "candidate": true,
@@ -134,7 +134,7 @@
       "original_owner_restarted": false,
       "physical_commands": 0,
       "readonly_http": {},
-      "receipt_sha256": "6b3c7172a1734ceacdac12156a85f49478ee86d9b59132335bc1bf7c71babe5d",
+      "receipt_sha256": "08b257e1e243b2e9896fb887ab76b4ed60fedb0a3fbbcee349309614105d1486",
       "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
       "source_startup_zero_actuator_requests": false,
       "startup_threads": 0,
@@ -160,7 +160,7 @@
   },
   "schema": "explorer_native_web_startup_qualification_summary_v1",
   "targeted_tests": {
-    "passed": 104,
+    "passed": 117,
     "skipped": 0
   }
 }

@@ -199,6 +199,7 @@ class NativeTeleopMux:
             raise ValueError('Bind the original existing shared native arm instance')
         self.teleop, self.arm, self.tap, self.clock = teleop, manual_arm, tap, clock
         self.chassis_allowed = chassis_motion_allowed
+        self.chassis_permit=lambda:self.chassis_allowed
         self.active, self.installed, self.state = False, False, 'NOT_INSTALLED'
         self.epoch, self.generation, self.sequence = None, None, -1
         self.latest, self.intent_deadline, self.dropped = [0.] * 6, 0., 0
@@ -233,7 +234,7 @@ class NativeTeleopMux:
 
     def _base_drive(self, velocity):
         values = _vector(velocity, 3).tolist()
-        if not self.chassis_allowed and any(abs(value) > 1e-12 for value in values):
+        if not self.chassis_permit() and any(abs(value) > 1e-12 for value in values):
             raise PermissionError('PHYSICAL_CHASSIS_PROHIBITED_BY_OWNER')
         started = self.tap.clock()
         result = self.original['base_drive'](values)
@@ -271,7 +272,20 @@ class NativeTeleopMux:
             self.active, self.state, self.sequence = True, 'CLUTCHED', -1
             self.intent_revision+=1
             self.latest, self.intent_deadline = [0.] * 6, self.teleop.lease
-            return self.status()
+            # Only this explicit observed user-start action issues a native
+            # neutral request. Startup/authorization/calibration never do so.
+            # Its real original callback receipt establishes base context; STOP
+            # or the owner's default ban alone must never manufacture zero.
+            try:self._base_drive([0.,0.,0.])
+            except Exception:
+                self.active,self.state=False,'BEGIN_NEUTRAL_DELIVERY_UNKNOWN'
+                self.intent_revision+=1
+                try:self.on_invalidate('BEGIN_NEUTRAL_DELIVERY_UNKNOWN')
+                except Exception:
+                    with self.tap.lock:self.tap.capture_failures+=1
+                raise
+            return {**self.status(),'neutral_base_host_request_returned':True,
+                    'neutral_base_semantics':'original_drive_zero_host_request_not_attained_velocity'}
 
     def recenter(self, epoch):
         with self.teleop.lock:
@@ -335,7 +349,7 @@ class NativeTeleopMux:
             if any(key not in BASE_ACTIONS for key in actions):
                 raise ValueError('Arm input belongs to the measured leader in this session')
             clean = {key: float(value) for key, value in actions.items()}
-            if not self.chassis_allowed and any(abs(value) > 1e-12 for value in clean.values()):
+            if not self.chassis_permit() and any(abs(value) > 1e-12 for value in clean.values()):
                 raise PermissionError('PHYSICAL_CHASSIS_PROHIBITED_BY_OWNER')
             return self.teleop.update('keyboard', clean, observing, False)
 
@@ -390,7 +404,7 @@ class NativeTeleopMux:
                     'clock_domain':self.tap.clock_domain,'boot_id':self.tap.boot_id,
                     'original_stream_config':deepcopy(getattr(self.arm,'motion_config',{}).get('streaming',{})),
                     'arm_backend': 'existing_factory_ruckig_velocity', 'native_queue_length': 0,
-                    'chassis_motion_allowed': self.chassis_allowed, 'measured_joint_feedback': False}
+                    'chassis_motion_allowed': self.chassis_permit(), 'measured_joint_feedback': False}
 
 
 class RelativeLeaderGeometry:
@@ -401,14 +415,16 @@ class RelativeLeaderGeometry:
     explicit registration dependency; missing registration is UNREGISTERED.
     """
     def __init__(self, source_chain, target_chain, source_mapper, gripper_mapper,
-                 servo_to_radians, radians_to_servo, *, registration=None):
+                 servo_to_radians, radians_to_servo, *, registration=None,source_mapper_uses_full_leader=False):
         self.source, self.target = source_chain, target_chain
         self.source_mapper, self.gripper_mapper = source_mapper, gripper_mapper
         self.to_radians, self.to_servo = servo_to_radians, radians_to_servo
         self.registration, self.anchor = deepcopy(registration), None
+        self.full_source=source_mapper_uses_full_leader
 
     def status(self):
-        valid = (isinstance(self.registration, dict) and self.registration.get('provenance') in ('measured', 'synthetic') and
+        valid = (isinstance(self.registration, dict) and self.registration.get('provenance') in (
+                     'measured','synthetic','calibration_derived_with_observed_taskframe') and
                  isinstance(self.registration.get('sha256'), str) and len(self.registration['sha256']) == 64 and
                  self.registration.get('source_urdf_sha256') == self.source.source_sha256 and
                  self.registration.get('target_urdf_sha256') == self.target.source_sha256 and
@@ -422,7 +438,7 @@ class RelativeLeaderGeometry:
             raise ValueError('Source normalized-to-physical axes/zero/scale and gripper registration missing')
         leader = _vector(measured_leader, 6)
         target = _vector(commanded_target_servo, 6)
-        source_q = _vector(self.source_mapper(leader[:5]), len(self.source.names))
+        source_q = _vector(self.source_mapper(leader if self.full_source else leader[:5]), len(self.source.names))
         target_q = _vector(self.to_radians(target[:5]), len(self.target.names))
         self.anchor = ObjectRegistration(self.source.forward(source_q), self.target.forward(target_q), 'virtual_declared')
         return {'recentered': True, 'target_basis': 'native_command_estimate_not_measured',
@@ -434,7 +450,7 @@ class RelativeLeaderGeometry:
         if not isinstance(original_native_period_s, (int, float)) or not math.isfinite(original_native_period_s) or original_native_period_s <= 0:
             raise ValueError('Original native stream period must be supplied unchanged')
         leader, estimated = _vector(measured_leader, 6), _vector(commanded_target_servo, 6)
-        source_q = _vector(self.source_mapper(leader[:5]), len(self.source.names))
+        source_q = _vector(self.source_mapper(leader if self.full_source else leader[:5]), len(self.source.names))
         target_q = _vector(self.to_radians(estimated[:5]), len(self.target.names))
         result = self.target.inverse(self.anchor.transfer(self.source.forward(source_q)), target_q,
                                       orientation_weight=.03, restarts=0, seed=0)

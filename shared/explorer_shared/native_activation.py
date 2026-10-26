@@ -86,6 +86,9 @@ class ObservedNativeActivation:
         actor=body.get('actor_id')
         if not isinstance(actor,str) or not 0<len(actor)<=128:
             raise ValueError('Bounded explicit operator identity required')
+        input_mode=body.get('input_mode','so101_leader')
+        if input_mode not in ('so101_leader','keyboard','browser_gamepad'):
+            raise ValueError('Explicit supported observed input adapter required')
         if not all(body.get(key) is True for key in ('observing','neutral','space_clear','user_observed_test_confirmed')):
             raise ValueError('Separate explicit current user-observed test confirmation required')
         with self.lock:
@@ -112,8 +115,12 @@ class ObservedNativeActivation:
                     displayed_jpeg_sha256=pending['frame']['jpeg_sha256'],camera_frame=deepcopy({
                         key:value for key,value in pending['frame'].items() if key!='jpeg'}),
                     actor_id=body.get('actor_id'),qualification_scope='observed_session_permission_not_attainment')
+                receipt['input_mode']=input_mode
+                receipt['owner_chassis_test_authorized']=body.get('owner_chassis_test_authorized') is True
                 self.authorization={'authorization_id':receipt['event_id'],'receipt':receipt,
-                    'generation':self.mux.teleop.generation,'native_epoch':None}
+                    'generation':self.mux.teleop.generation,'native_epoch':None,'input_mode':input_mode,
+                    'owner_chassis_test_authorized':body.get('owner_chassis_test_authorized') is True,
+                    'bound_manual_generation':None}
                 self.pending=None;self.revoked_reason=None
         return self.status()
     def bind_epoch(self,epoch,authorization_id):
@@ -127,6 +134,8 @@ class ObservedNativeActivation:
         with self.lock:
             if self.authorization is None or self.authorization['authorization_id']!=authorization_id:
                 raise ValueError('Observed authorization changed')
+            if self.authorization.get('input_mode')!='so101_leader':
+                raise ValueError('Leader mux requires its explicitly observed input adapter')
             self.authorization['transition']=True
         try:
             result=function();self.bind_epoch(result['control_epoch'],authorization_id);return result
@@ -161,10 +170,22 @@ class ObservedNativeActivation:
                        authorization.get('transition') is True and self.mux.state=='CLUTCHED')) and
                    self.mux.teleop.generation==authorization['generation'] and owner=='keyboard')
         else:
-            valid=((not self.mux.active or self.mux.state=='CLUTCHED') and self.mux.teleop.stop_latched and
-                   owner in (None,'keyboard') and self.mux.teleop.generation in (
-                       authorization['generation'],authorization['generation']+1) and
-                   not any(abs(value)>1e-8 for value in self.mux.teleop.inputs.values()))
+            manual=authorization.get('input_mode') in ('keyboard','browser_gamepad')
+            if manual and authorization.get('bound_manual_generation') is not None:
+                valid=(not self.mux.active and owner=='keyboard' and
+                       self.mux.teleop.generation==authorization['bound_manual_generation'] and
+                       (self.mux.teleop.stop_latched or self.mux.clock()<self.mux.teleop.lease))
+            else:
+                valid=((not self.mux.active or self.mux.state=='CLUTCHED') and
+                       (self.mux.teleop.stop_latched or manual) and owner in (None,'keyboard') and
+                       self.mux.teleop.generation in (authorization['generation'],authorization['generation']+1) and
+                       (manual or not any(abs(value)>1e-8 for value in self.mux.teleop.inputs.values())))
+                if manual and not self.mux.teleop.stop_latched:
+                    valid=valid and owner=='keyboard' and self.mux.clock()<self.mux.teleop.lease
+                if valid and manual and owner=='keyboard' and not self.mux.teleop.stop_latched:
+                    with self.lock:
+                        if self.authorization and self.authorization['authorization_id']==authorization['authorization_id']:
+                            self.authorization['bound_manual_generation']=self.mux.teleop.generation
         if not valid:
             self.revoke('NATIVE_OWNER_OR_EPOCH_CHANGED',expected_authorization_id=authorization['authorization_id'])
         with self.lock:
@@ -182,6 +203,11 @@ class ObservedNativeActivation:
             if self.authorization is None or self.authorization['authorization_id']!=authorization_id:
                 return None
             return deepcopy(self.authorization['receipt'])
+    def base_allowed(self):
+        if not self.allowed():return False
+        if not self.mux.teleop.stop_latched and not self.mux.clock()<self.mux.teleop.lease:return False
+        with self.lock:
+            return bool(self.authorization and self.authorization.get('owner_chassis_test_authorized') is True)
     def status(self):
         permitted=self.allowed();native=self.mux.status()
         with self.lock:
@@ -191,5 +217,7 @@ class ObservedNativeActivation:
                     'authorization_receipt':authorization['receipt'] if authorization else None,
                     'revoked_reason':self.revoked_reason,'native_active':native['active'],
                     'native_stop_latched':native['stop_latched'],'control_epoch':native['control_epoch'],
+                    'input_mode':authorization.get('input_mode') if authorization else None,
+                    'chassis_motion_allowed':bool(permitted and authorization and authorization.get('owner_chassis_test_authorized') is True),
                     'events':deepcopy(self.events),'physical_command_count':0,
                     'native_operator_lease_renewed':False,'hardware_success_claimed':False}

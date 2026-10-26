@@ -36,15 +36,17 @@ def fixture(tmp_path):
     mux=NativeTeleopMux(teleop,arm,tap,clock=lambda:tick[0]/1e9);mux.install()
     camera=NativeCachedObservation(tmp_path,'boot',clock=lambda:tick[0])
     gate=ObservedNativeActivation(mux,camera,clock=lambda:tick[0]);mux.observation_permit=gate.allowed;mux.on_invalidate=gate.revoke
+    mux.chassis_permit=gate.base_allowed
     app=FastAPI();mount_native_stream_api(app,mux,token=TOKEN,activation=gate,observed_test_permit=gate.allowed)
     return TestClient(app),gate,mux,teleop,arm,tick,jpeg
 
 
-def authorize(client):
+def authorize(client,**extra):
     headers={'Authorization':'Bearer '+TOKEN}
     challenge=client.get('/api/explorer/retarget/activation/challenge',headers=headers).json()
     body={key:True for key in ('observing','neutral','space_clear','user_observed_test_confirmed')}
     body.update(challenge_id=challenge['challenge_id'],displayed_jpeg_sha256=challenge['frame']['jpeg_sha256'],actor_id='explicit-mock-operator')
+    body.update(extra)
     response=client.post('/api/explorer/retarget/activation/authorize',json=body,headers=headers)
     assert response.status_code==200,response.text
     return response.json(),challenge
@@ -208,3 +210,25 @@ def test_node_binary_proxy_requires_auth_and_returns_only_pinned_typed_frame(tmp
         assert denied.value.code==404 and seen==['a'*32]
     finally:
         server.shutdown();server.server_close();agent.close()
+
+
+@pytest.mark.parametrize('input_mode',['so101_leader','keyboard','browser_gamepad'])
+def test_chassis_remains_default_blocked_and_only_fresh_explicit_observed_grant_opens_existing_drive(tmp_path,input_mode):
+    client,gate,mux,teleop,arm,tick,jpeg=fixture(tmp_path)
+    with client:
+        auth,_=authorize(client,input_mode=input_mode)
+        assert not gate.base_allowed() and gate.status()['chassis_motion_allowed'] is False
+        with pytest.raises(PermissionError):teleop.drive([.1,0.,0.])
+        gate.revoke();auth,_=authorize(client,input_mode=input_mode,owner_chassis_test_authorized=True)
+        if input_mode=='so101_leader':
+            epoch=gate.transition(lambda:mux.begin(observing=True,neutral=True),auth['authorization_id'])['control_epoch']
+            mux.resume(epoch,observing=True)
+        else:
+            teleop.resume('keyboard',True)  # SAME original executor; no leader mux
+            assert not mux.active
+        assert gate.base_allowed()
+        teleop.drive([.1,0.,0.])
+        assert teleop.native_drive==([[0.,0.,0.],[.1,0.,0.]] if input_mode=='so101_leader' else [[.1,0.,0.]])
+        gate.revoke('EXPLICIT_OPERATOR_REVOKE')
+        with pytest.raises(PermissionError):teleop.drive([.1,0.,0.])
+        assert not gate.status()['chassis_motion_allowed']
