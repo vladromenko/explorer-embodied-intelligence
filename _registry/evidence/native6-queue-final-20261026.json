@@ -1,0 +1,21 @@
+{
+  "actual_tests_passed": 2,
+  "archives": {
+    "NATIVE6_QUEUE_FINAL_20261026_ACT_QUALIFICATION.json": "c57612df58806c47de9e6e3ecfd416f48b12a811ea28d61cc541588885125f99",
+    "NATIVE6_QUEUE_FINAL_20261026_DIFFUSION_QUALIFICATION.json": "cbb6c98ee55724895d0688a5ae688002f918b4763b8d7ae281a0992030597ad7",
+    "NATIVE6_QUEUE_FINAL_20261026_PREFLIGHT.json": "f47aec16c13cd598e7ef454759c4bfdf933373ba04fe5fe6edfac36eac410e26",
+    "NATIVE6_QUEUE_FINAL_20261026_RUNTIME.json": "798294222495e98f394b25ba7bb7230c33337dfed6d70d8a9f6b28332427b88b",
+    "NATIVE6_QUEUE_FINAL_20261026_SOURCE_LIBRARY.json": "755ac675377d59fe48a5625056b213b31deaba73982230dac882e64b58567b41"
+  },
+  "backends": [
+    "act",
+    "diffusion"
+  ],
+  "elapsed_pytest_s": 108.89,
+  "physical_success": false,
+  "production_state_writes": false,
+  "public_production_queue_tested": false,
+  "schema": "explorer_official_native6_queue_evidence_index_v1",
+  "scope": "Actual private Supervisor/bootstrap/job_runner CPUprocess checkpoint pause2/newPIDresume6 vs8; synthetic source4 whole-skill cohorts",
+  "source_commit": "8480b618e97c23810c1843f56343fa43d10b3b12"
+}
