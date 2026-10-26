@@ -1,0 +1,32 @@
+# Переносимый Study: V9 SCRIPTED_SIM
+
+Новый read-only слой сохраняет конкретную кампанию `transfer-hover-development-v9-20261026` целиком: четыре заранее объявленные попытки, включая два неуспеха release/settle. Это инженерный development-протокол со стационарным симуляционным основанием и геометрическим teacher. Он не доказывает научную H1, обученную исходную политику, навигацию или физический навык.
+
+`explorer.study_registry.registered_studies()` возвращает публичные ID без серверных путей. `inspect_registered_study(study_id)` строит граф свидетельств; `export_registered_study(study_id, destination)` создаёт CAS-пакет. Destination назначает сервер/worker, пользовательский HTTP-запрос должен содержать только зарегистрированный StudyID. Эти helpers не добавляют маршруты, jobs или записи в Store.
+
+Включены исходные RGB PNG, requested/dispatched 9D, observation и causal renderer receipts, post-step native integration states, result/trace, параметры/seed, scene XML, исходный 6D scripted trace, source-archive/CAD/runtime bytes, source-verification, исходные trial snapshots, frozen protocol/benchmark, все отрицательные результаты. Отдельно сохраняются draft driver/protocol с поправкой **до первой попытки** и последующий forward-only contact analysis. Derived contact analysis явно отделён от исходного захвата сил. Старые абсолютные locator strings остаются неизменными данными; restore разрешает их только в архивированные blob-объекты и не открывает исходные пути.
+
+Все четыре target-эпизода сохраняют `development`, `target_optimizer_allowed=false`. Исторический raw-флаг `optimizer_partition_allowed=true` относится к **source train**, сохраняется байт в байт и не становится разрешением обучаться на target. Номинальная предшествующая 7321 не добавляется в знаменатель четырёх новых испытаний.
+
+При проверке выполняется только точная allowlisted версия `research/benchmark/evaluate.py`, SHA `352c62c3d58207dadb368f9250b5b14195addf12046d533077b9451f1d715f1a`. Она восстанавливает frozen statistical report из сохранённых independent result/phase/terminal receipts и trial rows. Физика, renderer, policy и архивированные Python drivers не исполняются. Это повтор статистического учёта, а не новая проверка контактов или повтор dynamics.
+
+`study_bundle.export_study_bundle` сохраняет каждое логическое имя и неизменные bytes в дедуплицированном CAS. Manifest фиксируется SHA256; `archive_study_bundle` создаёт детерминированный regular-file TAR. `unpack_study_archive` требует ожидаемые SHA архива и manifest, запрещает links/traversal/duplicates и ограничивает число и размер файлов. `restore_study_bundle` восстанавливает новый root и заново проверяет весь граф и frozen benchmark, не исполняя source drivers. Неуспешный export сохраняет частичный каталог без итогового receipt; originals никогда не перемещаются и не удаляются.
+
+Границы: не более 20 000 логических файлов, 1 GiB исходных bytes, 64 MiB на файл, manifest не более 16 MiB. Worker/API должны резервировать место для CAS, TAR, unpack и restore отдельно; здесь нет scheduler или обхода его квот.
+
+## Почему PARTIAL
+
+Пакет может быть целостным и независимо восстановленным, но оригинальная повторяемость остаётся `PARTIAL`:
+
+- Исходный archive прямо ограничен перечисленными Python/CAD/scene/libmujoco bytes. Нет полного OS/system-library inventory, всего NumPy compiled runtime, MuJoCo Python extension и остальных транзитивных зависимостей.
+- Есть scenario seed и post-step native states, но отсутствует полный первоначальный RNG/native reset-state receipt. Нынешняя версия Python и экспортёра фиксируется отдельно и не выдаётся за исходный runtime испытания.
+
+Эти пробелы нельзя закрыть выдуманным receipt или заменой старых файлов текущими библиотеками. Поэтому COMPLETE здесь запрещён даже для самосогласованного поддельного manifest.
+
+## Qualification
+
+`PYTHONPATH=shared:00-control-center/src:01-autonomous-learning/src ~/.local/share/explorer/venv/bin/python scripts/qualify_registered_study.py --output <новый-приватный-каталог>`
+
+Команда читает только зарегистрированные originals, создаёт CAS/TAR, независимо распаковывает и запускает restore в новом PID. До restore child устанавливает Python audit guard, запрещающий открытие каждого исходного study-файла. Затем повторно проверяются SHA всех originals. Сохраняются реализация, runtime экспортёра, исходные SHA и отдельные receipts. Команда не обращается к сети, базе jobs, камерам или роботам. Выходной каталог квалификации не должен находиться в production state.
+
+Unit fixtures синтетические: проверяют отрицательный исход, immutable target partition, порчу исходных RGB/CAD/protocol, отсутствие отрицательного result, дополнительную started attempt, object tamper, ложное COMPLETE/learned/optimizer, TAR traversal/links и restore после переименования всего оригинального дерева в недоступный путь. Это не физические данные.
