@@ -5115,6 +5115,35 @@
         "tests/test_cooperative_receiver_interlock05.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SOURCE-BOUND-CONTACT-DIAGNOSIS-20261027",
+      "function_or_module": "shared/explorer_shared/contact_diagnosis.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Typed repository adapters and evidence scopes"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Read original V9 dynamics bytes without replay; compare positive and negative contact transitions and preregister matched probes. Thin-slab tunnelling remains a hypothesis until new controlled dynamics. No learned or physical success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_contact_diagnosis.py",
+        "tests/test_contact_force_api.py",
+        "research/audits/transfer-v9-saved-contact-diagnosis-20261027.json"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

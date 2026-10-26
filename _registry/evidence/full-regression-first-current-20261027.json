@@ -1,0 +1,53 @@
+{
+  "schema": "explorer_frozen_full_pytest_with_RO_originals_audit_v1",
+  "commit": "d52d13d2d9f24b4c0bae086f639cc823089f2f87",
+  "command": [
+    "/home/jetsonnx/.local/share/explorer/venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--basetemp=/mnt/explorer-data/explorer-work/full-regression-current-20261027-d52d13d2/pytest"
+  ],
+  "exit_code": 1,
+  "elapsed_s": 315.2812318829965,
+  "resources": {
+    "cpu.max": "300000 100000",
+    "memory.max": "5368709120",
+    "memory.current": "1174786048",
+    "memory.peak": "3857747968",
+    "memory.swap.max": "0",
+    "memory.swap.peak": "0",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+  },
+  "scientific_originals": {
+    "jobs": {
+      "original_rows": 24,
+      "current_rows": 24,
+      "all_original_rows_identical": true
+    },
+    "skills": {
+      "original_rows": 11,
+      "current_rows": 11,
+      "all_original_rows_identical": true
+    },
+    "events": {
+      "original_rows": 11892,
+      "current_rows": 11902,
+      "all_original_rows_identical": true
+    }
+  },
+  "production_schema_unchanged": true,
+  "production_active_jobs": 0,
+  "physical_controls_called_by_launcher": 0,
+  "pytest_counts": {
+    "passed": 1401,
+    "skipped": 21,
+    "failed": 7
+  },
+  "failure_scope": {
+    "stale_dated_proof_expectations": 2,
+    "shared_login_budget_between_tests": 5,
+    "fix_targeted_tests_passed": 11,
+    "full_current_repeat_not_yet_run": true
+  }
+}

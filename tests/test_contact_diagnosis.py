@@ -1,6 +1,8 @@
 """Small explicit saved JSON/XML fixtures; no simulator/policy/device imports."""
 from copy import deepcopy
 import json
+import os
+from pathlib import Path
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -141,4 +143,4 @@ def test_source_sha_changed_and_alias_escape_fail_before_parsing(tmp_path):
 
 def test_controlplane_diagnosis_import_is_simulator_and_torch_free():
     script="import sys; import explorer_shared.contact_diagnosis; assert not any(k.split('.')[0] in ('mujoco','torch','numpy','explorer_sim') for k in sys.modules)"
-    subprocess.run([sys.executable,'-c',script],check=True)
+    subprocess.run([sys.executable,'-c',script],check=True,env=dict(os.environ,PYTHONPATH=str(Path(__file__).parents[1]/'shared')))

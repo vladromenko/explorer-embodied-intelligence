@@ -55,16 +55,22 @@ original negative GPU resume и все неудачные object trials сохр
 все веса точно равны R2. Новая DP18 binding проверена реальным selector и
 отказом при изменении Station. Ошибки поиска pytest artifacts сохранены
 отдельно и исправлены без повторного optimizer или подмены math result.
-Новая Supervisor/new-PID process qualification готовится с2 CPU/4GiB/swap0.
+Новая настоящая Supervisor/new-PID qualification завершена:2 tests/112.60s,
+pause2→старый PID завершён→новый PID ещё6, строгая model/optimizer/loss/RNG/
+sampler parity, пик3.33GiB/4GiB, swap0.
+[Receipt](shared/training/NATIVE6_QUEUE_STATION_R3B_20261027_RU.md).
 [Точная область](shared/training/STATION_CPU_20261027_STATION_R3B_RU.md).
 Предыдущие веса/доказательства не заменяются результатами новой версии.
 [Профили](shared/training/PROFILE4_ACTUAL_20261026_RU.md).
 Проверка original Nano factory/startup:6 tests, fake ROS/драйверы,
 [receipt](_registry/evidence/native-current-source-startup-20261027.json).
 
-Полная последняя архивная регрессия826a430:1161 passed,21 skipped,1 failed;
-устаревшая API fixture исправлена и32 targeted passed. Это не утверждение
-полного прохода текущего main. Следующий общий прогон — после source freeze.
+Полная регрессия frozen d52d13d:1401 passed,21 skipped,7 failed за308.28s.
+Два ожидания прежних датированных proofs и общий login budget между API-тестами
+исправлены;11 targeted tests проходят, реальный лимит входа отдельно проверен.
+Полный повтор текущего main ещё нужен. Все24 jobs,11 cards,11892 прежних events
+и production schema после прогона совпали; добавилась только telemetry.
+[Первый новый прогон](_registry/evidence/full-regression-first-current-20261027.json).
 Методологический provenance проверяется автоматически; нет новых Python
 `continue`. Все28 worktrees и сохранённый cooperative stash инвентаризированы,
 прежние агенты продолжили работу; исходники не удалялись и не сбрасывались.
