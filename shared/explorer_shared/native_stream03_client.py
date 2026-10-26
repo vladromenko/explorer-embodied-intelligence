@@ -22,8 +22,11 @@ class NativeStreamClient:
         self.prefix='/legacy/explorer/retarget/'
 
     def _request(self, operation, body=None, *, preserve_source_bytes=False):
+        return self._send(self.prefix+operation,body,preserve_source_bytes=preserve_source_bytes)
+
+    def _send(self,path,body=None,*,preserve_source_bytes=False):
         content = json.dumps(body,allow_nan=False).encode() if body is not None else None
-        request = Request(self.origin+self.prefix+operation,data=content,
+        request = Request(self.origin+path,data=content,
                           headers={'Authorization':'Bearer '+self.token,'Content-Type':'application/json',
                                    'Origin':self.origin})
         try:
@@ -73,6 +76,21 @@ class NativeStreamClient:
     def stop(self, epoch):
         return self._request('stop',{'control_epoch':epoch})
 
+    def select_keyboard(self,*,observing,neutral):
+        return self._send('/legacy/teleop/select',{'source':'keyboard','observing':observing,'neutral':neutral})
+
+    def capture_status(self):
+        return self._send('/native-capture/status')
+
+    def capture_start(self,skill_context):
+        return self._send('/native-capture/record/start',{'skill_context':skill_context})
+
+    def capture_stage(self,recording_id,phase_id,**metadata):
+        return self._send('/native-capture/record/stage',{'recording_id':recording_id,'phase_id':phase_id,**metadata})
+
+    def capture_finish(self,recording_id,outcome_evidence=None):
+        return self._send('/native-capture/record/finish',{'recording_id':recording_id,'outcome_evidence':outcome_evidence})
+
 
 class OriginalNativeStreamReader(NativeStreamClient):
     """Read-only local consumer; cannot invoke any inherited control mutation."""
@@ -86,3 +104,11 @@ class OriginalNativeStreamReader(NativeStreamClient):
                                     re.fullmatch(r'dispatch\?after_sequence=[0-9]{1,19}',operation)):
             raise PermissionError('Native capture source is GET-only')
         return super()._request(operation,None,**kwargs)
+
+    def _send(self,path,body=None,**kwargs):
+        operation=path.removeprefix('/api/explorer/retarget/')
+        if (not path.startswith('/api/explorer/retarget/') or body is not None or
+                not (operation in ('status','reference') or
+                     re.fullmatch(r'dispatch\?after_sequence=[0-9]{1,19}',operation))):
+            raise PermissionError('Native capture source is GET-only')
+        return super()._send(path,None,**kwargs)

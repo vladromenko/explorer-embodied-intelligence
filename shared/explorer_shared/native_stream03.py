@@ -262,6 +262,7 @@ class NativeTeleopMux:
         with self.teleop.lock:
             self._check(epoch)
             self.intent_revision+=1
+            self.epoch=uuid.uuid4().hex
             self.latest, self.intent_deadline, self.state = [0.] * 6, self.teleop.lease, 'CLUTCHED'
             return self.status()
 
@@ -363,6 +364,9 @@ class NativeTeleopMux:
                     'control_epoch': self.epoch, 'native_generation': self.generation,
                     'latest_source_sequence': self.sequence, 'out_of_order_dropped': self.dropped,
                     'native_owner': self.teleop.owner, 'native_lease_remaining_s': max(0., self.teleop.lease-self.clock()),
+                    'stop_latched':self.teleop.stop_latched,
+                    'clock_domain':self.tap.clock_domain,'boot_id':self.tap.boot_id,
+                    'original_stream_config':deepcopy(getattr(self.arm,'motion_config',{}).get('streaming',{})),
                     'arm_backend': 'existing_factory_ruckig_velocity', 'native_queue_length': 0,
                     'chassis_motion_allowed': self.chassis_allowed, 'measured_joint_feedback': False}
 

@@ -524,21 +524,14 @@ class NodeAgent:
             self.lab_vision=LabVisionService(self.sources['pi-overview'],self.observer,
                 clock_domain=self.delivery.clock_domain,boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip(),
                 config_path=Path.home()/'.config/explorer/lab-vision.json',emit=self.delivery.emit)
-        from .retarget_service import registered_geometry, PiRetargetService, nano_gateway
+        from .retarget_service import registered_geometry, nano_gateway
         retarget_config_dir = Path(retarget_config_dir or Path.home()/'.config/explorer')
-        geometry = registered_geometry(retarget_config_dir)
         if mode == 'nano':
+            geometry = registered_geometry(retarget_config_dir)
             self.arm_retarget = nano_gateway(geometry, self.legacy_bridge)
         else:
-            try:
-                self.arm_retarget = PiRetargetService.from_config(
-                    geometry, self.station, self.sources.get('pi-overview'), self.state_dir, retarget_config_dir)
-            except (OSError, ValueError, TypeError, KeyError) as error:
-                self.arm_retarget = PiRetargetService(geometry, self.station, self.sources.get('pi-overview'), self.state_dir)
-                self.arm_retarget.error = 'Private direct-arm peer configuration is invalid: '+type(error).__name__
-            from .retarget_recording import RetargetRecorder
-            self.arm_retarget.recorder = RetargetRecorder(self.state_dir/'retarget-recordings',self.sources.get('pi-overview'),
-                self.delivery.emit,clock_domain=self.delivery.clock_domain,target_camera=self.arm_retarget.target_camera)
+            from .pi_native_retarget import PiNativeRetargetService
+            self.arm_retarget=PiNativeRetargetService.from_config(self.station,self.state_dir,retarget_config_dir)
 
     def start(self):
         for source in self.sources.values():

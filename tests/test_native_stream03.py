@@ -105,7 +105,7 @@ def test_old_leader_is_neutralized_despite_continuing_keyboard_lease_and_never_a
     assert mux.status()['state'] == 'SOURCE_EXPIRED_RECENTER_REQUIRED'
     with pytest.raises(ValueError):
         mux.leader_intent(epoch,2,[3.]*6,evidence())
-    mux.recenter(epoch); mux.resume(epoch,observing=True)
+    epoch=mux.recenter(epoch)['control_epoch']; mux.resume(epoch,observing=True)
     mux.leader_intent(epoch,2,[1.]*6,evidence())
     assert mux.status()['state'] == 'ACTIVE'
 
@@ -115,7 +115,7 @@ def test_old_nonzero_permit_is_revoked_immediately_by_clutch_and_cannot_revive_a
     mux.resume(epoch,observing=True);mux.leader_intent(epoch,1,[2.]*6,evidence())
     teleop._update_arm_stream_locked({},False);old_permit=arm.calls[-1]['permit']
     assert old_permit()
-    mux.recenter(epoch)
+    epoch=mux.recenter(epoch)['control_epoch']
     assert not old_permit()  # no next native tick required
     mux.resume(epoch,observing=True)
     assert not old_permit()  # same native generation must not resurrect it
@@ -129,8 +129,21 @@ def test_old_nonzero_permit_expires_before_tick_even_if_keyboard_renews_native_l
     assert not old_permit()
     with pytest.raises(ValueError,match='explicit recenter'):
         mux.leader_intent(epoch,2,[2.]*6,evidence())
-    mux.recenter(epoch);mux.resume(epoch,observing=True)
+    epoch=mux.recenter(epoch)['control_epoch'];mux.resume(epoch,observing=True)
     assert not old_permit()
+
+
+def test_late_preclutch_http_intent_is_rejected_after_resume_in_new_epoch():
+    mux,teleop,arm,_,old_epoch,_=setup_mux()
+    mux.resume(old_epoch,observing=True);mux.leader_intent(old_epoch,1,[1.]*6,evidence())
+    new_epoch=mux.recenter(old_epoch)['control_epoch']
+    assert new_epoch!=old_epoch
+    mux.resume(new_epoch,observing=True)
+    with pytest.raises(ValueError,match='Old, stopped'):
+        mux.leader_intent(old_epoch,2,[9.]*6,evidence())
+    mux.leader_intent(new_epoch,2,[0.]*6,evidence())
+    teleop._update_arm_stream_locked({},False)
+    assert arm.calls[-1]['joints']==[0.]*6
 
 
 def test_global_stop_preemption_and_old_generations_cannot_restart_mirror():

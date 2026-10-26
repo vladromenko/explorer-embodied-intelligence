@@ -31,6 +31,12 @@ def mount_native_stream_api(app, mux, *, token, observed_test_permit=lambda:Fals
         except (ValueError, RuntimeError, KeyError, TypeError) as error:
             raise HTTPException(409, str(error)) from error
 
+    def estimate():
+        value=operation(reference_reader or mux.arm.status)
+        return {**value,'boot_id':value.get('boot_id',mux.tap.boot_id),
+                'clock_domain':mux.tap.clock_domain,'state_source':'command_estimate',
+                'measured':False,'attainment_measured':False}
+
     @app.get('/api/explorer/retarget/status')
     def status(request:Request):
         authenticate(request)
@@ -49,7 +55,7 @@ def mount_native_stream_api(app, mux, *, token, observed_test_permit=lambda:Fals
     def reference(request:Request):
         authenticate(request)
         # Existing factory command estimate only; no feedback/readback call.
-        return operation(reference_reader or mux.arm.status)
+        return estimate()
 
     @app.post('/api/explorer/retarget/begin')
     def begin(request:Request, body:dict):
@@ -69,8 +75,13 @@ def mount_native_stream_api(app, mux, *, token, observed_test_permit=lambda:Fals
     @app.post('/api/explorer/retarget/input')
     def leader_input(request:Request, body:dict):
         allowed(request)
-        return operation(mux.leader_intent, body.get('control_epoch'), body.get('source_sequence'),
+        result=operation(mux.leader_intent, body.get('control_epoch'), body.get('source_sequence'),
                          body.get('joint_velocity_deg_s'), body.get('source_evidence'))
+        try:
+            result['command_estimate']=estimate()
+        except HTTPException:
+            result['command_estimate_unavailable']=True
+        return result
 
     @app.post('/api/explorer/retarget/base')
     def keyboard_base(request:Request, body:dict):
