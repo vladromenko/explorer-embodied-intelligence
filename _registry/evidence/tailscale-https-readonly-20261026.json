@@ -1,0 +1,42 @@
+{
+  "scope": "actual TLS authenticated read-only UI and camera; logout only mutation; no hardware POST",
+  "url": "https://homebrain.tail4a7de4.ts.net",
+  "login_status": 200,
+  "requests": [
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 81
+    },
+    {
+      "path": "/experiments/02",
+      "status": 200,
+      "bytes": 4426
+    },
+    {
+      "path": "/api/state",
+      "status": 200,
+      "bytes": 362439,
+      "constraints": null
+    },
+    {
+      "path": "/api/robot/teleop/controls",
+      "status": 200,
+      "bytes": 2489
+    },
+    {
+      "path": "/api/robot/teaching/mobile",
+      "status": 200,
+      "bytes": 6562
+    },
+    {
+      "path": "/api/cameras/nano-rgbd/snapshot",
+      "status": 200,
+      "bytes": 28865,
+      "content_type": "image/jpeg",
+      "frame_id": "nano-rgbd:a977637518df:41178",
+      "clock_domain": null
+    }
+  ],
+  "same_origin_csrf_logout_status": 200
+}

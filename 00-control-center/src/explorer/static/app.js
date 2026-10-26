@@ -225,8 +225,8 @@ function syncCamera() {
 }
 
 function filterManualKeysForCurrentOwnerConstraints(keys) {
-  const prohibited = model.state?.constraints?.chassis_motion === "PROHIBITED_BY_OWNER";
-  return prohibited ? keys.filter(key => !["KeyW", "KeyS", "KeyA", "KeyD", "KeyQ", "KeyE"].includes(key)) : keys;
+  // The current owner's explicit ban applies even before the first state reply.
+  return keys.filter(key => !["KeyW", "KeyS", "KeyA", "KeyD", "KeyQ", "KeyE"].includes(key));
 }
 function rosmasterCameraReady() {
   return activeProject()?.id === "02" && currentCamera === "nano-rgbd" && !document.hidden && manualPreview.ready();
@@ -258,7 +258,7 @@ const browserGamepad = ExplorerBrowserGamepad.install({
   controls: async () => { await loadRobot(); return model.robot.controls; }, nativeState: () => model.robot.teleop || {},
   beforeConnect: async () => { await stopKeyboard(true); await waitManualIdle(keyboard); if (keyboard.stopUnconfirmed) throw new Error("STOP клавиатуры не подтверждён."); },
   filterKeys: filterManualKeysForCurrentOwnerConstraints,
-  chassisProhibited: () => model.state?.constraints?.chassis_motion === "PROHIBITED_BY_OWNER",
+  chassisProhibited: () => true,
   render: () => { model.forceRender = true; render(); }, error: message => toast(message, true)
 });
 keyboard.options = {

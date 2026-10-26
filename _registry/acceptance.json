@@ -34,7 +34,7 @@
       "id": "training",
       "title": "Forward/backward, processors, checkpoint/reload/resume",
       "status": "VERIFIED_WITHIN_SCOPE",
-      "evidence": "Official CPU/GPU ACT and durable optimizer resume; real64step objectACT with independent0/2 trials; longer1000step job running"
+      "evidence": "Official CPU/GPU ACT and durable optimizer resume; completed1000update objectACT: grasp3/3 but lift/carry/full0/3; GPU qualification only within pinned graph"
     },
     {
       "id": "full01",
@@ -77,6 +77,13 @@
       "title": "Backup/restore, source pin и восстановление после отказов",
       "status": "PARTIAL",
       "evidence": "Verified payload restore; actual isolated scheduler/outbox crashes and64MiBcgroupOOM; full device reboot/physicalWiFi/production learnerOOM acceptance remains open"
+    },
+    {
+      "id": "external_storage",
+      "title": "Samsung T5, сохранённые пути и проверенный перенос",
+      "status": "VERIFIED_WITHIN_SCOPE",
+      "evidence": "Explicitly authorized exact-serial T5 ext4;2437entries/4.18GB SHA matches;SQLite integrity+counts match;services resumed6.72s;0jobs/recordings interrupted;NVMe rollback retained;full reboot not tested",
+      "receipt": "_registry/evidence/storage-t5-cutover-20261026.json"
     }
   ],
   "constraints": {

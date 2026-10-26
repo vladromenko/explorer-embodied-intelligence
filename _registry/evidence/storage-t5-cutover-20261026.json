@@ -1,0 +1,44 @@
+{
+  "migrated": true,
+  "prepared_disk_uuid": "b9a62cc2-2d20-48e3-be98-49749df92c53",
+  "serial": "S46UNS0T106934W",
+  "data_path_preserved": "/home/jetsonnx/.local/share/explorer/state",
+  "resolved_data_path": "/mnt/explorer-data/explorer-state",
+  "nvme_rollback_copy": "/home/jetsonnx/.local/share/explorer/state.nvme-backup-20261026-140807",
+  "file_entries_verified": 2437,
+  "bytes_verified": 4178596343,
+  "all_regular_files_sha256_match": true,
+  "inventory_sha256": "b90b357ad4385aad13dab78e84eff251398a290843ab13c371ecd12bc2519797",
+  "sqlite_before": {
+    "integrity": "ok",
+    "counts": {
+      "jobs": 24,
+      "events": 6115,
+      "skills": 11,
+      "nodes": 2,
+      "sessions": 34
+    }
+  },
+  "sqlite_after": {
+    "integrity": "ok",
+    "counts": {
+      "jobs": 24,
+      "events": 6115,
+      "skills": 11,
+      "nodes": 2,
+      "sessions": 34
+    }
+  },
+  "managed_services": {
+    "explorer-control-center": "active",
+    "explorer-worker": "active"
+  },
+  "service_interruption_seconds": 6.72208282599604,
+  "active_jobs_interrupted": 0,
+  "native_recordings_interrupted": 0,
+  "controller_services_restarted": false,
+  "controller_configuration_written": false,
+  "system_root": "/dev/nvme0n1p1",
+  "free_ssd_bytes": 979147075584,
+  "old_source_retained": true
+}

@@ -2272,6 +2272,37 @@
         }
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-MOBILE-DATASET-EVIDENCE-001",
+      "function_or_module": "00-control-center/src/explorer/mobile_dataset_evidence.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:01-autonomous-learning/src/explorer_sim/mobile_observation_adapter.py",
+          "role": "Existing causal native label reader; no invented missing channels"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_ROBOT_RECORDINGS",
+      "changes_and_reason": "Read-only retained-byte verification of RGB, simultaneous action9, clocks and source provenance; legacy technical admission is distinct from whole mobile-skill admission.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest tests/test_mobile_dataset_evidence.py -q",
+          "result": "6 passed in isolated source agent; root integrated rerun pending",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
