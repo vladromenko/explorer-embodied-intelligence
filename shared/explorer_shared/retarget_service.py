@@ -23,7 +23,7 @@ def registered_geometry(config_dir, root=None):
     root = Path(root or Path(__file__).resolve().parents[2])
     profile = Path(config_dir) / 'arm-retarget-registration.json'
     try:
-        return ArmOnlyGeometry(root/'04-cross-embodiment-transfer/configs/so101/so101_leader_new_calib.urdf',
+        return ArmOnlyGeometry(root/'shared/robotics/so101/so101_leader_new_calib.urdf',
             root/'01-autonomous-learning/src/legacy/config/explorer.urdf', profile)
     except (OSError, ValueError, TypeError, KeyError) as error:
         error_type = type(error).__name__

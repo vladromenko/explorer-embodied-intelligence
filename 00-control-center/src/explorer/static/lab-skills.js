@@ -1,7 +1,8 @@
 "use strict";
-// ENGINEERING_GLUE: Experiment06 metadata, original-file review and offline jobs.
+// ENGINEERING_GLUE: SO101 source metadata, original-file review and offline jobs.
 // No station/control/recording/device endpoint is reachable from this module.
 (function (surface) {
+  const sourceProject = typeof SO101_SOURCE_PROJECT !== "undefined" ? SO101_SOURCE_PROJECT : (typeof module !== "undefined" && module.exports ? require("./experiment-registry.js").SO101_SOURCE_PROJECT : null);
   const base = "/api/lab/skills";
   const array = value => Array.isArray(value) ? value : [];
   const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
@@ -63,7 +64,7 @@
     const client = {
       snapshot, refresh, select,
       propose: body => mutation(base, body, result => {
-        if (result.spec?.owner_experiment === "06") { data.selected = result.spec.skill_id; data.version = result.spec.version; data.state = null; }
+        if (result.spec?.owner_experiment === sourceProject) { data.selected = result.spec.skill_id; data.version = result.spec.version; data.state = null; }
         else data.notice = `Предложение относится к эксперименту ${result.spec?.owner_experiment || "—"}; обучение SO101 здесь не запускается.`;
       }),
       revise: patch => act("revision", { patch, spec_sha256: data.state?.spec_sha256 }, result => { data.version = result.spec.version; data.state = null; }),
@@ -116,7 +117,7 @@
       const training = `<details open><summary>Набор данных и офлайн-обучение</summary><div class="teleop-actions">${[["demos", "Данные"], ["trained", "Модель"], ["shadow", "Shadow"], ["physical", "Наблюдаемый физический тест"]].map(([key, label]) => `<span class="badge ${ready[key]?.ready ? "good" : "warn"}">${label}: ${ready[key]?.ready ? "проверено" : "не подтверждено"}</span>`).join("")}</div><p class="form-hint">Операторский успех относится к показу. Offline chunk error не подтверждает успешное исполнение модели. Новая модель не двигает руки автоматически.</p><button type="button" class="button secondary" data-lab-action="aggregate" ${busy || !state.data_ready ? "disabled" : ""}>Собрать все принятые исходные показы</button><form data-lab-form="train"><label>Шагов ACT на CPU<input name="act_steps" type="number" min="1" max="20000" step="1" value="120" required></label><button class="button primary" ${busy || !state.train_ready ? "disabled" : ""}>Поставить офлайн-обучение в очередь</button></form>${array(state.training_jobs).map(job => `<p>Обучение ${esc(job.id)} · ${esc(job.status)} · ${esc(job.result?.phase || job.result?.status || "")}</p>`).join("")}</details>`;
       body = editor + coverage + teaching + bindings + training;
     }
-    return `<section class="panel lab-skills-panel"><div class="panel-heading"><div><p class="eyebrow">06 / Показ → обучение → отдельная проверка</p><h2>Навык двух рук SO101</h2></div><button type="button" class="quiet-button text-link" data-lab-action="refresh">Обновить</button></div><div class="panel-body">${data.error ? `<p class="form-error" role="alert">${esc(data.error)}</p>` : ""}${data.notice ? `<p role="status">${esc(data.notice)}</p>` : ""}<label>Навык и версия<select data-lab-selection ${busy}><option value="">Новый навык</option>${array(data.skills).map(row => option(`${row.spec.skill_id}:${row.spec.version}`, `${row.spec.title} · v${row.spec.version}`, row.spec.skill_id === data.selected && row.spec.version === data.version)).join("")}</select></label>${creation}${body}${!spec && data.loading ? '<p role="status">Получаем данные навыка…</p>' : ""}</div></section>`;
+    return `<section class="panel lab-skills-panel"><div class="panel-heading"><div><p class="eyebrow">SO101 / Показ → обучение → отдельная проверка</p><h2>Навык двух рук SO101</h2></div><button type="button" class="quiet-button text-link" data-lab-action="refresh">Обновить</button></div><div class="panel-body">${data.error ? `<p class="form-error" role="alert">${esc(data.error)}</p>` : ""}${data.notice ? `<p role="status">${esc(data.notice)}</p>` : ""}<label>Навык и версия<select data-lab-selection ${busy}><option value="">Новый навык</option>${array(data.skills).map(row => option(`${row.spec.skill_id}:${row.spec.version}`, `${row.spec.title} · v${row.spec.version}`, row.spec.skill_id === data.selected && row.spec.version === data.version)).join("")}</select></label>${creation}${body}${!spec && data.loading ? '<p role="status">Получаем данные навыка…</p>' : ""}</div></section>`;
   }
   function installLabSkillsHandlers(root, client, options = {}) {
     const fail = error => { if (options.onError) options.onError(error); };

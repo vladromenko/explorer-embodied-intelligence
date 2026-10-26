@@ -1,8 +1,9 @@
-"""ENGINEERING_GLUE: Experiment06 calibrated geometry and deterministic grasp PREVIEW only.
+"""ENGINEERING_GLUE: SO101 source learning calibrated geometry and deterministic grasp PREVIEW only.
 
 No camera/device/network/servo owner lives here. Inputs are immutable source
 artifacts and cached-frame evidence. RGB/VLM semantics never supply depth.
 """
+from .experiments import experiment_identity
 from copy import deepcopy
 from dataclasses import dataclass
 import hashlib
@@ -318,7 +319,7 @@ def ground_selection(calibration, frame, selection, *, now_ns, clock_domain, boo
             raise ValueError('Depth is not time/clock/boot/pixel aligned to this exact RGB frame')
         depth_value = depth.at(selection['pixel'])
     geometry = calibration.ground(selection['pixel'], purpose=selection['purpose'], depth=depth_value)
-    return {'schema': 'explorer_tabletop_grounding_v1', 'project_id': '06',
+    return {'schema': 'explorer_tabletop_grounding_v1', **experiment_identity('so101_source_learning'),
             'selection': deepcopy(selection), 'geometry': geometry, 'physical_execution_allowed': False}
 
 
@@ -397,7 +398,7 @@ def preview_grasp(chain, initial_positions, grounding, *, tool_rotation_base, ap
                       'collision_receipts': collision_receipts, 'hold_s': hold_s if name == 'hold' else None})
         if result.reached:
             q, current_aperture = result.positions, aperture
-    return {'schema': 'explorer_tabletop_grasp_preview_v1', 'project_id': '06',
+    return {'schema': 'explorer_tabletop_grasp_preview_v1', **experiment_identity('so101_source_learning'),
             'method_id': 'CALIBRATED_GEOMETRIC_GRASP_BASELINE', 'steps': steps,
             'chain_names': list(chain.names), 'urdf_sha256': chain.source_sha256,
             'calibration_sha256': geometry.get('calibration_sha256'),

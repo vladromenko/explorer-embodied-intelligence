@@ -47,7 +47,7 @@ document.addEventListener("click", async (event) => {
     kind === "manipulation_curriculum" ? { task: workflow.task } : kind === "manipulation_benchmark" ? { task: workflow.task, benchmark_steps: 50 } : kind === "mobile_manipulation" ? { carry_profile: "lower_downward_v2", evaluation_episodes: 1 } : {};
   button.disabled = true;
   try {
-    const job = await post("/api/jobs", { kind, project_id: (kind.startsWith("manipulation") || kind === "fault_repair" || kind === "mobile_manipulation") ? "01" : kind === "policy_transfer" ? "04" : "05", config });
+    const job = await post("/api/jobs", { kind, project_id: (kind.startsWith("manipulation") || kind === "fault_repair" || kind === "mobile_manipulation") ? "01" : kind === "policy_transfer" ? TRANSFER_PROJECT : "05", config });
     model.jobs = [job, ...model.jobs.filter((entry) => entry.id !== job.id)];
     toast("Задание поставлено в очередь Homebrain."); await refresh(true);
   } catch (error) { toast(error.message, true); }

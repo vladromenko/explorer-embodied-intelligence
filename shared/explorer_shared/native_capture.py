@@ -365,8 +365,10 @@ class NativeCaptureWriter:
                    'output_names':list(ACTION_NAMES),'usage':'declared_plan'},
                'input_adapter':adapter}
         facts['split']['episode_id']=self.active
+        from .experiments import experiment_identity,experiment_slug
+        facts.update(experiment_identity(experiment_slug(context.get('project_id'),numbering_version=2)))
         facts['identity']={key:deepcopy(facts[key]) for key in
-            ('episode_id','run_id','project_id','source_kind','skill','episode_scope','action_contract')}
+            ('episode_id','run_id','project_id','experiment_numbering_version','experiment_slug','source_kind','skill','episode_scope','action_contract')}
         events=deepcopy(self.phase_events)
         self._save('sources/phase-events.json',_bytes(events))
         for index,sample in enumerate(self.samples):

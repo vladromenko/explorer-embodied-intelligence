@@ -1,4 +1,6 @@
 id = "04"
+project_id = "04"
+experiment_numbering_version = 2
 slug = "so101_source_learning"
 name = "SO101 source learning"
 kind = "experiment_recipe"

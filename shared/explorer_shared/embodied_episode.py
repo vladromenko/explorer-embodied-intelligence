@@ -4,6 +4,7 @@ This module reads supplied bytes, never devices or paths. Admission verifies a
 declared dataset contract; it is not hardware qualification or a success claim.
 """
 from copy import deepcopy
+from .experiments import canonical_experiment,experiment_id,experiment_slug
 from dataclasses import dataclass
 import hashlib
 import json
@@ -334,8 +335,13 @@ def canonicalize_episode(source_envelope, source_payloads=None):
         missing.append('action_contract.simultaneous_9d')
     identity = _mapping(envelope.get('identity'))
     identity_fields = ('episode_id', 'run_id', 'project_id', 'source_kind', 'skill', 'episode_scope', 'action_contract')
+    numbering_version=envelope.get('experiment_numbering_version',1)
+    try:canonical_project=canonical_experiment(envelope.get('project_id'),numbering_version=numbering_version)
+    except ValueError:canonical_project=None
+    identity_fields+=tuple(name for name in ('experiment_numbering_version','experiment_slug') if name in envelope)
+    target_projects={experiment_id(slug) for slug in ('rosmaster_keyboard_learning','rosmaster_leader_learning','cross_embodiment_transfer')}
     identity_okay = (all(identity.get(key) == envelope.get(key) for key in identity_fields) and
-                     envelope.get('project_id') in ('02', '03', '04') and envelope.get('source_kind') in ('physical', 'simulation') and
+                     canonical_project in target_projects and (envelope.get('experiment_slug') is None or envelope['experiment_slug']==experiment_slug(canonical_project,numbering_version=2)) and envelope.get('source_kind') in ('physical', 'simulation') and
                      evidence.record(identity, 'identity'))
     if not identity_okay:
         missing.append('identity.source_bound_episode_skill_action_contract')
@@ -604,6 +610,8 @@ def canonicalize_episode(source_envelope, source_payloads=None):
         'scene_split_verified': bool(split_okay),
         'cross_episode_split_checked': False,
         'source_kind': envelope.get('source_kind') if identity_okay else None,
+        'experiment_identity':dict(canonical_project_id=canonical_project,original_project_id=envelope.get('project_id'),original_numbering_version=numbering_version,
+            experiment_slug=experiment_slug(canonical_project,numbering_version=2) if canonical_project else None,raw_source_identity_rewritten=False),
         'completed_recording': bool(completed), 'source_quality_usable': bool(quality),
         'operator_outcome': operator_outcome, 'operator_success': operator_outcome == 'success',
         'session_id': skill.get('session_id'), 'scene_id': split.get('scene_id'),

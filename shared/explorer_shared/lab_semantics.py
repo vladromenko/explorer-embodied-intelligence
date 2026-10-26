@@ -1,8 +1,9 @@
-"""ENGINEERING_GLUE: Event-driven Experiment06 semantics from frozen single-owner camera cache.
+"""ENGINEERING_GLUE: Event-driven SO101 source learning semantics from frozen single-owner camera cache.
 
 Importing this module opens no hardware. A started worker explicitly leases CV's
 released accelerator slot; it has no actuator transport or geometry output API.
 """
+from .experiments import experiment_identity
 from contextlib import ExitStack
 from copy import deepcopy
 import hashlib
@@ -120,7 +121,7 @@ class EventSemanticWorker:
         self.condition = threading.Condition()
         self.pending, self.thread, self.stopping = None, None, False
         self.next_id, self.epoch = 0, 0
-        self.state = {'schema': 'explorer_lab_semantic_worker_v1', 'project_id': '06',
+        self.state = {'schema': 'explorer_lab_semantic_worker_v1', **experiment_identity('so101_source_learning'),
                       'state': 'NOT_STARTED', 'physical_actions_emitted': False}
         self.receipts = []
 
@@ -128,7 +129,7 @@ class EventSemanticWorker:
         with self.condition:
             if self.thread is not None or self.stopping:
                 raise RuntimeError('Worker cannot be started twice or resumed after close')
-            self.thread = threading.Thread(target=self._work, name='lab06-semantic-event', daemon=True)
+            self.thread = threading.Thread(target=self._work, name='so101-source-semantic-event', daemon=True)
             self.thread.start()
 
     def submit(self, frame, selection, prompt):

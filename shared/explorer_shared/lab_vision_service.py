@@ -1,9 +1,10 @@
-"""ENGINEERING_GLUE: non-actuating Experiment06 cached vision and semantic API.
+"""ENGINEERING_GLUE: non-actuating SO101 source learning cached vision and semantic API.
 
 The existing observer owns camera and accelerator. This service freezes exact
 cached frame/mask pairs, validates measured calibration and requests semantic
 events. It contains no actuator, serial, publisher or robot executor interface.
 """
+from .experiments import experiment_id,experiment_identity
 from collections import OrderedDict
 from copy import deepcopy
 import json
@@ -47,7 +48,7 @@ class LabVisionService:
         if observer is not None and self.backend_factory is not None:
             self.worker=EventSemanticWorker(observer,self.backend_factory,clock_domain=clock_domain,
                 boot_id=boot_id,max_frame_age_ns=120_000_000_000,monotonic_ns=clock,
-                emit=lambda event:self.emit(dict(event,kind='lab06.semantic_result')))
+                emit=lambda event:self.emit(dict(event,kind='so101_source.semantic_result',**experiment_identity('so101_source_learning'))))
 
     def _load_calibration(self,path):
         if path.stat().st_size>2*1024**2:raise ValueError('Calibration metadata is too large')
@@ -105,7 +106,7 @@ class LabVisionService:
                 valid=True;reason=None
             except ValueError as error:reason=str(error)
         with self.lock:selections=list(deepcopy(self.selections).values())
-        return dict(schema='explorer_lab06_vision_status_v1',project_id='06',camera=self.source.metadata(),
+        return dict(schema='explorer_so101_vision_status_v2',**experiment_identity('so101_source_learning'),camera=self.source.metadata(),
             perception=cv,segmentation_available=cv.get('available') is True and cv.get('model',{}).get('task')=='instance_segmentation',
             vlm=dict(model_staged=self.model_staged,worker=semantic,
                 inference_qualified=any(row.get('outcome')=='SEMANTIC_RESULT' for row in semantic.get('receipts',[]))),
@@ -148,7 +149,7 @@ class LabVisionService:
             self.selection_frames[selected['selection_id']]=frame
             while len(self.selections)>32 or sum(len(value.jpeg) for value in self.selection_frames.values())>32*1024**2:
                 removed,_=self.selections.popitem(last=False);self.selection_frames.pop(removed,None)
-        self.emit(dict(kind='lab06.selection',selection=deepcopy(selected)))
+        self.emit(dict(kind='so101_source.selection',selection=deepcopy(selected),**experiment_identity('so101_source_learning')))
         return deepcopy(selected)
 
     def semantic(self,body):

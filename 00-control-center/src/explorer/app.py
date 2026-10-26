@@ -1,4 +1,7 @@
 """ENGINEERING_GLUE: authenticated local Explorer control and evidence API."""
+from explorer_shared.experiments import experiment_id
+_TRANSFER_PROJECT=experiment_id('cross_embodiment_transfer')
+_SO101_SOURCE_PROJECT=experiment_id('so101_source_learning')
 import asyncio
 import csv
 import hashlib
@@ -20,6 +23,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import ROOT, load
 from .store import Store
+from .experiment_projection import project_document
 from .skill_workflow import WorkflowBlocked as SkillWorkflowBlocked
 
 CONFIG = load()
@@ -161,13 +165,27 @@ def logout(request: Request):
     return response
 
 
-PROJECT_REGISTRY = json.loads((ROOT/'_registry/projects.json').read_text())
+from explorer_shared.experiments import registry_document,experiment_directory
+PROJECT_REGISTRY = registry_document()
 TITLES = {row['id']:row['title'] for row in PROJECT_REGISTRY['projects']}
 
 
 def canonical_project(value):
     """Compatibility view only: retained source metadata and hashes never change."""
-    return '06' if value == 'personal' else value
+    return _SO101_SOURCE_PROJECT if value == 'personal' else value
+
+
+def public_job(job):
+    """Display metadata only; worker inputs and stored scientific bytes stay raw."""
+    if job is None:return None
+    result=dict(job)
+    for key in ('config','result'):
+        original=job.get(key)
+        result[key]=project_document(original,numbering_version=job.get('original_numbering_version',1))
+        if result[key]!=original:
+            from explorer_shared.contracts import digest
+            result['original_'+key+'_sha256']=digest(original)
+    return result
 
 
 @app.get('/api/projects')
@@ -222,7 +240,8 @@ def node_states():
     observed = STORE.nodes()
     nodes = []
     for config in CONFIG['nodes']:
-        item = dict(observed.get(config['id'], {}))
+        raw=observed.get(config['id'], {})
+        item = project_document(raw,numbering_version=raw.get('experiment_numbering_version',1))
         item.update(id=config['id'], name=config['name'], host=config['host'])
         item['online'] = time.time() - item.get('last_seen', 0) < 20
         item.setdefault('health', 'online' if item['online'] else 'offline')
@@ -238,7 +257,7 @@ def node_states():
 
 @app.get('/api/state')
 def state():
-    jobs = STORE.jobs()
+    jobs = [public_job(job) for job in STORE.jobs()]
     experiments = []
     for project_id, title in TITLES.items():
         project_jobs = [job for job in jobs if canonical_project(job['project_id']) == project_id]
@@ -254,7 +273,7 @@ def state():
         acceptance=acceptance(),constraints={'chassis_motion':'PROHIBITED_BY_OWNER','controller_configuration':'PRESERVE_ORIGINAL','arm_motion':'SEPARATE_USER_OBSERVED_TEST_REQUIRED'},
         skills=STORE.skills(), research=research_status(), storage={'free_bytes':disk.free,'total_bytes':disk.total,'root':str(STORE.root)},
         capabilities={'station_rollout':True},
-        project_aliases={'personal':'06'},
+        project_aliases={'personal':_SO101_SOURCE_PROJECT},
         admission={'physical_enabled':operational, 'owner_authorization':'Движение рук только в отдельной проверке под текущим наблюдением пользователя; шасси не двигать',
             'reasons':['Доступность управления и результаты обучения показаны отдельно. Физическая проверка обученных навыков ещё не завершена.'], 'controller_settings_unchanged':True})
 
@@ -267,7 +286,7 @@ def acceptance():
 
 @app.get('/api/research')
 def research():
-    return dict(research_status(), runs=[job for job in STORE.jobs() if job['result']], hypotheses=[{'id':'H'+str(i),'status':'UNTESTED_HYPOTHESIS'} for i in range(1,6)])
+    return dict(research_status(), runs=[public_job(job) for job in STORE.jobs() if job['result']], hypotheses=[{'id':'H'+str(i),'status':'UNTESTED_HYPOTHESIS'} for i in range(1,6)])
 
 
 @app.get('/api/skills')
@@ -295,7 +314,7 @@ async def ingest(request: Request):
 
 @app.get('/api/jobs')
 def jobs():
-    return {'jobs':STORE.jobs()}
+    return {'jobs':[public_job(job) for job in STORE.jobs()]}
 
 
 @app.get('/api/datasets')
@@ -331,7 +350,7 @@ async def create_job(request: Request):
     config = body.get('config', {})
     if not isinstance(config, dict):
         raise HTTPException(400, 'Job configuration must be an object')
-    if '_execution_commit' in config or '_gpu_binding_sha256' in config:
+    if any(key in config for key in ('_execution_commit','_gpu_binding_sha256','source_numbering_version','numbering_provenance')):
         raise HTTPException(400,'Execution provenance is assigned by the worker')
     if body['project_id'] in ('02','03'):
         from .skill_workflow import validate_02_training_request
@@ -348,8 +367,8 @@ async def create_job(request: Request):
             raise HTTPException(400,'Unknown full-object task')
     if body['kind']=='policy_transfer':
         from .transfer import prepare_policy_transfer
-        if body['project_id'] != '04':
-            raise HTTPException(400,'Policy transfer belongs to experiment 04')
+        if body['project_id'] != _TRANSFER_PROJECT:
+            raise HTTPException(400,'Policy transfer belongs to experiment '+_TRANSFER_PROJECT)
         try:
             prepare_policy_transfer(STORE, config)
         except (ValueError,KeyError,OSError) as error:
@@ -360,7 +379,7 @@ async def create_job(request: Request):
         config['shadow']=False
         if not config.get('observing') or not config.get('expected_control_epoch'):
             raise HTTPException(400,'An observed current station control session is required')
-    return STORE.create_job(body['kind'], body['project_id'], config)
+    return public_job(STORE.create_job(body['kind'], body['project_id'], config))
 
 
 @app.post('/api/jobs/{job_id}/{operation}')
@@ -369,7 +388,7 @@ async def job_operation(job_id: str, operation: str):
     if not job:
         raise HTTPException(404)
     if operation=='retry':
-        try:return STORE.retry_import_job(job_id)
+        try:return public_job(STORE.retry_import_job(job_id))
         except ValueError as error:raise HTTPException(409,str(error)) from error
     desired = {'pause':'pause_requested', 'resume':'resume_requested', 'cancel':'cancel_requested'}
     if operation not in desired or job['status'] in ('completed', 'failed', 'cancelled'):
@@ -384,7 +403,7 @@ async def job_operation(job_id: str, operation: str):
                 headers={'Authorization':'Bearer '+node['token']},json={'expected_control_epoch':job['result']['control_epoch']})
         except httpx.HTTPError:
             pass
-    return STORE.job(job_id)
+    return public_job(STORE.job(job_id))
 
 
 @app.get('/api/transfer/sources')
@@ -523,7 +542,7 @@ async def rosmaster_capture_transport(operation,request,*,project_id):
 
 @app.get('/api/lab/calibration/board.pdf')
 async def lab_calibration_board():
-    board=Path(CONFIG['root'])/'learning/so101-personal-lab/calibration/explorer-charuco-6x8-30mm-v1.pdf'
+    board=Path(CONFIG['root'])/experiment_directory('so101_source_learning')/'calibration/explorer-charuco-6x8-30mm-v1.pdf'
     if not board.is_file():raise HTTPException(503,'Printable calibration board is not deployed')
     return FileResponse(board,media_type='application/pdf',filename='explorer-charuco-print-100-percent.pdf')
 
@@ -591,7 +610,7 @@ async def camera_stream(camera_id: str):
 
 @app.get('/api/recordings')
 def recordings():
-    return {'recordings':[job for job in STORE.jobs() if job['kind'] == 'camera_recording']}
+    return {'recordings':[public_job(job) for job in STORE.jobs() if job['kind'] == 'camera_recording']}
 
 
 @app.get('/api/mobile/evidence')
@@ -743,7 +762,7 @@ install_lab_skill_routes(app,lambda:STORE)
 @app.get('/learning/so101')
 @app.get('/learning/so101/')
 def legacy_so101_lab():
-    return RedirectResponse('/experiments/06', status_code=307)
+    return RedirectResponse('/experiments/'+_SO101_SOURCE_PROJECT, status_code=307)
 
 
 @app.get('/{path:path}')

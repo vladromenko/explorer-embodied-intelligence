@@ -159,6 +159,18 @@ def test_target_transfer04_keeps_its_own_source_identity_and_identical_dispatch_
     assert not inspect_embodied_episode(envelope,payloads)['admitted_for_dataset']
 
 
+def test_canonical_transfer06_epoch2_is_mobile9_while_source04_is_not_a_mobile_source():
+    from explorer_shared.experiments import experiment_identity
+    facts,assets=source_facts();fields=experiment_identity('cross_embodiment_transfer')
+    facts.update(fields);facts['identity'].update(fields)
+    envelope,payloads=package(facts,assets);report=inspect_embodied_episode(envelope,payloads)
+    assert report['admitted_for_dataset'] and report['experiment_identity']['canonical_project_id']=='06'
+    assert not report['experiment_identity']['raw_source_identity_rewritten']
+    facts.update(experiment_identity('so101_source_learning'));facts['identity'].update(experiment_identity('so101_source_learning'))
+    envelope,payloads=package(facts,assets)
+    assert not inspect_embodied_episode(envelope,payloads)['admitted_for_dataset']
+
+
 def test_nine_genuinely_zero_coordinates_are_never_split_or_masked():
     envelope, payloads = package()
     report = inspect_embodied_episode(envelope, payloads)

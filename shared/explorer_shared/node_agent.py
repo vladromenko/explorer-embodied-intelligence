@@ -295,9 +295,17 @@ class EventDelivery:
         self.error = None
 
     def emit(self, payload, *, run_id=None, project_id=None):
+        from .experiments import canonical_experiment,experiment_slug,EXPERIMENT_NUMBERING_VERSION
+        declared=project_id if project_id is not None else payload.get('project_id') if isinstance(payload,dict) else None
+        identity={'project_id':declared,'experiment_numbering_version':EXPERIMENT_NUMBERING_VERSION}
+        if declared is not None:
+            try:
+                identity.update(project_id=canonical_experiment(declared,numbering_version=EXPERIMENT_NUMBERING_VERSION),experiment_slug=experiment_slug(declared,numbering_version=EXPERIMENT_NUMBERING_VERSION))
+                if identity['project_id']!=declared:identity['legacy_experiment_id']=declared
+            except ValueError:pass
         event_id = str(uuid.uuid4())
         event = {"event_id": event_id, "node_id": self.node_id, "run_id": run_id,
-                 "project_id": project_id, "schema_version": 1, "wall_utc": wall_utc(),
+                 **identity, "schema_version": 1, "wall_utc": wall_utc(),
                  "monotonic_ns": time.monotonic_ns(), "clock_domain": self.clock_domain,
                  "payload": payload, "sha256": hashlib.sha256(canonical_bytes(payload)).hexdigest()}
         self.outbox.append(event_id, event)
@@ -704,7 +712,7 @@ class NodeAgent:
             # Optional semantics/geometry must not take camera/station inventory down.
             lab_vision={'state':'ERROR','error_type':type(error).__name__,'native_execution_enabled':False}
         cameras = self.cameras()
-        return {"schema_version": 1, "node_id": self.node_id, "hostname": socket.gethostname(),
+        return {"schema_version": 1, "experiment_numbering_version": 2, "node_id": self.node_id, "hostname": socket.gethostname(),
                 "wall_utc": wall_utc(), "monotonic_ns": time.monotonic_ns(), "clock_domain": self.delivery.clock_domain,
                 "hardware": {"architecture": os.uname().machine, "hailo_device_present": Path("/dev/hailo0").exists()},
                 "cameras": cameras, "serial_devices": serial, "calibrations": calibrations,

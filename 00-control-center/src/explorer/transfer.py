@@ -314,7 +314,7 @@ def run_virtual_experiment(store, job, config):
         (folder / 'handover_trace.json').write_text(json.dumps(result, indent=2))
         return result
     options = job.get('config') or {}
-    source_path = root / '04-cross-embodiment-transfer/configs/so101/so101_new_calib.urdf'
+    source_path = root / 'shared/robotics/so101/so101_new_calib.urdf'
     target_path = root / '01-autonomous-learning/src/legacy/config/explorer.urdf'
     source = URDFChain.from_urdf(source_path, 'base_link', 'gripper_frame_link')
     target = URDFChain.from_urdf(target_path, 'base_footprint', 'Gripping')

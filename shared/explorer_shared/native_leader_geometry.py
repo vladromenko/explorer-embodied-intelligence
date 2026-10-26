@@ -47,7 +47,7 @@ def registered_native_leader_geometry(config_dir,*,root=None):
         profile=json.loads(raw)
         if profile.get('schema')!='explorer_native_leader_registration_v1' or profile.get('provenance')!='measured':
             raise ValueError('Measured cross-map declaration required; existing SO101 calibration is reused')
-        source=URDFChain.from_urdf(root/'04-cross-embodiment-transfer/configs/so101/so101_leader_new_calib.urdf',
+        source=URDFChain.from_urdf(root/'shared/robotics/so101/so101_leader_new_calib.urdf',
                                   'base_link','gripper_frame_link')
         target=URDFChain.from_urdf(root/'01-autonomous-learning/src/legacy/config/explorer.urdf','base_footprint','Gripping')
         if profile.get('source_urdf_sha256')!=source.source_sha256 or profile.get('target_urdf_sha256')!=target.source_sha256:
