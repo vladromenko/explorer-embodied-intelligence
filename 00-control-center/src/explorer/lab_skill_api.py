@@ -1,4 +1,4 @@
-"""Experiment06 metadata/data/learning routes; global app auth+CSRF apply."""
+"""ENGINEERING_GLUE: Experiment06 metadata/data/learning routes; global app auth+CSRF apply."""
 from fastapi import APIRouter,HTTPException,Body
 from fastapi.responses import FileResponse,JSONResponse
 from . import lab_skill_workflow as service

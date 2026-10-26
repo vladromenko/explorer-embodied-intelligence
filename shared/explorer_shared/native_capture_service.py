@@ -1,4 +1,4 @@
-"""Node-local GET-only native-source fetch plus shared02/03 capture lifecycle."""
+"""ENGINEERING_GLUE: Node-local GET-only native-source fetch plus shared02/03 capture lifecycle."""
 from copy import deepcopy
 import json
 import threading

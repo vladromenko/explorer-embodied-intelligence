@@ -1,4 +1,4 @@
-"""OpenCV ChArUco calibration from original cached JPEG views; no device owners.
+"""ENGINEERING_GLUE: OpenCV ChArUco calibration from original cached JPEG views; no device owners.
 
 Metric camera/table geometry requires actual board views and source-bound human
 board-to-base measurements. Synthetic corner tests always emit synthetic artifacts.

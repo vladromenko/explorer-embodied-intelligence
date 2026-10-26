@@ -116,7 +116,7 @@ def test_read_only_original_video_joint_timeline_and_isolated_API_router(tmp_pat
     assert client.post('/api/lab/skills/'+chosen['spec']['skill_id']+'/aggregate',json={}).status_code==400
 
 
-def test_immutable_all_source_aggregate_actual_official_dataset_and_idempotent_training_enqueue(tmp_path):
+def test_immutable_all_source_aggregate_actual_official_dataset_and_idempotent_training_enqueue(tmp_path,monkeypatch):
     store,chosen,sources=full_cohort(tmp_path);identity=chosen['spec']['skill_id'];before={str(p):p.read_bytes() for _,path,*_ in sources for p in path.parent.iterdir() if p.is_file()}
     aggregate=flow.build_aggregate(store,identity,1);assert aggregate['official_dataset_readback_verified']
     assert len(aggregate['accepted_train_original_episode_ids'])==3 and len(aggregate['accepted_development_original_episode_ids'])==1 and len(aggregate['sealed_original_episode_ids'])==1
@@ -131,9 +131,11 @@ def test_immutable_all_source_aggregate_actual_official_dataset_and_idempotent_t
     with pytest.raises(ValueError,match='identity changed'):flow.enqueue_training(store,identity,1,dict(body,act_steps=9))
     assert flow.model_readiness(store,identity,1)['demos']['ready']
     review=sources[0][4];binding=sources[0][3]
+    # An NTP/wall-clock correction cannot make an older successful review win.
+    monkeypatch.setattr(flow.time,'time',lambda:1.)
     flow.review_episode(store,identity,1,dict(original_episode_id=sources[0][2]['episode_id'],binding_sha256=binding['receipt_sha256'],
         expected_review_sha256=review['receipt_sha256'],outcome='failure',reviewed_by='software-fixture-revision'))
-    assert not flow.model_readiness(store,identity,1)['demos']['ready']
+    assert not flow.model_readiness(Store(store.root),identity,1)['demos']['ready']
 
 
 @pytest.mark.skipif(os.environ.get('EXPLORER_RUN_06_OPTIMIZER')!='1',reason='Explicit final8-update CPU qualification; avoid repeated model jobs in broad unit runs')

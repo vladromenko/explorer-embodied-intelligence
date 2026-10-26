@@ -1,4 +1,4 @@
-"""Durable Experiment06 teaching→all-source dataset→official ACT workflow.
+"""ENGINEERING_GLUE: Durable Experiment06 teaching→all-source dataset→official ACT workflow.
 
 Metadata/immutable data only. No robot/network/control operation is imported.
 Operator video/phase labels are BC evidence, never learned-policy physical proof.
@@ -43,7 +43,7 @@ def _sim():
 
 
 def _records(db):
-    return [json.loads(row['body'])['payload'] for row in db.execute("SELECT body FROM events WHERE event_id LIKE ? ORDER BY received,event_id",(PREFIX+'%',))]
+    return [json.loads(row['body'])['payload'] for row in db.execute("SELECT body FROM events WHERE event_id LIKE ? ORDER BY rowid",(PREFIX+'%',))]
 
 
 def _append(db,kind,payload,request_id=None):

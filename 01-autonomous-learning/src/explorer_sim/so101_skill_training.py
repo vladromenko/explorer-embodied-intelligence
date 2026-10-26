@@ -1,4 +1,4 @@
-"""Official ACT6 offline learner for one immutable Experiment06 skill cohort.
+"""ENGINEERING_GLUE: Official ACT6 offline learner for one immutable Experiment06 skill cohort.
 
 No robot/replay CLI/camera/serial/network or simulator execution. Source simulation
 fixtures remain SIMULATION-only cards, regardless of task labels or loss values.
