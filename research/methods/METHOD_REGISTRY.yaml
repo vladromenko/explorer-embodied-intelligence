@@ -1197,6 +1197,43 @@
         }
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-MOBILE-RECORD-ARCHIVE-001",
+      "function_or_module": "shared/explorer_shared/mobile_records.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/tarfile.html",
+          "role": "Archive serialization interface"
+        },
+        {
+          "url": "https://docs.python.org/3/library/hashlib.html",
+          "role": "Content digests for immutable transport copies"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "OWNER_RECORDING_RIGHTS_RETAINED",
+      "changes_and_reason": "Read finished native mobile recording files, validate identities/paths and snapshot file hashes, then archive copies in observer-owned state without rewriting original recordings or opening controllers. This is transport provenance, not a hardware execution or learned-skill result.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "scope": "Source inspection during integration",
+          "result": "Descriptor, traversal checks, source pre/post hashes and archive-cache logic read; no specific execution evidence inspected here"
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
