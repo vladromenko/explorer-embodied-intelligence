@@ -1,4 +1,4 @@
-"""Source sensor fusion for one ROSMASTER; missing values remain masked metadata.
+"""ENGINEERING_GLUE: source sensor fusion for one ROSMASTER with explicit validity.
 
 The zero placeholders below are model tensors paired with explicit validity,
 never synthetic measurements or invented prior command coordinates.
@@ -10,10 +10,11 @@ import math
 import numpy as np
 from PIL import Image
 
-from explorer_shared.contracts import ACTION_NAMES
+from explorer_shared.contracts import ACTION_NAMES,ACTION_UNITS
 
 FEATURE_GROUPS=(('preceding_command9',9),('joint_feedback',6),('joint_command',6),('odometry_pose',7),('base_velocity',3),('imu',6),('lidar',8),('goal',3),('gripper',1),('camera_depth',4))
 FEATURE_NAMES=tuple(group+'.'+str(index) for group,size in FEATURE_GROUPS for index in range(size))
+FEATURE_UNITS=tuple(ACTION_UNITS)+('deg',)*12+('m',)*3+('1',)*4+('m/s','m/s','rad/s')+('m/s^2',)*3+('rad/s',)*3+('m',)*16
 
 
 class PipelineBlocked(ValueError):
@@ -110,7 +111,7 @@ class TrainNormalizer:
     def native_action(self,values):return np.asarray(values)*self.action_scale+self.action_mean
     @classmethod
     def from_document(cls,document):
-        if document.get('feature_names')!=list(FEATURE_NAMES) or document.get('fit_partition')!='train':raise PipelineBlocked('MODEL_FEATURE_NORMALIZATION_SCHEMA_MISMATCH')
+        if document.get('feature_names')!=list(FEATURE_NAMES) or document.get('feature_units')!=list(FEATURE_UNITS) or document.get('fit_partition')!='train':raise PipelineBlocked('MODEL_FEATURE_NORMALIZATION_SCHEMA_MISMATCH')
         instance=cls.__new__(cls)
         for name,key,size in (('mean','means',len(FEATURE_NAMES)),('scale','scales',len(FEATURE_NAMES)),('count','valid_training_counts',len(FEATURE_NAMES)),('action_mean','action_mean',9),('action_scale','action_scale',9)):
             value=np.asarray(document.get(key),float)
@@ -119,6 +120,6 @@ class TrainNormalizer:
         if np.any(instance.scale<=0) or np.any(instance.action_scale<=0):raise PipelineBlocked('MODEL_NORMALIZATION_SCALE_INVALID')
         return instance
     def document(self):
-        return dict(schema='rosmaster_train_only_sensor_normalization_v1',feature_names=list(FEATURE_NAMES),mask_names=[name+'.valid' for name in FEATURE_NAMES],
+        return dict(schema='rosmaster_train_only_sensor_normalization_v1',feature_names=list(FEATURE_NAMES),feature_units=list(FEATURE_UNITS),mask_names=[name+'.valid' for name in FEATURE_NAMES],
             means=self.mean.tolist(),scales=self.scale.tolist(),valid_training_counts=self.count.tolist(),action_mean=self.action_mean.tolist(),action_scale=self.action_scale.tolist(),
             fit_partition='train',masks_normalized=False,missing_numeric_placeholders_are_not_measurements=True,prior9_manufactured=False)

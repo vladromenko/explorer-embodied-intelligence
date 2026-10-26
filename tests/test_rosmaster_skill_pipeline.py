@@ -16,7 +16,7 @@ from explorer.skill_workflow import build_aggregate,create_session
 from explorer_shared.contracts import ACTION_NAMES
 from explorer_sim.rosmaster_skill_features import FEATURE_NAMES,PipelineBlocked,TrainNormalizer,channel,sensor_features
 from explorer_sim.rosmaster_skill_hybrid import PhaseCoordinator,PhaseModel,astar,calibrated_goal,navigation_action
-from explorer_sim.rosmaster_skill_pipeline import CanonicalCorpus,FusedChunks,RosmasterSkillPolicy,train_pipeline,pipeline_capabilities
+from explorer_sim.rosmaster_skill_pipeline import CanonicalCorpus,FusedChunks,RosmasterSkillPolicy,train_pipeline,train_rosmaster_skill,pipeline_capabilities
 from test_skill_workflow import skill,imported,assign,sha
 from test_embodied_episode import package,encoded
 
@@ -58,6 +58,7 @@ def test_canonical_reader_real_RGB_full9D_sensor_masks_and_train_only_normalizat
     assert item['observation.state'].shape==(len(FEATURE_NAMES)*2,) and item['action'].shape==(2,9)
     assert item['observation.images.overview'].shape==(3,32,32)
     assert np.isfinite(item['observation.state'].numpy()).all() and len(corpus.normalizer.mean)>9
+    assert set(dataset.resume_context['source_implementation_sha256'])=={'rosmaster_skill_features.py','rosmaster_skill_hybrid.py'}
     assert corpus.normalizer.document()['fit_partition']=='train'
     assert not corpus.normalizer.document()['masks_normalized']
     # Development mutation is diagnostic data, never a normalization fit input.
@@ -151,6 +152,22 @@ def test_controlplane_capabilities_do_not_import_torch_mujoco_or_initialize_GPU(
     code="import sys;sys.path[:0]="+repr([str(root/'shared'),str(root/'01-autonomous-learning/src')])+";from explorer_sim.rosmaster_skill_pipeline import pipeline_capabilities;c=pipeline_capabilities();assert c['fused_state_dimension']==106;assert 'torch' not in sys.modules;assert 'mujoco' not in sys.modules"
     result=subprocess.run([sys.executable,'-c',code],text=True,capture_output=True)
     assert result.returncode==0,result.stdout+result.stderr
+
+
+def test_worker_rejects_changed_or_missing_queued_source_lineage_before_optimizer(tmp_path,monkeypatch):
+    from explorer_sim import rosmaster_skill_pipeline as pipeline
+    path,store=fixture_aggregate(tmp_path);manifest=json.loads(path.read_text());called=[]
+    monkeypatch.setattr(pipeline,'train_pipeline',lambda *args,**kwargs:called.append(True))
+    job=dict(id='worker-fixture',kind='rosmaster_skill_train',project_id='03',config=dict(dataset_manifest=str(path)))
+    with pytest.raises(PipelineBlocked,match='SERVER_BOUND'):train_rosmaster_skill(store,job)
+    lineage=dict(skill_id=manifest['skill_id'],skill_version=manifest['skill_version'],spec_sha256=manifest['skill_spec_sha256'],aggregate_sha256='0'*64)
+    job['config']['skill_workflow']=lineage
+    with pytest.raises(PipelineBlocked,match='AGGREGATE_SHA_CHANGED'):train_rosmaster_skill(store,job)
+    lineage['aggregate_sha256']=sha(path);lineage['skill_version']+=1
+    with pytest.raises(PipelineBlocked,match='SKILL_SPEC_LINEAGE_CHANGED'):train_rosmaster_skill(store,job)
+    lineage['skill_version']-=1;lineage['training_original_episode_ids']=[]
+    with pytest.raises(PipelineBlocked,match='PARTITION_LINEAGE_CHANGED'):train_rosmaster_skill(store,job)
+    assert not called
 
 
 def test_actual_eight_official_ACT_optimizer_steps_fused_state_full9_save_reload_and_heldout_metrics(tmp_path):

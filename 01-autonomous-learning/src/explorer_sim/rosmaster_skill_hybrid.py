@@ -1,4 +1,4 @@
-"""Internal hybrid components of ONE ROSMASTER9D policy, no hardware transport."""
+"""ENGINEERING_GLUE: internal hybrid components of ONE ROSMASTER9D policy."""
 from __future__ import annotations
 import heapq
 import math

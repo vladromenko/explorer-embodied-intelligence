@@ -1,4 +1,4 @@
-"""Actual shared offline ROSMASTER training: official ACT9 and hybrid candidate.
+"""ENGINEERING_GLUE: actual shared ROSMASTER training with ACT_LEROBOT_0_6_1.
 
 No hardware/simulator execution, source production, deployment or external IO.
 Offline held-out action/phase errors never establish whole-task learned success.
@@ -51,6 +51,7 @@ def pipeline_capabilities():
     return dict(schema='rosmaster_skill_pipeline_capabilities_v1',job_kind=JOB_KIND,compatible_source_projects=['02','03'],
         action_contract_id=ACTION_CONTRACT_ID,action_names=list(ACTION_NAMES),action_dimension=9,
         fused_state_dimension=len(FEATURE_NAMES)*2,RGB_real_input=True,qualified_devices=['cpu'],controlplane_imports_torch=False,
+        end_to_end_implemented=True,hybrid_implemented=True,whole_autonomous_execution_qualified=False,
         implemented_candidates=['official_ACT9_RGB_available_sensor_fusion','calibrated_goal_Astar_navigation_ACT9_contact_observed_phase_coordinator_recovery'],
         user_robot_modes=['whole_unified_ROSMASTER'],physical_execution=False,automatic_deployment=False,
         baseline_requires=['source_bound_RGB','explicit_recorded_prior_command9','causal_native_or_simulation_dispatch','expert_outcomes','global_episode_scene_session_object_splits'],
@@ -69,6 +70,8 @@ class RosmasterSkillPolicy:
         if candidate not in ('ACT9','hybrid'):raise PipelineBlocked('UNKNOWN_SHARED_POLICY_CANDIDATE')
         self.path=Path(model_manifest).resolve();self.model=_json(self.path);self.candidate=candidate
         if self.model.get('schema')!=MODEL_SCHEMA or self.model.get('action_contract_id')!=ACTION_CONTRACT_ID or self.model.get('action_names')!=list(ACTION_NAMES):raise PipelineBlocked('MODEL_CONTRACT_MISMATCH')
+        for name in ('rosmaster_skill_features.py',)+(('rosmaster_skill_hybrid.py',) if candidate=='hybrid' else ()):
+            if (self.model.get('implementation_sha256') or {}).get(name)!=_sha(Path(__file__).with_name(name)):raise PipelineBlocked('MODEL_FEATURE_OR_HYBRID_IMPLEMENTATION_NOT_QUALIFIED',name)
         from lerobot.policies.act.modeling_act import ACTPolicy
         checkpoint=self.path.parent/'student_act'
         for name,expected in self.model.get('weights_sha256',{}).items():
@@ -210,6 +213,7 @@ class FusedChunks:
         self.corpus,self.episodes,self.chunk_size,self.image_size=corpus,episodes,chunk_size,image_size
         self.indices=[(episode_index,index) for episode_index,episode in enumerate(episodes) for index in range(len(episode['frames']))]
         self.resume_context=dict(source_signature=corpus.sha256,source_files=[dict(path=path,sha256=expected) for path,expected in sorted(corpus.source_files.items())],
+            source_implementation_sha256={name:_sha(Path(__file__).with_name(name)) for name in ('rosmaster_skill_features.py','rosmaster_skill_hybrid.py')},
             skill_id=corpus.skill_id,skill_version=corpus.version,training_episode_ids=[row['descriptor']['source_episode_id'] for row in episodes],
             feature_schema=corpus.normalizer.document(),chunk_size=chunk_size,image_size=image_size,actor_inputs='real_RGB_and_source_sensor_values_with_availability_only')
     def __len__(self):return len(self.indices)
@@ -310,7 +314,7 @@ def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None):
         implementation_sha256={Path(__file__).name:_sha(__file__), 'rosmaster_skill_features.py':_sha(Path(__file__).with_name('rosmaster_skill_features.py')),'rosmaster_skill_hybrid.py':_sha(Path(__file__).with_name('rosmaster_skill_hybrid.py'))},
         offline_evaluation=evaluation,physical_execution_qualified=False,whole_skill_mastered=False,method_ids=['ACT_LEROBOT_0_6_1','ENGINEERING_GLUE'])
     _write(folder/'model_manifest.json',model)
-    card=dict(id='rosmaster-skill-'+digest(dict(source=corpus.sha256,settings=options))[:24],task=corpus.spec.get('title'),status='trained_offline_candidate_only',
+    card=dict(id='rosmaster-skill-'+_sha(folder/'model_manifest.json')[:24],task=corpus.spec.get('title'),status='trained_offline_candidate_only',
         action_contract=dict(id=ACTION_CONTRACT_ID,names=list(ACTION_NAMES),units=list(ACTION_UNITS),dimension=9,neutral_channels_retained=True),
         lineage=dict(skill_id=corpus.skill_id,skill_version=corpus.version,aggregate_sha256=corpus.sha256,model_manifest_sha256=_sha(folder/'model_manifest.json'),workflow_family='rosmaster_shared_demonstration_pipeline_v1',compatible_source_projects=['02','03']),
         model_input_schema=preprocessing,recorded_channels=model['recorded_channels'],admitted_channels=model['admitted_channels'],model_used_channels=used_channels,checkpoint_sha256=model['weights_sha256'],
@@ -327,6 +331,20 @@ def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None):
 def train_rosmaster_skill(store,job):
     config=job.get('config') or {};source=config.get('dataset_manifest')
     if not source:raise PipelineBlocked('CANONICAL_AGGREGATE_REQUIRED')
+    source=Path(source).expanduser().resolve()
+    if not source.is_relative_to(Path(store.root).resolve()):raise PipelineBlocked('MANAGED_WORKER_AGGREGATE_REQUIRED')
+    if job.get('kind')!=JOB_KIND or job.get('project_id') not in ('02','03'):raise PipelineBlocked('SHARED_ROSMASTER_JOB_KIND_AND_PROJECT_REQUIRED')
+    lineage=config.get('skill_workflow')
+    if not isinstance(lineage,dict):raise PipelineBlocked('SERVER_BOUND_SKILL_AGGREGATE_LINEAGE_REQUIRED')
+    if _sha(source)!=lineage.get('aggregate_sha256'):raise PipelineBlocked('QUEUED_AGGREGATE_SHA_CHANGED')
+    manifest=_json(source)
+    if manifest.get('skill_id')!=lineage.get('skill_id') or manifest.get('skill_version')!=lineage.get('skill_version') or manifest.get('skill_spec_sha256')!=lineage.get('spec_sha256'):raise PipelineBlocked('QUEUED_SKILL_SPEC_LINEAGE_CHANGED')
+    partitions={'training_original_episode_ids':'train','development_original_episode_ids':'development'}
+    for key,partition in partitions.items():
+        actual={row.get('source_episode_id') for row in manifest.get('episodes',[]) if row.get('split')==partition}
+        declared=lineage.get(key)
+        if not isinstance(declared,list) or len(declared)!=len(set(declared)) or set(declared)!=actual:raise PipelineBlocked('QUEUED_SOURCE_PARTITION_LINEAGE_CHANGED',key)
+    if set(lineage.get('sealed_original_episode_ids') or [])!={row['original_episode_id'] for row in manifest.get('sealed_sources_excluded',[])}:raise PipelineBlocked('QUEUED_SEALED_LINEAGE_CHANGED')
     options={key:config[key] for key in ('seed','act_steps','batch_size','image_size','chunk_size','device','threads') if key in config}
     result=train_pipeline(source,store.root/'jobs'/job['id'],settings=options,progress=lambda value,phase:store.update_job(job['id'],progress=value,result=dict(phase=phase)))
     result['skill_card']['lineage']['job_id']=job['id']
