@@ -1,5 +1,5 @@
 {
-  "sampled_unix": 1792979108.4106488,
+  "sampled_unix": 1792986816.8498023,
   "current_sha256": {
     "factory-arm-startup.json": "5a26edf01d8e20e440dc51c33da214d739357cd9130ff12a16601b7874e79ec5",
     "arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
@@ -8,6 +8,6 @@
     "arm_model.json": "842dfe7960fd01be18992e62dabe293added502d0df3715a9d31944b60317d4f",
     "gripper-reference.json": "ed275d5b774814963fc855009a4f93715ffbe4657796b2ed32f9c1c9718e11cb"
   },
-  "pids": "MainPID=2478\nId=explorer-camera.service\n\nMainPID=2535\nId=explorer-control.service\n\nMainPID=2490\nId=explorer-mcu.service\n",
+  "native_service_state": "MainPID=2478\nId=explorer-camera.service\nActiveState=active\n\nMainPID=2535\nId=explorer-control.service\nActiveState=active\n\nMainPID=2490\nId=explorer-mcu.service\nActiveState=active\n",
   "controller_files_unchanged": true
 }
