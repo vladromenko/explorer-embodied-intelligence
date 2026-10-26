@@ -106,3 +106,19 @@ Node-тесты — программные HTTP/DOM fixtures. Они не вып
 Новый finish/review сбрасывает browser preflight; смена immutable spec не может
 перенести ready из другого навыка. Source review и аппаратная квалификация остаются
 отдельными фактами. Ни enqueue, ни model-ready не разрешают физическое исполнение.
+
+### Проверка JS ↔ реальный временный Service
+
+`tests/test_cooperative_workbench_contract.js` запускает настоящий
+CooperativeService и временный Store через его закреплённый software fixture.
+JSON-line bridge проверяет реальные request bodies JS, включая предложение и
+подтверждение SkillSpec, выбор native variants, session/zone, start/stage/finish,
+настоящий durable Inbox challenge/confirm и STOP. При этом все camera/native HTTP
+источники остаются явно fake fixture; разрешены только GET/record metadata paths,
+нет реальных node/device connections, модели или контроллеров.
+
+По умолчанию используется source root текущего checkout и managed Python venv,
+если он существует. Для проверки отдельной ветки: EXPLORER_COOPERATIVE_CONTRACT_ROOT;
+интерпретатор можно передать через EXPLORER_TEST_PYTHON. Если backend ещё отсутствует
+в изолированной frontend-ветке, тест явно skip; фактическая квалификация выполнялась
+на frozen c0083ad с реальным сервисом, не на mock реализации его методов.
