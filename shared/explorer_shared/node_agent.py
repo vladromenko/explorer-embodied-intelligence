@@ -593,6 +593,14 @@ class NodeAgent:
         else:
             from .pi_native_retarget import PiNativeRetargetService
             self.arm_retarget=PiNativeRetargetService.from_config(self.station,self.state_dir,retarget_config_dir)
+        self.station_observed=None
+        if self.station is not None:
+            from .station_observed_activation import StationObservedPermission
+            def command_guard(operation):
+                direct=self.arm_retarget.status()
+                if operation!='stop' and (direct.get('state')=='ACTIVE' or direct.get('lifecycle_inflight')):
+                    raise RuntimeError('Stop the existing direct ROSMASTER source session before using the follower controller')
+            self.station_observed=StationObservedPermission(self.station,self.sources['pi-overview'],command_guard=command_guard)
 
     def tabletop_calibration_context(self):
         """Known hardware pair identity, not a measurement of a fixed mounting.
@@ -632,6 +640,7 @@ class NodeAgent:
 
     def close(self):
         retarget_error = None
+        if getattr(self,'station_observed',None) is not None:self.station_observed.revoke('NODE_AGENT_SHUTDOWN')
         if self.lab_vision:
             self.lab_vision.close()
         if self.mode == 'pi':
@@ -796,12 +805,14 @@ class NodeAgent:
                 "lab_vision":lab_vision,
                 "native_capture":self.native_capture.status() if self.native_capture else None,
                 "native_sensor_cache":self.sensor_cache.status() if self.sensor_cache else None,
+                "station_observed_permission":self.station_observed.status() if getattr(self,'station_observed',None) is not None else None,
                 "capabilities": {"physical_motion": bool(station and station['available']) or self.mode=='nano', "servo_bus_access": bool(station and station['available']),
                                  "serial_discovery": True, "joint_measurements": bool(station and station['measurements']),
                                  "calibration_verified": bool(station and len(station['roles'])==2), "arm_roles_assigned": bool(station and len(station['roles'])==2),
                                  "camera_preview": any(camera["available"] for camera in cameras),
                                  "camera_only_recording": True, "hailo_detection": observer["available"],
                                  "power_independent_observation_capture": bool(self.mobile_capture),
+                                 "station_observed_permission":getattr(self,'station_observed',None) is not None,
                                  "durable_event_outbox": True, "vlm": False},
                 "errors": (["so101_roles_unassigned", "so101_calibration_unverified"] if self.mode == "pi" else [])
                           + ([self.delivery.error] if self.delivery.error else [])}
@@ -954,7 +965,17 @@ def make_handler(agent):
                 code,payload=agent.teaching_status()
                 self._json(code,payload)
             elif path.startswith('/station/') and agent.station is not None:
-                if path=='/station/status':
+                if path=='/station/observed-test/status' and getattr(agent,'station_observed',None) is not None:
+                    if urlsplit(self.path).query:raise ValueError('Observed station permission takes no query parameters')
+                    self._json(200,agent.station_observed.status())
+                elif len(parts)==5 and parts[:3]==['station','observed-test','challenges'] and parts[4]=='frame' and getattr(agent,'station_observed',None) is not None:
+                    if urlsplit(self.path).query:raise ValueError('Pinned observed Pi JPEG takes no query parameters')
+                    raw,metadata=agent.station_observed.frame(parts[3]);self.send_response(200)
+                    for name,value in {'Content-Type':'image/jpeg','Content-Length':len(raw),'Cache-Control':'no-store',
+                        'X-Frame-ID':metadata['frame_id'],'X-JPEG-SHA256':metadata['jpeg_sha256'],'X-Boot-ID':metadata['boot_id'],
+                        'X-Monotonic-NS':metadata['received_monotonic_ns']}.items():self.send_header(name,str(value))
+                    self.end_headers();self.wfile.write(raw)
+                elif path=='/station/status':
                     self._json(200,agent.station.status())
                 elif path=='/station/observation':
                     if urlsplit(self.path).query:raise ValueError('Source observation takes no query parameters')
@@ -1114,16 +1135,40 @@ def make_handler(agent):
                 elif retarget:
                     self._json(200, agent.retarget_command(path.removeprefix('/arm-retarget/'), payload))
                 elif station:
+                    if path.startswith('/station/observed-test/'):
+                        if urlsplit(self.path).query:raise ValueError('Fixed observed permission API takes no query parameters')
+                        provider=getattr(agent,'station_observed',None)
+                        if provider is None:raise ValueError('Original Pi observed permission provider unavailable')
+                        operation=path.removeprefix('/station/observed-test/')
+                        if operation=='challenge':result=provider.challenge(payload.get('binding'))
+                        elif operation=='authorize':result=provider.authorize(payload)
+                        elif operation=='observe':result=provider.observe(payload)
+                        elif operation=='check':result=provider.check(payload.get('grant_id'),payload.get('binding'),payload.get('expected_control_epoch'))
+                        elif operation=='command':result=provider.command(payload.get('grant_id'),payload.get('binding'),payload.get('operation'),payload.get('body'))
+                        elif operation=='revoke':
+                            if not payload.get('expected_grant_id') or not payload.get('expected_control_epoch') or not payload.get('binding'):
+                                raise ValueError('Exact grant/model/native epoch required for scoped user revoke')
+                            result=provider.revoke(payload.get('reason','EXPLICIT_USER_REVOKE'),expected_grant_id=payload['expected_grant_id'],
+                                expected_control_epoch=payload['expected_control_epoch'],expected_binding=payload['binding'])
+                        else:raise ValueError('Unknown observed permission operation')
+                        self._json(200,result);return
                     if path=='/station/record/stage':
                         self._json(200,agent.station.record_stage(payload))
                         return
                     if path == '/station/stop' and agent.mode == 'pi':
+                        if getattr(agent,'station_observed',None) is not None:agent.station_observed.revoke('ORIGINAL_GLOBAL_STATION_STOP')
                         agent.arm_retarget.stop()
                     direct = agent.arm_retarget.status() if agent.mode == 'pi' else {}
                     if path in ('/station/teleop/start','/station/policy/start','/station/teleop/recenter','/station/action') and (
                             direct.get('state') == 'ACTIVE' or direct.get('lifecycle_inflight')):
                         raise RuntimeError('Direct ROSMASTER teaching uses the idle measured source cache; stop that route first')
-                    self._json(200,agent.station.command(path.removeprefix('/station/'),payload))
+                    observed=getattr(agent,'station_observed',None)
+                    if observed is not None and path in ('/station/teleop/start','/station/policy/start','/station/teleop/recenter','/station/action'):
+                        with agent.station.lock:
+                            if observed.owns_native_epoch():raise RuntimeError('Current observed test owns this native epoch; use its scoped commands or explicit original STOP')
+                            result=agent.station.command(path.removeprefix('/station/'),payload)
+                    else:result=agent.station.command(path.removeprefix('/station/'),payload)
+                    self._json(200,result)
                 elif legacy:
                     if path.startswith('/legacy/teaching/mobile/') and agent.mobile_capture is not None:
                         code,result=agent.teaching_command(path.rsplit('/',1)[1],payload)
