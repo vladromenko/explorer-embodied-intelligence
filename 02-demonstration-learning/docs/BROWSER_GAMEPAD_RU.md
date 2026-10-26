@@ -79,8 +79,9 @@ latency/STOP на Mac+геймпаде и аппаратные результа�
 
 ## Точные hooks для root
 
-Загрузить `gamepad.js` после основного app.js. Он ничего не подключает и не
-отправляет автоматически. Bootstrap один раз:
+Загрузить чистый `gamepad.js` перед app.js либо выполнить bootstrap только
+после загрузки обоих файлов. Сам файл ничего не подключает и не отправляет
+автоматически. Bootstrap один раз после определения app state/callbacks:
 
 ```javascript
 const browserGamepad = ExplorerBrowserGamepad.install({
