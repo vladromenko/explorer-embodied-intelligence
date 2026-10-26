@@ -452,7 +452,7 @@ def canonicalize_episode(source_envelope, source_payloads=None):
             valid = available and recorded and causal and shape and asset and _text(record.get('source_id'))
             unavailable_declared = (record.get('available') is False and record.get('value') is None and
                                     record.get('mask') is False and _text(record.get('unavailable_reason')))
-            declaration_okay = (recorded and isinstance(record.get('present'), bool) and
+            declaration_okay = (recorded and (isinstance(record.get('present'), bool) or record.get('present') is None) and
                                 isinstance(record.get('available'), bool) and _text(record.get('source_id')) and
                                 (unavailable_declared or (present and record.get('available') is True and
                                                           record.get('value') is not None and _full_mask(record.get('mask'), record.get('value')) and shape) or

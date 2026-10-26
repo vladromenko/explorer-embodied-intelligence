@@ -407,6 +407,15 @@ def test_partial_optional_joint_feedback_mask_is_retained_without_blocking_comma
     assert facts['samples'][0]['channels']['joint_feedback']['value']['values'][0] is None
 
 
+def test_unknown_sensor_presence_is_explicit_unknown_not_a_claim_sensor_is_absent():
+    facts, images = command_estimate_facts()
+    facts['samples'][0]['channels']['lidar']['present'] = None
+    report = inspect(facts, images)
+    assert report['admitted_for_dataset']
+    assert not report['channels']['lidar']['presence_known']
+    assert not report['channels']['lidar']['available']
+
+
 @pytest.mark.parametrize('mode', ['keyboard', 'browser_gamepad', 'so101_leader'])
 def test_input_adapter_identity_is_optional_and_source_bound_not_inferred_from_page(mode):
     facts, images = command_estimate_facts()
