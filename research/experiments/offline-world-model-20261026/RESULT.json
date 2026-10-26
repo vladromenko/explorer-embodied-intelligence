@@ -1,0 +1,1496 @@
+{
+  "schema_version": 1,
+  "job_signature": "76393414340898e2ccdaa48dd2c16cedbbfc99bb65aea9c7a68e008d4cb9f6a7",
+  "task": "offline_one_step_observation_prediction",
+  "method_ids": [
+    "ENGINEERING_GLUE"
+  ],
+  "physical_io": false,
+  "simulator_executed": false,
+  "task_success_claimed": false,
+  "causal_effect_identified": false,
+  "hypothesis_status": {
+    "H1": "UNTESTED",
+    "H2": "UNTESTED",
+    "H3": "UNTESTED",
+    "H4": "UNTESTED",
+    "H5": "UNTESTED"
+  },
+  "source": {
+    "source_manifest_path": "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/manifest.json",
+    "source_manifest_sha256": "c8e7ed44c870b2d201c258fdb06371f89669e1e0ebfe6659fcac60411ec9efc7",
+    "source_dataset_id": "cad-reach-default-pilot-v1",
+    "source_episodes": [
+      {
+        "episode_index": 0,
+        "source_episode_id": "episode_0000",
+        "source_sha256": "1f4f5ca3e1a3202012f1b7fec72b1c06631ecc211f6341d61a803ff1c18e75bf",
+        "split": "train",
+        "source_seed": 2041,
+        "source_outcome": {
+          "command9": [
+            91.03862762451172,
+            95.37663269042969,
+            93.22937774658203,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "distance_m": 0.01375742879181606,
+          "goal_xyz": [
+            -0.029465240367139562,
+            0.004589676132497991,
+            0.5418599648400851
+          ],
+          "grasp_center_xyz": [
+            -0.016584994962350892,
+            0.0007318751243931141,
+            0.54477260911225
+          ],
+          "physical_run": false,
+          "steps": 5,
+          "success": true
+        }
+      },
+      {
+        "episode_index": 1,
+        "source_episode_id": "episode_0001",
+        "source_sha256": "b927c4d450b1392f4b97eab30bf6e04e86b9cb34987cc5fd259308cf36616054",
+        "split": "train",
+        "source_seed": 2042,
+        "source_outcome": {
+          "command9": [
+            93.70901489257812,
+            82.73905944824219,
+            84.15379333496094,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "distance_m": 0.007589834267531827,
+          "goal_xyz": [
+            0.09922277497160195,
+            0.003107400268473113,
+            0.5414349854219953
+          ],
+          "grasp_center_xyz": [
+            0.09928930626859878,
+            -0.004451073816979956,
+            0.5407489626128594
+          ],
+          "physical_run": false,
+          "steps": 4,
+          "success": true
+        }
+      },
+      {
+        "episode_index": 2,
+        "source_episode_id": "episode_0002",
+        "source_sha256": "623eda9d67d0103e2dc3bdbe0656915f09864e1e32eb6c93f53d21739019ba99",
+        "split": "train",
+        "source_seed": 2043,
+        "source_outcome": {
+          "command9": [
+            92.37814331054688,
+            85.49524688720703,
+            86.59049224853516,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "distance_m": 0.006594264012425862,
+          "goal_xyz": [
+            0.07157234162476411,
+            -0.008338785701741843,
+            0.5456541012938603
+          ],
+          "grasp_center_xyz": [
+            0.07236238009090809,
+            -0.0017929072459242615,
+            0.5455462480173642
+          ],
+          "physical_run": false,
+          "steps": 3,
+          "success": true
+        }
+      },
+      {
+        "episode_index": 3,
+        "source_episode_id": "episode_0003",
+        "source_sha256": "a85f25a3653c03521163bc00d00a7480b5e5df56d0cf34488c21be75efd75bbb",
+        "split": "train",
+        "source_seed": 2044,
+        "source_outcome": {
+          "command9": [
+            90.50543212890625,
+            98.24610137939453,
+            95.68565368652344,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "distance_m": 0.013430520709321629,
+          "goal_xyz": [
+            -0.05703181674454762,
+            0.0022185411905610982,
+            0.5361251195679149
+          ],
+          "grasp_center_xyz": [
+            -0.04409839744255477,
+            0.0005114844459598966,
+            0.5393175338507215
+          ],
+          "physical_run": false,
+          "steps": 6,
+          "success": true
+        }
+      },
+      {
+        "episode_index": 4,
+        "source_episode_id": "episode_0004",
+        "source_sha256": "a2fbcb51fab85160c6fea556c9a392a71c6c7559aadb5a2c3963d226c9cd9322",
+        "split": "train",
+        "source_seed": 2045,
+        "source_outcome": {
+          "command9": [
+            91.00078582763672,
+            95.21829986572266,
+            93.05326080322266,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "distance_m": 0.015819194334574436,
+          "goal_xyz": [
+            -0.028214484181414125,
+            -0.007552842668655446,
+            0.5429632145695771
+          ],
+          "grasp_center_xyz": [
+            -0.014859340187084137,
+            0.0006696486896506126,
+            0.5450314684583262
+          ],
+          "physical_run": false,
+          "steps": 5,
+          "success": true
+        }
+      },
+      {
+        "episode_index": 5,
+        "source_episode_id": "episode_0005",
+        "source_sha256": "ebd4f0f92515864c091fbf94e759046a9f401fa1388acfb238cdfb6e213c6c61",
+        "split": "train",
+        "source_seed": 2046,
+        "source_outcome": {
+          "command9": [
+            94.63277435302734,
+            81.27001953125,
+            82.94222259521484,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "distance_m": 0.011003673365781822,
+          "goal_xyz": [
+            0.10920590924104914,
+            0.0035197785226723797,
+            0.5391629902240769
+          ],
+          "grasp_center_xyz": [
+            0.11298781746514346,
+            -0.006647931881549878,
+            0.5373202577797935
+          ],
+          "physical_run": false,
+          "steps": 5,
+          "success": true
+        }
+      },
+      {
+        "episode_index": 6,
+        "source_episode_id": "episode_0006",
+        "source_sha256": "6e29e673004ea7c1a804b8f29aeea291178738b5e3ba62e5442badb3a62463a0",
+        "split": "train",
+        "source_seed": 2047,
+        "source_outcome": {
+          "command9": [
+            90.86006927490234,
+            94.20684051513672,
+            92.41837310791016,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "distance_m": 0.014720668114998699,
+          "goal_xyz": [
+            -0.020549334178609775,
+            -0.0005858899225641605,
+            0.5432392393907108
+          ],
+          "grasp_center_xyz": [
+            -0.006159050913964429,
+            0.00042241668182823276,
+            0.5461720085781421
+          ],
+          "physical_run": false,
+          "steps": 4,
+          "success": true
+        }
+      },
+      {
+        "episode_index": 7,
+        "source_episode_id": "episode_0007",
+        "source_sha256": "04db9d8026a505952b666f52cb3c9a9f064eb489969deb7b886670ea83d6f3bf",
+        "split": "train",
+        "source_seed": 2048,
+        "source_outcome": {
+          "command9": [
+            90.75585174560547,
+            99.46756744384766,
+            96.4905776977539,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "distance_m": 0.019916471707312373,
+          "goal_xyz": [
+            -0.06525546451921467,
+            0.01733810638535642,
+            0.5328666861195881
+          ],
+          "grasp_center_xyz": [
+            -0.05451429371720347,
+            0.0009841579825014086,
+            0.536587098288549
+          ],
+          "physical_run": false,
+          "steps": 7,
+          "success": true
+        }
+      },
+      {
+        "episode_index": 8,
+        "source_episode_id": "episode_0008",
+        "source_sha256": "22f7f5e043880de7d2c115785f99d5ba81b634062352c829c882f595c4805b1a",
+        "split": "train",
+        "source_seed": 2049,
+        "source_outcome": {
+          "command9": [
+            111.37020874023438,
+            102.83378601074219,
+            92.87398529052734,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "distance_m": 0.06552472708334954,
+          "goal_xyz": [
+            -0.06511203327680912,
+            -0.030913584030074884,
+            0.5305395699146374
+          ],
+          "grasp_center_xyz": [
+            -0.051992519317035704,
+            0.0330573716378636,
+            0.5359326250541109
+          ],
+          "physical_run": false,
+          "steps": 60,
+          "success": false
+        }
+      },
+      {
+        "episode_index": 9,
+        "source_episode_id": "episode_0009",
+        "source_sha256": "d07a33e44d06d2fd691e9c72c119c8a49e7f84bd769bb95b76a75b5a2c3f1276",
+        "split": "development",
+        "source_seed": 2050,
+        "source_outcome": {
+          "command9": [
+            112.53953552246094,
+            101.84464263916016,
+            92.41299438476562,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "distance_m": 0.05502330808120997,
+          "goal_xyz": [
+            -0.05701070595192995,
+            -0.021501629904542203,
+            0.5337431465362541
+          ],
+          "grasp_center_xyz": [
+            -0.04421496785420311,
+            0.03184201036239285,
+            0.5380197762613943
+          ],
+          "physical_run": false,
+          "steps": 60,
+          "success": false
+        }
+      },
+      {
+        "episode_index": 10,
+        "source_episode_id": "episode_0010",
+        "source_sha256": "f72e1d80f1193c8f6f8e62e8343a1c8dddb7fc8bfa4beade9d63a7843bbcbdfb",
+        "split": "development",
+        "source_seed": 2051,
+        "source_outcome": {
+          "command9": [
+            93.49942779541016,
+            83.38909912109375,
+            84.6008529663086,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "distance_m": 0.00263470539120012,
+          "goal_xyz": [
+            0.09132704075183407,
+            -0.0025566658076204467,
+            0.5427083379108738
+          ],
+          "grasp_center_xyz": [
+            0.09350563933672207,
+            -0.00385291668169193,
+            0.5419906232211733
+          ],
+          "physical_run": false,
+          "steps": 4,
+          "success": true
+        }
+      },
+      {
+        "episode_index": 11,
+        "source_episode_id": "episode_0011",
+        "source_sha256": "d66a932abd7f6a612d62d47a8d258fc52c6b8193503d343a8c2cf9c3f8d55930",
+        "split": "development",
+        "source_seed": 2052,
+        "source_outcome": {
+          "command9": [
+            93.49085998535156,
+            83.64334106445312,
+            84.84991455078125,
+            90.0,
+            90.0,
+            30.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "distance_m": 0.012510047217851261,
+          "goal_xyz": [
+            0.0886776505518968,
+            0.008602423001632232,
+            0.5432074383617023
+          ],
+          "grasp_center_xyz": [
+            0.09092062802977863,
+            -0.0036852481233865687,
+            0.5425121170331338
+          ],
+          "physical_run": false,
+          "steps": 4,
+          "success": true
+        }
+      }
+    ],
+    "source_implementation_sha256": "fe2222b46aceb13a2b51efce7582be250e686480ff7345e46a18b13797f9e072",
+    "settings": {
+      "optimizer_steps": 120,
+      "batch_size": 8,
+      "seed": 41,
+      "max_source_frames": 20000,
+      "image_size": 32,
+      "device": "cpu"
+    },
+    "physical_io": false,
+    "simulator_executed": false,
+    "method_ids": [
+      "ENGINEERING_GLUE"
+    ],
+    "source_domain": "simulated_recordings",
+    "state_basis": "command_estimate",
+    "action_basis": "command_endpoint_labels",
+    "source_splits_unchanged": true,
+    "sealed_test_used": false,
+    "source_declared_splits": {
+      "episode_0000": "imitation_train",
+      "episode_0001": "imitation_train",
+      "episode_0002": "imitation_train",
+      "episode_0003": "imitation_train",
+      "episode_0004": "imitation_train",
+      "episode_0005": "imitation_train",
+      "episode_0006": "imitation_train",
+      "episode_0007": "imitation_train",
+      "episode_0008": "imitation_train",
+      "episode_0009": "imitation_train",
+      "episode_0010": "imitation_train",
+      "episode_0011": "imitation_train"
+    },
+    "independent_session_split_verified": false,
+    "clock_domain": "NOT_RECORDED",
+    "native_timestamp_basis": "NOT_RECORDED",
+    "input_keys": [
+      "rgb_t",
+      "native_state_t",
+      "action_t"
+    ],
+    "target_keys": [
+      "rgb_t_plus_1",
+      "native_state_t_plus_1"
+    ],
+    "normalization": "Fixed source-contract low/high; no development statistics fitted",
+    "outcome_policy": "Failed/unknown episodes may teach dynamics; not relabelled as expert BC targets",
+    "split_scope": "Disjoint episodes within this world-model fit; prior use by other development pipelines is not erased"
+  },
+  "optimization": {
+    "action_conditioned": {
+      "optimizer_steps": 120,
+      "optimizer_restored_steps": [
+        120
+      ],
+      "weights_changed": true,
+      "initial_weights_sha256": "9b1c65c8dc8a5fe1ea4d1b3f754014be2650f87f2afd2fedd3c16f9c0778a86f",
+      "final_weights_sha256": "67af8b2de5a3334d125bd9cdde4734a88c178ff0898b7468007688394666a008",
+      "reload_max_abs_error": 0.0,
+      "first_loss": {
+        "step": 1,
+        "rgb_mse": 6.650587693002308e-06,
+        "normalized_state_mse": 4.3099884351249784e-05,
+        "loss": 4.9750473408494145e-05
+      },
+      "last_loss": {
+        "step": 120,
+        "rgb_mse": 5.296220933814766e-06,
+        "normalized_state_mse": 3.118538006674498e-05,
+        "loss": 3.64816005458124e-05
+      },
+      "parameter_count": 54916
+    },
+    "action_agnostic": {
+      "optimizer_steps": 120,
+      "optimizer_restored_steps": [
+        120
+      ],
+      "weights_changed": true,
+      "initial_weights_sha256": "9b1c65c8dc8a5fe1ea4d1b3f754014be2650f87f2afd2fedd3c16f9c0778a86f",
+      "final_weights_sha256": "925c03e13bb6516c11744945b0d7f41afa93ebb9aa10e2eb6b10be211c3abd87",
+      "reload_max_abs_error": 0.0,
+      "first_loss": {
+        "step": 1,
+        "rgb_mse": 6.650587693002308e-06,
+        "normalized_state_mse": 4.3099884351249784e-05,
+        "loss": 4.9750473408494145e-05
+      },
+      "last_loss": {
+        "step": 120,
+        "rgb_mse": 5.2930299716535956e-06,
+        "normalized_state_mse": 3.149739859509282e-05,
+        "loss": 3.6790428566746414e-05
+      },
+      "parameter_count": 54916
+    }
+  },
+  "evaluation": {
+    "action_conditioned": {
+      "transitions": 65,
+      "episodes": 3,
+      "transition_weighted": {
+        "rgb_mse_0_1": 2.8118300616160225e-06,
+        "rgb_mae_0_1": 0.0002817905816930131,
+        "normalized_state_mse": 1.5934207673550506e-05,
+        "state_mae_native": {
+          "base": {
+            "value": 0.13431830772986778,
+            "unit": "degrees"
+          },
+          "shoulder": {
+            "value": 0.48428368201622596,
+            "unit": "degrees"
+          },
+          "elbow": {
+            "value": 0.3669144850510817,
+            "unit": "degrees"
+          },
+          "wrist_pitch": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "wrist_roll": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "gripper": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "vx": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "vy": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "wz": {
+            "value": 0.0,
+            "unit": "rad/s"
+          }
+        }
+      },
+      "episode_weighted": {
+        "rgb_mse_0_1": 1.2161671007748076e-05,
+        "rgb_mae_0_1": 0.0005955799502384606,
+        "normalized_state_mse": 8.237776302213655e-05,
+        "state_mae_native": {
+          "base": {
+            "value": 0.420667960818878,
+            "unit": "degrees"
+          },
+          "shoulder": {
+            "value": 1.5788019327569591,
+            "unit": "degrees"
+          },
+          "elbow": {
+            "value": 1.2035007225367085,
+            "unit": "degrees"
+          },
+          "wrist_pitch": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "wrist_roll": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "gripper": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "vx": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "vy": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "wz": {
+            "value": 0.0,
+            "unit": "rad/s"
+          }
+        }
+      },
+      "per_episode": {
+        "episode_0009": {
+          "transitions": 59,
+          "rgb_mse_0_1": 1.309177052416228e-06,
+          "rgb_mae_0_1": 0.0002313601474624948,
+          "normalized_state_mse": 5.25577913538489e-06,
+          "state_mae_native": {
+            "base": {
+              "value": 0.088297827769134,
+              "unit": "degrees"
+            },
+            "shoulder": {
+              "value": 0.30837896314717955,
+              "unit": "degrees"
+            },
+            "elbow": {
+              "value": 0.23246312545517744,
+              "unit": "degrees"
+            },
+            "wrist_pitch": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "wrist_roll": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "gripper": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "vx": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "vy": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "wz": {
+              "value": 0.0,
+              "unit": "rad/s"
+            }
+          }
+        },
+        "episode_0010": {
+          "transitions": 3,
+          "rgb_mse_0_1": 1.852831701398827e-05,
+          "rgb_mae_0_1": 0.0008013211190700531,
+          "normalized_state_mse": 0.00012459926559434584,
+          "state_mae_native": {
+            "base": {
+              "value": 0.5896352132161459,
+              "unit": "degrees"
+            },
+            "shoulder": {
+              "value": 2.2481231689453125,
+              "unit": "degrees"
+            },
+            "elbow": {
+              "value": 1.7248153686523438,
+              "unit": "degrees"
+            },
+            "wrist_pitch": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "wrist_roll": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "gripper": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "vx": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "vy": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "wz": {
+              "value": 0.0,
+              "unit": "rad/s"
+            }
+          }
+        },
+        "episode_0011": {
+          "transitions": 3,
+          "rgb_mse_0_1": 1.664751895683973e-05,
+          "rgb_mae_0_1": 0.0007540585841828337,
+          "normalized_state_mse": 0.00011727824433667895,
+          "state_mae_native": {
+            "base": {
+              "value": 0.5840708414713541,
+              "unit": "degrees"
+            },
+            "shoulder": {
+              "value": 2.1799036661783853,
+              "unit": "degrees"
+            },
+            "elbow": {
+              "value": 1.6532236735026042,
+              "unit": "degrees"
+            },
+            "wrist_pitch": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "wrist_roll": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "gripper": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "vx": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "vy": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "wz": {
+              "value": 0.0,
+              "unit": "rad/s"
+            }
+          }
+        }
+      },
+      "task_success_evaluated": false,
+      "sealed_test_used": false
+    },
+    "action_agnostic": {
+      "transitions": 65,
+      "episodes": 3,
+      "transition_weighted": {
+        "rgb_mse_0_1": 2.807428713297738e-06,
+        "rgb_mae_0_1": 0.000274636777332769,
+        "normalized_state_mse": 1.6253348540938253e-05,
+        "state_mae_native": {
+          "base": {
+            "value": 0.13575298602764424,
+            "unit": "degrees"
+          },
+          "shoulder": {
+            "value": 0.5079204852764423,
+            "unit": "degrees"
+          },
+          "elbow": {
+            "value": 0.38637014535757214,
+            "unit": "degrees"
+          },
+          "wrist_pitch": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "wrist_roll": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "gripper": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "vx": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "vy": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "wz": {
+            "value": 0.0,
+            "unit": "rad/s"
+          }
+        }
+      },
+      "episode_weighted": {
+        "rgb_mse_0_1": 1.214852048501161e-05,
+        "rgb_mae_0_1": 0.0005889752708294775,
+        "normalized_state_mse": 8.29367054490395e-05,
+        "state_mae_native": {
+          "base": {
+            "value": 0.41931284529116636,
+            "unit": "degrees"
+          },
+          "shoulder": {
+            "value": 1.592384582634475,
+            "unit": "degrees"
+          },
+          "elbow": {
+            "value": 1.215273553593235,
+            "unit": "degrees"
+          },
+          "wrist_pitch": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "wrist_roll": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "gripper": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "vx": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "vy": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "wz": {
+            "value": 0.0,
+            "unit": "rad/s"
+          }
+        }
+      },
+      "per_episode": {
+        "episode_0009": {
+          "transitions": 59,
+          "rgb_mse_0_1": 1.306181821415151e-06,
+          "rgb_mae_0_1": 0.00022411809087794084,
+          "normalized_state_mse": 5.53638046642198e-06,
+          "state_mae_native": {
+            "base": {
+              "value": 0.09018086578886388,
+              "unit": "degrees"
+            },
+            "shoulder": {
+              "value": 0.3336316124867585,
+              "unit": "degrees"
+            },
+            "elbow": {
+              "value": 0.25315352617684056,
+              "unit": "degrees"
+            },
+            "wrist_pitch": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "wrist_roll": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "gripper": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "vx": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "vy": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "wz": {
+              "value": 0.0,
+              "unit": "rad/s"
+            }
+          }
+        },
+        "episode_0010": {
+          "transitions": 3,
+          "rgb_mse_0_1": 1.8509924605799217e-05,
+          "rgb_mae_0_1": 0.0007950731475527087,
+          "normalized_state_mse": 0.00012531992979347706,
+          "state_mae_native": {
+            "base": {
+              "value": 0.5866343180338541,
+              "unit": "degrees"
+            },
+            "shoulder": {
+              "value": 2.2559687296549478,
+              "unit": "degrees"
+            },
+            "elbow": {
+              "value": 1.732190450032552,
+              "unit": "degrees"
+            },
+            "wrist_pitch": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "wrist_roll": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "gripper": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "vx": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "vy": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "wz": {
+              "value": 0.0,
+              "unit": "rad/s"
+            }
+          }
+        },
+        "episode_0011": {
+          "transitions": 3,
+          "rgb_mse_0_1": 1.6629455027820466e-05,
+          "rgb_mae_0_1": 0.0007477345740577827,
+          "normalized_state_mse": 0.00011795380608721946,
+          "state_mae_native": {
+            "base": {
+              "value": 0.5811233520507812,
+              "unit": "degrees"
+            },
+            "shoulder": {
+              "value": 2.1875534057617188,
+              "unit": "degrees"
+            },
+            "elbow": {
+              "value": 1.6604766845703125,
+              "unit": "degrees"
+            },
+            "wrist_pitch": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "wrist_roll": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "gripper": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "vx": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "vy": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "wz": {
+              "value": 0.0,
+              "unit": "rad/s"
+            }
+          }
+        }
+      },
+      "task_success_evaluated": false,
+      "sealed_test_used": false
+    },
+    "persistence": {
+      "transitions": 65,
+      "episodes": 3,
+      "transition_weighted": {
+        "rgb_mse_0_1": 2.757815227028004e-06,
+        "rgb_mae_0_1": 0.00016744438499489872,
+        "normalized_state_mse": 1.658342842417299e-05,
+        "state_mae_native": {
+          "base": {
+            "value": 0.4422128530649038,
+            "unit": "degrees"
+          },
+          "shoulder": {
+            "value": 0.35514502892127403,
+            "unit": "degrees"
+          },
+          "elbow": {
+            "value": 0.27904710036057695,
+            "unit": "degrees"
+          },
+          "wrist_pitch": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "wrist_roll": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "gripper": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "vx": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "vy": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "wz": {
+            "value": 0.0,
+            "unit": "rad/s"
+          }
+        }
+      },
+      "episode_weighted": {
+        "rgb_mse_0_1": 1.1992512217711757e-05,
+        "rgb_mae_0_1": 0.0004897393116551752,
+        "normalized_state_mse": 7.16575513840228e-05,
+        "state_mae_native": {
+          "base": {
+            "value": 0.7522443925818032,
+            "unit": "degrees"
+          },
+          "shoulder": {
+            "value": 1.3229584774728549,
+            "unit": "degrees"
+          },
+          "elbow": {
+            "value": 1.0869102693546964,
+            "unit": "degrees"
+          },
+          "wrist_pitch": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "wrist_roll": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "gripper": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "vx": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "vy": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "wz": {
+            "value": 0.0,
+            "unit": "rad/s"
+          }
+        }
+      },
+      "per_episode": {
+        "episode_0009": {
+          "transitions": 59,
+          "rgb_mse_0_1": 1.2736674963824013e-06,
+          "rgb_mae_0_1": 0.00011564698606735427,
+          "normalized_state_mse": 7.732230091339985e-06,
+          "state_mae_native": {
+            "base": {
+              "value": 0.39238635564254504,
+              "unit": "degrees"
+            },
+            "shoulder": {
+              "value": 0.1996035818326271,
+              "unit": "degrees"
+            },
+            "elbow": {
+              "value": 0.14921194820080774,
+              "unit": "degrees"
+            },
+            "wrist_pitch": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "wrist_roll": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "gripper": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "vx": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "vy": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "wz": {
+              "value": 0.0,
+              "unit": "rad/s"
+            }
+          }
+        },
+        "episode_0010": {
+          "transitions": 3,
+          "rgb_mse_0_1": 1.8297250941638293e-05,
+          "rgb_mae_0_1": 0.0007008272029149035,
+          "normalized_state_mse": 0.00010687463145586662,
+          "state_mae_native": {
+            "base": {
+              "value": 0.9349288940429688,
+              "unit": "degrees"
+            },
+            "shoulder": {
+              "value": 1.9188385009765625,
+              "unit": "degrees"
+            },
+            "elbow": {
+              "value": 1.5916112263997395,
+              "unit": "degrees"
+            },
+            "wrist_pitch": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "wrist_roll": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "gripper": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "vx": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "vy": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "wz": {
+              "value": 0.0,
+              "unit": "rad/s"
+            }
+          }
+        },
+        "episode_0011": {
+          "transitions": 3,
+          "rgb_mse_0_1": 1.6406618215114577e-05,
+          "rgb_mae_0_1": 0.0006527437459832678,
+          "normalized_state_mse": 0.00010036579260486178,
+          "state_mae_native": {
+            "base": {
+              "value": 0.9294179280598959,
+              "unit": "degrees"
+            },
+            "shoulder": {
+              "value": 1.850433349609375,
+              "unit": "degrees"
+            },
+            "elbow": {
+              "value": 1.5199076334635417,
+              "unit": "degrees"
+            },
+            "wrist_pitch": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "wrist_roll": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "gripper": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "vx": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "vy": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "wz": {
+              "value": 0.0,
+              "unit": "rad/s"
+            }
+          }
+        }
+      },
+      "task_success_evaluated": false,
+      "sealed_test_used": false
+    },
+    "command_copy_plus_rgb_persistence": {
+      "transitions": 65,
+      "episodes": 3,
+      "transition_weighted": {
+        "rgb_mse_0_1": 2.757815227028004e-06,
+        "rgb_mae_0_1": 0.00016744438499489872,
+        "normalized_state_mse": 6.019152430337185e-16,
+        "state_mae_native": {
+          "base": {
+            "value": 1.7606295072115386e-06,
+            "unit": "degrees"
+          },
+          "shoulder": {
+            "value": 1.7606295072115386e-06,
+            "unit": "degrees"
+          },
+          "elbow": {
+            "value": 2.2301307091346155e-06,
+            "unit": "degrees"
+          },
+          "wrist_pitch": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "wrist_roll": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "gripper": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "vx": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "vy": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "wz": {
+            "value": 0.0,
+            "unit": "rad/s"
+          }
+        }
+      },
+      "episode_weighted": {
+        "rgb_mse_0_1": 1.1992512217711757e-05,
+        "rgb_mae_0_1": 0.0004897393116551752,
+        "normalized_state_mse": 3.052489193216463e-16,
+        "state_mae_native": {
+          "base": {
+            "value": 1.4511654381473634e-06,
+            "unit": "degrees"
+          },
+          "shoulder": {
+            "value": 6.465588585805084e-07,
+            "unit": "degrees"
+          },
+          "elbow": {
+            "value": 8.189745542019774e-07,
+            "unit": "degrees"
+          },
+          "wrist_pitch": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "wrist_roll": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "gripper": {
+            "value": 0.0,
+            "unit": "degrees"
+          },
+          "vx": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "vy": {
+            "value": 0.0,
+            "unit": "m/s"
+          },
+          "wz": {
+            "value": 0.0,
+            "unit": "rad/s"
+          }
+        }
+      },
+      "per_episode": {
+        "episode_0009": {
+          "transitions": 59,
+          "rgb_mse_0_1": 1.2736674963824013e-06,
+          "rgb_mae_0_1": 0.00011564698606735427,
+          "normalized_state_mse": 6.495937593445873e-16,
+          "state_mae_native": {
+            "base": {
+              "value": 1.8103648040254238e-06,
+              "unit": "degrees"
+            },
+            "shoulder": {
+              "value": 1.9396765757415253e-06,
+              "unit": "degrees"
+            },
+            "elbow": {
+              "value": 2.456923662605932e-06,
+              "unit": "degrees"
+            },
+            "wrist_pitch": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "wrist_roll": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "gripper": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "vx": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "vy": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "wz": {
+              "value": 0.0,
+              "unit": "rad/s"
+            }
+          }
+        },
+        "episode_0010": {
+          "transitions": 3,
+          "rgb_mse_0_1": 1.8297250941638293e-05,
+          "rgb_mae_0_1": 0.0007008272029149035,
+          "normalized_state_mse": 2.6615299862035174e-16,
+          "state_mae_native": {
+            "base": {
+              "value": 2.5431315104166665e-06,
+              "unit": "degrees"
+            },
+            "shoulder": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "elbow": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "wrist_pitch": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "wrist_roll": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "gripper": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "vx": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "vy": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "wz": {
+              "value": 0.0,
+              "unit": "rad/s"
+            }
+          }
+        },
+        "episode_0011": {
+          "transitions": 3,
+          "rgb_mse_0_1": 1.6406618215114577e-05,
+          "rgb_mae_0_1": 0.0006527437459832678,
+          "normalized_state_mse": 0.0,
+          "state_mae_native": {
+            "base": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "shoulder": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "elbow": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "wrist_pitch": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "wrist_roll": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "gripper": {
+              "value": 0.0,
+              "unit": "degrees"
+            },
+            "vx": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "vy": {
+              "value": 0.0,
+              "unit": "m/s"
+            },
+            "wz": {
+              "value": 0.0,
+              "unit": "rad/s"
+            }
+          }
+        }
+      },
+      "task_success_evaluated": false,
+      "sealed_test_used": false
+    }
+  },
+  "source_transitions": {
+    "train": {
+      "used": 90,
+      "dropped_nonfuture_observations": 0,
+      "temporal_basis": {
+        "episode_0000": "index_order_only_no_native_timestamps",
+        "episode_0001": "index_order_only_no_native_timestamps",
+        "episode_0002": "index_order_only_no_native_timestamps",
+        "episode_0003": "index_order_only_no_native_timestamps",
+        "episode_0004": "index_order_only_no_native_timestamps",
+        "episode_0005": "index_order_only_no_native_timestamps",
+        "episode_0006": "index_order_only_no_native_timestamps",
+        "episode_0007": "index_order_only_no_native_timestamps",
+        "episode_0008": "index_order_only_no_native_timestamps"
+      }
+    },
+    "development": {
+      "used": 65,
+      "dropped_nonfuture_observations": 0,
+      "temporal_basis": {
+        "episode_0009": "index_order_only_no_native_timestamps",
+        "episode_0010": "index_order_only_no_native_timestamps",
+        "episode_0011": "index_order_only_no_native_timestamps"
+      }
+    }
+  },
+  "artifact_directory": "/tmp/explorer-world-model-validation/jobs/action-centric-v2/offline-world-model-330bc3f62f8442f3be4c15973d84da08",
+  "artifact_sha256": {
+    "offline-world-model-330bc3f62f8442f3be4c15973d84da08/action_agnostic/config.json": "e3c98eefa9b82b29b9be1bfac598dab476dffd7961a8a2ff42afcbebfc1183c9",
+    "offline-world-model-330bc3f62f8442f3be4c15973d84da08/action_agnostic/losses.jsonl": "0285dedc5c0a2369426da0969cce726759e68570077a356f433b35d052b17d66",
+    "offline-world-model-330bc3f62f8442f3be4c15973d84da08/action_agnostic/model.pt": "718b065276804c9245d8d454da0e241409c6b4bd45c806b15db54a2221191506",
+    "offline-world-model-330bc3f62f8442f3be4c15973d84da08/action_agnostic/optimizer.pt": "65dfa877936f253e7545fb94dd88100bd64d32c38f4fc902e4e4bca5633d7641",
+    "offline-world-model-330bc3f62f8442f3be4c15973d84da08/action_conditioned/config.json": "e92b4b4c917039e7e1a58d30d948738c1bf9d854c7a7c2a826ed8679eca206f5",
+    "offline-world-model-330bc3f62f8442f3be4c15973d84da08/action_conditioned/losses.jsonl": "29d7af7ac80d5a72aabd22cb102dad4e20b2dcb24ad00451112dd3ecffe9e818",
+    "offline-world-model-330bc3f62f8442f3be4c15973d84da08/action_conditioned/model.pt": "d3ac800a6f2c17758f02b0d6affc4255bd89b8e26eb9f2a4e5a5bc889a27bcfe",
+    "offline-world-model-330bc3f62f8442f3be4c15973d84da08/action_conditioned/optimizer.pt": "39bf0d0be40fe37e1b4bf19cc7bb373527966c29d14a8933661286566f3038a1",
+    "offline-world-model-330bc3f62f8442f3be4c15973d84da08/prediction-preview.json": "af7b54deffa4028c32ce253f6e3b1669ceab529db18b2558af8da89ab8b6fdf3",
+    "offline-world-model-330bc3f62f8442f3be4c15973d84da08/prediction-preview.png": "8d08b4aee58ae330daef625cd4f073566232db6e7cdafdd5ad5eeb2fb9e34449",
+    "offline-world-model-330bc3f62f8442f3be4c15973d84da08/provenance.json": "e029adcd0266ed177dfd9eb0d2753508cfffeb743c8e059d13d5e79bd572d084",
+    "offline-world-model-330bc3f62f8442f3be4c15973d84da08/evaluation.json": "8efc56042cdcb58edf8d614b07cd612d4061e3a96ce305a3a3cf6ef6e7d8bfdb"
+  },
+  "framework_versions": {
+    "torch": "2.14.1",
+    "numpy": "2.5.4"
+  },
+  "runtime": {
+    "device": "cpu",
+    "platform": "Darwin",
+    "machine": "arm64",
+    "torch_num_threads": 4
+  },
+  "elapsed_s": 0.8191389580024406,
+  "completed_wall_utc": "2026-10-26T01:00:26.641516+00:00",
+  "limits": [
+    "One-step teacher-forced errors are not long-horizon rollout or task success",
+    "Observational trajectories do not establish counterfactual action effects",
+    "Command-state targets may copy previous actions by construction; not measured physical dynamics",
+    "Declared native timestamps do not independently establish sensor exposure or clock calibration",
+    "No policy planning, learned-policy actuation, independent physical validation or H1-H5 result"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "source_result_path": "/tmp/explorer-world-model-validation/jobs/action-centric-v2/result.json",
+  "source_result_sha256": "4ae5134faa6729a981391878a0982e2821fc3ef3724d03d7a07cbb42832e4ae5",
+  "copied_without_modification": true,
+  "source_dataset_manifest": "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/manifest.json",
+  "source_dataset_manifest_sha256": "c8e7ed44c870b2d201c258fdb06371f89669e1e0ebfe6659fcac60411ec9efc7",
+  "source_implementation_sha256": "fe2222b46aceb13a2b51efce7582be250e686480ff7345e46a18b13797f9e072",
+  "weights_and_optimizer_checkpoints": "Retained in local artifact_directory from RESULT.json, not committed to Git",
+  "captured_artifact_sha256": {
+    "RESULT.json": "4ae5134faa6729a981391878a0982e2821fc3ef3724d03d7a07cbb42832e4ae5",
+    "action_agnostic-losses.jsonl": "0285dedc5c0a2369426da0969cce726759e68570077a356f433b35d052b17d66",
+    "prediction-preview.png": "8d08b4aee58ae330daef625cd4f073566232db6e7cdafdd5ad5eeb2fb9e34449",
+    "prediction-preview.json": "af7b54deffa4028c32ce253f6e3b1669ceab529db18b2558af8da89ab8b6fdf3",
+    "action_conditioned-losses.jsonl": "29d7af7ac80d5a72aabd22cb102dad4e20b2dcb24ad00451112dd3ecffe9e818"
+  }
+}

@@ -1339,6 +1339,57 @@
         }
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-OFFLINE-ACTION-WORLD-MODEL-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/world_model.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.Conv2d.html",
+          "role": "Standard convolution primitive; official versioned API inspected, no upstream model copied"
+        },
+        {
+          "url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.MSELoss.html",
+          "role": "Direct next-pixel squared-error supervision, not latent-target agreement"
+        },
+        {
+          "url": "project-file:01-autonomous-learning/src/explorer_sim/dataset_export.py",
+          "role": "Existing immutable NPZ loader and causal/split validation, reused without edits"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_ENGINEERING_BASELINE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "PRIVATE_OWNER_CHECKPOINT_NOT_SEPARATELY_LICENSED",
+      "data_license": "PRIVATE_OWNER_DATASET_NO_REDISTRIBUTION_LICENSE_ASSERTED",
+      "changes_and_reason": "Known compact residual CNN/MLP next-RGB/native-state baseline with action conditioning; matched zero-action model, no-change persistence and command-copy diagnostic. Current-only inputs, post-action next targets, whole-episode development reservation and sealed-role rejection. Direct RGB reconstruction prevents an unconstrained latent-only agreement objective. No new algorithm, policy/control output or scientific advantage claimed.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false,
+        "physical_task_validated": false,
+        "edge_gpu_world_model_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest 01-autonomous-learning/tests/test_world_model.py -q",
+          "result": "6 passed; actual optimizer and exact model/optimizer reload, causal boundaries and timestamp drops, source ID/hash/frame/session aliases, sealed roles, immutable split reservation and artifact tamper checks",
+          "scope": "Synthetic fixtures, including measured-state schema; not hardware data collection"
+        },
+        {
+          "run_id": "action-centric-v2",
+          "path": "research/experiments/offline-world-model-20261026/RESULT.json",
+          "source_json_sha256": "4ae5134faa6729a981391878a0982e2821fc3ef3724d03d7a07cbb42832e4ae5",
+          "source_implementation_sha256": "fe2222b46aceb13a2b51efce7582be250e686480ff7345e46a18b13797f9e072",
+          "scope": "Darwin arm64 CPU, real saved simulator NPZ: 9 train episodes/90 transitions including one failed; 3 development episodes/65 transitions including one failed. Each model 120 actual Adam steps, changed weights, optimizer restored step120, prediction reload0. RGB persistence and episode-weighted state persistence outperform both learned models; command-copy state error nearly zero because state is an estimate of commands. No H1-H5, physical-task, causal-action-effect or long-horizon qualification."
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

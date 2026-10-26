@@ -1,0 +1,9 @@
+{
+  "source": "held_out_offline_episode_not_live_camera",
+  "episode_id": "episode_0009",
+  "current_frame_index": 0,
+  "target_frame_index": 1,
+  "native_rgb_resized_for_model": true,
+  "display_upscale": "nearest, no invented detail",
+  "physical_success_inferred": false
+}
