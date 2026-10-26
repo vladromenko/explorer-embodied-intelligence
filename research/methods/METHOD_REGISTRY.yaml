@@ -4471,6 +4471,131 @@
       },
       "test_evidence": [],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-COOPERATIVE-CPU-MODEL-WORKER-20261026",
+      "function_or_module": "00-control-center/src/explorer/cooperative_policy_job.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Admitted durable CPU worker loads separately typed native106/native6 models before GET-only inference and private IPC. No hardware lease or actuator calls.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-COOPERATIVE-PRIVATE-CPU-ACTOR-20261026",
+      "function_or_module": "shared/explorer_shared/cooperative_policy_actor.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Private Unix IPC binds PID/start/boot/nonce, immutable session epoch and bounded compute TTL; model callback ownership stays in one shared-queue worker.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-RESEARCH-EXPORT-API-20261026",
+      "function_or_module": "00-control-center/src/explorer/research_export_api.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Authenticated selected-ID queue creation and fixed managed SHA-verified download; no browser filesystem input.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-RESEARCH-EXPORT-WORKER-20261026",
+      "function_or_module": "00-control-center/src/explorer/research_export_job.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Server-pinned selected evidence sidecar, budget estimate, byte copy, independent restore and immutable verified TAR; unknown dependencies remain PARTIAL.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-ACT9-CUDA-PROCESS-PROFILE-20261026",
+      "function_or_module": "shared/explorer_shared/learning/runtime_profiles.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Named narrow 64/batch2/chunk4 FP32 state9/action9 runtime constraints before CUDA startup, separate from model/loss/optimizer math; profile requires fresh actual qualification.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
