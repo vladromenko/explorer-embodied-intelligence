@@ -21,6 +21,7 @@ from explorer_shared.research_export import (ExportRejected, LIMITS, assert_secr
     export_evidence, restore_export, verify_export, _relative, _check_text)
 from explorer_shared.source_archive import canonical, sha, _write
 from .research_export import registry_from_store
+from .initial_state_export import recorded_claims, inspect_recorded_bundle
 
 SCHEMA = 'explorer_research_export_request_v1'
 MAX_SELECTED_JOBS = 32
@@ -401,6 +402,8 @@ def _inventory(store, registry, source_rows):
     nodes, roots, missing, pending, seen, accepted, attempted, folders = [], {}, [], [], set(), set(), set(), {}
     selected = set(source_rows)
     total = 0
+    initial_permissions, deferred_binary, initial_claims_seen, initial_receipts = {}, [], set(), set()
+    metadata_complete = False
     def issue(path, reason):
         try:locator = str(Path(path).absolute().relative_to(state))
         except ValueError:locator = 'OUTSIDE_MANAGED_ROOT_SHA_' + sha(str(path).encode())
@@ -427,6 +430,56 @@ def _inventory(store, registry, source_rows):
             raise ExportRejected('Scientific alias changes managed tree')
         roots[key] = str(root)
         return locator, resolved, key, resolved.relative_to(root).as_posix()
+    def initial_claims(value, base, owner):
+        for record in recorded_claims(value):
+            identity = sha(canonical(record))
+            if (owner, identity) not in initial_claims_seen:
+                initial_claims_seen.add((owner, identity))
+                locator = record.get('manifest_path')
+                try:
+                    admitted = inspect_recorded_bundle(record, base=base, managed_file=managed,
+                        hash_file=_hash, limits=LIMITS)
+                    manifest = admitted['manifest_path']
+                    _, _, manifest_key, manifest_relative = managed(manifest)
+                    manifest_node = 'file:' + sha((manifest_key + '/' + manifest_relative).encode())
+                    admission_node = 'initial-state:' + sha((manifest_node + admitted['manifest_sha256']).encode())
+                    permissions = {}
+                    for payload in admitted['payloads']:
+                        path = payload['path']
+                        permission = dict(admitted['admission'], manifest_node_id=manifest_node, admission_node_id=admission_node,
+                            payload_sha256=payload['sha256'], payload_size_bytes=payload['size_bytes'])
+                        if str(path) in initial_permissions and initial_permissions[str(path)] != permission:
+                            raise ExportRejected('Initial-state payload has conflicting bundle bindings')
+                        permissions[str(path)] = permission
+                    upgrades = []
+                    for node in nodes:
+                        if node.get('root') in roots:
+                            existing_path = str(Path(roots[node['root']]) / node['relative_path'])
+                            permission = permissions.get(existing_path)
+                            if permission is not None:
+                                if (node['sha256'], node['size_bytes']) != (permission['payload_sha256'], permission['payload_size_bytes']):
+                                    raise ExportRejected('Initial-state previously selected payload changed')
+                                upgrades.append((node, permission))
+                    # Grant the whole validated inventory together, never a
+                    # prefix left behind by a later descriptor rejection.
+                    initial_permissions.update(permissions)
+                    for node, permission in upgrades:
+                        node['format_admission'] = permission
+                        node['dependencies'] = [permission['admission_node_id']]
+                    if admission_node not in initial_receipts:
+                        initial_receipts.add(admission_node)
+                        receipt = dict(admitted['admission'], manifest_root=manifest_key,
+                            manifest_relative_path=manifest_relative,
+                            payload_inventory={payload['path'].relative_to(manifest.parent).as_posix():
+                                dict(sha256=payload['sha256'], size_bytes=payload['size_bytes']) for payload in admitted['payloads']})
+                        raw_receipt = canonical(receipt)
+                        nodes.append(dict(id=admission_node, role='profile', source_id=owner,
+                            inline_utf8=raw_receipt.decode(), sha256=sha(raw_receipt), dependencies=[manifest_node]))
+                    pending.append((manifest, admitted['manifest_sha256'], owner))
+                    pending.extend((payload['path'], payload['sha256'], owner) for payload in admitted['payloads'])
+                except (OSError, ValueError) as error:
+                    issue(locator if isinstance(locator, str) else base,
+                        'INITIAL_STATE_BUNDLE_WITHHELD_' + type(error).__name__.upper())
     for ident, row in source_rows.items():
         directory = state / 'jobs' / ident
         paths = []
@@ -451,45 +504,59 @@ def _inventory(store, registry, source_rows):
         folders[ident] = paths
         for field in ('config', 'result'):
             if row.get(field):
-                pending.extend((path, expected, ident) for path, expected in _references(json.loads(row[field]), directory))
-    while pending:
+                document = json.loads(row[field])
+                initial_claims(document, directory, ident)
+                pending.extend((path, expected, ident) for path, expected in _references(document, directory))
+    while pending or deferred_binary:
+        if not pending:
+            pending, deferred_binary = deferred_binary, []
+            metadata_complete = True
         path, expected, owner = pending.pop(0)
-        try:
-            locator, resolved, key, relative = managed(path)
-            if expected is not None and (not isinstance(expected, str) or not re.fullmatch('[0-9a-f]{64}', expected)):
-                raise ExportRejected('Scientific source SHA declaration is malformed')
-            attempted_key = (str(resolved), expected)
-            if attempted_key not in attempted:
-                attempted.add(attempted_key)
-                seen.add(str(resolved))
-                if len(seen) > LIMITS['max_files'] or resolved.suffix.lower() not in EXTENSIONS:
-                    raise ExportRejected('Unknown scientific format or file count bound')
-                checksum, size = _hash(resolved)
-                if expected is not None and expected != checksum:
-                    raise ResearchExportBlocked('SOURCE_EXPECTED_SHA_MISMATCH', str(path))
-                if key.startswith('payload_') and expected is None and str(resolved) not in accepted:
-                    raise ExportRejected('External scientific payload has no explicit source SHA')
-                if size > LIMITS['max_json_bytes'] and resolved.suffix.lower() in ('.json', '.jsonl', '.ndjson'):
-                    raise ExportRejected('Scientific JSON inspection bound exceeded')
-                if resolved.suffix.lower() == '.tar':
-                    _inspect_tar(resolved, expected_sha256=checksum)
-                elif size <= LIMITS['max_json_bytes']:
-                    _check_text(resolved.read_bytes(), _role(resolved), resolved.name, LIMITS)
-                if str(resolved) not in accepted:
-                    accepted.add(str(resolved))
-                    total += size
-                    if total > LIMITS['max_total_bytes']:
-                        raise ResearchExportBlocked('SOURCE_INVENTORY_TOTAL_BOUND_EXCEEDED')
-                    node_id = 'file:' + sha((key + '/' + relative).encode())
-                    nodes.append(dict(id=node_id, role=_role(resolved), source_id=owner, root=key,
-                        relative_path=relative, sha256=checksum, size_bytes=size, dependencies=[]))
-                    if resolved.suffix.lower() == '.json':
-                        document = json.loads(resolved.read_bytes())
-                        pending.extend((child, digest, owner) for child, digest in _references(document, resolved.parent))
-        except ResearchExportBlocked:
-            raise
-        except (OSError, ValueError, tarfile.TarError) as error:
-            issue(path, 'DEPENDENCY_WITHHELD_' + type(error).__name__.upper())
+        if Path(path).suffix.lower() in ('.mjb', '.bin') and not metadata_complete:
+            deferred_binary.append((path, expected, owner))
+        else:
+            try:
+                locator, resolved, key, relative = managed(path)
+                if expected is not None and (not isinstance(expected, str) or not re.fullmatch('[0-9a-f]{64}', expected)):
+                    raise ExportRejected('Scientific source SHA declaration is malformed')
+                attempted_key = (str(resolved), expected)
+                if attempted_key not in attempted:
+                    attempted.add(attempted_key)
+                    seen.add(str(resolved))
+                    if len(seen) > LIMITS['max_files'] or (resolved.suffix.lower() not in EXTENSIONS and str(resolved) not in initial_permissions):
+                        raise ExportRejected('Unknown scientific format or file count bound')
+                    checksum, size = _hash(resolved)
+                    permission = initial_permissions.get(str(resolved))
+                    if permission is not None and (checksum, size) != (permission['payload_sha256'], permission['payload_size_bytes']):
+                        raise ResearchExportBlocked('INITIAL_STATE_ADMITTED_PAYLOAD_CHANGED', str(path))
+                    if expected is not None and expected != checksum:
+                        raise ResearchExportBlocked('SOURCE_EXPECTED_SHA_MISMATCH', str(path))
+                    if key.startswith('payload_') and expected is None and str(resolved) not in accepted:
+                        raise ExportRejected('External scientific payload has no explicit source SHA')
+                    if size > LIMITS['max_json_bytes'] and resolved.suffix.lower() in ('.json', '.jsonl', '.ndjson'):
+                        raise ExportRejected('Scientific JSON inspection bound exceeded')
+                    if resolved.suffix.lower() == '.tar':
+                        _inspect_tar(resolved, expected_sha256=checksum)
+                    elif size <= LIMITS['max_json_bytes']:
+                        _check_text(resolved.read_bytes(), _role(resolved), resolved.name, LIMITS)
+                    if str(resolved) not in accepted:
+                        accepted.add(str(resolved))
+                        total += size
+                        if total > LIMITS['max_total_bytes']:
+                            raise ResearchExportBlocked('SOURCE_INVENTORY_TOTAL_BOUND_EXCEEDED')
+                        node_id = 'file:' + sha((key + '/' + relative).encode())
+                        nodes.append(dict(id=node_id, role=_role(resolved), source_id=owner, root=key,
+                            relative_path=relative, sha256=checksum, size_bytes=size,
+                            dependencies=[] if permission is None else [permission['admission_node_id']],
+                            **({} if permission is None else dict(format_admission=permission))))
+                        if resolved.suffix.lower() == '.json':
+                            document = json.loads(resolved.read_bytes())
+                            initial_claims(document, resolved.parent, owner)
+                            pending.extend((child, digest, owner) for child, digest in _references(document, resolved.parent))
+            except ResearchExportBlocked:
+                raise
+            except (OSError, ValueError, tarfile.TarError) as error:
+                issue(path, 'DEPENDENCY_WITHHELD_' + type(error).__name__.upper())
     # Preserve all selected files as explicit roots; no directory is handed to TAR.
     registry['nodes'].extend(nodes)
     registry['root_ids'].extend(node['id'] for node in nodes)
