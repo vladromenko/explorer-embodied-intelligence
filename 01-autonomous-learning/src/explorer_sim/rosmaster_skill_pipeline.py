@@ -88,7 +88,7 @@ class RosmasterSkillPolicy:
         self.policy.reset();self.coordinator=PhaseCoordinator(self.phases)
     def predict(self,observation,read_payload,*,verify_observation=None,phase_evidence=None,verify_phase_evidence=None):
         import torch
-        from .student import IMAGE_KEY,prepare_rgb
+        from explorer_shared.learning.act_backend import IMAGE_KEY,prepare_rgb
         if not callable(verify_observation):raise PipelineBlocked('RUNTIME_SENSOR_ADMISSION_REQUIRED')
         admitted=verify_observation(deepcopy(observation),deepcopy(self.model))
         if not isinstance(admitted,dict):raise PipelineBlocked('RUNTIME_SENSOR_ADMISSION_REQUIRED')
@@ -220,7 +220,7 @@ class FusedChunks:
     def __len__(self):return len(self.indices)
     def __getitem__(self,index):
         import torch
-        from .student import IMAGE_KEY,prepare_rgb
+        from explorer_shared.learning.act_backend import IMAGE_KEY,prepare_rgb
         episode_index,position=self.indices[index];episode=self.episodes[episode_index];frame=episode['frames'][position]
         image=rgb_image(frame['rgb_record'],lambda name:self.corpus.read(episode,name))
         image=np.asarray(Image.fromarray(image).resize((self.image_size,self.image_size),Image.Resampling.BILINEAR))
@@ -247,7 +247,7 @@ def hybrid_prediction(phase_model,corpus,episode,frame,act_action):
 
 def offline_metrics(policy,corpus,samples,phase_model,device):
     import torch
-    from .student import IMAGE_KEY
+    from explorer_shared.learning.act_backend import IMAGE_KEY
     baseline=np.zeros(9);hybrid=np.zeros(9);count=0;hybrid_count=0;blocked=Counter();phase_correct=0;predictions=[]
     policy.eval()
     for index,(episode_index,position) in enumerate(samples.indices):
@@ -269,8 +269,8 @@ def offline_metrics(policy,corpus,samples,phase_model,device):
 
 def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None):
     import torch
-    from .student import IMAGE_KEY,framework_info,make_act_policy,optimize_act,save_reload_act
-    from .pilot import state_digest
+    from explorer_shared.learning.act_backend import IMAGE_KEY,framework_info,make_act_policy,optimize_act,save_reload_act
+    from explorer_shared.learning.artifacts import state_digest
     options=dict(seed=41,act_steps=8,batch_size=2,image_size=32,chunk_size=2,device='cpu',threads=1)
     if settings and set(settings)-set(options):raise ValueError('Unsupported fused ACT setting')
     options.update(settings or {})

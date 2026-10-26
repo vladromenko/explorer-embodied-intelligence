@@ -14,7 +14,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from .dataset_export import load_episode, validate_splits
 from .pilot import HIGH, LOW, parameters, preserve_interrupted_attempt, sha, state_digest, utc, write_json
-from .student import (IMAGE_KEY, framework_info, make_act_policy, optimize_act,
+from explorer_shared.learning.act_backend import (IMAGE_KEY, framework_info, make_act_policy, optimize_act,
                       prepare_rgb, preprocessing_config, save_reload_act)
 
 

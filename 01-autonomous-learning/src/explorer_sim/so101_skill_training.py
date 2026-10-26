@@ -12,9 +12,10 @@ from PIL import Image
 import torch
 
 from .dataset_export import verify_lerobot_v3,load_episode
-from .pilot import parameters,sha,state_digest,write_json
+from explorer_shared.learning.settings import act_parameters as parameters
+from explorer_shared.learning.artifacts import sha,state_digest,write_json
 from .recorded_training import RecordedChunks,offline_evaluation
-from .student import IMAGE_KEY,make_act_policy,optimize_act,save_reload_act,preprocessing_config,framework_info
+from explorer_shared.learning.act_backend import IMAGE_KEY,make_act_policy,optimize_act,save_reload_act,preprocessing_config,framework_info
 from explorer_shared.contracts import digest
 from explorer_shared.so101_station import NAMES,UNITS,LOW,HIGH
 

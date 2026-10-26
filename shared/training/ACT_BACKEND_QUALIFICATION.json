@@ -1,0 +1,59 @@
+{
+  "scope": "Homebrain temporary officialACT6 matched old8 vs shared4+restart+4; no hardware/physics",
+  "actual": {
+    "action_dimension": 6,
+    "artifacts_implementation_sha256": "4096cf4bd3ebbc8df354c0e15c8dce5afb4d161fde41731606bc7cbada775216",
+    "backend_implementation_sha256": "12de6302feca5a8364c3a55e69132ab4a20df01b35cacd7679e76483cec871ef",
+    "bit_exact_checkpoint_files": true,
+    "bit_exact_loss_history": true,
+    "bit_exact_optimizer_state": true,
+    "bit_exact_weights": true,
+    "checkpoint_sha256": {
+      "config.json": "2527b10235bfce11fe649e0bfc62dbd24c623db6b8bab81c1914ce210843e178",
+      "explorer_preprocessing.json": "15b7aa2cb8a5cbfb5412659a2174dc6ee7a66f1a868cf55e25b7e0fd262c3943",
+      "model.safetensors": "93d49425999ae3d8f5db0e73b7a079436f11faed9cf9ecf8ef2f6c8d511633b3"
+    },
+    "learned_policy_rollout_executed": false,
+    "legacy_checkpoint_incompatible_graph_rejected_without_overwrite": true,
+    "loss_first": 0.9245436191558838,
+    "loss_last": 0.46753811836242676,
+    "matched_optimizer_budget_per_run": 8,
+    "physical_io": false,
+    "physical_task_success": false,
+    "reference_sha256": "ce4610c12b13ca8689fb96dee26aebb274fbb2bf8b8fd88b730b040a99e0a866",
+    "reload_max_abs_error": 0.0,
+    "schema": "explorer_shared_ACT_extraction_qualification_v1",
+    "simulator_executed": false,
+    "source_bytes_preserved": true,
+    "source_kind": "SIMULATION",
+    "source_rgb_frames": 8,
+    "state_dimension": 6,
+    "training_resume": {
+      "active_optimizer_elapsed_s": 2.9089649849993293,
+      "checkpoint_interval": 4,
+      "checkpoint_loaded": true,
+      "completed_steps": 8,
+      "non_durable_updates_may_be_replayed": true,
+      "optimizer_steps_executed_this_process": 4,
+      "resumed_from_step": 4,
+      "retained_history_is_not_total_compute_across_failed_attempts": true,
+      "rng_sources": [
+        "python",
+        "numpy_global",
+        "torch_cpu",
+        "all_initialized_cuda",
+        "explicit_batch_sampler"
+      ],
+      "signature": "7800f497ccbb62447173f352904573430c677cacc4e6af1d6771fbbac3e13cd5",
+      "supported": true
+    }
+  },
+  "qualification_test": "4 passed in 16.82s",
+  "compatibility_suite": "41 passed, 3 skipped in 34.84s",
+  "wheel": {
+    "sha256": "bbf70bfd0afab9970e94317f0600e89de71f3f8df2aa4be589190770cfbd32ad",
+    "subpackages_verified": true,
+    "all_shared_module_bytes_verified": true,
+    "dependencies_downloaded": false
+  }
+}
