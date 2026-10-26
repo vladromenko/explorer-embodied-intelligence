@@ -79,6 +79,8 @@ const rosmasterDemonstrationRoute = () => ["02", "03"].includes(activeProject()?
 const model = { state: null, jobs: [], skills: [], research: {}, recordings: [], actions: [], lastUpdate: null, lastExtras: 0, error: null, refreshing: false, simDraft: { task: "reach", updates: 256, seed: 0 }, robot: { teleop: null, controls: null, teaching: null, error: null, episodeName: "Первый показ" } };
 const labVision = createLabVisionClient({get: api,post: (...args) => post(...args),onChange: () => { model.forceRender = true; render(); }});
 const tabletopCalibration = createTabletopCalibrationClient({get:api,post:(...args) => post(...args),onChange:() => { model.forceRender = true; render(); }});
+const cooperativeWorkbench = createCooperativeWorkbenchClient({get:api,post:(...args) => post(...args),onChange:() => { model.forceRender = true; render(); }});
+let cooperativeUnbind = () => {}, cooperativeLoadedAt = 0;
 const labSkills = createLabSkillsClient({api,onChange: () => { model.forceRender = true; render(); },onCaptureContext: context => { stationLab.skillContext = context.record_start_body; toast("Контекст навыка выбран. Запись запускается отдельно при наблюдении за руками."); }});
 let labSkillsLoadedAt = 0;
 const keyboard = new ManualKeyboard();
@@ -388,6 +390,7 @@ function experimentPage(project) {
   if (["02", "03"].includes(project.id)) return experiment02Page(project);
   const state = experimentState(project.id);
   const jobs = model.jobs.filter((job) => projectId(job.project_id) === project.id);
+  if (project.id === "05") return heading("Совместная передача ROSMASTER → SO101","Выберите два исходных навыка, закрепите общую задачу и сохраните настоящие записи каждого робота.","Исследовательский опыт / 05") + cooperativeWorkbenchPanel(cooperativeWorkbench.snapshot()) + `<details class="spaced-section"><summary>Программные проверки протокола и обрывов</summary>${handoverRuntimePanel()}</details><div class="spaced-section">${jobsPanel(jobs,"Запуски кооперации")}</div>`;
   const action = project.id === "01" ? '<a href="#simulation-form" class="button primary">' + icon("play") + 'Новый запуск</a>' : '<button type="button" class="button primary" data-action="record" data-project="' + project.id + '">' + icon("record") + 'Записать наблюдение</button>';
   let content = heading(project.title, project.subtitle, `Исследовательский опыт / ${project.id}`, action);
   if (state.summary) content += notice("Текущее состояние опыта", text(state.summary));
@@ -643,7 +646,9 @@ function render() {
   else markup = heading("Раздел не найден", "Вернитесь к обзору станции или выберите опыт в меню.") + '<a href="/" class="button primary" data-link>Открыть обзор</a>';
   const cameraWasVisible = document.contains(cameraCard); const slotNeeded = markup.includes('id="camera-slot"');
   if (cameraWasVisible) cameraCard.remove();
+  cooperativeUnbind(); cooperativeUnbind = () => {};
   main.innerHTML = markup;
+  if (project?.id === "05") cooperativeUnbind = bindCooperativeWorkbench(main,cooperativeWorkbench,error => toast(error.message,true));
   if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(route)) {
     bindLabVision(main,labVision);
     bindTabletopCalibration(main,tabletopCalibration,error => toast(error.message));
@@ -696,6 +701,7 @@ async function refresh(forceExtras = false) {
     }
     if (activeProject()?.id === "01" && (forceExtras || Date.now() - worldLearning.lastLoad > 20000)) await refreshWorldDatasets();
     if(path()==="/evening")model.evening=await api("/api/evening");
+    if (activeProject()?.id === "05" && (forceExtras || Date.now()-cooperativeLoadedAt>3000)) { cooperativeLoadedAt=Date.now(); await cooperativeWorkbench.refresh(); }
     if (stationRoute()) await pollStation(forceExtras);
     if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path())) await Promise.all([labVision.refresh(forceExtras),tabletopCalibration.refresh(forceExtras)]);
     if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path()) && (forceExtras || Date.now() - labSkillsLoadedAt > 15000)) { labSkillsLoadedAt = Date.now(); await labSkills.refresh(); }

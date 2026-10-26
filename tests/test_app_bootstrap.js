@@ -28,6 +28,7 @@ class Element {
   remove() { if (this.parentNode) for (const [key, value] of this.parentNode.nodes) if (value === this) this.parentNode.nodes.delete(key); this.parentNode = null; }
   contains(target) { for (let item = target; item; item = item.parentNode) if (item === this) return true; return false; }
   addEventListener(name, callback) { const list = this.listeners.get(name) || []; list.push(callback); this.listeners.set(name, list); }
+  removeEventListener(name, callback) { this.listeners.set(name,(this.listeners.get(name) || []).filter(item => item !== callback)); }
   setAttribute(name, value) { this.attributes[name] = value; }
   getAttribute(name) { return name === "src" ? this.src || null : this.attributes[name] || null; }
   removeAttribute(name) { delete this.attributes[name]; if (name === "src") delete this.src; }
