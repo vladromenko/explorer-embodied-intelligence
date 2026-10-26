@@ -138,6 +138,7 @@ class StationObservedPermission:
                         not 0<=self.clock()-frame.monotonic_ns<=self._ttl()):
                     raise ValueError('Observed challenge revoked/expired or native source/model binding changed')
                 now=self.clock();data={'schema':'explorer_station_observed_grant_v1','grant_id':uuid.uuid4().hex,
+                    'challenge_id':item['challenge_id'],
                     'binding':selected,'binding_sha256':digest(selected),'actor_id':actor,'control_epoch':native['control_epoch'],
                     'native_mode':'idle','follower_calibration_sha256':calibration,'provider_process':self.process,
                     'clock_domain':self.station.clock_domain,'boot_id':self.station.boot,'created_monotonic_ns':now,

@@ -28,6 +28,7 @@ from . import lab_skill_workflow as lab
 from .mobile_dataset_evidence import inspect_mobile_import
 from .cooperative_policy_adapters import QueuedNativeShadows
 from .cooperative_warm_service import CooperativeWarmService
+from .cooperative_observed_service import CooperativeObservedService
 
 
 def _boot():return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
@@ -61,6 +62,33 @@ class CooperativeService:
             clock_domain=self.domain,clock=clock,authority=self._authority,managed_root=store.root)
         self.queued_shadows=QueuedNativeShadows(store,self.root/'queued-shadows',current_session=self.workflow.snapshot)
         self.warm_compute=CooperativeWarmService(store,clock=clock)
+        self.observed_setup=CooperativeObservedService(self.workflow,{role:self._request(role) for role in ('giver','receiver')},
+            self._observed_binary,inspect_native=self._inspect_skill,has_prior_evidence=self._prior_test_evidence,clock=clock)
+    def _prior_test_evidence(self,row):
+        with self.store.connect() as db:
+            jobs=list(db.execute("SELECT id,kind,config FROM jobs WHERE json_extract(config,'$.session_id')=? OR json_extract(config,'$.cooperative_shadow_binding.session_id')=?",
+                (row['session_id'],row['session_id'])))
+        for job in jobs:
+            if job['kind'] in ('rosmaster_skill_shadow','so101_skill_shadow'):return True
+            if job['kind']=='cooperative_policy_warm' and any((self.store.root/'jobs'/job['id']/'inferences').glob('*')):return True
+        for path in (self.workflow.root/'shadows').glob('*.json'):
+            if json.loads(path.read_bytes()).get('session_id')==row['session_id']:return True
+        return False
+    def _observed_binary(self,role,path):
+        prefix='/native-activation/frame/' if role=='giver' else '/station/observed-test/challenges/'
+        valid=(re.fullmatch(re.escape(prefix)+'[0-9a-f]{32}'+('' if role=='giver' else '/frame'),path) if role in ('giver','receiver') else None)
+        if role=='receiver':valid=valid or re.fullmatch('/station/observations/[0-9a-f]{32}/frame',path)
+        if self.closed or not valid:raise ValueError('Fixed current source challenge image only')
+        node=self.nodes.get('nano' if role=='giver' else 'pi')
+        if node is None:raise ValueError('Configured source camera node required')
+        with self.client.stream('GET',self._origin(node)+path,headers={'Authorization':'Bearer '+node['token']}) as response:
+            if response.status_code!=200:raise ValueError('Pinned source challenge image unavailable: HTTP'+str(response.status_code))
+            chunks=[];size=0
+            for chunk in response.iter_bytes():
+                size+=len(chunk)
+                if size>8*1024**2:raise ValueError('Pinned source image exceeds budget')
+                chunks.append(chunk)
+            return b''.join(chunks),dict(response.headers)
     @staticmethod
     def _origin(node):
         host=node.get('host');port=node.get('port')
@@ -70,7 +98,8 @@ class CooperativeService:
     def _request(self,role):
         def request(method,path,body):
             cleanup=(method=='GET' and path in ('/native-capture/status','/station/status')) or (
-                method=='POST' and path in ('/native-capture/record/finish','/station/record/finish'))
+                method=='POST' and path in ('/native-capture/record/finish','/station/record/finish',
+                    '/station/observed-test/revoke','/legacy/explorer/retarget/activation/revoke'))
             if self.closed and not cleanup:raise ValueError('Cooperative service is closed')
             node=self.nodes.get('nano' if role=='giver' else 'pi')
             if node is None:raise ValueError('Configured native '+role+' node unavailable')
@@ -241,9 +270,12 @@ class CooperativeService:
         return choices
     def _authority(self,row):
         transport=self.transports.get((row['session_id'],'giver'));authority=self.native_bindings.get(row['session_id'])
-        current=bool(authority and authority['epoch']==row['epoch'] and transport and transport.observe_state()['current_native_owner_ready'])
+        receiver=self.transports.get((row['session_id'],'receiver'))
+        current=bool(row.get('observed_test_binding') and row['execution_domain']=='user_observed_physical_test' and
+            authority and authority['epoch']==row['epoch'] and transport and receiver and
+            transport.observe_state()['current_native_owner_ready'] and receiver.observe_state()['current_native_owner_ready'])
         return {'explicit_user_observed_test_current':current,'source_receipt':deepcopy(authority),
-            'reason':None if current else 'EXPLICIT_NATIVE_SESSION_AND_CURRENT_SENSOR_PROVIDER_REQUIRED'}
+            'reason':None if current else 'BOTH_EXACT_SCOPED_NATIVE_TRANSPORTS_AND_CURRENT_USER_LEASES_REQUIRED'}
     def _observed_state(self,role):
         with self.lock:candidates=[transport for (session,kind),transport in self.transports.items() if kind==role]
         if len(candidates)==1:return candidates[0].observe_state()
@@ -315,6 +347,7 @@ bound first; default construction cannot turn on policy execution.
         native_choices=self.native_choices()
         with self.lock:model_errors=deepcopy(self.model_errors)
         warm_compute=self.warm_compute.snapshots(selected) if selected else []
+        observed=self.observed_setup.snapshot(selected,self.workflow.skill(selected['skill_id'],selected['skill_version'])['spec']) if selected else None
         return {'schema':'explorer_cooperative_service_v1','workbench':workbench,'catalogue':self.workflow.catalogue(),
             'native_choices':native_choices,'pending_evidence':self.inbox.pending(),'cameras':cameras,
             'selected_session':selected,'native_episode_choices':self._episode_choices(selected) if selected else {'giver':[],'receiver':[]},
@@ -323,6 +356,8 @@ bound first; default construction cannot turn on policy execution.
             'queued_native_shadows':self.queued_shadows.snapshots(selected) if selected else [],
             'queued_native_shadow_supported':True,
             'warm_compute_sessions':warm_compute,
+            'observed_setup':observed,
+            'execution_authority':self._authority(selected) if selected else {'explicit_user_observed_test_current':False},
             'persistent_warm_model_actor_ready':any(row['compute_ready'] for row in warm_compute),
             'model_adapters_bound':{role:callable(self.models.get(role)) for role in ('giver','receiver')}}
     def artifact(self,kind,identity,role=None):
@@ -406,6 +441,8 @@ idempotent; process restart never queues its missing half automatically.
         elif operation=='create_session':
             if self.workflow.skill(identity,version)['spec']['spec_sha256']!=body.get('spec_sha256'):
                 raise ValueError('Confirmed cooperative specification changed; refresh the exact version')
+            if body.get('execution_domain')=='user_observed_physical_test':
+                raise ValueError('Create a fresh metadata intent first, then bind both current explicit USER grants')
             payload=deepcopy(body);payload['source_execution_domain']='REAL'  # actual configured hardware sources, never SIM fixtures
             result=self.workflow.create_session(identity,version,payload);session=result['session_id']
         elif operation=='register_zone':
@@ -424,7 +461,9 @@ idempotent; process restart never queues its missing half automatically.
         elif operation=='record_finish':result=self.workflow.record_finish(session,deepcopy(body.get('outcome') or {'status':'unknown'}))
         elif operation=='step':result=self.workflow.request_step(session,body.get('event'),expected_epoch=body.get('expected_epoch'))
         elif operation=='stop':
+            previous=self.workflow.snapshot(session)
             result=self.workflow.cancel_session(session)
+            result['observed_metadata_revocations']=self.observed_setup.revoke_session(previous)
             result['warm_compute_jobs_cancelled']=self.warm_compute.cancel_session(self.workflow.snapshot(session))
         elif operation=='confirm_evidence':result=self.inbox.confirm(body.get('challenge_id'),
             {key:body[key] for key in ('affirmed','observing','note') if key in body},authenticated_actor=authenticated_actor)
@@ -438,6 +477,16 @@ idempotent; process restart never queues its missing half automatically.
             if not selected['confirmed']:raise ValueError('Confirm exact native model references before warm compute')
             result=self.warm_compute.enqueue(row,selected['spec'],request_id=body.get('request_id'),
                 compute_ttl_s=body.get('compute_ttl_s',120),authenticated_actor=authenticated_actor)
+        elif operation in ('observed_refresh','observed_challenge','observed_authorize','bind_observed_test',
+                            'observed_display','observed_observe','observed_revoke'):
+            row=self.workflow.snapshot(session);spec=self.workflow.skill(row['skill_id'],row['skill_version'])['spec']
+            if operation=='observed_refresh':result=self.observed_setup.snapshot(row,spec,refresh=True)
+            elif operation=='observed_challenge':result=self.observed_setup.challenge(body.get('source_setup_choice_id'),row,spec,actor=authenticated_actor)
+            elif operation=='observed_authorize':result=self.observed_setup.authorize(body.get('challenge_choice_id'),row,spec,body,actor=authenticated_actor)
+            elif operation=='observed_display':result=self.observed_setup.display_observation(body.get('permission_choice_id'),row,spec,actor=authenticated_actor)
+            elif operation=='observed_observe':result=self.observed_setup.observe(body.get('observation_choice_id'),row,spec,body,actor=authenticated_actor)
+            elif operation=='observed_revoke':result=self.observed_setup.revoke(body.get('permission_choice_id'),row,spec,actor=authenticated_actor)
+            else:result=self.observed_setup.bind(body.get('observed_choice_id'),row,spec,actor=authenticated_actor)
         elif operation=='attach_native_giver':result=self.attach_native_giver(session,body,authenticated_actor=authenticated_actor)
         elif operation=='review_recording':
             available=self._episode_choices(self.workflow.snapshot(session));references={}
@@ -452,11 +501,15 @@ idempotent; process restart never queues its missing half automatically.
         elif operation=='train':result=self.train(identity,version,body.get('settings'))
         else:raise ValueError('Unsupported typed cooperative workbench operation')
         return {'result':result,'snapshot':self.snapshot(session)}
+    def observed_frame(self,choice_id,*,authenticated_actor):
+        if self.closed:raise ValueError('Current cooperative server process required')
+        return self.observed_setup.frame(choice_id,actor=authenticated_actor)
     def close(self):
         self.closed=True
         self.warm_compute.close(self.workflow.process)
         with self.workflow.lock:self.workflow.closed=True
         for row in self.workflow.snapshot()['sessions']:
+            self.observed_setup.revoke_session(row,'COOPERATIVE_COORDINATOR_CLOSED')
             if row.get('pending_operation'):self.inbox.cancel_run(row['session_id'])
             if row.get('recording_id'):
                 try:self.workflow.record_finish(row['session_id'],{'status':'unknown','reason':'COORDINATOR_SHUTDOWN_NOT_TASK_SUCCESS'})
