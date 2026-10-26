@@ -205,7 +205,7 @@ function syncCamera() {
   const available = cameras();
   const manual = activeProject()?.id === "02";
   cameraSelect.disabled = manual;
-  const signature = `${manual ? "02" : "other"}|` + available.map((camera) => `${camera.id}:${cameraLabel(camera)}:${camera.available}:${camera.node_online}`).join("|");
+  const signature = `${path()}|` + available.map((camera) => `${camera.id}:${cameraLabel(camera)}:${camera.available}:${camera.node_online}`).join("|");
   if (manual) {
     cameraSignature = signature; currentCamera = "nano-rgbd";
     cameraSelect.innerHTML = '<option value="nano-rgbd">ROSMASTER · RGB / DaBai</option>';
@@ -215,10 +215,16 @@ function syncCamera() {
   }
   if (manualPreview.state().active) manualPreview.stop("left_experiment_02");
   if (signature !== cameraSignature) {
+    const changedRoute = cameraSignature.split("|")[0] !== path();
     cameraSignature = signature;
     const ready = available.filter((camera) => camera.available !== false && camera.node_online !== false);
     cameraSelect.innerHTML = available.length ? available.map((camera) => `<option value="${esc(camera.id)}" ${camera.available === false || camera.node_online === false ? "disabled" : ""}>${esc(cameraLabel(camera))}${camera.available === false || camera.node_online === false ? " · недоступна" : ""}</option>`).join("") : '<option value="">Камеры не обнаружены</option>';
-    if (!ready.some((camera) => camera.id === currentCamera)) currentCamera = ready.find((camera) => camera.id === "pi-overview")?.id || ready[0]?.id || "";
+    if (changedRoute) {
+      const preferred = activeProject()?.id === "03" ? "nano-rgbd" : path() === "/learning/so101" ? "pi-overview" : null;
+      if (preferred) currentCamera = preferred;
+    }
+    if (activeProject()?.id === "03" && !ready.some(camera => camera.id === currentCamera)) currentCamera = "nano-rgbd";
+    else if (!ready.some((camera) => camera.id === currentCamera)) currentCamera = ready.find((camera) => camera.id === "pi-overview")?.id || ready[0]?.id || "";
     cameraSelect.value = currentCamera;
     startCamera();
   } else if (currentCamera && !cameraImage.getAttribute("src")) startCamera();
