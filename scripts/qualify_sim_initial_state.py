@@ -48,13 +48,34 @@ def execute(target,commands):
     return np.asarray(states),reports
 
 
+def resource_snapshot():
+    group=Path('/proc/self/cgroup').read_text().strip().split('::',1)[1]
+    root=Path('/sys/fs/cgroup')/group.lstrip('/')
+    return dict(pid=os.getpid(),cgroup=group,
+        limits={name:(root/name).read_text().strip() if (root/name).is_file() else None for name in ('memory.max','memory.current','memory.peak','memory.swap.max','memory.swap.peak','memory.events','cpu.max')},
+        process_status=[line for line in Path('/proc/self/status').read_text().splitlines() if line.startswith(('VmHWM:','VmRSS:'))])
+
+
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,required=True);parser.add_argument('--child',action='store_true');parser.add_argument('--sha')
-    args=parser.parse_args();output=args.output.resolve();target=None;started=time.monotonic()
+    parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,required=True);parser.add_argument('--child',action='store_true');parser.add_argument('--sha');parser.add_argument('--model-metadata-only',action='store_true')
+    args=parser.parse_args();output=args.output.resolve();target=None;started=time.monotonic();owns_output=args.child
     try:
-        if not args.child:output.mkdir(mode=0o700,parents=True,exist_ok=False)
+        if not args.child:output.mkdir(mode=0o700,parents=True,exist_ok=False);owns_output=True
+        resources=resource_snapshot();write(output/('child-resources-start.json' if args.child else 'resources-start.json'),resources)
+        if resources['limits']['memory.max']!='2147483648' or resources['limits']['memory.swap.max']!='0' or resources['limits']['cpu.max']!='100000 100000':
+            raise RuntimeError('Actual own cgroup CPU1/Memory2GiB/Swap0 limits required before CAD allocation')
         if not args.child:random.seed(713);np.random.seed(619)
         target=provider();target.reset(seed=919 if args.child else 417)
+        if args.model_metadata_only:
+            import mujoco
+            embedded=mujoco.mj_embedAssets(target.env.model)
+            metadata=dict(schema='explorer_initial_compiled_model_size_preflight_v1',compiled_MJB_bytes=int(mujoco.mj_sizeModel(embedded)),
+                original_model_MJB_bytes=int(mujoco.mj_sizeModel(target.env.model)),CAD_asset_files=len(target.mesh_files),
+                CAD_asset_bytes=sum(Path(name).stat().st_size for name in target.mesh_files),
+                XML_bytes=len(target.env.xml.encode()),native_state_bytes=int(target.env.integration_state().nbytes),
+                model_binary_buffer_allocated=False,embedded_model_copy_created=True,renderer_created=target.env.renderer is not None,
+                physical_io=False,elapsed_s=time.monotonic()-started)
+            write(output/'model-size.json',metadata);print(json.dumps(metadata,sort_keys=True));return
         sources={'qualification_driver':dict(path=str(Path(__file__).resolve()),sha256=digest(Path(__file__).read_bytes()))}
         if args.child:
             snapshot=load_initial_bundle(output/'initial',expected_sha256=args.sha)
@@ -99,12 +120,15 @@ def main():
             write(output/'qualification.json',result);print(json.dumps(result,sort_keys=True))
             if not result['passed']:raise RuntimeError('Actual new-PID finite-command parity did not pass')
     except Exception as error:
-        output.mkdir(mode=0o700,parents=True,exist_ok=True)
-        failure=output/('child-failure.json' if args.child else 'failure.json')
-        if not failure.exists():write(failure,dict(error_type=type(error).__name__,detail=str(error),physical_io=False))
+        if owns_output:
+            failure=output/('child-failure.json' if args.child else 'failure.json')
+            if not failure.exists():write(failure,dict(error_type=type(error).__name__,detail=str(error),physical_io=False))
         raise
     finally:
-        if target is not None:target.env.close()
+        try:
+            if owns_output:write(output/('child-resources-final.json' if args.child else 'resources-final.json'),resource_snapshot())
+        finally:
+            if target is not None:target.env.close()
 
 
 if __name__=='__main__':main()

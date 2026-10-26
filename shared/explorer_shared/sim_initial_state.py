@@ -22,6 +22,7 @@ SCHEMA='explorer_stationary_sim_initial_state_v1'
 PROFILE='explorer_manipulation_stationary_initial_v1'
 MAX_ARRAY_BYTES=16*1024**2
 MAX_PAYLOAD_BYTES=256*1024**2
+MAX_MODEL_BYTES=256*1024**2
 ENV_STATE=('command','command_before','requested','raw_action','phase','steps','last_distance','record_substeps','substep_trace')
 ENV_STATIC=('task','horizon','period','goal','half','rim','velocity','qids','dids','joint_q','servo_ids','pad_ids','object_geom_ids','object_id','support_ids')
 ENV_ALLOWED=set(ENV_STATE+ENV_STATIC+('xml','model','data','evaluator','renderer','options','action_space','observation_space','_np_random','_np_random_seed'))
@@ -146,7 +147,7 @@ def load_initial_bundle(folder,*,expected_sha256):
     if not isinstance(document.get('payloads'),dict) or not 0<len(document['payloads'])<=512:raise InitialStateRejected('Bounded initial payload inventory required')
     for name,entry in document['payloads'].items():
         path=folder/_member(name)
-        if path.resolve()!=path.absolute() or path.is_symlink() or not path.is_file() or path.stat().st_size>64*1024**2:
+        if path.resolve()!=path.absolute() or path.is_symlink() or not path.is_file() or path.stat().st_size>(MAX_MODEL_BYTES if name=='compiled-model.mjb' else 64*1024**2):
             raise InitialStateRejected('Bounded nonaliased snapshot payload required')
         total+=path.stat().st_size
         if total>MAX_PAYLOAD_BYTES:raise InitialStateRejected('Initial payload inventory exceeds bound')
@@ -209,13 +210,13 @@ def _restore_generator(owner,record):
         owner.__dict__['_np_random']=generator
 
 
-def _model_bytes(model):
+def _model_bytes(model,maximum_bytes=MAX_MODEL_BYTES):
     import mujoco
     import numpy as np
     # Official3.17 API makes an independent copy with referenced assets embedded.
     embedded=mujoco.mj_embedAssets(model)
     size=mujoco.mj_sizeModel(embedded)
-    if not 0<size<=64*1024**2:raise InitialStateRejected('Compiled MJB size exceeds profile bound')
+    if not 0<size<=maximum_bytes:raise InitialStateRejected('Compiled MJB size exceeds profile bound: '+str(size)+' bytes')
     buffer=np.empty(size,dtype=np.uint8);mujoco.mj_saveModel(embedded,buffer=buffer)
     return buffer.tobytes()
 
@@ -238,12 +239,15 @@ def _runtime():
 
 def _source_payloads(bindings):
     if not isinstance(bindings,dict) or not bindings or len(bindings)>128:raise InitialStateRejected('Explicit trusted source role bindings required')
-    result={};identity={}
+    result={};identity={};total=0
     for role,entry in bindings.items():
         if not isinstance(role,str) or not role or '/' in role or '\\' in role:raise InitialStateRejected('Bounded named source role required')
+        if Path(entry['path']).stat().st_size+total>MAX_PAYLOAD_BYTES:raise InitialStateRejected('Source role payload budget exceeded before read')
         raw=_bytes(entry['path']);checksum=digest(raw)
         if checksum!=entry['sha256']:raise InitialStateRejected('Trusted source bytes changed before capture/restore')
-        name='source/'+checksum+'.bin';result[name]=raw;identity[role]=dict(sha256=checksum,file=name,bytes=len(raw))
+        name='source/'+checksum+'.bin'
+        if name not in result:total+=len(raw)
+        result[name]=raw;identity[role]=dict(sha256=checksum,file=name,bytes=len(raw))
     return identity,result
 
 
@@ -255,11 +259,14 @@ def capture_initial_trial(provider,*,scenario,source_bindings):
     state=np.asarray(env.integration_state())
     if state.dtype!=np.dtype('float64') or state.ndim!=1 or not np.isfinite(state).all():raise InitialStateRejected('Exact finite float64 integration state required')
     stream=io.BytesIO();np.save(stream,state,allow_pickle=False);payloads['native-integration.npy']=stream.getvalue()
-    payloads['compiled-model.mjb']=_model_bytes(env.model);payloads['model.xml']=env.xml.encode()
+    reserved=sum(map(len,payloads.values()))+sum(Path(path).stat().st_size for path in provider.mesh_files)+len(env.xml.encode())+16*1024**2
+    if reserved>=MAX_PAYLOAD_BYTES:raise InitialStateRejected('Declared initial payload budget exceeded before model allocation')
+    payloads['compiled-model.mjb']=_model_bytes(env.model,MAX_PAYLOAD_BYTES-reserved);payloads['model.xml']=env.xml.encode()
     assets={}
     for locator,expected in sorted(provider.mesh_files.items()):
         raw=_bytes(locator);checksum=digest(raw)
         if checksum!=expected:raise InitialStateRejected('Declared CAD asset bytes changed')
+        if Path(locator).name in assets:raise InitialStateRejected('Ambiguous declared CAD basename identity')
         name='assets/'+checksum+'.bin';payloads[name]=raw;assets[Path(locator).name]=dict(sha256=checksum,file=name,bytes=len(raw))
     python_random=sys.modules.get('random')
     state_doc=dict(environment=encode({name:getattr(env,name) for name in ENV_STATE}),static=encode({name:getattr(env,name) for name in ENV_STATIC}),
