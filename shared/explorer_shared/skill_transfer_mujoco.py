@@ -25,13 +25,13 @@ class MuJoCoTargetProvider:
         self.navigation_map_provider=navigation_map_provider;self.mesh_files={str(Path(path).resolve()):expected for path,expected in mesh_files.items()}
         if not self.mesh_files or any(sha(Path(path).read_bytes())!=expected for path,expected in self.mesh_files.items()):raise TransferBlocked('ACTUAL_TARGET_CAD_MESH_SHA_REQUIRED','A')
         if not isinstance(env.model,mujoco.MjModel) or not isinstance(env.data,mujoco.MjData) or not isinstance(env.xml,str):raise TransferBlocked('ACTUAL_MUJOCO_MODEL_DATA_REQUIRED','A')
-        self.model_sha=sha(env.xml.encode());self.sequence=0;self.boot='sim-target-'+self.model_sha[:12]
+        self.model_sha=sha(env.xml.encode());self.sequence=0;self.phase_results={};self.boot='sim-target-'+self.model_sha[:12]
         self.env_source=Path(inspect.getfile(type(env))).resolve()
         self.provider_identity=dict(kind='MUJOCO_CAD',implementation_sha256=sha(Path(__file__).read_bytes()),environment_implementation_sha256=sha(self.env_source.read_bytes()),
             target_model_sha256=self.model_sha,target_urdf_sha256=target_urdf_sha256,cad_mesh_sha256=self.mesh_files,engine_version=mujoco.__version__,
             native_action_dimension=9,base_motion_backend='actual_finite_wheel_dynamics' if len(env.command)==9 else 'explicit_stationary_base_physics_fixture',physical_io=False)
         allowed={'grasped','lifted','carried_above_target','released_inside_goal','success','approach_proximity','withdrawn',
-                 'navigate_to_source','outbound_door_crossed','inbound_door_crossed','retained_transport'}
+                 'navigate_to_source','outbound_door_crossed','inbound_door_crossed','retained_transport','bilateral_contact','lift_retained','carry_retained'}
         if not self.phase_evidence_map or any(not values or set(values)-allowed for values in self.phase_evidence_map.values()):raise TransferBlocked('EXPLICIT_INDEPENDENT_PHASE_CRITERIA_REQUIRED','A')
 
     def recheck(self):
@@ -53,7 +53,7 @@ class MuJoCoTargetProvider:
         return rigid_transform(result)
 
     def reset(self,seed):
-        self.recheck();self.env.reset(seed=seed);self.sequence=0;self.boot='sim-target-'+self.model_sha[:12]+'-'+uuid.uuid4().hex
+        self.recheck();self.env.reset(seed=seed);self.sequence=0;self.phase_results={};self.boot='sim-target-'+self.model_sha[:12]+'-'+uuid.uuid4().hex
         if hasattr(self.env,'record_substeps'):self.env.record_substeps=True
 
     def observe(self):
@@ -64,14 +64,36 @@ class MuJoCoTargetProvider:
         if self.navigation_map_provider:result['observed_navigation_map']=self.navigation_map_provider(self.env)
         return result
 
+    def prepare_dispatch(self,requested):
+        """Follow the geometrically checked arm segment under original rates.
+
+        Independent per-joint endpoint clipping otherwise changes its direction.
+        Only upstream SIM targets change; env velocity/period are read unchanged.
+        """
+        requested=np.asarray(requested,float);current=np.asarray(self._command9(),float)
+        velocity=np.asarray(self.env.velocity,float);period=float(self.env.period)
+        if requested.shape!=(9,) or velocity.shape!=(6,) or not np.isfinite(np.r_[requested,velocity,period]).all() or np.any(velocity<=0) or period<=0:raise TransferBlocked('ORIGINAL_SIM_RATE_PROFILE_REQUIRED','A')
+        delta=requested[:6]-current[:6];ratio=float(np.max(abs(delta)/(velocity*period)));fraction=min(1.,1./max(ratio,1e-12))
+        result=requested.copy();result[:6]=current[:6]+fraction*delta
+        return result.tolist(),dict(method='synchronized_prefix_of_CAD_checked_joint_segment',fraction=fraction,
+            original_velocity_deg_s=velocity.tolist(),original_period_s=period,controller_settings_modified=False,
+            geometric_target9=requested.tolist(),actual_requested9=result.tolist())
+
     def advance(self,command,phase_id):
         command=np.asarray(command,float)
         if command.shape!=(9,) or not np.isfinite(command).all():raise TransferBlocked('SIMULTANEOUS_FINITE_TARGET9_REQUIRED','A')
+        required=self.phase_evidence_map.get(phase_id)
+        if required is None:raise TransferBlocked('TARGET_PHASE_CRITERIA_NOT_DECLARED','A',phase_id)
         before=self._stamp();self.env.phase=phase_id
         if len(self.env.command)==9:self.env.step_command(command)
         elif np.any(abs(command[6:])>1e-12):raise TransferBlocked('STATIONARY_TARGET_FIXTURE_CANNOT_EXECUTE_BASE_NAVIGATION','A')
         else:self.env.step_command(command[:6])
         self.sequence+=1;after=self._stamp()
+        facts,unused=self._facts()
+        entry=self.phase_results.setdefault(phase_id,dict(success=False,observed_steps=0,criteria_ever={name:False for name in required}))
+        entry['observed_steps']+=1;entry['success']|=all(facts.get(name) is True for name in required)
+        entry['last_criteria']={name:facts.get(name) is True for name in required}
+        for name in required:entry['criteria_ever'][name]|=facts.get(name) is True
         return dict(receipt_id=self.boot+':dispatch:'+str(self.sequence),physical_io=False,finite_dynamics_step_completed=after['monotonic_ns']>before['monotonic_ns'],
             requested_action9=command.tolist(),dispatched_action9=self._command9(),pre_action_stamp=before,dispatch_stamp=after,
             measured_qpos=self.env.data.qpos.tolist(),measured_qvel=self.env.data.qvel.tolist(),independent_evaluator=deepcopy(self.env.evaluator.result()),
@@ -102,18 +124,27 @@ class MuJoCoTargetProvider:
             scene_sha256=self.model_sha,samples=count,max_joint_sample_spacing_rad=.02,gripper_segment_geometry_checked=False,violations=violations[:32],
             method='MUJOCO_FORWARD_SAMPLED_CAD_CONTACTS_NOT_CONTINUOUS_PROOF',physical_qualification=False)
 
-    def report(self):
-        self.recheck();facts=deepcopy(self.env.evaluator.result());last=facts.get('final',{})
+    def _facts(self):
+        facts=deepcopy(self.env.evaluator.result());last=facts.get('final',{})
         center=self.env.points().mean(0);jaw=self.env.jaw_center();distance=float(np.linalg.norm(center-jaw))
+        bilateral=all(float(value)>.0001 for value in last.get('pad_force_N',[0.,0.]))
         facts.update(approach_proximity=distance<.15,withdrawn=distance>.05 and last.get('free_of_fingers') is True,
+            bilateral_contact=bilateral,lift_retained=facts.get('lifted') is True and bilateral and float(center[2])-self.env.evaluator.initial_height>=.045,
+            carry_retained=facts.get('carried_above_target') is True and bilateral and last.get('inside_all_points') is True and last.get('above_rim') is True,
             released_inside_goal=facts.get('carried_above_target') is True and last.get('inside_all_points') is True and last.get('free_of_fingers') is True and last.get('bottom_supported') is True)
-        mobile=getattr(self.env,'mobile_evaluator',None)
-        mobile_result=mobile.result() if mobile else None
+        mobile=getattr(self.env,'mobile_evaluator',None);mobile_result=mobile.result() if mobile else None
         if mobile_result:
-            # Full mobile success remains the environment's independent whole
-            # task criterion; an object-only pass cannot replace it.
             facts.update(mobile_result.get('conditions') or {});facts['retained_transport']=facts.get('base_carried_held_object_half_metre') is True
-        per_phase={phase:dict(success=all(facts.get(name) is True for name in required),criteria={name:facts.get(name) for name in required}) for phase,required in self.phase_evidence_map.items()}
+        return facts,mobile_result
+
+    def phase_complete(self,phase_id):
+        return self.phase_results.get(phase_id,{}).get('success') is True
+
+    def report(self):
+        self.recheck();facts,mobile_result=self._facts()
+        # Phase outcomes are measured during the actual annotated phase. A late
+        # grasp/placement cannot retroactively make a missed earlier phase pass.
+        per_phase={phase:deepcopy(self.phase_results.get(phase,dict(success=False,observed_steps=0,criteria_ever={name:False for name in required}))) for phase,required in self.phase_evidence_map.items()}
         return dict(source='target_finite_physics_evaluator',independent_of_action_commands=True,end_to_end_success=bool((mobile_result or facts).get('success')),
             per_phase=per_phase,object_facts=facts,mobile_facts=mobile_result,substep_contact_trace=np.asarray(self.env.substep_trace).tolist(),
             finite_step_count=self.env.steps,simulation_time_s=float(self.env.data.time),physical_io=False)

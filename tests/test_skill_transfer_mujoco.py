@@ -66,3 +66,43 @@ def test_actual_mobile_target_provider_preserves9D_and_drives_finite_wheels_only
             initial_base_pose=before.tolist(),final_base_pose=after.tolist(),base_displacement_m=float(np.linalg.norm(after[:2]-before[:2])),
             dispatches=rows,independent_report=provider.report(),learned_policy_executed=False,physical_io=False)))
     finally:env.close()
+
+
+def test_late_independent_outcome_does_not_relabel_a_missed_earlier_phase():
+    # Pure phase protocol regression. This fake is never used as physics proof.
+    from types import SimpleNamespace
+    from explorer_shared.transfer_mapping04 import TransferBlocked
+    import pytest
+    flag=[False]
+    provider=MuJoCoTargetProvider.__new__(MuJoCoTargetProvider)
+    data=SimpleNamespace(time=0.,qpos=np.zeros(1),qvel=np.zeros(1))
+    env=SimpleNamespace(data=data,command=np.zeros(9),steps=0,substep_trace=[])
+    def step(command):env.steps+=1;data.time+=.05;env.command=np.asarray(command)
+    env.step_command=step;env.integration_state=lambda:np.r_[data.time,env.command]
+    env.evaluator=SimpleNamespace(result=lambda:dict(grasped=flag[0],success=False))
+    provider.env=env;provider.sequence=0;provider.boot='MOCK-only';provider.phase_results={}
+    provider.phase_evidence_map={'early_grasp':['grasped'],'later_grasp':['grasped']}
+    provider._facts=lambda:(dict(grasped=flag[0],success=False),None);provider.recheck=lambda:None
+    provider.advance([0]*9,'early_grasp');flag[0]=True
+    provider.advance([0]*9,'later_grasp');report=provider.report()
+    assert not report['per_phase']['early_grasp']['success']
+    assert report['per_phase']['later_grasp']['success'] and not report['end_to_end_success']
+    before=env.steps
+    with pytest.raises(TransferBlocked,match='PHASE_CRITERIA_NOT_DECLARED'):provider.advance([0]*9,'unknown')
+    assert env.steps==before
+
+
+def test_virtual_dispatch_prefix_matches_checked_segment_without_changing_original_rates():
+    from types import SimpleNamespace
+    provider=MuJoCoTargetProvider.__new__(MuJoCoTargetProvider)
+    current=np.array([90,90,90,90,90,30,0,0,0.],float);velocity=np.array([60,70,80,90,90,72.])
+    provider.env=SimpleNamespace(command=current.copy(),velocity=velocity.copy(),period=.05)
+    requested=current+np.array([40,1,-10,15,20,140,.05,0,0])
+    actual,receipt=provider.prepare_dispatch(requested);actual=np.asarray(actual)
+    difference=requested[:6]-current[:6]
+    assert np.allclose((actual[:6]-current[:6])/difference,receipt['fraction'])
+    independently_limited=current[:6]+np.clip(difference,-velocity*.05,velocity*.05)
+    assert not np.allclose((independently_limited-current[:6])/difference,receipt['fraction'])
+    assert np.allclose(current[:6]+np.clip(actual[:6]-current[:6],-velocity*.05,velocity*.05),actual[:6])
+    assert np.array_equal(provider.env.velocity,velocity) and provider.env.period==.05
+    assert actual[-3:].tolist()==requested[-3:].tolist() and not receipt['controller_settings_modified']

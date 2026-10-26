@@ -177,3 +177,39 @@ def test_pinned_CAD_terminal_offsets_define_different_approach_axes_without_zero
     assert not result['physical_tool_registration_verified'] and not result['physical_execution_authorized']
     with pytest.raises(TransferBlocked,match='PARALLEL'):
         derive_cad_tool_adapter(mapper.source,mapper.target,source_closing_axis_tip=source[:3,2],target_closing_axis_tip=[0,1,0])
+
+
+def test_failed_geometry_retains_actual_collision_receipt_in_typed_diagnosis(tmp_path):
+    mapper=mapper_fixture();unused,document,frame=source_trace(tmp_path)
+    def collision(start,end,base):return dict(collision_free=False,continuous_segment_checked=True,target_urdf_sha256=mapper.target.source_sha256,scene_sha256='f'*64,violations=[dict(pair=['floor','finger'],distance_m=-.002)])
+    mapper.collision_checker=collision
+    with pytest.raises(TransferBlocked) as caught:
+        mapper.plan(frame,dict(world_from_base=np.eye(4).tolist(),preceding_command9=[90]*5+[30,0,0,0]))
+    rejection=caught.value.evidence['actual_geometric_rejections'][0]
+    assert rejection['code']=='TARGET_CAD_COLLISION'
+    assert rejection['collision']['violations'][0]['pair']==['floor','finger']
+
+
+def test_IK_uses_exact_native_CAD_intersection_without_editing_original_limits():
+    mapper=mapper_fixture();before=mapper.target.lower.copy();upper=mapper.target.upper.copy()
+    assert mapper.target_solver.lower[1]==pytest.approx(-np.pi/2)
+    assert mapper.target_solver.lower[1]>mapper.target.lower[1]
+    assert mapper.target_solver.upper[1]<mapper.target.upper[1]
+    assert np.array_equal(mapper.target.lower,before) and np.array_equal(mapper.target.upper,upper)
+    native=np.array([90,0,90,90,90,30.]);q=mapper.target_coordinates.radians(native)
+    solved=mapper._solve(mapper.target.forward(q),np.eye(4),np.r_[native,0,0,0],30)
+    assert solved is not None and all(value>=limit-1e-10 for value,limit in zip(solved['arm_command6'],mapper.low))
+    assert all(value<=limit+1e-10 for value,limit in zip(solved['arm_command6'],mapper.high))
+
+
+def test_short_Cartesian_segments_can_replace_a_colliding_direct_joint_segment():
+    mapper=mapper_fixture();start_q=np.array([0,-.3,.6,-.2,0.]);end_q=start_q+np.array([.04,-.1,.1,-.05,.02])
+    start=mapper.target_coordinates.servo(start_q,100);prior=np.r_[start,0,0,0]
+    def collision(a,b,base):return dict(collision_free=bool(np.max(abs(b-a))<=.075),continuous_segment_checked=True,target_urdf_sha256=mapper.target.source_sha256,scene_sha256='f'*64)
+    mapper.collision_checker=collision;tool=mapper.target.forward(end_q)
+    assert mapper._solve(tool,np.eye(4),prior,100) is None
+    path=mapper._cartesian_path(tool,np.eye(4),prior,100)
+    assert path and len(path)>=2
+    actual=mapper.target.forward(mapper.target_coordinates.radians(path[-1]['arm_command6']))
+    assert np.linalg.norm(actual[:3,3]-tool[:3,3])<.002
+    assert all(item['collision']['collision_free'] for item in path)
