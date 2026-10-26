@@ -17,6 +17,7 @@
     let generation = 0, readSequence = 0, frameSequence = 0, frame = null, challenge = null, grant = null;
     let busy = "", visible = options.visible !== false, watching = false, watchBusy = false, authorizing = false, prepareUncertain = false;
     let prepareBaseline = [];
+    let shadowBusy = false, shadowUncertain = false, shadowReceipt = null, shadowError = "", shadowSequence = 0, shadowReadSequence = 0;
     const cancelled = new Set(), uncertain = new Set(), outcomeDrafts = {}, outcomesBusy = new Set();
     const now = options.now || (()=>surface.performance?.now?.() ?? Date.now());
     const maxFrameAgeMs = options.maxFrameAgeMs ?? 1500;
@@ -29,11 +30,13 @@
         for (const key of Object.keys(draft)) if (typeof saved.draft?.[key] === "string") draft[key] = saved.draft[key];
         prepareUncertain = saved.prepareUncertain === true;
         prepareBaseline = rows(saved.prepareBaseline).filter(validID).slice(0,32);
+        shadowUncertain = saved.shadowUncertain === true;
+        if (validID(saved.shadowReceipt?.id) && validID(saved.shadowReceipt?.model_job_id) && typeof saved.shadowReceipt?.status === "string") shadowReceipt = {id:saved.shadowReceipt.id,model_job_id:saved.shadowReceipt.model_job_id,status:saved.shadowReceipt.status,backend:typeof saved.shadowReceipt.backend === "string" ? saved.shadowReceipt.backend : null};
         for (const id of rows(saved.cancelled)) if (validID(id)) cancelled.add(id);
         for (const id of rows(saved.uncertain)) if (validID(id)) uncertain.add(id);
       }
     } catch (_) { /* Text draft storage never grants authority. */ }
-    function save() {try {storage?.setItem("explorer.source04.evaluation-draft.v1",JSON.stringify({schema:1,draft,prepareUncertain,prepareBaseline,cancelled:[...cancelled],uncertain:[...uncertain]}));} catch (_) { /* A denied optional store cannot authorize. */ }}
+    function save() {try {storage?.setItem("explorer.source04.evaluation-draft.v1",JSON.stringify({schema:1,draft,prepareUncertain,prepareBaseline,shadowUncertain,shadowReceipt,cancelled:[...cancelled],uncertain:[...uncertain]}));} catch (_) { /* A denied optional store cannot authorize. */ }}
     const current = ()=>rows(data?.attempts).find(row=>row.id === selected);
     function attempt(active = false) {
       const row = current();
@@ -49,6 +52,7 @@
     function canResolvePreparation() {const row=current();return Boolean(prepareUncertain && row && !prepareBaseline.includes(row.id) && row.model_job_id === draft.model_job_id && ["object_instance_id","scene_id","goal_instance_id"].every(key=>row.context?.[key] === draft[key]));}
     function acknowledgePreparation() {if (!canResolvePreparation()) throw new Error("Выберите найденную новую попытку с теми же предметом, сценой, целью и моделью");prepareUncertain=false;save();notify();}
     function snapshot() {return copy({data,selected,draft,flags,error,busy,visible,watching,watchBusy,authorizing,prepareUncertain,canResolvePreparation:canResolvePreparation(),
+      shadowBusy,shadowUncertain,shadowReceipt,shadowError,
       challenge,grant,frame:frame ? {...frame,loadedAt:undefined} : null,cancelled:[...cancelled],uncertain:[...uncertain],outcomeDrafts,outcomesBusy:[...outcomesBusy]});}
     async function refresh() {
       const sequence = ++readSequence, epoch = generation;
@@ -101,6 +105,38 @@
         return reply;
       } catch (failure) {if (epoch === generation) error = failure.message;throw failure;}
       finally {if (epoch === generation) {busy = "";notify();}}
+    }
+    async function shadow() {
+      if (busy || shadowBusy || shadowUncertain) throw new Error("Дождитесь запроса shadow; после неопределённого ответа сначала проверьте очередь и явно подтвердите новый запрос");
+      const chosen = rows(data?.models).find(row=>row.id === draft.model_job_id && row.eligible === true);
+      if (!chosen || !validID(chosen.id)) throw new Error("Выберите допустимую настоящую source04 модель для shadow");
+      const modelID = chosen.id, epoch = generation, sequence = ++shadowSequence;shadowReadSequence++;
+      shadowBusy = true;shadowUncertain = true;shadowError = "";save();notify();
+      try {
+        const reply = await options.post("/api/lab/source-shadow",{model_job_id:modelID});
+        if (epoch !== generation || sequence !== shadowSequence) return {ignored:true};
+        if (!validID(reply?.id) || reply.kind !== "so101_skill_shadow" || !["queued","running","pause_requested","paused","resume_requested","cancel_requested","completed","failed","cancelled"].includes(reply.status) ||
+            reply.config?.model_job_id !== modelID) throw new Error("Сервер не подтвердил точное задание shadow; проверьте общую очередь");
+        shadowReceipt = {id:reply.id,status:reply.status,model_job_id:modelID,backend:reply.config?.backend || chosen.backend || null};
+        shadowUncertain = false;save();return reply;
+      } catch (failure) {if (epoch === generation && sequence === shadowSequence) shadowError = failure.message;throw failure;}
+      finally {if (sequence === shadowSequence) {shadowBusy = false;notify();}}
+    }
+    function acknowledgeShadow() {
+      if (shadowBusy || !shadowUncertain) throw new Error("Сначала дождитесь ответа и проверьте общую очередь shadow");
+      shadowUncertain = false;shadowError = "";save();notify();
+    }
+    async function refreshShadow() {
+      if (!validID(shadowReceipt?.id)) throw new Error("Подтверждённого задания shadow ещё нет; проверьте общую очередь");
+      const id = shadowReceipt.id, modelID = shadowReceipt.model_job_id, sequence = ++shadowReadSequence, epoch = generation;
+      try {
+        const reply = await options.get("/api/jobs");
+        if (sequence !== shadowReadSequence || epoch !== generation || shadowReceipt?.id !== id) return {ignored:true};
+        const found = rows(reply?.jobs).find(row=>row.id === id && row.kind === "so101_skill_shadow" && row.config?.model_job_id === modelID);
+        if (!found || typeof found.status !== "string") throw new Error("Задание отсутствует в текущем списке; последний статус не обновлён, проверьте очередь");
+        shadowReceipt = {...shadowReceipt,status:found.status};shadowError = "";save();return copy(shadowReceipt);
+      } catch (failure) {if (sequence === shadowReadSequence && epoch === generation) shadowError = failure.message;throw failure;}
+      finally {notify();}
     }
     async function binary(path) {
       if (options.loadFrame) return options.loadFrame(path);
@@ -225,7 +261,7 @@
       try {const reply = await options.post(`${BASE}/${row.id}/outcomes/${challengeID}`,{status,observing:form.observing === true,note:form.note || ""});if (epoch === generation) {delete outcomeDrafts[challengeID];await refresh();}return reply;}
       finally {outcomesBusy.delete(challengeID);notify();}
     }
-    return {snapshot,refresh,selectAttempt,edit,affirm,outcomeEdit,prepare,acknowledgePreparation,requestChallenge,authorize,watchOnce,displayed,setVisible,stopWatching,interrupt,cancel,advancePhase,outcome,destroy:()=>{visible=false;fence();}};
+    return {snapshot,refresh,selectAttempt,edit,affirm,outcomeEdit,prepare,acknowledgePreparation,shadow,acknowledgeShadow,refreshShadow,requestChallenge,authorize,watchOnce,displayed,setVisible,stopWatching,interrupt,cancel,advancePhase,outcome,destroy:()=>{visible=false;fence();}};
   }
 
   function sourceEvaluationPanel(view = {}) {
@@ -235,6 +271,8 @@
     const field = (key,label,type="text")=>`<label>${esc(label)}<input type="${type}" data-source-eval-field="${key}" value="${esc(draft[key])}" ${type === "number" ? 'min="0.1" step="0.1"' : 'maxlength="256"'}></label>`;
     const modelReasons = rows(data.models).filter(model=>model.eligible !== true).map(model=>`<li>${esc(model.title)}: ${esc(model.reason || "Источник ещё не квалифицирован")}</li>`).join("");
     const attempts = rows(data.attempts).map(item=>`<option value="${esc(item.id)}" ${item.id === view.selected ? "selected" : ""}>${esc(item.context?.object_instance_id || "Предмет")} → ${esc(item.context?.goal_instance_id || "Цель")} · ${esc(item.status)} · ${esc(item.id.slice(0,8))}</option>`).join("");
+    const shadowReady = rows(data.models).some(model=>model.id === draft.model_job_id && model.eligible === true);
+    const shadowPanel = `<section data-source-shadow-panel><h3>Read-only shadow выбранной модели</h3><p>Сервер получает реальные cached наблюдения и сохраняет предсказания без отправки команд. Предметный исход проверяется отдельной наблюдаемой попыткой.</p><button type="button" class="button secondary" data-source-eval-action="shadow" ${view.busy || view.shadowBusy || view.shadowUncertain || !shadowReady ? "disabled" : ""}>${view.shadowBusy ? "Создаём read-only shadow…" : "Проверить модель в read-only shadow"}</button><a class="button secondary" href="/queue">Открыть общую очередь</a>${view.shadowError ? `<p class="form-error" role="alert">${esc(view.shadowError)}</p>` : ""}${view.shadowUncertain && !view.shadowBusy ? `<p class="form-error">Ответ создания shadow не подтверждён. Автоматического повтора нет. Сначала проверьте очередь; следующий явный запрос создаст отдельное задание.</p><button type="button" class="button secondary" data-source-eval-action="acknowledgeShadow" ${view.shadowBusy ? "disabled" : ""}>Я проверил(а) очередь · разрешить следующий новый запрос shadow</button>` : ""}${validID(view.shadowReceipt?.id) ? `<p>Последнее подтверждённое задание shadow: ${esc(view.shadowReceipt.id)} · модель ${esc(view.shadowReceipt.model_job_id)} · ${esc(view.shadowReceipt.backend || "backend выбран сервером")} · последний статус ${esc(view.shadowReceipt.status)}</p><button type="button" class="button secondary" data-source-eval-action="refreshShadow">Обновить только статус shadow</button>` : ""}</section>`;
     const display = view.frame ? `<figure><img class="camera-preview" data-source-eval-frame="${esc(view.frame.token)}" src="${esc(view.frame.url)}" alt="Проверенный исходный кадр SO101 текущей попытки"><figcaption>Кадр ${esc(view.frame.frame_id)} · boot ${esc(view.frame.boot_id)} · SHA256 ${esc(view.frame.jpeg_sha256)} · ${view.frame.displayed ? "показ подтверждён браузером" : "ожидается загрузка изображения"}</figcaption></figure>` : '<p>Исходный кадр ещё не показан. Разрешение движения не выдано этой страницей.</p>';
     const check = (key,label)=>`<label class="check-field"><input type="checkbox" data-source-eval-affirm="${key}" ${flags[key] ? "checked" : ""}> ${esc(label)}</label>`;
     const canChallenge = row?.status === "running" && row?.result?.phase === "awaiting_source_observed_grant" && !stopped && !uncertain;
@@ -248,7 +286,7 @@
       const form = view.outcomeDrafts?.[entry.challenge_id] || {};
       return `<fieldset><legend>${esc(entry.phase_id === "__whole_task__" ? "Полная предметная задача" : entry.phase_id)}</legend><p>${esc(entry.question)}</p><label class="check-field"><input type="checkbox" data-source-eval-outcome="${esc(entry.challenge_id)}" data-outcome-field="observing" ${form.observing ? "checked" : ""}> Я лично просмотрел(а) исходные свидетельства этой фазы после остановки</label><label>Комментарий<input maxlength="1000" data-source-eval-outcome="${esc(entry.challenge_id)}" data-outcome-field="note" value="${esc(form.note || "")}"></label>${[["success","Успех"],["failure","Неуспех"],["unknown","Неизвестно"]].map(([status,label])=>`<button type="button" class="button secondary" data-source-eval-action="outcome" data-challenge="${esc(entry.challenge_id)}" data-status="${status}" ${rows(view.outcomesBusy).includes(entry.challenge_id) ? "disabled" : ""}>${label}</button>`).join("")}</fieldset>`;
     }).join("");
-    return `<section class="panel source-evaluation-workbench"><div class="panel-heading"><div><p class="eyebrow">Experiment 04 · исходный SO101</p><h2>Наблюдаемая оценка исходного навыка</h2></div><button type="button" class="button secondary" data-source-eval-action="refresh">Обновить состояние</button></div><div class="panel-body"><p>Проверяется сохранённая исходная политика native6. Обучение и shadow не подтверждают выполнение предметной задачи. Перенос на ROSMASTER в Experiment 06 остаётся отдельным этапом.</p>${view.error ? `<p class="form-error" role="alert">${esc(view.error)}</p>` : ""}<form data-source-eval-form><div class="form-grid"><label>Сохранённая модель<select data-source-eval-field="model_job_id"><option value="">Выберите допустимую модель</option>${modelOptions}</select></label>${field("object_instance_id","Какой конкретный предмет")}${field("scene_id","Где находится сцена")}${field("goal_instance_id","Куда и с каким результатом")}${field("duration_s","Максимальная длительность попытки, с","number")}${field("review_timeout_s","Время на независимые исходы, с","number")}</div><button type="submit" class="button primary" ${view.busy || view.prepareUncertain ? "disabled" : ""}>Загрузить модель и подготовить попытку</button><p class="form-hint">Этот шаг создаёт задание и загружает модель. Разрешение движения запрашивается отдельно после показа точного исходного кадра.</p>${view.prepareUncertain ? '<p class="form-error">Ответ создания не подтверждён. Не создавайте дубль: обновите список и проверьте уже подготовленные попытки.</p>' : ""}</form>${modelReasons ? `<details><summary>Почему остальные модели недоступны</summary><ul>${modelReasons}</ul></details>` : ""}<label>Попытка<select data-source-eval-select><option value="">Выберите попытку</option>${attempts}</select></label>${view.prepareUncertain ? `<button type="button" class="button secondary" data-source-eval-action="acknowledge" ${view.canResolvePreparation ? "" : "disabled"}>Я нашёл(ла) созданную попытку с теми же моделью и сценой</button>` : ""}${row ? `<div class="toolbar"><button type="button" class="button danger" data-source-eval-action="cancel" ${terminal(row.status) ? "disabled" : ""}>STOP · отменить эту попытку</button><span>${esc(row.status)} · ${esc(row.result?.phase || "ожидание worker")}</span></div>${stopped ? '<p class="form-error">STOP запрошен. Старая попытка не возобновляется от запоздавшего ответа.</p>' : ""}${uncertain ? '<p class="form-error">Результат разрешения неизвестен. Проверьте состояние и используйте STOP; автоматического повтора нет.</p>' : ""}${display}<p class="form-hint">Сначала лично подтвердите условия ниже. Затем покажите новый кадр и сразу нажмите отдельную кнопку запуска.</p><button type="button" class="button secondary" data-source-eval-action="challenge" ${!canChallenge || view.busy || !view.visible ? "disabled" : ""}>Показать текущий кадр для отдельного разрешения</button>${check("observing","Я сейчас вижу эту руку и свежий исходный кадр")}${check("robot_workspace_checked","Я проверил(а) свободное рабочее пространство руки")}${check("user_observed_test_confirmed","Я отдельно разрешаю одну эту наблюдаемую физическую попытку")}
+    return `<section class="panel source-evaluation-workbench"><div class="panel-heading"><div><p class="eyebrow">Experiment 04 · исходный SO101</p><h2>Наблюдаемая оценка исходного навыка</h2></div><button type="button" class="button secondary" data-source-eval-action="refresh">Обновить состояние</button></div><div class="panel-body"><p>Проверяется сохранённая исходная политика native6. Обучение и shadow не подтверждают выполнение предметной задачи. Перенос на ROSMASTER в Experiment 06 остаётся отдельным этапом.</p>${view.error ? `<p class="form-error" role="alert">${esc(view.error)}</p>` : ""}<form data-source-eval-form><div class="form-grid"><label>Сохранённая модель<select data-source-eval-field="model_job_id"><option value="">Выберите допустимую модель</option>${modelOptions}</select></label>${field("object_instance_id","Какой конкретный предмет")}${field("scene_id","Где находится сцена")}${field("goal_instance_id","Куда и с каким результатом")}${field("duration_s","Максимальная длительность попытки, с","number")}${field("review_timeout_s","Время на независимые исходы, с","number")}</div><button type="submit" class="button primary" ${view.busy || view.prepareUncertain ? "disabled" : ""}>Загрузить модель и подготовить попытку</button><p class="form-hint">Этот шаг создаёт задание и загружает модель. Разрешение движения запрашивается отдельно после показа точного исходного кадра.</p>${view.prepareUncertain ? '<p class="form-error">Ответ создания не подтверждён. Не создавайте дубль: обновите список и проверьте уже подготовленные попытки.</p>' : ""}</form>${shadowPanel}${modelReasons ? `<details><summary>Почему остальные модели недоступны</summary><ul>${modelReasons}</ul></details>` : ""}<label>Попытка<select data-source-eval-select><option value="">Выберите попытку</option>${attempts}</select></label>${view.prepareUncertain ? `<button type="button" class="button secondary" data-source-eval-action="acknowledge" ${view.canResolvePreparation ? "" : "disabled"}>Я нашёл(ла) созданную попытку с теми же моделью и сценой</button>` : ""}${row ? `<div class="toolbar"><button type="button" class="button danger" data-source-eval-action="cancel" ${terminal(row.status) ? "disabled" : ""}>STOP · отменить эту попытку</button><span>${esc(row.status)} · ${esc(row.result?.phase || "ожидание worker")}</span></div>${stopped ? '<p class="form-error">STOP запрошен. Старая попытка не возобновляется от запоздавшего ответа.</p>' : ""}${uncertain ? '<p class="form-error">Результат разрешения неизвестен. Проверьте состояние и используйте STOP; автоматического повтора нет.</p>' : ""}${display}<p class="form-hint">Сначала лично подтвердите условия ниже. Затем покажите новый кадр и сразу нажмите отдельную кнопку запуска.</p><button type="button" class="button secondary" data-source-eval-action="challenge" ${!canChallenge || view.busy || !view.visible ? "disabled" : ""}>Показать текущий кадр для отдельного разрешения</button>${check("observing","Я сейчас вижу эту руку и свежий исходный кадр")}${check("robot_workspace_checked","Я проверил(а) свободное рабочее пространство руки")}${check("user_observed_test_confirmed","Я отдельно разрешаю одну эту наблюдаемую физическую попытку")}
       <button type="button" class="button primary" data-source-eval-action="authorize" ${!view.challenge || !view.frame?.displayed || !Object.values(flags).every(Boolean) || view.busy || !view.visible || stopped || uncertain ? "disabled" : ""}>Начать одну разрешённую пользователем попытку и наблюдать</button><button type="button" class="button secondary" data-source-eval-action="stopWatching" ${!view.watching ? "disabled" : ""}>Прекратить подтверждение наблюдения</button><p role="status">${view.watching ? "Наблюдение включено вашим явным действием. Подтверждаются только новые кадры, реально показанные на видимой странице." : "Наблюдение выключено. Открытие страницы, обновление и возвращение на вкладку его не включают."}</p>${phase}${outcomes}${timeline ? `<details><summary>Исходные кадры и native receipts · ${rows(row.timeline).length}</summary><ol>${timeline}</ol></details>` : ""}` : '<p>Выберите подготовленную попытку. Если допустимых источников нет, сначала нужен настоящий source04 cohort.</p>'}</div></section>`;
   }
 
@@ -265,7 +303,7 @@
     const click = event=>{
       const button = event.target.closest?.("[data-source-eval-action]");
       if (!button || !root.contains(button) || button.disabled) return;
-      const actions = {refresh:()=>client.refresh(),acknowledge:()=>client.acknowledgePreparation(),challenge:()=>client.requestChallenge(),authorize:()=>client.authorize(),cancel:()=>client.cancel(),stopWatching:()=>client.stopWatching(),phase:()=>client.advancePhase(button.dataset.phase),outcome:()=>client.outcome(button.dataset.challenge,button.dataset.status)};
+      const actions = {refresh:()=>client.refresh(),shadow:()=>client.shadow(),acknowledgeShadow:()=>client.acknowledgeShadow(),refreshShadow:()=>client.refreshShadow(),acknowledge:()=>client.acknowledgePreparation(),challenge:()=>client.requestChallenge(),authorize:()=>client.authorize(),cancel:()=>client.cancel(),stopWatching:()=>client.stopWatching(),phase:()=>client.advancePhase(button.dataset.phase),outcome:()=>client.outcome(button.dataset.challenge,button.dataset.status)};
       if (actions[button.dataset.sourceEvalAction]) run(actions[button.dataset.sourceEvalAction]);
     };
     const change = event=>{
