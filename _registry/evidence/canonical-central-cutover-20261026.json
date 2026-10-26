@@ -1,0 +1,105 @@
+{
+  "schema": "explorer_canonical_cutover_live_verification_v1",
+  "endpoints": {
+    "/api/projects": 200,
+    "/api/state": 200,
+    "/api/jobs": 200,
+    "/api/skills": 200,
+    "/api/evening": 200,
+    "/api/policy-backends": 200,
+    "/experiments/04": 200,
+    "/experiments/06": 200,
+    "/evening": 200,
+    "/api/lab/calibration/board.pdf": 200,
+    "/api/cameras/nano-rgbd/snapshot": 200
+  },
+  "roles": {
+    "01": "autonomous_learning",
+    "02": "rosmaster_keyboard_learning",
+    "03": "rosmaster_leader_learning",
+    "04": "so101_source_learning",
+    "05": "cooperative_handover",
+    "06": "cross_embodiment_transfer"
+  },
+  "job_counts": {
+    "01": 9,
+    "02": 5,
+    "03": 0,
+    "04": 6,
+    "05": 2,
+    "06": 2
+  },
+  "readiness": [
+    {
+      "id": "semantic_registry",
+      "status": "READY"
+    },
+    {
+      "id": "native_gateway",
+      "status": "SOFTWARE_BLOCKER"
+    },
+    {
+      "id": "leader_mapping_A",
+      "status": "SOFTWARE_BLOCKER"
+    },
+    {
+      "id": "source_vision_backend",
+      "status": "SOFTWARE_BLOCKER"
+    },
+    {
+      "id": "learned_object_skill",
+      "status": "PHYSICAL_ACTION"
+    }
+  ],
+  "diffusion_runtime_ready": true,
+  "live_execution_commit": "d1764025856ea6f202f22e28dbbe5948827634a0",
+  "events_original_bodies_identical": true,
+  "skills_original_bodies_identical": true,
+  "all_original_job_config_result_bytes_identical": true,
+  "sqlite_integrity": "ok",
+  "raw_job_counts": {
+    "01": 9,
+    "02": 5,
+    "04": 6,
+    "05": 2,
+    "06": 2
+  },
+  "physical_commands": 0,
+  "controller_settings_changed": false,
+  "whole_goal_completed": false,
+  "wall_utc": 1793034307.7034266,
+  "migration": {
+    "activation_wall_utc": 1793034188.5088623,
+    "candidate_database_logical_sha256": "60272464dec8f9cd3b4c2db8f4804eea7fedef221061df6fa44c0f3ec35599a0",
+    "controller_settings_modified": false,
+    "execution_commit": "d1764025856ea6f202f22e28dbbe5948827634a0",
+    "independent_verified_backup_receipt": "/mnt/explorer-data/migration-snapshots/experiment-numbering-v2-20261026/state-backup-verified/receipt.json",
+    "index_sha256": "7f646ec465dd18220c6992c59aac7b02123ced5ad38c088dab72855a05ef884f",
+    "migration_id": "experiment-numbers-2325bde387c3706e00b09807",
+    "ok": true,
+    "original_snapshot": "/mnt/explorer-data/migration-snapshots/experiment-numbering-v2-20261026/live-cutover-final/original",
+    "own_units": [
+      "explorer-control-center.service",
+      "explorer-worker.service"
+    ],
+    "physical_commands": 0,
+    "previous_release": "/home/jetsonnx/.local/share/explorer/releases/8e30cfcb5bd8747f27fd9ff9c3da1fc30833c8c8",
+    "raw_scientific_payloads_rewritten": false,
+    "remote_outboxes_modified": false,
+    "started_wall_utc": 1793034176.812338
+  },
+  "regression": {
+    "execution_commit": "d1764025856ea6f202f22e28dbbe5948827634a0",
+    "passed": 845,
+    "skipped": 15,
+    "failed": 0,
+    "log_sha256": "ff0b898c50bff27f9312191aa7cfb6fb06004dfa7224476dc6a29c60c54d82ff",
+    "basetemp_outside_production": true
+  },
+  "native_startup_factory": {
+    "passed": 4,
+    "physical_commands": 0,
+    "real_owner_restarted": false,
+    "scope": "retained exactsource and injectedexternaldrivers, currentadapter"
+  }
+}
