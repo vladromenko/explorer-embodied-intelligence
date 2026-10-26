@@ -1,0 +1,237 @@
+{
+  "schema": "explorer_original_factory_scoped_software_qualification_v1",
+  "tests_passed": 6,
+  "elapsed_s": 26.19,
+  "cases": [
+    {
+      "case": "test_exact_forward_repin_full_0",
+      "original_receipt_sha256": "052f0e8b3362929d66e5f3412f4af5443a3c85e5752966c6966aa6ebd2d225bb",
+      "observations": {
+        "schema": "explorer_native_web_startup_probe_v1",
+        "native_snapshot_sha256": "faeb38b8874422d987d5d0c7f15351008a0e272dcc5f6dc268c4c18d7f166d46",
+        "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
+        "input_inventory_sha256": "31af87657cb15f4a35e27040177cc66785b8f98e7b28a43a0488f69d2b17f615",
+        "adapter_source_sha256": {
+          "native_activation.py": "70865ea20d5d25f436796d1838d6b2ab13e86a01217a9c4adcdc3e1e123614da",
+          "native_owner_mount.py": "f47f30486424bcd9a9454e3230e61847c9acf1c47c31a36077164727caa91f1b",
+          "native_stream03.py": "5522247db31761710093808998ab0a2c0af975272950de41e3802e36339b2ead",
+          "native_stream03_api.py": "29a1af0eaec08a00d294c95c351df07b998893a88739746bfeb7a21940c21299",
+          "native_web_startup_probe.py": "5b3fd65c0b9ea16a07554b7cdb09ac739a567087eeed8079f0a5a686b5d96213"
+        },
+        "controller_sha256": {
+          "arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+          "arm_model.json": "842dfe7960fd01be18992e62dabe293added502d0df3715a9d31944b60317d4f",
+          "controller-calibration.json": "3203d59ef9a06fb5215446b0e3e1f7f4aaf68d27c8b85f26375fdb5dca5be53a",
+          "factory-arm-startup.json": "5a26edf01d8e20e440dc51c33da214d739357cd9130ff12a16601b7874e79ec5",
+          "factory-runtime.json": "7088214801e6a0c7e29eabb8a2ac41a00e83df0118f3fb7984709120c42fd9ca",
+          "gripper-reference.json": "ed275d5b774814963fc855009a4f93715ffbe4657796b2ed32f9c1c9718e11cb"
+        },
+        "candidate_web_sha256": "05905d040949ab89e350345341b754deaaed3b50aa013e43d644f1fba69ea165",
+        "source_startup_zero_actuator_requests": true,
+        "actuator_or_external_attempts": [],
+        "errors": [],
+        "original_owner_restarted": false,
+        "external_driver_implementation_executed": false,
+        "uvicorn_tcp_server_started": false
+      }
+    },
+    {
+      "case": "test_exact_forward_repin_full_1",
+      "original_receipt_sha256": "3176fa37a40f801f41d8a185f6fb7d0200846606525df91e4ad484b2bd251e5e",
+      "observations": {
+        "schema": "explorer_native_web_startup_probe_v1",
+        "native_snapshot_sha256": "faeb38b8874422d987d5d0c7f15351008a0e272dcc5f6dc268c4c18d7f166d46",
+        "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
+        "input_inventory_sha256": "31af87657cb15f4a35e27040177cc66785b8f98e7b28a43a0488f69d2b17f615",
+        "adapter_source_sha256": {
+          "native_activation.py": "70865ea20d5d25f436796d1838d6b2ab13e86a01217a9c4adcdc3e1e123614da",
+          "native_owner_mount.py": "f47f30486424bcd9a9454e3230e61847c9acf1c47c31a36077164727caa91f1b",
+          "native_stream03.py": "5522247db31761710093808998ab0a2c0af975272950de41e3802e36339b2ead",
+          "native_stream03_api.py": "29a1af0eaec08a00d294c95c351df07b998893a88739746bfeb7a21940c21299",
+          "native_web_startup_probe.py": "5b3fd65c0b9ea16a07554b7cdb09ac739a567087eeed8079f0a5a686b5d96213"
+        },
+        "controller_sha256": {
+          "arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+          "arm_model.json": "842dfe7960fd01be18992e62dabe293added502d0df3715a9d31944b60317d4f",
+          "controller-calibration.json": "3203d59ef9a06fb5215446b0e3e1f7f4aaf68d27c8b85f26375fdb5dca5be53a",
+          "factory-arm-startup.json": "5a26edf01d8e20e440dc51c33da214d739357cd9130ff12a16601b7874e79ec5",
+          "factory-runtime.json": "7088214801e6a0c7e29eabb8a2ac41a00e83df0118f3fb7984709120c42fd9ca",
+          "gripper-reference.json": "ed275d5b774814963fc855009a4f93715ffbe4657796b2ed32f9c1c9718e11cb"
+        },
+        "candidate_web_sha256": "05905d040949ab89e350345341b754deaaed3b50aa013e43d644f1fba69ea165",
+        "source_startup_zero_actuator_requests": false,
+        "actuator_or_external_attempts": [],
+        "errors": [
+          {
+            "detail": "FACTORY_STARTUP_HOME_WINDOW_ACTIVE_OR_UNKNOWN",
+            "error_type": "ValueError",
+            "factory": "web"
+          }
+        ],
+        "original_owner_restarted": false,
+        "external_driver_implementation_executed": false,
+        "uvicorn_tcp_server_started": false
+      }
+    },
+    {
+      "case": "test_exact_native_web_startup_0",
+      "original_receipt_sha256": "a9d68fad0c35b7c2a3a7d8009f4eeec41f08520b6857a062d9161ec7dbe43d21",
+      "observations": {
+        "schema": "explorer_native_web_startup_probe_v1",
+        "native_snapshot_sha256": "faeb38b8874422d987d5d0c7f15351008a0e272dcc5f6dc268c4c18d7f166d46",
+        "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
+        "input_inventory_sha256": "31af87657cb15f4a35e27040177cc66785b8f98e7b28a43a0488f69d2b17f615",
+        "adapter_source_sha256": {
+          "native_activation.py": "70865ea20d5d25f436796d1838d6b2ab13e86a01217a9c4adcdc3e1e123614da",
+          "native_owner_mount.py": "f47f30486424bcd9a9454e3230e61847c9acf1c47c31a36077164727caa91f1b",
+          "native_stream03.py": "5522247db31761710093808998ab0a2c0af975272950de41e3802e36339b2ead",
+          "native_stream03_api.py": "29a1af0eaec08a00d294c95c351df07b998893a88739746bfeb7a21940c21299",
+          "native_web_startup_probe.py": "5b3fd65c0b9ea16a07554b7cdb09ac739a567087eeed8079f0a5a686b5d96213"
+        },
+        "controller_sha256": {
+          "arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+          "arm_model.json": "842dfe7960fd01be18992e62dabe293added502d0df3715a9d31944b60317d4f",
+          "controller-calibration.json": "3203d59ef9a06fb5215446b0e3e1f7f4aaf68d27c8b85f26375fdb5dca5be53a",
+          "factory-arm-startup.json": "5a26edf01d8e20e440dc51c33da214d739357cd9130ff12a16601b7874e79ec5",
+          "factory-runtime.json": "7088214801e6a0c7e29eabb8a2ac41a00e83df0118f3fb7984709120c42fd9ca",
+          "gripper-reference.json": "ed275d5b774814963fc855009a4f93715ffbe4657796b2ed32f9c1c9718e11cb"
+        },
+        "candidate_web_sha256": null,
+        "source_startup_zero_actuator_requests": true,
+        "actuator_or_external_attempts": [],
+        "errors": [],
+        "original_owner_restarted": false,
+        "external_driver_implementation_executed": false,
+        "uvicorn_tcp_server_started": false
+      }
+    },
+    {
+      "case": "test_exact_native_web_startup_1",
+      "original_receipt_sha256": "9b5ca5362c26cb0c1da12a6bbb1c2e161dbf1393773c015e083a887969cc4bc3",
+      "observations": {
+        "schema": "explorer_native_web_startup_probe_v1",
+        "native_snapshot_sha256": "faeb38b8874422d987d5d0c7f15351008a0e272dcc5f6dc268c4c18d7f166d46",
+        "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
+        "input_inventory_sha256": "31af87657cb15f4a35e27040177cc66785b8f98e7b28a43a0488f69d2b17f615",
+        "adapter_source_sha256": {
+          "native_activation.py": "70865ea20d5d25f436796d1838d6b2ab13e86a01217a9c4adcdc3e1e123614da",
+          "native_owner_mount.py": "f47f30486424bcd9a9454e3230e61847c9acf1c47c31a36077164727caa91f1b",
+          "native_stream03.py": "5522247db31761710093808998ab0a2c0af975272950de41e3802e36339b2ead",
+          "native_stream03_api.py": "29a1af0eaec08a00d294c95c351df07b998893a88739746bfeb7a21940c21299",
+          "native_web_startup_probe.py": "5b3fd65c0b9ea16a07554b7cdb09ac739a567087eeed8079f0a5a686b5d96213"
+        },
+        "controller_sha256": {
+          "arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+          "arm_model.json": "842dfe7960fd01be18992e62dabe293added502d0df3715a9d31944b60317d4f",
+          "controller-calibration.json": "3203d59ef9a06fb5215446b0e3e1f7f4aaf68d27c8b85f26375fdb5dca5be53a",
+          "factory-arm-startup.json": "5a26edf01d8e20e440dc51c33da214d739357cd9130ff12a16601b7874e79ec5",
+          "factory-runtime.json": "7088214801e6a0c7e29eabb8a2ac41a00e83df0118f3fb7984709120c42fd9ca",
+          "gripper-reference.json": "ed275d5b774814963fc855009a4f93715ffbe4657796b2ed32f9c1c9718e11cb"
+        },
+        "candidate_web_sha256": null,
+        "source_startup_zero_actuator_requests": false,
+        "actuator_or_external_attempts": [
+          {
+            "message": {
+              "external_type": "Fake",
+              "fields": {
+                "joint1": 90,
+                "joint2": 90,
+                "joint3": 90,
+                "joint4": 90,
+                "joint5": 90,
+                "joint6": 90,
+                "time": 4000
+              }
+            },
+            "physical_send": false,
+            "topic": "/arm6_joints"
+          }
+        ],
+        "errors": [],
+        "original_owner_restarted": false,
+        "external_driver_implementation_executed": false,
+        "uvicorn_tcp_server_started": false
+      }
+    },
+    {
+      "case": "test_exact_native_web_startup_2",
+      "original_receipt_sha256": "052f0e8b3362929d66e5f3412f4af5443a3c85e5752966c6966aa6ebd2d225bb",
+      "observations": {
+        "schema": "explorer_native_web_startup_probe_v1",
+        "native_snapshot_sha256": "faeb38b8874422d987d5d0c7f15351008a0e272dcc5f6dc268c4c18d7f166d46",
+        "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
+        "input_inventory_sha256": "31af87657cb15f4a35e27040177cc66785b8f98e7b28a43a0488f69d2b17f615",
+        "adapter_source_sha256": {
+          "native_activation.py": "70865ea20d5d25f436796d1838d6b2ab13e86a01217a9c4adcdc3e1e123614da",
+          "native_owner_mount.py": "f47f30486424bcd9a9454e3230e61847c9acf1c47c31a36077164727caa91f1b",
+          "native_stream03.py": "5522247db31761710093808998ab0a2c0af975272950de41e3802e36339b2ead",
+          "native_stream03_api.py": "29a1af0eaec08a00d294c95c351df07b998893a88739746bfeb7a21940c21299",
+          "native_web_startup_probe.py": "5b3fd65c0b9ea16a07554b7cdb09ac739a567087eeed8079f0a5a686b5d96213"
+        },
+        "controller_sha256": {
+          "arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+          "arm_model.json": "842dfe7960fd01be18992e62dabe293added502d0df3715a9d31944b60317d4f",
+          "controller-calibration.json": "3203d59ef9a06fb5215446b0e3e1f7f4aaf68d27c8b85f26375fdb5dca5be53a",
+          "factory-arm-startup.json": "5a26edf01d8e20e440dc51c33da214d739357cd9130ff12a16601b7874e79ec5",
+          "factory-runtime.json": "7088214801e6a0c7e29eabb8a2ac41a00e83df0118f3fb7984709120c42fd9ca",
+          "gripper-reference.json": "ed275d5b774814963fc855009a4f93715ffbe4657796b2ed32f9c1c9718e11cb"
+        },
+        "candidate_web_sha256": "05905d040949ab89e350345341b754deaaed3b50aa013e43d644f1fba69ea165",
+        "source_startup_zero_actuator_requests": true,
+        "actuator_or_external_attempts": [],
+        "errors": [],
+        "original_owner_restarted": false,
+        "external_driver_implementation_executed": false,
+        "uvicorn_tcp_server_started": false
+      }
+    },
+    {
+      "case": "test_exact_native_web_startup_3",
+      "original_receipt_sha256": "3176fa37a40f801f41d8a185f6fb7d0200846606525df91e4ad484b2bd251e5e",
+      "observations": {
+        "schema": "explorer_native_web_startup_probe_v1",
+        "native_snapshot_sha256": "faeb38b8874422d987d5d0c7f15351008a0e272dcc5f6dc268c4c18d7f166d46",
+        "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
+        "input_inventory_sha256": "31af87657cb15f4a35e27040177cc66785b8f98e7b28a43a0488f69d2b17f615",
+        "adapter_source_sha256": {
+          "native_activation.py": "70865ea20d5d25f436796d1838d6b2ab13e86a01217a9c4adcdc3e1e123614da",
+          "native_owner_mount.py": "f47f30486424bcd9a9454e3230e61847c9acf1c47c31a36077164727caa91f1b",
+          "native_stream03.py": "5522247db31761710093808998ab0a2c0af975272950de41e3802e36339b2ead",
+          "native_stream03_api.py": "29a1af0eaec08a00d294c95c351df07b998893a88739746bfeb7a21940c21299",
+          "native_web_startup_probe.py": "5b3fd65c0b9ea16a07554b7cdb09ac739a567087eeed8079f0a5a686b5d96213"
+        },
+        "controller_sha256": {
+          "arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+          "arm_model.json": "842dfe7960fd01be18992e62dabe293added502d0df3715a9d31944b60317d4f",
+          "controller-calibration.json": "3203d59ef9a06fb5215446b0e3e1f7f4aaf68d27c8b85f26375fdb5dca5be53a",
+          "factory-arm-startup.json": "5a26edf01d8e20e440dc51c33da214d739357cd9130ff12a16601b7874e79ec5",
+          "factory-runtime.json": "7088214801e6a0c7e29eabb8a2ac41a00e83df0118f3fb7984709120c42fd9ca",
+          "gripper-reference.json": "ed275d5b774814963fc855009a4f93715ffbe4657796b2ed32f9c1c9718e11cb"
+        },
+        "candidate_web_sha256": "05905d040949ab89e350345341b754deaaed3b50aa013e43d644f1fba69ea165",
+        "source_startup_zero_actuator_requests": false,
+        "actuator_or_external_attempts": [],
+        "errors": [
+          {
+            "detail": "FACTORY_STARTUP_HOME_WINDOW_ACTIVE_OR_UNKNOWN",
+            "error_type": "ValueError",
+            "factory": "web"
+          }
+        ],
+        "original_owner_restarted": false,
+        "external_driver_implementation_executed": false,
+        "uvicorn_tcp_server_started": false
+      }
+    }
+  ],
+  "scope": {
+    "actual_original_factory_code": true,
+    "temporary_original_ROOT_copy": true,
+    "ROS_MoveIt_drivers": "fake",
+    "real_hardware_or_network_opened": false,
+    "actual_controller_or_owner_restarted": false,
+    "not_actual_deployment": true,
+    "positive_control": "Unpatched fresh original factory emits one mocked startup HOME; candidate rejects fresh startup before original threads. Aged candidate lifecycle remains zero mocked actuator requests."
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "schema": "explorer_scoped_original_qualification_receipt_v1",
+  "frozen_source_commit": "2ed4619ad135c713fd7cf9a3ed34c07a57209ba0",
+  "original_qualification_sha256": "df08448fb30abf29338818b662f104a79d77a95b29991f8eef39a56ff17c2e6a",
+  "actual": {
+    "RNG_draws_equal": true,
+    "actual_CAD_model": true,
+    "capture_did_not_advance_native_or_env_RNG": true,
+    "commands_reexecuted": 12,
+    "compiled_MJB_bytes": 153859036,
+    "coordinator_pid": 2050989,
+    "elapsed_s": 13.420651722990442,
+    "independent_reports_equal": true,
+    "initial_RGB_render_reexecution": "UNQUALIFIED",
+    "learned_policy_executed": false,
+    "maximum_native_error": 0.0,
+    "native_dtype": "<f8",
+    "native_shape": [
+      13,
+      769
+    ],
+    "native_states_bitwise_equal": true,
+    "no_retrospective_V9_amendment": true,
+    "original_runtime_OS_closure": "PARTIAL",
+    "passed": true,
+    "physical_io": false,
+    "producer": {
+      "exit_code": 0,
+      "pid": 2051002,
+      "process_reaped": true
+    },
+    "producer_exited_before_verifier_started": true,
+    "renderer_created": false,
+    "resealed_malformed_mutable_profiles": [
+      {
+        "case": "warning_overflow",
+        "native_and_RNG_unchanged": true,
+        "rejected_before_native_state_set": true,
+        "valid_resealed_manifest_sha256": "c862e5713e74ffd323458fdf7471adf3d6b0c68821d7bcae9d793f7f1bd34579"
+      },
+      {
+        "case": "command_shape",
+        "native_and_RNG_unchanged": true,
+        "rejected_before_native_state_set": true,
+        "valid_resealed_manifest_sha256": "3088b2a16966db95c7728bdcd924a8b2a12df879f8fcc9d0e57b79139f0b434e"
+      },
+      {
+        "case": "seed_shape",
+        "native_and_RNG_unchanged": true,
+        "rejected_before_native_state_set": true,
+        "valid_resealed_manifest_sha256": "38c191c6911907ef06dbf58f2954874cf7baeb732bf6ef0858f39b8a7dc78c04"
+      },
+      {
+        "case": "provider_field",
+        "native_and_RNG_unchanged": true,
+        "rejected_before_native_state_set": true,
+        "valid_resealed_manifest_sha256": "05e1d1fbc1acd6a545fbce26ff75ea84ab2c03233005c19fa2d2d3b535d36a39"
+      }
+    ],
+    "schema": "explorer_stationary_sim_initial_new_pid_qualification_v1",
+    "snapshot_sha256": "dcfe626acd2e0dbb7dfd53685980534ccd887506472913edcd9f6f3c993a7a68",
+    "source_driver_sha256": "aa9ab263e2e206c69cb04d8a86f1e94f1c92fc4a53af092709c4d967e6872f0f",
+    "source_helper_sha256": "f3b645db575f8c606f0bb455004f6e4ace040311dd408e646cd8aedec84d21d8",
+    "total_snapshot_payload_bytes": 196704107,
+    "unknown_profile_rejected_before_mutation": true,
+    "verifier": {
+      "exit_code": 0,
+      "pid": 2051023,
+      "process_reaped": true
+    }
+  },
+  "scope": {
+    "physical_or_learned_task_qualification": false,
+    "current_source_automatically_qualified": false,
+    "known_later_review_finding": "Mutable bundle payload TOCTOU found after this frozen successful native parity run; correction and separate regression in progress."
+  }
+}
