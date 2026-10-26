@@ -1,0 +1,268 @@
+{
+  "attempts": [
+    {
+      "failed_phases": [],
+      "frames": 439,
+      "full_task_success": true,
+      "independent_end_to_end": true,
+      "legacy_raw_optimizer_flag_basis": "source_split_only_not_target_admission",
+      "result_sha256": "136a2c2a6d63c8b5ac96acfb8cb7a5e5d2951eb0ef624694349e2d1355fc79eb",
+      "scenario": {
+        "goal_offset_xy_m": [
+          0.0,
+          0.0
+        ],
+        "id": "v9-newjitter-7331",
+        "object_offset_xy_m": [
+          0.0,
+          0.0
+        ],
+        "object_yaw_rad": 0.0,
+        "seed": 7331
+      },
+      "source_archive_bytes": 50279098,
+      "source_archive_files": 137,
+      "source_archive_manifest_sha256": "8e849508b32c1fd4adabf4f3428d2ef7354517a5f9cb29076d33f25df31daf90",
+      "source_archive_originals_rechecked_after_trial": true,
+      "source_partition": "train",
+      "target_optimizer_allowed": false,
+      "target_partition": "development",
+      "target_trace_sha256": "3792436ef77c63d6c1c70ec9a382c28fd6be43767b79969e3e4bee3fcc7d48c4",
+      "terminal_contact_facts": {
+        "above_rim": false,
+        "bottom_supported": true,
+        "free_of_fingers": true,
+        "height_bounds_m": [
+          0.007892244579675129,
+          0.02789224457990378
+        ],
+        "inside_all_points": true,
+        "pad_force_N": [
+          0.0,
+          0.0
+        ],
+        "settled": true,
+        "support_force_N": 0.12360599999555742,
+        "within_rim": true
+      },
+      "terminal_goal_verified": true
+    },
+    {
+      "failed_phases": [
+        "release",
+        "settle"
+      ],
+      "frames": 439,
+      "full_task_success": false,
+      "independent_end_to_end": false,
+      "legacy_raw_optimizer_flag_basis": "source_split_only_not_target_admission",
+      "result_sha256": "e91203b8cb1e71b72c1901c6ab5bcb64cdf28a3a90e320ab9a1a7c44f9f2388b",
+      "scenario": {
+        "goal_offset_xy_m": [
+          -0.01,
+          -0.01
+        ],
+        "id": "v9-near-left-7332",
+        "object_offset_xy_m": [
+          -0.01,
+          0.006
+        ],
+        "object_yaw_rad": 0.0,
+        "seed": 7332
+      },
+      "source_archive_bytes": 50433444,
+      "source_archive_files": 144,
+      "source_archive_manifest_sha256": "c7a9c056479a66d9c20b47decd42adaccfc9698a2b216c22b567383052c1b4b4",
+      "source_archive_originals_rechecked_after_trial": true,
+      "source_partition": "train",
+      "target_optimizer_allowed": false,
+      "target_partition": "development",
+      "target_trace_sha256": "bd9cf8ecbce58cbfd0e63b3ae7fd39a19c57870ea2c08b48a7d4838ce59fc846",
+      "terminal_contact_facts": {
+        "above_rim": false,
+        "bottom_supported": false,
+        "free_of_fingers": true,
+        "height_bounds_m": [
+          -0.010016556559955193,
+          0.009983857448326399
+        ],
+        "inside_all_points": true,
+        "pad_force_N": [
+          0.0,
+          0.0
+        ],
+        "settled": true,
+        "support_force_N": 32.6981953199175,
+        "within_rim": true
+      },
+      "terminal_goal_verified": false
+    },
+    {
+      "failed_phases": [],
+      "frames": 439,
+      "full_task_success": true,
+      "independent_end_to_end": true,
+      "legacy_raw_optimizer_flag_basis": "source_split_only_not_target_admission",
+      "result_sha256": "47471e0393445b29a55b824c39a286728685cf5a76cf5cddf3337496377a1043",
+      "scenario": {
+        "goal_offset_xy_m": [
+          0.006,
+          0.008
+        ],
+        "id": "v9-out-yawplus-7333",
+        "object_offset_xy_m": [
+          0.008,
+          -0.006
+        ],
+        "object_yaw_rad": 0.1,
+        "seed": 7333
+      },
+      "source_archive_bytes": 50433563,
+      "source_archive_files": 144,
+      "source_archive_manifest_sha256": "e6db9a4e914d23fa36d4961ea41000d75d7914490cdc31388db6ba44080bea39",
+      "source_archive_originals_rechecked_after_trial": true,
+      "source_partition": "train",
+      "target_optimizer_allowed": false,
+      "target_partition": "development",
+      "target_trace_sha256": "21d7ba5854878fcb8367d47759e9a225cfed9d3b48df8b669b0cdab73e9c04d8",
+      "terminal_contact_facts": {
+        "above_rim": false,
+        "bottom_supported": true,
+        "free_of_fingers": true,
+        "height_bounds_m": [
+          0.00789224457976077,
+          0.027892244579807605
+        ],
+        "inside_all_points": true,
+        "pad_force_N": [
+          0.0,
+          0.0
+        ],
+        "settled": true,
+        "support_force_N": 0.12360600003002073,
+        "within_rim": true
+      },
+      "terminal_goal_verified": true
+    },
+    {
+      "failed_phases": [
+        "release",
+        "settle"
+      ],
+      "frames": 439,
+      "full_task_success": false,
+      "independent_end_to_end": false,
+      "legacy_raw_optimizer_flag_basis": "source_split_only_not_target_admission",
+      "result_sha256": "5b843bd6432b73b063d54374d1f9ac623dcdf98299bd59887698bdd86c2f007d",
+      "scenario": {
+        "goal_offset_xy_m": [
+          0.012,
+          -0.012
+        ],
+        "id": "v9-in-yawminus-7334",
+        "object_offset_xy_m": [
+          -0.008,
+          -0.008
+        ],
+        "object_yaw_rad": -0.1,
+        "seed": 7334
+      },
+      "source_archive_bytes": 50433634,
+      "source_archive_files": 144,
+      "source_archive_manifest_sha256": "da8abfacca810b55d5d12830273b5ff52599d8d27e060697281fbc87cde00ca0",
+      "source_archive_originals_rechecked_after_trial": true,
+      "source_partition": "train",
+      "target_optimizer_allowed": false,
+      "target_partition": "development",
+      "target_trace_sha256": "b74621d85e87ba18c7ae366d96f5fd5203290133052624c53cc8dbd09361a47c",
+      "terminal_contact_facts": {
+        "above_rim": false,
+        "bottom_supported": false,
+        "free_of_fingers": true,
+        "height_bounds_m": [
+          -0.010320815617926934,
+          0.013625147901726283
+        ],
+        "inside_all_points": true,
+        "pad_force_N": [
+          0.0,
+          0.0
+        ],
+        "settled": true,
+        "support_force_N": 38.6631844376257,
+        "within_rim": true
+      },
+      "terminal_goal_verified": false
+    }
+  ],
+  "benchmark_implementation_sha256": "352c62c3d58207dadb368f9250b5b14195addf12046d533077b9451f1d715f1a",
+  "benchmark_report_sha256": "9a266166ad68cce951da89e98f384e2c9d83c696f35296a3cacf0cda50b2d14a",
+  "campaign_receipt_sha256": "e016bc0324d8049a9415ef81c24c50c9cb1c0d0ea76fdc293fe077efed43b034",
+  "contact_recomputation_scope": "same native integration state forward-only, no dynamics or render; recomputed forces distinct from original capture",
+  "contact_recomputation_sha256": "4704ec90c369394fb4e648fa4e250387047e8532dfed97e8af64e1f067fa4b03",
+  "driver_sha256": "8674d6f2cb107d18f345b9c6b02aa9cd9a9a3808f36d6cef6d442306887221d4",
+  "frozen_protocol_file_sha256": "0637b04012ffbce9a4306ed42f77691cdcda0f091bc0f5b395e55612c27587b8",
+  "frozen_protocol_sha256": "7bc5db9056d99de459b299036fa9e240650a190bb270ce481664afba673ba744",
+  "learned_source_or_target_policy": false,
+  "limitations": [
+    "Only four prespecified development scenes, no sealed or powered generalization study",
+    "Two attempts fail release/settle after successful grasp/lift/carry; all failures retained",
+    "Final contact-state replay shows simultaneous floor/bin interpenetration in both failures; exact instability mechanism not isolated",
+    "Geometric privileged teacher only; no learned SO101 source object policy",
+    "Stationary simulated base fixture; not navigation qualification"
+  ],
+  "master_prompt_completed": false,
+  "physical_io": false,
+  "physical_success_claimed": false,
+  "private_campaign_path": "/mnt/explorer-data/explorer-work/transfer-hover-development-v9-20261026",
+  "report": {
+    "excluded": [],
+    "groups": [
+      {
+        "attempts": 4,
+        "condition": "SCRIPTED_SIM_hover_release_v8_frozen",
+        "conditional_on_known_success_rate": 0.5,
+        "confirmed_success_rate": 0.5,
+        "counts": {
+          "FAILURE": 2,
+          "SUCCESS": 2,
+          "UNKNOWN": 0
+        },
+        "interventions": 0,
+        "known_outcome_wilson95": [
+          0.15003898915214958,
+          0.8499610108478504
+        ],
+        "safety_stops": 0,
+        "source_domain": "SIMULATION",
+        "success_rate_identification_bounds": [
+          0.5,
+          0.5
+        ],
+        "task_id": "candy_to_tray",
+        "trial_ids": [
+          "v9-newjitter-7331",
+          "v9-near-left-7332",
+          "v9-out-yawplus-7333",
+          "v9-in-yawminus-7334"
+        ]
+      }
+    ],
+    "inference_note": "Episodes are experimental units; frames are not independent trials. Unknown outcomes remain explicit.",
+    "protocol_id": "transfer-hover-SCRIPTED_SIM-development-v9-20261026",
+    "protocol_sha256": "7bc5db9056d99de459b299036fa9e240650a190bb270ce481664afba673ba744",
+    "run_ids": [
+      "transfer-hover-development-v9"
+    ],
+    "schema_version": "1.0",
+    "total_recorded_attempts": 4
+  },
+  "schema": "explorer_transfer_development_campaign_receipt_v1",
+  "source_kind": "simulation",
+  "source_method": "SCRIPTED_SIM",
+  "source_partition": "train",
+  "target_optimizer_allowed": false,
+  "target_partition": "development",
+  "target_split_binding_basis": "frozen campaign split_manifest; legacy result optimizer booleans refer only source partition",
+  "trials_sha256": "c2acbbf1b5ca710d3185058faaeec30cca03326fa982cbdb2c775ff38104b4b0"
+}
