@@ -1,0 +1,22 @@
+{
+  "schema": "explorer_collection_export_protocol_v1",
+  "status": "FORMAT_CONTRACT_NOT_A_COMPLETED_STUDY",
+  "experiment_numbering_version": 2,
+  "raw_originals_rewritten": false,
+  "physical_actions_authorized_by_document": false,
+  "experiments": {
+    "01": {"slug":"autonomous_learning","domain":"SIMULATION","action_dimensions":[9]},
+    "02": {"slug":"rosmaster_keyboard_learning","domain":"PHYSICAL","action_dimensions":[9]},
+    "03": {"slug":"rosmaster_leader_learning","domain":"PHYSICAL","action_dimensions":[9]},
+    "04": {"slug":"so101_source_learning","domain":"PHYSICAL","action_dimensions":[6]},
+    "05": {"slug":"cooperative_handover","domain":"PHYSICAL","action_dimensions":[9,6],"joint_15d_head_allowed":false},
+    "06": {"slug":"cross_embodiment_transfer","domain":"EXPLICIT_PER_RUN","action_dimensions":[9],"source_experiment":"04"}
+  },
+  "episode_required": ["episode_id","run_id","session_id","task_id","robot_id","source_type","experiment_slug","experiment_numbering_version","spec_sha256","split","scene_id","object_instance_id","action_contract","camera_profile","robot_profile","source_commit","boot_id","clock_domain","timestamp_basis","raw_artifacts","validity_masks","outcome","outcome_evidence","interventions","incomplete_reason"],
+  "splits": {"names":["train","development","sealed_test"],"always_disjoint_by":["episode_id","session_id"],"generalization_disjoint_by":["object_instance_id","scene_id"],"decoded_image_leakage_checked":true,"normalizers_train_only":true,"sealed_payload_in_fitting":false},
+  "state_semantics": {"distinct":["requested","accepted","dispatched","measured","estimated"],"missing_value":null,"missing_requires_validity_mask_and_reason":true,"rosmaster_servo_feedback_enabled":false,"cross_host_monotonic_comparison_allowed":false,"http_ack_is_dispatch_evidence":false,"closed_gripper_is_hold_evidence":false},
+  "evaluation": {"unit":"complete_independent_started_trial","domains_never_pooled":["SIMULATION","PHYSICAL","OFFLINE_REPLAY"],"outcomes":["SUCCESS","FAILURE","UNKNOWN"],"freeze_before_sealed":true,"all_failures_stops_interventions_retained":true,"example_trials_per_condition":20,"example_count_is_power_qualification":false,"implementation":"research/benchmark/evaluate.py","hypotheses_status":"UNTESTED"},
+  "export_manifest": {"schema":"explorer_research_export_manifest_v1","required":["export_id","created_at","source_commits","protocol_sha256","run_ids","episode_ids","job_ids","parents","file_manifest","missing_dependencies","verification"],"file_fields":["relative_path","size_bytes","sha256","role","source_id"],"allowed_verification":["PARTIAL","COMPLETE_UNVERIFIED","VERIFIED_COMPLETE"],"must_verify_in_independent_restore":true,"originals_deleted_after_export":false,"forbidden":["credentials","login_sessions","login_tickets","node_tokens","ssh_keys","wifi_settings"],"preserve_raw_and_projected_identities_separately":true,"symlinks_outside_managed_roots_allowed":false},
+  "physical_skill_success_claimed": false,
+  "whole_master_prompt_completed": false
+}
