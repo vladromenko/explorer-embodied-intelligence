@@ -128,6 +128,21 @@ def test_status_during_recenter_transition_cannot_revoke_new_clutched_epoch(tmp_
     mux._stop_all();assert not gate.allowed() and gate.authorization is None
 
 
+def test_metadata_stop_while_begin_reply_pending_scoped_stops_exact_late_native_owner(tmp_path):
+    client,gate,mux,teleop,arm,tick,jpeg=fixture(tmp_path)
+    with client:auth,_=authorize(client)
+    entered,release=threading.Event(),threading.Event();errors=[]
+    def begin_then_wait():
+        result=mux.begin(observing=True,neutral=True);entered.set();assert release.wait(2);return result
+    def late():
+        try:gate.transition(begin_then_wait,auth['authorization_id'])
+        except ValueError as error:errors.append(error)
+    thread=threading.Thread(target=late);thread.start();assert entered.wait(1)
+    gate.revoke('EXPLICIT_COOPERATIVE_STOP');release.set();thread.join(2)
+    assert errors and not thread.is_alive() and not mux.active and teleop.stop_latched and teleop.native_stop==1
+    assert arm.publications==[] and teleop.native_drive==[[0.,0.,0.]]
+
+
 def test_bridge_pinned_frame_has_fixed_typed_path_and_home_keeps_original_observed_ABI(tmp_path,monkeypatch):
     (tmp_path/'config').mkdir();(tmp_path/'config/access_token').write_text(TOKEN)
     bridge=legacy_bridge.LegacyBridge(tmp_path);calls=[]

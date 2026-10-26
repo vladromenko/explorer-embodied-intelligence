@@ -137,9 +137,20 @@ class ObservedNativeActivation:
             if self.authorization.get('input_mode') not in ('so101_leader','cooperative_policy'):
                 raise ValueError('Leader mux requires its explicitly observed input adapter')
             self.authorization['transition']=True
+        result=None
         try:
             result=function();self.bind_epoch(result['control_epoch'],authorization_id);return result
         except BaseException:
+            # A bounded begin/recenter may have returned after a metadata STOP
+            # revoked its authorization. Revoke ONLY that exact returned native
+            # owner, never a later USER epoch/generation.
+            if isinstance(result,dict):
+                with self.mux.teleop.lock:
+                    if (self.mux.active and self.mux.epoch==result.get('control_epoch') and
+                            self.mux.generation==result.get('native_generation') and
+                            self.mux.teleop.generation==result.get('owner_generation')):
+                        try:self.mux.stop(result['control_epoch'])
+                        except Exception:pass  # scoped delivery unknown; no automatic recovery.
             self.revoke('NATIVE_TRANSITION_FAILED',expected_authorization_id=authorization_id)
             raise
     def revoke(self,reason='EXPLICIT_OPERATOR_REVOKE',*,expected_authorization_id=None):
