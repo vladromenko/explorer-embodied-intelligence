@@ -11,14 +11,14 @@ HEAVY_JOBS=('sim_pilot','train_act','rosmaster_skill_train','so101_skill_train',
     'manipulation','manipulation_student','manipulation_benchmark','manipulation_curriculum','mobile_manipulation',
     'manipulation_selective_repair','policy_transfer','fault_repair')
 PHYSICAL_JOBS=('station_rollout','handover_physical')
-INFERENCE_JOBS=('station_shadow','station_rollout','so101_skill_shadow')
+INFERENCE_JOBS=('station_shadow','station_rollout','so101_skill_shadow','rosmaster_skill_shadow')
 DATA_JOBS=('station_import','mobile_import','retarget_import','camera_recording','program_trace')
 TERMINAL=('completed','failed','cancelled')
 
 
 def default_metadata(job):
     config=job.get('config') or {};heavy=job['kind'] in HEAVY_JOBS;inference=job['kind'] in INFERENCE_JOBS
-    source_shadow=job['kind']=='so101_skill_shadow'
+    source_shadow=job['kind'] in ('so101_skill_shadow','rosmaster_skill_shadow')
     gpu=False if source_shadow else config.get('device')=='cuda' or inference and config.get('device')!='cpu'
     size,batch=config.get('image_size',64),config.get('batch_size',2)
     measured_compact=job['kind']=='so101_skill_train' and type(size) is int and 32<=size<=64 and type(batch) is int and 1<=batch<=2
@@ -26,7 +26,7 @@ def default_metadata(job):
     budget=dict(cpu_cores=2 if heavy or source_shadow else 1,memory_bytes=int(memory),disk_bytes=int((2 if heavy else .25)*GIB),gpu_slots=int(gpu))
     return dict(schema='explorer_job_scheduling_v1',job_id=job['id'],experiment_slug=job.get('experiment_slug','unresolved:'+job['project_id']),
         project_id=job['project_id'],experiment_numbering_version=2,skill_id=config.get('skill_id'),skill_version=config.get('skill_version'),
-        backend=config.get('backend','act' if job['kind'] in ('train_act','rosmaster_skill_train','so101_skill_train','manipulation_student','so101_skill_shadow') else None),
+        backend=config.get('backend','act' if job['kind'] in ('train_act','rosmaster_skill_train','so101_skill_train','manipulation_student','so101_skill_shadow','rosmaster_skill_shadow') else None),
         dataset_sha256=config.get('aggregate_manifest_sha256',config.get('dataset_manifest_sha256')),
         priority=0,preemptible=job['kind'] in HEAVY_JOBS,dependencies=[],not_before=None,resources=budget,
         resource_budget_basis='conservative_reservation_not_measured_peak',physical_execution_authorized=False)

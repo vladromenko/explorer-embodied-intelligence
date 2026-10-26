@@ -14,6 +14,15 @@ PAUSED_BEFORE_WORK_EXIT=77
 LEASE_NOT_ADMITTED_EXIT=78
 
 
+def prework_guard(store,job_id,nonce=None):
+    identity=worker_identity();state=store.admit_worker_entry(job_id,nonce,identity)
+    if state in ('cancelled','terminal'):return False
+    if state=='paused':
+        atomic_json(store.root/'jobs'/job_id/'worker-not-started.json',dict(worker=identity,launch_nonce=nonce,phase='paused_before_work',physical_io=False))
+        raise SystemExit(PAUSED_BEFORE_WORK_EXIT)
+    return True
+
+
 def main(job_id,nonce):
     config=load();store=Store(config['data_dir']);began=time.monotonic();identity=worker_identity()
     while time.monotonic()-began<5:
@@ -22,12 +31,12 @@ def main(job_id,nonce):
         runtime=store.schedule_status(job_id)['runtime']
         if runtime.get('launch_nonce')==nonce and runtime.get('worker')==identity:
             if job['status']=='cancel_requested':
-                store.update_job(job_id,status='cancelled');return
+                prework_guard(store,job_id,nonce);return
             if job['status']=='pause_requested':
-                atomic_json(store.root/'jobs'/job_id/'worker-not-started.json',dict(worker=identity,launch_nonce=nonce,phase='paused_before_work',physical_io=False))
-                raise SystemExit(PAUSED_BEFORE_WORK_EXIT)
+                prework_guard(store,job_id,nonce);raise SystemExit(PAUSED_BEFORE_WORK_EXIT)
             if job['status']=='running':
                 store.update_schedule_runtime(job_id,phase='running',bootstrap_admitted=True)
+                if not prework_guard(store,job_id,nonce):return
                 from .job_runner import main as run_job
                 run_job(job_id);return
         time.sleep(.02)

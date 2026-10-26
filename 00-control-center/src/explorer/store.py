@@ -274,6 +274,11 @@ class Store:
         if 'result' in values:
             values['result'] = json.dumps(values['result'], allow_nan=False)
         with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE');current=db.execute('SELECT status FROM jobs WHERE id=?',(job_id,)).fetchone()
+            if current is None:raise ValueError('Unknown job')
+            if current['status'] in ('completed','failed','cancelled'):return
+            if current['status']=='cancel_requested' and values.get('status') not in (None,'cancel_requested','cancelled'):
+                values.pop('status')
             db.execute('UPDATE jobs SET ' + ','.join(key + '=?' for key in values) + ' WHERE id=?', (*values.values(), job_id))
 
     def schedule_status(self,job_id):
@@ -281,9 +286,9 @@ class Store:
         job=self.job(job_id)
         if job is None:raise ValueError('Unknown job')
         with self.connect() as db:row=db.execute('SELECT * FROM job_scheduling WHERE job_id=?',(job_id,)).fetchone()
-        if row:return self._decode_schedule(row)
+        if row:return dict(self._decode_schedule(row),minimum_resources=default_metadata(job)['resources'])
         metadata=default_metadata(job)
-        return dict(metadata=metadata,revision=digest(metadata),runtime={},persisted=False)
+        return dict(metadata=metadata,revision=digest(metadata),runtime={},persisted=False,minimum_resources=metadata['resources'])
 
     @staticmethod
     def _decode_schedule(row):
@@ -344,12 +349,44 @@ class Store:
             return bool(db.execute("UPDATE jobs SET status='running',updated=? WHERE id=? AND status IN ('queued','resume_requested')",(time.time(),job_id)).rowcount)
 
     def request_job_operation(self,job_id,operation):
-        from .queue_policy import PHYSICAL_JOBS
+        from .queue_policy import PHYSICAL_JOBS,default_metadata
         job=self.job(job_id);desired={'pause':'pause_requested','resume':'resume_requested','cancel':'cancel_requested'}
-        if job is None or operation not in desired or job['status'] in ('completed','failed','cancelled'):raise ValueError('Operation is not valid for this job')
-        if operation in ('pause','resume') and job['kind'] in PHYSICAL_JOBS:raise ValueError('Physical attempts require a fresh observed attempt, never pause/resume')
-        self.update_schedule_runtime(job_id,user_control_generation=uuid.uuid4().hex,user_pause_requested=operation=='pause',auto_resume=False)
-        self.update_job(job_id,status=desired[operation]);return self.job(job_id)
+        if job is None or operation not in desired:raise ValueError('Operation is not valid for this job')
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE');current=db.execute('SELECT status,kind FROM jobs WHERE id=?',(job_id,)).fetchone()
+            if current['status'] in ('completed','failed','cancelled'):raise ValueError('Operation is not valid for this terminal job')
+            if current['status']=='cancel_requested' and operation!='cancel':raise ValueError('Cancellation is pending; an older pause/resume cannot replace cancel intent')
+            if operation in ('pause','resume') and current['kind'] in PHYSICAL_JOBS:raise ValueError('Physical attempts require a fresh observed attempt, never pause/resume')
+            row=db.execute('SELECT * FROM job_scheduling WHERE job_id=?',(job_id,)).fetchone()
+            if row:record=self._decode_schedule(row)
+            else:
+                metadata=default_metadata(job);record=dict(metadata=metadata,revision=digest(metadata),runtime={})
+                db.execute('INSERT INTO job_scheduling VALUES(?,?,?,?,?)',(job_id,record['revision'],json.dumps(metadata,allow_nan=False),'{}',time.time()))
+                body=dict(schema='explorer_job_schedule_change_v1',job_id=job_id,previous_revision=None,revision=record['revision'],metadata=metadata)
+                db.execute('INSERT INTO job_scheduling_history VALUES(?,?,?,?,?)',(uuid.uuid4().hex,job_id,time.time(),digest(body),canonical(body).decode()))
+            runtime=dict(record['runtime'],user_control_generation=uuid.uuid4().hex,user_pause_requested=operation=='pause',auto_resume=False)
+            now=time.time();db.execute('UPDATE job_scheduling SET runtime=?,updated=? WHERE job_id=?',(json.dumps(runtime,allow_nan=False),now,job_id))
+            db.execute('UPDATE jobs SET status=?,updated=? WHERE id=?',(desired[operation],now,job_id))
+        return self.job(job_id)
+
+    def admit_worker_entry(self,job_id,nonce,worker):
+        """Final pre-work linearization; cancellation never becomes an admission."""
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE');job=db.execute('SELECT status FROM jobs WHERE id=?',(job_id,)).fetchone()
+            if job is None:raise ValueError('Unknown job')
+            if job['status'] in ('completed','failed','cancelled'):return 'terminal'
+            row=db.execute('SELECT * FROM job_scheduling WHERE job_id=?',(job_id,)).fetchone()
+            runtime=self._decode_schedule(row)['runtime'] if row else {}
+            if nonce is not None and (runtime.get('launch_nonce')!=nonce or runtime.get('worker')!=worker or job['status'] not in ('running','resume_requested','pause_requested','cancel_requested')):
+                raise ValueError('Worker entry does not match its durable process/nonce lease')
+            if job['status']=='cancel_requested':
+                db.execute("UPDATE jobs SET status='cancelled',updated=? WHERE id=?",(time.time(),job_id));return 'cancelled'
+            if job['status'] in ('pause_requested','paused'):return 'paused'
+            if job['status']=='resume_requested':db.execute("UPDATE jobs SET status='running',updated=? WHERE id=?",(time.time(),job_id))
+            if row:
+                runtime.update(worker_entry_admitted=True)
+                db.execute('UPDATE job_scheduling SET runtime=?,updated=? WHERE job_id=?',(json.dumps(runtime,allow_nan=False),time.time(),job_id))
+            return 'admitted'
 
     def add_skill(self, card):
         required = {'id', 'task', 'source_type', 'action_contract', 'lineage', 'evaluation', 'status', 'limitations'}

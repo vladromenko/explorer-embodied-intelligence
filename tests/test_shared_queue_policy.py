@@ -1,5 +1,6 @@
 """Pure queue/fairness and isolated SQLite tests; never start a worker/device."""
 import json
+from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
@@ -47,6 +48,25 @@ def test_dependencies_wait_fail_cancel_and_sealed_model_identity_never_changes_t
     assert plan([a,b,c],edits={'a':{'dependencies':['b','c']}})['start']==['a']
 
 
+def test_atomic_cancel_intent_dominates_delayed_pause_resume_and_late_worker_status(tmp_path):
+    store=Store(tmp_path/'state');job=store.create_job('world_model','01',{});store.update_job(job['id'],status='running')
+    store.request_job_operation(job['id'],'cancel');runtime=store.schedule_status(job['id'])['runtime']
+    for operation in ('pause','resume'):
+        with pytest.raises(ValueError,match='cancel'):store.request_job_operation(job['id'],operation)
+    assert store.job(job['id'])['status']=='cancel_requested'
+    assert store.schedule_status(job['id'])['runtime']['user_control_generation']==runtime['user_control_generation']
+    store.update_job(job['id'],status='paused');assert store.job(job['id'])['status']=='cancel_requested'
+    store.update_job(job['id'],status='cancelled');before=store.job(job['id'])
+    store.update_job(job['id'],status='running',result={'late':'must_not_rewrite_terminal_history'})
+    assert store.job(job['id'])==before
+    other=store.create_job('world_model','01',{});store.update_job(other['id'],status='running')
+    def request(operation):
+        try:return store.request_job_operation(other['id'],operation)
+        except ValueError:return None
+    with ThreadPoolExecutor(max_workers=2) as executor:list(executor.map(request,['pause','cancel']))
+    assert store.job(other['id'])['status']=='cancel_requested' and not store.schedule_status(other['id'])['runtime']['user_pause_requested']
+
+
 def test_CPU_parallel_budget_and_single_GPU_UMA_growth_reserve_include_stopped_process_memory():
     cpu=[job(str(index),role=str(index)) for index in range(4)]
     selected=plan(cpu)
@@ -76,3 +96,6 @@ def test_inference_priority_fairshare_roles_and_aging_nonstarvation_are_determin
     budget=default_metadata(native)['resources']
     assert budget['cpu_cores']==2 and budget['memory_bytes']==2*GIB and budget['gpu_slots']==0
     assert plan([job('training'),native])['ranked'][0]=='source04-shadow'
+    rosmaster=job('native106-shadow',role='03',kind='rosmaster_skill_shadow')
+    assert default_metadata(rosmaster)['resources']==default_metadata(native)['resources']
+    assert not default_metadata(rosmaster)['preemptible'] and default_metadata(rosmaster)['backend']=='act'

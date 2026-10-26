@@ -1,5 +1,6 @@
 """Isolated scheduler decisions; signals and dispatch are intercepted, no devices."""
 import json
+import hashlib
 import os
 from pathlib import Path
 import signal
@@ -93,6 +94,36 @@ def test_next_optimizer_in_same_process_rebinds_pending_pause_and_preserves_auto
     assert runtime['auto_resume'] and not signals
 
 
+def test_resume_while_checkpoint_pause_is_pending_finishes_handshake_then_restarts_instead_of_failing(tmp_path,monkeypatch):
+    supervisor,store,clock,signals,started=rig(tmp_path,monkeypatch)
+    job=store.create_job('so101_skill_train','04',dict(image_size=64,batch_size=2));supervisor.tick()
+    store.update_schedule_runtime(job['id'],phase='waiting_for_actual_optimizer_checkpoint',bootstrap_admitted=True,
+        pause_mode='checkpoint_process_exit',pause_request=dict(worker=worker_identity(),signature='a'*64,request_id='b'*32,backend='act'))
+    store.update_job(job['id'],status='pause_requested');store.request_job_operation(job['id'],'resume');supervisor.tick()
+    runtime=store.schedule_status(job['id'])['runtime']
+    assert store.job(job['id'])['status']=='pause_requested' and runtime['phase']=='waiting_checkpoint_then_resume'
+    assert runtime['auto_resume'] and not runtime['user_pause_requested'] and not signals
+
+
+def test_resume_arriving_after_worker_exit_but_before_supervisor_poll_queues_verified_checkpoint(tmp_path,monkeypatch):
+    supervisor,store,clock,signals,started=rig(tmp_path,monkeypatch)
+    job=store.create_job('so101_skill_train','04',dict(image_size=64,batch_size=2));supervisor.tick()
+    folder=store.root/'jobs'/job['id'];directory=folder/'act_resume';directory.mkdir()
+    checkpoint=directory/('state-00000004-'+'a'*32+'.pt');checkpoint.write_bytes(b'SOFTWARE_FIXTURE_NOT_ACTUAL_MODEL')
+    checksum=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
+    pointer=dict(checkpoint=checkpoint.name,sha256=checksum(checkpoint),completed_steps=4,signature='a'*64)
+    atomic_json(directory/'latest.json',pointer)
+    request=dict(schema='explorer_optimizer_checkpoint_control_v1',worker=worker_identity(),signature='a'*64,request_id='b'*32,backend='act')
+    atomic_json(folder/'optimizer-paused.json',dict(request,completed_steps=4,checkpoint_sha256=checksum(checkpoint),checkpoint_pointer_sha256=checksum(directory/'latest.json'),
+        optimizer_RNG_sampler_durably_saved=True,process_exit_code=75,physical_io=False))
+    store.update_schedule_runtime(job['id'],pause_mode='checkpoint_process_exit',pause_request=request,worker=worker_identity(),user_pause_requested=False)
+    store.update_job(job['id'],status='resume_requested');started[0][0].returncode=75
+    monkeypatch.setattr(supervisor,'_start',lambda *args:None)
+    supervisor.tick()
+    assert store.job(job['id'])['status']=='queued' and not store.schedule_status(job['id'])['runtime']['memory_retained']
+    assert store.schedule_status(job['id'])['runtime']['completed_updates']==4 and not signals
+
+
 def test_queue_API_preview_does_not_create_metadata_or_rewrite_job_bodies(tmp_path,monkeypatch):
     supervisor,store,clock,signals,started=rig(tmp_path,monkeypatch)
     job=store.create_job('so101_skill_shadow','04',{})
@@ -100,6 +131,7 @@ def test_queue_API_preview_does_not_create_metadata_or_rewrite_job_bodies(tmp_pa
     view=queue_status(store,supervisor.resource_provider())
     assert view['owner']=='shared_training_platform' and view['authoritative_table']=='jobs' and view['read_only_preview']
     assert not view['jobs'][0]['scheduling']['persisted'] and store.job(job['id'])==before
+    assert view['jobs'][0]['minimum_resources']['cpu_cores']==2
     with store.connect() as db:assert db.execute('SELECT COUNT(*) FROM job_scheduling').fetchone()[0]==0
 
 
@@ -143,3 +175,34 @@ def test_bootstrap_wrong_nonce_never_invokes_even_an_unsupported_job_runner(tmp_
         assert not store.schedule_status(job['id'])['runtime'].get('bootstrap_admitted')
     finally:
         if process.poll() is None:process.kill();process.wait()
+
+
+@pytest.mark.parametrize('operation',['cancel','pause'])
+def test_cancel_or_pause_after_bootstrap_admitted_metadata_is_rechecked_before_any_job_callback(tmp_path,monkeypatch,operation):
+    from explorer import worker_bootstrap,job_runner
+    store=Store(tmp_path/'state');job=store.create_job('world_model','01',{});store.claim_job_start(job['id'])
+    nonce='a'*32;store.update_schedule_runtime(job['id'],worker=worker_identity(),launch_nonce=nonce,phase='starting',bootstrap_admitted=False)
+    monkeypatch.setattr(worker_bootstrap,'load',lambda:dict(data_dir=str(store.root)))
+    monkeypatch.setattr(worker_bootstrap,'Store',lambda unused:store)
+    calls=[];monkeypatch.setattr(job_runner,'main',lambda identity:calls.append(identity))
+    original=store.update_schedule_runtime
+    def interleave(identity,**values):
+        result=original(identity,**values)
+        if values.get('bootstrap_admitted'):store.request_job_operation(identity,operation)
+        return result
+    monkeypatch.setattr(store,'update_schedule_runtime',interleave)
+    if operation=='pause':
+        with pytest.raises(SystemExit) as paused:worker_bootstrap.main(job['id'],nonce)
+        assert paused.value.code==77
+    else:worker_bootstrap.main(job['id'],nonce)
+    assert not calls and store.job(job['id'])['result'] is None
+    assert store.job(job['id'])['status']==('cancelled' if operation=='cancel' else 'pause_requested')
+
+
+def test_job_runner_final_entry_guard_never_makes_a_folder_or_dispatches_cancelled_job(tmp_path,monkeypatch):
+    from explorer import job_runner
+    store=Store(tmp_path/'state');job=store.create_job('unsupported_software_fixture','01',{});store.request_job_operation(job['id'],'cancel')
+    monkeypatch.setattr(job_runner,'load',lambda:dict(data_dir=str(store.root)))
+    monkeypatch.delenv('EXPLORER_WORKER_LEASE_NONCE',raising=False)
+    job_runner.main(job['id'])
+    assert store.job(job['id'])['status']=='cancelled' and not (store.root/'jobs'/job['id']).exists()

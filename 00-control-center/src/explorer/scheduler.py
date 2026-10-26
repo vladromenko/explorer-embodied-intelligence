@@ -174,13 +174,14 @@ class Supervisor:
 
     def _finished(self,identity,process,code):
         self.processes.pop(identity);self.started.pop(identity,None);job=self.store.job(identity);runtime=self._runtime(identity)
-        if job['status']=='pause_requested' and code==PAUSED_BEFORE_WORK_EXIT:
+        if job['status'] in ('pause_requested','resume_requested') and code==PAUSED_BEFORE_WORK_EXIT:
             receipt=read_json(self.store.root/'jobs'/identity/'worker-not-started.json')
             if not receipt or receipt.get('worker')!=runtime.get('worker') or receipt.get('launch_nonce')!=runtime.get('launch_nonce'):raise ValueError('Worker-before-start pause is not bound to its durable launch lease')
-            self.store.update_job(identity,status='paused');self.store.update_schedule_runtime(identity,phase='paused_before_work',memory_retained=False,worker=None,exact_optimizer_resume=None)
-        elif job['status']=='pause_requested' and runtime.get('pause_request') and code in (PAUSED_EXIT_CODE,-999):
+            resume=job['status']=='resume_requested'
+            self.store.update_job(identity,status='queued' if resume else 'paused');self.store.update_schedule_runtime(identity,phase='resume_after_prework_pause' if resume else 'paused_before_work',memory_retained=False,worker=None,exact_optimizer_resume=None)
+        elif job['status'] in ('pause_requested','resume_requested') and runtime.get('pause_request') and code in (PAUSED_EXIT_CODE,-999):
             receipt=verified_pause_receipt(self.store.root/'jobs'/identity,runtime['pause_request'])
-            automatic=runtime.get('auto_resume') and not runtime.get('user_pause_requested',False)
+            automatic=job['status']=='resume_requested' or runtime.get('auto_resume') and not runtime.get('user_pause_requested',False)
             self.store.update_job(identity,status='queued' if automatic else 'paused',error=None)
             self.store.update_schedule_runtime(identity,phase='preempted_checkpoint_waiting' if automatic else 'paused_checkpoint_process_exited',
                 memory_retained=False,worker=None,checkpoint_pause_receipt=receipt,pause_request=None,exact_optimizer_resume=True,
@@ -206,6 +207,7 @@ class Supervisor:
             if len(cpus)<cores:raise ValueError('Reserved control/camera CPU pool has insufficient free worker cores')
             if not self.store.claim_job_start(identity):return
             nonce=uuid.uuid4().hex;bootstrap=(release/'00-control-center/src/explorer/worker_bootstrap.py').is_file()
+            if bootstrap:environment['EXPLORER_WORKER_LEASE_NONCE']=nonce
             command=[executable,'-m','explorer.worker_bootstrap',identity,nonce] if bootstrap else [executable,'-m','explorer.job_runner',identity]
             with (folder/'worker.log').open('ab') as log:
                 process=self.popen(command,stdout=log,stderr=subprocess.STDOUT,
@@ -233,8 +235,15 @@ class Supervisor:
                 except subprocess.TimeoutExpired:os.killpg(process.pid,signal.SIGKILL)
             elif job['status']=='pause_requested':self._pause(job,process)
             elif job['status']=='resume_requested':
-                os.killpg(process.pid,signal.SIGCONT);self.store.update_job(identity,status='running')
-                self.store.update_schedule_runtime(identity,phase='running',memory_retained=True,user_pause_requested=False)
+                runtime=self._runtime(identity)
+                if runtime.get('pause_mode')=='checkpoint_process_exit' and runtime.get('pause_request'):
+                    # The worker may already be committing its checkpoint. Finish
+                    # that handshake, exit and immediately queue a new process.
+                    self.store.update_schedule_runtime(identity,phase='waiting_checkpoint_then_resume',auto_resume=True,user_pause_requested=False)
+                    self.store.update_job(identity,status='pause_requested')
+                else:
+                    os.killpg(process.pid,signal.SIGCONT);self.store.update_job(identity,status='running')
+                    self.store.update_schedule_runtime(identity,phase='running',memory_retained=True,user_pause_requested=False)
             if code is None and job['status']!='paused':
                 metadata=self.store.schedule_status(identity)['metadata'];budget=metadata['resources']
                 self.store.charge_scheduling_usage(metadata['experiment_slug'],elapsed*(budget['cpu_cores']+2*budget['gpu_slots']))
@@ -287,7 +296,7 @@ def queue_status(store,resources=None):
             try:resident=psutil.Process(worker['pid']).memory_info().rss
             except psutil.Error:resident=0
             active.append(dict(job_id=job['id'],resources=record['metadata']['resources'],resident_memory_bytes=resident,process_stopped=job['status']=='paused'))
-        rows.append(dict(id=job['id'],kind=job['kind'],project_id=job['project_id'],experiment_slug=job.get('experiment_slug'),status=job['status'],progress=job['progress'],scheduling=record))
+        rows.append(dict(id=job['id'],kind=job['kind'],project_id=job['project_id'],experiment_slug=job.get('experiment_slug'),status=job['status'],progress=job['progress'],scheduling=record,minimum_resources=record['minimum_resources']))
     selected_resources=resources or host_resources(store.root)
     return dict(schema='explorer_shared_durable_queue_v1',owner='shared_training_platform',authoritative_table='jobs',experiments=['01','02','03','04','05','06'],
         jobs=rows,resources=selected_resources,plan_preview=queue_plan(jobs,schedules,selected_resources,active,service_seconds=store.scheduling_usage()),

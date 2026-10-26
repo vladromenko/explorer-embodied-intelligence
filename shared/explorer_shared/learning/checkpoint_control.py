@@ -76,6 +76,9 @@ def clear_pause_request(folder):
 def verified_pause_receipt(folder,request):
     folder=Path(folder);receipt=read_json(folder/'optimizer-paused.json')
     if not isinstance(receipt,dict) or any(receipt.get(key)!=request.get(key) for key in ('schema','request_id','worker','signature','backend')):raise ValueError('Actual optimizer pause receipt does not match this worker/request')
+    if (receipt.get('optimizer_RNG_sampler_durably_saved') is not True or receipt.get('process_exit_code')!=PAUSED_EXIT_CODE
+            or type(receipt.get('completed_steps')) is not int or receipt['completed_steps']<0 or receipt.get('physical_io') is not False):
+        raise ValueError('Actual durable optimizer pause acknowledgement is incomplete')
     directory=folder/DIRECTORIES[request['backend']];pointer=read_json(directory/'latest.json')
     if (not pointer or sha(directory/'latest.json')!=receipt.get('checkpoint_pointer_sha256')
             or pointer.get('signature')!=request['signature'] or pointer.get('completed_steps')!=receipt.get('completed_steps')

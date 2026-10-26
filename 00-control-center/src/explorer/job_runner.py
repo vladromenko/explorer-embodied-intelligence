@@ -207,6 +207,8 @@ def main(job_id):
     job = store.job(job_id)
     if not job:
         raise SystemExit('Unknown job')
+    from .worker_bootstrap import prework_guard
+    if not prework_guard(store,job_id,os.environ.get('EXPLORER_WORKER_LEASE_NONCE')):return
     folder = store.root / 'jobs' / job_id
     folder.mkdir(parents=True, exist_ok=True)
     try:
