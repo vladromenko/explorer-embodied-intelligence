@@ -24,6 +24,9 @@ class Store:
             CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY,expires REAL NOT NULL,csrf TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS tickets (token_hash TEXT PRIMARY KEY,expires REAL NOT NULL);
             CREATE TABLE IF NOT EXISTS experiment_runtime_identity (entity_kind TEXT NOT NULL,entity_id TEXT NOT NULL,numbering_version INTEGER NOT NULL,experiment_slug TEXT NOT NULL,PRIMARY KEY(entity_kind,entity_id));
+            CREATE TABLE IF NOT EXISTS job_scheduling(job_id TEXT PRIMARY KEY REFERENCES jobs(id),revision TEXT NOT NULL,metadata TEXT NOT NULL,runtime TEXT NOT NULL,updated REAL NOT NULL);
+            CREATE TABLE IF NOT EXISTS job_scheduling_history(id TEXT PRIMARY KEY,job_id TEXT NOT NULL,created REAL NOT NULL,sha256 TEXT NOT NULL,body TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS scheduler_usage(experiment_slug TEXT PRIMARY KEY,service_s REAL NOT NULL,updated REAL NOT NULL);
             ''')
         from .experiment_projection import ExperimentProjection
         self.experiment_projection=ExperimentProjection(self.root)
@@ -231,7 +234,9 @@ class Store:
             result[key] = json.loads(result[key]) if result[key] else None
         with self.connect() as db:
             identity=self.experiment_projection.identity(db,'job',result['id'],result['project_id'],declared_version=(result.get('config') or {}).get('experiment_numbering_version'))
+            schedule=db.execute('SELECT * FROM job_scheduling WHERE job_id=?',(result['id'],)).fetchone()
         result.update(identity)
+        if schedule:result['scheduling']=self._decode_schedule(schedule)
         frame = self.root / 'jobs' / result['id'] / 'frame.jpg'
         result['frame_available'] = frame.is_file()
         metadata = frame.with_name('frame.json')
@@ -264,6 +269,66 @@ class Store:
             values['result'] = json.dumps(values['result'], allow_nan=False)
         with self.connect() as db:
             db.execute('UPDATE jobs SET ' + ','.join(key + '=?' for key in values) + ' WHERE id=?', (*values.values(), job_id))
+
+    def schedule_status(self,job_id):
+        from .queue_policy import default_metadata
+        job=self.job(job_id)
+        if job is None:raise ValueError('Unknown job')
+        with self.connect() as db:row=db.execute('SELECT * FROM job_scheduling WHERE job_id=?',(job_id,)).fetchone()
+        if row:return self._decode_schedule(row)
+        metadata=default_metadata(job)
+        return dict(metadata=metadata,revision=digest(metadata),runtime={},persisted=False)
+
+    @staticmethod
+    def _decode_schedule(row):
+        metadata=json.loads(row['metadata'])
+        if digest(metadata)!=row['revision']:raise ValueError('Scheduling metadata SHA changed')
+        return dict(metadata=metadata,revision=row['revision'],runtime=json.loads(row['runtime']),persisted=True)
+
+    def schedule_job(self,job_id,options=None,*,expected_revision=None):
+        from .queue_policy import default_metadata,validate_options
+        job=self.job(job_id)
+        if job is None:raise ValueError('Unknown job')
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE');row=db.execute('SELECT * FROM job_scheduling WHERE job_id=?',(job_id,)).fetchone()
+            old=json.loads(row['metadata']) if row else default_metadata(job);old_revision=row['revision'] if row else digest(old)
+            if expected_revision is not None and expected_revision!=old_revision:raise ValueError('Scheduling metadata changed; refresh before editing')
+            metadata=validate_options(job,old,{} if options is None else options)
+            graph={entry['job_id']:json.loads(entry['metadata'])['dependencies'] for entry in db.execute('SELECT job_id,metadata FROM job_scheduling')}
+            graph[job_id]=metadata['dependencies']
+            for identity in metadata['dependencies']:
+                if db.execute('SELECT 1 FROM jobs WHERE id=?',(identity,)).fetchone() is None:raise ValueError('Unknown dependency: '+identity)
+            pending=[(job_id,False)];visiting=set();done=set()
+            while pending:
+                identity,leaving=pending.pop()
+                if leaving:visiting.remove(identity);done.add(identity)
+                elif identity in visiting:raise ValueError('Job dependency cycle is forbidden')
+                elif identity not in done:
+                    visiting.add(identity);pending.append((identity,True));pending.extend((target,False) for target in graph.get(identity,[]))
+            revision=digest(metadata)
+            if row is None or revision!=old_revision:
+                runtime=row['runtime'] if row else '{}';now=time.time()
+                db.execute('INSERT INTO job_scheduling VALUES(?,?,?,?,?) ON CONFLICT(job_id) DO UPDATE SET revision=excluded.revision,metadata=excluded.metadata,updated=excluded.updated',
+                    (job_id,revision,json.dumps(metadata,allow_nan=False),runtime,now))
+                body=dict(schema='explorer_job_schedule_change_v1',job_id=job_id,previous_revision=old_revision if row else None,revision=revision,metadata=metadata)
+                db.execute('INSERT INTO job_scheduling_history VALUES(?,?,?,?,?)',(uuid.uuid4().hex,job_id,now,digest(body),canonical(body).decode()))
+        return self.schedule_status(job_id)
+
+    def update_schedule_runtime(self,job_id,**values):
+        if not self.schedule_status(job_id)['persisted']:self.schedule_job(job_id)
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE');row=db.execute('SELECT runtime FROM job_scheduling WHERE job_id=?',(job_id,)).fetchone()
+            runtime=json.loads(row['runtime']);runtime.update(values)
+            db.execute('UPDATE job_scheduling SET runtime=?,updated=? WHERE job_id=?',(json.dumps(runtime,allow_nan=False),time.time(),job_id))
+        return runtime
+
+    def scheduling_usage(self):
+        with self.connect() as db:return {row['experiment_slug']:row['service_s'] for row in db.execute('SELECT * FROM scheduler_usage')}
+
+    def charge_scheduling_usage(self,experiment_slug,seconds):
+        if not isinstance(experiment_slug,str) or type(seconds) not in (int,float) or not math.isfinite(seconds) or seconds<0:raise ValueError('Finite nonnegative budget-service charge required')
+        with self.connect() as db:
+            db.execute('INSERT INTO scheduler_usage VALUES(?,?,?) ON CONFLICT(experiment_slug) DO UPDATE SET service_s=service_s+excluded.service_s,updated=excluded.updated',(experiment_slug,seconds,time.time()))
 
     def add_skill(self, card):
         required = {'id', 'task', 'source_type', 'action_contract', 'lineage', 'evaluation', 'status', 'limitations'}
