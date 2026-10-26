@@ -2,19 +2,20 @@
 from fastapi import APIRouter,HTTPException,Body
 from fastapi.responses import FileResponse,JSONResponse
 from . import lab_skill_workflow as service
+from .experiment_projection import project_document
 from explorer_shared.experiments import experiment_identity
 
 
 def install_router(app,store_provider):
     router=APIRouter(prefix='/api/lab/skills')
     def call(function,*args,**kwargs):
-        try:return function(*args,**kwargs)
+        try:return project_document(function(*args,**kwargs),numbering_version=1)
         except service.WorkflowBlocked as error:return JSONResponse({'detail':'Workflow incomplete','reasons':error.reasons},409)
         except (ValueError,KeyError,OSError,TypeError) as error:raise HTTPException(400,str(error)) from error
     @router.get('/catalogue')
-    def catalogue():return service.catalogue()
+    def catalogue():return project_document(service.catalogue(),numbering_version=1)
     @router.get('/imports')
-    def imports():return {'imports':service.imports(store_provider()),**experiment_identity('so101_source_learning')}
+    def imports():return {'imports':call(service.imports,store_provider()),**experiment_identity('so101_source_learning')}
     @router.get('/imports/{job_id}/review')
     def timeline(job_id:str,after:int=0,limit:int=100):return call(service.review_timeline,store_provider(),job_id,after=after,limit=limit)
     @router.get('/imports/{job_id}/frame/{index}')
@@ -23,7 +24,7 @@ def install_router(app,store_provider):
         if isinstance(result,JSONResponse):return result
         return FileResponse(result[0],media_type='image/jpeg',headers={'X-Content-SHA256':result[1],'Cache-Control':'no-store'})
     @router.get('')
-    def listing():return {'skills':service.list_skills(store_provider()),**experiment_identity('so101_source_learning')}
+    def listing():return {'skills':call(service.list_skills,store_provider()),**experiment_identity('so101_source_learning')}
     @router.post('')
     def propose(body:dict=Body(...)):return call(service.propose,store_provider(),body)
     @router.get('/{skill_id}')

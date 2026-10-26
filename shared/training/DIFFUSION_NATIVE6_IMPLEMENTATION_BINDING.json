@@ -1,0 +1,1685 @@
+{
+  "schema": "explorer_native6_diffusion_implementation_binding_v1",
+  "qualification_result_sha256": "5fd1e99aa1f0550e6bfb1645ee79312a88a0391336e0b897c5f78a70d87d02d6",
+  "resume_signature": "ac6ac531379f2639c9420012c0f0a8ff07f59bdbddd8f8dd1c77da6a76e5e9f9",
+  "resume_checkpoint_sha256": "7a2151d30bf9d16a8909577125b8d493a16be7adaf605d66f0af9c1c58e8811c",
+  "resume_pointer_sha256": "73bfc432e44f2f0f8c01169b699c89d0b2359ee8f2e6fadeac3dab1c56d7e3ec",
+  "resume_checkpoint_path": "/mnt/explorer-data/explorer-work/qualification-dp6/consumer-20261026-a/test_same_accepted_whole_skill0/state/jobs/5c8c437f02ef4defa1e7568e990df4e8/diffusion_resume/state-00000008-638c6c2e27404ecbbd0d1e4d300bdcba.pt",
+  "completed_steps": 8,
+  "official_implementation_sha256": {
+    "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages/lerobot/policies/diffusion/modeling_diffusion.py": "b5512f37729ab636badcdd589395ecfd14312289eaa621d6f9d38db9d5df531d",
+    "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/lib/python3.12/site-packages/diffusers/schedulers/scheduling_ddim.py": "a61e4d99402d1186d2aec1bec8b0f336108b06d72c07e7eb2eb837a44a9b196c"
+  },
+  "shared_implementation_sha256": {
+    "shared/explorer_shared/learning/act_backend.py": "cd3c84114081456357b7d7a721400029ba79597ad406a9a9b2818413dc3c5418",
+    "shared/explorer_shared/learning/artifacts.py": "c218abfc061878c85fdc7651df1de95beb2727d2afc4de193ba4b6d284d8d626",
+    "shared/explorer_shared/learning/history_windows.py": "cad221cc249521ed1fe37b340f12c483ba12a48b01f7459f8c85c4aeee2ca795",
+    "shared/explorer_shared/learning/diffusion_optimizer.py": "dd0d1876e4be1d9de2d3bc8149a822d7e571502fc0350b81f79258553b7ba2c3",
+    "shared/explorer_shared/learning/diffusion_backend.py": "615dc208f8166a55d229cb979157c9a7929b838c04fa6eaa2472c15d77317434",
+    "01-autonomous-learning/src/explorer_sim/dataset_export.py": "0e1163980f598d5bd7cf8dee8077db446537cb32c473ead1719ecf2efc82a589",
+    "shared/explorer_shared/experiments.py": "850e6ead668df62fbdc545baba767dd3ad8676b5dbe8199d18aebef53a9ca94e",
+    "00-control-center/src/explorer/so101_diffusion_training.py": "d679478c3be13cd23b7a7ae2a8b45f2abe38365c5ff7e4dbf48a6c23a348c40c"
+  },
+  "measured_versions": {
+    "torchvision": "0.26.0",
+    "lerobot": "0.6.1",
+    "torch": "2.11.0+cu130",
+    "numpy": "2.2.6",
+    "diffusers": "0.38.0"
+  },
+  "resume_metadata": {
+    "schema_version": 1,
+    "source_context": {
+      "source_signature": "5e70c7cfe3fc3b3573bd5db48a24e3fdf35603d17dfbfa2474badbd6d1405dba",
+      "source_files": [
+        {
+          "path": "/mnt/explorer-data/explorer-work/qualification-dp6/consumer-20261026-a/test_same_accepted_whole_skill0/state/datasets/lab-skills/f99af375-f4b2-4c64-8230-b3cc2697d366/v0001/464dcbb737471d3e6d9fee5576ab2eb1a783b6987846239397dece0b4f3e0fb7/native-data/manifest.json",
+          "sha256": "8b0896f082edf662da141b289a52e62ffdd38d49fc87128e19b360fb553581de"
+        },
+        {
+          "path": "/mnt/explorer-data/explorer-work/qualification-dp6/consumer-20261026-a/test_same_accepted_whole_skill0/state/datasets/lab-skills/f99af375-f4b2-4c64-8230-b3cc2697d366/v0001/464dcbb737471d3e6d9fee5576ab2eb1a783b6987846239397dece0b4f3e0fb7/native-data/originals/762eccba7cc2bb35b82508a4/episode_0000.npz",
+          "sha256": "3e07be8ce7267a783ffb3321ea04c098d5947c2a4efd8cec7589a839d1cba4ce"
+        },
+        {
+          "path": "/mnt/explorer-data/explorer-work/qualification-dp6/consumer-20261026-a/test_same_accepted_whole_skill0/state/datasets/lab-skills/f99af375-f4b2-4c64-8230-b3cc2697d366/v0001/464dcbb737471d3e6d9fee5576ab2eb1a783b6987846239397dece0b4f3e0fb7/native-data/originals/22f0d670147894cdfe210b01/episode_0000.npz",
+          "sha256": "830c942156d98ddae39a9ca774504e56a7772ffb237030d2cd4f09e6cd52786f"
+        },
+        {
+          "path": "/mnt/explorer-data/explorer-work/qualification-dp6/consumer-20261026-a/test_same_accepted_whole_skill0/state/datasets/lab-skills/f99af375-f4b2-4c64-8230-b3cc2697d366/v0001/464dcbb737471d3e6d9fee5576ab2eb1a783b6987846239397dece0b4f3e0fb7/native-data/originals/1419c79ceaaddd19a2b94086/episode_0000.npz",
+          "sha256": "965a2cb13a9b9e6c9eca542c8b0529962088c9ae86ac4e6116f1207158fd71af"
+        },
+        {
+          "path": "/home/jetsonnx/work/explorer-diffusion-consumer/01-autonomous-learning/src/explorer_sim/dataset_export.py",
+          "sha256": "0e1163980f598d5bd7cf8dee8077db446537cb32c473ead1719ecf2efc82a589"
+        },
+        {
+          "path": "/mnt/explorer-data/explorer-work/qualification-dp6/consumer-20261026-a/test_same_accepted_whole_skill0/state/datasets/lab-skills/f99af375-f4b2-4c64-8230-b3cc2697d366/v0001/464dcbb737471d3e6d9fee5576ab2eb1a783b6987846239397dece0b4f3e0fb7/skill-manifest.json",
+          "sha256": "5e70c7cfe3fc3b3573bd5db48a24e3fdf35603d17dfbfa2474badbd6d1405dba"
+        },
+        {
+          "path": "/home/jetsonnx/work/explorer-diffusion-consumer/shared/explorer_shared/experiments.py",
+          "sha256": "850e6ead668df62fbdc545baba767dd3ad8676b5dbe8199d18aebef53a9ca94e"
+        },
+        {
+          "path": "/home/jetsonnx/work/explorer-diffusion-consumer/shared/explorer_shared/learning/diffusion_optimizer.py",
+          "sha256": "dd0d1876e4be1d9de2d3bc8149a822d7e571502fc0350b81f79258553b7ba2c3"
+        },
+        {
+          "path": "/home/jetsonnx/work/explorer-diffusion-consumer/shared/explorer_shared/learning/diffusion_backend.py",
+          "sha256": "615dc208f8166a55d229cb979157c9a7929b838c04fa6eaa2472c15d77317434"
+        },
+        {
+          "path": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/lib/python3.12/site-packages/diffusers/schedulers/scheduling_ddim.py",
+          "sha256": "a61e4d99402d1186d2aec1bec8b0f336108b06d72c07e7eb2eb837a44a9b196c"
+        }
+      ],
+      "training_episode_ids": [
+        "d23c299c33de4551bc5223a0796ed174",
+        "1439c7d241734adba63531c28858a38d",
+        "b302e78067e949c58c08b5864c1dd81f"
+      ],
+      "partition": "train",
+      "observation_history": 2,
+      "action_horizon": 8,
+      "image_size": 64,
+      "RGB_transform": "uint8/255_NCHW_bilinear_resize_once",
+      "action_horizon_origin": "current_index-n_obs_steps+1",
+      "padding": "repeat_original_boundary_values_with_explicit_masks_never_zero_fill",
+      "episode_loader_implementation_sha256": "0e1163980f598d5bd7cf8dee8077db446537cb32c473ead1719ecf2efc82a589",
+      "skill_id": "f99af375-f4b2-4c64-8230-b3cc2697d366",
+      "skill_version": 1,
+      "spec_sha256": "8e79294e3649176838168e48b0ac21204cbbb025458d76a14a0495defa312249",
+      "native_consumer_implementation_sha256": "d679478c3be13cd23b7a7ae2a8b45f2abe38365c5ff7e4dbf48a6c23a348c40c",
+      "diffusion_optimizer": {
+        "preset": {
+          "lr": 0.0001,
+          "weight_decay": 1e-06,
+          "grad_clip_norm": 10.0,
+          "betas": [
+            0.95,
+            0.999
+          ],
+          "eps": 1e-08
+        },
+        "diffusers_version": "0.38.0",
+        "implementation_sha256": {
+          "/home/jetsonnx/work/explorer-diffusion-consumer/shared/explorer_shared/learning/diffusion_optimizer.py": "dd0d1876e4be1d9de2d3bc8149a822d7e571502fc0350b81f79258553b7ba2c3",
+          "/home/jetsonnx/work/explorer-diffusion-consumer/shared/explorer_shared/learning/diffusion_backend.py": "615dc208f8166a55d229cb979157c9a7929b838c04fa6eaa2472c15d77317434",
+          "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/lib/python3.12/site-packages/diffusers/schedulers/scheduling_ddim.py": "a61e4d99402d1186d2aec1bec8b0f336108b06d72c07e7eb2eb837a44a9b196c"
+        }
+      }
+    },
+    "settings": {
+      "optimizer_steps": 8,
+      "batch_size": 2,
+      "seed": 41,
+      "image_size": 64,
+      "device": "cpu"
+    },
+    "model_config": {
+      "n_obs_steps": 2,
+      "input_features": {
+        "observation.images.overview": {
+          "type": "VISUAL",
+          "shape": [
+            3,
+            64,
+            64
+          ]
+        },
+        "observation.state": {
+          "type": "STATE",
+          "shape": [
+            6
+          ]
+        }
+      },
+      "output_features": {
+        "action": {
+          "type": "ACTION",
+          "shape": [
+            6
+          ]
+        }
+      },
+      "device": "cpu",
+      "use_amp": false,
+      "use_peft": false,
+      "push_to_hub": false,
+      "repo_id": null,
+      "private": null,
+      "tags": null,
+      "license": null,
+      "pretrained_path": null,
+      "pretrained_revision": null,
+      "horizon": 8,
+      "n_action_steps": 4,
+      "normalization_mapping": {
+        "VISUAL": "IDENTITY",
+        "STATE": "IDENTITY",
+        "ACTION": "IDENTITY"
+      },
+      "drop_n_last_frames": 0,
+      "vision_backbone": "resnet18",
+      "resize_shape": null,
+      "crop_ratio": 1.0,
+      "crop_shape": null,
+      "crop_is_random": true,
+      "pretrained_backbone_weights": null,
+      "use_group_norm": true,
+      "spatial_softmax_num_keypoints": 8,
+      "use_separate_rgb_encoder_per_camera": true,
+      "down_dims": [
+        32,
+        64
+      ],
+      "kernel_size": 3,
+      "n_groups": 8,
+      "diffusion_step_embed_dim": 32,
+      "use_film_scale_modulation": true,
+      "gradient_checkpointing": false,
+      "noise_scheduler_type": "DDIM",
+      "num_train_timesteps": 100,
+      "beta_schedule": "squaredcos_cap_v2",
+      "beta_start": 0.0001,
+      "beta_end": 0.02,
+      "prediction_type": "epsilon",
+      "clip_sample": true,
+      "clip_sample_range": 1.0,
+      "num_inference_steps": 4,
+      "compile_model": false,
+      "compile_mode": "reduce-overhead",
+      "do_mask_loss_for_padding": true,
+      "optimizer_lr": 0.0001,
+      "optimizer_betas": [
+        0.95,
+        0.999
+      ],
+      "optimizer_eps": 1e-08,
+      "optimizer_weight_decay": 1e-06,
+      "scheduler_name": "cosine",
+      "scheduler_warmup_steps": 500
+    },
+    "dataset_class": "explorer_shared.learning.history_windows.HistoryWindows",
+    "dataset_length": 24,
+    "checkpoint_interval": 4,
+    "implementation_sha256": {
+      "act_backend": "cd3c84114081456357b7d7a721400029ba79597ad406a9a9b2818413dc3c5418",
+      "artifacts": "c218abfc061878c85fdc7651df1de95beb2727d2afc4de193ba4b6d284d8d626",
+      "dataset": "cad221cc249521ed1fe37b340f12c483ba12a48b01f7459f8c85c4aeee2ca795",
+      "policy": "b5512f37729ab636badcdd589395ecfd14312289eaa621d6f9d38db9d5df531d"
+    },
+    "parameters": [
+      [
+        "diffusion.rgb_encoder.0.backbone.0.weight",
+        [
+          64,
+          3,
+          7,
+          7
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.1.weight",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.4.0.conv1.weight",
+        [
+          64,
+          64,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.4.0.bn1.weight",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.4.0.bn1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.4.0.conv2.weight",
+        [
+          64,
+          64,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.4.0.bn2.weight",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.4.0.bn2.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.4.1.conv1.weight",
+        [
+          64,
+          64,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.4.1.bn1.weight",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.4.1.bn1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.4.1.conv2.weight",
+        [
+          64,
+          64,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.4.1.bn2.weight",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.4.1.bn2.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.0.conv1.weight",
+        [
+          128,
+          64,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.0.bn1.weight",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.0.bn1.bias",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.0.conv2.weight",
+        [
+          128,
+          128,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.0.bn2.weight",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.0.bn2.bias",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.0.downsample.0.weight",
+        [
+          128,
+          64,
+          1,
+          1
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.0.downsample.1.weight",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.0.downsample.1.bias",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.1.conv1.weight",
+        [
+          128,
+          128,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.1.bn1.weight",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.1.bn1.bias",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.1.conv2.weight",
+        [
+          128,
+          128,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.1.bn2.weight",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.5.1.bn2.bias",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.0.conv1.weight",
+        [
+          256,
+          128,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.0.bn1.weight",
+        [
+          256
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.0.bn1.bias",
+        [
+          256
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.0.conv2.weight",
+        [
+          256,
+          256,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.0.bn2.weight",
+        [
+          256
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.0.bn2.bias",
+        [
+          256
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.0.downsample.0.weight",
+        [
+          256,
+          128,
+          1,
+          1
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.0.downsample.1.weight",
+        [
+          256
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.0.downsample.1.bias",
+        [
+          256
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.1.conv1.weight",
+        [
+          256,
+          256,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.1.bn1.weight",
+        [
+          256
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.1.bn1.bias",
+        [
+          256
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.1.conv2.weight",
+        [
+          256,
+          256,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.1.bn2.weight",
+        [
+          256
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.6.1.bn2.bias",
+        [
+          256
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.0.conv1.weight",
+        [
+          512,
+          256,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.0.bn1.weight",
+        [
+          512
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.0.bn1.bias",
+        [
+          512
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.0.conv2.weight",
+        [
+          512,
+          512,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.0.bn2.weight",
+        [
+          512
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.0.bn2.bias",
+        [
+          512
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.0.downsample.0.weight",
+        [
+          512,
+          256,
+          1,
+          1
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.0.downsample.1.weight",
+        [
+          512
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.0.downsample.1.bias",
+        [
+          512
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.1.conv1.weight",
+        [
+          512,
+          512,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.1.bn1.weight",
+        [
+          512
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.1.bn1.bias",
+        [
+          512
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.1.conv2.weight",
+        [
+          512,
+          512,
+          3,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.1.bn2.weight",
+        [
+          512
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.backbone.7.1.bn2.bias",
+        [
+          512
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.pool.pos_grid",
+        [
+          4,
+          2
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.pool.nets.weight",
+        [
+          8,
+          512,
+          1,
+          1
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.pool.nets.bias",
+        [
+          8
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.out.weight",
+        [
+          16,
+          16
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.rgb_encoder.0.out.bias",
+        [
+          16
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.diffusion_step_encoder.1.weight",
+        [
+          128,
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.diffusion_step_encoder.1.bias",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.diffusion_step_encoder.3.weight",
+        [
+          32,
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.diffusion_step_encoder.3.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.0.conv1.block.0.weight",
+        [
+          32,
+          6,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.0.conv1.block.0.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.0.conv1.block.1.weight",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.0.conv1.block.1.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.0.cond_encoder.1.weight",
+        [
+          64,
+          76
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.0.cond_encoder.1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.0.conv2.block.0.weight",
+        [
+          32,
+          32,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.0.conv2.block.0.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.0.conv2.block.1.weight",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.0.conv2.block.1.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.0.residual_conv.weight",
+        [
+          32,
+          6,
+          1
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.0.residual_conv.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.1.conv1.block.0.weight",
+        [
+          32,
+          32,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.1.conv1.block.0.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.1.conv1.block.1.weight",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.1.conv1.block.1.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.1.cond_encoder.1.weight",
+        [
+          64,
+          76
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.1.cond_encoder.1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.1.conv2.block.0.weight",
+        [
+          32,
+          32,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.1.conv2.block.0.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.1.conv2.block.1.weight",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.1.conv2.block.1.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.2.weight",
+        [
+          32,
+          32,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.0.2.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.0.conv1.block.0.weight",
+        [
+          64,
+          32,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.0.conv1.block.0.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.0.conv1.block.1.weight",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.0.conv1.block.1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.0.cond_encoder.1.weight",
+        [
+          128,
+          76
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.0.cond_encoder.1.bias",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.0.conv2.block.0.weight",
+        [
+          64,
+          64,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.0.conv2.block.0.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.0.conv2.block.1.weight",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.0.conv2.block.1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.0.residual_conv.weight",
+        [
+          64,
+          32,
+          1
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.0.residual_conv.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.1.conv1.block.0.weight",
+        [
+          64,
+          64,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.1.conv1.block.0.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.1.conv1.block.1.weight",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.1.conv1.block.1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.1.cond_encoder.1.weight",
+        [
+          128,
+          76
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.1.cond_encoder.1.bias",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.1.conv2.block.0.weight",
+        [
+          64,
+          64,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.1.conv2.block.0.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.1.conv2.block.1.weight",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.down_modules.1.1.conv2.block.1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.0.conv1.block.0.weight",
+        [
+          64,
+          64,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.0.conv1.block.0.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.0.conv1.block.1.weight",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.0.conv1.block.1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.0.cond_encoder.1.weight",
+        [
+          128,
+          76
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.0.cond_encoder.1.bias",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.0.conv2.block.0.weight",
+        [
+          64,
+          64,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.0.conv2.block.0.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.0.conv2.block.1.weight",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.0.conv2.block.1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.1.conv1.block.0.weight",
+        [
+          64,
+          64,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.1.conv1.block.0.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.1.conv1.block.1.weight",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.1.conv1.block.1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.1.cond_encoder.1.weight",
+        [
+          128,
+          76
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.1.cond_encoder.1.bias",
+        [
+          128
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.1.conv2.block.0.weight",
+        [
+          64,
+          64,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.1.conv2.block.0.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.1.conv2.block.1.weight",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.mid_modules.1.conv2.block.1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.0.conv1.block.0.weight",
+        [
+          32,
+          128,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.0.conv1.block.0.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.0.conv1.block.1.weight",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.0.conv1.block.1.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.0.cond_encoder.1.weight",
+        [
+          64,
+          76
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.0.cond_encoder.1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.0.conv2.block.0.weight",
+        [
+          32,
+          32,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.0.conv2.block.0.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.0.conv2.block.1.weight",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.0.conv2.block.1.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.0.residual_conv.weight",
+        [
+          32,
+          128,
+          1
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.0.residual_conv.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.1.conv1.block.0.weight",
+        [
+          32,
+          32,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.1.conv1.block.0.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.1.conv1.block.1.weight",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.1.conv1.block.1.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.1.cond_encoder.1.weight",
+        [
+          64,
+          76
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.1.cond_encoder.1.bias",
+        [
+          64
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.1.conv2.block.0.weight",
+        [
+          32,
+          32,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.1.conv2.block.0.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.1.conv2.block.1.weight",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.1.conv2.block.1.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.2.weight",
+        [
+          32,
+          32,
+          4
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.up_modules.0.2.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.final_conv.0.block.0.weight",
+        [
+          32,
+          32,
+          3
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.final_conv.0.block.0.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.final_conv.0.block.1.weight",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.final_conv.0.block.1.bias",
+        [
+          32
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.final_conv.1.weight",
+        [
+          6,
+          32,
+          1
+        ],
+        "torch.float32"
+      ],
+      [
+        "diffusion.unet.final_conv.1.bias",
+        [
+          6
+        ],
+        "torch.float32"
+      ]
+    ],
+    "trainable_parameters": [
+      "diffusion.rgb_encoder.0.backbone.0.weight",
+      "diffusion.rgb_encoder.0.backbone.1.weight",
+      "diffusion.rgb_encoder.0.backbone.1.bias",
+      "diffusion.rgb_encoder.0.backbone.4.0.conv1.weight",
+      "diffusion.rgb_encoder.0.backbone.4.0.bn1.weight",
+      "diffusion.rgb_encoder.0.backbone.4.0.bn1.bias",
+      "diffusion.rgb_encoder.0.backbone.4.0.conv2.weight",
+      "diffusion.rgb_encoder.0.backbone.4.0.bn2.weight",
+      "diffusion.rgb_encoder.0.backbone.4.0.bn2.bias",
+      "diffusion.rgb_encoder.0.backbone.4.1.conv1.weight",
+      "diffusion.rgb_encoder.0.backbone.4.1.bn1.weight",
+      "diffusion.rgb_encoder.0.backbone.4.1.bn1.bias",
+      "diffusion.rgb_encoder.0.backbone.4.1.conv2.weight",
+      "diffusion.rgb_encoder.0.backbone.4.1.bn2.weight",
+      "diffusion.rgb_encoder.0.backbone.4.1.bn2.bias",
+      "diffusion.rgb_encoder.0.backbone.5.0.conv1.weight",
+      "diffusion.rgb_encoder.0.backbone.5.0.bn1.weight",
+      "diffusion.rgb_encoder.0.backbone.5.0.bn1.bias",
+      "diffusion.rgb_encoder.0.backbone.5.0.conv2.weight",
+      "diffusion.rgb_encoder.0.backbone.5.0.bn2.weight",
+      "diffusion.rgb_encoder.0.backbone.5.0.bn2.bias",
+      "diffusion.rgb_encoder.0.backbone.5.0.downsample.0.weight",
+      "diffusion.rgb_encoder.0.backbone.5.0.downsample.1.weight",
+      "diffusion.rgb_encoder.0.backbone.5.0.downsample.1.bias",
+      "diffusion.rgb_encoder.0.backbone.5.1.conv1.weight",
+      "diffusion.rgb_encoder.0.backbone.5.1.bn1.weight",
+      "diffusion.rgb_encoder.0.backbone.5.1.bn1.bias",
+      "diffusion.rgb_encoder.0.backbone.5.1.conv2.weight",
+      "diffusion.rgb_encoder.0.backbone.5.1.bn2.weight",
+      "diffusion.rgb_encoder.0.backbone.5.1.bn2.bias",
+      "diffusion.rgb_encoder.0.backbone.6.0.conv1.weight",
+      "diffusion.rgb_encoder.0.backbone.6.0.bn1.weight",
+      "diffusion.rgb_encoder.0.backbone.6.0.bn1.bias",
+      "diffusion.rgb_encoder.0.backbone.6.0.conv2.weight",
+      "diffusion.rgb_encoder.0.backbone.6.0.bn2.weight",
+      "diffusion.rgb_encoder.0.backbone.6.0.bn2.bias",
+      "diffusion.rgb_encoder.0.backbone.6.0.downsample.0.weight",
+      "diffusion.rgb_encoder.0.backbone.6.0.downsample.1.weight",
+      "diffusion.rgb_encoder.0.backbone.6.0.downsample.1.bias",
+      "diffusion.rgb_encoder.0.backbone.6.1.conv1.weight",
+      "diffusion.rgb_encoder.0.backbone.6.1.bn1.weight",
+      "diffusion.rgb_encoder.0.backbone.6.1.bn1.bias",
+      "diffusion.rgb_encoder.0.backbone.6.1.conv2.weight",
+      "diffusion.rgb_encoder.0.backbone.6.1.bn2.weight",
+      "diffusion.rgb_encoder.0.backbone.6.1.bn2.bias",
+      "diffusion.rgb_encoder.0.backbone.7.0.conv1.weight",
+      "diffusion.rgb_encoder.0.backbone.7.0.bn1.weight",
+      "diffusion.rgb_encoder.0.backbone.7.0.bn1.bias",
+      "diffusion.rgb_encoder.0.backbone.7.0.conv2.weight",
+      "diffusion.rgb_encoder.0.backbone.7.0.bn2.weight",
+      "diffusion.rgb_encoder.0.backbone.7.0.bn2.bias",
+      "diffusion.rgb_encoder.0.backbone.7.0.downsample.0.weight",
+      "diffusion.rgb_encoder.0.backbone.7.0.downsample.1.weight",
+      "diffusion.rgb_encoder.0.backbone.7.0.downsample.1.bias",
+      "diffusion.rgb_encoder.0.backbone.7.1.conv1.weight",
+      "diffusion.rgb_encoder.0.backbone.7.1.bn1.weight",
+      "diffusion.rgb_encoder.0.backbone.7.1.bn1.bias",
+      "diffusion.rgb_encoder.0.backbone.7.1.conv2.weight",
+      "diffusion.rgb_encoder.0.backbone.7.1.bn2.weight",
+      "diffusion.rgb_encoder.0.backbone.7.1.bn2.bias",
+      "diffusion.rgb_encoder.0.pool.nets.weight",
+      "diffusion.rgb_encoder.0.pool.nets.bias",
+      "diffusion.rgb_encoder.0.out.weight",
+      "diffusion.rgb_encoder.0.out.bias",
+      "diffusion.unet.diffusion_step_encoder.1.weight",
+      "diffusion.unet.diffusion_step_encoder.1.bias",
+      "diffusion.unet.diffusion_step_encoder.3.weight",
+      "diffusion.unet.diffusion_step_encoder.3.bias",
+      "diffusion.unet.down_modules.0.0.conv1.block.0.weight",
+      "diffusion.unet.down_modules.0.0.conv1.block.0.bias",
+      "diffusion.unet.down_modules.0.0.conv1.block.1.weight",
+      "diffusion.unet.down_modules.0.0.conv1.block.1.bias",
+      "diffusion.unet.down_modules.0.0.cond_encoder.1.weight",
+      "diffusion.unet.down_modules.0.0.cond_encoder.1.bias",
+      "diffusion.unet.down_modules.0.0.conv2.block.0.weight",
+      "diffusion.unet.down_modules.0.0.conv2.block.0.bias",
+      "diffusion.unet.down_modules.0.0.conv2.block.1.weight",
+      "diffusion.unet.down_modules.0.0.conv2.block.1.bias",
+      "diffusion.unet.down_modules.0.0.residual_conv.weight",
+      "diffusion.unet.down_modules.0.0.residual_conv.bias",
+      "diffusion.unet.down_modules.0.1.conv1.block.0.weight",
+      "diffusion.unet.down_modules.0.1.conv1.block.0.bias",
+      "diffusion.unet.down_modules.0.1.conv1.block.1.weight",
+      "diffusion.unet.down_modules.0.1.conv1.block.1.bias",
+      "diffusion.unet.down_modules.0.1.cond_encoder.1.weight",
+      "diffusion.unet.down_modules.0.1.cond_encoder.1.bias",
+      "diffusion.unet.down_modules.0.1.conv2.block.0.weight",
+      "diffusion.unet.down_modules.0.1.conv2.block.0.bias",
+      "diffusion.unet.down_modules.0.1.conv2.block.1.weight",
+      "diffusion.unet.down_modules.0.1.conv2.block.1.bias",
+      "diffusion.unet.down_modules.0.2.weight",
+      "diffusion.unet.down_modules.0.2.bias",
+      "diffusion.unet.down_modules.1.0.conv1.block.0.weight",
+      "diffusion.unet.down_modules.1.0.conv1.block.0.bias",
+      "diffusion.unet.down_modules.1.0.conv1.block.1.weight",
+      "diffusion.unet.down_modules.1.0.conv1.block.1.bias",
+      "diffusion.unet.down_modules.1.0.cond_encoder.1.weight",
+      "diffusion.unet.down_modules.1.0.cond_encoder.1.bias",
+      "diffusion.unet.down_modules.1.0.conv2.block.0.weight",
+      "diffusion.unet.down_modules.1.0.conv2.block.0.bias",
+      "diffusion.unet.down_modules.1.0.conv2.block.1.weight",
+      "diffusion.unet.down_modules.1.0.conv2.block.1.bias",
+      "diffusion.unet.down_modules.1.0.residual_conv.weight",
+      "diffusion.unet.down_modules.1.0.residual_conv.bias",
+      "diffusion.unet.down_modules.1.1.conv1.block.0.weight",
+      "diffusion.unet.down_modules.1.1.conv1.block.0.bias",
+      "diffusion.unet.down_modules.1.1.conv1.block.1.weight",
+      "diffusion.unet.down_modules.1.1.conv1.block.1.bias",
+      "diffusion.unet.down_modules.1.1.cond_encoder.1.weight",
+      "diffusion.unet.down_modules.1.1.cond_encoder.1.bias",
+      "diffusion.unet.down_modules.1.1.conv2.block.0.weight",
+      "diffusion.unet.down_modules.1.1.conv2.block.0.bias",
+      "diffusion.unet.down_modules.1.1.conv2.block.1.weight",
+      "diffusion.unet.down_modules.1.1.conv2.block.1.bias",
+      "diffusion.unet.mid_modules.0.conv1.block.0.weight",
+      "diffusion.unet.mid_modules.0.conv1.block.0.bias",
+      "diffusion.unet.mid_modules.0.conv1.block.1.weight",
+      "diffusion.unet.mid_modules.0.conv1.block.1.bias",
+      "diffusion.unet.mid_modules.0.cond_encoder.1.weight",
+      "diffusion.unet.mid_modules.0.cond_encoder.1.bias",
+      "diffusion.unet.mid_modules.0.conv2.block.0.weight",
+      "diffusion.unet.mid_modules.0.conv2.block.0.bias",
+      "diffusion.unet.mid_modules.0.conv2.block.1.weight",
+      "diffusion.unet.mid_modules.0.conv2.block.1.bias",
+      "diffusion.unet.mid_modules.1.conv1.block.0.weight",
+      "diffusion.unet.mid_modules.1.conv1.block.0.bias",
+      "diffusion.unet.mid_modules.1.conv1.block.1.weight",
+      "diffusion.unet.mid_modules.1.conv1.block.1.bias",
+      "diffusion.unet.mid_modules.1.cond_encoder.1.weight",
+      "diffusion.unet.mid_modules.1.cond_encoder.1.bias",
+      "diffusion.unet.mid_modules.1.conv2.block.0.weight",
+      "diffusion.unet.mid_modules.1.conv2.block.0.bias",
+      "diffusion.unet.mid_modules.1.conv2.block.1.weight",
+      "diffusion.unet.mid_modules.1.conv2.block.1.bias",
+      "diffusion.unet.up_modules.0.0.conv1.block.0.weight",
+      "diffusion.unet.up_modules.0.0.conv1.block.0.bias",
+      "diffusion.unet.up_modules.0.0.conv1.block.1.weight",
+      "diffusion.unet.up_modules.0.0.conv1.block.1.bias",
+      "diffusion.unet.up_modules.0.0.cond_encoder.1.weight",
+      "diffusion.unet.up_modules.0.0.cond_encoder.1.bias",
+      "diffusion.unet.up_modules.0.0.conv2.block.0.weight",
+      "diffusion.unet.up_modules.0.0.conv2.block.0.bias",
+      "diffusion.unet.up_modules.0.0.conv2.block.1.weight",
+      "diffusion.unet.up_modules.0.0.conv2.block.1.bias",
+      "diffusion.unet.up_modules.0.0.residual_conv.weight",
+      "diffusion.unet.up_modules.0.0.residual_conv.bias",
+      "diffusion.unet.up_modules.0.1.conv1.block.0.weight",
+      "diffusion.unet.up_modules.0.1.conv1.block.0.bias",
+      "diffusion.unet.up_modules.0.1.conv1.block.1.weight",
+      "diffusion.unet.up_modules.0.1.conv1.block.1.bias",
+      "diffusion.unet.up_modules.0.1.cond_encoder.1.weight",
+      "diffusion.unet.up_modules.0.1.cond_encoder.1.bias",
+      "diffusion.unet.up_modules.0.1.conv2.block.0.weight",
+      "diffusion.unet.up_modules.0.1.conv2.block.0.bias",
+      "diffusion.unet.up_modules.0.1.conv2.block.1.weight",
+      "diffusion.unet.up_modules.0.1.conv2.block.1.bias",
+      "diffusion.unet.up_modules.0.2.weight",
+      "diffusion.unet.up_modules.0.2.bias",
+      "diffusion.unet.final_conv.0.block.0.weight",
+      "diffusion.unet.final_conv.0.block.0.bias",
+      "diffusion.unet.final_conv.0.block.1.weight",
+      "diffusion.unet.final_conv.0.block.1.bias",
+      "diffusion.unet.final_conv.1.weight",
+      "diffusion.unet.final_conv.1.bias"
+    ],
+    "runtime": {
+      "torch": "2.11.0+cu130",
+      "numpy": "2.2.6",
+      "packages": {
+        "torchvision": "0.26.0",
+        "lerobot": "0.6.1"
+      },
+      "torch_num_threads": 2,
+      "deterministic_algorithms": false,
+      "matmul_precision": "highest",
+      "cuda_matmul_tf32": false,
+      "cudnn_tf32": true,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": false
+    }
+  },
+  "resume_metadata_hash_algorithm": "sha256(json.dumps(metadata,sort_keys=True,allow_nan=False).encode())",
+  "unmeasured_native6_source_dependencies": [
+    "lerobot/policies/diffusion/configuration_diffusion.py",
+    "lerobot/optim/optimizers.py"
+  ],
+  "unmeasured_native6_package_RECORDs": true,
+  "source_scope": "Exact hashes in native6 durable resume metadata; no retroactive inference from package version/current files",
+  "preceding_separate_runtime_source_receipt": "shared/training/DIFFUSION_CPU_QUALIFICATION.json",
+  "official_paths_are_provenance_only": true,
+  "training_updates_executed_during_extraction": 0,
+  "torch_load_weights_only": true,
+  "production_state_writes": false,
+  "physical_io": false
+}

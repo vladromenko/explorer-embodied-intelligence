@@ -64,7 +64,7 @@ def test_ACT_worker_legacy_scope_is_explicit_and_current_transfer06_is_never_SO1
 
 def test_legacy_declared_Spec_read_confirmation_and_revision_preserve_original_body_and_SHA(tmp_path):
     store=Store(tmp_path/'state');legacy=catalogue.propose_skill(template_id='pick_object_to_container');legacy.update(owner_experiment='06',experiment_numbering_version=1)
-    original=canonical(legacy);payload=dict(type='skill.catalogue.spec',spec=legacy);envelope=event('nx','06',payload);envelope['event_id']='skill.catalogue.spec:'+legacy['skill_id']+':1';raw=canonical(envelope).decode()
+    original=canonical(legacy);payload=dict(type='skill.catalogue.spec',spec=legacy);envelope=event('nx','06',payload);envelope['event_id']='skill.catalogue.spec:'+legacy['skill_id']+':1';envelope['experiment_numbering_version']=1;raw=canonical(envelope).decode()
     with store.connect() as db:db.execute('INSERT INTO events VALUES(?,?,?,?,?)',(envelope['event_id'],'nx',1,envelope['sha256'],raw))
     confirmed=catalogue.confirm_proposal(store,legacy['skill_id'],1,digest(legacy))
     assert canonical(confirmed['spec'])==original and confirmed['spec_sha256']==digest(legacy) and confirmed['canonical_identity']['project_id']==SOURCE_ID
@@ -76,9 +76,40 @@ def test_legacy_declared_Spec_read_confirmation_and_revision_preserve_original_b
     with store.connect() as db:assert db.execute('SELECT body FROM events WHERE event_id=?',(envelope['event_id'],)).fetchone()['body']==raw
 
 
+def test_API_projects_legacy_source_Spec_for_display_but_validates_original_immutable_SHA(tmp_path):
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from explorer.lab_skill_api import install_router
+    store=Store(tmp_path/'state');legacy=catalogue.propose_skill(template_id='pick_object_to_container');legacy.update(owner_experiment='06',experiment_numbering_version=1)
+    original_spec=canonical(legacy);checksum=digest(legacy)
+    payload=dict(type='skill.catalogue.spec',spec=legacy);envelope=event('nx','06',payload);envelope.update(event_id='skill.catalogue.spec:'+legacy['skill_id']+':1',experiment_numbering_version=1)
+    raw=canonical(envelope).decode()
+    with store.connect() as db:db.execute('INSERT INTO events VALUES(?,?,?,?,?)',(envelope['event_id'],'nx',1,envelope['sha256'],raw))
+    app=FastAPI();install_router(app,lambda:store);client=TestClient(app)
+    route='/api/lab/skills/'+legacy['skill_id'];view=client.get(route+'?version=1').json()
+    assert view['spec']['owner_experiment']==SOURCE_ID and view['spec']['experiment_numbering_version']==2
+    assert view['spec_sha256']==checksum and view['spec_sha256_basis']=='original_immutable_spec'
+    assert view['canonical_spec_sha256']==digest(view['spec']) and view['canonical_spec_sha256']!=checksum
+    assert canonical(view['legacy_provenance']['original_spec'])==original_spec
+    assert client.post(route+'/confirm',json=dict(version=1,spec_sha256=view['canonical_spec_sha256'])).status_code==400
+    confirmed=client.post(route+'/confirm',json=dict(version=1,spec_sha256=checksum))
+    assert confirmed.status_code==200 and confirmed.json()['confirmed'] and confirmed.json()['spec']['owner_experiment']==SOURCE_ID
+    with store.connect() as db:assert db.execute('SELECT body FROM events WHERE event_id=?',(envelope['event_id'],)).fetchone()['body']==raw
+
+
 def test_all_original_station_control_and_sampling_method_ASTs_unchanged_by_metadata_migration():
     proof=json.loads((Path(__file__).parents[1]/'research/audits/SO101_NUMBERING_CONTROL_INVARIANCE_20261026.json').read_text())
     tree=ast.parse(Path(inspect.getsourcefile(SO101Station)).read_text());station=next(node for node in tree.body if isinstance(node,ast.ClassDef) and node.name=='SO101Station')
     methods={node.name:hashlib.sha256(ast.dump(node,include_attributes=False).encode()).hexdigest() for node in station.body if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef))}
     for name,expected in proof['unchanged_station_methods_AST_sha256'].items():assert methods[name]==expected,name
     assert proof['allowed_changed_station_methods']==['_finish_record_locked','_start_record']
+
+
+def test_native6_implementation_binding_is_exact_resume_metadata_not_retroactive_package_claims():
+    root=Path(__file__).parents[1];proof=json.loads((root/'shared/training/DIFFUSION_NATIVE6_IMPLEMENTATION_BINDING.json').read_text())
+    metadata=proof['resume_metadata'];signature=hashlib.sha256(json.dumps(metadata,sort_keys=True,allow_nan=False).encode()).hexdigest()
+    assert signature==proof['resume_signature'] and proof['completed_steps']==8 and proof['training_updates_executed_during_extraction']==0
+    assert metadata['implementation_sha256']['policy'] in proof['official_implementation_sha256'].values()
+    assert any(path.endswith('/scheduling_ddim.py') for path in proof['official_implementation_sha256'])
+    assert proof['unmeasured_native6_source_dependencies']==['lerobot/policies/diffusion/configuration_diffusion.py','lerobot/optim/optimizers.py']
+    assert proof['unmeasured_native6_package_RECORDs'] and not proof['physical_io']
