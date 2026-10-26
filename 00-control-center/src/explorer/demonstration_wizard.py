@@ -14,7 +14,7 @@ import time
 
 from explorer_shared.contracts import canonical, digest, event
 
-PROJECTS = ('02', '03', '04', 'personal')
+PROJECTS = ('02', '03', '04', '06', 'personal')
 APPROACHES = ('front', 'left', 'right', 'above', 'other')
 PHASES = {
     'approach': 'Подведите открытый захват к предмету',
@@ -168,7 +168,7 @@ def sources(store, project_id):
     _scope(project_id)
     found, invalid, conflicts = {}, [], set()
     for job in sorted(store.jobs(10000), key=lambda row: (row['created'], row['id'])):
-        if job['project_id'] == project_id and job['status'] == 'completed' and job['kind'] in ('station_import', 'mobile_import', 'retarget_import', 'station_rollout'):
+        if job['project_id'] in (('06','personal') if project_id in ('06','personal') else (project_id,)) and job['status'] == 'completed' and job['kind'] in ('station_import', 'mobile_import', 'retarget_import', 'station_rollout'):
             try:
                 source = _evaluation_source(store, job) if job['kind'] == 'station_rollout' else _retarget_source(store,job) if job['kind']=='retarget_import' else _source(store, job)
                 key = source['source_key']
@@ -182,7 +182,7 @@ def sources(store, project_id):
 
 
 def _annotations(db, project_id, task_id):
-    rows = db.execute("SELECT body FROM events WHERE json_extract(body,'$.payload.type')='demonstration.review' AND json_extract(body,'$.project_id')=? AND json_extract(body,'$.payload.task_id')=? ORDER BY received,event_id", (project_id, task_id))
+    rows = db.execute("SELECT body FROM events WHERE json_extract(body,'$.payload.type')='demonstration.review' AND json_extract(body,'$.project_id') IN (?,?) AND json_extract(body,'$.payload.task_id')=? ORDER BY received,event_id", (project_id, 'personal' if project_id=='06' else '06' if project_id=='personal' else project_id, task_id))
     latest = {}
     for row in rows:
         body = json.loads(row['body'])

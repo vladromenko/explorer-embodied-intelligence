@@ -1,4 +1,4 @@
-"""Pure source-evidence contract for ONE ROSMASTER mobile manipulator.
+"""ENGINEERING_GLUE: source-evidence contract for ONE ROSMASTER mobile manipulator.
 
 This module reads supplied bytes, never devices or paths. Admission verifies a
 declared dataset contract; it is not hardware qualification or a success claim.

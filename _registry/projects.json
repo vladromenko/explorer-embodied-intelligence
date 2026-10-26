@@ -1,0 +1,13 @@
+{
+  "schema": "explorer_projects_v1",
+  "projects": [
+    {"id":"01","title":"Автономное обучение","embodiment":"ROSMASTER simulation","physical_ready":false},
+    {"id":"02","title":"Показы на ROSMASTER","embodiment":"whole ROSMASTER mobile manipulator","action_dimension":9,"physical_ready":false},
+    {"id":"03","title":"SO-101 → ROSMASTER","embodiment":"ROSMASTER target; SO-101 leader input","primary_camera":"nano-rgbd","physical_ready":false},
+    {"id":"04","title":"Перенос навыка","embodiment":"source model to registered target embodiment","physical_ready":false},
+    {"id":"05","title":"Совместная передача","embodiment":"ROSMASTER and SO-101 receiver","physical_ready":false},
+    {"id":"06","title":"Две руки LeRobot · показ, обучение и повторение","embodiment":"SO-101 leader and follower on Raspberry Pi","primary_camera":"pi-overview","legacy_project_ids":["personal"],"legacy_routes":["/learning/so101"],"physical_ready":false}
+  ],
+  "source_preservation":"Legacy project IDs remain in immutable recordings, events and model lineage; UI groups personal under 06 without rewriting bytes.",
+  "constraints":{"chassis_motion":"PROHIBITED_BY_OWNER","arm_motion":"SEPARATE_USER_OBSERVED_TEST_REQUIRED","controller_configuration":"PRESERVE_ORIGINAL"}
+}

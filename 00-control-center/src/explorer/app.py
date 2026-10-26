@@ -148,7 +148,18 @@ def logout(request: Request):
     return response
 
 
-TITLES = {'01': 'Автономное обучение', '02': 'Показы на ROSMASTER', '03': 'SO-101 → ROSMASTER', '04': 'Перенос навыка', '05': 'Совместная передача'}
+PROJECT_REGISTRY = json.loads((ROOT/'_registry/projects.json').read_text())
+TITLES = {row['id']:row['title'] for row in PROJECT_REGISTRY['projects']}
+
+
+def canonical_project(value):
+    """Compatibility view only: retained source metadata and hashes never change."""
+    return '06' if value == 'personal' else value
+
+
+@app.get('/api/projects')
+def projects():
+    return PROJECT_REGISTRY
 
 
 def research_status():
@@ -190,8 +201,8 @@ def actions_required():
          'detail':'Наблюдения Pi/Nano работают. Новый публичный ключ Homebrain ещё не принят Pi; удалённый новый backend не объявляется развёрнутым.'},
         {'id':'venue', 'title':'Определить конференцию и официальный срок статьи', 'status':'UNCONFIRMED',
          'detail':'Название конференции и CFP не подтверждены. Начало декабря — ориентир пользователя, а не проверенный deadline.'},
-        {'id':'disk', 'title':'Проверить содержимое внешнего APFS-диска перед подготовкой хранилища', 'status':'PENDING_IDENTIFICATION',
-         'detail':'Пока используются свободные 180+ ГБ внутреннего NVMe. Внешний Samsung T5 не форматировался.'}]
+        {'id':'disk', 'title':'Samsung T5: перенос рабочего состояния проверен', 'status':'COMPLETED',
+         'detail':'По явному разрешению владельца T5 подготовлен как ext4. Все SHA файлов и целостность SQLite совпали; прежние пути и копия отката на NVMe сохранены. Полный reboot ещё не проверялся.'}]
 
 
 def node_states():
@@ -217,7 +228,7 @@ def state():
     jobs = STORE.jobs()
     experiments = []
     for project_id, title in TITLES.items():
-        project_jobs = [job for job in jobs if job['project_id'] == project_id]
+        project_jobs = [job for job in jobs if canonical_project(job['project_id']) == project_id]
         active = next((job for job in project_jobs if job['status'] in ('running', 'queued', 'paused')), None)
         experiments.append(dict(id=project_id, title=title,
             status=active['status'] if active else 'AWAITING_EVIDENCE',
@@ -227,10 +238,11 @@ def state():
     nodes=node_states()
     operational=any(node.get('online') and node.get('capabilities',{}).get('physical_motion') for node in nodes)
     return dict(schema_version=1, nodes=nodes, experiments=experiments, jobs=jobs,
-        acceptance=acceptance(),constraints={'chassis_motion':'PROHIBITED_BY_OWNER','controller_configuration':'PRESERVE_ORIGINAL'},
+        acceptance=acceptance(),constraints={'chassis_motion':'PROHIBITED_BY_OWNER','controller_configuration':'PRESERVE_ORIGINAL','arm_motion':'SEPARATE_USER_OBSERVED_TEST_REQUIRED'},
         skills=STORE.skills(), research=research_status(), storage={'free_bytes':disk.free,'total_bytes':disk.total,'root':str(STORE.root)},
         capabilities={'station_rollout':True},
-        admission={'physical_enabled':operational, 'owner_authorization':'Разрешено владельцем при видимости на камере Pi либо подтверждённом присутствии',
+        project_aliases={'personal':'06'},
+        admission={'physical_enabled':operational, 'owner_authorization':'Движение рук только в отдельной проверке под текущим наблюдением пользователя; шасси не двигать',
             'reasons':['Доступность управления и результаты обучения показаны отдельно. Физическая проверка обученных навыков ещё не завершена.'], 'controller_settings_unchanged':True})
 
 
@@ -300,6 +312,7 @@ def datasets():
 @app.post('/api/jobs')
 async def create_job(request: Request):
     body = await request.json()
+    body['project_id'] = canonical_project(body.get('project_id'))
     if body.get('kind') not in ('sim_pilot', 'train_act', 'dagger','skill_cycle','program_trace','world_model','virtual_transfer', 'handover_test','handover_runtime_test','station_shadow','station_rollout','manipulation','manipulation_student','manipulation_benchmark','manipulation_curriculum','mobile_manipulation','manipulation_selective_repair','policy_transfer','fault_repair') or body.get('project_id') not in (*TITLES.keys(),'personal'):
         raise HTTPException(400, 'Unsupported job')
     config = body.get('config', {})
@@ -307,6 +320,8 @@ async def create_job(request: Request):
         raise HTTPException(400, 'Job configuration must be an object')
     if '_execution_commit' in config or '_gpu_binding_sha256' in config:
         raise HTTPException(400,'Execution provenance is assigned by the worker')
+    if body['project_id']=='02' and body['kind']=='train_act':
+        raise HTTPException(409,'Experiment 02 trains the unified ROSMASTER skill through its admitted immutable aggregate; a single clip or partial embodiment contract is not accepted')
     if body['kind'] in ('world_model','dagger','skill_cycle','manipulation','manipulation_benchmark','manipulation_curriculum','mobile_manipulation','manipulation_selective_repair','policy_transfer','fault_repair') and config.get('device','cpu')!='cpu':
         raise HTTPException(400,'This engineering benchmark currently uses the verified CPU path')
     if body['kind']=='manipulation_student' and config.get('device','cpu') not in ('cpu','cuda'):
@@ -471,9 +486,17 @@ def recordings():
     return {'recordings':[job for job in STORE.jobs() if job['kind'] == 'camera_recording']}
 
 
+@app.get('/api/mobile/evidence')
+def mobile_evidence():
+    from .mobile_dataset_evidence import mobile_evidence_summary
+    jobs = STORE.jobs(10000)
+    return mobile_evidence_summary(jobs, managed_root=STORE.root, training_jobs=jobs)
+
+
 @app.post('/api/recordings')
 async def record(request: Request):
     body = await request.json()
+    body['project_id'] = canonical_project(body.get('project_id'))
     find_camera(body.get('camera_id', ''))
     duration = float(body.get('duration_s', 10))
     if not 1 <= duration <= 300 or body.get('project_id') not in (*TITLES.keys(), 'personal'):
@@ -555,10 +578,16 @@ async def station_proxy(path: str, request: Request):
             headers={'Authorization':'Bearer '+node['token']},**({'json':payload} if payload is not None else {}))
         result = response.json()
         if path=='record/finish' and response.is_success:
-            result['import_job']=STORE.create_import_job('station_import',result.get('project_id','personal'),result['episode_id'])
+            result['import_job']=STORE.create_import_job('station_import',canonical_project(result.get('project_id','personal')),result['episode_id'])
         return JSONResponse(result,response.status_code)
     except httpx.HTTPError:
         raise HTTPException(503,'SO-101 station interface is unavailable')
+
+
+@app.get('/learning/so101')
+@app.get('/learning/so101/')
+def legacy_so101_lab():
+    return RedirectResponse('/experiments/06', status_code=307)
 
 
 @app.get('/{path:path}')

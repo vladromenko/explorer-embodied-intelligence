@@ -30,7 +30,7 @@ const defined = (...values) => values.find((value) => value !== null && value !=
 const text = (value, fallback = "") => typeof value === "string" || typeof value === "number" ? String(value) : (value?.message || value?.reason || value?.detail || fallback);
 const number = (value) => value !== null && value !== undefined && Number.isFinite(Number(value)) ? Number(value) : null;
 const count = (value) => number(value) === null ? "—" : new Intl.NumberFormat("ru-RU").format(Number(value));
-const projectId = (value) => String(value ?? "").match(/\d+/)?.[0]?.padStart(2, "0") || "";
+const projectId = (value) => value === "personal" ? "06" : String(value ?? "").match(/\d+/)?.[0]?.padStart(2, "0") || "";
 const dateValue = (value) => typeof value === "number" ? value * (value < 1e12 ? 1000 : 1) : Date.parse(value || "");
 const dateTime = (value) => Number.isFinite(dateValue(value)) ? new Intl.DateTimeFormat("ru-RU", { timeZone: "Europe/Moscow", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(dateValue(value)) : "Время не указано";
 const clockTime = (value = Date.now()) => new Intl.DateTimeFormat("ru-RU", { timeZone: "Europe/Moscow", hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(value);
@@ -40,7 +40,8 @@ const PROJECTS = [
   { id: "02", title: "Обучение по показам", short: "Показы на ROSMASTER", brief: "Опыт оператора становится материалом для обучения.", subtitle: "Записывайте наблюдения за роботом и связывайте их с задачей. Ручное управление доступно в штатной панели.", steps: [ ["Подготовить один показ", "Выберите одну задачу, начальное положение и ясный признак завершения. Держите объект и движение в кадре."], ["Сохранить наблюдение", "Запись камеры выполняется на узле. Она пока не заменяет эпизод с синхронизированными командами и состоянием."], ["Обучить и проверить", "Для обучения нужны проверенные эпизоды, временная привязка и отдельные испытания на новых начальных условиях."] ], guidance: "Покажите одно и то же действие несколько раз из разных начальных положений. В начале и конце ненадолго остановитесь, чтобы результат было видно." },
   { id: "03", title: "Обучение с помощью руки", short: "SO-101 → ROSMASTER", brief: "Понятный показ рукой с учётом геометрии робота.", subtitle: "Рука SO-101 задаёт намерение. Перед выполнением на ROSMASTER нужны проверенное соответствие движений и калибровки.", steps: [ ["Определить роли рук", "Убедитесь, что ведущая и ведомая руки определены верно. Они остаются подключёнными к Raspberry Pi."], ["Проверить соответствие движений", "Разные конструкции требуют калибровки и согласования поз. Номера суставов нельзя считать готовым соответствием."], ["Записать и оценить показ", "Начните с одного небольшого действия. Результаты переноса проверяются независимо от обучающих показов."] ], guidance: "Держите ведущую руку и рабочую область в общем кадре. Показывайте короткое движение с хорошо различимыми началом и концом." },
   { id: "04", title: "Перенос между роботами", short: "Перенос навыка", brief: "Проверяем, что сохраняется при смене конструкции.", subtitle: "Отдельно изучаем перенос опыта SO-101 на ROSMASTER. Результат на одной руке ещё не доказывает успех на другой.", steps: [ ["Сохранить исходный навык", "Зафиксируйте данные, версию модели, геометрию и условия исходной задачи на SO-101."], ["Подготовить перенос", "Сопоставьте рабочие пространства, наблюдения и действие через проверенный адаптер, сохраняя происхождение изменений."], ["Сравнить результаты", "Проведите отдельную оценку на ROSMASTER и сравните её с исходным навыком и базовыми методами."] ], guidance: "Показывайте одинаковую задачу в сопоставимых условиях. Сохраняйте положение камеры, размеры объекта и признак завершения." },
-  { id: "05", title: "Совместная передача", short: "Передача предмета", brief: "Два робота, одна согласованная задача.", subtitle: "Исследуем передачу предмета от ROSMASTER к SO-101. Готовность обеих сторон и наблюдение оцениваются совместно.", steps: [ ["Подготовить общую сцену", "Обе руки, предмет и место передачи должны быть видны. Сначала требуется подтверждённая геометрия сцены."], ["Проверить готовность сторон", "Передача зависит от возможностей захватов, удержания предмета, связи и согласования участников."], ["Оценить завершение", "Разделяйте попытку передачи, видимый переход предмета и устойчивое удержание принимающей рукой."] ], guidance: "Общий кадр должен показывать обе стороны и предмет на всём пути передачи. Сохраните наблюдение до передачи и после неё." }
+  { id: "05", title: "Совместная передача", short: "Передача предмета", brief: "Два робота, одна согласованная задача.", subtitle: "Исследуем передачу предмета от ROSMASTER к SO-101. Готовность обеих сторон и наблюдение оцениваются совместно.", steps: [ ["Подготовить общую сцену", "Обе руки, предмет и место передачи должны быть видны. Сначала требуется подтверждённая геометрия сцены."], ["Проверить готовность сторон", "Передача зависит от возможностей захватов, удержания предмета, связи и согласования участников."], ["Оценить завершение", "Разделяйте попытку передачи, видимый переход предмета и устойчивое удержание принимающей рукой."] ], guidance: "Общий кадр должен показывать обе стороны и предмет на всём пути передачи. Сохраните наблюдение до передачи и после неё." },
+  { id: "06", title: "Две руки LeRobot · показ, обучение и повторение", short: "Две SO-101", brief: "Показ, проверка данных, обучение и повторение на Raspberry Pi.", subtitle: "SO-101 leader и follower с общей настольной камерой. Обучение выполняется на Homebrain, Mac служит веб-панелью.", steps: [["Просто управлять", "Относительный leader → follower без обязательной записи."], ["Собрать серию показов", "Один навык, разные начальные условия, синхронные кадры и измерения."], ["Проверить и обучить", "Отделите raw episode replay от learned policy rollout; сначала offline и shadow."]], guidance: "В кадре должны быть предмет, захват follower и вся рабочая область. Координаты сетки требуют подтверждённой калибровки." }
 ];
 const PERSONAL_PROJECT = { id: "personal", title: "Личная лаборатория SO-101", guidance: "Выберите одно простое движение. Сохраните его начало и конец в общем кадре и после записи разберите, что можно было показать понятнее." };
 
@@ -119,7 +120,7 @@ function navigate(url) { if (path() !== url && (stationLab.owned || stationLab.p
 
 function navigation() {
   const item = (href, label, symbol, ordinal) => `<a href="${href}" data-link class="nav-item ${path() === href ? "active" : ""}" ${path() === href ? 'aria-current="page"' : ""}>${ordinal ? `<span class="nav-number">${ordinal}</span>` : icon(symbol, "nav-icon")}<span>${label}</span></a>`;
-  document.querySelector("#navigation").innerHTML = item("/", "Обзор станции", "overview") + '<div class="nav-section-label">Исследовательские опыты</div>' + PROJECTS.map((project) => item(`/experiments/${project.id}`, ["Автономное обучение", "Обучение по показам", "Обучение с рукой", "Перенос навыков", "Совместная передача"][Number(project.id) - 1], "", project.id)).join("") + '<div class="nav-divider"></div>' + item("/research", "Исследования", "research") + item("/skills", "Библиотека навыков", "skills") + item("/infrastructure", "Оборудование", "server") + item("/learning/so101", "Моя лаборатория", "lab");
+  document.querySelector("#navigation").innerHTML = item("/", "Обзор станции", "overview") + '<div class="nav-section-label">Исследовательские опыты</div>' + PROJECTS.map((project) => item(`/experiments/${project.id}`, ["Автономное обучение", "Обучение ROSMASTER", "Leader → ROSMASTER", "Перенос навыков", "Совместная передача", "Две руки LeRobot"][Number(project.id) - 1], "", project.id)).join("") + '<div class="nav-divider"></div>' + item("/research", "Исследования", "research") + item("/skills", "Библиотека навыков", "skills") + item("/infrastructure", "Оборудование", "server");
 }
 
 function nodes() { return array(model.state?.nodes); }
@@ -220,7 +221,7 @@ function syncCamera() {
     const ready = available.filter((camera) => camera.available !== false && camera.node_online !== false);
     cameraSelect.innerHTML = available.length ? available.map((camera) => `<option value="${esc(camera.id)}" ${camera.available === false || camera.node_online === false ? "disabled" : ""}>${esc(cameraLabel(camera))}${camera.available === false || camera.node_online === false ? " · недоступна" : ""}</option>`).join("") : '<option value="">Камеры не обнаружены</option>';
     if (changedRoute) {
-      const preferred = activeProject()?.id === "03" ? "nano-rgbd" : path() === "/learning/so101" ? "pi-overview" : null;
+      const preferred = activeProject()?.id === "03" ? "nano-rgbd" : ["/learning/so101", "/experiments/06"].includes(path()) ? "pi-overview" : null;
       if (preferred) currentCamera = preferred;
     }
     if (activeProject()?.id === "03" && !ready.some(camera => camera.id === currentCamera)) currentCamera = "nano-rgbd";
@@ -278,6 +279,11 @@ keyboard.options = {
   },
   changed: () => { if (activeProject()?.id === "02") { model.forceRender = true; render(); } }
 };
+const mobileEvidence = createMobileEvidenceClient({
+  fetchEvidence: () => api("/api/mobile/evidence"),
+  onChange: () => { if (activeProject()?.id === "02") { model.forceRender = true; render(); } }
+});
+let mobileEvidenceSignature = "";
 
 function experimentState(id) { return array(model.state?.experiments).find((entry) => projectId(entry.id || entry.project_id) === id) || {}; }
 function heading(title, description, eyebrow = "Исследовательская станция", actions = "") { return `<div class="page-heading"><div><p class="eyebrow">${esc(eyebrow)}</p><h1>${esc(title)}</h1>${description ? `<p>${esc(description)}</p>` : ""}</div>${actions ? `<div class="heading-actions">${actions}</div>` : ""}</div>`; }
@@ -336,7 +342,7 @@ function simulationForm() {
   return `<section class="panel"><div class="panel-heading"><div><p class="eyebrow">Новый запуск</p><h2>Первый шаг в симуляции</h2></div></div><div class="panel-body"><p class="form-description">Пилотный запуск проверяет обучение достижению цели, сохранение модели и результатов.</p><form id="simulation-form"><div class="form-grid"><div class="form-field full"><label for="sim-task">Задача</label><select id="sim-task" name="task"><option value="reach">Достичь цели</option></select></div><div class="form-field"><label for="sim-updates">Шаги обучения</label><input id="sim-updates" name="updates" type="number" min="32" max="100000" step="32" value="${model.simDraft.updates}" required></div><div class="form-field"><label for="sim-seed">Вариант запуска</label><input id="sim-seed" name="seed" type="number" min="0" max="2147483647" step="1" value="${model.simDraft.seed}" required><small>Одинаковое число — для повторения условий</small></div></div><button class="button primary full" type="submit" id="start-simulation">${icon("play")}Запустить обучение</button><p class="form-hint">Задача выполняется на Homebrain. Кнопки паузы и отмены появятся в списке запусков.</p><p id="simulation-form-error" class="form-error" role="alert" hidden></p></form></div></section>`;
 }
 function experimentPage(project) {
-  if (["03", "04"].includes(project.id)) return stationPage(project.id);
+  if (["03", "04", "06"].includes(project.id)) return stationPage(project.id);
   if (project.id === "02") return experiment02Page(project);
   const state = experimentState(project.id);
   const jobs = model.jobs.filter((job) => projectId(job.project_id) === project.id);
@@ -376,7 +382,7 @@ function experiment02Page(project) {
     keyboardPanel() + ExplorerBrowserGamepad.panel(browserGamepad.status()) +
     `<section class="panel spaced-section"><div class="panel-heading"><h2>Состояние всего ROSMASTER</h2></div><div class="panel-body"><p>RGB камеры виден слева. Измеренные суставы: ${live.measured_joint_feedback === true ? "подтверждены штатным API" : "не подтверждены"}. Положение руки по командам — отдельная оценка.</p><p>LiDAR, IMU, одометрия, карта и глубина не считаются доступными по одному статусу узла. Полнота и происхождение каждого канала проверяются по сохранённым данным.</p><p>База и рука могут получать направления одновременно в одном штатном пакете. Нейтральные каналы остаются частью 9D; отсутствующие измерения помечаются отдельно.</p></div></section>` +
     `<div class="spaced-section">${episodePanel()}</div><div id="skill-workflow-slot">${mobileTrainingPanel()}</div>` +
-    demonstrationWizardPanel("02") + `<div class="spaced-section">${jobsPanel(jobs, "Запуски обучения ROSMASTER")}</div><div class="spaced-section">${recordingsPanel("02")}</div></div></div>`;
+    `<div class="spaced-section">${mobileEvidencePanel(mobileEvidence.snapshot(), {preview: manualPreview.state(), teaching})}</div>` + `<div class="spaced-section">${jobsPanel(jobs, "Запуски обучения ROSMASTER")}</div><div class="spaced-section">${recordingsPanel("02")}</div></div></div>`;
 }
 function episodePanel() {
   const teaching = model.robot.teaching || {}; const active = teaching.active; const last = teaching.last;
@@ -578,7 +584,7 @@ function recordingsPanel(project) {
   const list = project ? model.recordings.filter((entry) => project === "personal" ? entry.project_id === "personal" : projectId(entry.project_id) === project) : model.recordings;
   return `<section class="panel"><div class="panel-heading"><div><h2>Сохранённые наблюдения</h2><p>Видео сцены — отдельный тип исследовательского материала</p></div><button type="button" class="button secondary small" data-action="record" ${project ? `data-project="${project}"` : ""}>${icon("record")}Записать</button></div><div class="panel-body">${list.length ? `<div class="recording-list">${list.slice(0, 12).map((entry) => `<article class="recording-row"><div><h3>${esc(text(entry.title, text(entry.id, entry.recording_id || "Наблюдение")))}</h3><p>${esc(cameraLabel(cameras().find((camera) => camera.id === (entry.camera_id || entry.config?.camera_id)) || { id: entry.camera_id || entry.config?.camera_id }))} · ${esc(dateTime(entry.created_at || entry.wall_utc || entry.created))}${number(defined(entry.duration_s, entry.config?.duration_s)) !== null ? ` · ${defined(entry.duration_s, entry.config?.duration_s)} с` : ""}</p><div class="recording-label">Запись камеры · обучающий эпизод не подтверждён</div></div>${badge(entry.status || "not_validated")}</article>`).join("")}</div>` : empty("Записей пока нет", "Сохраните короткое наблюдение с выбранной камеры. Готовая запись появится здесь.", "camera")}</div></section>`;
 }
-function labPage() { return stationPage("personal"); }
+function labPage() { return stationPage("06"); }
 
 function updateHeader() {
   const online = nodes().filter((node) => node.online === true).length; const total = nodes().length;
@@ -638,7 +644,13 @@ async function refresh(forceExtras = false) {
       if (results[4].status === "fulfilled") model.actions = array(results[4].value.actions);
       model.lastExtras = Date.now();
     }
-    if (activeProject()?.id === "02") await loadRobot();
+    if (activeProject()?.id === "02") {
+      await loadRobot();
+      const signature = mobileImportJobs().map(job => `${job.id}:${job.status}:${job.updated}`).join("|");
+      if (signature !== mobileEvidenceSignature || !mobileEvidence.snapshot().schema) {
+        mobileEvidenceSignature = signature; void mobileEvidence.refresh();
+      }
+    }
     if (activeProject()?.id === "01" && (forceExtras || Date.now() - worldLearning.lastLoad > 20000)) await refreshWorldDatasets();
     if (stationRoute()) await pollStation(forceExtras);
   } catch (error) { model.error = error.message === "Failed to fetch" ? "Проверьте подключение к домашней сети." : error.message; }
@@ -648,7 +660,7 @@ async function refresh(forceExtras = false) {
 function openRecord(project) {
   if (stationLab.owned || stationLab.present || stationLab.pendingControl) stopStation(true);
   if (keyboard.active || keyboard.starting) stopKeyboard(true);
-  record.step = 0; record.project = project === "personal" ? "personal" : projectId(project || activeProject()?.id) || "02";
+  record.step = 0; record.project = projectId(project || activeProject()?.id) || "02";
   const ready = cameras().filter((camera) => camera.available !== false && camera.node_online !== false);
   record.camera = ready.find((camera) => camera.id === currentCamera)?.id || ready[0]?.id || ""; record.duration = 15; record.busy = false;
   renderRecord(); dialog.showModal();
@@ -658,7 +670,7 @@ function renderRecord() {
   const options = cameras().filter((camera) => camera.available !== false && camera.node_online !== false);
   let html;
   if (record.step === 0) {
-    html = `<p class="form-description">Сохраните короткое видео сцены и привяжите его к опыту. Запись сама не запускает движения оборудования.</p><div class="form-grid"><div class="form-field full"><label for="record-project">Исследовательский опыт</label><select id="record-project" name="project_id">${[...PROJECTS, PERSONAL_PROJECT].map((entry) => `<option value="${entry.id}" ${entry.id === record.project ? "selected" : ""}>${entry.id === "personal" ? "Личная практика" : entry.id} · ${esc(entry.title)}</option>`).join("")}</select></div><div class="form-field full"><label for="record-camera">Камера</label><select id="record-camera" name="camera_id" required>${options.length ? options.map((camera) => `<option value="${esc(camera.id)}" ${camera.id === record.camera ? "selected" : ""}>${esc(cameraLabel(camera))}</option>`).join("") : '<option value="">Камеры пока не обнаружены</option>'}</select></div><div class="form-field"><label for="record-duration">Длительность, секунд</label><input id="record-duration" name="duration_s" type="number" min="5" max="60" step="1" value="${record.duration}" required></div></div>`;
+    html = `<p class="form-description">Сохраните короткое видео сцены и привяжите его к опыту. Запись сама не запускает движения оборудования.</p><div class="form-grid"><div class="form-field full"><label for="record-project">Исследовательский опыт</label><select id="record-project" name="project_id">${PROJECTS.map((entry) => `<option value="${entry.id}" ${entry.id === record.project ? "selected" : ""}>${entry.id === "personal" ? "Личная практика" : entry.id} · ${esc(entry.title)}</option>`).join("")}</select></div><div class="form-field full"><label for="record-camera">Камера</label><select id="record-camera" name="camera_id" required>${options.length ? options.map((camera) => `<option value="${esc(camera.id)}" ${camera.id === record.camera ? "selected" : ""}>${esc(cameraLabel(camera))}</option>`).join("") : '<option value="">Камеры пока не обнаружены</option>'}</select></div><div class="form-field"><label for="record-duration">Длительность, секунд</label><input id="record-duration" name="duration_s" type="number" min="5" max="60" step="1" value="${record.duration}" required></div></div>`;
   } else if (record.step === 1) {
     html = `<p class="form-description">Посмотрите на живое изображение перед началом: предмет и всё интересующее движение должны оставаться в кадре.</p><div class="wizard-guidance"><h3>Что и как показывать</h3><p>${esc(project.guidance)}</p></div><div class="summary-label">Сохраняется видео наблюдения. Совместная запись команд и измеренных суставов в этом мастере не подтверждается.</div>`;
   } else {
@@ -701,6 +713,7 @@ document.addEventListener("click", async (event) => {
   if (action === "record") { openRecord(button.dataset.project); return; }
   if (action === "choose-skill") { model.forceRender = true; navigate("/skills"); return; }
   if (action === "refresh") { await refresh(true); return; }
+  if (action === "mobile-evidence-refresh") { await mobileEvidence.refresh(); return; }
   if (action === "world-refresh") { await refreshWorldDatasets(); return; }
   if (action === "world-train") {
     if (worldLearning.busy) return;

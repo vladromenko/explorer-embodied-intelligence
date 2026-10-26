@@ -44,3 +44,4 @@
 .experiment02-workflow { min-width:0; }
 .experiment02-workflow .panel + .panel { margin-top:20px; }
 @media (max-width:1100px) { .experiment02-layout { grid-template-columns:1fr; } .experiment02-aside { position:static; } .experiment02-aside .camera-stage { max-height:360px; } }
+.leader-only .station-joint-row { grid-template-columns:minmax(120px,1fr) minmax(65px,90px); }

@@ -2303,6 +2303,66 @@
         }
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-UNIFIED-MOBILE-EPISODE-001",
+      "function_or_module": "shared/explorer_shared/embodied_episode.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:02-demonstration-learning/docs/EMBODIED_EPISODE_CONTRACT_RU.md",
+          "role": "Preserved evidence and authenticated integration"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_ROBOT_RECORDINGS_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Unified mobile provenance and explicit source masks; no hardware success inferred; no direct motor dispatch.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "28 source/mock contract tests passed in source agent; integrated root rerun pending",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SKILL-WORKFLOW-HTTP-001",
+      "function_or_module": "00-control-center/src/explorer/skill_workflow_api.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:00-control-center/src/explorer/skill_workflow_api.py",
+          "role": "Preserved evidence and authenticated integration"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_ROBOT_RECORDINGS_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Unified mobile provenance and explicit source masks; no hardware success inferred; no direct motor dispatch.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "HTTP integration pending immutable skill service integration",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

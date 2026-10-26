@@ -84,11 +84,18 @@
       "status": "VERIFIED_WITHIN_SCOPE",
       "evidence": "Explicitly authorized exact-serial T5 ext4;2437entries/4.18GB SHA matches;SQLite integrity+counts match;services resumed6.72s;0jobs/recordings interrupted;NVMe rollback retained;full reboot not tested",
       "receipt": "_registry/evidence/storage-t5-cutover-20261026.json"
+    },
+    {
+      "id": "experiment06",
+      "title": "Две руки LeRobot в общем Experiment 06",
+      "status": "IN_PROGRESS",
+      "evidence": "Source project06 enrolment and lossless personal alias/legacy URL redirect under test; prior actual technical hold/train/shadow evidence retained; full skill aggregate/grid/calibration/HailoVLM/click-grasp and physical validation remain open"
     }
   ],
   "constraints": {
     "chassis_motion": "PROHIBITED_BY_OWNER",
     "controller_configuration": "PRESERVE_ORIGINAL",
-    "new_motor_safety_settings": "NOT_AUTHORIZED"
+    "new_motor_safety_settings": "NOT_AUTHORIZED",
+    "arm_motion": "SEPARATE_USER_OBSERVED_TEST_REQUIRED"
   }
 }
