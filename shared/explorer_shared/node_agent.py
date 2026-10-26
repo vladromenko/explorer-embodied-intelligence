@@ -25,7 +25,7 @@ import tarfile
 import threading
 import time
 from urllib.error import HTTPError, URLError
-from urllib.parse import unquote, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 from urllib.request import Request, urlopen
 import uuid
 
@@ -527,11 +527,13 @@ class NodeAgent:
             from .hailo_observer import HailoObserver
             self.observer = HailoObserver(self.sources["pi-overview"], hailo_model, self.delivery.emit)
         self.lab_vision=None
-        if mode=='pi' and self.observer is not None:
+        if mode=='pi' and 'pi-overview' in self.sources:
             from .lab_vision_service import LabVisionService
             self.lab_vision=LabVisionService(self.sources['pi-overview'],self.observer,
                 clock_domain=self.delivery.clock_domain,boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip(),
-                config_path=Path.home()/'.config/explorer/lab-vision.json',emit=self.delivery.emit)
+                config_path=Path.home()/'.config/explorer/lab-vision.json',emit=self.delivery.emit,
+                calibration_dir=self.state_dir/'tabletop-calibration',
+                calibration_context_provider=self.tabletop_calibration_context)
         from .retarget_service import registered_geometry, nano_gateway
         retarget_config_dir = Path(retarget_config_dir or Path.home()/'.config/explorer')
         if mode == 'nano':
@@ -540,6 +542,29 @@ class NodeAgent:
         else:
             from .pi_native_retarget import PiNativeRetargetService
             self.arm_retarget=PiNativeRetargetService.from_config(self.station,self.state_dir,retarget_config_dir)
+
+    def tabletop_calibration_context(self):
+        """Known hardware pair identity, not a measurement of a fixed mounting.
+
+        Only the existing verified follower profile and configured camera are
+        used. The operator still measures all four base points and explicitly
+        confirms both mounts. No camera/robot pose is inferred here.
+        """
+        source=self.sources.get('pi-overview')
+        device=getattr(source,'device',None)
+        station=self.station.status() if self.station else {}
+        follower=(station.get('roles') or {}).get('follower') or {}
+        if not device or not follower.get('verified_on_connected_hardware'):
+            return {}
+        port=follower.get('port');calibration=follower.get('calibration_sha256')
+        if not port or not re.fullmatch('[0-9a-f]{64}',str(calibration)):
+            return {}
+        pair=hashlib.sha256(canonical_bytes(dict(camera_device=device,follower_port=port,
+            calibration_sha256=calibration))).hexdigest()
+        return dict(robot_id='so101_follower',base_frame='base_link',
+            mount_id='operator-confirmed-static-pair:'+pair,
+            camera_hardware_id=str(device),robot_hardware_id=str(port),
+            robot_calibration_sha256=calibration)
 
     def start(self):
         for source in self.sources.values():
@@ -773,7 +798,29 @@ def make_handler(agent):
 
         def _get(self, path):
             parts = path.strip("/").split("/")
-            if path=='/lab/vision/status' and agent.lab_vision is not None:
+            if parts[:3]==['lab','vision','calibration'] and agent.lab_vision is not None:
+                query=parse_qs(urlsplit(self.path).query,keep_blank_values=True)
+                if path=='/lab/vision/calibration/status':
+                    if set(query)-{'session_id'} or any(len(values)!=1 for values in query.values()):
+                        raise ValueError('Choose one calibration session')
+                    self._json(200,agent.lab_vision.calibration_status(query.get('session_id',[None])[0]))
+                else:
+                    if query:raise ValueError('Calibration media takes no query parameters')
+                    if len(parts)==5 and parts[3]=='board':
+                        raw,metadata=agent.lab_vision.calibration_board(parts[4])
+                    elif len(parts)==5 and parts[3]=='preview':
+                        raw,metadata=agent.lab_vision.calibration_preview(parts[4])
+                    elif len(parts)==6 and parts[3]=='media':
+                        raw,metadata=agent.lab_vision.calibration_media(parts[4],parts[5])
+                    else:raise LookupError('Unknown calibration media operation')
+                    content_type=metadata.get('content_type','image/jpeg')
+                    self.send_response(200)
+                    for name,value in {'Content-Type':content_type,'Content-Length':len(raw),'Cache-Control':'no-store',
+                        'X-Content-SHA256':hashlib.sha256(raw).hexdigest(),'X-Content-Type-Options':'nosniff',
+                        **({'X-Frame-ID':metadata['frame_id'],'X-Frame-SHA256':metadata['frame_sha256']} if metadata.get('frame_id') else {})}.items():
+                        self.send_header(name,str(value))
+                    self.end_headers();self.wfile.write(raw)
+            elif path=='/lab/vision/status' and agent.lab_vision is not None:
                 self._json(200,agent.lab_vision.snapshot())
             elif path=='/lab/vision/freeze' and agent.lab_vision is not None:
                 frame,observation=agent.lab_vision.frozen()

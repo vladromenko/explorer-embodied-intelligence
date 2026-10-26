@@ -50,3 +50,18 @@
 .lab-vision-frozen { position: relative; width: 100%; margin-top: 16px; }
 .lab-vision-frozen img { display: block; width: 100%; height: auto; }
 .lab-vision-frozen canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
+
+.tabletop-calibration .panel-body { display:grid; gap:16px; }
+.calibration-image { position:relative; width:100%; max-width:800px; }
+.calibration-image img { display:block; width:100%; height:auto; border-radius:8px; }
+.calibration-image canvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.calibration-corners { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:18px 0; }
+.calibration-corners fieldset { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; border:1px solid var(--line); border-radius:8px; padding:12px; min-width:0; }
+.calibration-corners legend { padding:0 6px; }
+.calibration-confirm,.observed-native-panel label { display:flex; align-items:flex-start; gap:10px; margin:14px 0; line-height:1.6; }
+.calibration-confirm input[type=checkbox],.observed-native-panel input[type=checkbox] { flex:none; width:18px; height:18px; margin-top:3px; accent-color:var(--orange); }
+.observed-native-panel label:has(select) { flex-direction:column; }
+.observed-native-panel select { color:var(--text); background:var(--surface); border:1px solid var(--line); border-radius:7px; padding:10px 12px; min-width:240px; }
+.observed-native-panel details { margin-top:24px; padding-top:16px; border-top:1px solid var(--line); }
+.observed-native-panel .camera-preview { display:block; max-width:100%; margin-top:20px; }
+@media(max-width:700px) { .calibration-corners { grid-template-columns:1fr; } .calibration-corners fieldset { gap:6px; padding:10px; } }

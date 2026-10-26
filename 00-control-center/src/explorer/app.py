@@ -574,22 +574,44 @@ async def lab_calibration_board():
 
 @app.api_route('/api/lab/vision/{operation:path}',methods=['GET','POST'])
 async def lab_vision_proxy(operation: str,request: Request):
-    allowed_get=operation in ('status','freeze') or re.fullmatch(r'frames/[^/]{1,200}',operation)
-    allowed_post=operation in ('select','semantic','semantic/cancel','grid')
+    uuid_pattern=r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+    media_format=None
+    if re.fullmatch(r'calibration/board/(pdf|svg|json)',operation):media_format=operation.rsplit('/',1)[1]
+    elif re.fullmatch(r'calibration/preview/[A-Za-z0-9:_-]{1,200}',operation):media_format='jpeg'
+    elif re.fullmatch(r'calibration/media/'+uuid_pattern+'/'+uuid_pattern,operation):media_format='jpeg'
+    allowed_get=operation in ('status','freeze','calibration/status') or re.fullmatch(r'frames/[^/]{1,200}',operation) or media_format
+    allowed_post=operation in ('select','semantic','semantic/cancel','grid','calibration/capture','calibration/solve','calibration/accept')
     if request.method=='GET' and not allowed_get or request.method=='POST' and not allowed_post:
         raise HTTPException(404,'Tabletop vision API does not expose robot execution')
     node=next((node for node in CONFIG['nodes'] if node['id']=='pi'),None)
     if node is None:raise HTTPException(503,'Raspberry Pi is not configured')
+    params={}
+    if request.query_params:
+        values=request.query_params.getlist('session_id')
+        if (operation!='calibration/status' or set(request.query_params)!={'session_id'} or
+                len(values)!=1 or not re.fullmatch(uuid_pattern,values[0])):
+            raise HTTPException(400,'Choose one calibration session; media takes no query parameters')
+        params={'session_id':values[0]}
     try:
         body=await request.json() if request.method=='POST' else None
         if body is not None and not isinstance(body,dict):raise HTTPException(400,'Vision request must be an object')
+        if operation=='calibration/solve':
+            measurements=body.get('measurements')
+            if not isinstance(measurements,dict):raise HTTPException(400,'Structured calibration measurements are required')
+            body=dict(body,measurements=dict(measurements,operator_id=session_actor(request)))
         upstream=await CLIENT.request(request.method,'http://'+node['host']+':'+str(node['port'])+'/lab/vision/'+operation,
-            headers={'Authorization':'Bearer '+node['token']},**({'json':body} if body is not None else {}))
-        if operation.startswith('frames/') and upstream.is_success:
-            if len(upstream.content)>10*1024**2 or not upstream.headers.get('content-type','').startswith('image/jpeg'):
-                raise HTTPException(503,'Pi returned an invalid cached JPEG')
-            headers={key:value for key,value in upstream.headers.items() if key.lower() in ('x-frame-id','x-frame-sha256','x-clock-domain','x-monotonic-ns','x-boot-id','x-timestamp-basis')}
-            return Response(upstream.content,media_type='image/jpeg',headers=dict(headers,**{'Cache-Control':'no-store'}))
+            headers={'Authorization':'Bearer '+node['token']},params=params,**({'json':body} if body is not None else {}))
+        if (operation.startswith('frames/') or media_format) and upstream.is_success:
+            mime={'pdf':'application/pdf','svg':'image/svg+xml','json':'application/json','jpeg':'image/jpeg'}.get(media_format,'image/jpeg')
+            raw=upstream.content
+            if len(raw)>10*1024**2 or not upstream.headers.get('content-type','').startswith(mime):
+                raise HTTPException(503,'Pi returned invalid cached calibration media')
+            checksum=upstream.headers.get('X-Content-SHA256') if media_format else upstream.headers.get('X-Frame-SHA256')
+            if checksum!=hashlib.sha256(raw).hexdigest():raise HTTPException(503,'Pi cached calibration media checksum mismatch')
+            if mime=='image/jpeg' and (not raw.startswith(b'\xff\xd8') or not raw.endswith(b'\xff\xd9')):
+                raise HTTPException(503,'Pi cached calibration image is not a JPEG')
+            headers={key:value for key,value in upstream.headers.items() if key.lower() in ('x-content-sha256','x-frame-id','x-frame-sha256','x-clock-domain','x-monotonic-ns','x-boot-id','x-timestamp-basis')}
+            return Response(raw,media_type=mime,headers=dict(headers,**{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}))
         return JSONResponse(upstream.json(),upstream.status_code)
     except (httpx.HTTPError,ValueError) as error:
         raise HTTPException(503,'Pi tabletop vision interface is unavailable') from error

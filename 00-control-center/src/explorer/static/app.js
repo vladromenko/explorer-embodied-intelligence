@@ -78,6 +78,7 @@ function reasonText(value) {
 const rosmasterDemonstrationRoute = () => ["02", "03"].includes(activeProject()?.id);
 const model = { state: null, jobs: [], skills: [], research: {}, recordings: [], actions: [], lastUpdate: null, lastExtras: 0, error: null, refreshing: false, simDraft: { task: "reach", updates: 256, seed: 0 }, robot: { teleop: null, controls: null, teaching: null, error: null, episodeName: "Первый показ" } };
 const labVision = createLabVisionClient({get: api,post: (...args) => post(...args),onChange: () => { model.forceRender = true; render(); }});
+const tabletopCalibration = createTabletopCalibrationClient({get:api,post:(...args) => post(...args),onChange:() => { model.forceRender = true; render(); }});
 const labSkills = createLabSkillsClient({api,onChange: () => { model.forceRender = true; render(); },onCaptureContext: context => { stationLab.skillContext = context.record_start_body; toast("Контекст навыка выбран. Запись запускается отдельно при наблюдении за руками."); }});
 let labSkillsLoadedAt = 0;
 const keyboard = new ManualKeyboard();
@@ -643,7 +644,10 @@ function render() {
   const cameraWasVisible = document.contains(cameraCard); const slotNeeded = markup.includes('id="camera-slot"');
   if (cameraWasVisible) cameraCard.remove();
   main.innerHTML = markup;
-  if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(route)) bindLabVision(main,labVision);
+  if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(route)) {
+    bindLabVision(main,labVision);
+    bindTabletopCalibration(main,tabletopCalibration,error => toast(error.message));
+  }
   if (slotNeeded) { main.querySelector("#camera-slot").append(cameraCard); syncCamera(); }
   else { if (manualPreview.state().active) manualPreview.stop("preview_not_visible"); cameraImage.removeAttribute("src"); cameraLoaded = false; }
   simulationImage = main.querySelector("#simulation-image");
@@ -693,7 +697,7 @@ async function refresh(forceExtras = false) {
     if (activeProject()?.id === "01" && (forceExtras || Date.now() - worldLearning.lastLoad > 20000)) await refreshWorldDatasets();
     if(path()==="/evening")model.evening=await api("/api/evening");
     if (stationRoute()) await pollStation(forceExtras);
-    if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path())) await labVision.refresh(forceExtras);
+    if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path())) await Promise.all([labVision.refresh(forceExtras),tabletopCalibration.refresh(forceExtras)]);
     if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path()) && (forceExtras || Date.now() - labSkillsLoadedAt > 15000)) { labSkillsLoadedAt = Date.now(); await labSkills.refresh(); }
   } catch (error) { model.error = error.message === "Failed to fetch" ? "Проверьте подключение к домашней сети." : error.message; }
   finally { model.refreshing = false; render(); }
