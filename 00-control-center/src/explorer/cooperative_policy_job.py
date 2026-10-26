@@ -176,7 +176,7 @@ def run_cooperative_policy_session(store,job,config,*,model_loader=load_native_m
             except (ValueError,OSError,KeyError) as error:
                 source_fault[0]=type(error).__name__+':'+str(error);raise
             size=sum(path.stat().st_size for path in (root/'inferences').rglob('*') if path.is_file())
-            if size>128*1024**2:raise ValueError('Original inference evidence budget reached; explicit new compute session required')
+            if size+24*1024**2>128*1024**2:raise ValueError('Original inference evidence budget reached; explicit new compute session required')
             sequence+=1;plan=settings['native_plans'][role];artifact_id=job['id']+'/inferences/'+str(sequence).zfill(6)+'-'+role
             proxy=_InferenceStore(store,job['id'],artifact_id);call={'id':artifact_id,'config':deepcopy(plan['settings'])}
             if role=='giver':

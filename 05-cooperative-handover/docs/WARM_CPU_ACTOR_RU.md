@@ -52,4 +52,29 @@ lease. Никакой native hardware lease не продлевается.
 Проверены warm-before-source, обе independent native heads с original artifacts,
 durable cancel после READY, cancel во время model load и отсутствие admission.
 Это8 software tests вместе с IPC, без утверждения об actual trained-model warmup
-или физическом handover. Central lifecycle/observed binding подключаются отдельно.
+или физическом handover.
+
+Central `CooperativeWarmService` подключён к `CooperativeService`:
+`warm_models {session_id, expected_epoch, request_id, compute_ttl_s}` ставит один
+authoritative CPU4cores/4GiB/GPU0 job через общий serial inference slot. Перед
+вставкой проверяются оба source/model bindings и server-derived resource profile.
+Текущий активный job той же пары переиспользуется; повтор terminal request не
+перезапускает его автоматически. Новый request ID создаёт новую compute session
+после завершения предыдущей. Constructor не загружает веса/не читает камеры.
+
+Snapshot для выбранной session содержит `warm_compute_sessions` с настоящими
+job/scheduler statuses и public actor lease без token. `compute_ready` означает
+только актуальный CPU-loaded pair с проверенными original bindings/worker PID,
+nonce, TTL и heartbeat. Dummy model receipts не дают ready. STOP сначала отзывает
+coordinator epoch и затем отменяет compute jobs; shutdown отменяет только jobs
+своего coordinator process. Ни один warm job не прикрепляет native transport
+автоматически. `prediction_adapter` — отдельный pure IPC callback, закреплённый
+за одним instance/native contract, без actuator API.
+
+Флаг `paired_runtime_benchmark_qualified` пока false: следующая отдельная finite
+квалификация должна реально загрузить обе Torch модели, измерить RSS и выполнить
+два inference на оригиналах SIM fixtures. Она не будет физической демонстрацией
+или разрешением, а SIM cohort не пройдёт production native-source admission.
+Четыре central lifecycle tests проверяют настоящие resource budgets, concurrent
+dedup, source/TTL rejection, отсутствие server Torch/source IO и cancel/close;
+вместе с actor/worker/workbench integration24 tests проходят.

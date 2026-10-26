@@ -27,6 +27,7 @@ from . import skill_workflow as mobile
 from . import lab_skill_workflow as lab
 from .mobile_dataset_evidence import inspect_mobile_import
 from .cooperative_policy_adapters import QueuedNativeShadows
+from .cooperative_warm_service import CooperativeWarmService
 
 
 def _boot():return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
@@ -59,6 +60,7 @@ class CooperativeService:
         self.workflow=CooperativeWorkflow(self.root/'workflow',self.registry,self.recorder,self.inbox,
             clock_domain=self.domain,clock=clock,authority=self._authority,managed_root=store.root)
         self.queued_shadows=QueuedNativeShadows(store,self.root/'queued-shadows',current_session=self.workflow.snapshot)
+        self.warm_compute=CooperativeWarmService(store,clock=clock)
     @staticmethod
     def _origin(node):
         host=node.get('host');port=node.get('port')
@@ -312,6 +314,7 @@ bound first; default construction cannot turn on policy execution.
             'source':'existing_native_cache','online_verified_by_this_snapshot':False} for role,camera in (('giver','nano-rgbd'),('receiver','pi-overview'))}
         native_choices=self.native_choices()
         with self.lock:model_errors=deepcopy(self.model_errors)
+        warm_compute=self.warm_compute.snapshots(selected) if selected else []
         return {'schema':'explorer_cooperative_service_v1','workbench':workbench,'catalogue':self.workflow.catalogue(),
             'native_choices':native_choices,'pending_evidence':self.inbox.pending(),'cameras':cameras,
             'selected_session':selected,'native_episode_choices':self._episode_choices(selected) if selected else {'giver':[],'receiver':[]},
@@ -319,7 +322,8 @@ bound first; default construction cannot turn on policy execution.
             'model_source_errors':model_errors,
             'queued_native_shadows':self.queued_shadows.snapshots(selected) if selected else [],
             'queued_native_shadow_supported':True,
-            'persistent_warm_model_actor_ready':False,
+            'warm_compute_sessions':warm_compute,
+            'persistent_warm_model_actor_ready':any(row['compute_ready'] for row in warm_compute),
             'model_adapters_bound':{role:callable(self.models.get(role)) for role in ('giver','receiver')}}
     def artifact(self,kind,identity,role=None):
         if not isinstance(identity,str) or not re.fullmatch('[0-9a-f]{32}',identity):raise ValueError('Server-issued source artifact ID required')
@@ -419,13 +423,21 @@ idempotent; process restart never queues its missing half automatically.
         elif operation=='record_stage':result=self.workflow.record_stage(session,body.get('phase_id'))
         elif operation=='record_finish':result=self.workflow.record_finish(session,deepcopy(body.get('outcome') or {'status':'unknown'}))
         elif operation=='step':result=self.workflow.request_step(session,body.get('event'),expected_epoch=body.get('expected_epoch'))
-        elif operation=='stop':result=self.workflow.cancel_session(session)
+        elif operation=='stop':
+            result=self.workflow.cancel_session(session)
+            result['warm_compute_jobs_cancelled']=self.warm_compute.cancel_session(self.workflow.snapshot(session))
         elif operation=='confirm_evidence':result=self.inbox.confirm(body.get('challenge_id'),
             {key:body[key] for key in ('affirmed','observing','note') if key in body},authenticated_actor=authenticated_actor)
         elif operation=='shadow':
             row=self.workflow.snapshot(session);selected=self.workflow.skill(row['skill_id'],row['skill_version'])
             if not selected['confirmed']:raise ValueError('Confirm exact cooperative native model references first')
             result=self.queued_shadows.enqueue(row,selected['spec'],request_id=body.get('request_id'))
+        elif operation=='warm_models':
+            if self.root.resolve()!=(self.store.root/'cooperative05').resolve():raise ValueError('Canonical managed cooperative root required for scheduled warm compute')
+            row=self.workflow.snapshot(session);selected=self.workflow.skill(row['skill_id'],row['skill_version'])
+            if not selected['confirmed']:raise ValueError('Confirm exact native model references before warm compute')
+            result=self.warm_compute.enqueue(row,selected['spec'],request_id=body.get('request_id'),
+                compute_ttl_s=body.get('compute_ttl_s',120),authenticated_actor=authenticated_actor)
         elif operation=='attach_native_giver':result=self.attach_native_giver(session,body,authenticated_actor=authenticated_actor)
         elif operation=='review_recording':
             available=self._episode_choices(self.workflow.snapshot(session));references={}
@@ -442,6 +454,7 @@ idempotent; process restart never queues its missing half automatically.
         return {'result':result,'snapshot':self.snapshot(session)}
     def close(self):
         self.closed=True
+        self.warm_compute.close(self.workflow.process)
         with self.workflow.lock:self.workflow.closed=True
         for row in self.workflow.snapshot()['sessions']:
             if row.get('pending_operation'):self.inbox.cancel_run(row['session_id'])
