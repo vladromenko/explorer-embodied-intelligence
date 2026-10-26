@@ -89,12 +89,16 @@ def test_recorded_bundle_exact_binary_bytes_survive_export_and_independent_resto
     assert not result['scientific_success_claimed'] and not result['physical_io']
 
 
-@pytest.mark.parametrize('change',['missing_record','wrong_profile','manifest_sha','member_sha','extra_file','alias','traversal','over_budget','sqlite','secret'])
+@pytest.mark.parametrize('change',['missing_record','wrong_profile','manifest_sha','member_sha','extra_file','alias','traversal','over_budget','sqlite','secret','missing_capture_helper','helper_sha'])
 def test_unqualified_or_resealed_invalid_bundle_never_permits_opaque_binary(tmp_path,change):
     store,source,folder=sources(tmp_path);root,document,record=bundle(folder)
     if change=='missing_record':record['status']='NOT_RECORDED'
     elif change=='wrong_profile':document['profile']='UNREGISTERED_MODEL_PROFILE';reseal(root,document,record)
     elif change=='manifest_sha':record['manifest_sha256']='f'*64
+    elif change=='missing_capture_helper':
+        document['source_bindings']={'qualification_driver':document['source_bindings']['initial_capture_helper']};reseal(root,document,record)
+    elif change=='helper_sha':
+        document['runtime']['helper_sha256']='f'*64;reseal(root,document,record)
     elif change=='member_sha':(root/'compiled-model.mjb').write_bytes(b'CHANGED_MJB_BYTES')
     elif change=='extra_file':(root/'extra.bin').write_bytes(b'UNDECLARED_BINARY')
     elif change=='alias':
