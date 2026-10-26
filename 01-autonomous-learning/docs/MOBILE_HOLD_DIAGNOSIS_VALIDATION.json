@@ -1,0 +1,642 @@
+{
+  "raw_result_path": "/home/jetsonnx/.local/share/explorer/state/qualification/mobile-candy-kitchen-20261026/matched-hold-probe-v2/result.json",
+  "raw_result_sha256": "1874097e4ca449b50b593da0ec265ea567ee5fdbfc344c2daa589fd6d5e92c93",
+  "raw_result": {
+    "branches": {
+      "slow_smooth_transport": {
+        "actual_sim_seconds": 32.00000000003094,
+        "actuator_or_friction_settings_changed": false,
+        "base_displacement_m": 0.6227416504146384,
+        "continuous_bilateral_contact_max_s": 10.554,
+        "final_bilateral_contact": false,
+        "final_object_minus_jaw_xyz_m": [
+          0.47450802228793154,
+          0.042430635668278,
+          -0.2345353218544546
+        ],
+        "final_object_xyz_m": [
+          0.8490209034101568,
+          0.02386753818564886,
+          0.011892244579783854
+        ],
+        "first_five_joint_tracking_error_max_rad": 0.015226825648918165,
+        "first_five_joint_tracking_error_median_rad": 0.013849825054155256,
+        "first_height_loss_after_s": 10.618000000004809,
+        "gripper_contact_tracking_error_median_rad": 0.03765787236103668,
+        "held_base_displacement_max_m": 0.16164406152636818,
+        "jaw_and_joint_tracking_sample_basis": "same actual physics substep as contact/object/base channels; 2ms model integration period",
+        "native_initial_state_sha256": "6612fe83d651d436a85c0bbb91b1e09ee25091b94c0e1a60556482009ccb56d6",
+        "object_minus_jaw_change_m": 0.5190930336501308,
+        "pad_force_median_N": [
+          0.0,
+          0.0
+        ],
+        "physical_io": false,
+        "physically_validated": false,
+        "trajectory_sha256": "5273f0b4581475b9c35aa49cc153c789fde9458e64ff99c9c00de336d95d0c7c",
+        "wall_seconds": 35.691590868002095,
+        "whole_task_trial": false
+      },
+      "stationary_hold": {
+        "actual_sim_seconds": 32.00000000003094,
+        "actuator_or_friction_settings_changed": false,
+        "base_displacement_m": 1.1517859432427491e-06,
+        "continuous_bilateral_contact_max_s": 10.56,
+        "final_bilateral_contact": false,
+        "final_object_minus_jaw_xyz_m": [
+          0.02040933922764676,
+          0.02037338468515704,
+          -0.23411324596466124
+        ],
+        "final_object_xyz_m": [
+          1.0169821681514413,
+          0.028616869017322282,
+          0.01189224457978385
+        ],
+        "first_five_joint_tracking_error_max_rad": 0.015146866387304288,
+        "first_five_joint_tracking_error_median_rad": 0.01379704880047168,
+        "first_height_loss_after_s": 10.624000000004816,
+        "gripper_contact_tracking_error_median_rad": 0.03765780785481421,
+        "held_base_displacement_max_m": 6.758092322526955e-07,
+        "jaw_and_joint_tracking_sample_basis": "same actual physics substep as contact/object/base channels; 2ms model integration period",
+        "native_initial_state_sha256": "6612fe83d651d436a85c0bbb91b1e09ee25091b94c0e1a60556482009ccb56d6",
+        "object_minus_jaw_change_m": 0.22628319361827356,
+        "pad_force_median_N": [
+          0.0,
+          0.0
+        ],
+        "physical_io": false,
+        "physically_validated": false,
+        "trajectory_sha256": "711062f24aedf551fab070fe23cd4a2899393a6993e0deb7b1eef55003dded14",
+        "wall_seconds": 35.324619682003686,
+        "whole_task_trial": false
+      }
+    },
+    "implementation_sha256": "feb5df439f2facbf2102d37314d3986e4645be67bdd523f963127d89ba4a7eba",
+    "initial_snapshot_restoration_is_explicit": true,
+    "observed_statement": "Contact retention fails even in the matched stationary branch; base navigation alone does not explain the source failure",
+    "physical_io": false,
+    "scientific_hypotheses_status": "UNTESTED",
+    "scope": "one matched initial-state simulation diagnostic; not a complete task or physical experiment",
+    "source_diagnosis": {
+      "cause": "AMBIGUOUS_before_matched_hold_probe",
+      "heading_at_last_contact_rad": 0.00374194321450276,
+      "last_bilateral_base_xy_yaw": [
+        0.45310292410921266,
+        0.0010508098252107693,
+        0.00374194321450276
+      ],
+      "last_bilateral_object_xyz": [
+        0.6719287032458547,
+        -0.005153708370447935,
+        0.2248196180622791
+      ],
+      "last_bilateral_sim_time_s": 37.95600000000042,
+      "pad_force_prior_one_second_median_N": [
+        6.031270834932467,
+        6.018126365883463
+      ],
+      "prior_one_second_chassis_acceleration_RMS_m_s2": [
+        0.09019976151124208,
+        0.0836862843114488,
+        0.05305489091345904
+      ],
+      "prior_one_second_chassis_acceleration_peak_m_s2": [
+        0.4310596272263829,
+        0.33853445993229747,
+        0.2630803270694806
+      ],
+      "reconstructed_actual_native_state_samples": [
+        {
+          "first_five_joint_tracking_error_rad": [
+            -4.140685167024899e-05,
+            -0.010240784420545908,
+            -0.010526275074828173,
+            -0.0024479746174019823,
+            6.821643357418639e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.36865564694565567,
+          "object_minus_jaw_xyz_m": [
+            0.00990900799476968,
+            -0.0013512143793842132,
+            -0.019699343869188285
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 36.999999999999254
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            1.3591968910479924e-05,
+            -0.010480956172613437,
+            -0.010638851713670738,
+            -0.002446255141083764,
+            6.944493954169628e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.36863414750971457,
+          "object_minus_jaw_xyz_m": [
+            0.009842805357075601,
+            -0.001364765580462864,
+            -0.019752673661246778
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.049999999999315
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            2.6894012714787086e-05,
+            -0.010362058069579658,
+            -0.010641541482282468,
+            -0.002457281331587957,
+            7.022938678585833e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.368615484797149,
+          "object_minus_jaw_xyz_m": [
+            0.00988175733338148,
+            -0.0013789183451160822,
+            -0.019801758187145524
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.099999999999376
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            6.608874821434352e-05,
+            -0.01025252243997256,
+            -0.010534724161137876,
+            -0.002448391776678438,
+            7.070872974598852e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3686028508914113,
+          "object_minus_jaw_xyz_m": [
+            0.009868620519542293,
+            -0.0013881845456183298,
+            -0.01986588078818896
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.14999999999944
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            1.6387656475720658e-05,
+            -0.010502323729424539,
+            -0.010625756012555443,
+            -0.0024360401159735368,
+            6.904274521787879e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3685802235692339,
+          "object_minus_jaw_xyz_m": [
+            0.009935334804193618,
+            -0.0013894393755349678,
+            -0.019939414646138215
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.1999999999995
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            5.7499861430977683e-05,
+            -0.010505153783978765,
+            -0.010606091886804947,
+            -0.0024253055738243656,
+            6.992438912720167e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3685593541367107,
+          "object_minus_jaw_xyz_m": [
+            0.01006541518581483,
+            -0.001383459948570787,
+            -0.02000936260651265
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.24999999999956
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -7.190956545786303e-05,
+            -0.01075277645049153,
+            -0.010858620035643418,
+            -0.0024771152694442744,
+            6.822273291173797e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.36853655749883385,
+          "object_minus_jaw_xyz_m": [
+            0.010155226800711459,
+            -0.001377524487203463,
+            -0.020076366560693365
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.29999999999962
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -9.896724923667138e-05,
+            -0.01078451954707089,
+            -0.010787630175231988,
+            -0.002451812464058456,
+            6.598089911516447e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3685143557321784,
+          "object_minus_jaw_xyz_m": [
+            0.010118689225757205,
+            -0.0013837094192017275,
+            -0.020123330438615666
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.34999999999968
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -3.538423460736073e-05,
+            -0.010654430649284978,
+            -0.010682937156855532,
+            -0.002427174606389748,
+            6.721324710695642e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3684970286949958,
+          "object_minus_jaw_xyz_m": [
+            0.010116493641598834,
+            -0.0013819874885007064,
+            -0.02015958988135047
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.39999999999974
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -7.723794734313533e-05,
+            -0.01047451992391403,
+            -0.010642890760946044,
+            -0.002433769758815485,
+            6.749293109148402e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3684824350868514,
+          "object_minus_jaw_xyz_m": [
+            0.01014148917100055,
+            -0.0013745922242565708,
+            -0.02019422392400755
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.449999999999804
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -6.746037361270857e-05,
+            -0.010237011690247426,
+            -0.010523881013329128,
+            -0.00244766122939577,
+            6.766149802236998e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3684741318202682,
+          "object_minus_jaw_xyz_m": [
+            0.010006853952605699,
+            -0.0013998123312386071,
+            -0.020240350535009388
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.499999999999865
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            2.077170129002187e-05,
+            -0.010488589801769468,
+            -0.010644345016699863,
+            -0.0024476866569493883,
+            6.981565016200841e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3684524943801799,
+          "object_minus_jaw_xyz_m": [
+            0.009955983118027922,
+            -0.0014116552089157774,
+            -0.020293646778066193
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.549999999999926
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -4.510194664186784e-05,
+            -0.010462520855180252,
+            -0.010640362734094522,
+            -0.002445501955596008,
+            6.79661735219772e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3684342474269049,
+          "object_minus_jaw_xyz_m": [
+            0.010067812248065522,
+            -0.0014211539527725584,
+            -0.020343660638487332
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.59999999999999
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            7.481391460084641e-05,
+            -0.010199994598942292,
+            -0.010517390310137653,
+            -0.0024539452559018127,
+            7.117168519799044e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.36842182037316007,
+          "object_minus_jaw_xyz_m": [
+            0.010132302969224405,
+            -0.0014264977490501159,
+            -0.02040518501993785
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.65000000000005
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            2.2156189082196687e-05,
+            -0.010487288709404156,
+            -0.010619914599079627,
+            -0.0024364242860319685,
+            6.930818623634982e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3683997212472605,
+          "object_minus_jaw_xyz_m": [
+            0.010204788988177782,
+            -0.0014264493372968907,
+            -0.020478996637984637
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.70000000000011
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            5.371219936781829e-05,
+            -0.010508940537771717,
+            -0.010610344829239171,
+            -0.0024266423204193366,
+            6.995256415595619e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3683786599135461,
+          "object_minus_jaw_xyz_m": [
+            0.010303980248008049,
+            -0.0014223916811507923,
+            -0.020548967065682627
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.75000000000017
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -2.014047131010388e-05,
+            -0.010741357685765788,
+            -0.010846972289434986,
+            -0.0024726753631933995,
+            6.96742163008024e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3683562544067961,
+          "object_minus_jaw_xyz_m": [
+            0.010345685450179554,
+            -0.0014185677273163885,
+            -0.020618150421431225
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.80000000000023
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -0.00010495412272695098,
+            -0.010788007704136536,
+            -0.010797304717495182,
+            -0.002456550290847126,
+            6.603984362285598e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3683342137708867,
+          "object_minus_jaw_xyz_m": [
+            0.0102515377600354,
+            -0.0014302324765794235,
+            -0.020666639525240837
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.85000000000029
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -6.438602790694026e-05,
+            -0.010652613746789079,
+            -0.010680060795722479,
+            -0.0024272462681584894,
+            6.593611567848323e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3674438524621487,
+          "object_minus_jaw_xyz_m": [
+            0.010230046443821528,
+            -0.0013007834195396025,
+            -0.020773916606440845
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.900000000000354
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -7.453985634655463e-05,
+            -0.01046360237426362,
+            -0.010605789941316446,
+            -0.002424631183193915,
+            6.449869061952995e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.3641165056598509,
+          "object_minus_jaw_xyz_m": [
+            0.010477989661865195,
+            -0.0008829841998982341,
+            -0.0214364349224771
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 37.950000000000415
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -0.00017014608229230788,
+            -0.00928454815625935,
+            -0.009622610961327771,
+            -0.002196646269021274,
+            5.836881023202345e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.2647554890795888,
+          "object_minus_jaw_xyz_m": [
+            0.012551252090459375,
+            0.003895411691263018,
+            -0.03985138835426588
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 38.000000000000476
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            1.9315003953468413e-05,
+            -0.009548721908543324,
+            -0.009709882222038502,
+            -0.002151896385402585,
+            6.580604459713313e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.1480070590957956,
+          "object_minus_jaw_xyz_m": [
+            0.014934354495794055,
+            0.008558025966200318,
+            -0.08248045801488679
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 38.05000000000054
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -5.63766345975103e-05,
+            -0.009556753835848864,
+            -0.00970683002239403,
+            -0.002147856667316095,
+            6.44757195706891e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.042737228121811466,
+          "object_minus_jaw_xyz_m": [
+            0.017648847435734805,
+            0.013251514826482217,
+            -0.14988471839134568
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 38.1000000000006
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            8.69188801183654e-05,
+            -0.009215132301616264,
+            -0.009575176466242952,
+            -0.0021649662936065184,
+            6.820537387505765e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.03764986449404861,
+          "object_minus_jaw_xyz_m": [
+            0.020486668076008296,
+            0.017974898825418178,
+            -0.24025741873671375
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 38.15000000000066
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            2.4945255086200602e-05,
+            -0.0095363756251069,
+            -0.009684635215831183,
+            -0.002142753870496783,
+            6.603516117784092e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.03765775776813851,
+          "object_minus_jaw_xyz_m": [
+            0.022880123606424885,
+            0.019457312241444327,
+            -0.2420888359218246
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 38.20000000000072
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            4.4601890657851306e-05,
+            -0.009580713710824846,
+            -0.009688359056270635,
+            -0.002134581489196652,
+            6.63810377280194e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.037657710233951924,
+          "object_minus_jaw_xyz_m": [
+            0.02433288805133893,
+            0.020185708076369505,
+            -0.2353636488089453
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 38.25000000000078
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            3.3216350566397934e-05,
+            -0.009769934473651156,
+            -0.009882267358915175,
+            -0.0021689312211141676,
+            6.75721222171688e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.037658055305249905,
+          "object_minus_jaw_xyz_m": [
+            0.026228622211386887,
+            0.020891183557429735,
+            -0.23384053323383147
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 38.30000000000084
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -9.254311529141579e-05,
+            -0.009841882044679362,
+            -0.009863170663248044,
+            -0.002161854811371766,
+            6.315104931647886e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.03765814829656433,
+          "object_minus_jaw_xyz_m": [
+            0.02822026611272488,
+            0.021159973113249245,
+            -0.23392480034511015
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 38.350000000000904
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -3.669175364852395e-05,
+            -0.009726971195038245,
+            -0.009760814719729227,
+            -0.0021352896235546925,
+            6.400266719380765e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.037657960262376555,
+          "object_minus_jaw_xyz_m": [
+            0.03050540117608025,
+            0.021198959152210574,
+            -0.2343456829554332
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 38.400000000000965
+        },
+        {
+          "first_five_joint_tracking_error_rad": [
+            -3.124928571338753e-05,
+            -0.009596603610809315,
+            -0.009712834283038818,
+            -0.0021350258320935733,
+            6.471477965344641e-05
+          ],
+          "gripper_contact_tracking_error_rad": 0.037657854439052896,
+          "object_minus_jaw_xyz_m": [
+            0.033009061971884246,
+            0.021176099563361517,
+            -0.2347486877720246
+          ],
+          "phase": "navigate_held_object_inbound_through_door",
+          "sim_time_s": 38.450000000001026
+        }
+      ]
+    },
+    "source_initial_hold_verified_from_substep": 13599,
+    "source_native_index": 544,
+    "source_result": "/home/jetsonnx/.local/share/explorer/state/qualification/mobile-candy-kitchen-20261026/jobs/mobile-candy-scripted-v1/mobile-manipulation-result.json",
+    "source_result_sha256": "75a95c13b9b506885e3465a7cf7e9d31f2a93eb5eefc73b87c8de619c033df4c",
+    "source_sim_time_s": 27.399999999995693,
+    "source_trajectory_sha256": "8f5ffc12bff4c6a0283e8769e7c42f0d53b4807d79f0c4449f83fffd693e6577",
+    "source_xml_sha256": "0e759dca93bd84bc455e818df8df9d4891c9b60b2b1c5662796c2d4e144265df",
+    "state_forcing_during_branch": false
+  },
+  "observation_instrumentation_repeat_native_state_max_abs_error": {
+    "slow_smooth_transport": 0.0,
+    "stationary_hold": 0.0
+  },
+  "tests": {
+    "passed": 2,
+    "skipped": 0,
+    "elapsed_seconds": 0.45,
+    "command": "python -m pytest tests/test_mobile_hold_diagnosis.py -q"
+  },
+  "interpretation": "In this one matched simulated state, contact/height loss also occurs with the base stationary. Slower smoothed navigation did not repair retention. Exact contact/geometry/material/actuator-model mechanism remains AMBIGUOUS; no physics parameters altered."
+}
