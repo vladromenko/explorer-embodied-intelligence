@@ -1,0 +1,18 @@
+[Unit]
+Description=Explorer CPU-only ROS camera cache
+After=explorer-camera.service explorer-perception.service
+Conflicts=explorer-perception.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/.local/share/explorer/current
+Environment=EXPLORER_LEGACY_ROOT=%h/Explorer
+Environment=PYTHONDONTWRITEBYTECODE=1
+UMask=0077
+ExecStart=/bin/bash %h/.local/share/explorer/current/scripts/run_nano_camera_cache.sh --run
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=5
+
+[Install]
+WantedBy=default.target
