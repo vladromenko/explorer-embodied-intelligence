@@ -3,10 +3,12 @@ import hashlib
 import json
 import os
 import signal
+import shutil
 import sys
 import tarfile
 import time
 import traceback
+import uuid
 from pathlib import Path
 import httpx
 from explorer_shared.contracts import event
@@ -136,6 +138,44 @@ def station_import(store, job, config):
         lerobot_v3=exported,source_original_retained=True,physical_success_inferred=False)
 
 
+def retarget_import(store,job,config):
+    """Stream immutable raw evidence, preserving missing 9D labels as missing."""
+    from explorer_shared.retarget_recording import import_retarget_recording,identity
+    ident=identity(job['config']['episode_id'])
+    expected=job['config']['archive_sha256']
+    node=next(node for node in config['nodes'] if node['id']=='pi')
+    folder=store.root/'jobs'/job['id'];folder.mkdir(parents=True,exist_ok=True)
+    temporary=folder/('source-download-'+uuid.uuid4().hex+'.partial')
+    digest=hashlib.sha256();total=0
+    with httpx.Client(timeout=60,trust_env=False) as client:
+        with client.stream('GET','http://'+node['host']+':'+str(node['port'])+'/arm-retarget/recordings/'+ident+'/download',
+                headers={'Authorization':'Bearer '+node['token']}) as response:
+            response.raise_for_status()
+            if response.headers.get('X-Content-SHA256')!=expected:
+                raise ValueError('Direct recording download does not match the announced source SHA256')
+            with temporary.open('xb') as output:
+                for chunk in response.iter_bytes(128*1024):
+                    total+=len(chunk)
+                    if total>4*1024**3 or shutil.disk_usage(store.root).free < 1024**3+len(chunk):
+                        raise ValueError('Direct recording transfer exceeded its disk budget; source retained')
+                    digest.update(chunk);output.write(chunk)
+                output.flush();os.fsync(output.fileno())
+    if digest.hexdigest()!=expected:
+        raise ValueError('Direct recording transferred byte checksum differs from source')
+    artifact=store.root/'artifacts'/expected[:2]/(expected+'.tar');artifact.parent.mkdir(parents=True,exist_ok=True)
+    if artifact.exists():
+        with artifact.open('rb') as stream:
+            if hashlib.file_digest(stream,'sha256').hexdigest()!=expected:
+                raise ValueError('Previously retained direct recording artifact changed')
+        temporary.unlink()
+    else:temporary.replace(artifact)
+    destination=store.root/'episodes'/'retarget'/ident
+    result=import_retarget_recording(artifact,destination,expected_archive_sha256=expected)
+    original=destination/'source_originals'/'manifest.json'
+    return dict(result,episode_id=ident,source_archive_sha256=expected,artifact=str(artifact),
+        observation_manifest=str(original),archive_bytes=total,physical_success_inferred=False)
+
+
 def main(job_id):
     config = load()
     store = Store(config['data_dir'])
@@ -149,6 +189,8 @@ def main(job_id):
             result = recording(store, job, config)
         elif job['kind'] in ('station_import','mobile_import'):
             result = station_import(store,job,config)
+        elif job['kind']=='retarget_import':
+            result=retarget_import(store,job,config)
         elif job['kind'] in ('station_shadow','station_rollout'):
             from .station_runtime import run_station_policy
             def interrupted(signum,frame):
@@ -178,6 +220,10 @@ def main(job_id):
             sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
             from explorer_sim.fault_repair import run_fault_repair
             result=run_fault_repair(store,job,config)
+        elif job['kind']=='manipulation_curriculum':
+            sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
+            from explorer_sim.manipulation_curriculum import run_manipulation_curriculum
+            result=run_manipulation_curriculum(store,job,config)
         elif job['kind']=='program_trace':
             source=store.job(job['config'].get('source_job_id',''))
             if not source or source['kind']!='skill_cycle' or source['status']!='completed':
@@ -210,6 +256,8 @@ def main(job_id):
         else:
             raise ValueError('Unsupported job kind')
         result['execution_commit']=job['config'].get('_execution_commit')
+        if job['config'].get('_gpu_binding_sha256'):
+            result['gpu_binding_sha256']=job['config']['_gpu_binding_sha256']
         temporary=folder/'result.json.tmp'
         with temporary.open('w') as stream:
             json.dump(result,stream,ensure_ascii=False,indent=2,allow_nan=False)

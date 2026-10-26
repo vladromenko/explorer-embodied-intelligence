@@ -32,6 +32,11 @@ if not release.exists():
  with tarfile.open(fileobj=io.BytesIO(sys.stdin.buffer.read()),mode='r:gz') as tar:tar.extractall(stage,filter='data')
  (stage/'RELEASE_COMMIT').write_text(sys.argv[1]+'\\n')
  stage.rename(release)
+if len(sys.argv)>2 and sys.argv[2]=='stage-only':
+ for entry in [release,*release.rglob('*')]:
+  if not entry.is_symlink():entry.chmod(0o755 if entry.is_dir() or entry.stat().st_mode&0o111 else 0o644)
+ print(release)
+ sys.exit(0)
 current=b/'current'
 sources=[release]
 if current.is_symlink():sources.append(current.resolve())
@@ -74,6 +79,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--nodes', nargs='*', default=['homebrain','explorer-pi','explorer'])
     parser.add_argument('--dry-run', action='store_true', help='Print the exact managed-service scope without SSH or writes')
+    parser.add_argument('--stage-only',action='store_true',help='Install immutable source only; do not switch current or restart services')
     args = parser.parse_args()
     commit = subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     if args.dry_run:
@@ -82,8 +88,11 @@ def main():
         return
     archive = subprocess.check_output(['git','archive','--format=tar.gz',commit],cwd=ROOT)
     for host in args.nodes:
-        remote(host, ['python3','-c',INSTALL,commit], archive)
+        remote(host, ['python3','-c',INSTALL,commit]+(['stage-only'] if args.stage_only else []), archive)
         print(host + ': release ' + commit[:12])
+    if args.stage_only:
+        print('Source staged; current symlinks and all services unchanged.')
+        return
     main_env = 'PYTHONPATH=$HOME/.local/share/explorer/current/00-control-center/src:$HOME/.local/share/explorer/current/shared'
     init = 'import pathlib,subprocess,os\nh=pathlib.Path.home();b=h/".local/share/explorer";env=dict(os.environ,PYTHONPATH=str(b/"current/00-control-center/src")+":"+str(b/"current/shared"));c=h/".config/explorer/config.json"\nif not c.exists():subprocess.run([str(b/"venv/bin/python"),"-m","explorer.cli","init"],env=env,check=True)'
     remote('homebrain', ['python3','-c',init])

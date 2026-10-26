@@ -1,8 +1,12 @@
 "use strict";
 
 // ENGINEERING_GLUE: explicit operator-held direct Pi -> Nano, ARM_ONLY.
-const direct03 = { status: null, error: null, polling: false, busy: false, held: false, leasePending: false, sequence: 0, interrupt: 0, signature: "" };
+const direct03 = { status: null, error: null, polling: false, busy: false, held: false, leasePending: false, sequence: 0, interrupt: 0, signature: "", recordings: [], recordId: "", recordName: "Показ SO-101 → ROSMASTER", recordBusy: false };
 const direct03Route = () => window.location.pathname.replace(/\/$/, "") === "/experiments/03";
+function direct03RecordingPanel() {
+  const recording = direct03.status?.recording;
+  return `<section class="panel spaced-section"><div class="panel-heading"><h2>Запись прямого показа</h2><span class="badge neutral">Исходные наблюдения</span></div><div class="panel-body"><p class="form-description">Сохраняются измерения ведущей руки, обе cached-камеры, геометрия и настоящие ответы Nano. Полного причинного 9D-контракта пока нет: импорт остаётся материалом для анализа.</p><form id="direct03-record-form"><div class="form-field"><label for="direct03-record-name">Название показа</label><input id="direct03-record-name" maxlength="120" value="${esc(direct03.recordName)}" required></div><button class="button secondary" type="submit" ${direct03.status?.state === "ACTIVE" && !recording?.active && !direct03.recordBusy ? "" : "disabled"}>Начать запись показа</button></form>${direct03.recordId ? `<p>Мой показ: ${esc(direct03.recordId)}</p><div class="teleop-actions">${[["success","Получилось"],["failure","Не получилось"],["unknown","Без оценки"]].map(([value,label]) => `<button class="button secondary" type="button" data-direct03-outcome="${value}" ${direct03.recordBusy ? "disabled" : ""}>${label}</button>`).join("")}</div>` : recording?.active ? `<p class="form-hint">Есть активная запись другой вкладки. Её ID не заменяет ID вашего показа.</p>` : ""}<p class="form-hint">Оценка сохраняется как отметка оператора. Успех не превращает отсутствующие состояния или команды базы в учебные цели.</p>${direct03.recordings.slice(0,6).map((entry) => `<article class="recording-row"><div><h3>${esc(entry.name)}</h3><p>${esc(entry.recording_id)} · ${count(entry.samples_written)} измерений · ${esc(entry.state)}</p><p class="form-hint">${esc(entry.outcome)} · только анализ · исходные JPEG и clocks сохранены</p></div>${entry.archive_sha256 ? `<button class="button small secondary" type="button" data-direct03-import="${esc(entry.recording_id)}" data-archive-sha="${esc(entry.archive_sha256)}">Импортировать</button>` : ""}</article>`).join("")}</div></section>`;
+}
 function direct03Panel() {
   const status = direct03.status || {};
   const active = status.state === "ACTIVE";
@@ -16,8 +20,9 @@ async function pollDirect03() {
   direct03.polling = true;
   try {
     const status = await api("/api/retarget/status");
-    const signature = JSON.stringify([status.state, status.control_epoch, status.registration?.registration_sha256, status.registration?.missing, status.error, status.last_result?.target_receipt?.state]);
+    const signature = JSON.stringify([status.state, status.control_epoch, status.registration?.registration_sha256, status.registration?.missing, status.error, status.last_result?.target_receipt?.state, status.recording, direct03.recordings.map((entry) => [entry.recording_id, entry.state, entry.archive_sha256])]);
     direct03.status = status; direct03.error = null;
+    if (!direct03.lastRecordsAt || Date.now() - direct03.lastRecordsAt > 3000) { const catalog = await api("/api/retarget/recordings"); direct03.recordings = array(catalog.recordings); direct03.lastRecordsAt = Date.now(); }
     if (signature !== direct03.signature && !direct03.held) { direct03.signature = signature; model.forceRender = true; render(); }
   } catch (error) {
     if (direct03.error !== error.message) { direct03.error = error.message; if (!direct03.held) { model.forceRender = true; render(); } }
@@ -70,3 +75,25 @@ document.addEventListener("visibilitychange", () => { if (document.hidden && (di
 document.addEventListener("click", (event) => { if (event.target.closest("a[data-link]") && direct03.status?.state === "ACTIVE") direct03Stop(); });
 setInterval(direct03Lease, 150);
 setInterval(pollDirect03, 650);
+
+document.addEventListener("input", (event) => { if (event.target.id === "direct03-record-name") direct03.recordName = event.target.value; });
+document.addEventListener("submit", async (event) => {
+  if (event.target.id !== "direct03-record-form") return;
+  event.preventDefault(); if (direct03.recordBusy) return;
+  direct03.recordBusy = true;
+  try { const result = await post("/api/retarget/record/start", { expected_control_epoch: direct03.status?.control_epoch, observing: true, name: direct03.recordName }); direct03.recordId = result.recording_id; }
+  catch (error) { toast(error.message, true); }
+  finally { direct03.recordBusy = false; model.forceRender = true; render(); }
+});
+document.addEventListener("click", async (event) => {
+  const finish = event.target.closest("button[data-direct03-outcome]");
+  const imported = event.target.closest("button[data-direct03-import]");
+  if ((!finish && !imported) || direct03.recordBusy) return;
+  direct03.recordBusy = true;
+  try {
+    if (finish && direct03.recordId) { await post("/api/retarget/record/finish", { recording_id: direct03.recordId, outcome: finish.dataset.direct03Outcome }); direct03.recordId = ""; toast("Исход показа сохранён; архив упаковывается отдельно."); }
+    if (imported) { await post("/api/retarget/import", { recording_id: imported.dataset.direct03Import, archive_sha256: imported.dataset.archiveSha }); toast("Импорт исходных наблюдений поставлен в очередь."); }
+    direct03.lastRecordsAt = 0;
+  } catch (error) { toast(error.message, true); }
+  finally { direct03.recordBusy = false; model.forceRender = true; render(); }
+});

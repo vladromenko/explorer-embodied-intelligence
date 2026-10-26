@@ -141,14 +141,36 @@ def _evaluation_source(store, job):
     return dict(source, import_job_id=job['id'], created=job['created'])
 
 
+def _retarget_source(store,job):
+    """Raw direct teaching can be reviewed, while missing target labels stay blocked."""
+    result,root=job.get('result') or {},Path(store.root).resolve()
+    manifest_path=_local(root,result.get('observation_manifest'))
+    manifest=json.loads(manifest_path.read_text())
+    if manifest.get('format')!='explorer_direct_retarget_observations_v1' or manifest.get('recording_id')!=job['config'].get('episode_id'):
+        raise ValueError('Original retarget recording identity differs')
+    for name,expected in result['source_files_sha256'].items():
+        source=_local(root,str(manifest_path.parent/name))
+        if not source.is_relative_to(manifest_path.parent) or _sha(source)!=expected:
+            raise ValueError('Original retarget recording checksum mismatch')
+    source=dict(source_key=digest(dict(project_id=job['project_id'],episode_id=manifest['recording_id'],kind='demonstration')),
+        source_kind='demonstration',episode_id=manifest['recording_id'],source_manifest_sha256=_sha(manifest_path),
+        source_archive_sha256=result['source_archive_sha256'],source_outcome=manifest.get('outcome','unknown'),
+        source_training_usable=False,action_basis=manifest['action_basis'],split='analysis_only',
+        frames=manifest.get('unique_source_frames',0)+manifest.get('unique_target_frames',0),
+        recording_complete=manifest.get('state')=='completed',integrity_verified=True,
+        annotation_basis='operator_review_not_sensor_ground_truth',block_reasons=result.get('block_reasons',[]))
+    source['source_fingerprint']=digest(source)
+    return dict(source,import_job_id=job['id'],created=job['created'])
+
+
 def sources(store, project_id):
     """Catalogue retained completed imports, deduplicated by original recording."""
     _scope(project_id)
     found, invalid, conflicts = {}, [], set()
     for job in sorted(store.jobs(10000), key=lambda row: (row['created'], row['id'])):
-        if job['project_id'] == project_id and job['status'] == 'completed' and job['kind'] in ('station_import', 'mobile_import', 'station_rollout'):
+        if job['project_id'] == project_id and job['status'] == 'completed' and job['kind'] in ('station_import', 'mobile_import', 'retarget_import', 'station_rollout'):
             try:
-                source = _evaluation_source(store, job) if job['kind'] == 'station_rollout' else _source(store, job)
+                source = _evaluation_source(store, job) if job['kind'] == 'station_rollout' else _retarget_source(store,job) if job['kind']=='retarget_import' else _source(store, job)
                 key = source['source_key']
                 if key in found and found[key]['source_fingerprint'] != source['source_fingerprint']:
                     conflicts.add(key)

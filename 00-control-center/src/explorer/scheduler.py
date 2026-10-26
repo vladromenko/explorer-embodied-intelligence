@@ -1,6 +1,5 @@
 """ENGINEERING_GLUE: independent durable resource scheduler; no robot I/O."""
 import fcntl
-import hashlib
 import json
 import os
 import signal
@@ -10,7 +9,7 @@ import time
 import psutil
 from pathlib import Path
 
-HEAVY_JOBS = ('sim_pilot', 'train_act', 'world_model', 'dagger', 'skill_cycle', 'manipulation', 'manipulation_student', 'manipulation_benchmark', 'policy_transfer', 'fault_repair')
+HEAVY_JOBS = ('sim_pilot', 'train_act', 'world_model', 'dagger', 'skill_cycle', 'manipulation', 'manipulation_student', 'manipulation_benchmark', 'manipulation_curriculum', 'policy_transfer', 'fault_repair')
 PHYSICAL_JOBS = ('station_rollout', 'handover_physical')
 
 
@@ -65,33 +64,24 @@ def admission(job, resources):
         'runtime_reserve_bytes':int(2.5*gib)}
 
 
-def executable_for(job):
+def executable_for(job,release=None,store=None):
     if job['kind'] in ('train_act','sim_pilot','manipulation_student') and job.get('config',{}).get('device')=='cuda':
+        from .qualification_bindings import qualified_gpu_binding
+        if release is None:
+            raise ValueError('GPU dispatch requires the resolved pinned source release')
         runtime=Path.home()/'.local/share/explorer/gpu-venv/bin/python'
-        evidence=Path.home()/'.local/share/explorer/state/qualification/act-cu132-fp32-20261026/qualification.json'
-        if not runtime.is_file() or not evidence.is_file() or not json.loads(evidence.read_text()).get('passed'):
-            raise ValueError('The selected GPU runtime has not passed its actual ACT qualification')
-        if job['kind']=='manipulation_student':
-            qualification=Path.home()/'.local/share/explorer/state/qualification/manipulation-act9-cuda-20261026/qualification.json'
-            source=Path(__file__).resolve().parents[3]/'01-autonomous-learning/src/explorer_sim/manipulation_student.py'
-            if not qualification.is_file():
-                raise ValueError('Nine-axis manipulation CUDA path requires its own actual qualification')
-            receipt=json.loads(qualification.read_text())
-            if not receipt.get('passed') or receipt.get('implementation_sha256')!=hashlib.sha256(source.read_bytes()).hexdigest():
-                raise ValueError('Nine-axis CUDA qualification does not match this implementation')
-        return str(runtime)
+        selection=qualified_gpu_binding(job,release,runtime,
+            Path.home()/'.local/share/explorer/state/qualification/immutable-source-bindings',
+            required_binding_sha256=job.get('config',{}).get('_gpu_binding_sha256'))
+        if store is not None:
+            store.pin_job_gpu_binding(job['id'],selection['execution_commit'],selection['binding_sha256'])
+        return selection['executable']
     return sys.executable
 
 
 def execution_environment(config,store,job):
-    current=Path(config['root']).resolve()
-    marker=current/'RELEASE_COMMIT'
-    if not marker.is_file():
-        raise ValueError('Durable jobs require a commit-addressed Explorer deployment')
-    pinned=store.pin_job_release(job['id'],marker.read_text().strip())
-    release=current.parent/pinned
-    if release.resolve().parent!=current.parent or not (release/'RELEASE_COMMIT').is_file() or (release/'RELEASE_COMMIT').read_text().strip()!=pinned:
-        raise ValueError('Pinned execution release is unavailable; job source will not be silently replaced')
+    from .qualification_bindings import resolve_job_release
+    release=resolve_job_release(config,store,job)
     return dict(os.environ,PYTHONPATH=str(release/'00-control-center/src')+':'+str(release/'shared'))
 
 
@@ -131,10 +121,10 @@ def supervise(config, store):
             elif process is None and job['status'] in ('queued', 'resume_requested'):
                 training = job['kind'] in HEAVY_JOBS
                 inference=job['kind'] in ('station_shadow','station_rollout')
-                data_job=job['kind'] in ('station_import','mobile_import','camera_recording','program_trace')
+                data_job=job['kind'] in ('station_import','mobile_import','retarget_import','camera_recording','program_trace')
                 busy = any(store.job(key)['kind'] in HEAVY_JOBS for key in processes)
                 inference_busy=any(store.job(key)['kind'] in ('station_shadow','station_rollout') for key in processes)
-                data_busy=any(store.job(key)['kind'] in ('station_import','mobile_import','camera_recording','program_trace') for key in processes)
+                data_busy=any(store.job(key)['kind'] in ('station_import','mobile_import','retarget_import','camera_recording','program_trace') for key in processes)
                 capacity = admission(job,host_resources(store.root))
                 if not capacity['admitted']:
                     previous=job.get('result') or {}
@@ -145,7 +135,9 @@ def supervise(config, store):
                     folder = store.root / 'jobs' / job_id
                     folder.mkdir(parents=True, exist_ok=True)
                     try:
-                        executable=executable_for(job)
+                        from .qualification_bindings import resolve_job_release
+                        release=resolve_job_release(config,store,job)
+                        executable=executable_for(store.job(job_id),release,store)
                         environment=execution_environment(config,store,job)
                         with (folder / 'worker.log').open('ab') as log:
                             process = subprocess.Popen([executable, '-m', 'explorer.job_runner', job_id],

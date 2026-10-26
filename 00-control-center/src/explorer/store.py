@@ -69,19 +69,42 @@ class Store:
                 (job_id, kind, project_id, 'queued', now, now, json.dumps(config, allow_nan=False)))
         return self.job(job_id)
 
-    def create_import_job(self,kind,project_id,episode_id):
-        if kind not in ('station_import','mobile_import'):
+    def create_import_job(self,kind,project_id,episode_id,source_sha256=None):
+        if kind not in ('station_import','mobile_import','retarget_import'):
             raise ValueError('Unknown immutable import kind')
+        settings={'episode_id':episode_id}
+        if kind=='retarget_import':
+            if not isinstance(source_sha256,str) or not re.fullmatch('[0-9a-f]{64}',source_sha256):
+                raise ValueError('Direct teaching import requires the immutable source archive SHA256')
+            settings['archive_sha256']=source_sha256
         job_id=uuid.uuid4().hex
         now=time.time()
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')
-            previous=db.execute("SELECT * FROM jobs WHERE kind=? AND json_extract(config,'$.episode_id')=? ORDER BY created LIMIT 1",(kind,episode_id)).fetchone()
+            previous=db.execute("SELECT * FROM jobs WHERE kind=? AND json_extract(config,'$.episode_id')=? ORDER BY created DESC LIMIT 1",(kind,episode_id)).fetchone()
             if previous:
+                if kind=='retarget_import' and json.loads(previous['config']).get('archive_sha256')!=source_sha256:
+                    raise ValueError('Conflicting direct teaching archive for the same original recording')
                 return self.decode_job(previous)
             db.execute('INSERT INTO jobs(id,kind,project_id,status,created,updated,config) VALUES (?,?,?,?,?,?,?)',
-                (job_id,kind,project_id,'queued',now,now,json.dumps({'episode_id':episode_id})))
+                (job_id,kind,project_id,'queued',now,now,json.dumps(settings)))
         return self.job(job_id)
+
+    def retry_import_job(self,job_id):
+        """An explicit copy retry has its own lineage; the failed attempt is retained."""
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            old=db.execute('SELECT * FROM jobs WHERE id=?',(job_id,)).fetchone()
+            if old is None or old['kind'] not in ('station_import','mobile_import','retarget_import') or old['status'] not in ('failed','cancelled'):
+                raise ValueError('Only a terminal failed/cancelled data import can be retried')
+            child=db.execute("SELECT * FROM jobs WHERE json_extract(config,'$.retry_of_job_id')=? ORDER BY created DESC LIMIT 1",(job_id,)).fetchone()
+            if child:return self.decode_job(child)
+            settings=json.loads(old['config']);settings.pop('_execution_commit',None)
+            settings['retry_of_job_id']=job_id
+            ident=uuid.uuid4().hex;now=time.time()
+            db.execute('INSERT INTO jobs(id,kind,project_id,status,created,updated,config) VALUES (?,?,?,?,?,?,?)',
+                (ident,old['kind'],old['project_id'],'queued',now,now,json.dumps(settings)))
+        return self.job(ident)
 
     def pin_job_release(self,job_id,commit):
         if not re.fullmatch('[0-9a-f]{40}',commit):
@@ -100,6 +123,23 @@ class Store:
             if not isinstance(pinned,str) or not re.fullmatch('[0-9a-f]{40}',pinned):
                 raise ValueError('Stored execution release identity is invalid')
         return pinned
+
+    def pin_job_gpu_binding(self,job_id,commit,binding_sha256):
+        if not re.fullmatch('[0-9a-f]{64}',binding_sha256):
+            raise ValueError('GPU binding requires its immutable SHA256')
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            row=db.execute('SELECT config FROM jobs WHERE id=?',(job_id,)).fetchone()
+            if row is None:raise ValueError('Unknown job')
+            settings=json.loads(row['config'])
+            if settings.get('_execution_commit')!=commit:
+                raise ValueError('GPU source binding differs from pinned execution source')
+            previous=settings.get('_gpu_binding_sha256')
+            if previous is not None and previous!=binding_sha256:
+                raise ValueError('Existing GPU qualification binding cannot silently change')
+            settings['_gpu_binding_sha256']=binding_sha256
+            db.execute('UPDATE jobs SET config=? WHERE id=?',(json.dumps(settings),job_id))
+        return binding_sha256
 
     def complete_job(self,job_id,result):
         with self.connect() as db:

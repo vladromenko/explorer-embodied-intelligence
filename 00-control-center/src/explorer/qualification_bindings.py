@@ -37,7 +37,7 @@ def release_identity(release):
     release=Path(release).resolve()
     marker=release/'RELEASE_COMMIT'
     if not re.fullmatch('[0-9a-f]{40}',release.name) or not marker.is_file() or marker.read_text().strip()!=release.name:
-        raise ValueError('GPU qualification requires the resolved commit-addressed execution release')
+        raise ValueError('Execution release is unavailable or is not commit-addressed')
     return release
 
 

@@ -2086,6 +2086,161 @@
         }
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-DIRECT-RETARGET-RAW-RECORDING-001",
+      "function_or_module": "shared/explorer_shared/retarget_recording.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/RECORDING_IMPORT_RU.md",
+          "role": "Existing contracts and retained explicit engineering evidence"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Cached two-camera/leader/retarget receipts with independent clocks and fsynced raw archives. Missing target state/dispatch/full9D remains analysis-only, never expert labels.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest tests/test_retarget_recording.py -q",
+          "result": "13 producer/archive/central-import tests, plus78 route/camera/mobile/station regressions",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-MANIPULATION-BC-PPO-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/manipulation_curriculum.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:01-autonomous-learning/docs/MANIPULATION_CURRICULUM_VALIDATION.json",
+          "role": "Existing contracts and retained explicit engineering evidence"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Phase-balanced supervised warmstart from actual dispatches, maintained SB3 PPO and independent full-task evaluation. PPO regression rejected; full success0/2.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest 01-autonomous-learning/tests/test_manipulation_curriculum.py -q",
+          "result": "7 passed; real2000BC/2048PPO and96optimizersteps",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-MOBILE-CANDY-KITCHEN-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/mobile_manipulation.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:01-autonomous-learning/docs/MOBILE_MANIPULATION_VALIDATION.json",
+          "role": "Existing contracts and retained explicit engineering evidence"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Real finite wheel/arm9D actions, doorway navigation and full-object independent scoring; scripted baseline, not learned policy, whole tasks failed and exact replay0.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest 01-autonomous-learning/tests/test_mobile_manipulation.py -q",
+          "result": "11 passed; two1476/1475action native-physics attempts",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-MOBILE-CANDY-PHYSICS-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/mobile_manipulation_env.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:01-autonomous-learning/docs/MOBILE_MANIPULATION_RU.md",
+          "role": "Existing contracts and retained explicit engineering evidence"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Preserved CAD/passive rollers/candy contacts with new simulation room geometry and no welded grasp/base or qposforcing.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest 01-autonomous-learning/tests/test_mobile_manipulation.py -q",
+          "result": "11 passed, real finite wheel drive and independent full-task predicates",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-PINNED-GPU-QUALIFICATION-001",
+      "function_or_module": "00-control-center/src/explorer/qualification_bindings.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CROSS_SOURCE_REVIEW_20261026.md",
+          "role": "Existing contracts and retained explicit engineering evidence"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Immutable actual result/source/runtime bindings selected after resolving execution release; isolated proof catches latest-checkout/pinned-worker mismatch.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest tests/test_gpu_source_binding.py -q",
+          "result": "8 focused software-only qualification provenance regressions",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

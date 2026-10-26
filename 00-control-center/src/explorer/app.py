@@ -4,6 +4,7 @@ import csv
 import hashlib
 import hmac
 import json
+import re
 import secrets
 import shutil
 import time
@@ -36,6 +37,12 @@ async def poll_nodes():
             response.raise_for_status()
             payload=response.json()
             STORE.update_node(node['id'],payload)
+            if node['id']=='pi':
+                direct=await CLIENT.get('http://'+node['host']+':'+str(node['port'])+'/arm-retarget/recordings',headers={'Authorization':'Bearer '+node['token']})
+                if direct.status_code==200:
+                    for recording in direct.json().get('recordings',[]):
+                        if recording.get('archive_sha256'):
+                            STORE.create_import_job('retarget_import','03',recording['recording_id'],recording['archive_sha256'])
             capture=payload.get('mobile_observation') or {}
             imported={job['config'].get('episode_id') for job in STORE.jobs(10000) if job['kind']=='mobile_import'}
             for recording_id in capture.get('ready_recording_ids',[]):
@@ -253,6 +260,9 @@ async def ingest(request: Request):
     try:
         body = await request.json()
         added = STORE.ingest(body)
+        payload=body['payload']
+        if body['node_id']=='pi' and payload.get('kind')=='retarget.recording.finished':
+            STORE.create_import_job('retarget_import','03',payload['recording_id'],payload['archive_sha256'])
         return {'ok':True, 'inserted':added, 'event_id':body['event_id']}
     except (ValueError, TypeError) as error:
         raise HTTPException(400, str(error))
@@ -290,18 +300,18 @@ def datasets():
 @app.post('/api/jobs')
 async def create_job(request: Request):
     body = await request.json()
-    if body.get('kind') not in ('sim_pilot', 'train_act', 'dagger','skill_cycle','program_trace','world_model','virtual_transfer', 'handover_test','handover_runtime_test','station_shadow','station_rollout','manipulation','manipulation_student','manipulation_benchmark','policy_transfer','fault_repair') or body.get('project_id') not in (*TITLES.keys(),'personal'):
+    if body.get('kind') not in ('sim_pilot', 'train_act', 'dagger','skill_cycle','program_trace','world_model','virtual_transfer', 'handover_test','handover_runtime_test','station_shadow','station_rollout','manipulation','manipulation_student','manipulation_benchmark','manipulation_curriculum','policy_transfer','fault_repair') or body.get('project_id') not in (*TITLES.keys(),'personal'):
         raise HTTPException(400, 'Unsupported job')
     config = body.get('config', {})
     if not isinstance(config, dict):
         raise HTTPException(400, 'Job configuration must be an object')
-    if '_execution_commit' in config:
+    if '_execution_commit' in config or '_gpu_binding_sha256' in config:
         raise HTTPException(400,'Execution provenance is assigned by the worker')
-    if body['kind'] in ('world_model','dagger','skill_cycle','manipulation','manipulation_benchmark','policy_transfer','fault_repair') and config.get('device','cpu')!='cpu':
+    if body['kind'] in ('world_model','dagger','skill_cycle','manipulation','manipulation_benchmark','manipulation_curriculum','policy_transfer','fault_repair') and config.get('device','cpu')!='cpu':
         raise HTTPException(400,'This engineering benchmark currently uses the verified CPU path')
     if body['kind']=='manipulation_student' and config.get('device','cpu') not in ('cpu','cuda'):
         raise HTTPException(400,'Unsupported manipulation learner device')
-    if body['kind'] in ('manipulation','manipulation_student','manipulation_benchmark','fault_repair'):
+    if body['kind'] in ('manipulation','manipulation_student','manipulation_benchmark','manipulation_curriculum','fault_repair'):
         if body['project_id'] != '01':
             raise HTTPException(400,'Manipulation belongs to experiment 01')
         if body['kind']!='fault_repair' and config.get('task','candy_to_tray') not in ('candy_to_tray','sock_to_basket'):
@@ -328,10 +338,13 @@ async def job_operation(job_id: str, operation: str):
     job = STORE.job(job_id)
     if not job:
         raise HTTPException(404)
+    if operation=='retry':
+        try:return STORE.retry_import_job(job_id)
+        except ValueError as error:raise HTTPException(409,str(error)) from error
     desired = {'pause':'pause_requested', 'resume':'resume_requested', 'cancel':'cancel_requested'}
     if operation not in desired or job['status'] in ('completed', 'failed', 'cancelled'):
         raise HTTPException(409, 'Operation is not valid for this job')
-    if operation in ('pause','resume') and job['kind'] not in ('sim_pilot','train_act','world_model','dagger','skill_cycle','manipulation','manipulation_student','manipulation_benchmark','policy_transfer','fault_repair'):
+    if operation in ('pause','resume') and job['kind'] not in ('sim_pilot','train_act','world_model','dagger','skill_cycle','manipulation','manipulation_student','manipulation_benchmark','manipulation_curriculum','policy_transfer','fault_repair'):
         raise HTTPException(409,'Pause and resume apply to training. Stop an interactive attempt and start a fresh one.')
     STORE.update_job(job_id, status=desired[operation])
     if operation=='cancel' and job['kind']=='station_rollout' and (job.get('result') or {}).get('control_epoch'):
@@ -377,14 +390,37 @@ async def demonstration_review(request: Request):
         raise HTTPException(409,str(error)) from error
 
 
-@app.api_route('/api/retarget/{operation}',methods=['GET','POST'])
+@app.api_route('/api/retarget/{operation:path}',methods=['GET','POST'])
 async def retarget_proxy(operation: str,request: Request):
-    if (request.method=='GET' and operation!='status') or (request.method=='POST' and operation not in ('start','recenter','lease','stop')):
+    get_allowed=operation in ('status','recordings') or re.fullmatch(r'recordings/[0-9a-f]{32}/(manifest|download)',operation)
+    if (request.method=='GET' and not get_allowed) or (request.method=='POST' and operation not in ('start','recenter','lease','stop','record/start','record/finish','import')):
         raise HTTPException(404)
+    if operation=='import':
+        body=await request.json()
+        if not isinstance(body,dict) or not isinstance(body.get('recording_id'),str) or not re.fullmatch('[0-9a-f]{32}',body['recording_id']):
+            raise HTTPException(400,'Invalid original direct recording identity')
+        try:
+            job=STORE.create_import_job('retarget_import','03',body['recording_id'],body.get('archive_sha256'))
+            return STORE.retry_import_job(job['id']) if job['status'] in ('failed','cancelled') else job
+        except ValueError as error:
+            raise HTTPException(409,str(error)) from error
     node=next((node for node in CONFIG['nodes'] if node['id']=='pi'),None)
     if node is None:
         raise HTTPException(503,'Raspberry Pi is not configured')
     try:
+        if operation.endswith('/download'):
+            upstream=await CLIENT.send(CLIENT.build_request('GET','http://'+node['host']+':'+str(node['port'])+'/arm-retarget/'+operation,
+                headers={'Authorization':'Bearer '+node['token']}),stream=True)
+            if upstream.status_code!=200:
+                await upstream.aclose()
+                raise HTTPException(503,'Direct recording is not ready for transfer')
+            async def data():
+                try:
+                    async for chunk in upstream.aiter_bytes():
+                        yield chunk
+                finally:
+                    await upstream.aclose()
+            return StreamingResponse(data(),media_type='application/x-tar',headers={'X-Content-SHA256':upstream.headers.get('X-Content-SHA256','')})
         response=await CLIENT.request(request.method,'http://'+node['host']+':'+str(node['port'])+'/arm-retarget/'+operation,
             headers={'Authorization':'Bearer '+node['token']},json=await request.json() if request.method=='POST' else None)
         return JSONResponse(response.json(),response.status_code)

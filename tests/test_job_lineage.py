@@ -66,3 +66,17 @@ def test_ui_counts_actual_optimizer_receipts_not_requested_budget(tmp_path):
     assert 'completed_updates' not in store.job(job['id'])
     receipt.write_text('[1]')
     assert 'completed_updates' not in store.job(job['id'])
+
+
+def test_explicit_data_retry_preserves_original_failure_source_and_single_child(tmp_path):
+    store=Store(tmp_path)
+    original=store.create_import_job('retarget_import','03','a'*32,'b'*64)
+    store.pin_job_release(original['id'],'c'*40)
+    store.update_job(original['id'],status='failed',error='Interrupted network transfer')
+    retried=store.retry_import_job(original['id'])
+    assert retried['id']!=original['id'] and retried['config']['archive_sha256']=='b'*64
+    assert retried['config']['retry_of_job_id']==original['id'] and '_execution_commit' not in retried['config']
+    assert store.job(original['id'])['status']=='failed'
+    assert store.retry_import_job(original['id'])['id']==retried['id']
+    assert store.create_import_job('retarget_import','03','a'*32,'b'*64)['id']==retried['id']
+    with pytest.raises(ValueError):store.retry_import_job(retried['id'])

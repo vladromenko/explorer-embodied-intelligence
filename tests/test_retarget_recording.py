@@ -300,3 +300,40 @@ def test_writer_queue_overflow_is_counted_and_cannot_block_control(tmp_path):
         recorder.finish(ident,'unknown');release.set();saved=wait_finished(recorder,ident)
         assert saved['samples_written']==1 and saved['samples_dropped']==1 and saved['attempted_sample_tickets']==2
     finally:release.set();recorder.close();delivery.close()
+
+
+def test_completion_event_creates_one_streamed_central_import_and_never_expert_labels(tmp_path,monkeypatch):
+    import httpx
+    from fastapi.testclient import TestClient
+    import explorer.app as app_module
+    from explorer.store import Store
+    from explorer.job_runner import retarget_import
+    from explorer.demonstration_wizard import plan
+    recorder,camera,delivery=make_recorder(tmp_path/'pi')
+    try:
+        ident=start(recorder)['recording_id'];append(recorder,camera)
+        recorder.finish(ident,'success');saved=wait_finished(recorder,ident)
+        event=delivery.outbox.pending()[0]['payload']
+        store=Store(tmp_path/'central')
+        monkeypatch.setattr(app_module,'STORE',store)
+        monkeypatch.setattr(app_module,'CONFIG',{'ingest_token':'fixture-ingest-token','nodes':[]})
+        with TestClient(app_module.app) as client:
+            for _ in range(2):
+                response=client.post('/api/events',json=event,headers={'Authorization':'Bearer fixture-ingest-token'})
+                assert response.status_code==200
+        jobs=store.jobs();assert len(jobs)==1 and jobs[0]['kind']=='retarget_import'
+        assert jobs[0]['config']['archive_sha256']==saved['archive_sha256']
+        original=httpx.Client
+        def transport(request):
+            assert request.url.path=='/arm-retarget/recordings/'+ident+'/download'
+            return httpx.Response(200,content=recorder.archive(ident).read_bytes(),headers={'X-Content-SHA256':saved['archive_sha256']})
+        monkeypatch.setattr(httpx,'Client',lambda *args,**kwargs:original(*args,**dict(kwargs,transport=httpx.MockTransport(transport))))
+        result=retarget_import(store,jobs[0],{'nodes':[{'id':'pi','host':'software-pi-fixture','port':8091,'token':TOKEN}]})
+        store.complete_job(jobs[0]['id'],result)
+        assert not result['BC_targets_created'] and result['dataset_manifest'] is None
+        observed=plan(store,'03')
+        assert len(observed['sources'])==1 and not observed['sources'][0]['source_training_usable']
+        assert observed['counts']['approved_demonstrations']==0
+        with pytest.raises(ValueError,match='Conflicting'):
+            store.create_import_job('retarget_import','03',ident,'f'*64)
+    finally:recorder.close();delivery.close()
