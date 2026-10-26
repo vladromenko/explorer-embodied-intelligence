@@ -80,6 +80,15 @@ def _board(spec):
     return board
 
 
+def board_geometry(board_spec=None):
+    """Known printed-board coordinates, not inferred camera/robot coordinates."""
+    spec=dict(DEFAULT_BOARD if board_spec is None else board_spec);board=_board(spec)
+    width=spec['squares_x']*spec['square_length_m'];height=spec['squares_y']*spec['square_length_m']
+    return dict(board_spec_sha256=sha(canonical(spec)),inner_corners_m=board.getChessboardCorners().astype(float).tolist(),
+        outer_corner_labels=['A','B','C','D'],outer_corners_m=[[0.,0.,0.],[width,0.,0.],[width,height,0.],[0.,height,0.]],
+        coordinate_scope='printed_board_definition_not_robot_extrinsics')
+
+
 def _vector_rectangles(binary):
     active={};result=[]
     for row,line in enumerate(binary):
