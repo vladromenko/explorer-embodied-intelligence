@@ -31,6 +31,9 @@ PIPELINES['manipulation_student'] += ('01-autonomous-learning/src/explorer_sim/p
                                      '01-autonomous-learning/src/explorer_sim/dataset_export.py')
 PIPELINES['train_act'] += ('01-autonomous-learning/src/explorer_sim/dataset_export.py',)
 PACKAGES = ('torch','torchvision','lerobot','numpy','mujoco')
+OFFICIAL_ACT_SOURCES = ('lerobot/policies/act/configuration_act.py',
+    'lerobot/policies/act/modeling_act.py','lerobot/policies/act/processor_act.py',
+    'lerobot/policies/factory.py','lerobot/processor/pipeline.py','lerobot/processor/device_processor.py')
 
 
 def sha(path):
@@ -131,6 +134,23 @@ def pipeline_graph_version(release,kind):
     return 2 if pipeline_sources(release,kind)==PIPELINES[kind] else 1
 
 
+def _measured_official_sources(receipt,runtime):
+    """New measured receipts bind actual library bytes, beyond wheel RECORD text."""
+    declared=receipt.get('official_implementation_sha256')
+    required=receipt.get('schema')=='explorer_shared_act9_cuda_qualification_v2'
+    if not required and declared is None:return None
+    if receipt.get('runtime_identity')!=runtime:
+        raise ValueError('Installed runtime differs from the actual measured runtime')
+    site=Path(runtime['distribution_records']['lerobot']['metadata_path']).parent.parent.resolve()
+    actual={}
+    for name in OFFICIAL_ACT_SOURCES:
+        path=(site/name).resolve()
+        if not path.is_relative_to(site):raise ValueError('Official ACT library path escapes its installed distribution')
+        actual[str(path)]=sha(path)
+    if declared!=actual:raise ValueError('Installed official ACT implementation differs from measured source bytes')
+    return actual
+
+
 def _relative_sources(values):
     result={}
     for name,digest in values.items():
@@ -196,6 +216,7 @@ def publish_gpu_binding(qualification_path,release,kind,executable,registry_root
     if any(measured.get(name)!=digest for name,digest in expected.items()):
         raise ValueError('Pinned pipeline source differs from the actual measured qualification')
     runtime=runtime_identity(executable)
+    official=_measured_official_sources(receipt,runtime)
     dimensions=receipt.get('action_dimension')
     if type(dimensions) is not int or dimensions not in (6,9) or receipt.get('state_dimension')!=dimensions:
         raise ValueError('Actual qualification must explicitly record matching six- or nine-axis state/action dimensions')
@@ -215,6 +236,7 @@ def publish_gpu_binding(qualification_path,release,kind,executable,registry_root
     body={'format':'explorer_gpu_source_binding_v1','execution_commit':release.name,'job_kind':kind,
         'pipeline_graph_version':pipeline_graph_version(release,kind),
         'pipeline_source_sha256':expected,'runtime_identity':runtime,'qualification_receipt_sha256':receipt_id,
+        **({'official_implementation_sha256':official} if official is not None else {}),
         'qualification_result_sha256':proof_id,'scope':receipt.get('scope'),'physical_skill_qualified':False,
         'state_dimension':dimensions,'action_dimension':dimensions,
         'binding_basis':'recorded_measured_pipeline_hashes_match_execution_source_not_latest_checkout'}
@@ -251,6 +273,9 @@ def qualified_gpu_binding(job,release,executable,registry_root,*,required_bindin
                 receipt_id=body['qualification_receipt_sha256'];receipt_path=root/'receipts'/(receipt_id+'.json')
                 if sha(receipt_path)!=receipt_id:raise ValueError('Archived qualification receipt changed')
                 receipt=json.loads(receipt_path.read_text());proof_id=body.get('qualification_result_sha256');proof=None
+                official=_measured_official_sources(receipt,runtime)
+                if official is not None and body.get('official_implementation_sha256')!=official:
+                    raise ValueError('Binding has no matching measured official implementation')
                 if proof_id:
                     proof_path=root/'proofs'/(proof_id+'.json')
                     if sha(proof_path)!=proof_id or proof_id!=receipt.get('result_sha256'):raise ValueError('Archived actual result changed')

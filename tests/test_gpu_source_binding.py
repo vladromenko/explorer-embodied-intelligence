@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from explorer.qualification_bindings import (PIPELINES,LEGACY_PIPELINES,SHARED_ACT_SOURCES,PACKAGES,
+from explorer.qualification_bindings import (PIPELINES,LEGACY_PIPELINES,SHARED_ACT_SOURCES,PACKAGES,OFFICIAL_ACT_SOURCES,
     canonical,publish_gpu_binding,qualified_gpu_binding,resolve_job_release,pipeline_hashes,
     pipeline_graph_version,runtime_identity)
 from explorer.store import Store
@@ -143,6 +143,25 @@ def test_partial_shared_graph_cannot_fall_back_to_old_admission(tmp_path):
     release,_=releases(tmp_path)
     (release/SHARED_ACT_SOURCES[1]).unlink()
     with pytest.raises(FileNotFoundError):pipeline_hashes(release,'manipulation_student')
+
+
+def test_new_measured_receipt_binds_actual_official_library_even_if_wheel_record_is_unchanged(tmp_path):
+    release,_=releases(tmp_path);python=runtime(tmp_path);registry=tmp_path/'registry'
+    site=python.parent.parent/'lib/python3.12/site-packages'
+    for name in OFFICIAL_ACT_SOURCES:
+        path=site/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(('software-fixture-'+name).encode())
+    path=qualification(tmp_path,release);document=json.loads(path.read_text())
+    document.update(schema='explorer_shared_act9_cuda_qualification_v2',runtime_identity=runtime_identity(python),
+        official_implementation_sha256={str((site/name).resolve()):hashlib.sha256((site/name).read_bytes()).hexdigest() for name in OFFICIAL_ACT_SOURCES})
+    path.write_text(json.dumps(document))
+    publish_gpu_binding(path,release,'manipulation_student',python,registry)
+    selected=qualified_gpu_binding({'kind':'manipulation_student'},release,python,registry)
+    assert selected['execution_commit']==release.name
+    (site/'lerobot/policies/act/modeling_act.py').write_text('modified-policy-with-untouched-RECORD')
+    with pytest.raises(ValueError,match='official ACT implementation'):
+        qualified_gpu_binding({'kind':'manipulation_student'},release,python,registry)
+    with pytest.raises(ValueError,match='official ACT implementation'):
+        publish_gpu_binding(path,release,'manipulation_student',python,registry)
 
 
 def test_backend_only_passed_flag_is_not_a_new_pipeline_qualification(tmp_path):
