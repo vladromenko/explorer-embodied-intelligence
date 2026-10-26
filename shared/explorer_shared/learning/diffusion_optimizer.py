@@ -1,4 +1,6 @@
-"""Official Diffusion-specific durable optimizer; no ACT loss/AdamW assumptions.
+"""method_id=DIFFUSION_LEROBOT_0_6_1_COMPACT; P002 https://arxiv.org/abs/2303.04137.
+
+Official Diffusion-specific durable optimizer; no ACT loss/AdamW assumptions.
 
 Uses the existing shared atomic checkpoint/RNG/sampler primitives while binding
 actual official optimizer preset, Diffusion/scheduler source and history view.

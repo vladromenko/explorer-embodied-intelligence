@@ -1,0 +1,26 @@
+{
+  "schema": "explorer_lerobot_diffusion_upstream_byte_comparison_v1",
+  "commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
+  "package_version": "0.6.1",
+  "files": [
+    {
+      "path": "lerobot/policies/diffusion/configuration_diffusion.py",
+      "upstream_sha256": "d5b9626e0e8156745e646cf81092263ba01a4f8d75a7ccdf37241d5b682ef8ad",
+      "installed_sha256": "d5b9626e0e8156745e646cf81092263ba01a4f8d75a7ccdf37241d5b682ef8ad",
+      "identical": true
+    },
+    {
+      "path": "lerobot/policies/diffusion/modeling_diffusion.py",
+      "upstream_sha256": "b5512f37729ab636badcdd589395ecfd14312289eaa621d6f9d38db9d5df531d",
+      "installed_sha256": "b5512f37729ab636badcdd589395ecfd14312289eaa621d6f9d38db9d5df531d",
+      "identical": true
+    },
+    {
+      "path": "lerobot/optim/optimizers.py",
+      "upstream_sha256": "9b028586c0c2f9b07693bcb42df0dd0719388f439a8bfb764e6ebfd01faf1aea",
+      "installed_sha256": "9b028586c0c2f9b07693bcb42df0dd0719388f439a8bfb764e6ebfd01faf1aea",
+      "identical": true
+    }
+  ],
+  "all_exact": true
+}

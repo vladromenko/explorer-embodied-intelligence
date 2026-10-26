@@ -1,7 +1,9 @@
-"""Pinned official Diffusion compact CPU software qualification candidate.
+"""method_id=DIFFUSION_LEROBOT_0_6_1_COMPACT; P002 https://arxiv.org/abs/2303.04137.
+
+Pinned official Diffusion compact CPU software qualification candidate.
 
 This is a factory for an explicitly small test profile, not an admitted skill
-trainer, task benchmark or hardware backend. Registry production remains closed.
+trainer, task benchmark or hardware backend. Admission needs a separate source-bound receipt.
 Optional model dependencies load only when this factory is explicitly invoked.
 """
 from copy import deepcopy

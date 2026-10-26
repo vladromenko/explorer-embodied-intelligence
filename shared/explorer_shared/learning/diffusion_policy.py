@@ -1,4 +1,6 @@
-"""Hash-bound Diffusion saved-policy loader and native-coordinate offline view.
+"""method_id=DIFFUSION_LEROBOT_0_6_1_COMPACT; P002 https://arxiv.org/abs/2303.04137.
+
+Hash-bound Diffusion saved-policy loader and native-coordinate offline view.
 
 No device/camera/network/robot executor. Caller admits actual source observations;
 predictions are arrays, never dispatched commands or physical-success evidence.

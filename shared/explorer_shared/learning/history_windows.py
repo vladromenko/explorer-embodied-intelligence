@@ -1,4 +1,6 @@
-"""Causal observation-history/action-horizon views of immutable native episodes.
+"""ENGINEERING_GLUE: source-bound history/action-window adapter.
+
+Causal observation-history/action-horizon views of immutable native episodes.
 
 The source adapter supplies its authoritative episode loader; this module never
 imports an experiment, reconstructs missing measurements, changes source splits

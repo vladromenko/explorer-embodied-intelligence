@@ -11,7 +11,8 @@
     "00-control-center/src/explorer/simulation.py",
     "00-control-center/src/explorer/transfer.py",
     "00-control-center/src/explorer/*.py",
-    "shared/explorer_shared/*.py"
+    "shared/explorer_shared/*.py",
+    "shared/explorer_shared/learning/**/*.py"
   ],
   "methods": [
     {
@@ -3973,6 +3974,279 @@
       },
       "test_evidence": [],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-00-CONTROL-CENTER-COOPERATIVE-SERVICE-20261026",
+      "function_or_module": "00-control-center/src/explorer/cooperative_service.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-00-CONTROL-CENTER-QUEUE-POLICY-20261026",
+      "function_or_module": "00-control-center/src/explorer/queue_policy.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-00-CONTROL-CENTER-WORKER-BOOTSTRAP-20261026",
+      "function_or_module": "00-control-center/src/explorer/worker_bootstrap.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SHARED-CHECKPOINT-CONTROL-20261026",
+      "function_or_module": "shared/explorer_shared/learning/checkpoint_control.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SHARED-ACT-POLICY-20261026",
+      "function_or_module": "shared/explorer_shared/learning/act_policy.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Existing source-bound official ACT6 loader or causal history-window data adapter; no model/optimizer math copied or new scientific method. Explicit frame/state masks, hashes, source clock/boot and immutable episode boundaries; no dispatch or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SHARED-HISTORY-WINDOWS-20261026",
+      "function_or_module": "shared/explorer_shared/learning/history_windows.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Existing source-bound official ACT6 loader or causal history-window data adapter; no model/optimizer math copied or new scientific method. Explicit frame/state masks, hashes, source clock/boot and immutable episode boundaries; no dispatch or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "DIFFUSION_LEROBOT_0_6_1_COMPACT",
+      "implementation_id": "IMPL-SHARED-DIFFUSION-BACKEND-20261026",
+      "function_or_module": "shared/explorer_shared/learning/diffusion_backend.py",
+      "implementation_type": "ADAPTED",
+      "sources": [
+        {
+          "url": "https://arxiv.org/abs/2303.04137",
+          "role": "Diffusion Policy method; reviewed full primary text P002"
+        },
+        {
+          "url": "https://github.com/huggingface/lerobot/tree/7e241bd630a3719a56157a497ce5d08f244784f1/src/lerobot/policies/diffusion",
+          "role": "Actual official LeRobot0.6.1 model/config and Adam preset; all three installed files compared byte-for-byte to this pinned commit"
+        },
+        {
+          "url": "project-file:_registry/evidence/diffusion-official-upstream-bytes-20261026.json",
+          "role": "Actual installed/upstream byte SHA comparison, not a task success claim"
+        }
+      ],
+      "upstream_repo": "https://github.com/huggingface/lerobot",
+      "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
+      "code_license": "Apache-2.0",
+      "model_license": "NOT_APPLICABLE_LOCAL_TRAINING_NO_DOWNLOADED_WEIGHTS",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Reuse official conditional Diffusion Policy model/config/Adam/DDIM via LeRobot0.6.1. Adapt only explicit compact CPU64px/history2/horizon8/chunk4/UNet32,64 profile, native measured-state coordinates, strict source history view, save/load and durable checkpoint/RNG/sampler persistence. No new loss, no ACT optimizer substitution, no full-paper benchmark reproduction or physical success claim. Header/source requalification pending after expanded discovery.",
+      "verification": {
+        "paper_read": true,
+        "code_inspected": true,
+        "installed": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": [],
+      "paper_ids": [
+        "P002"
+      ],
+      "paper_review_evidence": [
+        "research/literature/reviews/P002.json"
+      ]
+    },
+    {
+      "method_id": "DIFFUSION_LEROBOT_0_6_1_COMPACT",
+      "implementation_id": "IMPL-SHARED-DIFFUSION-OPTIMIZER-20261026",
+      "function_or_module": "shared/explorer_shared/learning/diffusion_optimizer.py",
+      "implementation_type": "ADAPTED",
+      "sources": [
+        {
+          "url": "https://arxiv.org/abs/2303.04137",
+          "role": "Diffusion Policy method; reviewed full primary text P002"
+        },
+        {
+          "url": "https://github.com/huggingface/lerobot/tree/7e241bd630a3719a56157a497ce5d08f244784f1/src/lerobot/policies/diffusion",
+          "role": "Actual official LeRobot0.6.1 model/config and Adam preset; all three installed files compared byte-for-byte to this pinned commit"
+        },
+        {
+          "url": "project-file:_registry/evidence/diffusion-official-upstream-bytes-20261026.json",
+          "role": "Actual installed/upstream byte SHA comparison, not a task success claim"
+        }
+      ],
+      "upstream_repo": "https://github.com/huggingface/lerobot",
+      "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
+      "code_license": "Apache-2.0",
+      "model_license": "NOT_APPLICABLE_LOCAL_TRAINING_NO_DOWNLOADED_WEIGHTS",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Reuse official conditional Diffusion Policy model/config/Adam/DDIM via LeRobot0.6.1. Adapt only explicit compact CPU64px/history2/horizon8/chunk4/UNet32,64 profile, native measured-state coordinates, strict source history view, save/load and durable checkpoint/RNG/sampler persistence. No new loss, no ACT optimizer substitution, no full-paper benchmark reproduction or physical success claim. Header/source requalification pending after expanded discovery.",
+      "verification": {
+        "paper_read": true,
+        "code_inspected": true,
+        "installed": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": [],
+      "paper_ids": [
+        "P002"
+      ],
+      "paper_review_evidence": [
+        "research/literature/reviews/P002.json"
+      ]
+    },
+    {
+      "method_id": "DIFFUSION_LEROBOT_0_6_1_COMPACT",
+      "implementation_id": "IMPL-SHARED-DIFFUSION-POLICY-20261026",
+      "function_or_module": "shared/explorer_shared/learning/diffusion_policy.py",
+      "implementation_type": "ADAPTED",
+      "sources": [
+        {
+          "url": "https://arxiv.org/abs/2303.04137",
+          "role": "Diffusion Policy method; reviewed full primary text P002"
+        },
+        {
+          "url": "https://github.com/huggingface/lerobot/tree/7e241bd630a3719a56157a497ce5d08f244784f1/src/lerobot/policies/diffusion",
+          "role": "Actual official LeRobot0.6.1 model/config and Adam preset; all three installed files compared byte-for-byte to this pinned commit"
+        },
+        {
+          "url": "project-file:_registry/evidence/diffusion-official-upstream-bytes-20261026.json",
+          "role": "Actual installed/upstream byte SHA comparison, not a task success claim"
+        }
+      ],
+      "upstream_repo": "https://github.com/huggingface/lerobot",
+      "upstream_commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
+      "code_license": "Apache-2.0",
+      "model_license": "NOT_APPLICABLE_LOCAL_TRAINING_NO_DOWNLOADED_WEIGHTS",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Reuse official conditional Diffusion Policy model/config/Adam/DDIM via LeRobot0.6.1. Adapt only explicit compact CPU64px/history2/horizon8/chunk4/UNet32,64 profile, native measured-state coordinates, strict source history view, save/load and durable checkpoint/RNG/sampler persistence. No new loss, no ACT optimizer substitution, no full-paper benchmark reproduction or physical success claim. Header/source requalification pending after expanded discovery.",
+      "verification": {
+        "paper_read": true,
+        "code_inspected": true,
+        "installed": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": [],
+      "paper_ids": [
+        "P002"
+      ],
+      "paper_review_evidence": [
+        "research/literature/reviews/P002.json"
+      ]
     }
   ],
   "preserved_legacy_exclusions": [
