@@ -1,0 +1,5 @@
+name = "demonstration-learning"
+project_id = "02"
+dependencies = ["explorer_shared.mobile_adapter", "lerobot", "torch"]
+physical_io = false
+method_ids = ["ENGINEERING_GLUE"]

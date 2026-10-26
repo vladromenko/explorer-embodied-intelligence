@@ -1,0 +1,5 @@
+name = "autonomous-learning"
+project_id = "01"
+dependencies = ["mujoco", "stable_baselines3", "lerobot", "torch"]
+physical_io = false
+method_ids = ["ENGINEERING_GLUE"]
