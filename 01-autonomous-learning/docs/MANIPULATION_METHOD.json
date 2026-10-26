@@ -1,0 +1,63 @@
+{
+  "implementation_id": "IMPL-CAD-FULL-OBJECT-MANIPULATION-001",
+  "implementation_type": "ENGINEERING_GLUE",
+  "method_ids": [
+    "PPO_SB3_2_9",
+    "EXPLORER_CAD_MUJOCO",
+    "ENGINEERING_GLUE"
+  ],
+  "implementation_paths": [
+    "01-autonomous-learning/src/explorer_sim/manipulation_env.py:ManipulationEnv",
+    "01-autonomous-learning/src/explorer_sim/manipulation_env.py:FullTaskEvaluator",
+    "01-autonomous-learning/src/explorer_sim/manipulation.py:run_manipulation",
+    "01-autonomous-learning/src/explorer_sim/manipulation.py:raw_policy_action",
+    "01-autonomous-learning/src/explorer_sim/manipulation.py:replay_trajectory"
+  ],
+  "sources": [
+    {
+      "url": "https://arxiv.org/abs/1707.06347",
+      "role": "Established PPO algorithm, paper P008; no novelty claim"
+    },
+    {
+      "url": "https://github.com/DLR-RM/stable-baselines3/tree/8908708f10c8ff29759c67f55c8acb56cab27463",
+      "role": "Maintained SB3 2.9.0 PPO optimizer/public distribution API",
+      "code_license": "MIT"
+    },
+    {
+      "url": "https://github.com/google-deepmind/mujoco/tree/800a109a4bdd02cb60404d565db4ae16fb04a53b",
+      "role": "MuJoCo 3.17.0 engine, native integration state and real flex contact",
+      "code_license": "Apache-2.0"
+    },
+    {
+      "url": "https://github.com/google-deepmind/mujoco/commit/5023a4a50",
+      "role": "Primary breaking-change evidence removing deprecated flex internal collision option in 3.15"
+    },
+    {
+      "path": "01-autonomous-learning/src/legacy/simulator/explorer_model.py",
+      "role": "Existing verified ROSMASTER CAD/URDF linkage, finite torque actuators, rounded contact pads and freely deformable sewn flex tube"
+    },
+    {
+      "path": "01-autonomous-learning/src/legacy/simulator/environment.py:ExplorerEnv.solve_ik",
+      "role": "Existing own-robot-only kinematics, exact mimic state and declared unchanged 8mm solver tolerance"
+    }
+  ],
+  "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+  "model_license": "PPO_RANDOM_INITIALIZATION_NO_EXTERNAL_WEIGHTS",
+  "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE",
+  "copied_external_implementation": false,
+  "verification": {
+    "code_inspected": true,
+    "software_tested": true,
+    "actual_optimizer_executed": true,
+    "hardware_tested": false,
+    "physical_task_validated": false
+  },
+  "validation": "01-autonomous-learning/docs/MANIPULATION_VALIDATION.json",
+  "tests": "01-autonomous-learning/tests/test_manipulation.py",
+  "interpretation": "Actual full-object scripted candy and deformable sock transfers, separately negative short-budget privileged PPO runs; neither is a trained visual manipulation student or complete kitchen mobile task",
+  "installed_source_sha256": {
+    "on_policy_algorithm.py": "ce1984ea8e8a2d969443a484ab159194b9d70ff92a7ef1bc25fcc183e391e35c",
+    "policies.py": "40bfc915633e216d9d620724e3d80029a6e2a2a9c7607ddc75782b2c8cc281e1",
+    "ppo.py": "724a5f6324bd3c6160e6e3125147df597c0ea9d3c6f5cc0dbc1bcb8731cdb12a"
+  }
+}
