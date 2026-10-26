@@ -211,7 +211,15 @@ class CacheSink:
         pair = self.helper.registered_pair(list(self.rgbs), list(self.depths), self.info,
                                            now=self.wall(), previous=self.previous_pair)
         if pair is not None:
-            stamp = self.helper.save_snapshot(self.data / 'rgbd-snapshot.npz', pair)
+            # The helper's fixed .tmp name must not follow an existing legacy
+            # symlink or collide with an interrupted previous native writer.
+            staged = self.data / ('.rgbd-' + uuid.uuid4().hex + '.npz')
+            try:
+                stamp = self.helper.save_snapshot(staged, pair)
+                staged.replace(self.data / 'rgbd-snapshot.npz')
+            finally:
+                staged.unlink(missing_ok=True)
+                staged.with_suffix('.tmp').unlink(missing_ok=True)
             rgb, depth, _ = pair
             metadata = dict(source=SOURCE, image_stamp=stamp, depth_stamp=depth[1],
                 color_ros_header=self.color_headers[rgb[1]], depth_ros_header=self.depth_headers[depth[1]],

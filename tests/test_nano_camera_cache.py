@@ -107,6 +107,21 @@ def test_actual_raw_jpeg_hash_ros_header_and_registered_rgbd_preserved(legacy):
     assert not paired['clock_alignment_verified']
 
 
+def test_legacy_temporary_symlink_cannot_redirect_registered_cache_write(legacy):
+    target = legacy / 'config/controller-profile.json'
+    before = target.read_bytes()
+    stale = legacy / 'data/rgbd-snapshot.tmp'
+    stale.symlink_to(target)
+    cache = sink(legacy)
+    cache.set_info(info())
+    cache.color(image())
+    cache.depth(image('16UC1'))
+    cache.flush_registered()
+    assert target.read_bytes() == before and stale.is_symlink()
+    assert cache.rgbd_written == 1
+    assert not list((legacy / 'data').glob('.rgbd-*'))
+
+
 @pytest.mark.parametrize('unit_state', ['active', 'activating', 'deactivating', 'unknown'])
 def test_active_or_unknown_native_source_stands_by_without_legacy_writes(legacy, unit_state):
     cache = sink(legacy, state=unit_state)
