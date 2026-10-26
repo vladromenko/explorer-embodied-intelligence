@@ -189,6 +189,14 @@ test('the current owner chassis ban removes only chassis keys from mocked wire p
   assert.match(api.panel(f.controller.status()), /Движение шасси сейчас запрещено/);
 });
 
+test('an uncertain gamepad STOP blocks another acquisition and requires explicit successful cleanup', async () => {
+  const f = fixture(); await connected(f); const original = f.options.post;
+  f.options.post = async (url, body) => { if (url.endsWith('/stop')) throw new Error('mock lost STOP'); return original(url, body); };
+  await f.controller.disconnect(); assert.equal(f.controller.stopUnconfirmed, true);
+  await assert.rejects(f.controller.connect(), /STOP не подтверждён/);
+  f.options.post = original; await f.controller.connect(); assert.equal(f.controller.state, 'active');
+});
+
 (async () => {
   let passed = 0;
   for (const entry of tests) { await entry.callback(); ++passed; process.stdout.write(`PASS ${entry.name}\n`); }
