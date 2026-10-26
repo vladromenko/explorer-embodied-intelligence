@@ -416,6 +416,15 @@ def test_unknown_sensor_presence_is_explicit_unknown_not_a_claim_sensor_is_absen
     assert not report['channels']['lidar']['available']
 
 
+def test_native_snapshot_reference_requires_original_factory_guard_and_prior_reference_hash():
+    facts,images=command_estimate_facts()
+    reference=facts['state_estimate_reference']
+    reference.update(reference_kind='native_command_estimate_snapshot')
+    assert not inspect(facts,images)['admitted_for_dataset']
+    reference.update(native_guard_verified=True,prior_reference_sha256='f'*64)
+    assert inspect(facts,images)['admitted_for_dataset']
+
+
 @pytest.mark.parametrize('mode', ['keyboard', 'browser_gamepad', 'so101_leader'])
 def test_input_adapter_identity_is_optional_and_source_bound_not_inferred_from_page(mode):
     facts, images = command_estimate_facts()

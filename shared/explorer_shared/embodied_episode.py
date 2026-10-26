@@ -355,7 +355,10 @@ def canonicalize_episode(source_envelope, source_payloads=None):
         reference_okay = (reference_clock_okay and reference.get('state_source') == 'command_estimate' and
                           _text(reference.get('reference_id')) and _text(reference.get('estimator_id')) and
                           reference.get('reference_kind') in ('factory_startup_reference', 'explicit_operator_reference',
-                                                              'simulation_initial_state') and
+                                                              'simulation_initial_state','native_command_estimate_snapshot') and
+                          (reference.get('reference_kind')!='native_command_estimate_snapshot' or
+                           (reference.get('native_guard_verified') is True and
+                            isinstance(reference.get('prior_reference_sha256'),str) and len(reference['prior_reference_sha256'])==64)) and
                           _vector(reference.get('reference_action9'), 9) and
                           reference.get('units') == list(ACTION_UNITS) and
                           reference.get('command_log_contiguous_since_reference') is True and
