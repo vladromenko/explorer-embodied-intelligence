@@ -1,0 +1,181 @@
+{
+  "scope": "engineering_runtime_validation_not_object_skill_transfer",
+  "tests": {
+    "total": 42,
+    "passed": 42,
+    "includes_real_ACT_optimization_and_MuJoCo": true
+  },
+  "synthetic_training_proof": {
+    "optimizer_steps": 12,
+    "weights_changed": true,
+    "losses": [
+      0.9644437432289124,
+      1.1386488676071167,
+      0.8664644956588745,
+      0.6046192646026611,
+      0.27009737491607666,
+      0.2918836772441864,
+      0.25611239671707153,
+      0.2780010402202606,
+      0.28518790006637573,
+      0.3451087176799774,
+      0.3260749280452728,
+      0.2501375675201416
+    ],
+    "seed": 431
+  },
+  "virtual": {
+    "request_signature": "a58d657ec9ad8f492efebd116869411accd1eaf596ffab1aedc8ad38dfcdf636",
+    "source_radian_mapping_basis": "virtual_declared",
+    "scope": "offline_policy_output_transfer_with_independent_virtual_tracking",
+    "source_policy_executed": true,
+    "source_observations": "recorded_replay_not_closed_loop_source_execution",
+    "physical_execution": false,
+    "physical_source_recording": false,
+    "source_task": "Synthetic technical hold fixture; no object skill or source hardware execution",
+    "gripper_transfer": "not_attempted_separate_aperture_calibration_required",
+    "orientation_constrained": false,
+    "learned_object_skill_transfer_claimed": false,
+    "physical_skill_success_not_tested": true,
+    "status": "virtual_evaluated",
+    "mapping_problems": [],
+    "predicted_actions": 4,
+    "executed_stages": {
+      "official_ACT_inference": 4,
+      "source_FK_and_target_IK": 4,
+      "independent_MuJoCo_tracking": 4
+    },
+    "independent_virtual_attempts": 4,
+    "independent_virtual_passed": 4,
+    "unsupported_indices": [],
+    "elapsed_s": 1.6369286249973811,
+    "processor_origin": "persisted_official_processor_pair",
+    "matching_official_processors_executed": true,
+    "explorer_adapter_applied": false,
+    "source_artifacts_modified": false,
+    "provenance": {
+      "checkpoint_files_sha256": {
+        "config.json": "6344f0124ad288ad4b0b6dd5744178788c86e07d0d825e3128b6365abaeac22c",
+        "model.safetensors": "015ee591e9a343ad6128fd31c9ae192e78c6c69ca03d6938add0a3e1502b06ce",
+        "policy_postprocessor.json": "648b415125a183dfd6cbc47c1dc04ab3f2d912654ef22a12ca5e8b93d7d85cdd",
+        "policy_postprocessor_step_0_unnormalizer_processor.safetensors": "d0182456eb112a01ed77179a4897908d2270b400a3299e50db521e5e9c8d4dfb",
+        "policy_preprocessor.json": "f0327bbc3f72ac8b5cd7c69fe11262208efc9f02e1122fc5557bed9a18f7ae5d",
+        "policy_preprocessor_step_3_normalizer_processor.safetensors": "d0182456eb112a01ed77179a4897908d2270b400a3299e50db521e5e9c8d4dfb"
+      },
+      "manifest_sha256": "d3adc9ef92fe2a9415120afbbfd2e9e4e0ff592eb5bb40a9a89690e8f732f8c8",
+      "episode_id": "fixture",
+      "episode_sha256": "c538b57d600e1d24da0b061c385c5fe3c64e85b3d92d5f25ed7cc06aef6c2851",
+      "split": "development",
+      "mapping_profile_sha256": "f7bdc5c8f6256af793b005a1d3f3dacc39896eda27e85a336472a040ab208206",
+      "training_receipt_sha256": null,
+      "checkpoint_contract_sha256": "0d3d194000205ce357d7c2aa361d71dd11b6eb135100577672ba3f145092f3aa",
+      "source_urdf_sha256": "3a65d2d35e68a8d2f0c2cc176d19b884506543c93ba72980145b80abe276022c",
+      "target_urdf_sha256": "9ee94f15a2473ba04c84c552bae47f7dd2bd734b8b3700f3fe25d752c3eace4b",
+      "implementation_sha256": "7913ff02b8f9d9b3b111fa3aebd4b4053f26b635af6a326cd0f77e369cddc0cb",
+      "official_sources_sha256": {
+        "policies/act/modeling_act.py": "a6c1a49c5daafa513b9abee9b986205d327e25c70ed13623ab2e6c0ab6b1f577",
+        "policies/act/configuration_act.py": "35a60c0dd3c811b137b5eb035bdbd40d40e2c24ba0cda61756052e6e1c829282",
+        "policies/act/processor_act.py": "247d3b13c93568c1fb35349716f8c3b6a53c2e7a5c8b098928471172b0bf0ef2",
+        "policies/factory.py": "af515f27ffff6c7420f5ef445349e9bf73af161ef62f2477dd35dd95b8cd23bd"
+      },
+      "lerobot_version": "0.6.1"
+    },
+    "method_ids": [
+      "ACT_LEROBOT_0_6_1",
+      "SO101_URDF_FK_IK",
+      "OBJECT_RELATIVE_RETARGET",
+      "EXPLORER_CAD_MUJOCO",
+      "ENGINEERING_GLUE"
+    ],
+    "trace_sha256": "aa5ec0189543b39db2ecae6e41d30339f803cb9beb3e8ddb073f64ba62397e94",
+    "framework_versions": {
+      "torch": "2.14.1",
+      "torchvision": "0.29.1"
+    },
+    "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds"
+  },
+  "physical_recording_inference": {
+    "request_signature": "6c0f6b9e1c4e1324a0e905598daaf0f015f83d0145016911342777e597a81146",
+    "source_radian_mapping_basis": null,
+    "scope": "offline_policy_output_transfer_with_independent_virtual_tracking",
+    "source_policy_executed": true,
+    "source_observations": "recorded_replay_not_closed_loop_source_execution",
+    "physical_execution": false,
+    "physical_source_recording": true,
+    "source_task": "Engineering position-hold recording only; no object manipulation or expert task demonstration",
+    "gripper_transfer": "not_attempted_separate_aperture_calibration_required",
+    "orientation_constrained": false,
+    "learned_object_skill_transfer_claimed": false,
+    "physical_skill_success_not_tested": true,
+    "status": "blocked_mapping",
+    "mapping_problems": [
+      "source_urdf_sha256_mismatch",
+      "source_named_native_contract_mismatch",
+      "radian_mapping_basis_missing",
+      "physical_source_requires_measured_radian_reference_pairs",
+      "source_calibration_sha256_not_bound",
+      "shoulder_pan:missing_verified_sign_scale_zero",
+      "shoulder_lift:missing_verified_sign_scale_zero",
+      "elbow_flex:missing_verified_sign_scale_zero",
+      "wrist_flex:missing_verified_sign_scale_zero",
+      "wrist_roll:missing_verified_sign_scale_zero"
+    ],
+    "predicted_actions": 4,
+    "executed_stages": {
+      "official_ACT_inference": 4,
+      "source_FK_and_target_IK": 0,
+      "independent_MuJoCo_tracking": 0
+    },
+    "independent_virtual_attempts": 0,
+    "independent_virtual_passed": 0,
+    "unsupported_indices": [],
+    "elapsed_s": 0.6728965409565717,
+    "processor_origin": "official_factory_identity_pair_plus_explicit_Explorer_adapter",
+    "matching_official_processors_executed": true,
+    "explorer_adapter_applied": true,
+    "source_artifacts_modified": false,
+    "provenance": {
+      "checkpoint_files_sha256": {
+        "config.json": "3c99a073aaf2dc21273a72280c6034711cb92000820ab38ea0f543d9a201a33d",
+        "explorer_preprocessing.json": "078d8acbe21dbf0a19e90210fb303adcc4dd5f1cfa4d71ea5f26101deef81724",
+        "model.safetensors": "79d8b2face96c7e7eef909253c878e621ce931fe5f4c7b200ada5b9d595b9ecd"
+      },
+      "manifest_sha256": "4fb2b7a1ddfea6fbda347e32d798d85baabdc3cef5ef3a838714989a4a45d13b",
+      "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+      "episode_sha256": "80d7e741d239bce5d36958d34ce3a8650d088fc4744a7a33a2649ac7d38cd691",
+      "split": "train",
+      "mapping_profile_sha256": null,
+      "training_receipt_sha256": "c4c89a36557e68fe02a2c3563273c9aa8dfa509d8b53bcaf66a03518c033124f",
+      "checkpoint_contract_sha256": null,
+      "source_urdf_sha256": "3a65d2d35e68a8d2f0c2cc176d19b884506543c93ba72980145b80abe276022c",
+      "target_urdf_sha256": "9ee94f15a2473ba04c84c552bae47f7dd2bd734b8b3700f3fe25d752c3eace4b",
+      "implementation_sha256": "7913ff02b8f9d9b3b111fa3aebd4b4053f26b635af6a326cd0f77e369cddc0cb",
+      "official_sources_sha256": {
+        "policies/act/modeling_act.py": "a6c1a49c5daafa513b9abee9b986205d327e25c70ed13623ab2e6c0ab6b1f577",
+        "policies/act/configuration_act.py": "35a60c0dd3c811b137b5eb035bdbd40d40e2c24ba0cda61756052e6e1c829282",
+        "policies/act/processor_act.py": "247d3b13c93568c1fb35349716f8c3b6a53c2e7a5c8b098928471172b0bf0ef2",
+        "policies/factory.py": "af515f27ffff6c7420f5ef445349e9bf73af161ef62f2477dd35dd95b8cd23bd"
+      },
+      "lerobot_version": "0.6.1"
+    },
+    "method_ids": [
+      "ACT_LEROBOT_0_6_1",
+      "SO101_URDF_FK_IK",
+      "OBJECT_RELATIVE_RETARGET",
+      "EXPLORER_CAD_MUJOCO",
+      "ENGINEERING_GLUE"
+    ],
+    "trace_sha256": "f97abea3257e4fd425dbd5acb1c9029a902db5f3bfe256305b70124e4283a700",
+    "framework_versions": {
+      "torch": "2.14.1",
+      "torchvision": "0.29.1"
+    },
+    "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds"
+  },
+  "private_artifacts": {
+    "virtual": "/tmp/explorer-policy-transfer-validation/jobs/official-virtual-chain-v3",
+    "physical_recording": "/tmp/explorer-policy-transfer-validation/jobs/physical-hold-inference-v5"
+  },
+  "physical_execution": false,
+  "H1_H5": "UNTESTED"
+}
