@@ -32,7 +32,12 @@ def test_actual_final_controller_proof_covers_both_backends_and_exact_worker_pin
         assert receipt['old_process_gone'] and receipt['old_resident_bytes'] > 0
         assert receipt['paused_at_completed_step'] == 2 and receipt['updates_in_resumed_process'] == 6
         assert receipt['completed_updates'] == 8 and not receipt['task_success_claimed']
+    # The original exact run remains tied to its archived release as new queue
+    # kinds are added. It is never relabelled as the latest controller graph.
+    tree = json.loads((ROOT / 'shared/training/NATIVE6_QUEUE_FINAL_20261026_SOURCE_TREE.json').read_text())
+    tree_sha = hashlib.sha256(json.dumps(tree,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+    assert all(row['tree_sha256'] == tree_sha for row in library['source_archives'])
     for name, expected in runtime['implementation_sha256'].items():
-        assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected
+        assert tree[name] == expected
     assert runtime['cgroup_memory_events'].splitlines() == ['low 0', 'high 0', 'max 0', 'oom 0', 'oom_kill 0', 'oom_group_kill 0']
     assert not index['public_production_queue_tested'] and not index['physical_success']

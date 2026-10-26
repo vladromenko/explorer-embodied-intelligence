@@ -71,3 +71,19 @@ source04 `so101_skill_shadow` — отдельный CPU-only inference class:2C
 GPU0, один interactive slot. Он не получает Diffusion runtime/history допуск.
 `rosmaster_skill_shadow` использует тот же общий serial inference slot и бюджет,
 но сохраняет отдельный ROSMASTER state106/action9 model contract.
+
+`cooperative_policy_warm` — отдельный read-only CPU inference lifetime:
+4CPU/4GiB/GPU0, один общий inference slot, без checkpoint-preemption. Он держит
+две отдельные policy/action schemas и не получает физическое разрешение от
+очереди. Worker проверяет собственный session epoch/первый compute deadline;
+READY и токен не переживают замену процесса как прежнее разрешение.
+
+`research_export` —1CPU/512MiB/GPU0, без checkpoint-preemption, один общий I/O
+slot вместе с импортами. Точный server-derived `estimated_payload_bytes`
+должен попасть в immutable job config до create_job. Disk reservation равна
+3×estimate+256MiB overhead. Отсутствующий/нецелый/отрицательный estimate
+блокирует dispatch; клиент не может уменьшить server minimum.
+
+Контрольное8480b61 свидетельство остаётся исторически привязанным к полному
+git archive и987-file source tree. Добавление новых job kinds требует новой
+проверки текущего worker graph; старый JSON не переименовывается в новый pass.

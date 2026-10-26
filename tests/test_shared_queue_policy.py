@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 import pytest
 
 from explorer.store import Store
-from explorer.queue_policy import GIB,default_metadata,queue_plan
+from explorer.queue_policy import GIB,default_metadata,queue_plan,validate_options
 
 
 def job(identity,role='01',*,kind='so101_skill_train',device='cpu',created=100,status='queued'):
@@ -162,3 +162,29 @@ def test_inference_priority_fairshare_roles_and_aging_nonstarvation_are_determin
     rosmaster=job('native106-shadow',role='03',kind='rosmaster_skill_shadow')
     assert default_metadata(rosmaster)['resources']==default_metadata(native)['resources']
     assert not default_metadata(rosmaster)['preemptible'] and default_metadata(rosmaster)['backend']=='act'
+
+
+def test_export_estimate_is_required_before_dispatch_and_serial_IO_budget_is_reserved():
+    export=job('export',role='01',kind='research_export');export['config']['estimated_payload_bytes']=GIB
+    budget=default_metadata(export)
+    assert budget['resources']==dict(cpu_cores=1,memory_bytes=GIB//2,disk_bytes=3*GIB+GIB//4,gpu_slots=0)
+    assert not budget['preemptible']
+    for value in (None,True,-1,1.5):
+        export['config']['estimated_payload_bytes']=value;selected=plan([export])
+        assert not selected['start'] and 'research_export_payload_estimate_missing_or_invalid' in selected['waiting']['export']['reasons']
+    export['config']['estimated_payload_bytes']=GIB
+    active=job('import',kind='mobile_import',status='running')
+    lease=dict(job_id=active['id'],resources=default_metadata(active)['resources'],resident_memory_bytes=GIB//4)
+    assert 'single_ingest_disk_network_budget_occupied' in plan([export,active],active=[lease])['waiting']['export']['reasons']
+    with pytest.raises(ValueError,match='preemptible'):validate_options(export,budget,dict(preemptible=True))
+
+
+def test_warm_actor_uses_one_CPU_inference_lease_and_cannot_enable_GPU_or_preemption():
+    warm=job('warm',role='05',kind='cooperative_policy_warm',device='cuda')
+    budget=default_metadata(warm)
+    assert budget['resources']==dict(cpu_cores=4,memory_bytes=4*GIB,disk_bytes=GIB//4,gpu_slots=0)
+    assert not budget['preemptible'] and budget['backend']=='act'
+    with pytest.raises(ValueError,match='preemptible'):validate_options(warm,budget,dict(preemptible=True))
+    other=job('shadow',role='04',kind='so101_skill_shadow',status='running')
+    lease=dict(job_id=other['id'],resources=default_metadata(other)['resources'],resident_memory_bytes=2*GIB)
+    assert 'single_interactive_inference_budget_occupied' in plan([warm,other],active=[lease])['waiting']['warm']['reasons']
