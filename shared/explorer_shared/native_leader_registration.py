@@ -16,7 +16,7 @@ import numpy as np
 
 from .kinematics import URDFChain
 from .retarget_recording import canonical,write_json
-from .transfer_mapping04 import SourceCoordinates
+from .transfer_mapping import SourceCoordinates
 from .native_stream03 import RelativeLeaderGeometry
 
 LEADER_SHA256='9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c'
@@ -42,9 +42,9 @@ class NativeLeaderContext:
             raise ValueError('Existing calibration metadata exceeds source bound')
         self.raw=self.calibration_path.read_bytes()
         self.coordinates=SourceCoordinates(self.raw,expected_sha256)
-        self.source=URDFChain.from_urdf(self.root/'04-cross-embodiment-transfer/configs/so101/so101_leader_new_calib.urdf','base_link','gripper_frame_link')
+        self.source=URDFChain.from_urdf(self.root/'shared/robotics/so101/so101_leader_new_calib.urdf','base_link','gripper_frame_link')
         self.target=URDFChain.from_urdf(self.root/'01-autonomous-learning/src/legacy/config/explorer.urdf','base_footprint','Gripping')
-        self.profile=self.coordinates.profile(self.source,(self.root/'04-cross-embodiment-transfer/configs/so101/README.md').read_bytes())
+        self.profile=self.coordinates.profile(self.source,(self.root/'shared/robotics/so101/README.md').read_bytes())
         self.native_source=(self.root/'01-autonomous-learning/src/legacy/src/servo_coordinates.py').read_bytes()
         from .native_leader_geometry import original_servo_coordinates
         self.to_radians,self.to_servo=original_servo_coordinates(self.native_source)

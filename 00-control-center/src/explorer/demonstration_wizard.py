@@ -13,6 +13,7 @@ from pathlib import Path
 import time
 
 from explorer_shared.contracts import canonical, digest, event
+from explorer_shared.experiments import canonical_experiment
 
 PROJECTS = ('02', '03', '04', '06', 'personal')
 APPROACHES = ('front', 'left', 'right', 'above', 'other')
@@ -65,6 +66,19 @@ def _local(root, value):
     return path
 
 
+def _source_project(store,job):
+    """Retain pre-renumber review keys through explicit import retry lineage."""
+    current=job;seen=set()
+    for _ in range(16):
+        parent=(current.get('config') or {}).get('retry_of_job_id')
+        if parent is None:return current.get('legacy_experiment_id',current['project_id'])
+        if parent in seen:raise ValueError('Import retry lineage has a cycle')
+        seen.add(parent);prior=store.job(parent)
+        if prior is None or prior['config'].get('episode_id')!=job['config'].get('episode_id'):raise ValueError('Original retry source lineage is unavailable')
+        current=prior
+    raise ValueError('Import retry lineage exceeds the review bound')
+
+
 def _source(store, job):
     result, root = job.get('result') or {}, Path(store.root).resolve()
     episode_id = result.get('episode_id') or job['config'].get('episode_id')
@@ -102,7 +116,7 @@ def _source(store, job):
     labels_available = bool(descriptors) and label_basis in ('accepted_action', 'dispatched_command', 'host_reported_target_snapshot')
     quality = admission.get('source_quality_usable', labels_available)
     usable = labels_available and quality is True and admission.get('operator_success_label', outcome == 'success') is True and original.get('state') == 'complete'
-    key = digest(dict(project_id=job['project_id'], episode_id=episode_id, kind='demonstration'))
+    key = digest(dict(project_id=_source_project(store,job), episode_id=episode_id, kind='demonstration'))
     body = dict(source_key=key, source_kind='demonstration', episode_id=episode_id,
         source_manifest_sha256=_sha(path), source_archive_sha256=result.get('source_archive_sha256'),
         source_outcome=outcome, source_training_usable=bool(usable), action_basis=label_basis,
@@ -131,7 +145,7 @@ def _evaluation_source(store, job):
     receipts = json.loads(receipts_path.read_text())
     if not isinstance(receipts, dict) or not any(isinstance(row, dict) and isinstance(row.get('dispatched'), list) and len(row['dispatched']) == 6 for row in receipts.values()):
         raise ValueError('No actual dispatched policy command receipt is retained')
-    source = dict(source_key=digest(dict(project_id=job['project_id'], run_id=job['id'], kind='evaluation')),
+    source = dict(source_key=digest(dict(project_id=_source_project(store,job), run_id=job['id'], kind='evaluation')),
         source_kind='evaluation', episode_id=job['id'], source_manifest_sha256=_sha(log), dispatch_receipts_sha256=_sha(receipts_path),
         source_outcome='unknown', source_training_usable=False, split='independent_operator_review',
         frames=result['observations'], integrity_verified=True,
@@ -152,7 +166,7 @@ def _retarget_source(store,job):
         source=_local(root,str(manifest_path.parent/name))
         if not source.is_relative_to(manifest_path.parent) or _sha(source)!=expected:
             raise ValueError('Original retarget recording checksum mismatch')
-    source=dict(source_key=digest(dict(project_id=job['project_id'],episode_id=manifest['recording_id'],kind='demonstration')),
+    source=dict(source_key=digest(dict(project_id=_source_project(store,job),episode_id=manifest['recording_id'],kind='demonstration')),
         source_kind='demonstration',episode_id=manifest['recording_id'],source_manifest_sha256=_sha(manifest_path),
         source_archive_sha256=result['source_archive_sha256'],source_outcome=manifest.get('outcome','unknown'),
         source_training_usable=False,action_basis=manifest['action_basis'],split='analysis_only',
@@ -166,9 +180,10 @@ def _retarget_source(store,job):
 def sources(store, project_id):
     """Catalogue retained completed imports, deduplicated by original recording."""
     _scope(project_id)
+    project_id=canonical_experiment(project_id,numbering_version=2)
     found, invalid, conflicts = {}, [], set()
     for job in sorted(store.jobs(10000), key=lambda row: (row['created'], row['id'])):
-        if job['project_id'] in (('06','personal') if project_id in ('06','personal') else (project_id,)) and job['status'] == 'completed' and job['kind'] in ('station_import', 'mobile_import', 'retarget_import', 'station_rollout'):
+        if job['project_id']==project_id and job['status'] == 'completed' and job['kind'] in ('station_import', 'mobile_import', 'retarget_import', 'station_rollout'):
             try:
                 source = _evaluation_source(store, job) if job['kind'] == 'station_rollout' else _retarget_source(store,job) if job['kind']=='retarget_import' else _source(store, job)
                 key = source['source_key']
@@ -181,15 +196,17 @@ def sources(store, project_id):
     return dict(sources=[item for key, item in found.items() if key not in conflicts], invalid_sources=invalid)
 
 
-def _annotations(db, project_id, task_id):
-    rows = db.execute("SELECT body FROM events WHERE json_extract(body,'$.payload.type')='demonstration.review' AND json_extract(body,'$.project_id') IN (?,?) AND json_extract(body,'$.payload.task_id')=? ORDER BY received,event_id", (project_id, 'personal' if project_id=='06' else '06' if project_id=='personal' else project_id, task_id))
+def _annotations(db, project_id, task_id,projection):
+    project_id=canonical_experiment(project_id,numbering_version=2)
+    rows = db.execute("SELECT event_id,body FROM events WHERE json_extract(body,'$.payload.type')='demonstration.review' AND json_extract(body,'$.payload.task_id')=? ORDER BY received,event_id", (task_id,))
     latest = {}
     for row in rows:
         body = json.loads(row['body'])
+        current=projection.identity(db,'event',row['event_id'],body.get('project_id'),raw=row['body'].encode(),declared_version=body.get('experiment_numbering_version'))
         payload = body['payload']
         if digest(payload) != body['sha256']:
             raise ValueError('Review event integrity failed')
-        latest[payload['source_key']] = dict(payload, revision_sha256=body['sha256'])
+        if current.get('project_id')==project_id:latest[payload['source_key']] = dict(payload, revision_sha256=body['sha256'])
     return latest
 
 
@@ -229,7 +246,7 @@ def annotate(store, project_id, task_id, body):
         evidence_basis='operator_review', physical_validation_inferred=False)
     with store.connect() as db:
         db.execute('BEGIN IMMEDIATE')
-        previous = _annotations(db, project_id, task_id).get(selected['source_key'])
+        previous = _annotations(db, project_id, task_id,store.experiment_projection).get(selected['source_key'])
         old_label = {k: v for k, v in (previous or {}).items() if k not in ('revision_sha256', 'supersedes_sha256')}
         if old_label == label:
             return previous
@@ -248,7 +265,7 @@ def plan(store, project_id, task_id='pick_and_place'):
     _scope(project_id, task_id)
     catalogue = sources(store, project_id)
     with store.connect() as db:
-        labels = _annotations(db, project_id, task_id)
+        labels = _annotations(db, project_id, task_id,store.experiment_projection)
     current, stale = [], []
     for source in catalogue['sources']:
         review = labels.get(source['source_key'])

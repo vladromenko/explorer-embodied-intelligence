@@ -22,7 +22,7 @@ from .contracts import ACTION_NAMES, ACTION_UNITS, canonical, digest
 from .experiments import experiment_identity, experiment_id
 from .kinematics import rigid_transform, rotation_vector
 from .so101_station import NAMES as SOURCE_NAMES
-from .transfer_mapping04 import TransferBlocked, sha
+from .transfer_mapping import TransferBlocked, sha
 from .transfer_calibration import calibrated_aperture, command_for_aperture, task_registration
 
 TRANSFER_SLUG='cross_embodiment_transfer'

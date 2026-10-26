@@ -11,7 +11,7 @@ import numpy as np
 
 from .contracts import digest
 from .kinematics import ObjectRegistration,rigid_transform
-from .transfer_mapping04 import TransferBlocked
+from .transfer_mapping import TransferBlocked
 from .so101_station import NAMES
 
 

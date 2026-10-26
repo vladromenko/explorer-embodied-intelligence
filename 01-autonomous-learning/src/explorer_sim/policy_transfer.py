@@ -243,7 +243,7 @@ def _run_policy_transfer_locked(store, job, config):
                 or (options.get('training_result_path') and sha(options['training_result_path']) != lineage['training_receipt_sha256'])
                 or _files(Path(options['checkpoint_path'])) != lineage['checkpoint_files_sha256']):
             raise ValueError('Completed policy transfer source/result signature changed')
-        for path,key in ((root/'04-cross-embodiment-transfer/configs/so101/so101_new_calib.urdf','source_urdf_sha256'),
+        for path,key in ((root/'shared/robotics/so101/so101_new_calib.urdf','source_urdf_sha256'),
                          (root/'01-autonomous-learning/src/legacy/config/explorer.urdf','target_urdf_sha256')):
             if sha(path) != lineage[key]:
                 raise ValueError('Completed policy transfer geometric model changed')
@@ -276,7 +276,7 @@ def _run_policy_transfer_locked(store, job, config):
     episode_path = (manifest_path.parent / episode['file']).resolve()
     if not episode_path.is_relative_to(manifest_path.parent) or sha(episode_path) != episode['sha256']:
         raise ValueError('Source episode path/checksum mismatch')
-    source = URDFChain.from_urdf(root/'04-cross-embodiment-transfer/configs/so101/so101_new_calib.urdf', 'base_link', 'gripper_frame_link')
+    source = URDFChain.from_urdf(root/'shared/robotics/so101/so101_new_calib.urdf', 'base_link', 'gripper_frame_link')
     target = URDFChain.from_urdf(root/'01-autonomous-learning/src/legacy/config/explorer.urdf', 'base_footprint', 'Gripping')
     actor = OfficialACTSource(options['checkpoint_path'], options['checkpoint_sha256'], folder/'constructed_processors')
     from .student import framework_info

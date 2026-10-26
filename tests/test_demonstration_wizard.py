@@ -134,6 +134,23 @@ def test_project_isolation_and_no_client_selected_files_or_fake_episodes(tmp_pat
     with pytest.raises(ValueError):plan(store, '02', 'invented-task')
 
 
+def test_current_source04_and_legacy_source06_are_isolated_from_current_transfer06(tmp_path):
+    from explorer_shared.contracts import digest
+    store=Store(tmp_path)
+    import_episode(store,'source-now',project='04')
+    old,_=import_episode(store,'source-old',project='06')
+    # Synthetic retained producer, explicitly marked v1 instead of guessing from 06.
+    with store.connect() as db:
+        db.execute('UPDATE experiment_runtime_identity SET numbering_version=1,experiment_slug=? WHERE entity_kind=? AND entity_id=?',
+            ('so101_source_learning','job',old['id']))
+    import_episode(store,'transfer-now',project='06')
+    assert {row['episode_id'] for row in sources(store,'04')['sources']}=={'source-now','source-old'}
+    assert {row['episode_id'] for row in sources(store,'personal')['sources']}=={'source-now','source-old'}
+    assert [row['episode_id'] for row in sources(store,'06')['sources']]==['transfer-now']
+    old_source=next(row for row in sources(store,'04')['sources'] if row['episode_id']=='source-old')
+    assert old_source['source_key']==digest(dict(project_id='06',episode_id='source-old',kind='demonstration'))
+
+
 def test_changed_descriptor_invalidates_review_and_old_fingerprint(tmp_path):
     store = Store(tmp_path)
     _, path = import_episode(store, 'one')

@@ -17,7 +17,7 @@ import numpy as np
 from PIL import Image
 
 from explorer_shared.contracts import canonical,digest,event
-from explorer_shared.transfer_mapping04 import TransferBlocked,sha
+from explorer_shared.transfer_mapping import TransferBlocked,sha
 from explorer_shared.transfer_calibration import fit_joint_reference,fit_aperture_reference,register_task_frames
 
 TRANSFER_SLUG='cross_embodiment_transfer'

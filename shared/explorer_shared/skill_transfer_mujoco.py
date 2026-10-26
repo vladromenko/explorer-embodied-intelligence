@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 
 from .kinematics import rigid_transform
-from .transfer_mapping04 import TransferBlocked,sha
+from .transfer_mapping import TransferBlocked,sha
 
 
 class MuJoCoTargetProvider:
