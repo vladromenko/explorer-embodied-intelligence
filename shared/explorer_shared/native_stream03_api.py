@@ -6,6 +6,7 @@ The original global STOP remains independent of these session routes.
 import secrets
 
 from fastapi import HTTPException, Request
+from .legacy_bridge import parse_dispatch_query
 
 
 def mount_native_stream_api(app, mux, *, token, observed_test_permit=lambda:False, reference_reader=None):
@@ -41,7 +42,8 @@ def mount_native_stream_api(app, mux, *, token, observed_test_permit=lambda:Fals
     @app.get('/api/explorer/retarget/dispatch')
     def dispatch(request:Request, after_sequence:int=0):
         authenticate(request)
-        return operation(mux.tap.since, after_sequence)
+        query=operation(parse_dispatch_query,request.url.query)
+        return operation(mux.tap.since,(query or {}).get('after_sequence',0),limit=128)
 
     @app.get('/api/explorer/retarget/reference')
     def reference(request:Request):

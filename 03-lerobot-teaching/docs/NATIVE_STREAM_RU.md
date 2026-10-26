@@ -98,6 +98,21 @@ input_received_at. Даже если публикация успела прои�
 помечается gap; ошибки записи — capture_failures. Потребитель не может назвать
 такой интервал lossless или экспертным без отдельной проверки.
 
+При наличии исходного q_estimated_deg, подлинного base command context и
+reference header tap также записывает preceding_command9 непосредственно на
+native host-границе. Первые шесть значений — именно исходная оценка Ruckig перед
+публикацией, а не новый endpoint и не measured q. Без известного base context
+это поле отсутствует; нули не подставляются. Источник reference и предыдущие
+native receipts остаются в записи.
+
+GET dispatch принимает только один bounded nonnegative after_sequence;
+неизвестные/повторные параметры отвергаются в NodeAgent и LegacyBridge. Native
+API возвращает не более128 строк за страницу, next_sequence указывает на
+последнюю **возвращённую** строку, available_latest_sequence — на текущий head.
+Так курсор не пропускает ещё не полученные команды. Копирование/сериализация
+страницы выполняются вне native publication lock. Клиент может сохранить точные
+исходные HTTP JSON bytes через dispatch_source_packet().
+
 Новый capture должен читать эти квитанции и существующий Nano JPEG cache с
 исходными stamp/hash/boot, сохранять полный 9D и common downstream SkillSpec,
 input_adapter=so101_leader, phases/outcomes/splits. Указатель импорта согласован

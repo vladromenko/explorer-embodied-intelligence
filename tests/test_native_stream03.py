@@ -195,6 +195,21 @@ def test_native_publication_before_intent_binding_is_joined_later_by_exact_nativ
     assert not row['source_intent_binding']['source']['cross_device_clock_mapping_assumed']
 
 
+def test_prior_command9_uses_original_ruckig_estimate_and_actual_base_context_not_target_or_ban():
+    mux,teleop,arm,tap,epoch,_ = setup_mux()
+    tap.reference_header({'boot_id':'boot','measured':False,'servo_deg':[90]*6},'e'*64)
+    arm._publish_command([92]*6,80,{'q_estimated_deg':[91.]*6})
+    assert tap.since()['receipts'][-1]['preceding_command9'] is None
+    teleop.stop_all()  # actual MOCK native zero request establishes its provenance
+    arm._publish_command([94]*6,80,{'q_estimated_deg':[93.]*6})
+    row=tap.since()['receipts'][-1]
+    assert row['command9']==[94.]*6+[0.]*3
+    assert row['preceding_command9']['values']==[93.]*6+[0.]*3
+    assert row['preceding_command9']['reference_id']=='e'*64
+    assert row['preceding_command9']['state_source']=='command_estimate'
+    assert not row['hardware_dispatch_verified']
+
+
 def geometry():
     root = Path(__file__).resolve().parents[1]
     source = URDFChain.from_urdf(root/'04-cross-embodiment-transfer/configs/so101/so101_new_calib.urdf','base_link','gripper_frame_link')

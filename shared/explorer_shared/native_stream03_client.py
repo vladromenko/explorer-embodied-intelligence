@@ -18,18 +18,21 @@ class NativeStreamClient:
             raise ValueError('Explicit authenticated Nano observer origin required')
         self.origin, self.token, self.timeout, self.opener = nano_observer_url.rstrip('/'),token,timeout,opener
 
-    def _request(self, operation, body=None):
+    def _request(self, operation, body=None, *, preserve_source_bytes=False):
         content = json.dumps(body,allow_nan=False).encode() if body is not None else None
         request = Request(self.origin+'/legacy/explorer/retarget/'+operation,data=content,
                           headers={'Authorization':'Bearer '+self.token,'Content-Type':'application/json'})
         try:
             with self.opener(request,timeout=self.timeout) as response:
-                payload = json.loads(response.read(8*1024**2+1))
+                raw=response.read(8*1024**2+1)
+                if len(raw)>8*1024**2:
+                    raise ValueError('Native receipt page exceeds its source bound')
+                payload = json.loads(raw)
         except HTTPError as exc:
             raise RuntimeError('Native stream request rejected with HTTP '+str(exc.code)) from exc
         if not isinstance(payload,dict):
             raise ValueError('Native owner returned an invalid receipt')
-        return payload
+        return {'payload':payload,'source_bytes':raw} if preserve_source_bytes else payload
 
     def status(self):
         return self._request('status')
@@ -38,13 +41,14 @@ class NativeStreamClient:
         return self._request('reference')
 
     def dispatch_since(self, sequence):
-        page = self._request('dispatch')
-        # The existing explicit legacy allowlist proxies fixed paths. Filtering
-        # is local; original source receipt/clock fields are preserved verbatim.
-        page['gap'] = sequence < page.get('first_available_sequence',1)-1
-        page['after_sequence'] = sequence
-        page['receipts'] = [row for row in page.get('receipts',[]) if row['sequence']>sequence]
-        return page
+        if type(sequence) is not int or not 0<=sequence<=2**63-1:
+            raise ValueError('Nonnegative bounded native dispatch cursor required')
+        return self._request('dispatch?after_sequence='+str(sequence))
+
+    def dispatch_source_packet(self, sequence):
+        if type(sequence) is not int or not 0<=sequence<=2**63-1:
+            raise ValueError('Nonnegative bounded native dispatch cursor required')
+        return self._request('dispatch?after_sequence='+str(sequence),preserve_source_bytes=True)
 
     def begin(self, *, observing, neutral):
         return self._request('begin',{'observing':observing,'neutral':neutral})

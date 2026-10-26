@@ -84,12 +84,22 @@ class NativeDispatchTap:
         _vector(record.get('servo_deg'), 6)
         with self.lock:
             self.reference = {'original': deepcopy(record), 'source_sha256': original_sha256,
+                              'reference_id': original_sha256, 'reference_receipt_id': 'factory-reference:'+original_sha256,
                               'state_source': 'command_estimate', 'attainment_measured': False}
 
     def append(self, kind, payload, *, source_id, started_ns=None):
         with self.lock:
             self.sequence += 1
             receipt_id = self.boot_id + ':native-host:' + str(self.sequence)
+            prior = None
+            if kind == 'arm_host_publish' and payload.get('q_estimated_deg') is not None and self.base is not None:
+                prior = {'values': _vector(payload['q_estimated_deg'],6).tolist() + list(self.base),
+                         'state_source': 'command_estimate',
+                         'estimator_id': 'original-factory-ruckig:'+AUDITED_FACTORY_SHA256['src/arm_velocity.py'],
+                         'reference_id': self.reference['reference_id'] if self.reference else None,
+                         'last_dispatch_receipt_id': self.arm_receipt or (self.reference['reference_receipt_id'] if self.reference else None),
+                         'base_component_receipt_id': self.base_receipt,
+                         'timestamp_basis': 'native_host_before_publish_cache_observation'}
             if kind == 'arm_host_publish':
                 self.arm = _vector(payload.get('q_commanded_deg'), 6).tolist()
                 self.arm_receipt = receipt_id
@@ -105,6 +115,7 @@ class NativeDispatchTap:
                    'state_source': 'command_estimate', 'measured_q': None,
                    'measured_q_mask': [False] * 6, 'attainment_measured': False,
                    'contact_verified': False}
+            row['preceding_command9'] = prior
             if self.arm is not None and self.base is not None:
                 row.update(command9=list(self.arm) + list(self.base), command9_mask=[True] * 9,
                            component_receipt_ids=[self.arm_receipt] * 6 + [self.base_receipt] * 3,
@@ -118,24 +129,31 @@ class NativeDispatchTap:
             self.rows.append(row)
             return deepcopy(row)
 
-    def since(self, after_sequence=0):
+    def since(self, after_sequence=0, limit=None):
         if type(after_sequence) is not int or after_sequence < 0:
             raise ValueError('Nonnegative original receipt sequence required')
+        if limit is not None and (type(limit) is not int or not 1<=limit<=1024):
+            raise ValueError('Bounded native receipt page required')
         with self.lock:
             first = self.rows[0]['sequence'] if self.rows else self.sequence + 1
-            rows = deepcopy([row for row in self.rows if row['sequence'] > after_sequence])
-            for row in rows:
-                payload = row['original_payload']
-                generation, received = payload.get('command_generation'), payload.get('input_received_at')
-                row['source_intent_binding'] = deepcopy(self.intents.get((generation,repr(received))))
-                row['source_intent_link_basis'] = 'exact_native_generation_and_input_received_at_not_cross_device_clock_conversion'
-            return {'schema': 'explorer_native_dispatch_page_v1', 'boot_id': self.boot_id,
+            selected=[row for row in self.rows if row['sequence']>after_sequence]
+            selected=selected[:limit] if limit is not None else selected
+            bindings=[self.intents.get((row['original_payload'].get('command_generation'),
+                                        repr(row['original_payload'].get('input_received_at')))) for row in selected]
+            metadata={'schema': 'explorer_native_dispatch_page_v1', 'boot_id': self.boot_id,
                     'clock_domain': self.clock_domain, 'after_sequence': after_sequence,
-                    'next_sequence': self.sequence, 'gap': after_sequence < first - 1,
+                    'next_sequence': selected[-1]['sequence'] if selected else after_sequence,
+                    'available_latest_sequence':self.sequence,'gap': after_sequence < first - 1,
                     'capture_failures': self.capture_failures,
                     'first_available_sequence': first,
-                    'reference': deepcopy(self.reference),
-                    'receipts': rows}
+                    'reference': self.reference}
+        # Copy/JSON work is outside the native publication lock. Objects stored
+        # in the ring/binding table are immutable after insertion.
+        rows=deepcopy(selected)
+        for row,binding in zip(rows,bindings):
+            row['source_intent_binding']=deepcopy(binding)
+            row['source_intent_link_basis']='exact_native_generation_and_input_received_at_not_cross_device_clock_conversion'
+        return {**metadata,'reference':deepcopy(metadata['reference']),'receipts':rows}
 
 
 class NativeTeleopMux:

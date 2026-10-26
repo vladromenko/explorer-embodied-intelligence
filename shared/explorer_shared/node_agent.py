@@ -591,7 +591,7 @@ class NodeAgent:
             raise ValueError('Unknown direct arm endpoint')
         return method(payload)
 
-    def legacy_request(self, path, payload=None):
+    def legacy_request(self, path, payload=None, *, query=None):
         global_stop = payload is not None and ((path == 'control' and payload.get('op') == 'stop') or path in ('teleop/stop','teleop/disconnect','arm/trajectory/stop'))
         direct = self.arm_retarget.status()
         if global_stop:
@@ -606,6 +606,8 @@ class NodeAgent:
                              'teleop/input','teleop/select','teleop/mode','teleop/resume')
         if payload is not None and competing and (direct['state'] == 'ACTIVE' or direct['inflight'] or direct['pending_stops'] or direct['stop_delivery_uncertain']):
             return 409, {'detail':'Direct arm route owns this Explorer adapter; STOP it before manual commands'}
+        if query is not None:
+            return self.legacy_bridge.request(path, payload, query=query)
         return self.legacy_bridge.request(path, payload)
 
     def native_teaching_request(self,path,payload=None):
@@ -796,7 +798,13 @@ def make_handler(agent):
                 else:
                     raise LookupError('Unknown station endpoint')
             elif path.startswith("/legacy/") and agent.legacy_bridge is not None:
-                code, payload = agent.legacy_request(path.removeprefix("/legacy/"))
+                native_path=path.removeprefix('/legacy/')
+                if native_path=='explorer/retarget/dispatch':
+                    from .legacy_bridge import parse_dispatch_query
+                    query=parse_dispatch_query(urlsplit(self.path).query)
+                    code,payload=agent.legacy_request(native_path,query=query)
+                else:
+                    code,payload=agent.legacy_request(native_path)
                 self._json(code, payload)
             elif path == "/inventory":
                 self._json(200, agent.inventory())
