@@ -1,0 +1,3 @@
+{
+  "service_states_before": "MainPID=0\nId=explorer-perception.service\nActiveState=failed\nUnitFileState=disabled\n\nMainPID=2478\nId=explorer-camera.service\nActiveState=active\nUnitFileState=disabled\n\nMainPID=2535\nId=explorer-control.service\nActiveState=active\nUnitFileState=enabled\n\nMainPID=2490\nId=explorer-mcu.service\nActiveState=active\nUnitFileState=enabled\n"
+}

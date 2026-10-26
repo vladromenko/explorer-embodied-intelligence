@@ -1,0 +1,141 @@
+{
+  "schema": "explorer_doctor_v1",
+  "node": "homebrain",
+  "read_only": true,
+  "collected_at_unix": 1792974934.4653149,
+  "services": {
+    "explorer-control-center.service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled",
+      "ExecMainStatus": "0"
+    },
+    "explorer-worker.service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled",
+      "ExecMainStatus": "0"
+    }
+  },
+  "nodes": {
+    "pi": {
+      "reachable": true,
+      "cameras": [
+        {
+          "id": "pi-overview",
+          "fresh": true,
+          "frame_age_ms": 17.412246,
+          "frame_id": "pi-overview:65884c43de9a:16794",
+          "timestamp_basis": "host_receive_estimate"
+        }
+      ],
+      "station": {
+        "available": true,
+        "fresh_measured_six_axis_feedback": true,
+        "finite_two_arm_vectors": true,
+        "same_boot_clock_domain": true,
+        "measurement_age_ms": 1.621371,
+        "both_original_calibration_hashes_match": true,
+        "configuration_writes_reported": 0,
+        "scope": "Existing cached position feedback only; no new bus reads or motion test."
+      },
+      "hailo": {
+        "available_reported": true,
+        "state": "running"
+      }
+    },
+    "nano": {
+      "contacted": false,
+      "reason": "HTTP skipped or preserved Nano"
+    }
+  },
+  "config_permissions": [
+    {
+      "name": "explorer",
+      "private": true,
+      "mode": "0o700"
+    },
+    {
+      "name": "config.json",
+      "private": true,
+      "mode": "0o600"
+    },
+    {
+      "name": "access-code.txt",
+      "private": true,
+      "mode": "0o600"
+    }
+  ],
+  "storage": {
+    "free_bytes": 187310792704,
+    "total_bytes": 249326301184,
+    "below_2_gib_diagnostic": false
+  },
+  "database": {
+    "integrity": "ok",
+    "counts": {
+      "events": 1259,
+      "nodes": 2,
+      "jobs": 12,
+      "skills": 5,
+      "sessions": 17,
+      "tickets": 0
+    }
+  },
+  "central_node_receipt_age_s": {
+    "nano": 1.655,
+    "pi": 1.69
+  },
+  "outbox": {
+    "available": false,
+    "pending": null,
+    "oldest_age_s": null
+  },
+  "local_calibration": [
+    {
+      "path": "robots/so_follower/so101_follower.json",
+      "present": false,
+      "original_hash_matches": false
+    },
+    {
+      "path": "teleoperators/so_leader/so101_leader.json",
+      "present": false,
+      "original_hash_matches": false
+    }
+  ],
+  "controller_baseline": {
+    "checked": false,
+    "baseline_files": 6,
+    "writes": 0
+  },
+  "qualification": [
+    {
+      "evidence": "qualification/act-cu132-20261026/qualification.json",
+      "sha256": "dfedf58786ea88da13016cc9b3ba14c6e8dec18d52c3374ff424d6bc2b94ef49",
+      "passed_recorded": false,
+      "finite_recorded": true,
+      "weights_changed_recorded": true,
+      "framework_versions": {
+        "torch": "2.12.0+cu132",
+        "torchvision": "0.27.0+cu132"
+      },
+      "matches_installed_versions": false,
+      "same_build_identity_proven": false,
+      "scope": "Recorded compact ACT tensor/optimizer/checkpoint test; no physical skill qualification. Versions alone do not prove the same wheel/build."
+    },
+    {
+      "evidence": "qualification/act-cu132-fp32-20261026/qualification.json",
+      "sha256": "9665b3b2e4ea78d3c4bf8469bd3b21dbe02c0ef61733a9358dfe7d901119016a",
+      "passed_recorded": true,
+      "finite_recorded": true,
+      "weights_changed_recorded": true,
+      "framework_versions": {
+        "torch": "2.12.0+cu132",
+        "torchvision": "0.27.0+cu132"
+      },
+      "matches_installed_versions": false,
+      "same_build_identity_proven": false,
+      "scope": "Recorded compact ACT tensor/optimizer/checkpoint test; no physical skill qualification. Versions alone do not prove the same wheel/build."
+    }
+  ]
+}

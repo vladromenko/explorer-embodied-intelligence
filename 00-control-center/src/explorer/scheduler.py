@@ -20,6 +20,18 @@ def executable_for(job):
     return sys.executable
 
 
+def execution_environment(config,store,job):
+    current=Path(config['root']).resolve()
+    marker=current/'RELEASE_COMMIT'
+    if not marker.is_file():
+        raise ValueError('Durable jobs require a commit-addressed Explorer deployment')
+    pinned=store.pin_job_release(job['id'],marker.read_text().strip())
+    release=current.parent/pinned
+    if release.resolve().parent!=current.parent or not (release/'RELEASE_COMMIT').is_file() or (release/'RELEASE_COMMIT').read_text().strip()!=pinned:
+        raise ValueError('Pinned execution release is unavailable; job source will not be silently replaced')
+    return dict(os.environ,PYTHONPATH=str(release/'00-control-center/src')+':'+str(release/'shared'))
+
+
 def supervise(config, store):
     lock = (store.root / 'scheduler.lock').open('w')
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -66,9 +78,10 @@ def supervise(config, store):
                     folder.mkdir(parents=True, exist_ok=True)
                     try:
                         executable=executable_for(job)
+                        environment=execution_environment(config,store,job)
                         with (folder / 'worker.log').open('ab') as log:
                             process = subprocess.Popen([executable, '-m', 'explorer.job_runner', job_id],
-                                stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+                                stdout=log, stderr=subprocess.STDOUT, start_new_session=True,env=environment)
                     except (ValueError,OSError) as error:
                         store.update_job(job_id,status='failed',error=str(error))
                     else:

@@ -1,0 +1,23 @@
+{
+  "node": "pi",
+  "dry_run": false,
+  "candidate_paths": 9,
+  "candidate_bytes": 2198164035,
+  "archived_entries": 6749,
+  "excluded_groups": 174,
+  "excluded_bytes": 2023498606,
+  "git_repositories": 1,
+  "shell_completion_change": false,
+  "test_restore_passed": true,
+  "archive_directory": "/home/vlados/.local/state/explorer/legacy-archive-20261026/pi-20261025T234742Z-94e1922b",
+  "archive": "/home/vlados/.local/state/explorer/legacy-archive-20261026/pi-20261025T234742Z-94e1922b/source-config.tar.gz",
+  "archive_sha256": "bd42cdc1b1c1e4d9097d470ce4b0d3a7e41c82abeba0aedca13a7e286ea12e22",
+  "archive_bytes": 45335354,
+  "git_bundle_bytes": 146656,
+  "removed_paths": 9,
+  "removed_paths_counts": "fully_removed_candidates_only",
+  "shell_completion_changed": false,
+  "completed": true,
+  "in_progress": null,
+  "estimated_net_bytes_reclaimed": 2152682025
+}

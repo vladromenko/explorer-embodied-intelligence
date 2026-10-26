@@ -1,10 +1,11 @@
 """ENGINEERING_GLUE: SQLite WAL registry, immutable artifact paths and backup."""
 import json
+import re
 import sqlite3
 import time
 import uuid
 from pathlib import Path
-from explorer_shared.contracts import canonical, digest
+from explorer_shared.contracts import canonical, digest, event
 
 
 class Store:
@@ -80,6 +81,46 @@ class Store:
             db.execute('INSERT INTO jobs(id,kind,project_id,status,created,updated,config) VALUES (?,?,?,?,?,?,?)',
                 (job_id,kind,project_id,'queued',now,now,json.dumps({'episode_id':episode_id})))
         return self.job(job_id)
+
+    def pin_job_release(self,job_id,commit):
+        if not re.fullmatch('[0-9a-f]{40}',commit):
+            raise ValueError('Execution release must be a complete commit identity')
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            row=db.execute('SELECT config FROM jobs WHERE id=?',(job_id,)).fetchone()
+            if row is None:
+                raise ValueError('Unknown job')
+            settings=json.loads(row['config'])
+            pinned=settings.get('_execution_commit')
+            if pinned is None:
+                settings['_execution_commit']=commit
+                db.execute('UPDATE jobs SET config=? WHERE id=?',(json.dumps(settings),job_id))
+                pinned=commit
+            if not isinstance(pinned,str) or not re.fullmatch('[0-9a-f]{40}',pinned):
+                raise ValueError('Stored execution release identity is invalid')
+        return pinned
+
+    def complete_job(self,job_id,result):
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            row=db.execute('SELECT * FROM jobs WHERE id=?',(job_id,)).fetchone()
+            if row is None:
+                raise ValueError('Unknown job')
+            terminal='cancelled' if row['status'] in ('cancel_requested','cancelled') else 'completed'
+            ident='job.completed:'+job_id
+            previous=db.execute('SELECT body FROM events WHERE event_id=?',(ident,)).fetchone()
+            if previous:
+                saved=json.loads(previous['body'])
+                if saved['payload']['result']!=result:
+                    raise ValueError('Completed job evidence cannot change')
+                terminal=saved['payload']['status']
+            else:
+                body=event('nx',row['project_id'],{'kind':'job.finalized','job_id':job_id,'status':terminal,'result':result},run_id=job_id)
+                body['event_id']=ident
+                db.execute('INSERT INTO events VALUES (?,?,?,?,?)',(ident,'nx',time.time(),body['sha256'],canonical(body).decode()))
+            db.execute('UPDATE jobs SET status=?,progress=?,result=?,error=NULL,updated=? WHERE id=?',
+                (terminal,1,json.dumps(result,allow_nan=False),time.time(),job_id))
+        return terminal
 
     def jobs(self, limit=100):
         with self.connect() as db:

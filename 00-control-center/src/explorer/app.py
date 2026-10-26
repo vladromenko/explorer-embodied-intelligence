@@ -252,6 +252,8 @@ async def create_job(request: Request):
     config = body.get('config', {})
     if not isinstance(config, dict):
         raise HTTPException(400, 'Job configuration must be an object')
+    if '_execution_commit' in config:
+        raise HTTPException(400,'Execution provenance is assigned by the worker')
     if body['kind']=='station_shadow':
         config['shadow']=True
     if body['kind']=='station_rollout':

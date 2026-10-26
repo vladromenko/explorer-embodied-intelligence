@@ -1,0 +1,117 @@
+{
+  "cache": {
+    "at": 1792976467.9454641,
+    "source": "onboard_ros_cpu_cache_v1",
+    "mode": "publishing",
+    "reason": "native unit inactive/failed and no fresh native cache",
+    "raw_frames_written": 852,
+    "registered_pairs_written": 1714,
+    "rgbd_ready": true,
+    "registered_pair_write_age_s": 0.00047016143798828125,
+    "last_registered_color_ros_stamp": 1792976467.867031,
+    "last_error": null,
+    "errors": {},
+    "helper_sha256": "659974a9083101fdd6da8df9ca516f64123365b36daf283fea665a6eea43a963",
+    "controller_writes": 0,
+    "gpu_used": false
+  },
+  "jpeg_age_s": 0.04006171226501465,
+  "jpeg_sha256": "30afa24570c6da2bcdaeaf736e63dcf5b0533da23a0303c2534b7d792471c9f2",
+  "frame_metadata": {
+    "at": 1792976468.0116134,
+    "image_stamp": 1792976468.00305,
+    "frame": "camera_color_optical_frame",
+    "width": 640,
+    "height": 480,
+    "source": "onboard_ros_cpu_cache_v1",
+    "camera_id": "onboard_rgbd",
+    "frame_id": "474fa0d2e35b42d398103a15b6ff5e8c",
+    "camera_info_version": "f9623bebe94601dbade469588cd82025864d7c6d0f5752c2fc0c153041a13754",
+    "intrinsic_k": [
+      480.7078552246094,
+      0.0,
+      322.29058837890625,
+      0.0,
+      480.7112731933594,
+      245.64146423339844,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "distortion_d": [
+      -0.01774778589606285,
+      0.0024330997839570045,
+      0.00028392899548634887,
+      -0.000394188187783584,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ros_header": {
+      "sec": 1792976468,
+      "nanosec": 3049984,
+      "frame_id": "camera_color_optical_frame"
+    },
+    "exposure_time_source": "ROS_image_header_timestamp",
+    "sensor_exposure_time_verified": false,
+    "clock_alignment_verified": false,
+    "received_monotonic_ns": 3315941406429,
+    "received_wall_unix": 1792976468.008835,
+    "receive_time_basis": "host_callback_receive_estimate_not_exposure",
+    "jpeg_sha256": "30afa24570c6da2bcdaeaf736e63dcf5b0533da23a0303c2534b7d792471c9f2",
+    "jpeg": "frame-raw.jpg",
+    "same_frame_hash_verified": true
+  },
+  "rgbd_arrays": {
+    "rgb": {
+      "shape": [
+        480,
+        640,
+        3
+      ],
+      "dtype": "uint8"
+    },
+    "depth": {
+      "shape": [
+        480,
+        640
+      ],
+      "dtype": "float32"
+    },
+    "k": {
+      "shape": [
+        3,
+        3
+      ],
+      "dtype": "float64"
+    },
+    "d": {
+      "shape": [
+        8
+      ],
+      "dtype": "float64"
+    },
+    "stamp": {
+      "shape": [],
+      "dtype": "float64"
+    },
+    "depth_stamp": {
+      "shape": [],
+      "dtype": "float64"
+    },
+    "frame": {
+      "shape": [],
+      "dtype": "<U26"
+    },
+    "frame_id": {
+      "shape": [],
+      "dtype": "<U32"
+    },
+    "camera_info_version": {
+      "shape": [],
+      "dtype": "<U64"
+    }
+  },
+  "controller_processes": "MainPID=2478\nId=explorer-camera.service\n\nMainPID=2535\nId=explorer-control.service\n\nMainPID=2490\nId=explorer-mcu.service\n"
+}

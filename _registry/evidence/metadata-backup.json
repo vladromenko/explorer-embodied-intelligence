@@ -1,0 +1,24 @@
+{
+  "artifact_payloads_included": false,
+  "backup_directory": "/home/jetsonnx/.local/state/explorer/backups/metadata-20261026-0321",
+  "bytes": 2700504,
+  "calibration_files": 2,
+  "calibration_source_present": true,
+  "file_count": 7,
+  "manifest_sha256": "b2f611892e58e003589bd5ff0eaef18b9ab037ab8e8082d65cd37fbea22bd51e",
+  "private_config_or_calibration_files": 4,
+  "private_files_sha256_verified": true,
+  "store": {
+    "counts": {
+      "events": 1181,
+      "jobs": 12,
+      "nodes": 2,
+      "sessions": 16,
+      "skills": 4,
+      "tickets": 0
+    },
+    "integrity": "ok",
+    "store_opened": true
+  },
+  "test_restore_passed": true
+}

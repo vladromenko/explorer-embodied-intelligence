@@ -150,9 +150,14 @@ def main(job_id):
             result = run_virtual_experiment(store, job, config)
         else:
             raise ValueError('Unsupported job kind')
-        (folder / 'result.json').write_text(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
-        store.ingest(event('nx', job['project_id'], {'kind':'job.completed', 'job_id':job_id, 'result':result}, run_id=job_id))
-        store.update_job(job_id, status='completed', progress=1, result=result, error=None)
+        result['execution_commit']=job['config'].get('_execution_commit')
+        temporary=folder/'result.json.tmp'
+        with temporary.open('w') as stream:
+            json.dump(result,stream,ensure_ascii=False,indent=2,allow_nan=False)
+            stream.flush()
+            os.fsync(stream.fileno())
+        temporary.replace(folder/'result.json')
+        store.complete_job(job_id,result)
     except Exception as error:
         traceback.print_exc()
         store.update_job(job_id, status='failed', error=type(error).__name__ + ': ' + str(error))
