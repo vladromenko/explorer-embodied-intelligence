@@ -1,0 +1,25 @@
+{
+  "schema": "explorer_shared_act9_cuda_evidence_index_v2",
+  "source_commit": "010ba3e04fc727cd37264da1fff467aa69fb9ac7",
+  "job_kind": "manipulation_student",
+  "archives": {
+    "ACT9_SHARED_CUDA_20261026_QUALIFICATION.json": "a13014b5209ef878d0787465d42bc61f8a28d8cbd76e95174b57eaaf2d0d3e25",
+    "ACT9_SHARED_CUDA_20261026_PREFLIGHT.json": "be9e2336adbdff6ad6d0619d7ec54a205dc8e3917e4a93cbc01ee0e95df1e35f",
+    "ACT9_SHARED_CUDA_20261026_BINDING.json": "ea586c88c51a497d3d2c02bc1da8d12a375c2af667aa078cd473023f4a8740ba",
+    "ACT9_SHARED_CUDA_20261026_RESULT.json": "8d2b28f14b3c3b7c7b0b36f80f07be8f5d2b7fe471934f8ed9117d574fc376d7",
+    "ACT9_SHARED_CUDA_20261026_RESUME_AUDIT.json": "773a09703510d83b523a070fbe1d15edc40eaecc466ace668b3b1ed3a9a30544",
+    "ACT9_SHARED_CUDA_20261026_ORIGINAL_BINDING.json": "f4e23e00af4af02d751d1ac3b2b1cabddc95f47e6f60c2949934f277550f4f57"
+  },
+  "qualification_result_sha256": "8d2b28f14b3c3b7c7b0b36f80f07be8f5d2b7fe471934f8ed9117d574fc376d7",
+  "binding_sha256": "5838e670c86b54460f4fb78dcabf3143bb5a55f567ea10b3f7bd587fb765aa79",
+  "tests_passed": 12,
+  "actual_optimizer_updates": 8,
+  "training_resume_process_restart_tested": false,
+  "independent_development_successes": 0,
+  "independent_development_trials": 1,
+  "physical_skill_qualified": false,
+  "other_actor_shapes_qualified": false,
+  "production_state_writes": false,
+  "preserved_legacy_evidence": "_registry/evidence/gpu9-current-source-20261026.json",
+  "registry_publication": "Isolated immutable-source-bindings only; root may bind identical measured14source hashes to a final deployment release explicitly"
+}
