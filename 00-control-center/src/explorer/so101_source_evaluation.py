@@ -356,7 +356,21 @@ def run_so101_skill_eval(store,job,config=None,*,station=None,permission=None,ph
                     grant_id=selected['grant_id'];initial_epoch=selected['expected_control_epoch']
                 else:sleep(.05)
             if grant_id is None:raise EvaluationBlocked('No current user-observed native grant attached after model preparation')
-        _write(folder/'grant-after-load.json',canonical(_grant(permission,grant_id,requested['binding'],initial_epoch)))
+        prepared_grant=_grant(permission,grant_id,requested['binding'],initial_epoch)
+        _write(folder/'grant-after-load.json',canonical(prepared_grant))
+        # Reject a different connected calibration/camera BEFORE native start,
+        # which can enable holding torque even before a learned action exists.
+        initial_packet,initial_jpeg,_,_=_packet(station,model,clock)
+        initial_observation=initial_packet['observation']
+        displayed=prepared_grant.get('displayed_frame') or {}
+        if (prepared_grant.get('follower_calibration_sha256')!=model['source_calibration_sha256'] or
+                displayed.get('camera_id')!=initial_observation['camera_id'] or
+                prepared_grant.get('boot_id')!=initial_observation['source_cutoff_boot_id'] or
+                prepared_grant.get('clock_domain')!=initial_observation['source_cutoff_clock_domain']):
+            raise EvaluationBlocked('Observed grant camera/calibration/native boot/clock differs from the model before native start')
+        _write(folder/'prestart-observation.json',canonical(initial_packet))
+        _write(folder/'prestart-observation.jpg',initial_jpeg)
+        _grant(permission,grant_id,requested['binding'],initial_epoch)
         current=station.status()
         if (current.get('control_epoch')!=initial_epoch or current.get('available') is not True or current.get('configuration_writes')!=0 or
                 list(current.get('action_names') or [])!=model['source_profile']['names'] or current.get('action_units')!=model['source_profile']['units']):

@@ -64,7 +64,8 @@ class Permission:
     def __init__(self,station,binding):self.station,self.binding=station,binding;self.id=uuid.uuid4().hex;self.revoked=False;self.new_owner=False
     def check(self,ident,binding,epoch):
         if self.revoked or ident!=self.id or binding!=self.binding or epoch!=self.station.epoch:raise ValueError('Observed grant revoked or wrong epoch')
-        return dict(grant_id=self.id,binding=binding,control_epoch=epoch,execution_permission=True,software_fixture_only=True)
+        return dict(grant_id=self.id,binding=binding,control_epoch=epoch,execution_permission=True,software_fixture_only=True,
+            follower_calibration_sha256=self.station.calibration,displayed_frame={'camera_id':'SOFTWARE-camera'},boot_id='native-boot',clock_domain='native-source')
     def command(self,ident,binding,operation,body):
         if ident!=self.id or binding!=self.binding or self.new_owner:raise ValueError('Wrong old grant or newer owner')
         if operation!='stop':self.check(ident,binding,body.get('expected_control_epoch',body.get('control_epoch')))
@@ -187,6 +188,23 @@ def test_revoke_during_model_load_retains_negative_attempt_without_native_start(
     assert (store.root/'jobs'/job['id']/'result.json').is_file()
 
 
+@pytest.mark.parametrize('changed',['calibration','camera','boot','clock'])
+def test_connected_grant_source_mismatch_is_rejected_before_any_native_start(tmp_path,changed):
+    parts=prepared(tmp_path);permission=parts[4];original=permission.check
+    def different_source(*args):
+        grant=original(*args)
+        if changed=='calibration':grant['follower_calibration_sha256']='f'*64
+        elif changed=='camera':grant['displayed_frame']={'camera_id':'OTHER-camera'}
+        elif changed=='boot':grant['boot_id']='OTHER-boot'
+        else:grant['clock_domain']='OTHER-clock'
+        return grant
+    permission.check=different_source
+    result=run(parts)
+    assert parts[3].commands==[] and result['steps']==0
+    assert 'before native start' in result['error']['reason']
+    assert not result['independent_full_task_success']
+
+
 def test_cancel_during_inference_blocks_subsequent_action_before_native_boundary(tmp_path):
     parts=prepared(tmp_path);store,job,admission,station,permission,inbox,clock,phase,Policy,model=parts
     class Cancelling(Policy):
@@ -200,9 +218,11 @@ def test_cancel_during_inference_blocks_subsequent_action_before_native_boundary
 
 
 def test_source_evaluation_module_import_remains_torch_and_robot_free():
-    import subprocess,sys
+    import os,subprocess,sys
     code="import sys;import explorer.so101_source_evaluation;assert 'torch' not in sys.modules;assert not any(n.startswith('lerobot.robots') for n in sys.modules)"
-    done=subprocess.run([sys.executable,'-c',code],capture_output=True,text=True,timeout=15)
+    root=Path(__file__).resolve().parents[1]
+    done=subprocess.run([sys.executable,'-c',code],capture_output=True,text=True,timeout=15,
+        env=dict(os.environ,PYTHONPATH=str(root/'00-control-center/src')+':'+str(root/'shared')))
     assert done.returncode==0,done.stderr
 
 
