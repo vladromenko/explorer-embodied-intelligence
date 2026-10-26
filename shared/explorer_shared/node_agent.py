@@ -7,6 +7,7 @@ the original calibrated SO-101 buses; no calibration or motor settings are writt
 from __future__ import annotations
 
 import argparse
+from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import fcntl
@@ -89,6 +90,34 @@ class CameraSource:
         self.thread = None
         self.counter = 0
         self.session_id = uuid.uuid4().hex[:12]
+        self._history = deque()
+        self._history_bytes = 0
+        self._history_limit_frames = 64
+        self._history_limit_bytes = 32 * 1024**2
+
+    @staticmethod
+    def _frame_bytes(frame):
+        return len(frame.jpeg) + int(getattr(frame.bgr, 'nbytes', 0))
+
+    def frame_by_id(self, frame_id):
+        """Exact bounded retained bytes; age still needs checking by the caller."""
+        with self.lock:
+            return next((frame for frame in reversed(self._history) if frame.frame_id == frame_id), None)
+
+    def before(self, monotonic_ns, max_age_ns=None):
+        """Same-kernel-clock frame preceding a recorded dispatch, no new capture.
+
+        Caller must verify original domain/boot identity before supplying ticks.
+        This historical lookup is not current physical-observation permission.
+        """
+        if type(monotonic_ns) is not int or not 0 <= monotonic_ns <= time.monotonic_ns():
+            return None
+        max_age_ns = int(self.stale_s * 1e9) if max_age_ns is None else max_age_ns
+        if type(max_age_ns) is not int or max_age_ns < 0:
+            raise ValueError('Explicit nonnegative historical camera age required')
+        with self.lock:
+            return next((frame for frame in reversed(self._history)
+                         if 0 <= monotonic_ns - frame.monotonic_ns <= max_age_ns), None)
 
     def latest(self):
         with self.lock:
@@ -105,6 +134,11 @@ class CameraSource:
                       width, height, timestamp_basis, source_wall_utc, bgr)
         with self.lock:
             self.frame, self.error = frame, None
+            self._history.append(frame)
+            self._history_bytes += self._frame_bytes(frame)
+            while (len(self._history) > self._history_limit_frames or
+                   self._history_bytes > self._history_limit_bytes):
+                self._history_bytes -= self._frame_bytes(self._history.popleft())
 
     def metadata(self):
         frame = self.latest()
