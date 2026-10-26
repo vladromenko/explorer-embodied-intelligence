@@ -864,6 +864,8 @@ from .skill_workflow_api import install_skill_workflow_routes
 install_skill_workflow_routes(app,lambda:STORE)
 from .lab_skill_api import install_router as install_lab_skill_routes
 install_lab_skill_routes(app,lambda:STORE)
+from .research_export_api import install_router as install_research_export_routes
+install_research_export_routes(app,lambda:STORE)
 
 
 @app.get('/api/cooperative')

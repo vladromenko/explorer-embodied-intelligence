@@ -83,6 +83,8 @@ const cooperativeWorkbench = createCooperativeWorkbenchClient({get:api,post:(...
 let cooperativeUnbind = () => {}, cooperativeLoadedAt = 0;
 const sharedQueue = createSharedQueueClient({get:api,post:(...args) => post(...args),onChange:() => { model.forceRender = true; render(); }});
 let sharedQueueUnbind = () => {}, sharedQueueLoadedAt = 0;
+const researchExport = createResearchExportClient({get:api,post:(...args) => post(...args),onChange:() => { if (path() === "/research") {model.forceRender = true;render();} }});
+let researchExportUnbind = () => {}, researchExportLoadedAt = 0;
 const labSkills = createLabSkillsClient({api,onChange: () => { model.forceRender = true; render(); },onCaptureContext: context => { stationLab.skillContext = context.record_start_body; toast("Контекст навыка выбран. Запись запускается отдельно при наблюдении за руками."); }});
 let labSkillsLoadedAt = 0;
 const keyboard = new ManualKeyboard();
@@ -639,7 +641,7 @@ function render() {
   navigation();
   let title = "Обзор"; let markup;
   if (project) { title = `Опыт ${project.id}`; markup = experimentPage(project); }
-  else if (route === "/research") { title = "Исследования"; markup = researchPage(); }
+  else if (route === "/research") { title = "Исследования"; markup = researchPage() + researchExportPanel(researchExport.snapshot()); }
   else if (route === "/skills") { title = "Библиотека навыков"; markup = skillsPage(); }
   else if (route === "/infrastructure") { title = "Оборудование"; markup = infrastructurePage(); }
   else if (route === "/queue") { title = "Общая очередь"; markup = heading("Очередь обучения и проверок","Все опыты используют общий бюджет Homebrain. Здесь можно изменить порядок и параметры ожидания.") + sharedQueuePanel(sharedQueue.snapshot(),model.jobs); }
@@ -651,9 +653,11 @@ function render() {
   if (cameraWasVisible) cameraCard.remove();
   cooperativeUnbind(); cooperativeUnbind = () => {};
   sharedQueueUnbind(); sharedQueueUnbind = () => {};
+  researchExportUnbind(); researchExportUnbind = () => {};
   main.innerHTML = markup;
   if (project?.id === "05") cooperativeUnbind = bindCooperativeWorkbench(main,cooperativeWorkbench,error => toast(error.message,true));
   if (route === "/queue") sharedQueueUnbind = bindSharedQueue(main,sharedQueue,error => toast(error.message,true));
+  if (route === "/research") researchExportUnbind = bindResearchExport(main,researchExport,error => toast(error.message,true));
   if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(route)) {
     bindLabVision(main,labVision);
     bindTabletopCalibration(main,tabletopCalibration,error => toast(error.message));
@@ -708,6 +712,7 @@ async function refresh(forceExtras = false) {
     if(path()==="/evening")model.evening=await api("/api/evening");
     if (activeProject()?.id === "05" && (forceExtras || Date.now()-cooperativeLoadedAt>3000)) { cooperativeLoadedAt=Date.now(); await cooperativeWorkbench.refresh(); }
     if (path() === "/queue" && (forceExtras || Date.now()-sharedQueueLoadedAt>3000)) { sharedQueueLoadedAt=Date.now(); await sharedQueue.refresh(); }
+    if (path() === "/research" && (forceExtras || Date.now()-researchExportLoadedAt>5000)) { researchExportLoadedAt=Date.now(); await researchExport.refresh(); }
     if (stationRoute()) await pollStation(forceExtras);
     if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path())) await Promise.all([labVision.refresh(forceExtras),tabletopCalibration.refresh(forceExtras)]);
     if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path()) && (forceExtras || Date.now() - labSkillsLoadedAt > 15000)) { labSkillsLoadedAt = Date.now(); await labSkills.refresh(); }
