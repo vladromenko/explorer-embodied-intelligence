@@ -38,6 +38,8 @@ class NativeSkillProvider:
     inspect_episode:Callable|None=None
     submit_observed:Callable|None=None
     stop:Callable|None=None
+    arm_release_guard:Callable|None=None
+    prepare_release:Callable|None=None
     native_dispatch_receipts:bool=False
     authoritative_release_deadline:bool=False
 

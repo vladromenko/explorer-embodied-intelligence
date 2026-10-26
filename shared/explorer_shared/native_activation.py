@@ -87,7 +87,7 @@ class ObservedNativeActivation:
         if not isinstance(actor,str) or not 0<len(actor)<=128:
             raise ValueError('Bounded explicit operator identity required')
         input_mode=body.get('input_mode','so101_leader')
-        if input_mode not in ('so101_leader','keyboard','browser_gamepad'):
+        if input_mode not in ('so101_leader','keyboard','browser_gamepad','cooperative_policy'):
             raise ValueError('Explicit supported observed input adapter required')
         if not all(body.get(key) is True for key in ('observing','neutral','space_clear','user_observed_test_confirmed')):
             raise ValueError('Separate explicit current user-observed test confirmation required')
@@ -134,7 +134,7 @@ class ObservedNativeActivation:
         with self.lock:
             if self.authorization is None or self.authorization['authorization_id']!=authorization_id:
                 raise ValueError('Observed authorization changed')
-            if self.authorization.get('input_mode')!='so101_leader':
+            if self.authorization.get('input_mode') not in ('so101_leader','cooperative_policy'):
                 raise ValueError('Leader mux requires its explicitly observed input adapter')
             self.authorization['transition']=True
         try:

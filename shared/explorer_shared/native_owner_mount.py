@@ -5,9 +5,12 @@ The gate is an activation precondition, never a controller setting or watchdog.
 It intentionally refuses a fresh-boot restart where factory HOME could run.
 """
 import hashlib
+from copy import deepcopy
 import json
 from pathlib import Path
 import time
+import sys
+import math
 
 from .native_stream03 import AUDITED_FACTORY_SHA256,audit_factory_binding,NativeDispatchTap,NativeTeleopMux
 from .native_stream03_api import mount_native_stream_api
@@ -104,16 +107,35 @@ def mount_factory_owner(app,root,manual_arm,teleop,token,*,clock_domain,observed
         if fault.exists() and json.loads(fault.read_bytes()).get('at',0)>original['at']:
             raise ValueError('New observed factory reference required after native telemetry fault')
         source_sha=hashlib.sha256(raw).hexdigest()
+        if cooperative is not None and cooperative.guard.reference_fault is not None:
+            fault=cooperative.guard.reference_fault;ended=original.get('ends_monotonic')
+            if (source_sha==fault.get('original_reference_sha256') or type(ended) not in (int,float) or
+                    not math.isfinite(ended) or ended*1e9<=fault['invalidated_native_ns']):
+                raise ValueError('New user-observed original reference required after blocked/unknown cooperative publication')
+            with cooperative.guard.lock:
+                if cooperative.guard.reference_fault!=fault:raise ValueError('Cooperative reference fault changed while validating original receipt')
+                cooperative.guard.reference_fault=None
         if tap.reference is None or tap.reference['source_sha256']!=source_sha:
             tap.reference_header(original,source_sha,native_guard_verified=True,source_bytes=raw)
         return current
 
+    cooperative=None
+    module=sys.modules.get(type(manual_arm).__module__)
+    limits=getattr(module,'HARD_LIMITS',None)
+    if callable(getattr(getattr(manual_arm,'pub',None),'publish',None)) and limits is not None:
+        from .native_cooperative05 import NativeCooperativeOwner
+        cooperative=NativeCooperativeOwner(mux,activation,guarded_reference,target_limits=limits)
+        def invalidate(reason):
+            cooperative.guard.revoke(reason);return activation.revoke(reason)
+        mux.on_invalidate=invalidate
+        mux.chassis_permit=lambda:cooperative.guard.binding is None and activation.base_allowed()
+        mux.publication_evidence=lambda:deepcopy(cooperative.guard.last_publication)
     mux.install()
     mounted=mount_native_stream_api(app,mux,token=token,
                                     observed_test_permit=observed_test_permit or activation.allowed,
                                     activation=activation,
-                                    reference_reader=guarded_reference)
-    return {'mount':mounted,'binding':binding,'mux':mux,'tap':tap,'activation':activation,'reference_reader':guarded_reference,
+                                    reference_reader=guarded_reference,cooperative=cooperative)
+    return {'mount':mounted,'binding':binding,'mux':mux,'tap':tap,'activation':activation,'cooperative':cooperative,'reference_reader':guarded_reference,
             # Assign web.stop_all to this callback as well. Wrapping only the
             # teleop field would miss original /api/control STOP's global call.
             'global_stop':mux._stop_all}

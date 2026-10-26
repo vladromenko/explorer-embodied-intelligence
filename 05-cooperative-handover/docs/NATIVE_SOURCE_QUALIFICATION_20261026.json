@@ -1,0 +1,113 @@
+{
+  "schema": "explorer_native_cooperative05_source_qualification_v1",
+  "qualification_kind": "retained_exact_source_and_injected_external_publishers_not_hardware",
+  "all_source_requirements_complete": false,
+  "physical_handover_qualified": false,
+  "original_owner_restarted": false,
+  "physical_commands_executed": 0,
+  "targeted_pytest": {
+    "passed": 124,
+    "skipped": 0
+  },
+  "exact_factory_pytest": {
+    "passed": 4,
+    "skipped": 0
+  },
+  "cases": [
+    {
+      "case": "test_exact_native_web_startup_0",
+      "original_receipt_sha256": "de8c9928ec62472900452424792df73e045c5b9efcc5e912e42109e1b5187a2b",
+      "physical_commands": 0,
+      "original_owner_restarted": false,
+      "actuator_or_external_attempts": [],
+      "source_startup_zero_actuator_requests": true,
+      "errors": [],
+      "native_mount": null,
+      "loaded_original_source_modules": 86
+    },
+    {
+      "case": "test_exact_native_web_startup_1",
+      "original_receipt_sha256": "ecf0225b7dd10b20bafbd230fc9bb2b9c65d00d99fcb46fa6d086d8a570b9253",
+      "physical_commands": 0,
+      "original_owner_restarted": false,
+      "actuator_or_external_attempts": [
+        {
+          "message": {
+            "external_type": "Fake",
+            "fields": {
+              "joint1": 90,
+              "joint2": 90,
+              "joint3": 90,
+              "joint4": 90,
+              "joint5": 90,
+              "joint6": 90,
+              "time": 4000
+            }
+          },
+          "physical_send": false,
+          "topic": "/arm6_joints"
+        }
+      ],
+      "source_startup_zero_actuator_requests": false,
+      "errors": [],
+      "native_mount": null,
+      "loaded_original_source_modules": 86
+    },
+    {
+      "case": "test_exact_native_web_startup_2",
+      "original_receipt_sha256": "79da2835f81960361f730624c406d26fefa23353c976b82970d212ee6e07ecc8",
+      "physical_commands": 0,
+      "original_owner_restarted": false,
+      "actuator_or_external_attempts": [],
+      "source_startup_zero_actuator_requests": true,
+      "errors": [],
+      "native_mount": {
+        "default_execution_permission": false,
+        "global_stop_wrapped": true,
+        "same_existing_arm": true,
+        "same_existing_teleop": true
+      },
+      "loaded_original_source_modules": 86
+    },
+    {
+      "case": "test_exact_native_web_startup_3",
+      "original_receipt_sha256": "4b2d103aef158e6529a8ed711718e86e616e9f311ea257b569b52dd14dc84124",
+      "physical_commands": 0,
+      "original_owner_restarted": false,
+      "actuator_or_external_attempts": [],
+      "source_startup_zero_actuator_requests": false,
+      "errors": [
+        {
+          "detail": "FACTORY_STARTUP_HOME_WINDOW_ACTIVE_OR_UNKNOWN",
+          "error_type": "ValueError",
+          "factory": "web"
+        }
+      ],
+      "native_mount": null,
+      "loaded_original_source_modules": 9
+    }
+  ],
+  "source_files_sha256": {
+    "shared/explorer_shared/native_cooperative05.py": "481fd68e64805550efc1f30a4e766a06d42bf4365a35cddcfe4f3c0df21b783e",
+    "shared/explorer_shared/cooperative_transport05.py": "fa8562af60baf44e42093802c43a5254ca0699faec2af55689fbe438e80857b8",
+    "shared/explorer_shared/native_owner_mount.py": "f47f30486424bcd9a9454e3230e61847c9acf1c47c31a36077164727caa91f1b",
+    "shared/explorer_shared/native_activation.py": "77b0e8ddc02971852cff9b5c5c2d904d440494ae67e18ca3b5d78fe8225d989b",
+    "shared/explorer_shared/native_stream03.py": "4c65c1682ea28b970f20af6eb7b6bd4db4fce2de5626abcd34f8f73f7099bd43",
+    "shared/explorer_shared/native_stream03_api.py": "29a1af0eaec08a00d294c95c351df07b998893a88739746bfeb7a21940c21299",
+    "shared/explorer_shared/legacy_bridge.py": "22f8eac2d92e55bfaf50481825d8982a9f832213dbaefad57dbd98ab56e873d7",
+    "shared/explorer_shared/node_agent.py": "cf6f0e5bcec2eea1a8adf042a1b20ce7db3f9a8eccaf34b9100a99b137ef74f5",
+    "shared/explorer_shared/cooperative_workflow05.py": "bc96018ae078be6eb5ea61d9d7014504999407f4e3741324f82527238675ca24",
+    "shared/explorer_shared/cooperative_providers05.py": "b3ed1edfa67179ce69373f3f9319cf19ad21b2815709255f31c391f27a683dbe"
+  },
+  "controller_configs_written": false,
+  "feedback_enabled": false,
+  "native_period_lookahead_lease_settings_changed": false,
+  "new_publishers": 0,
+  "new_servo_workers": 0,
+  "notes": [
+    "Current candidate factory startup emitted zero actuator requests; fresh boot candidate refused before original owners start.",
+    "Fresh boot original negative control requested HOME only through an injected fake Publisher; no real driver was present.",
+    "Publisher boundary receipts prove original host publication return only, never MCU application or attained pose.",
+    "Receiver-side dual-hold interlock and central service assembly tracked separately, no full05/master completion claim."
+  ]
+}

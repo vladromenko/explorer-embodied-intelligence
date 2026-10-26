@@ -10,7 +10,7 @@ from fastapi.responses import Response
 from .legacy_bridge import parse_dispatch_query
 
 
-def mount_native_stream_api(app, mux, *, token, observed_test_permit=lambda:False, reference_reader=None,activation=None):
+def mount_native_stream_api(app, mux, *, token, observed_test_permit=lambda:False, reference_reader=None,activation=None,cooperative=None):
     if not isinstance(token, str) or len(token) < 16:
         raise ValueError('Existing private original-owner token required')
 
@@ -92,6 +92,8 @@ def mount_native_stream_api(app, mux, *, token, observed_test_permit=lambda:Fals
     @app.post('/api/explorer/retarget/begin')
     def begin(request:Request, body:dict):
         allowed(request,body)
+        if activation is not None and activation.status().get('input_mode')!='so101_leader':
+            raise HTTPException(409,'Measured leader begin requires its own explicit observed input adapter')
         function=lambda:mux.begin(observing=body.get('observing'),neutral=body.get('neutral'))
         return operation(activation.transition,function,body.get('authorization_id')) if activation else operation(function)
 
@@ -129,6 +131,9 @@ def mount_native_stream_api(app, mux, *, token, observed_test_permit=lambda:Fals
         authenticate(request)
         return operation(mux.stop, body.get('control_epoch'))
 
+    if cooperative is not None:
+        from .native_cooperative05 import mount_native_cooperative_api
+        mount_native_cooperative_api(app,cooperative,authenticate=authenticate,allowed=allowed,operation=operation,activation=activation)
     return {'schema': 'explorer_native_retarget_mount_v1', 'mounted': True,
             'new_servo_publishers': 0, 'controller_settings_written': False,
             'physical_qualification': False}

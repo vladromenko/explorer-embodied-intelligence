@@ -14,6 +14,7 @@ from urllib.parse import parse_qsl, urlencode
 GET_PATHS = {'status', 'teleop', 'teleop/controls', 'arm/manual', 'arm/feedback', 'teaching/mobile', 'skills', 'arm/trajectory'}
 GET_PATHS |= {'explorer/retarget/status', 'explorer/retarget/reference', 'explorer/retarget/dispatch'}
 GET_PATHS |= {'explorer/retarget/activation/status','explorer/retarget/activation/challenge'}
+GET_PATHS |= {'explorer/cooperative/status','explorer/cooperative/observation'}
 POST_PATHS = {'control', 'teleop/select', 'teleop/mode', 'teleop/speed', 'teleop/input',
     'teleop/stop', 'teleop/resume', 'teleop/disconnect', 'teaching/mobile/start',
     'teaching/mobile/lease', 'teaching/mobile/finish', 'teaching/mobile/stage', 'arm/jog', 'arm/finite',
@@ -21,6 +22,8 @@ POST_PATHS = {'control', 'teleop/select', 'teleop/mode', 'teleop/speed', 'teleop
 POST_PATHS |= {'explorer/retarget/begin', 'explorer/retarget/recenter', 'explorer/retarget/resume',
                'explorer/retarget/input', 'explorer/retarget/base', 'explorer/retarget/stop'}
 POST_PATHS |= {'explorer/retarget/activation/authorize','explorer/retarget/activation/revoke','arm/prepare'}
+POST_PATHS |= {'explorer/cooperative/'+operation for operation in ('bind','begin','recenter','resume','lease','input','stop',
+    'guard/arm','guard/challenge','guard/authorize','guard/revoke','guard/reset')}
 
 
 def parse_dispatch_query(raw_query):
@@ -85,8 +88,16 @@ class LegacyBridge:
     def activation_frame(self,challenge_id):
         if not isinstance(challenge_id,str) or not re.fullmatch('[0-9a-f]{32}',challenge_id):
             raise ValueError('Exact native activation challenge ID required')
+        return self._pinned_source_frame('explorer/retarget/activation/frame/'+challenge_id)
+
+    def cooperative_frame(self,observation_id):
+        if not isinstance(observation_id,str) or not re.fullmatch('[0-9a-f]{32}',observation_id):
+            raise ValueError('Exact retained native policy observation ID required')
+        return self._pinned_source_frame('explorer/cooperative/observations/'+observation_id+'/frame')
+
+    def _pinned_source_frame(self,path):
         token=(self.root/'config/access_token').read_text().strip()
-        request=Request('http://127.0.0.1:8080/api/explorer/retarget/activation/frame/'+challenge_id,
+        request=Request('http://127.0.0.1:8080/api/'+path,
                         headers={'Authorization':'Bearer '+token})
         with urlopen(request,timeout=2) as response:
             jpeg=response.read(2*1024**2+1)

@@ -171,6 +171,8 @@ class CooperativeWorkflow:
             if not state.get('native_dispatch_receipts'):execution.append(role+':NATIVE_HOST_PUBLICATION_PROOF_NOT_BOUND')
             if role=='giver' and not state.get('authoritative_release_deadline'):
                 execution.append('giver:RELEASE_HOLD_GUARD_NOT_AT_NATIVE_PUBLICATION_BOUNDARY')
+            if role=='giver' and (provider is None or not callable(provider.arm_release_guard) or not callable(provider.prepare_release)):
+                execution.append('giver:NATIVE_DUAL_HOLD_AND_CHALLENGE_BINDING_REQUIRED')
         return {'schema':'explorer_cooperative_readiness_v1','session_id':session_id,'native_roles':roles,
                 'metadata_and_recording_blockers':blockers,'observed_execution_blockers':blockers+execution,
                 'raw_two_camera_recording_available':self.recorder is not None,
@@ -359,13 +361,23 @@ class CooperativeWorkflow:
             self._phase_current(fsm)
             if fsm.state not in LEGAL_STATES[event]:raise ValueError('Protocol changed before this step')
             command=POLICY_OPERATION.get(event);after=None
-            already_applied=False
+            already_applied=False;release_challenge=None
             if event=='release_requested':
+                receiver_after=self._last_command(row,'receiver')
+                giver_provider=self.registry.provider('giver',spec['subskills']['giver'])
+                if giver_provider is not None and callable(giver_provider.prepare_release):
+                    release_challenge=giver_provider.prepare_release(deepcopy(row),receiver_after)
+                    if receiver_after is None:receiver_after=release_challenge.get('after_receiver_command_id')
+                    self._fresh(row,epoch)
+                    with self.lock:
+                        current=self._session(session_id)
+                        if current['epoch']!=epoch:raise ValueError('Release challenge superseded by STOP')
+                        current['pending_operation']['native_release_challenge']=deepcopy(release_challenge);self._save(current)
                 # All three prompts are current and concurrent; none is inferred
                 # from servo closure or time passing. Check freshness again only
                 # AFTER all responses, before any physical transport call.
                 with ThreadPoolExecutor(max_workers=3) as pool:
-                    hold=pool.submit(self._receiver_hold,row,self._last_command(row,'receiver'))
+                    hold=pool.submit(self._receiver_hold,row,receiver_after)
                     giver=pool.submit(self._stationary,row,'giver',self._last_command(row,'giver'))
                     receiver=pool.submit(self._stationary,row,'receiver',self._last_command(row,'receiver'))
                     held,giver_still,receiver_still=hold.result(),giver.result(),receiver.result()
@@ -397,7 +409,9 @@ class CooperativeWorkflow:
                     if fsm.state!='RELEASE' or not fsm._valid_hold(fsm.hold,self.clock(),'receiver_holds_object'):
                         raise ValueError('Fresh receiver hold is required at native release submission')
                     authorization={'receiver_hold_evidence':asdict(fsm.hold),'valid_until_ns':fsm.hold.received_ns+fsm.hold_ttl_ns,
-                                   'received_clock_domain':self.domain,'must_validate_at_native_publication':True}
+                                   'received_clock_domain':self.domain,'must_validate_at_native_publication':True,
+                                   'operator_confirmation_receipt':deepcopy(held.source_receipt),
+                                   'native_release_challenge':deepcopy(release_challenge)}
                 command_id=uuid.uuid4().hex;submitted_ns=self.clock()
                 command_body={'command_id':command_id,'run_id':session_id,
                     'object_id':row['protocol_object_id'],'role':role,'operation':op,'reference':deepcopy(spec['subskills'][role]),
@@ -448,6 +462,12 @@ class CooperativeWorkflow:
                     raise ValueError('Both stationary observations must remain fresh at grasp check')
                 observations.extend(asdict(item) for item in stationary)
                 facts={'both_stationary':True}
+                provider=self.registry.provider('giver',spec['subskills']['giver'])
+                if provider is not None and callable(provider.arm_release_guard):
+                    self._fresh(row,epoch)
+                    observations.append({'native_giver_dual_hold_guard':provider.arm_release_guard(deepcopy(row))})
+                elif row['execution_domain']=='user_observed_physical_test':
+                    raise ValueError('Native giver dual-hold protection must be bound before an observed grasp test')
             self._fresh(row,epoch)
             self._phase_current(fsm)
             if not already_applied:fsm.apply(event,event_id=operation,now_ns=self.clock(),evidence=evidence,**facts)

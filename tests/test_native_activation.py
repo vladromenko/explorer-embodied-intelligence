@@ -198,7 +198,8 @@ def test_late_observed_confirmation_after_revoke_or_native_change_cannot_authori
     assert new['execution_permission'] and arm.calls==[] and arm.publications==[]
 
 
-def test_node_binary_proxy_requires_auth_and_returns_only_pinned_typed_frame(tmp_path,monkeypatch):
+@pytest.mark.parametrize('kind',['activation','cooperative'])
+def test_node_binary_proxy_requires_auth_and_returns_only_pinned_typed_frame(tmp_path,monkeypatch,kind):
     monkeypatch.setattr(Path,'home',lambda:tmp_path/'home')
     agent=node_agent.NodeAgent('nano','nano',tmp_path/'node',TOKEN,sources={},legacy_dir=tmp_path/'original/data',
                                retarget_config_dir=tmp_path/'config')
@@ -207,10 +208,10 @@ def test_node_binary_proxy_requires_auth_and_returns_only_pinned_typed_frame(tmp
         if ident!='a'*32:raise ValueError('Unknown challenge')
         seen.append(ident);return jpeg,{'X-JPEG-SHA256':hashlib.sha256(jpeg).hexdigest(),'X-Frame-ID':'native-original-frame',
                                       'X-Monotonic-NS':'100','X-Boot-ID':'boot'}
-    agent.legacy_bridge.activation_frame=pinned
+    setattr(agent.legacy_bridge,kind+'_frame',pinned)
     server=node_agent.AgentHTTPServer(('127.0.0.1',0),node_agent.make_handler(agent))
     thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
-    origin='http://127.0.0.1:'+str(server.server_port);path='/native-activation/frame/'+'a'*32
+    origin='http://127.0.0.1:'+str(server.server_port);path='/native-'+kind+'/frame/'+'a'*32
     try:
         with pytest.raises(HTTPError) as denied:urlopen(origin+path,timeout=2)
         assert denied.value.code==401 and seen==[]

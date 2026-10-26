@@ -204,6 +204,8 @@ class NativeTeleopMux:
         self.epoch, self.generation, self.sequence = None, None, -1
         self.latest, self.intent_deadline, self.dropped = [0.] * 6, 0., 0
         self.latest_source = None
+        self.source_mode='so101_leader'
+        self.publication_evidence=lambda:None
         self.intent_revision=0
         self.observation_permit=lambda:True
         self.observation_evidence=lambda authorization_id:None
@@ -229,6 +231,8 @@ class NativeTeleopMux:
     def _arm_publish(self, pose, runtime_ms, record, phase='command_in_progress', revision=None):
         started = self.tap.clock()
         result = self.original['arm_publish'](pose, runtime_ms, record, phase=phase, revision=revision)
+        evidence=self.publication_evidence()
+        if evidence is not None:record['cooperative_publication_boundary']=evidence
         self.tap.observe('arm_host_publish', record, source_id='factory_manual_arm._publish_command', started_ns=started)
         return result
 
@@ -268,6 +272,7 @@ class NativeTeleopMux:
                     any(abs(value) > 1e-8 for value in self.teleop.inputs.values())):
                 raise ValueError('Explicit selected keyboard owner, STOP and observed neutral required')
             self.epoch = uuid.uuid4().hex
+            self.source_mode='so101_leader'
             self.generation = self.teleop.generation
             self.active, self.state, self.sequence = True, 'CLUTCHED', -1
             self.intent_revision+=1
@@ -313,6 +318,7 @@ class NativeTeleopMux:
         velocities = _vector(joint_velocity_deg_s, 6).tolist()
         with self.teleop.lock:
             self._check(epoch)
+            if self.source_mode!='so101_leader':raise ValueError('Measured leader cannot replace a separately authorized native policy adapter')
             if type(source_sequence) is not int or source_sequence <= self.sequence:
                 self.dropped += 1
                 raise ValueError('Out-of-order leader sample dropped')

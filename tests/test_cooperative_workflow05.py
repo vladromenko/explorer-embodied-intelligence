@@ -257,7 +257,8 @@ def metric_zone(service,row):
 
 def policy_capabilities(submit):
     return {'predict_shadow':lambda *args:{},'observe_state':lambda:{'current_native_owner_ready':True,'source_receipt':{'fixture':True}},
-            'native_dispatch_receipts':True,'authoritative_release_deadline':True,'submit_observed':submit}
+            'native_dispatch_receipts':True,'authoritative_release_deadline':True,'submit_observed':submit,
+            'arm_release_guard':lambda row:{'fixture':True},'prepare_release':lambda row,after:{'fixture':True}}
 
 
 def test_native_http_acceptance_cannot_be_promoted_to_dispatch_or_hold(tmp_path):

@@ -904,6 +904,13 @@ def make_handler(agent):
                 self.send_header('Content-Length',str(len(jpeg)));self.send_header('Cache-Control','no-store')
                 for name,value in headers.items():self.send_header(name,value)
                 self.end_headers();self.wfile.write(jpeg)
+            elif agent.mode=='nano' and len(parts)==3 and parts[:2]==['native-cooperative','frame']:
+                if urlsplit(self.path).query:raise ValueError('Pinned policy frame takes no query parameters')
+                jpeg,headers=agent.legacy_bridge.cooperative_frame(parts[2])
+                self.send_response(200);self.send_header('Content-Type','image/jpeg')
+                self.send_header('Content-Length',str(len(jpeg)));self.send_header('Cache-Control','no-store')
+                for name,value in headers.items():self.send_header(name,value)
+                self.end_headers();self.wfile.write(jpeg)
             elif path == '/arm-retarget/status':
                 self._json(200, agent.retarget_status())
             elif agent.mode == 'pi' and path == '/arm-retarget/recordings':
@@ -932,6 +939,8 @@ def make_handler(agent):
                     raise LookupError('Unknown station endpoint')
             elif path.startswith("/legacy/") and agent.legacy_bridge is not None:
                 native_path=path.removeprefix('/legacy/')
+                if native_path.startswith('explorer/cooperative/') and urlsplit(self.path).query:
+                    raise ValueError('Fixed cooperative native interface takes no query parameters')
                 if native_path=='explorer/retarget/dispatch':
                     from .legacy_bridge import parse_dispatch_query
                     query=parse_dispatch_query(urlsplit(self.path).query)
@@ -1048,6 +1057,8 @@ def make_handler(agent):
                 payload = json.loads(self.rfile.read(length))
                 if not isinstance(payload, dict):
                     raise ValueError("Expected a JSON object")
+                if path.startswith('/legacy/explorer/cooperative/') and urlsplit(self.path).query:
+                    raise ValueError('Fixed cooperative native interface takes no query parameters')
                 if lab:
                     self._json(200,agent.lab_vision.command(path.removeprefix('/lab/vision/'),payload))
                 elif native_capture:

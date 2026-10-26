@@ -99,6 +99,31 @@ def test_current_canonical_reference_cannot_relabel_prepublication_q_as_after_pu
     assert page['canonical_reference']['stamp']['monotonic_ns']==200
 
 
+def test_blocked_publication_requires_new_same_boot_original_observed_home_receipt_not_relabelled_journal(tmp_path,monkeypatch):
+    from test_native_cooperative05 import OriginalArm
+    files(tmp_path);monkeypatch.setattr(native_owner_mount,'AUDITED_FACTORY_SHA256',{})
+    monkeypatch.setattr(native_owner_mount,'audit_factory_binding',lambda value:{'exact_audited_source':True})
+    monkeypatch.setattr(sys.modules[OriginalArm.__module__],'HARD_LIMITS',[(0,180)]*6,raising=False)
+    arm=OriginalArm();arm.factory_timed=True;arm.boot='boot'
+    current={'boot_id':'boot','servo_deg':[90]*6,'at':10.,'measured':False}
+    arm.reference=lambda check:deepcopy(current)
+    path=tmp_path/'data/arm-startup.json'
+    original={**current,'ends_monotonic':10.,'startup_reference':True,'command_completed':True}
+    path.write_text(json.dumps(original));teleop=Teleop(arm)
+    mounted=native_owner_mount.mount_factory_owner(FastAPI(),tmp_path,arm,teleop,'local-test-token-long',
+        clock_domain='nano:boot',status_check=lambda *args:None)
+    mounted['reference_reader']();guard=mounted['cooperative'].guard
+    guard.reference_fault={'original_reference_sha256':sha(path.read_bytes()),'invalidated_native_ns':15_000_000_000}
+    with pytest.raises(ValueError,match='New user-observed original reference'):mounted['reference_reader']()
+    # A changed JSON/SHA alone is insufficient. The original successful HOME's
+    # same-boot monotonic end must actually follow the blocked publication.
+    current['at']=21.;path.write_text(json.dumps({**original,'at':20.,'ends_monotonic':14.}))
+    with pytest.raises(ValueError,match='New user-observed original reference'):mounted['reference_reader']()
+    path.write_text(json.dumps({**original,'at':20.,'ends_monotonic':20.}))
+    assert mounted['reference_reader']()['servo_deg']==[90]*6 and guard.reference_fault is None
+    assert arm.pub.original.messages==[] and not arm.calls and not teleop.native_drive
+
+
 def test_reference_reader_uses_stationary_guard_before_start_and_coordinated_guard_when_active(tmp_path,monkeypatch):
     files(tmp_path);checks=[];coordinated=object()
     monkeypatch.setattr(native_owner_mount,'AUDITED_FACTORY_SHA256',{})
