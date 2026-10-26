@@ -30,16 +30,21 @@ def prepare_rgb(images):
 class EpisodeChunks(Dataset):
     def __init__(self, directory, manifest, chunk_size):
         self.episodes, self.indices, self.chunk_size = [], [], chunk_size
+        self.excluded_failed_episode_ids=[]
         for descriptor in manifest["episodes"]:
-            path = Path(directory) / descriptor["file"]
-            if sha(path) != descriptor["sha256"]:
-                raise ValueError("Dataset episode checksum mismatch")
-            with np.load(path, allow_pickle=False) as source:
-                # Evaluator-only privileged fields never enter the model batch.
-                episode = {name: source[name].copy() for name in ("rgb", "state", "action")}
-            episode_index = len(self.episodes)
-            self.episodes.append(episode)
-            self.indices.extend((episode_index, index) for index in range(len(episode["action"])))
+            failed=isinstance(descriptor.get('outcome'),dict) and descriptor['outcome'].get('success') is False
+            if failed:
+                self.excluded_failed_episode_ids.append(descriptor.get('id',descriptor['file']))
+            else:
+                path = Path(directory) / descriptor["file"]
+                if sha(path) != descriptor["sha256"]:
+                    raise ValueError("Dataset episode checksum mismatch")
+                with np.load(path, allow_pickle=False) as source:
+                    # Evaluator-only privileged fields never enter the model batch.
+                    episode = {name: source[name].copy() for name in ("rgb", "state", "action")}
+                episode_index = len(self.episodes)
+                self.episodes.append(episode)
+                self.indices.extend((episode_index, index) for index in range(len(episode["action"])))
         if not self.indices:
             raise ValueError("Dataset contains no actor samples")
 
@@ -153,6 +158,11 @@ def framework_info():
 
 
 def train_and_evaluate_act(env, evaluation_env, folder, settings, manifest, seeds, update):
+    valid=[item for item in manifest['episodes'] if not (isinstance(item.get('outcome'),dict) and item['outcome'].get('success') is False)]
+    if not valid:
+        return {'status':'awaiting_successful_teacher_demonstrations','trained':False,'algorithm':'official LeRobot ACT',
+            'reason':'Failed teacher rollouts are retained for analysis and excluded from expert BC targets',
+            'excluded_failed_episode_ids':[item.get('id') for item in manifest['episodes']]}
     device = settings["device"]
     policy = make_act_policy(settings)
     initial_digest = state_digest(policy)
@@ -191,4 +201,5 @@ def train_and_evaluate_act(env, evaluation_env, folder, settings, manifest, seed
             "evaluation": evaluation, "losses_first_last": [losses[0]["loss"], losses[-1]["loss"]],
             "rgb_inputs": [IMAGE_KEY], "state_basis": "command_estimate",
             "privileged_state_in_actor": False, "elapsed_s": time.monotonic() - started,
+            "training_episode_count":len(samples.episodes),"excluded_failed_episode_ids":samples.excluded_failed_episode_ids,
             **framework_info()}

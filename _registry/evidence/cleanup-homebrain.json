@@ -1,0 +1,23 @@
+{
+  "node": "homebrain",
+  "dry_run": false,
+  "candidate_paths": 16,
+  "candidate_bytes": 10400770120,
+  "archived_entries": 6388,
+  "excluded_groups": 106,
+  "excluded_bytes": 10206000465,
+  "git_repositories": 3,
+  "shell_completion_change": true,
+  "test_restore_passed": true,
+  "archive_directory": "/home/jetsonnx/.local/state/explorer/legacy-archive-20261026/homebrain-20261025T235538Z-80b7f99d",
+  "archive": "/home/jetsonnx/.local/state/explorer/legacy-archive-20261026/homebrain-20261025T235538Z-80b7f99d/source-config.tar.gz",
+  "archive_sha256": "aac22ba580a0ae1c61c1cf2408a13613aee38ba94e4b543e9f7d180c0acf3711",
+  "archive_bytes": 80920794,
+  "git_bundle_bytes": 0,
+  "removed_paths": 16,
+  "removed_paths_counts": "fully_removed_candidates_only",
+  "shell_completion_changed": true,
+  "completed": true,
+  "in_progress": null,
+  "estimated_net_bytes_reclaimed": 10319849326
+}

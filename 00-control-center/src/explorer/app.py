@@ -372,9 +372,17 @@ async def robot_proxy(path: str, request: Request):
     node = next(node for node in CONFIG['nodes'] if node['id'] == 'nano')
     url = 'http://' + node['host'] + ':' + str(node['port']) + '/legacy/' + path
     try:
+        finishing_id=None
+        if request.method=='POST' and path=='teaching/mobile/finish':
+            before=await CLIENT.get('http://'+node['host']+':'+str(node['port'])+'/legacy/teaching/mobile',headers={'Authorization':'Bearer '+node['token']})
+            before.raise_for_status()
+            finishing_id=(before.json().get('active') or {}).get('id')
         response = await CLIENT.request(request.method, url, headers={'Authorization':'Bearer ' + node['token']},
             **({'json':await request.json()} if request.method == 'POST' else {}))
-        return JSONResponse(response.json(), response.status_code)
+        result=response.json()
+        if response.is_success and finishing_id and (result.get('last') or {}).get('id')==finishing_id:
+            result['import_job']=STORE.create_import_job('mobile_import','02',finishing_id)
+        return JSONResponse(result, response.status_code)
     except httpx.HTTPError:
         raise HTTPException(503, 'Onboard control interface is unavailable')
 
@@ -392,8 +400,7 @@ async def station_proxy(path: str, request: Request):
             headers={'Authorization':'Bearer '+node['token']},**({'json':payload} if payload is not None else {}))
         result = response.json()
         if path=='record/finish' and response.is_success:
-            existing=next((job for job in STORE.jobs() if job['kind']=='station_import' and job['config'].get('episode_id')==result['episode_id']),None)
-            result['import_job']=existing or STORE.create_job('station_import',result.get('project_id','personal'),{'episode_id':result['episode_id']})
+            result['import_job']=STORE.create_import_job('station_import',result.get('project_id','personal'),result['episode_id'])
         return JSONResponse(result,response.status_code)
     except httpx.HTTPError:
         raise HTTPException(503,'SO-101 station interface is unavailable')

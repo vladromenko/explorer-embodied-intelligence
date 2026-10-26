@@ -53,7 +53,9 @@ class SO101Station:
         self.baseline_leader, self.baseline_follower = None, None
         self.explicit_goal = None
         self.last_command = None
+        self.preceding_command = None
         self.action_source = None
+        self.last_hold_error = None
         self.control_epoch = uuid.uuid4().hex
         self.action_sequence = -1
         self.goal_deadline = 0
@@ -148,7 +150,7 @@ class SO101Station:
                     if frame is not None:
                         self.observation_warning = None
                     if self.mode != 'idle' and frame is None and not self.operator_present:
-                        self.mode = 'idle'
+                        self._end_session()
                         self._write(follower)
                         self.observation_warning = 'Camera observation is unavailable; follower holds its measured position'
                     target = None
@@ -157,7 +159,7 @@ class SO101Station:
                     elif self.mode == 'policy' and begin <= self.goal_deadline:
                         target = self.explicit_goal
                     elif self.mode == 'policy':
-                        self.mode = 'idle'
+                        self._end_session()
                         self._write(follower)
                     if target is not None:
                         accepted = [min(HIGH[i],max(LOW[i],float(value))) for i,value in enumerate(target)]
@@ -174,7 +176,12 @@ class SO101Station:
         except Exception as error:
             with self.lock:
                 self.error = type(error).__name__ + ': ' + str(error)
-                self.mode = 'idle'
+                self._end_session()
+                try:
+                    self._write(self._positions('follower'))
+                    self.last_hold_error=None
+                except Exception as hold_error:
+                    self.last_hold_error=type(hold_error).__name__+': '+str(hold_error)
             if self.record:
                 self._finish_record('unknown','interrupted')
         finally:
@@ -195,6 +202,8 @@ class SO101Station:
                 recording={key:value for key,value in self.record.items() if key!='samples'} if self.record else None,
                 recording_error=self.record_errors.get(self.record['episode_id']) if self.record else None,
                 last_command=dict(self.last_command) if self.last_command else None,
+                preceding_command=dict(self.preceding_command) if self.preceding_command else None,
+                last_hold_error=self.last_hold_error,
                 action_names=NAMES,action_units=UNITS,position_hold='existing_position_mode',configuration_writes=0)
 
     def command(self, operation, body):
@@ -203,12 +212,20 @@ class SO101Station:
         with self.lock:
             if operation == 'stop':
                 if body.get('expected_control_epoch') is not None and body['expected_control_epoch']!=self.control_epoch:
-                    raise ValueError('The requested control session has already ended')
-                if self.mode != 'idle' and self.measurements:
-                    self._write(self._positions('follower'))
-                self.mode = 'idle'
-                self.control_epoch = uuid.uuid4().hex
-                self.action_sequence = -1
+                    raise RuntimeError('The requested control session has already ended')
+                holding=self.mode!='idle' and bool(self.measurements)
+                self.preceding_command=dict(self.last_command) if self.last_command else None
+                self._end_session()
+                if holding:
+                    try:
+                        measured=self._positions('follower')
+                        self._write(measured)
+                        self.last_command=dict(operation='hold_current_position',control_epoch=self.control_epoch,sequence=-1,
+                            requested=measured,dispatched=measured,monotonic_ns=time.monotonic_ns(),clock_domain=self.clock_domain,source_observation={})
+                        self.last_hold_error=None
+                    except Exception as error:
+                        self.last_hold_error=type(error).__name__+': '+str(error)
+                        raise RuntimeError('Control session ended; measured-position hold was not confirmed') from error
                 return self.status()
             if operation == 'record/start':
                 return self._start_record(body)
@@ -216,7 +233,6 @@ class SO101Station:
                 raise RuntimeError(self.error or 'Arm connections are not ready')
             if not body.get('observing') or (self.camera.latest() is None and not body.get('operator_present')):
                 raise ValueError('This operation needs the requested camera observation or confirmed operator presence')
-            self.operator_present = bool(body.get('operator_present'))
             if operation in ('teleop/start','policy/start','teleop/recenter') and body.get('expected_control_epoch') != self.control_epoch:
                 raise ValueError('Station changed after this control request was prepared; request a fresh operation')
             if operation == 'teleop/start':
@@ -233,6 +249,7 @@ class SO101Station:
                 self.goal_deadline = time.monotonic()+1
                 self.control_epoch = uuid.uuid4().hex
                 self.action_sequence = -1
+                self.action_source = None
                 self.mode = 'policy'
             elif operation == 'teleop/recenter':
                 if self.mode != 'teleoperation':
@@ -242,12 +259,12 @@ class SO101Station:
                 self.control_epoch = uuid.uuid4().hex
             elif operation == 'action':
                 sequence = body.get('sequence')
-                if body.get('control_epoch') != self.control_epoch or self.mode!='policy' or not isinstance(sequence,int) or sequence<=self.action_sequence:
+                if body.get('control_epoch') != self.control_epoch or self.mode!='policy' or not isinstance(sequence,int) or isinstance(sequence,bool) or sequence<=self.action_sequence:
                     raise ValueError('This action belongs to an ended or superseded control session')
                 target = body.get('action')
                 if body.get('action_names') != list(NAMES) or body.get('action_units') != UNITS:
                     raise ValueError('Policy action contract does not match this station')
-                if not isinstance(target,list) or len(target)!=6 or not all(math.isfinite(float(x)) for x in target):
+                if not isinstance(target,list) or len(target)!=6 or not all(isinstance(x,(int,float)) and not isinstance(x,bool) and math.isfinite(x) for x in target):
                     raise ValueError('Six finite calibrated SO-101 coordinates are required')
                 source_time=body.get('source_frame_monotonic_ns')
                 if not isinstance(source_time,int) or body.get('source_clock_domain')!=self.clock_domain:
@@ -255,14 +272,26 @@ class SO101Station:
                 source_age=(time.monotonic_ns()-source_time)/1e9
                 if not 0<=source_age<=self.camera.stale_s:
                     raise ValueError('Policy action refers to a future or expired camera observation')
+                duration=body.get('duration_s',.25)
+                if not isinstance(duration,(int,float)) or isinstance(duration,bool) or not math.isfinite(duration) or duration<=0:
+                    raise ValueError('Action duration must be a positive finite number')
                 self.action_sequence = sequence
                 self.action_source=dict(frame_id=body.get('source_frame_id'),monotonic_ns=source_time,clock_domain=self.clock_domain)
-                self.explicit_goal = list(target)
-                self.goal_deadline = time.monotonic() + min(1,max(.05,float(body.get('duration_s',.25))))
+                self.explicit_goal = [float(value) for value in target]
+                self.goal_deadline = time.monotonic() + min(1,max(.05,duration))
                 self.mode = 'policy'
             else:
                 raise ValueError('Unknown station operation')
+            self.operator_present = bool(body.get('operator_present'))
             return self.status()
+
+    def _end_session(self):
+        self.mode='idle'
+        self.operator_present=False
+        self.control_epoch=uuid.uuid4().hex
+        self.action_sequence=-1
+        self.action_source=None
+        self.explicit_goal=None
 
     def _start_record(self, body):
         if self.mode == 'idle':

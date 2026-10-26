@@ -88,11 +88,18 @@ def train_recorded_act(store, job):
     if manifest.get("format") not in ("explorer_npz_episode_v1", "explorer_robot_episode_v1"):
         raise ValueError("Convert station recordings to a synchronized Explorer episode manifest first")
     split_map = validate_splits(manifest)
+    admission=manifest.get('training_admission')
+    if admission and not (admission.get('source_quality_usable') and admission.get('operator_success_label')):
+        raise ValueError('This mobile recording remains available for analysis; successful operator-labelled usable demonstrations are required for expert BC targets')
     training = [item for item in manifest["episodes"] if item.get("split", "train") in ("train", "imitation_train", "training")]
     excluded_outcomes=[]
     if manifest.get('contains_physical_recordings'):
         excluded_outcomes=[item.get('id') for item in training if item.get('outcome')!='success']
         training=[item for item in training if item.get('outcome')=='success']
+    else:
+        failed=lambda item:isinstance(item.get('outcome'),dict) and item['outcome'].get('success') is False
+        excluded_outcomes=[item.get('id') for item in training if failed(item)]
+        training=[item for item in training if not failed(item)]
     development = [item for item in manifest["episodes"] if item.get("split") in ("development", "validation", "dev")]
     if not training:
         raise ValueError("No successful training demonstrations. Failed and unlabelled physical episodes remain available for analysis; sealed tests are never fitted.")

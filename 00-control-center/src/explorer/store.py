@@ -67,6 +67,20 @@ class Store:
                 (job_id, kind, project_id, 'queued', now, now, json.dumps(config, allow_nan=False)))
         return self.job(job_id)
 
+    def create_import_job(self,kind,project_id,episode_id):
+        if kind not in ('station_import','mobile_import'):
+            raise ValueError('Unknown immutable import kind')
+        job_id=uuid.uuid4().hex
+        now=time.time()
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            previous=db.execute("SELECT * FROM jobs WHERE kind=? AND json_extract(config,'$.episode_id')=? ORDER BY created LIMIT 1",(kind,episode_id)).fetchone()
+            if previous:
+                return self.decode_job(previous)
+            db.execute('INSERT INTO jobs(id,kind,project_id,status,created,updated,config) VALUES (?,?,?,?,?,?,?)',
+                (job_id,kind,project_id,'queued',now,now,json.dumps({'episode_id':episode_id})))
+        return self.job(job_id)
+
     def jobs(self, limit=100):
         with self.connect() as db:
             rows = db.execute('SELECT * FROM jobs ORDER BY created DESC LIMIT ?', (limit,)).fetchall()

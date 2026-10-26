@@ -47,6 +47,17 @@ def test_act_data_checksum_checked_before_training(tmp_path):
         EpisodeChunks(tmp_path, {"episodes": [descriptor]}, 4)
 
 
+def test_failed_teacher_rollouts_remain_on_disk_but_are_not_expert_targets(tmp_path):
+    success=dataset_episode(tmp_path/'success.npz',1)
+    failure=dataset_episode(tmp_path/'failure.npz',2)
+    success.update(id='successful',outcome={'success':True})
+    failure.update(id='failed',outcome={'success':False})
+    samples=EpisodeChunks(tmp_path,{'episodes':[success,failure]},4)
+    assert len(samples)==3
+    assert samples.excluded_failed_episode_ids==['failed']
+    assert (tmp_path/'failure.npz').is_file()
+
+
 def test_interrupted_attempt_preserves_prior_evidence_and_worker_log(tmp_path):
     (tmp_path / "provenance.json").write_text("{}")
     (tmp_path / "worker.log").write_text("live worker output")
@@ -132,8 +143,8 @@ def test_actual_optimizer_checkpoint_reload_and_independent_rollouts(tmp_path, c
             self.cards.append(card)
 
     store = Store()
-    result = run_pilot(store, {"id": "integration", "config": {"teacher_steps": 128,
-        "demonstration_episodes": 1, "evaluation_episodes": 1, "horizon": 8,
+    result = run_pilot(store, {"id": "integration", "config": {"teacher_steps": 4096,
+        "demonstration_episodes": 12, "evaluation_episodes": 1, "horizon": 60,
         "act_steps": 2, "batch_size": 2}}, Path(__file__).resolve().parents[2])
     assert result["teacher"]["weights_changed"]
     assert result["teacher"]["optimizer_updates"] > 0

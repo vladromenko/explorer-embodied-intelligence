@@ -5,7 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace
 import pytest
 import explorer_shared.so101_station as module
-from explorer_shared.so101_station import SO101Station,NAMES
+from explorer_shared.so101_station import SO101Station,NAMES,UNITS
 
 
 class Bus:
@@ -43,7 +43,7 @@ def make_station(tmp_path,monkeypatch):
     configuration.write_text(json.dumps({'roles':{}}))
     original=Path.read_text
     monkeypatch.setattr(Path,'read_text',lambda path,*args,**kwargs:'test-boot' if str(path)=='/proc/sys/kernel/random/boot_id' else original(path,*args,**kwargs))
-    station=SO101Station(configuration,tmp_path,SimpleNamespace(latest=lambda:True))
+    station=SO101Station(configuration,tmp_path,SimpleNamespace(latest=lambda:True,stale_s=2))
     station.profiles={'leader':{},'follower':{}}
     station._positions=lambda role:[0,0,0,0,0,50]
     station.buses={'follower':Bus()}
@@ -62,6 +62,36 @@ def test_request_prepared_before_stop_cannot_restart_motors(tmp_path,monkeypatch
     with pytest.raises(ValueError,match='ended or superseded'):
         station.command('action',{'observing':True,'control_epoch':previous,'sequence':1})
     assert station.mode=='idle'
+
+
+def test_stop_ends_command_ownership_even_when_usb_hold_write_fails(tmp_path,monkeypatch):
+    station=make_station(tmp_path,monkeypatch)
+    station.mode='policy'
+    station.measurements={'monotonic_ns':time.monotonic_ns()}
+    before=station.control_epoch
+    def unavailable(role):
+        raise OSError('USB temporarily unavailable')
+    station._positions=unavailable
+    with pytest.raises(RuntimeError,match='session ended'):
+        station.command('stop',{})
+    assert station.mode=='idle'
+    assert station.control_epoch!=before
+    assert station.operator_present is False
+    assert 'USB temporarily unavailable' in station.last_hold_error
+
+
+@pytest.mark.parametrize('duration',[None,'bad',float('nan'),False])
+def test_rejected_action_duration_cannot_install_a_new_goal(tmp_path,monkeypatch,duration):
+    station=make_station(tmp_path,monkeypatch)
+    station.mode='policy'
+    station.explicit_goal=[0]*6
+    before=station.control_epoch
+    with pytest.raises(ValueError,match='duration'):
+        station.command('action',dict(observing=True,control_epoch=before,sequence=1,action_names=list(NAMES),action_units=UNITS,
+            action=[5]*6,duration_s=duration,source_frame_monotonic_ns=time.monotonic_ns(),source_clock_domain=station.clock_domain))
+    assert station.explicit_goal==[0]*6
+    assert station.action_sequence==-1
+    assert station.control_epoch==before
 
 
 def test_slow_record_checkpoint_does_not_block_stop_and_finish_is_idempotent(tmp_path,monkeypatch):

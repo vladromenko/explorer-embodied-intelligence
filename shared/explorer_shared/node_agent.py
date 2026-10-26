@@ -464,6 +464,10 @@ class NodeAgent:
                 Path(legacy_dir) / "frame-raw.jpg", Path(legacy_dir) / "status.json")})
         self.calibration_dirs = calibration_dirs or ([Path.home()/'.cache/huggingface/lerobot/calibration'] if mode=='pi' else [])
         self.recordings = RecordingManager(self.state_dir / "recordings", self.sources, self.delivery.emit)
+        self.mobile_records=None
+        if mode=='nano':
+            from .mobile_records import MobileRecords
+            self.mobile_records=MobileRecords(Path(legacy_dir)/'mobile-demonstrations',self.state_dir/'mobile-archives')
         self.stream_slots = threading.BoundedSemaphore(3)
         self.observer = None
         self.station = None
@@ -573,7 +577,11 @@ def make_handler(agent):
 
         def _get(self, path):
             parts = path.strip("/").split("/")
-            if path.startswith('/station/') and agent.station is not None:
+            if agent.mobile_records is not None and path=='/mobile/recordings':
+                self._json(200,{'recordings':agent.mobile_records.recordings()})
+            elif agent.mobile_records is not None and len(parts)==4 and parts[:2]==['mobile','recordings'] and parts[3]=='download':
+                self._download(agent.mobile_records.archive(parts[2]),parts[2])
+            elif path.startswith('/station/') and agent.station is not None:
                 if path=='/station/status':
                     self._json(200,agent.station.status())
                 elif path=='/station/recordings':

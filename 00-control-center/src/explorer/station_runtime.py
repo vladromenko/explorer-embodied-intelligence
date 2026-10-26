@@ -54,6 +54,9 @@ def run_station_policy(store,job,config):
     sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
     from explorer_sim.student import IMAGE_KEY,prepare_rgb,framework_info
     requested=job['config']
+    def cancellation_requested():
+        current=store.job(job['id'])
+        return current and current['status'] in ('cancel_requested','cancelled')
     shadow=bool(requested.get('shadow',False))
     duration=float(requested.get('duration_s',10))
     if not 0<duration<=60:
@@ -77,15 +80,22 @@ def run_station_policy(store,job,config):
         card,checkpoint,preprocessing=validate_source(store,requested.get('skill_id'),status)
         policy_config=ACTConfig.from_pretrained(checkpoint,local_files_only=True)
         policy_config.device='cpu'
+        if tuple(policy_config.input_features['observation.state'].shape)!=(6,) or tuple(policy_config.output_features['action'].shape)!=(6,):
+            raise ValueError('Actual ACT checkpoint does not have six state and action coordinates')
         policy=ACTPolicy.from_pretrained(checkpoint,config=policy_config,local_files_only=True,strict=True).cpu().eval()
         torch.set_num_threads(4)
         low=np.asarray(preprocessing['state_low'],dtype=np.float32)
         high=np.asarray(preprocessing['state_high'],dtype=np.float32)
         try:
             if not shadow:
+                if cancellation_requested():
+                    raise RuntimeError('Policy request was cancelled before control started')
+                if time.time()-job['created']>10:
+                    raise ValueError('Interactive execution request expired while loading its model; start a new attempt')
                 status=post('policy/start',dict(observing=requested.get('observing'),operator_present=requested.get('operator_present'),
                     expected_control_epoch=requested.get('expected_control_epoch')))
                 epoch=status['control_epoch']
+                store.update_job(job['id'],result={'phase':'observed_policy_attempt','control_epoch':epoch,'frames':0})
             sequence=0
             started=time.monotonic()
             while time.monotonic()-started<duration:
@@ -98,7 +108,7 @@ def run_station_policy(store,job,config):
                         break
                     time.sleep(.01)
                 receipt=status.get('last_command')
-                if epoch and receipt and receipt.get('control_epoch')==epoch:
+                if epoch and receipt and receipt.get('control_epoch')==epoch and receipt.get('sequence',-1)>=0:
                     receipts[str(receipt['sequence'])]=receipt
                 if frame_ns>state['monotonic_ns']:
                     raise ValueError('Camera/state timestamps do not form a causal observation')
@@ -107,14 +117,19 @@ def run_station_policy(store,job,config):
                 with Image.open(io.BytesIO(frame.content)) as image:
                     rgb=np.asarray(image.convert('RGB').resize((policy.config.input_features[IMAGE_KEY].shape[-1],)*2))
                 native=np.asarray(state['follower'],dtype=np.float32)
+                if native.shape!=(6,) or not np.isfinite(native).all():
+                    raise ValueError('Six finite measured follower coordinates are required')
                 inputs={IMAGE_KEY:prepare_rgb(rgb[None]),'observation.state':torch.from_numpy((2*(native-low)/(high-low)-1)[None])}
                 inference_start=time.monotonic()
                 with torch.inference_mode():
                     predicted=policy.predict_action_chunk(inputs)[0,0].numpy()
-                if not np.isfinite(predicted).all():
-                    raise ValueError('ACT prediction is nonfinite')
+                inference_ms=(time.monotonic()-inference_start)*1000
+                if predicted.shape!=(6,) or not np.isfinite(predicted).all():
+                    raise ValueError('ACT must predict exactly six finite action coordinates')
                 action=(low+(predicted+1)*(high-low)/2).tolist()
                 if epoch:
+                    if cancellation_requested():
+                        raise RuntimeError('Policy attempt was cancelled')
                     post('action',dict(observing=True,operator_present=bool(requested.get('operator_present')),control_epoch=epoch,
                         sequence=sequence,action_names=list(NAMES),action_units=UNITS,action=action,duration_s=1,
                         source_frame_monotonic_ns=frame_ns,source_clock_domain=state['clock_domain'],source_frame_id=frame.headers['X-Frame-ID']))
@@ -123,7 +138,7 @@ def run_station_policy(store,job,config):
                 rows.append(dict(frame_id=frame.headers['X-Frame-ID'],frame_monotonic_ns=frame_ns,
                     frame_file=frame_file,frame_sha256=hashlib.sha256(frame.content).hexdigest(),
                     state_monotonic_ns=state['monotonic_ns'],clock_domain=state['clock_domain'],state=native.tolist(),
-                    predicted_action=action,inference_ms=(time.monotonic()-inference_start)*1000,
+                    predicted_action=action,inference_ms=inference_ms,
                     accepted_by_station=bool(epoch),sequence=sequence))
                 if sequence==0:
                     (folder/'frame.jpg').write_bytes(frame.content)
@@ -134,13 +149,15 @@ def run_station_policy(store,job,config):
                 time.sleep(max(0,.1-(time.monotonic()-inference_start)))
         finally:
             if epoch:
-                current=get('/station/status').json()
-                receipt=current.get('last_command')
-                if receipt and receipt.get('control_epoch')==epoch:
-                    receipts[str(receipt['sequence'])]=receipt
-                    (folder/'dispatch-receipts.json').write_text(json.dumps(receipts,indent=2))
-                if current['control_epoch']==epoch:
-                    post('stop',{'expected_control_epoch':epoch})
+                response=client.post('/station/stop',json={'expected_control_epoch':epoch},timeout=1.5)
+                superseded=response.status_code==409 and 'control session has already ended' in response.text
+                (folder/'stop-receipt.json').write_text(json.dumps({'confirmed':response.is_success,'superseded':superseded,'status':response.status_code}))
+                if not superseded:
+                    response.raise_for_status()
+                    receipt=response.json().get('preceding_command')
+                    if receipt and receipt.get('control_epoch')==epoch and receipt.get('sequence',-1)>=0:
+                        receipts[str(receipt['sequence'])]=receipt
+                        (folder/'dispatch-receipts.json').write_text(json.dumps(receipts,indent=2))
     return dict(skill_id=card['id'],mode='shadow' if shadow else 'physical_attempt',physical_io=not shadow,
         physical_success_inferred=False,outcome='unknown',observations=len(rows),elapsed_s=time.monotonic()-started,
         max_predicted_displacement_from_measured=max((abs(a-b) for row in rows for a,b in zip(row['predicted_action'],row['state'])),default=None),

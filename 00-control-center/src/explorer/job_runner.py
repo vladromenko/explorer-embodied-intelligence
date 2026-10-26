@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import signal
 import sys
 import tarfile
 import time
@@ -57,11 +58,14 @@ def recording(store, job, config):
 
 def station_import(store, job, config):
     episode_id = job['config']['episode_id']
-    if not isinstance(episode_id,str) or len(episode_id)!=32 or any(c not in '0123456789abcdef' for c in episode_id):
+    import re
+    mobile=job['kind']=='mobile_import'
+    if not isinstance(episode_id,str) or not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,79}' if mobile else '[0-9a-f]{32}',episode_id):
         raise ValueError('Invalid station episode ID')
-    node = next(node for node in config['nodes'] if node['id']=='pi')
+    node = next(node for node in config['nodes'] if node['id']==('nano' if mobile else 'pi'))
+    source='mobile' if mobile else 'station'
     with httpx.Client(timeout=60,trust_env=False) as client:
-        response = client.get('http://'+node['host']+':'+str(node['port'])+'/station/recordings/'+episode_id+'/download',
+        response = client.get('http://'+node['host']+':'+str(node['port'])+'/'+source+'/recordings/'+episode_id+'/download',
             headers={'Authorization':'Bearer '+node['token']})
         response.raise_for_status()
     digest = hashlib.sha256(response.content).hexdigest()
@@ -76,7 +80,7 @@ def station_import(store, job, config):
             stream.flush()
             os.fsync(stream.fileno())
         temporary.replace(artifact)
-    destination = store.root/'episodes'/'station'/episode_id
+    destination = store.root/'episodes'/source/episode_id
     marker=destination/'.archive-sha256'
     if not marker.is_file() or marker.read_text().strip()!=digest:
         stage=destination.with_name(episode_id+'.importing')
@@ -86,6 +90,12 @@ def station_import(store, job, config):
         stage.mkdir(parents=True)
         with tarfile.open(artifact) as archive:
             archive.extractall(stage,filter='data')
+        if mobile:
+            transport=json.loads((stage/'transport.json').read_text())
+            for name,expected in transport['source_files_sha256'].items():
+                path=(stage/name).resolve()
+                if not path.is_relative_to(stage.resolve()) or hashlib.sha256(path.read_bytes()).hexdigest()!=expected:
+                    raise ValueError('Transferred original mobile source checksum mismatch')
         (stage/'.archive-sha256').write_text(digest+'\n')
         if destination.exists():
             import shutil
@@ -94,13 +104,18 @@ def station_import(store, job, config):
     sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
     from explorer_sim.station_adapter import convert_station_episode
     from explorer_sim.dataset_export import export_lerobot_v3
-    target = store.root/'datasets'/('station-'+episode_id)
-    converted = convert_station_episode(destination/'manifest.json',target)
+    target = store.root/'datasets'/(source+'-'+episode_id)
+    if mobile:
+        from explorer_sim.mobile_adapter import convert_mobile_episode
+        converted=convert_mobile_episode(destination/'episode.json',target)
+    else:
+        converted = convert_station_episode(destination/'manifest.json',target)
     exported = export_lerobot_v3(target/'manifest.json',target/'lerobot_v3')
     return dict(episode_id=episode_id,dataset_manifest=str(target/'manifest.json'),
-        source_archive_sha256=digest,source_manifest_sha256=converted['source_manifest_sha256'],
+        source_archive_sha256=digest,source_manifest_sha256=converted.get('source_manifest_sha256',converted.get('source_episode_sha256')),
         frames=sum(item['frames'] for item in converted['episodes']),state_basis=converted['state_basis'],
         action_basis=converted['action_basis'],action_names=converted['action_names'],
+        training_admission=converted.get('training_admission'),
         lerobot_v3=exported,source_original_retained=True,physical_success_inferred=False)
 
 
@@ -115,10 +130,14 @@ def main(job_id):
     try:
         if job['kind'] == 'camera_recording':
             result = recording(store, job, config)
-        elif job['kind'] == 'station_import':
+        elif job['kind'] in ('station_import','mobile_import'):
             result = station_import(store,job,config)
         elif job['kind'] in ('station_shadow','station_rollout'):
             from .station_runtime import run_station_policy
+            def interrupted(signum,frame):
+                raise RuntimeError('Interactive policy process interrupted')
+            signal.signal(signal.SIGTERM,interrupted)
+            signal.signal(signal.SIGINT,interrupted)
             result=run_station_policy(store,job,config)
         elif job['kind'] == 'sim_pilot':
             from .simulation import run_sim_pilot
