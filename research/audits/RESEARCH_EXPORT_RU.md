@@ -110,3 +110,7 @@ parent failures/UNKNOWN; исключение auth-table secrets; secret aliases
 PARTIAL недостающего graph/episode metadata; sealed fitting denial.
 
 Ни один тест не обращается к production state, устройству или optimizer.
+
+Resource guard: Store registry удерживает по умолчанию не более16MiB total inline
+original/projection/metadata bytes (hard ceiling32MiB); проверяет очередной body
+до JSON parse и каждого append, а не после materialization512 родителей.

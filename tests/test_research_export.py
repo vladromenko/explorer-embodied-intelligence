@@ -468,3 +468,29 @@ def test_binary_hardlink_cannot_smuggle_raw_SQLite_auth_tables_as_model_weights(
     assert database.read_bytes()==raw and alias.read_bytes()==raw
     assert not (tmp_path/'bundle/manifest.json').exists()
     assert b'PRIVATE_SQLITE_NODE_TOKEN' not in b''.join(path.read_bytes() for path in (tmp_path/'bundle').rglob('*') if path.is_file())
+
+
+def test_selected_scientific_inline_total_is_bounded_incrementally_before_more_JSON_parse(tmp_path,monkeypatch):
+    import explorer.research_export as adapter
+    store,*_=temporary_store(tmp_path)
+    oversized=json.dumps({'_execution_commit':'a'*40,'large-scientific-body':'x'*4096})
+    with sqlite3.connect(store.path) as db:
+        db.execute('UPDATE jobs SET config=? WHERE id=?',(oversized,'current'))
+    loads=adapter.json.loads
+    parsed=[]
+    def guarded(raw,*args,**kwargs):
+        if raw==oversized:
+            parsed.append(True)
+        return loads(raw,*args,**kwargs)
+    monkeypatch.setattr(adapter.json,'loads',guarded)
+    with pytest.raises(ExportRejected,match='inline total byte bound'):
+        adapter.registry_from_store(store,['current'],max_inline_bytes=1024)
+    assert parsed==[]
+
+
+def test_inline_cap_covers_projection_and_metadata_not_only_raw_originals(tmp_path):
+    store,*_=temporary_store(tmp_path)
+    with pytest.raises(ExportRejected,match='inline total byte bound'):
+        registry_from_store(store,['current'],max_inline_bytes=300)
+    with pytest.raises(ExportRejected,match='Bounded total scientific inline'):
+        registry_from_store(store,['current'],max_inline_bytes=64*1024**2)

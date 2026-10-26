@@ -49,7 +49,8 @@ def _related(value, job_ids):
 def registry_from_store(store, job_ids, *, artifact_nodes=(), artifact_roots=None,
                         event_ids=(), skill_ids=(), episodes=(), metric_checks=(),
                         dependency_inventory_complete=False, max_jobs=512,
-                        max_event_rows=100000, max_body_bytes=16 * 1024**2):
+                        max_event_rows=100000, max_body_bytes=16 * 1024**2,
+                        max_inline_bytes=16 * 1024**2):
     """Select immutable originals and separate current canonical identity views.
 
     `artifact_nodes`/`artifact_roots` are SERVER-generated scientific dependencies,
@@ -59,6 +60,8 @@ def registry_from_store(store, job_ids, *, artifact_nodes=(), artifact_roots=Non
     write-capable connect(). No live Store initialization occurs here.
     """
     selected = list(dict.fromkeys(_id(value) for value in job_ids))
+    if type(max_inline_bytes) is not int or not 1 <= max_inline_bytes <= 32 * 1024**2:
+        raise ExportRejected('Bounded total scientific inline budget required')
     if not selected or len(selected) > max_jobs:
         raise ExportRejected('Bounded nonempty selected job IDs required')
     nodes, missing, jobs, roots = list(artifact_nodes), [], {}, []
@@ -70,8 +73,22 @@ def registry_from_store(store, job_ids, *, artifact_nodes=(), artifact_roots=Non
     uri = path.as_uri() + '?mode=ro'
     db = sqlite3.connect(uri, uri=True, timeout=5)
     db.row_factory = sqlite3.Row
+    inline_total = 0
+
+    def check_inline(raw):
+        # Reject before parsing/materializing another retained body. A low test
+        # bound is supported; callers cannot raise the hard32MiB limit.
+        if len(raw) > max_inline_bytes or inline_total + len(raw.encode()) > max_inline_bytes:
+            raise ExportRejected('Scientific inline total byte bound exceeded')
+
+    def add_inline(node):
+        nonlocal inline_total
+        check_inline(node['inline_utf8'])
+        inline_total += len(node['inline_utf8'].encode())
+        nodes.append(node)
 
     def append_raw(ident, role, source_id, raw):
+        check_inline(raw)
         if len(raw.encode()) > max_body_bytes:
             missing.append(dict(artifact_id=ident, reason='SCIENTIFIC_BODY_BOUND_EXCEEDED'))
         else:
@@ -81,7 +98,7 @@ def registry_from_store(store, job_ids, *, artifact_nodes=(), artifact_roots=Non
                 missing.append(dict(artifact_id=ident, reason='SECRET_BEARING_ORIGINAL_WITHHELD',
                                     original_sha256=sha(raw.encode())))
             else:
-                nodes.append(inline_node(ident, role, source_id, raw))
+                add_inline(inline_node(ident, role, source_id, raw))
 
     def projection(kind, ident, original_project, raw, dependencies, declared_version=None):
         key = kind + ':' + ident + ':projection'
@@ -106,7 +123,7 @@ def registry_from_store(store, job_ids, *, artifact_nodes=(), artifact_roots=Non
             binding = dict(schema='explorer_scientific_identity_projection_v1', entity_kind=kind,
                 entity_id=ident, identity=view, raw_sha256=sha(raw),
                 original_bytes_rewritten=False, verification_scope='selected_raw_binding_and_captured_Store_identity_not_original_SQLite_backup')
-            nodes.append(inline_node(key, 'canonical_projection', ident, canonical(binding),
+            add_inline(inline_node(key, 'canonical_projection', ident, canonical(binding),
                 dependencies=dependencies, projection_of=dict(id=dependencies[0], sha256=sha(raw))))
         return key
 
@@ -126,6 +143,9 @@ def registry_from_store(store, job_ids, *, artifact_nodes=(), artifact_roots=Non
                 else:
                     job = dict(row)
                     jobs[ident] = job
+                    check_inline(job['config'])
+                    if job['result'] is not None:
+                        check_inline(job['result'])
                     config = json.loads(job['config'])
                     result = json.loads(job['result']) if job['result'] else {}
                     parents = _parent_ids(config) | _parent_ids(result)
@@ -162,11 +182,11 @@ def registry_from_store(store, job_ids, *, artifact_nodes=(), artifact_roots=Non
                             if len(job['error'].encode()) > max_body_bytes:
                                 missing.append(dict(artifact_id=error_id, reason='SCIENTIFIC_BODY_BOUND_EXCEEDED'))
                             else:
-                                nodes.append(inline_node(error_id, 'raw_job_error', ident, job['error']))
+                                add_inline(inline_node(error_id, 'raw_job_error', ident, job['error']))
                     view_id = projection('job', ident, job['project_id'], job['config'].encode(), [config_id], config.get('experiment_numbering_version'))
                     deps.append(view_id)
                     deps.extend((artifact_roots or {}).get(ident, []))
-                    nodes.append(inline_node('job:' + ident, 'job_metadata', ident, canonical(meta), dependencies=deps))
+                    add_inline(inline_node('job:' + ident, 'job_metadata', ident, canonical(meta), dependencies=deps))
         present = {ident for ident, row in jobs.items() if row is not None}
         scanned = 0
         found_events, found_skills = set(), set()
