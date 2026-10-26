@@ -32,6 +32,24 @@ def save(path, value):
     temporary.replace(path)
 
 
+def _record_context(body):
+    """Optional source-declared teaching identity; never hardware configuration."""
+    fields=('skill_id','skill_version','skill_spec_sha256','scene_id','session_id','phase_id','phase','context','task_type')
+    context={key:body[key] for key in fields if key in body}
+    if any(key in context and (not isinstance(context[key],str) or not context[key] or len(context[key])>240)
+           for key in fields if key not in ('skill_version','context','phase')):
+        raise ValueError('Named recording source context must contain bounded nonempty text')
+    if 'skill_version' in context and (type(context['skill_version']) is not int or context['skill_version']<1):
+        raise ValueError('Recording skill version must be a positive integer')
+    if 'skill_id' in context or 'skill_version' in context:
+        if 'skill_id' not in context or 'skill_version' not in context:raise ValueError('Record skill ID and version together')
+    if 'context' in context and not isinstance(context['context'],dict):raise ValueError('Recording context must be an object')
+    if 'phase' in context and not isinstance(context['phase'],(str,dict)):raise ValueError('Recording phase must be text or an object')
+    raw=json.dumps(context,ensure_ascii=False,allow_nan=False)
+    if len(raw.encode())>8192:raise ValueError('Recording source context exceeds 8KiB')
+    return json.loads(raw)
+
+
 class SO101Station:
     def __init__(self, configuration, state_dir, camera):
         self.configuration = json.loads(Path(configuration).read_text())
@@ -298,6 +316,7 @@ class SO101Station:
             raise ValueError('Start an observed teleoperation or policy before recording action labels')
         if self.record or self.finishing_record:
             raise ValueError('A station recording is already active')
+        context=_record_context(body)
         ident = uuid.uuid4().hex
         folder = self.root/'recordings'/ident
         folder.mkdir(parents=True)
@@ -307,7 +326,15 @@ class SO101Station:
             name=str(body.get('name','SO-101 recording'))[:80],state='recording',outcome='unknown',samples=[],queued_samples=0,
             task=str(body.get('task',body.get('name','Imitate the recorded robot demonstration')))[:240],
             demonstration_actor=str(body.get('actor','human_operator'))[:80],execution_mode=self.mode,
-            calibration_metadata=self.profiles,clock_domain=self.clock_domain,started_wall_utc=time.time())
+            calibration_metadata=json.loads(json.dumps(self.profiles,allow_nan=False)),clock_domain=self.clock_domain,started_wall_utc=time.time(),
+            boot_id=self.boot,recording_provenance_version=2,source_context=context,
+            source_context_basis='operator_or_server_declared_not_independent_task_success',
+            producer_source_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),producer_runtime_binary_identity_verified=False,
+            camera_source=dict(camera_id=getattr(self.camera,'camera_id',None),device=getattr(self.camera,'device',None),
+                identity_basis='existing_capture_source_configuration_not_independent_hardware_serial_verification',
+                camera_calibration_available=False),camera_calibration=None)
+        for key in ('skill_id','skill_version','skill_spec_sha256','scene_id','session_id','phase_id','phase','task_type'):
+            if key in context:self.record[key]=context[key]
         save(folder/'manifest.json',self.record)
         self.last_sample_ns = 0
         return dict(episode_id=ident,state='recording',project_id=self.record['project_id'])
@@ -319,10 +346,36 @@ class SO101Station:
             folder = self.root/'recordings'/self.record['episode_id']
             index = self.record.get('queued_samples',0)
             filename = f'{index:06d}.jpg'
+            # These are snapshots from the existing cycle, not additional bus reads.
+            measurement=self.measurements
+            leader=measurement.get('leader')
+            leader_valid=(measurement.get('monotonic_ns')==measured_at and measurement.get('clock_domain')==self.clock_domain and measurement.get('follower')==list(state)
+                and isinstance(leader,list) and len(leader)==6 and all(type(value) in (int,float) and math.isfinite(value) for value in leader))
+            command=self.last_command or {}
+            dispatched=(command.get('monotonic_ns')==dispatched_at and command.get('clock_domain')==self.clock_domain and command.get('control_epoch')==self.control_epoch
+                and command.get('dispatched')==list(accepted) and command.get('requested')==list(requested))
+            receipt=dict(receipt_id=('host-write:'+self.boot+':'+str(dispatched_at)) if dispatched else None,available=dispatched,stage='host_bus_write_completed' if dispatched else None,
+                monotonic_ns=dispatched_at if dispatched else None,clock_domain=self.clock_domain,boot_id=self.boot,
+                control_epoch=command.get('control_epoch') if dispatched else None,sequence=command.get('sequence') if dispatched else None,
+                source_observation=dict(command.get('source_observation') or {}) if dispatched else None,
+                basis='existing_sync_write_returned_before_this_sample' if dispatched else 'no_matching_host_write_completion',
+                MCU_acknowledgement_verified=False,motor_application_time_verified=False,attainment_verified=False)
             sample = dict(frame=dict(file=filename,sha256=hashlib.sha256(frame.jpeg).hexdigest(),
-                frame_id=frame.frame_id,monotonic_ns=frame.monotonic_ns,clock_domain=self.clock_domain),
-                state=list(state),action=list(accepted),requested_action=list(requested),
-                state_monotonic_ns=measured_at,action_monotonic_ns=dispatched_at,clock_domain=self.clock_domain)
+                frame_id=frame.frame_id,monotonic_ns=frame.monotonic_ns,clock_domain=self.clock_domain,
+                camera_id=getattr(self.camera,'camera_id',None),timestamp_basis=getattr(frame,'timestamp_basis',None),
+                width=getattr(frame,'width',None),height=getattr(frame,'height',None),
+                exposure_timestamp_available=False),
+                state=list(state),action=list(accepted),requested_action=list(requested),accepted_action=list(accepted),
+                dispatched_action=list(accepted) if dispatched else None,dispatch_receipt=receipt,
+                leader_state=list(leader) if leader_valid else None,leader_state_monotonic_ns=measured_at if leader_valid else None,
+                leader_state_clock_domain=self.clock_domain if leader_valid else None,
+                measured_follower=dict(values=list(state),monotonic_ns=measured_at,clock_domain=self.clock_domain,
+                    timing='before_current_action_not_attainment_of_its_target'),
+                next_measured_follower=None,next_measured_follower_available=False,
+                source_valid_masks=dict(leader_state=[leader_valid]*6,follower_measured=[True]*6,
+                    requested_action=[True]*6,accepted_action=[True]*6,dispatched_action=[dispatched]*6),
+                source_context=json.loads(json.dumps(self.record.get('source_context') or {},allow_nan=False)),
+                boot_id=self.boot,state_monotonic_ns=measured_at,action_monotonic_ns=dispatched_at,clock_domain=self.clock_domain)
             if self.record['episode_id'] not in self.record_errors:
                 try:
                     self.record_queue.put_nowait((self.record,folder,filename,frame.jpeg,sample))

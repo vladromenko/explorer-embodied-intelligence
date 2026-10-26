@@ -69,3 +69,36 @@ skill/version/split, дубликаты, запрет превращения leg
 Первичные файлы и qualification.json находятся в
 `/tmp/explorer-so101-dataset-qualified-20261026-v3/`; копия receipt рядом с этим
 документом. Это software fixture, не новый физический показ и не обученный навык.
+
+## Аддитивная запись новых показов native Pi
+
+`SO101Station` сохраняет прежние поля и schema_version=1. Только новые записи
+получают `recording_provenance_version=2`: оригинальный boot, зафиксированные SHA
+исходных motor calibrations, camera source ID/device и producer on-disk source SHA
+(без заявления о доказанной runtime binary identity). Калибровки камеры в текущем
+источнике нет: `camera_calibration=None`, availability=False; она не придумывается.
+
+В `_sample` без новых bus reads копируются уже полученные в этом же цикле raw leader
+и follower measurements. Leader имеет true mask только при точном совпадении общего
+clock, measurement timestamp и follower snapshot. Отдельно сохраняются requested,
+accepted и dispatched action. Dispatched true/host receipt выдаётся только при
+совпадении уже существующего `last_command` с текущим control epoch, временем,
+requested/accepted values и clock **после возврата прежнего sync_write**. Это host
+write completion, без MCU ACK, motor application time или достижения цели. При
+отсутствии такой связи dispatched=None/maskFalse; реальные нули остаются true.
+Измерение follower относится к моменту **до текущего действия**. Следующая строка
+содержит новое собственное измерение, а вымышленного next-state в старую строку нет.
+Новые v2 записи с отсутствующим receipt не проходят даже технический допуск.
+
+Record/start может передать `skill_id`+`skill_version` вместе, `skill_spec_sha256`,
+`scene_id`, `session_id`, `phase_id`, `phase`, `task_type`, `context`. Это ограниченная
+JSON-копия исходного запроса, не независимое доказательство успеха; context не может
+менять настройки контроллеров. Центральный server adapter должен передать выбранную
+подтверждённую версию явно. Старые сохранённые manifest/JPEG не дополняются задним числом.
+
+13 дополнительных/существующих checks записи и native operations вместе с 10 checks
+Dataset проходят в одном запуске. В source-recording tests любой вызов _write,
+_positions, _connect, _enable_hold или camera.latest немедленно падает: сама запись
+метаданных и завершение writer queue не выполняют ни одной такой операции. Прежние
+write/connect/servo-loop методы и их частота не менялись. Развёртывание на Pi и
+физический показ этим source commit не выполнялись.

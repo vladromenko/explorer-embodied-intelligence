@@ -81,10 +81,10 @@ def inspect_station_episode(path,*,task_type='joint_trajectory'):
         if any(value<LOW[axis] or value>HIGH[axis] for field in ('state','action') for axis,value in enumerate(sample[field])):raise ValueError('SO101 source values outside recorded native coordinate ranges')
         counts['follower_measured']+=1;counts['command_label']+=1;states.append(sample['state'])
         for channel,field in fields.items():
-            if field in sample:
+            if sample.get(field) is not None:
                 if not _six(sample[field]):raise ValueError('Invalid recorded '+field)
                 counts[channel]+=1
-        if 'dispatched_action' in sample and sample['dispatched_action']!=sample['action']:
+        if sample.get('dispatched_action') is not None and sample['dispatched_action']!=sample['action']:
             raise ValueError('Separate dispatched source differs from converted command label')
         stamps=(frame.get('monotonic_ns'),sample.get('state_monotonic_ns'),sample.get('action_monotonic_ns'))
         if any(type(value) is not int or value<0 for value in stamps) or not stamps[0]<=stamps[1]<=stamps[2] or stamps[2]<=previous:
@@ -115,8 +115,14 @@ def inspect_station_episode(path,*,task_type='joint_trajectory'):
     if not report['source_boot_id']:missing.append('explicit_source_boot_identity_not_recorded')
     if len(camera_ids)!=1:missing.append('one_camera_hardware_identity_not_recorded')
     if not source.get('camera_calibration'):missing.append('camera_calibration_not_recorded')
-    if not all(isinstance(row.get('dispatch_receipt'),dict) and row['dispatch_receipt'].get('stage')=='host_bus_write_completed' for row in samples):
+    receipts_verified=all(isinstance(row.get('dispatch_receipt'),dict) and row['dispatch_receipt'].get('available') is True
+        and row['dispatch_receipt'].get('stage')=='host_bus_write_completed'
+        and row['dispatch_receipt'].get('monotonic_ns')==row.get('action_monotonic_ns')
+        and row['dispatch_receipt'].get('clock_domain')==row.get('clock_domain')
+        and row.get('dispatched_action')==row.get('action') for row in samples)
+    if not receipts_verified:
         missing.append('per_sample_host_dispatch_receipts_not_recorded')
+        if source.get('recording_provenance_version',1)>=2:reasons.append('new_station_host_dispatch_receipt_not_verified')
     report['legacy_hold_only']=bool(np.max(np.ptp(np.asarray(states),axis=0))<=1e-6)
     report['technical_dataset_ready']=not reasons
     report['full_teaching_provenance_ready']=not reasons and not missing
