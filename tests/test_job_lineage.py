@@ -50,3 +50,19 @@ def test_cancellation_is_not_overwritten_by_late_result_commit(tmp_path):
     store.update_job(job['id'],status='cancel_requested')
     assert store.complete_job(job['id'],{'outcome':'unknown'})=='cancelled'
     assert store.job(job['id'])['status']=='cancelled'
+
+
+def test_ui_counts_actual_optimizer_receipts_not_requested_budget(tmp_path):
+    store=Store(tmp_path)
+    job=store.create_job('manipulation_student','01',{'act_steps':1000})
+    folder=store.root/'jobs'/job['id'];folder.mkdir(parents=True)
+    assert 'completed_updates' not in store.job(job['id'])
+    receipt=folder/'act_training.json'
+    receipt.write_text(json.dumps({'losses':[{'step':1,'loss':.4},{'step':2,'loss':.3}],'device':'cpu'}))
+    observed=store.job(job['id'])
+    assert observed['completed_updates']==2 and observed['metrics']['loss']==.3
+    assert observed['result'] is None and observed['progress']==0
+    receipt.write_text(json.dumps({'losses':[{'step':1000,'loss':.3}]}))
+    assert 'completed_updates' not in store.job(job['id'])
+    receipt.write_text('[1]')
+    assert 'completed_updates' not in store.job(job['id'])

@@ -1,5 +1,6 @@
 """ENGINEERING_GLUE: SQLite WAL registry, immutable artifact paths and backup."""
 import json
+import math
 import re
 import sqlite3
 import time
@@ -138,6 +139,25 @@ class Store:
             result[key] = json.loads(result[key]) if result[key] else None
         frame = self.root / 'jobs' / result['id'] / 'frame.jpg'
         result['frame_available'] = frame.is_file()
+        metadata = frame.with_name('frame.json')
+        if metadata.is_file() and metadata.stat().st_size <= 16384:
+            try:
+                result['frame_metadata'] = json.loads(metadata.read_text())
+            except (OSError,ValueError):
+                pass
+        training = frame.with_name('act_training.json')
+        if training.is_file() and training.stat().st_size <= 4*1024**2:
+            try:
+                receipt = json.loads(training.read_text())
+                losses = receipt.get('losses', []) if isinstance(receipt,dict) else []
+                last = losses[-1] if isinstance(losses,list) and losses and isinstance(losses[-1],dict) else {}
+                if (type(last.get('step')) is int and last['step'] == len(losses)
+                        and type(last.get('loss')) in (int,float) and math.isfinite(last['loss'])):
+                    result['completed_updates'] = last['step']
+                    result['metrics'] = {'updates':last['step'],'loss':last['loss'],'device':receipt.get('device'),
+                        'basis':'retained_actual_optimizer_receipt'}
+            except (OSError,ValueError,TypeError,KeyError):
+                pass
         return result
 
     def update_job(self, job_id, **values):

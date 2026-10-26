@@ -1,5 +1,15 @@
 # Bounded completion audit against the master request
 
+Continuation note: this historical snapshot is superseded for implementation
+status by `_registry/acceptance.json`, `STATUS.md` and the retained runtime jobs
+under `research/experiments/runtime-integration-20261026/`. Direct Pi/Nano
+transactions, checkpoint-driven ACT transfer, object manipulation/visual ACT,
+adaptive demonstration review, controlled fault probes and handover adapters
+now have executable software paths. Their presence does not close physical
+registration, learned object quality, complete mobile kitchen, broad device
+recovery or scientific comparison. The original audit below is retained with
+its original scope and date rather than silently relabelled as a new review.
+
 Snapshot: integrated revision `318c958` plus current canonical source inspected
 read-only, 26 October 2026. Criteria: the supplied master prompt, especially
 §§5–13 and §17. No new device operations or tests are performed by this audit.
