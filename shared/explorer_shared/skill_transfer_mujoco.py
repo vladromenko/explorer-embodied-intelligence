@@ -31,7 +31,7 @@ class MuJoCoTargetProvider:
             target_model_sha256=self.model_sha,target_urdf_sha256=target_urdf_sha256,cad_mesh_sha256=self.mesh_files,engine_version=mujoco.__version__,
             native_action_dimension=9,base_motion_backend='actual_finite_wheel_dynamics' if len(env.command)==9 else 'explicit_stationary_base_physics_fixture',physical_io=False)
         allowed={'grasped','lifted','carried_above_target','released_inside_goal','success','approach_proximity','withdrawn',
-                 'navigate_to_source','outbound_door_crossed','inbound_door_crossed','retained_transport','bilateral_contact','lift_retained','carry_retained'}
+                 'navigate_to_source','outbound_door_crossed','inbound_door_crossed','retained_transport','bilateral_contact','lift_retained','carry_retained','settled_in_goal'}
         if not self.phase_evidence_map or any(not values or set(values)-allowed for values in self.phase_evidence_map.values()):raise TransferBlocked('EXPLICIT_INDEPENDENT_PHASE_CRITERIA_REQUIRED','A')
 
     def recheck(self):
@@ -132,6 +132,7 @@ class MuJoCoTargetProvider:
             bilateral_contact=bilateral,lift_retained=facts.get('lifted') is True and bilateral and float(center[2])-self.env.evaluator.initial_height>=.045,
             carry_retained=facts.get('carried_above_target') is True and bilateral and last.get('inside_all_points') is True and last.get('above_rim') is True,
             released_inside_goal=facts.get('carried_above_target') is True and last.get('inside_all_points') is True and last.get('free_of_fingers') is True and last.get('bottom_supported') is True)
+        facts['settled_in_goal']=bool(all(last.get(name) is True for name in ('inside_all_points','bottom_supported','within_rim','free_of_fingers','settled')) and float(last.get('support_force_N',0.))>.0001 and self._command9()[5]<=50)
         mobile=getattr(self.env,'mobile_evaluator',None);mobile_result=mobile.result() if mobile else None
         if mobile_result:
             facts.update(mobile_result.get('conditions') or {});facts['retained_transport']=facts.get('base_carried_held_object_half_metre') is True
@@ -145,6 +146,10 @@ class MuJoCoTargetProvider:
         # Phase outcomes are measured during the actual annotated phase. A late
         # grasp/placement cannot retroactively make a missed earlier phase pass.
         per_phase={phase:deepcopy(self.phase_results.get(phase,dict(success=False,observed_steps=0,criteria_ever={name:False for name in required}))) for phase,required in self.phase_evidence_map.items()}
-        return dict(source='target_finite_physics_evaluator',independent_of_action_commands=True,end_to_end_success=bool((mobile_result or facts).get('success')),
+        final_goal=facts.get('settled_in_goal') is True
+        retreat_required=any('withdrawn' in required for required in self.phase_evidence_map.values())
+        final_goal=final_goal and (not retreat_required or facts.get('withdrawn') is True)
+        return dict(source='target_finite_physics_evaluator',independent_of_action_commands=True,end_to_end_success=bool((mobile_result or facts).get('success') and final_goal),
+            terminal_goal_verified=final_goal,latched_historical_success=bool((mobile_result or facts).get('success')),
             per_phase=per_phase,object_facts=facts,mobile_facts=mobile_result,substep_contact_trace=np.asarray(self.env.substep_trace).tolist(),
             finite_step_count=self.env.steps,simulation_time_s=float(self.env.data.time),physical_io=False)

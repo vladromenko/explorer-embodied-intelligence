@@ -106,3 +106,17 @@ def test_virtual_dispatch_prefix_matches_checked_segment_without_changing_origin
     assert np.allclose(current[:6]+np.clip(actual[:6]-current[:6],-velocity*.05,velocity*.05),actual[:6])
     assert np.array_equal(provider.env.velocity,velocity) and provider.env.period==.05
     assert actual[-3:].tolist()==requested[-3:].tolist() and not receipt['controller_settings_modified']
+
+
+def test_past_latched_goal_success_cannot_hide_object_lost_before_full_trial_end():
+    # Pure protocol test, not physics evidence. A real evaluator may latch an
+    # earlier 0.5s success; transfer must also verify terminal goal occupancy.
+    from types import SimpleNamespace
+    provider=MuJoCoTargetProvider.__new__(MuJoCoTargetProvider)
+    provider.env=SimpleNamespace(substep_trace=[],steps=10,data=SimpleNamespace(time=.5))
+    provider.phase_evidence_map={'settle':['success','settled_in_goal'],'retreat':['withdrawn']};provider.phase_results={}
+    provider.recheck=lambda:None;facts={'success':True,'settled_in_goal':False,'withdrawn':True}
+    provider._facts=lambda:(facts,None)
+    rejected=provider.report();assert rejected['latched_historical_success'] and not rejected['end_to_end_success']
+    facts['settled_in_goal']=True;assert provider.report()['end_to_end_success']
+    facts['withdrawn']=False;assert not provider.report()['end_to_end_success']
