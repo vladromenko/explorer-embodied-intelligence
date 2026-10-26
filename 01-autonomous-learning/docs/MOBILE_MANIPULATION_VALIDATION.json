@@ -1,0 +1,180 @@
+{
+  "scope": "Actual CAD free-base wheel/roller two-room floor-level wrapped-candy kitchen simulation; scripted privileged baseline only",
+  "learned_policy": false,
+  "physical_io": false,
+  "whole_task_completed": false,
+  "hypotheses": "UNTESTED",
+  "runs": [
+    {
+      "run_id": "mobile-candy-scripted-v1",
+      "result_path": "/home/jetsonnx/.local/share/explorer/state/qualification/mobile-candy-kitchen-20261026/jobs/mobile-candy-scripted-v1/mobile-manipulation-result.json",
+      "result_sha256": "75a95c13b9b506885e3465a7cf7e9d31f2a93eb5eefc73b87c8de619c033df4c",
+      "source_sha256": {
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/explorer_sim/manipulation_env.py": "a0bf6c275002d6a9ce457d1e38cbbc188b8edd13cfe1adbfa3026d533c8ffe8a",
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/explorer_sim/mobile_manipulation.py": "9ce9991fcab15a29bb6b757b2d26b4e35675e04b0915f518fc831e7b6059e4fb",
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/explorer_sim/mobile_manipulation_env.py": "e93d6bd29706b05c9adb0baec2577b45fa7fc48bc368580b051ebd6db5298737",
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/legacy/config/arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/legacy/config/explorer.urdf": "9ee94f15a2473ba04c84c552bae47f7dd2bd734b8b3700f3fe25d752c3eace4b",
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/legacy/simulator/environment.py": "6665a148d854eb3f9d48fcd2b1a68eca7057ea804871b9080a1dbd7df547a9fe",
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/legacy/simulator/explorer_model.py": "2c46df3f6a81a2395132cd89bc702737c088171b83d3e05bb7eb63f5b4657d87",
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/legacy/simulator/model_config.json": "4ba8966fbea5837c300145e1c57fa05a817d2240ffa67ee0e786b14eada56e48"
+      },
+      "settings": {
+        "evaluation_episodes": 1,
+        "frame_stride": 20,
+        "horizon": 2400,
+        "seed": 641041
+      },
+      "actions": 1476,
+      "evaluator": {
+        "carried_base_distance_m": 0.33433293626744937,
+        "conditions": {
+          "base_carried_held_object_half_metre": false,
+          "base_stationary": true,
+          "base_upright": true,
+          "complete_object_placement": false,
+          "inbound_door_crossed": true,
+          "navigate_to_source": true,
+          "no_kitchen_collision": true,
+          "outbound_door_crossed": true
+        },
+        "kitchen_collision_substeps": 0,
+        "maximum_base_displacement_m": 0.8110539325155851,
+        "maximum_kitchen_collision_force_N": 0.0,
+        "object": {
+          "bilateral_substeps": 8700,
+          "carried_above_target": false,
+          "contact_substeps": 8852,
+          "final": {
+            "above_rim": false,
+            "bottom_supported": false,
+            "free_of_fingers": true,
+            "height_bounds_m": [
+              -0.00010775542031431218,
+              0.023892244579881965
+            ],
+            "inside_all_points": false,
+            "pad_force_N": [
+              0.0,
+              0.0
+            ],
+            "settled": true,
+            "support_force_N": 0.0,
+            "within_rim": true
+          },
+          "grasped": true,
+          "lifted": true,
+          "max_height_gain_m": 0.22947335154620985,
+          "settled_seconds": 0.0,
+          "substeps": 36900,
+          "success": false
+        },
+        "path_length_m": 1.9246519540772853,
+        "physical_run": false,
+        "physics_substeps": 36900,
+        "success": false,
+        "unsupported_or_failed_stages": [
+          "base_carried_held_object_half_metre",
+          "complete_object_placement"
+        ]
+      },
+      "native_replay_max_error": 0.0,
+      "native_replay_actions": 1476,
+      "source_attempt": "/home/jetsonnx/.local/share/explorer/state/qualification/mobile-candy-kitchen-20261026/jobs/mobile-candy-scripted-v1/attempts/b91306ee84d64202859929d4b93f3447"
+    },
+    {
+      "run_id": "mobile-candy-scripted-v2",
+      "result_path": "/home/jetsonnx/.local/share/explorer/state/qualification/mobile-candy-kitchen-20261026/jobs/mobile-candy-scripted-v2/mobile-manipulation-result.json",
+      "result_sha256": "94d37ac98a6830bf4b89db2ae1baeb59fb9d81413c1b0c8a640a2e1a6bc55c8a",
+      "source_sha256": {
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/explorer_sim/manipulation_env.py": "a0bf6c275002d6a9ce457d1e38cbbc188b8edd13cfe1adbfa3026d533c8ffe8a",
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/explorer_sim/mobile_manipulation.py": "de4072baad338ddbb10dcc89c746a78a976a551a5897269603e9440a05822cd8",
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/explorer_sim/mobile_manipulation_env.py": "e93d6bd29706b05c9adb0baec2577b45fa7fc48bc368580b051ebd6db5298737",
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/legacy/config/arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/legacy/config/explorer.urdf": "9ee94f15a2473ba04c84c552bae47f7dd2bd734b8b3700f3fe25d752c3eace4b",
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/legacy/simulator/environment.py": "6665a148d854eb3f9d48fcd2b1a68eca7057ea804871b9080a1dbd7df547a9fe",
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/legacy/simulator/explorer_model.py": "2c46df3f6a81a2395132cd89bc702737c088171b83d3e05bb7eb63f5b4657d87",
+        "/home/jetsonnx/work/explorer-student/01-autonomous-learning/src/legacy/simulator/model_config.json": "4ba8966fbea5837c300145e1c57fa05a817d2240ffa67ee0e786b14eada56e48"
+      },
+      "settings": {
+        "carry_profile": "lower_downward_v2",
+        "evaluation_episodes": 1,
+        "frame_stride": 20,
+        "horizon": 2400,
+        "seed": 641041
+      },
+      "actions": 1475,
+      "evaluator": {
+        "carried_base_distance_m": 0.3086991341666307,
+        "conditions": {
+          "base_carried_held_object_half_metre": false,
+          "base_stationary": true,
+          "base_upright": true,
+          "complete_object_placement": false,
+          "inbound_door_crossed": true,
+          "navigate_to_source": true,
+          "no_kitchen_collision": true,
+          "outbound_door_crossed": true
+        },
+        "kitchen_collision_substeps": 0,
+        "maximum_base_displacement_m": 0.8111758410703995,
+        "maximum_kitchen_collision_force_N": 0.0,
+        "object": {
+          "bilateral_substeps": 8389,
+          "carried_above_target": false,
+          "contact_substeps": 8541,
+          "final": {
+            "above_rim": false,
+            "bottom_supported": false,
+            "free_of_fingers": true,
+            "height_bounds_m": [
+              -0.00010775542043476964,
+              0.01989224458000241
+            ],
+            "inside_all_points": false,
+            "pad_force_N": [
+              0.0,
+              0.0
+            ],
+            "settled": true,
+            "support_force_N": 0.0,
+            "within_rim": true
+          },
+          "grasped": true,
+          "lifted": true,
+          "max_height_gain_m": 0.12030170655218807,
+          "settled_seconds": 0.0,
+          "substeps": 36875,
+          "success": false
+        },
+        "path_length_m": 1.9264595419419601,
+        "physical_run": false,
+        "physics_substeps": 36875,
+        "success": false,
+        "unsupported_or_failed_stages": [
+          "base_carried_held_object_half_metre",
+          "complete_object_placement"
+        ]
+      },
+      "native_replay_max_error": 0.0,
+      "native_replay_actions": 1475,
+      "source_attempt": "/home/jetsonnx/.local/share/explorer/state/qualification/mobile-candy-kitchen-20261026/jobs/mobile-candy-scripted-v2/attempts/e6e3908e82174a449839f612eb1997e6"
+    }
+  ],
+  "tests": {
+    "passed": 11,
+    "skipped": 0,
+    "elapsed_seconds": 15.35,
+    "command": "EXPLORER_SIM_MESH_DIR=<verified CAD> MUJOCO_GL=egl python -m pytest 01-autonomous-learning/tests/test_mobile_manipulation.py -q"
+  },
+  "final_source_gate_note": "After these retained full attempts, a tested evaluator guard resets the carry anchor on lost bilateral contact and prevents regrasp from crediting unheld travel. Native dynamics unchanged. The original sources and exact hashes remain in each attempt.",
+  "current_source_sha256": {
+    "01-autonomous-learning/src/explorer_sim/mobile_manipulation.py": "65edab1a1f52cdb3c9959fc8f1b0627f7695677a40e287f5f581fa0ff49e54ce",
+    "01-autonomous-learning/src/explorer_sim/mobile_manipulation_env.py": "41e2641aff241cb9b77b4a2fd9c6af378e96d0e5fdf96078e49461ebaa84de25"
+  },
+  "limits": [
+    "One fixed known map/object location and one development seed in two control variants",
+    "No learned policy, visual search, countertop grasp, physical robot qualification or generalization claim",
+    "Contact retention and full placement both failed; model parameters and acceptance thresholds were not altered to pass"
+  ]
+}
