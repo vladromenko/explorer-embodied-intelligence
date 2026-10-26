@@ -60,6 +60,8 @@ class NativeCaptureWriter:
         self.domain,self.boot,self.clock,self.emit=clock_domain,boot_id,clock,emit
         self.admission_byte_budget,self.max_sample_metadata=admission_byte_budget,max_sample_metadata
         self.observation_provider=observation_provider
+        from .native_model_views import NativeFeatureViews
+        self.model_views=NativeFeatureViews()
         self.lock=threading.RLock();self.items=queue.Queue(maxsize=queue_limit)
         self.wake,self.closed,self.done=threading.Event(),threading.Event(),threading.Event()
         self.state='IDLE';self.active=None;self.pending_finish=None;self.error=None
@@ -289,6 +291,9 @@ class NativeCaptureWriter:
             channels['joint_command']=_record({'values':deepcopy(estimate),'units':'deg',
                 'state_source':'command_trajectory_estimate'},before,'original_factory_ruckig')
         if observation:
+            # Pure sensor-format views run in this independent file writer,
+            # never in ManualArm/Ruckig or its native publication callback.
+            observation=self.model_views.convert(observation)
             if observation.get('error'):
                 self.blockers.add('SENSOR_SOURCE_CAPTURE_FAILED')
             for name,content in observation.get('source_payloads',{}).items():
