@@ -100,5 +100,7 @@ def test_api_has_no_model_import_and_queues_only_pinned_real_source_act_jobs(tmp
         response=client.post('/api/lab/source-shadow',json={'model_job_id':training['id']},headers=headers)
         assert response.status_code==200 and response.json()['kind']=='so101_skill_shadow'
         assert client.post('/api/lab/source-shadow',json={'model_job_id':training['id'],'dispatch':True},headers=headers).status_code==400
-        old=store.job(training['id']);store.update_job(training['id'],result=dict(old['result'],source_kind='SIMULATION'))
-        assert client.post('/api/lab/source-shadow',json={'model_job_id':training['id']},headers=headers).status_code==400
+        old=store.job(training['id']);simulation=store.create_job('so101_skill_train','04',{'backend':'act'})
+        store.update_job(simulation['id'],status='completed',result=dict(old['result'],source_kind='SIMULATION'))
+        assert client.post('/api/lab/source-shadow',json={'model_job_id':simulation['id']},headers=headers).status_code==400
+        assert store.job(training['id'])['result']==old['result']

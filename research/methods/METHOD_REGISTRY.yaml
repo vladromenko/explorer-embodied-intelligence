@@ -4247,6 +4247,31 @@
       "paper_review_evidence": [
         "research/literature/reviews/P002.json"
       ]
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SHARED-NATIVE-MODEL-VIEWS-20261026",
+      "function_or_module": "shared/explorer_shared/native_model_views.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Lossless source-format adapter only: retain original NPZ/JSON/partial-ray masks and SHA; expose exact float32-metre TIFF and existing finite-ray bucket input without resampling, zero filling or frozen-model math changes. Recorded availability remains separate from actual training feature coverage.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

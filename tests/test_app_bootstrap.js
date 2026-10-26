@@ -74,7 +74,7 @@ function bootstrap(route) {
     run: source => vm.runInContext(source, context) };
 }
 
-for (const route of ["/", "/experiments/01", "/experiments/02", "/experiments/03", "/experiments/04", "/experiments/05", "/experiments/06", "/learning/so101", "/evening"]) {
+for (const route of ["/", "/experiments/01", "/experiments/02", "/experiments/03", "/experiments/04", "/experiments/05", "/experiments/06", "/learning/so101", "/evening", "/queue"]) {
   test(`actual deferred browser module graph bootstraps ${route} without implicit control requests`, async () => {
     const rig = bootstrap(route); await flush();
     assert.equal(rig.run("model.error"), null);

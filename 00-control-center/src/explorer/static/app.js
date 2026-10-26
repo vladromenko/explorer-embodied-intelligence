@@ -81,6 +81,8 @@ const labVision = createLabVisionClient({get: api,post: (...args) => post(...arg
 const tabletopCalibration = createTabletopCalibrationClient({get:api,post:(...args) => post(...args),onChange:() => { model.forceRender = true; render(); }});
 const cooperativeWorkbench = createCooperativeWorkbenchClient({get:api,post:(...args) => post(...args),onChange:() => { model.forceRender = true; render(); }});
 let cooperativeUnbind = () => {}, cooperativeLoadedAt = 0;
+const sharedQueue = createSharedQueueClient({get:api,post:(...args) => post(...args),onChange:() => { model.forceRender = true; render(); }});
+let sharedQueueUnbind = () => {}, sharedQueueLoadedAt = 0;
 const labSkills = createLabSkillsClient({api,onChange: () => { model.forceRender = true; render(); },onCaptureContext: context => { stationLab.skillContext = context.record_start_body; toast("Контекст навыка выбран. Запись запускается отдельно при наблюдении за руками."); }});
 let labSkillsLoadedAt = 0;
 const keyboard = new ManualKeyboard();
@@ -145,7 +147,7 @@ function navigate(url) { if (path() !== url && (stationLab.owned || stationLab.p
 
 function navigation() {
   const item = (href, label, symbol, ordinal) => `<a href="${href}" data-link class="nav-item ${path() === href ? "active" : ""}" ${path() === href ? 'aria-current="page"' : ""}>${ordinal ? `<span class="nav-number">${ordinal}</span>` : icon(symbol, "nav-icon")}<span>${label}</span></a>`;
-  document.querySelector("#navigation").innerHTML = item("/", "Обзор станции", "overview") + '<div class="nav-section-label">Исследовательские опыты</div>' + PROJECTS.map((project) => item(`/experiments/${project.id}`, ["Автономное обучение", "Обучение ROSMASTER", "Leader → ROSMASTER", "Две руки LeRobot", "Совместная передача", "Перенос навыков"][Number(project.id) - 1], "", project.id)).join("") + '<div class="nav-divider"></div>' + item("/research", "Исследования", "research") + item("/skills", "Библиотека навыков", "skills") + item("/infrastructure", "Оборудование", "server") + item("/evening", "Наблюдаемая проверка", "check");
+  document.querySelector("#navigation").innerHTML = item("/", "Обзор станции", "overview") + '<div class="nav-section-label">Исследовательские опыты</div>' + PROJECTS.map((project) => item(`/experiments/${project.id}`, ["Автономное обучение", "Обучение ROSMASTER", "Leader → ROSMASTER", "Две руки LeRobot", "Совместная передача", "Перенос навыков"][Number(project.id) - 1], "", project.id)).join("") + '<div class="nav-divider"></div>' + item("/queue", "Общая очередь", "clock") + item("/research", "Исследования", "research") + item("/skills", "Библиотека навыков", "skills") + item("/infrastructure", "Оборудование", "server") + item("/evening", "Наблюдаемая проверка", "check");
 }
 
 function nodes() { return array(model.state?.nodes); }
@@ -640,6 +642,7 @@ function render() {
   else if (route === "/research") { title = "Исследования"; markup = researchPage(); }
   else if (route === "/skills") { title = "Библиотека навыков"; markup = skillsPage(); }
   else if (route === "/infrastructure") { title = "Оборудование"; markup = infrastructurePage(); }
+  else if (route === "/queue") { title = "Общая очередь"; markup = heading("Очередь обучения и проверок","Все опыты используют общий бюджет Homebrain. Здесь можно изменить порядок и параметры ожидания.") + sharedQueuePanel(sharedQueue.snapshot(),model.jobs); }
   else if (route === "/evening") { title = "Наблюдаемая проверка"; markup = eveningPage(); }
   else if (route === "/learning/so101") { title = "Моя лаборатория"; markup = labPage(); }
   else if (route === "/") markup = dashboard();
@@ -647,8 +650,10 @@ function render() {
   const cameraWasVisible = document.contains(cameraCard); const slotNeeded = markup.includes('id="camera-slot"');
   if (cameraWasVisible) cameraCard.remove();
   cooperativeUnbind(); cooperativeUnbind = () => {};
+  sharedQueueUnbind(); sharedQueueUnbind = () => {};
   main.innerHTML = markup;
   if (project?.id === "05") cooperativeUnbind = bindCooperativeWorkbench(main,cooperativeWorkbench,error => toast(error.message,true));
+  if (route === "/queue") sharedQueueUnbind = bindSharedQueue(main,sharedQueue,error => toast(error.message,true));
   if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(route)) {
     bindLabVision(main,labVision);
     bindTabletopCalibration(main,tabletopCalibration,error => toast(error.message));
@@ -702,6 +707,7 @@ async function refresh(forceExtras = false) {
     if (activeProject()?.id === "01" && (forceExtras || Date.now() - worldLearning.lastLoad > 20000)) await refreshWorldDatasets();
     if(path()==="/evening")model.evening=await api("/api/evening");
     if (activeProject()?.id === "05" && (forceExtras || Date.now()-cooperativeLoadedAt>3000)) { cooperativeLoadedAt=Date.now(); await cooperativeWorkbench.refresh(); }
+    if (path() === "/queue" && (forceExtras || Date.now()-sharedQueueLoadedAt>3000)) { sharedQueueLoadedAt=Date.now(); await sharedQueue.refresh(); }
     if (stationRoute()) await pollStation(forceExtras);
     if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path())) await Promise.all([labVision.refresh(forceExtras),tabletopCalibration.refresh(forceExtras)]);
     if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path()) && (forceExtras || Date.now() - labSkillsLoadedAt > 15000)) { labSkillsLoadedAt = Date.now(); await labSkills.refresh(); }
