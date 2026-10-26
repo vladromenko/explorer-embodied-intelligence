@@ -449,3 +449,22 @@ def test_real_Store_registry_and_events_use_readonly_whitelisted_tables(tmp_path
     assert not set(reads)&{'sessions','tickets','nodes','outbox','job_scheduling'}
     result=export_evidence(tmp_path/'bundle',registry,{'state':store.root},protocol_path=CONTRACT,protocol_sha256=sha(CONTRACT.read_bytes()))
     assert restore_export(result['manifest_path'],result['manifest_sha256'],tmp_path/'restore')['verification']=='VERIFIED_COMPLETE'
+
+
+def test_binary_hardlink_cannot_smuggle_raw_SQLite_auth_tables_as_model_weights(tmp_path):
+    import os
+    managed,registry=export_fixture(tmp_path)
+    database=managed/'research.sqlite3'
+    with sqlite3.connect(database) as db:
+        db.execute('CREATE TABLE sessions(node_token)')
+        db.execute('INSERT INTO sessions VALUES (?)',('PRIVATE_SQLITE_NODE_TOKEN',))
+    alias=managed/'weights.bin';os.link(database,alias)
+    raw=alias.read_bytes()
+    registry['nodes'].append(dict(id='weights',role='model_weights',source_id='job-1',root='state',
+        relative_path='weights.bin',sha256=sha(raw),dependencies=[]))
+    registry['root_ids'].append('weights')
+    with pytest.raises(ExportRejected,match='Raw SQLite content'):
+        make_export(tmp_path,registry,managed)
+    assert database.read_bytes()==raw and alias.read_bytes()==raw
+    assert not (tmp_path/'bundle/manifest.json').exists()
+    assert b'PRIVATE_SQLITE_NODE_TOKEN' not in b''.join(path.read_bytes() for path in (tmp_path/'bundle').rglob('*') if path.is_file())

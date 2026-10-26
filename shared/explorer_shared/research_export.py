@@ -95,6 +95,8 @@ def inline_node(identity, role, source_id, raw, *, dependencies=(), **metadata):
 
 
 def _check_text(raw, role, name, limits):
+    if raw.startswith(b'SQLite format 3\x00'):
+        raise ExportRejected('Raw SQLite content is forbidden even behind a safe file alias')
     is_json = role in JSON_ROLES or role == 'trial_records' or str(name).lower().endswith(('.json', '.jsonl', '.ndjson'))
     if is_json:
         if len(raw) > limits['max_json_bytes']:
@@ -175,6 +177,8 @@ def _copy_source(source, destination, expected, *, size_bound):
             destination.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
             with destination.open('xb') as copied:
                 block = original.read(1024 * 1024)
+                if block.startswith(b'SQLite format 3\x00'):
+                    raise ExportRejected('Raw SQLite content is forbidden even behind a safe file alias')
                 while block:
                     copied.write(block)
                     checksum.update(block)
@@ -388,6 +392,8 @@ def verify_export(manifest_path, expected_sha256, *, metric_verifier=None):
             if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode) or _identity(os.fstat(stream.fileno())) != _identity(before):
                 raise ExportRejected('Export member changed before verification')
             block = stream.read(1024 * 1024)
+            if block.startswith(b'SQLite format 3\x00'):
+                raise ExportRejected('Raw SQLite content is forbidden even behind a safe file alias')
             while block:
                 checksum.update(block)
                 size += len(block)
