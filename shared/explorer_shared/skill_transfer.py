@@ -118,16 +118,24 @@ def _path(free,start,goal):
 
 
 class TaskRelativeMapper:
-    def __init__(self,source_chain,target_chain,source_coordinates,target_coordinates,*,source_profile,source_aperture,target_aperture,task_frames,target_low,target_high,collision_checker):
+    def __init__(self,source_chain,target_chain,source_coordinates,target_coordinates,*,source_profile,source_aperture,target_aperture,task_frames,target_low,target_high,collision_checker,tool_frame_adapter=None):
         self.source,self.target=source_chain,target_chain;self.source_coordinates,self.target_coordinates=source_coordinates,target_coordinates
         self.source_profile=deepcopy(source_profile);self.source_aperture,self.target_aperture=source_aperture,target_aperture
         self.registrations={role:task_registration(task_frames,role) for role in ('object','goal')}
+        adapter=deepcopy(tool_frame_adapter or {})
+        if (adapter.get('basis') not in ('CAD_derived','virtual_declared','measured') or adapter.get('source_tip')!=source_chain.tip or adapter.get('target_tip')!=target_chain.tip or
+                adapter.get('source_urdf_sha256')!=source_chain.source_sha256 or adapter.get('target_urdf_sha256')!=target_chain.source_sha256):raise TransferBlocked('EXPLICIT_COMMON_TOOL_FRAME_ADAPTER_REQUIRED','A','Different CAD tip axes are not implicitly equal')
+        try:
+            self.source_tip_from_common=rigid_transform(adapter['source_tip_from_common_tool']);self.target_tip_from_common=rigid_transform(adapter['target_tip_from_common_tool'])
+        except (KeyError,ValueError) as error:raise TransferBlocked('COMMON_TOOL_FRAME_SE3_INVALID','A') from error
+        if adapter['basis']=='measured' and not adapter.get('calibration_ids'):raise TransferBlocked('MEASURED_TOOL_FRAME_ARTIFACT_IDS_REQUIRED','B')
+        self.tool_frame_adapter=adapter
         self.low,self.high=np.asarray(target_low,float),np.asarray(target_high,float);self.collision_checker=collision_checker
         if self.low.shape!=(6,) or self.high.shape!=(6,) or np.any(self.low>=self.high) or not np.isfinite(np.r_[self.low,self.high]).all():raise TransferBlocked('FACTORY_TARGET_LIMITS_REQUIRED','A')
         if (source_profile.get('source_urdf_sha256')!=source_chain.source_sha256 or source_profile.get('source_calibration_sha256')!=source_coordinates.sha256 or
                 tuple(source_chain.names)!=tuple(SOURCE_NAMES[:5])):raise TransferBlocked('SOURCE_PROFILE_CAD_OR_CALIBRATION_CHANGED','A')
         if not callable(collision_checker):raise TransferBlocked('TARGET_CAD_COLLISION_PROVIDER_REQUIRED','A')
-        self.lineage=dict(mapper_implementation_sha256=sha(Path(__file__).read_bytes()),source_urdf_sha256=source_chain.source_sha256,target_urdf_sha256=target_chain.source_sha256,
+        self.lineage=dict(tool_frame_adapter_sha256=digest(adapter),tool_frame_basis=adapter['basis'],mapper_implementation_sha256=sha(Path(__file__).read_bytes()),source_urdf_sha256=source_chain.source_sha256,target_urdf_sha256=target_chain.source_sha256,
             source_calibration_sha256=source_coordinates.sha256,target_native_coordinate_source_sha256=target_coordinates.source_sha256,
             source_profile_sha256=digest(source_profile),source_aperture_sha256=digest(source_aperture),target_aperture_sha256=digest(target_aperture),task_frames_sha256=digest(task_frames))
 
@@ -137,7 +145,9 @@ class TaskRelativeMapper:
         # Exact calibrated encoder rounding is retained separately from affine
         # geometry; the original source native action is never overwritten.
         self.source.forward(positions)
-        return self.registrations[frame['reference']].transfer(self.source.forward(positions))
+        source_base_from_common=self.source.forward(positions)@self.source_tip_from_common
+        target_base_from_common=self.registrations[frame['reference']].transfer(source_base_from_common)
+        return target_base_from_common@np.linalg.inv(self.target_tip_from_common)
 
     def _solve(self,world_from_tool,world_from_base,prior9,gripper):
         desired=np.linalg.inv(world_from_base)@world_from_tool

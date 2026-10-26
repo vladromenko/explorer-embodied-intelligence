@@ -25,7 +25,8 @@ def mapper_fixture(world_from_base=None):
     source_pose=source.forward([0]*5);target_pose=(np.eye(4) if world_from_base is None else world_from_base)@target.forward([0]*5)
     frames=register_task_frames([dict(role=role,base_from_frame=(source_pose if role.startswith('source') else target_pose).tolist(),frame_sha256=str(index)*64,calibration_id=role+'-sim',uncertainty_m=.001) for index,role in enumerate(['source_object','source_goal','target_object','target_goal'])],provenance='synthetic')
     def collision(start,end,base):return dict(collision_free=True,target_urdf_sha256=target.source_sha256,continuous_segment_checked=True,scene_sha256='f'*64,method='MOCK_ONLY_NOT_PHYSICS')
-    return TaskRelativeMapper(source,target,coordinates,TargetCoordinates(NATIVE.read_bytes()),source_profile=profile,source_aperture=curves['source'],target_aperture=curves['target'],task_frames=frames,
+    tool_adapter=dict(basis='virtual_declared',source_tip=source.tip,target_tip=target.tip,source_urdf_sha256=source.source_sha256,target_urdf_sha256=target.source_sha256,source_tip_from_common_tool=np.eye(4).tolist(),target_tip_from_common_tool=np.eye(4).tolist())
+    return TaskRelativeMapper(source,target,coordinates,TargetCoordinates(NATIVE.read_bytes()),source_profile=profile,source_aperture=curves['source'],target_aperture=curves['target'],task_frames=frames,tool_frame_adapter=tool_adapter,
         target_low=[0,0,0,0,0,30],target_high=[180,180,180,180,270,170],collision_checker=collision)
 
 
@@ -147,3 +148,18 @@ def test_source_RGB_pixel_reuse_is_rejected_despite_target_named_receipt(tmp_pat
         target_skill_spec=dict(skill_id=document['skill_id'],version=2,stages=[dict(id='place_verify')]),seed=1)
     assert result['failure']['code']=='SOURCE_RGB_PIXELS_CANNOT_SUBSTITUTE_TARGET_RENDER'
     assert not result['eligible_as_simulation_expert']
+
+
+def test_distinct_CAD_tool_axes_are_explicit_and_preserve_the_common_object_effect(tmp_path):
+    from explorer_shared.kinematics import transform
+    mapper=mapper_fixture();unused,document,frame=source_trace(tmp_path)
+    baseline=mapper.desired_tool(frame)
+    mapper.source_tip_from_common=transform([.01,0,0],[0,0,.3])
+    mapper.target_tip_from_common=transform([0,.02,0],[0,0,-.2])
+    source_pose=mapper.source.forward([0]*5)
+    expected=mapper.registrations['goal'].transfer(source_pose@mapper.source_tip_from_common)@np.linalg.inv(mapper.target_tip_from_common)
+    assert np.allclose(mapper.desired_tool(frame),expected)
+    assert not np.allclose(mapper.desired_tool(frame),baseline)
+    with pytest.raises(TransferBlocked,match='EXPLICIT_COMMON_TOOL_FRAME_ADAPTER'):
+        TaskRelativeMapper(mapper.source,mapper.target,mapper.source_coordinates,mapper.target_coordinates,source_profile=mapper.source_profile,source_aperture=mapper.source_aperture,target_aperture=mapper.target_aperture,
+            task_frames=dict(provenance='synthetic',frames={key:dict(base_from_frame=np.eye(4).tolist(),calibration_id=key) for key in ('source_object','source_goal','target_object','target_goal')}),target_low=mapper.low,target_high=mapper.high,collision_checker=mapper.collision_checker)
