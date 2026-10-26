@@ -22,7 +22,7 @@ from explorer.skill_workflow import (
     revise_skill,training_request,validate_02_training_request,verify_capture_episode,workflow,
 )
 from explorer_shared.contracts import ACTION_NAMES,ACTION_UNITS
-from test_embodied_episode import encoded,package,source_facts
+from test_embodied_episode import command_estimate_facts,encoded,package,source_facts
 
 
 def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -34,28 +34,27 @@ def skill(store,preset='sock_to_basket'):
 
 
 def imported(store,selected,name,*,outcome='success',quality=True,split='train',observation_only=False,
-             source_session=None,source_scene=None,source_object=None,scope='whole_episode',phases=None,legacy_view=False,frame_prefix=None,rgb_content_key=None):
+             source_session=None,source_scene=None,source_object=None,scope='whole_episode',phases=None,legacy_view=False,frame_prefix=None,rgb_content_key=None,
+             project_id='02',job_kind='mobile_import',command_estimate=False):
     """Actual canonical parser receives an entirely synthetic source-bound record."""
     directory=store.root/'datasets'/name;directory.mkdir(parents=True)
-    facts,images=source_facts();phases=list(phases or MANIPULATION_STAGES)
+    facts,images=command_estimate_facts() if command_estimate else source_facts();phases=list(phases or MANIPULATION_STAGES)
     images['rgb.bin']+=(rgb_content_key or name).encode()
     facts['samples'][0]['channels']['camera_rgb']['value']['sha256']=hashlib.sha256(images['rgb.bin']).hexdigest()
-    facts.update(episode_id=name,run_id='fixture-run-'+name,episode_scope=scope)
+    facts.update(episode_id=name,run_id='fixture-run-'+name,episode_scope=scope,project_id=project_id)
     facts['skill']=dict(id=selected['spec']['skill_id'],version=selected['spec']['version'],variant_id='declared-source-variant',session_id=source_session or 'source-session-'+name)
     facts['recording'].update(operator_outcome=outcome,source_quality_usable=quality)
     facts['split'].update(partition=split,episode_id=name,session_id=facts['skill']['session_id'],scene_id=source_scene or 'source-scene-'+name,object_instance_id=source_object or 'source-object-'+name,group_id='group-'+name)
-    facts['samples'][0]['channels']['camera_rgb']['value']['frame_id']='rgb-'+name
-    facts['samples'][0]['channels']['camera_depth']['value']['aligned_to_rgb_frame_id']='rgb-'+name
-    facts['samples'][0]['channels']['detections']['value']['frame_id']='rgb-'+name
     initial_sample=deepcopy(facts['samples'][0]);facts['samples']=[]
     for index,phase in enumerate(phases):
         sample=deepcopy(initial_sample);sample['sample_id']='sample-'+str(index)
         sample['action']['stamp']['monotonic_ns']=20+index;sample['action']['delivery']['stamp']['monotonic_ns']=20+index
-        for channel in sample['channels'].values():channel['stamp']['monotonic_ns']=10+index
+        for channel in sample['channels'].values():
+            if isinstance(channel.get('stamp'),dict):channel['stamp']['monotonic_ns']=10+index
         frame_id='rgb-'+(frame_prefix or name)+'-'+str(index)
         sample['channels']['camera_rgb']['value']['frame_id']=frame_id
-        sample['channels']['camera_depth']['value']['aligned_to_rgb_frame_id']=frame_id
-        sample['channels']['detections']['value']['frame_id']=frame_id
+        if isinstance(sample['channels']['camera_depth'].get('value'),dict):sample['channels']['camera_depth']['value']['aligned_to_rgb_frame_id']=frame_id
+        if isinstance(sample['channels']['detections'].get('value'),dict):sample['channels']['detections']['value']['frame_id']=frame_id
         facts['samples'].append(sample)
     facts['phases']=[dict(id=phase,start_sample=index,end_sample=index,transition_reason='synthetic completed phase',recovery_of=None) for index,phase in enumerate(phases)]
     independent=deepcopy(facts['outcomes']['end_to_end']);independent['status']=outcome
@@ -78,7 +77,7 @@ def imported(store,selected,name,*,outcome='success',quality=True,split='train',
             training_admission=dict(source_quality_usable=True,operator_success_label=True),
             episodes=[dict(id=name,file=archive.name,sha256=sha(archive),source_episode_id=name,split=split,frames=count,outcome='success',frame_source_ids=[name+':'+str(i) for i in range(count)],clock_domain='fixture-clock-'+name)])
         legacy=directory/'explicit-component.json';legacy.write_bytes(encoded(manifest));result['fixture_legacy_view']=str(legacy)
-    job=store.create_job('mobile_import','02',dict(episode_id=name));store.complete_job(job['id'],result)
+    job=store.create_job(job_kind,project_id,dict(episode_id=name));store.complete_job(job['id'],result)
     return store.job(job['id']),envelope_path
 
 
@@ -359,9 +358,96 @@ vm.runInContext(`skillWorkflowUI.session=fixture.sessions.find(x=>x.split==='tra
 let finish=vm.runInContext(`skillWorkflowFinishContext('success')`,context);assert(finish.full_task_confirmed);
 vm.runInContext(`skillWorkflowUI.variant='variant-002'`,context);
 assert.throws(()=>vm.runInContext(`skillWorkflowFinishContext('success')`,context),/отличается/);
+context.window={location:{pathname:'/experiments/03'}};
+const adapter=vm.runInContext('skillWorkflowAdapterContext()',context);assert.equal(adapter.project_id,'03');assert.equal(adapter.input_mode,'so101_leader_retarget');
+assert(vm.runInContext('skillWorkflowPanel()',context).includes('03 / Общий навык ROSMASTER'));
 context.api=async url=>{assert(url.startsWith('/api/skill-workflow/capture-context?episode_id='));return {capture:{capture_id:'durable-id',skill_id:state.spec.skill_id,version:1,variant_id:'variant-001',session_id:state.sessions.find(x=>x.split==='train').session_id,episode_scope:'whole_episode',target_phase_ids:state.spec.stages.map(x=>x.id)}}};
 vm.runInContext('refreshSkillWorkflow=async()=>{}',context);
 vm.runInContext(`skillWorkflowRecoverCapture('original-id')`,context).then(value=>{assert.equal(value.capture_id,'durable-id');assert.equal(vm.runInContext('skillWorkflowUI.capture',context),'durable-id')}).catch(error=>{console.error(error);process.exitCode=1});
 ''')
     checked=subprocess.run([node,str(runner),str(fixture),str(script)],capture_output=True,text=True)
     assert checked.returncode==0,checked.stdout+checked.stderr
+
+
+def test_02_and_03_share_one_skill_counter_aggregate_and_import_pool(tmp_path):
+    store=Store(tmp_path)
+    selected=create_skill(store,dict(preset='sock_to_basket',project_id='03',input_mode='so101_leader_retarget',request_id='shared-request'))
+    selected=confirm_skill(store,selected['spec']['skill_id'],1,selected['spec_sha256']);identity=selected['spec']['skill_id']
+    sessions={split:create_session(store,identity,1,dict(split=split,scene='shared-scene-'+split,project_id='03')) for split in service.SPLITS}
+    rows=[]
+    for index,variant in enumerate(selected['spec']['coverage_plan']['variants']):
+        project='03' if index%2 else '02';kind='retarget_import' if project=='03' else 'mobile_import'
+        job,path=imported(store,selected,'mixed-'+str(index),split=variant['split'],project_id=project,job_kind=kind)
+        rows.append((job,path,assign(store,selected,job,variant['variant_id'],sessions[variant['split']],project_id='02')))
+    first=workflow(store,identity,1,project_id='02');second=workflow(store,identity,1,project_id='03')
+    assert first['spec_sha256']==second['spec_sha256'] and first['counts']==second['counts']
+    assert first['data_ready'] and second['data_ready'] and first['counts']['accepted_originals']==5
+    assert first['context']['input_mode']=='keyboard_gamepad' and second['context']['input_mode']=='so101_leader_retarget'
+    assert list_skills(store,project_id='02')==list_skills(store,project_id='03')
+    pool=available_imports(store,project_id='03')
+    assert len(pool)==5 and {row['source_project_id'] for row in pool}=={'02','03'}
+    assert all(row['demonstration_input']['input_mode']=='UNKNOWN' for row in pool)
+    aggregate=build_aggregate(store,identity,1);manifest=aggregate['manifest']
+    assert {row['source_project_id'] for row in manifest['episodes']}=={'02','03'}
+    assert {row['import_kind'] for row in manifest['episodes']}=={'mobile_import','retarget_import'}
+    assert manifest['input_mode_is_provenance_not_model_type'] and manifest['workflow_family']==service.WORKFLOW_FAMILY
+    assert manifest['compatible_source_projects']==['02','03']
+    assert len(manifest['episodes'])==4 and manifest['action_names']==list(ACTION_NAMES)
+    assert build_aggregate(store,identity,1)['aggregate_sha256']==aggregate['aggregate_sha256']
+
+
+def test_shared_03_command_estimate_capture_admits_without_enabling_feedback_and_rejects_raw_leader(tmp_path):
+    store=Store(tmp_path);selected=skill(store);identity=selected['spec']['skill_id']
+    session=create_session(store,identity,1,dict(split='train',scene='command-estimate-fixture',project_id='03'))
+    intent=begin_capture(store,identity,1,'variant-001',session['session_id'],stationary_chassis_confirmed=True,project_id='03')
+    assert intent['input_mode']=='so101_leader_retarget' and intent['action_contract_id']==UNIFIED_ACTION_CONTRACT
+    assert not intent['native_payload_additions'] and not intent['automatic_motion']
+    job,path=imported(store,selected,'retarget-command-estimate',project_id='03',job_kind='retarget_import',command_estimate=True)
+    capture_started(store,intent['capture_id'],'retarget-command-estimate')
+    capture_finished(store,intent['capture_id'],'retarget-command-estimate',dict(outcome='success',full_task_confirmed=True,object_and_goal_visible=True,completed_stages=list(MANIPULATION_STAGES)))
+    binding=bind_import_from_capture(store,job)
+    state=workflow(store,identity,1,project_id='03')
+    assert binding['source_project_id']=='03' and state['assignments'][0]['accepted'],state['assignments'][0]['reasons']
+    report=service._inspector(job,store.root)
+    assert report['mobile_embodied']['channels']['joint_feedback']['mask'] is False
+    assert report['mobile_embodied']['raw_simultaneous_actions'][0]['values']==[0.]*9
+    raw=store.create_job('retarget_import','03',dict(episode_id='raw-leader-archive'))
+    store.complete_job(raw['id'],dict(recording_id='raw-leader-archive',samples=12))
+    assign(store,selected,store.job(raw['id']),'variant-002',session)
+    rejected=next(row for row in workflow(store,identity,1)['assignments'] if row['binding']['original_episode_id']=='raw-leader-archive')
+    assert not rejected['accepted'] and rejected['binding']['demonstration_input']['input_mode']=='UNKNOWN'
+
+
+def test_original_split_groups_are_global_across_02_and_03_not_page_local(tmp_path):
+    store=Store(tmp_path);selected=skill(store);identity=selected['spec']['skill_id']
+    train=create_session(store,identity,1,dict(split='train',scene='one'));dev=create_session(store,identity,1,dict(split='development',scene='two',project_id='03'))
+    first,_=imported(store,selected,'native02',source_object='same-object')
+    second,_=imported(store,selected,'native03',project_id='03',job_kind='retarget_import',split='development',source_object='same-object')
+    assign(store,selected,first,'variant-001',train)
+    with pytest.raises(ValueError,match='cannot cross'):assign(store,selected,second,'variant-004',dev,project_id='03')
+
+
+def test_both_projects_reject_forged_partial_training_and_share_active_queue_reservation(tmp_path,monkeypatch):
+    store=Store(tmp_path);selected,_,_=prepared(store);identity=selected['spec']['skill_id'];aggregate=build_aggregate(store,identity,1)
+    for project in ('02','03'):
+        with pytest.raises(WorkflowBlocked):service.validate_rosmaster_training_request(store,dict(kind='train_act',project_id=project,config={}))
+        with pytest.raises(WorkflowBlocked):training_request(store,identity,1,project_id=project)
+    lineage={key:aggregate[key] for key in ('skill_id','skill_version','spec_sha256','aggregate_sha256','aggregate_content_id','training_original_episode_ids','development_original_episode_ids','sealed_original_episode_ids')}
+    def fake_request(*args,project_id='02',**kwargs):return dict(kind='test_only_shared_pipeline',project_id=project_id,config=dict(dataset_manifest=aggregate['dataset_manifest'],skill_workflow=lineage))
+    monkeypatch.setattr(service,'training_request',fake_request);monkeypatch.setattr(service,'validate_02_training_request',lambda *a,**k:True)
+    first=enqueue_training(store,identity,1,project_id='03');second=enqueue_training(store,identity,1,project_id='02')
+    assert first['project_id']=='03' and first['id']==second['id']
+    with store.connect() as db:events=service._records(db,'training')
+    assert len(events)==1 and events[0]['payload']['workflow_family']==service.WORKFLOW_FAMILY
+
+
+def test_verified_native_adapter_and_source_project_are_preserved_independently_of_registry_page(tmp_path):
+    from test_mobile_dataset_evidence import shared_command_estimate_fixture
+    job,path=shared_command_estimate_fixture(tmp_path,'retarget_import','03','so101_leader')
+    job['project_id']='02'
+    report=service._inspector(job,tmp_path)
+    assert report['admitted_for_training']
+    provenance=service._input_provenance(job,report)
+    assert provenance['source_project_id']=='03' and provenance['import_job_project_id']=='02'
+    assert provenance['input_mode']=='so101_leader' and provenance['input_mode_verified']
+    assert provenance['provenance']['source_sha256']==sha(path.parent/'facts.json')

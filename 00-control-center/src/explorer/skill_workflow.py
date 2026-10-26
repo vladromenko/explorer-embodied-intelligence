@@ -39,6 +39,31 @@ PRESETS = {
     'approach_grasp_transport_place': dict(title='Подъехать → захватить → перевезти → поставить',task_type='mobile_manipulation',object='Предмет',goal='Место размещения'),
 }
 EVENT_PREFIX = 'skill.workflow.'
+ROSMASTER_PROJECTS=('02','03')
+INPUT_MODES=('keyboard_gamepad','so101_leader_retarget')
+WORKFLOW_FAMILY='rosmaster_shared_demonstration_pipeline_v1'
+
+
+def _context(project_id='02',input_mode=None):
+    if project_id not in ROSMASTER_PROJECTS:raise ValueError('The common ROSMASTER workflow belongs to experiments02/03')
+    mode=input_mode or ('so101_leader_retarget' if project_id=='03' else 'keyboard_gamepad')
+    if mode not in INPUT_MODES:raise ValueError('Unknown ROSMASTER demonstration input adapter')
+    return dict(project_id=project_id,input_mode=mode,meaning='requested_demonstration_adapter_context_not_robot_or_model_type')
+
+
+def _is_rosmaster_import(job):
+    return bool(job and job.get('kind') in ('mobile_import','retarget_import') and job.get('project_id') in ROSMASTER_PROJECTS)
+
+
+def _input_provenance(job,report):
+    mode=report.get('input_mode')
+    verified=report.get('input_mode_verified') is True and isinstance(mode,str) and bool(mode.strip()) and len(mode)<=160 and mode!='UNKNOWN'
+    origin=report.get('source_project_id') if report.get('source_project_basis')=='source_bound_original_identity' and report.get('source_project_id') in ROSMASTER_PROJECTS else job['project_id']
+    return dict(source_project_id=origin,source_project_basis=report.get('source_project_basis','import_job_registry_only'),import_job_project_id=job['project_id'],import_kind=job['kind'],
+        input_mode=report['input_mode'] if verified else 'UNKNOWN',input_mode_verified=verified,
+        registry_origin_is_not_input_adapter_attestation=True,
+        provenance=report.get('demonstration_input_provenance') if verified else None,
+        target_action_contract=UNIFIED_ACTION_CONTRACT,raw_leader_positions_are_not_target_actions=True)
 
 
 class WorkflowBlocked(ValueError):
@@ -75,9 +100,9 @@ def _records(db,kind=None):
     return rows
 
 
-def _append(db,kind,body,*,identity=None):
+def _append(db,kind,body,*,identity=None,project_id='02'):
     payload = dict(body,type=EVENT_PREFIX+kind)
-    envelope = event('nx','02',payload)
+    envelope = event('nx',_context(project_id)['project_id'],payload)
     envelope['event_id'] = identity or EVENT_PREFIX+kind+':'+digest(payload)
     serialized = canonical(envelope).decode()
     previous = db.execute('SELECT body FROM events WHERE event_id=?',(envelope['event_id'],)).fetchone()
@@ -114,6 +139,10 @@ def _derive(spec):
     if spec.get('resources') != ['arm','gripper','base']:
         raise ValueError('Every SkillSpec is one unified ROSMASTER mobile manipulator; separate resource modes are unsupported')
     spec['embodiment']='rosmaster_unified_mobile_manipulator'
+    spec['workflow_family']=WORKFLOW_FAMILY
+    spec['demonstration_adapters']=dict(compatible_source_projects=list(ROSMASTER_PROJECTS),input_modes=list(INPUT_MODES),
+        shared_downstream='canonical9D_qualification_aggregate_queue_model_evaluation_deploy_selection_autonomous_execution',
+        input_mode_is_provenance_not_dataset_model_or_robot_type=True,raw_leader_positions_are_not_target_actions=True)
     stages = NAVIGATION_STAGES if task=='navigation' else MANIPULATION_STAGES if task=='mobile_manipulation' else ()
     spec['stages'] = [dict(id=name,title=STAGE_TITLES[name]) for name in stages]
     if not isinstance(spec['cameras'],list) or not spec['cameras'] or any(not isinstance(name,str) or not name or len(name)>80 for name in spec['cameras']) or len(set(spec['cameras'])) != len(spec['cameras']):
@@ -150,7 +179,7 @@ def _derive(spec):
         observations='canonical_RGB_depth_calibration_lidar_odom_pose_velocity_IMU_joints_masks_gripper_clocks_detection_goal_power_context',
         action_contract_id=UNIFIED_ACTION_CONTRACT,arbitrary_Russian_instruction_conditioning=False,
         internal_ACT_BC_component='legacy_RGB_state9_reader_exists_but_is_not_a_full_embodied_skill_pipeline')
-    missing += [dict(id='canonical_multisensor_episode_admission',required_for='full_pipeline',reason='Нужны фактические RGB/depth и калибровки, LiDAR, одометрия/поза/скорость, IMU, суставы/маски, захват, часы, обнаружения и цель'),
+    missing += [dict(id='canonical_multisensor_episode_admission',required_for='full_pipeline',reason='Общая схема RGB/depth/калибровок, LiDAR, odometry, IMU, суставов/масок, захвата и часов сохраняет реально недоступные измерения как UNKNOWN; command-estimate требует source-bound reference/boot/native dispatch, не включения feedback'),
         dict(id='perception_goal_tracking_backend',required_for='training',reason='Нужен проверенный perception/goal tracking в общей иерархии'),
         dict(id='navigation_training_backend',required_for='training',reason='Нужен настоящий odometry/trajectory navigation baseline; RGB+9D ACT не заменяет его'),
         dict(id='hierarchy_coordinator_recovery_backend',required_for='training',reason='Полный hierarchy/coordinator/recovery ещё не реализован как обучающий backend'),
@@ -208,6 +237,7 @@ def _get_spec(db,skill_id,version=None):
 def create_skill(store,body):
     if not isinstance(body,dict):raise ValueError('Skill proposal must be an object')
     request_id = _text(body.get('request_id') or str(uuid.uuid4()),'request_id',100)
+    context=_context(body.get('project_id','02'),body.get('input_mode'))
     intent = dict(text=body.get('text',''),preset=body.get('preset'))
     with store.connect() as db:
         db.execute('BEGIN IMMEDIATE')
@@ -216,7 +246,7 @@ def create_skill(store,body):
             if previous['payload']['intent'] != intent:raise ValueError('Proposal request identity changed')
             return _get_spec(db,previous['payload']['spec']['skill_id'],1)
         spec = proposal(intent['text'],intent['preset'])
-        _append(db,'spec',dict(spec=spec,request_id=request_id,intent=intent))
+        _append(db,'spec',dict(spec=spec,request_id=request_id,intent=intent,creation_context=context),project_id=context['project_id'])
         return _get_spec(db,spec['skill_id'],1)
 
 
@@ -249,7 +279,8 @@ def confirm_skill(store,skill_id,version,spec_sha256):
         return _get_spec(db,skill_id,version)
 
 
-def list_skills(store):
+def list_skills(store,*,project_id=None):
+    if project_id is not None:_context(project_id)
     with store.connect() as db:
         keys=sorted({(row['payload']['spec']['skill_id'],row['payload']['spec']['version']) for row in _records(db,'spec')})
         return [_get_spec(db,identity,version) for identity,version in keys]
@@ -257,6 +288,7 @@ def list_skills(store):
 
 def create_session(store,skill_id,version,body):
     if not isinstance(body,dict) or body.get('split') not in SPLITS:raise ValueError('Choose one explicit teaching-session split')
+    context=_context(body.get('project_id','02'),body.get('input_mode'))
     session_id = _uuid(body.get('session_id') or str(uuid.uuid4()))
     with store.connect() as db:
         db.execute('BEGIN IMMEDIATE');selected=_get_spec(db,skill_id,version)
@@ -265,8 +297,9 @@ def create_session(store,skill_id,version,body):
         if any(row['payload']['scene']==scene and row['payload']['split']!=body['split'] for row in _records(db,'session')):raise ValueError('A declared physical scene cannot cross dataset splits')
         payload=dict(session_id=session_id,skill_id=_uuid(skill_id),version=version,split=body['split'],
             scene=scene,description=_text(body.get('description','Отдельная сессия показов'),'сессия'),
+            creation_context=context,
             historical=body.get('historical') is True,basis='operator_declared_teaching_session_not_measured_physical_independence')
-        record=_append(db,'session',payload,identity=EVENT_PREFIX+'session:'+session_id)
+        record=_append(db,'session',payload,identity=EVENT_PREFIX+'session:'+session_id,project_id=context['project_id'])
         return dict(payload,session_sha256=record['sha256'])
 
 
@@ -285,8 +318,8 @@ def _variant(spec,variant_id):
 
 def _inspector(job,root,inspector=None):
     if inspector is None:
-        from .mobile_dataset_evidence import inspect_mobile_import
-        inspector=inspect_mobile_import
+        from . import mobile_dataset_evidence
+        inspector=getattr(mobile_dataset_evidence,'inspect_rosmaster_import',mobile_dataset_evidence.inspect_mobile_import)
     return inspector(job,managed_root=root,include_manifest=True)
 
 
@@ -313,9 +346,9 @@ def _binding_groups(binding):
 def bind_episode(store,skill_id,version,variant_id,body,*,inspector=None):
     if not isinstance(body,dict):raise ValueError('Episode assignment must be an object')
     job=store.job(body.get('import_job_id',''))
-    if not job or job['kind']!='mobile_import' or job['project_id']!='02' or job['status']!='completed':raise ValueError('Choose a completed original Exp02 mobile import')
+    if not _is_rosmaster_import(job) or job['status']!='completed':raise ValueError('Choose a completed original ROSMASTER mobile/retarget import from02/03')
     report=_inspector(job,store.root,inspector)
-    original=report.get('original_episode_id') or (job.get('result') or {}).get('episode_id') or job['config'].get('episode_id')
+    original=report.get('original_episode_id') or (job.get('result') or {}).get('episode_id') or (job.get('result') or {}).get('recording_id') or job['config'].get('episode_id') or job['config'].get('recording_id')
     original=_text(original,'original episode',160)
     fingerprint=_source_fingerprint(job,report,original)
     with store.connect() as db:
@@ -333,6 +366,8 @@ def bind_episode(store,skill_id,version,variant_id,body,*,inspector=None):
         outcomes=body.get('phase_outcomes',{name:'success' if name in phases else 'unknown' for name in expected})
         if not isinstance(outcomes,dict) or set(outcomes)-set(expected) or any(value not in ('success','failure','unknown') for value in outcomes.values()):raise ValueError('Explicit per-phase success/failure/unknown outcomes required')
         payload=dict(original_episode_id=original,import_job_id=job['id'],skill_id=spec['skill_id'],version=version,spec_sha256=selected['spec_sha256'],
+            source_project_id=_input_provenance(job,report)['source_project_id'],import_job_project_id=job['project_id'],import_kind=job['kind'],demonstration_input=_input_provenance(job,report),
+            assignment_context=_context(body.get('project_id','02'),body.get('input_mode')),
             variant_id=variant_id,split=variant['split'],session_id=session['session_id'],source_session_id=report.get('operator_session_id') or report.get('original_session_id'),source_scene_id=report.get('original_scene_id') or report.get('scene_id'),source_split_groups=_split_groups(report),
             source_fingerprint=fingerprint,manifest_sha256=report.get('manifest_sha256'),
             completed_stages=[name for name in expected if name in phases],full_task_confirmed=body.get('full_task_confirmed') is True,
@@ -366,7 +401,7 @@ def bind_episode(store,skill_id,version,variant_id,body,*,inspector=None):
             if other['original_episode_id']!=original and other['split']!=payload['split'] and set(_binding_groups(other)) & set(_binding_groups(payload)):
                 raise ValueError('An original scene/session/object split group cannot cross dataset splits')
         payload['supersedes_sha256']=(previous or {}).get('binding_sha256')
-        row=_append(db,'binding',payload)
+        row=_append(db,'binding',payload,project_id=job['project_id'])
         return dict(payload,binding_sha256=row['sha256'])
 
 
@@ -386,15 +421,17 @@ def _local(root,value):
 
 def _admission(store,spec,binding,inspector=None):
     job=store.job(binding['import_job_id'])
-    if not job or job['kind']!='mobile_import' or job['status']!='completed':return dict(binding=binding,accepted=False,reasons=['import_not_complete'])
+    if not _is_rosmaster_import(job) or job['status']!='completed':return dict(binding=binding,accepted=False,reasons=['import_not_complete'])
     try:report=_inspector(job,store.root,inspector)
     except (OSError,ValueError,KeyError,TypeError) as error:return dict(binding=binding,accepted=False,reasons=['source_evidence_error:'+str(error)])
     if not isinstance(report,dict):return dict(binding=binding,accepted=False,reasons=['invalid_diagnostic_report'])
     embodied=report.get('mobile_embodied') or {}
     reasons=[]
+    if binding.get('import_job_project_id',job['project_id'])!=job['project_id'] or binding.get('import_kind',job['kind'])!=job['kind']:reasons.append('bound_registry_source_kind_or_project_changed')
     for name in ('completed_recording','operator_success','source_quality_usable'):
         if report.get(name) is not True:reasons.append(name+'_not_verified')
     if embodied.get('admitted_for_training') is not True:reasons.append('canonical_embodied_episode_not_admitted_legacy_kept_for_analysis')
+    if report.get('admitted_for_training') is not True:reasons.append('source_import_container_not_admitted')
     if embodied.get('action_contract_id')!=UNIFIED_ACTION_CONTRACT or embodied.get('simultaneous_9d') is not True or embodied.get('unified_action_names')!=list(ACTION_NAMES):
         reasons.append('unified_simultaneous_action9_contract_not_verified')
     if (embodied.get('split') or {}).get('partition')!=binding['split']:reasons.append('canonical_source_partition_differs_from_teaching_assignment')
@@ -451,7 +488,8 @@ def _admission(store,spec,binding,inspector=None):
         semantic_task_verified_by='operator_only',physical_success_inferred=False)
 
 
-def workflow(store,skill_id,version=None,*,inspector=None):
+def workflow(store,skill_id,version=None,*,inspector=None,project_id='02',input_mode=None):
+    context=_context(project_id,input_mode)
     with store.connect() as db:
         selected=_get_spec(db,skill_id,version);spec=selected['spec']
         bindings=[row for row in _binding_map(db).values() if row['skill_id']==spec['skill_id'] and row['version']==spec['version']]
@@ -520,6 +558,7 @@ def workflow(store,skill_id,version=None,*,inspector=None):
     data_ready=selected['confirmed'] and not data_blockers
     phase_coverage={phase['id']:{variant['variant_id']:sum(row['accepted'] and row['binding']['variant_id']==variant['variant_id'] and row['binding'].get('phase_outcomes',{}).get(phase['id'])=='success' for row in decisions) for variant in variants} for phase in spec['stages']}
     return dict(schema='explorer_skill_workflow_v1',**selected,variants=variants,sessions=sessions,counts=counts,covered_by_split=covered,
+        workflow_family=WORKFLOW_FAMILY,context=context,compatible_source_projects=list(ROSMASTER_PROJECTS),shared_downstream=True,
         train_ready=not reasons,data_ready=data_ready,data_blockers=data_blockers,training_blockers=list(dict.fromkeys(reasons)),next_action=next_action,phase_variant_coverage=phase_coverage,
         recording_allowed=selected['confirmed'],recording_conditions=['chassis_must_remain_stationary_under_current_owner_prohibition'],
         recording_blockers=[],
@@ -578,6 +617,7 @@ def build_aggregate(store,skill_id,version,*,inspector=None):
         canonical_episodes.append(dict(id='episode-'+digest(dict(original=original,source=binding['source_fingerprint']))[:32],
             source_episode_id=original,split=binding['split'],skill_id=spec['skill_id'],skill_version=version,variant_id=binding['variant_id'],
             teaching_session_id=binding['session_id'],original_session_id=binding['source_session_id'],scene=binding['scene'],
+            source_project_id=binding.get('source_project_id'),import_job_project_id=binding.get('import_job_project_id'),import_kind=binding.get('import_kind'),demonstration_input=binding.get('demonstration_input'),
             source_kind=report['mobile_embodied'].get('source_kind'),source_split=report['mobile_embodied'].get('split'),
             episode_scope=binding.get('episode_scope','whole_episode'),target_phase_ids=binding.get('target_phase_ids'),phase_outcomes=binding.get('phase_outcomes'),
             canonical_admission_file=inspection_file,canonical_admission_sha256=files[inspection_file][1],source_artifact_map=mapping,
@@ -586,6 +626,7 @@ def build_aggregate(store,skill_id,version,*,inspector=None):
         source_record=dict(original_episode_id=original,import_job_id=binding['import_job_id'],source_fingerprint=binding['source_fingerprint'],
             binding_sha256=binding['binding_sha256'],variant_id=binding['variant_id'],split=binding['split'],teaching_session_id=binding['session_id'],
             original_session_id=binding['source_session_id'],source_split_groups=binding.get('source_split_groups'),canonical_source_artifact_map=mapping)
+        source_record.update(source_project_id=binding.get('source_project_id'),import_job_project_id=binding.get('import_job_project_id'),import_kind=binding.get('import_kind'),demonstration_input=binding.get('demonstration_input'))
         # An unchanged optional legacy RGB/prior-command9 view may be retained
         # for an internal ACT component; it never becomes the full dataset.
         if manifest and row.get('legacy_manifest_path'):
@@ -631,6 +672,7 @@ def build_aggregate(store,skill_id,version,*,inspector=None):
             correspondence_limitation='Separate valid views and an original episode ID do not prove shared per-sample RGB/action/clock linkage; no fusion or full-sensor ACT claim')
         data=canonical(component);files[component_name]=(data,hashlib.sha256(data).hexdigest())
     core=dict(schema='explorer_unified_embodied_skill_dataset_v1',format='explorer_unified_embodied_skill_dataset_v1',
+        workflow_family=WORKFLOW_FAMILY,compatible_source_projects=list(ROSMASTER_PROJECTS),input_mode_is_provenance_not_model_type=True,
         embodiment='rosmaster_unified_mobile_manipulator',skill_id=spec['skill_id'],skill_version=version,skill_spec_sha256=state['spec_sha256'],skill_spec=spec,
         action_contract_id=UNIFIED_ACTION_CONTRACT,action_names=list(ACTION_NAMES),action_units=list(ACTION_UNITS),simultaneous_9d=True,neutral_channels_retained=True,
         observation_contract=spec['observation_contract'],episodes=canonical_episodes,source_records=source_records,sealed_sources_excluded=sealed,
@@ -664,7 +706,8 @@ def build_aggregate(store,skill_id,version,*,inspector=None):
         internal_legacy_component_view=str(destination/component_name) if component_name else None,manifest=manifest)
 
 
-def training_request(store,skill_id,version,settings=None,*,inspector=None):
+def training_request(store,skill_id,version,settings=None,*,inspector=None,project_id='02',input_mode=None):
+    context=_context(project_id,input_mode)
     settings=settings or {}
     allowed={'seed','act_steps','batch_size','image_size','chunk_size','device'}
     if not isinstance(settings,dict) or set(settings)-allowed:raise ValueError('Choose supported learner settings only')
@@ -672,12 +715,13 @@ def training_request(store,skill_id,version,settings=None,*,inspector=None):
     for name,low,high in (('seed',0,1000000),('act_steps',1,100000),('batch_size',1,64),('image_size',32,224),('chunk_size',1,100)):
         if type(values[name]) is not int or not low<=values[name]<=high:raise ValueError('Invalid offline training '+name)
     if values['device'] not in ('cpu','cuda'):raise ValueError('Explicit CPU/CUDA learner required')
-    state=workflow(store,skill_id,version,inspector=inspector)
+    state=workflow(store,skill_id,version,inspector=inspector,project_id=project_id,input_mode=context['input_mode'])
     if not state['train_ready']:raise WorkflowBlocked(state['training_blockers'])
     aggregate=build_aggregate(store,skill_id,version,inspector=inspector)
     lineage={key:aggregate[key] for key in ('skill_id','skill_version','spec_sha256','aggregate_sha256','aggregate_content_id','training_original_episode_ids','development_original_episode_ids','sealed_original_episode_ids')}
-    lineage.update(pipeline_class=aggregate['manifest']['skill_spec']['pipeline']['pipeline_class'],training_scope='whole_unified_rosmaster_skill',action_contract_id=UNIFIED_ACTION_CONTRACT)
-    return dict(kind=state['spec']['pipeline']['job_kind'],project_id='02',config=dict(values,dataset_manifest=aggregate['dataset_manifest'],skill_workflow=lineage))
+    lineage.update(pipeline_class=aggregate['manifest']['skill_spec']['pipeline']['pipeline_class'],training_scope='whole_unified_rosmaster_skill',action_contract_id=UNIFIED_ACTION_CONTRACT,
+        workflow_family=WORKFLOW_FAMILY,compatible_source_projects=list(ROSMASTER_PROJECTS),request_context=context)
+    return dict(kind=state['spec']['pipeline']['job_kind'],project_id=project_id,config=dict(values,dataset_manifest=aggregate['dataset_manifest'],skill_workflow=lineage))
 
 
 def register_training_job(store,job):
@@ -694,7 +738,8 @@ def attach_skill_lineage(card,job_config,source_manifest_sha256):
     if manifest.get('skill_id')!=lineage.get('skill_id') or manifest.get('skill_version')!=lineage.get('skill_version') or manifest.get('skill_spec_sha256')!=lineage.get('spec_sha256'):
         raise ValueError('Model aggregate belongs to another skill/version/specification')
     result=json.loads(json.dumps(card));result.setdefault('lineage',{}).update(skill_id=lineage['skill_id'],skill_version=lineage['skill_version'],
-        skill_spec_sha256=lineage['spec_sha256'],aggregate_sha256=lineage['aggregate_sha256'],aggregate_content_id=lineage['aggregate_content_id'])
+        skill_spec_sha256=lineage['spec_sha256'],aggregate_sha256=lineage['aggregate_sha256'],aggregate_content_id=lineage['aggregate_content_id'],
+        workflow_family=WORKFLOW_FAMILY,workflow_visibility_projects=list(ROSMASTER_PROJECTS))
     result['skill_id']=lineage['skill_id'];result['skill_version']=lineage['skill_version']
     result['unified_model_qualified']=False
     result['analysis_reason']='Skill lineage alone does not qualify a legacy RGB9D/other model as the full unified multisensor hierarchy; actual model-used channel and hierarchy execution receipts required'
@@ -707,7 +752,7 @@ def _previous_fitting_ids(store):
     """Conservative legacy guard: a queued fitting reservation is never a test."""
     used=set()
     for job in store.jobs(10000):
-        if job['kind']=='train_act':
+        if job['kind']=='train_act' or (job.get('config') or {}).get('skill_workflow',{}).get('workflow_family')==WORKFLOW_FAMILY:
             config=job.get('config') or {};lineage=config.get('skill_workflow') or {}
             used.update(lineage.get('training_original_episode_ids',[]))
             value=config.get('dataset_manifest') or (job.get('result') or {}).get('source_manifest_path')
@@ -719,9 +764,10 @@ def _previous_fitting_ids(store):
     return used
 
 
-def begin_capture(store,skill_id,version,variant_id,session_id,*,request_id=None,episode_scope='whole_episode',target_phase_ids=None,stationary_chassis_confirmed=False):
+def begin_capture(store,skill_id,version,variant_id,session_id,*,request_id=None,episode_scope='whole_episode',target_phase_ids=None,stationary_chassis_confirmed=False,project_id='02',input_mode=None):
     """Create a local intent; this does not start or modify native recording."""
     capture_id=_uuid(request_id or str(uuid.uuid4()))
+    context=_context(project_id,input_mode)
     with store.connect() as db:
         db.execute('BEGIN IMMEDIATE');selected=_get_spec(db,skill_id,version);spec=selected['spec'];variant=_variant(spec,variant_id);session=_session(db,session_id)
         if not selected['confirmed']:raise WorkflowBlocked(['skill_spec_not_confirmed'])
@@ -732,9 +778,10 @@ def begin_capture(store,skill_id,version,variant_id,session_id,*,request_id=None
         if episode_scope=='whole_episode' and set(targets)!={item['id'] for item in spec['stages']}:raise ValueError('Whole episodes must retain every full-task target phase')
         if session['skill_id']!=spec['skill_id'] or session['version']!=version or session['split']!=variant['split']:raise ValueError('Recording context belongs to a different skill/version/split')
         payload=dict(capture_id=capture_id,skill_id=spec['skill_id'],version=version,spec_sha256=selected['spec_sha256'],variant_id=variant_id,session_id=session['session_id'],split=variant['split'],
+            context=context,project_id=project_id,input_mode=context['input_mode'],workflow_family=WORKFLOW_FAMILY,
             native_payload_additions={},automatic_motion=False,episode_scope=episode_scope,target_phase_ids=targets,stationary_chassis_confirmed=True,
             action_contract_id=UNIFIED_ACTION_CONTRACT,neutral_channels_retained=True)
-        _append(db,'capture.begin',payload,identity=EVENT_PREFIX+'capture.begin:'+capture_id)
+        _append(db,'capture.begin',payload,identity=EVENT_PREFIX+'capture.begin:'+capture_id,project_id=project_id)
         return payload
 
 
@@ -753,7 +800,7 @@ def capture_started(store,capture_id,native_episode_id):
         existing=next((row['payload'] for row in _records(db,'capture.started') if row['payload']['original_episode_id']==original),None)
         if existing and existing['capture_id']!=capture_id:raise ValueError('Native episode already belongs to another capture intent')
         return _append(db,'capture.started',dict(capture_id=capture['capture_id'],original_episode_id=original,
-            source='root_verified_native_start_response',native_payload_modified=False),identity=EVENT_PREFIX+'capture.started:'+capture['capture_id'])['payload']
+            source='root_verified_native_start_response',native_payload_modified=False),identity=EVENT_PREFIX+'capture.started:'+capture['capture_id'],project_id=capture.get('project_id','02'))['payload']
 
 
 def capture_stage(store,capture_id,stage_id,request_id=None):
@@ -762,7 +809,7 @@ def capture_stage(store,capture_id,stage_id,request_id=None):
         if any(row['payload']['capture_id']==capture['capture_id'] for row in _records(db,'capture.finished')):raise ValueError('Cannot label a finished capture')
         if stage_id not in {item['id'] for item in spec['stages']}:raise ValueError('Stage differs from the selected complete skill task')
         return _append(db,'capture.stage',dict(capture_id=capture['capture_id'],stage_id=stage_id,mark_id=_uuid(request_id or str(uuid.uuid4())),
-            timing_basis='central_receipt_of_operator_stage_mark_not_camera_exposure',automatic_contact_verified=False))['payload']
+            timing_basis='central_receipt_of_operator_stage_mark_not_camera_exposure',automatic_contact_verified=False),project_id=capture.get('project_id','02'))['payload']
 
 
 def capture_finished(store,capture_id,native_episode_id,body):
@@ -781,13 +828,13 @@ def capture_finished(store,capture_id,native_episode_id,body):
             completed_stages=stages,full_task_confirmed=not rejected and body.get('full_task_confirmed') is True and outcome=='success' and capture['episode_scope']=='whole_episode',
             object_and_goal_visible=body.get('object_and_goal_visible') is True,review_basis='explicit_operator_finished_recording_review',native_payload_modified=False,review_rejected_reasons=rejected,
             phase_outcomes={name:'success' if outcome=='success' and name in stages and not rejected else 'failure' if outcome=='failure' and name in stages else 'unknown' for name in capture['target_phase_ids']})
-        return _append(db,'capture.finished',payload,identity=EVENT_PREFIX+'capture.finished:'+capture['capture_id'])['payload']
+        return _append(db,'capture.finished',payload,identity=EVENT_PREFIX+'capture.finished:'+capture['capture_id'],project_id=capture.get('project_id','02'))['payload']
 
 
 def bind_import_from_capture(store,job,*,inspector=None):
     """Root import-completion hook: idempotent, even when upload finishes later."""
-    if job.get('kind')!='mobile_import' or job.get('status')!='completed':return None
-    original=(job.get('result') or {}).get('episode_id') or job['config'].get('episode_id')
+    if not _is_rosmaster_import(job) or job.get('status')!='completed':return None
+    original=(job.get('result') or {}).get('episode_id') or (job.get('result') or {}).get('recording_id') or job['config'].get('episode_id') or job['config'].get('recording_id')
     with store.connect() as db:
         started=next((row['payload'] for row in _records(db,'capture.started') if row['payload']['original_episode_id']==original),None)
         if not started:return None
@@ -798,26 +845,29 @@ def bind_import_from_capture(store,job,*,inspector=None):
     # An already reviewed/moved original is never silently reassigned by a late callback.
     if previous:return previous
     return bind_episode(store,capture['skill_id'],capture['version'],capture['variant_id'],dict(import_job_id=job['id'],session_id=capture['session_id'],
-        completed_stages=finished['completed_stages'],full_task_confirmed=finished['full_task_confirmed'],object_and_goal_visible=finished['object_and_goal_visible'],episode_scope=capture['episode_scope'],target_phase_ids=capture['target_phase_ids'],phase_outcomes=finished.get('phase_outcomes',{})),inspector=inspector)
+        completed_stages=finished['completed_stages'],full_task_confirmed=finished['full_task_confirmed'],object_and_goal_visible=finished['object_and_goal_visible'],episode_scope=capture['episode_scope'],target_phase_ids=capture['target_phase_ids'],phase_outcomes=finished.get('phase_outcomes',{}),
+        project_id=capture.get('project_id','02'),input_mode=capture.get('input_mode')),inspector=inspector)
 
 
-def available_imports(store,*,inspector=None):
+def available_imports(store,*,inspector=None,project_id=None):
+    if project_id is not None:_context(project_id)
     with store.connect() as db:assigned=_binding_map(db)
     result=[]
     for job in store.jobs(10000):
-        if job['kind']=='mobile_import' and job['project_id']=='02' and job['status']=='completed':
+        if _is_rosmaster_import(job) and job['status']=='completed':
             report=_inspector(job,store.root,inspector)
-            identity=report.get('original_episode_id') or (job.get('result') or {}).get('episode_id') or job['config'].get('episode_id')
+            identity=report.get('original_episode_id') or (job.get('result') or {}).get('episode_id') or (job.get('result') or {}).get('recording_id') or job['config'].get('episode_id') or job['config'].get('recording_id')
             result.append(dict(import_job_id=job['id'],original_episode_id=identity,created=job['created'],
+                source_project_id=_input_provenance(job,report)['source_project_id'],import_job_project_id=job['project_id'],import_kind=job['kind'],demonstration_input=_input_provenance(job,report),
                 assigned_to={key:assigned[identity][key] for key in ('skill_id','version','variant_id','split','binding_sha256')} if identity in assigned else None,
                 **{key:report.get(key) for key in ('completed_recording','operator_success','source_quality_usable','rgb_verified','action9_verified','causal_verified','admitted_for_training','reasons','missing_facts','raw_frames_recorded')}))
     return result
 
 
-def validate_02_training_request(store,body,*,server_generated=False):
+def validate_rosmaster_training_request(store,body,*,server_generated=False):
     """Root calls before generic /api/jobs: no forged single-clip/partial bypass."""
-    if body.get('project_id')!='02':return True
-    if body.get('kind') in ('mobile_import','camera_recording'):return True
+    if body.get('project_id') not in ROSMASTER_PROJECTS:return True
+    if body.get('kind') in ('mobile_import','retarget_import','camera_recording','retarget_runtime_test'):return True
     if not server_generated:raise WorkflowBlocked(['only_server_built_verified_unified_skill_requests_allowed'])
     lineage=(body.get('config') or {}).get('skill_workflow')
     if not isinstance(lineage,dict) or lineage.get('action_contract_id')!=UNIFIED_ACTION_CONTRACT:raise WorkflowBlocked(['verified_unified_skill_lineage_required'])
@@ -828,13 +878,20 @@ def validate_02_training_request(store,body,*,server_generated=False):
     return True
 
 
-def enqueue_training(store,skill_id,version,settings=None,*,inspector=None):
+def validate_02_training_request(store,body,*,server_generated=False):
+    """Compatibility alias: now protects the identical02/03 downstream pipeline."""
+    return validate_rosmaster_training_request(store,body,server_generated=server_generated)
+
+
+def enqueue_training(store,skill_id,version,settings=None,*,inspector=None,project_id='02',input_mode=None):
     """One transaction for a future qualified job and its immutable reservation.
 
     The current complete hierarchy is deliberately blocked before any job row.
     Preparing immutable artifacts precedes the short SQLite write transaction.
     """
-    prepared=training_request(store,skill_id,version,settings,inspector=inspector)
+    context=_context(project_id,input_mode)
+    prepared=training_request(store,skill_id,version,settings,inspector=inspector,project_id=project_id,input_mode=context['input_mode'])
+    _context(prepared.get('project_id'))
     validate_02_training_request(store,prepared,server_generated=True)
     lineage=prepared['config']['skill_workflow'];path=_local(store.root,prepared['config']['dataset_manifest'])
     if _sha(path)!=lineage['aggregate_sha256']:raise ValueError('Prepared unified aggregate changed')
@@ -848,15 +905,15 @@ def enqueue_training(store,skill_id,version,settings=None,*,inspector=None):
         for record in manifest.get('source_records',[]):
             if (current.get(record['original_episode_id']) or {}).get('binding_sha256')!=record['binding_sha256']:
                 raise ValueError('Episode assignment changed while preparing training')
-        previous=db.execute("SELECT * FROM jobs WHERE project_id='02' AND status NOT IN ('completed','failed','cancelled') AND json_extract(config,'$.skill_workflow.skill_id')=? AND json_extract(config,'$.skill_workflow.skill_version')=? ORDER BY created LIMIT 1",(skill_id,version)).fetchone()
+        previous=db.execute("SELECT * FROM jobs WHERE project_id IN ('02','03') AND status NOT IN ('completed','failed','cancelled') AND json_extract(config,'$.skill_workflow.skill_id')=? AND json_extract(config,'$.skill_workflow.skill_version')=? ORDER BY created LIMIT 1",(skill_id,version)).fetchone()
         if previous:
             if json.loads(previous['config']).get('skill_workflow',{}).get('aggregate_sha256')==lineage['aggregate_sha256']:return store.decode_job(previous)
             raise WorkflowBlocked(['one_active_training_job_per_skill_version'])
         job_id=uuid.uuid4().hex;now=time.time()
         db.execute('INSERT INTO jobs(id,kind,project_id,status,created,updated,config) VALUES (?,?,?,?,?,?,?)',
-            (job_id,prepared['kind'],'02','queued',now,now,json.dumps(prepared['config'],allow_nan=False)))
+            (job_id,prepared['kind'],prepared['project_id'],'queued',now,now,json.dumps(prepared['config'],allow_nan=False)))
         _append(db,'training',dict(skill_id=skill_id,version=version,job_id=job_id,aggregate_sha256=lineage['aggregate_sha256'],aggregate_content_id=lineage['aggregate_content_id'],
-            training_original_episode_ids=lineage['training_original_episode_ids'],development_original_episode_ids=lineage['development_original_episode_ids'],sealed_original_episode_ids=lineage['sealed_original_episode_ids']),identity=EVENT_PREFIX+'training:'+job_id)
+            training_original_episode_ids=lineage['training_original_episode_ids'],development_original_episode_ids=lineage['development_original_episode_ids'],sealed_original_episode_ids=lineage['sealed_original_episode_ids'],workflow_family=WORKFLOW_FAMILY,queue_project_id=prepared['project_id']),identity=EVENT_PREFIX+'training:'+job_id,project_id=prepared['project_id'])
     return store.job(job_id)
 
 
