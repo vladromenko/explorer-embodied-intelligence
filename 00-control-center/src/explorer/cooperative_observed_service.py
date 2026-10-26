@@ -12,6 +12,8 @@ import threading
 import time
 import uuid
 
+import httpx
+
 from explorer_shared.contracts import digest
 from explorer_shared.station_observed_http import StationObservedHttp
 from explorer_shared.station_observed_activation import CONTRACT
@@ -66,7 +68,7 @@ class CooperativeObservedService:
         paths={'giver':'/legacy/explorer/retarget/status','receiver':'/station/observed-test/status'}
         for role in ('giver','receiver'):
             try:result[role]=self.requests[role]('GET',paths[role],None)
-            except (ValueError,OSError,KeyError,TypeError) as error:
+            except (ValueError,OSError,KeyError,TypeError,httpx.HTTPError) as error:
                 result[role]={'source_api_error':str(error)};blockers.append(role+':CURRENT_OBSERVED_PERMISSION_SOURCE_UNAVAILABLE')
         if self.clock()-began>2_000_000_000:blockers.append('CURRENT_SOURCE_STATUS_RECEIVE_WINDOW_EXPIRED')
         return result,blockers
@@ -176,7 +178,11 @@ class CooperativeObservedService:
                 lower.get('x-frame-id')!=record['native']['frame'].get('frame_id') or
                 lower.get('x-boot-id')!=record['native']['frame'].get('boot_id')):raise ValueError('Exact displayed native JPEG bytes/SHA differ')
         self._challenge(identity,actor)
-        with self.lock:self.challenges[identity]['frame_served_sha256']=hashlib.sha256(raw).hexdigest()
+        with self.lock:
+            current=self.challenges.get(identity)
+            if current is None or current['revoked'] or current['native']['challenge_id']!=record['native']['challenge_id']:
+                raise ValueError('Displayed challenge was evicted/revoked before image delivery completed')
+            current['frame_served_sha256']=hashlib.sha256(raw).hexdigest()
         return raw,headers
 
     def _permission(self,choice_id,row,spec,actor):
@@ -225,7 +231,11 @@ class CooperativeObservedService:
                 lower.get('x-jpeg-sha256')!=frame['frame_sha256'] or lower.get('x-frame-id')!=frame['frame_id'] or
                 lower.get('x-boot-id')!=frame['frame_boot_id']):raise ValueError('Displayed native Pi observation bytes/SHA changed')
         self._observer(identity,actor)
-        with self.lock:self.observers[identity]['frame_served_sha256']=hashlib.sha256(raw).hexdigest()
+        with self.lock:
+            current=self.observers.get(identity)
+            if current is None or current['revoked'] or current['frame']!=record['frame']:
+                raise ValueError('Displayed observation was evicted/revoked before image delivery completed')
+            current['frame_served_sha256']=hashlib.sha256(raw).hexdigest()
         return raw,headers
 
     def observe(self,identity,row,spec,body,*,actor):
@@ -240,8 +250,12 @@ class CooperativeObservedService:
         try:
             with self.workflow.lock:
                 self._observer(identity,actor)
-                with self.lock:self.observers[identity]['revoked']=True
-        except ValueError:
+                with self.lock:
+                    current=self.observers.get(identity)
+                    if current is None or current['revoked'] or current['frame']!=record['frame']:
+                        raise ValueError('Observation was evicted/revoked while the native reply was pending')
+                    current['revoked']=True
+        except Exception:
             facade.revoke('LATE_COOPERATIVE_OBSERVATION',expected_grant_id=grant['grant_id'],expected_control_epoch=grant['control_epoch'])
             raise
         return {'role':'receiver','native_permission_receipt':result,'native_command_sent':False,'native_operator_lease_renewed':False}
@@ -272,7 +286,7 @@ class CooperativeObservedService:
         results=[]
         for record in selected:
             try:results.append({'role':record['role'],'result':self._revoke(record,reason)})
-            except (ValueError,OSError,KeyError,TypeError) as error:results.append({'role':record['role'],'metadata_revoke_return_unknown':str(error)})
+            except (ValueError,OSError,KeyError,TypeError,httpx.HTTPError) as error:results.append({'role':record['role'],'metadata_revoke_return_unknown':str(error)})
         return results
     def authorize(self,identity,row,spec,body,*,actor):
         record,current,current_spec=self._challenge(identity,actor)
@@ -303,13 +317,16 @@ class CooperativeObservedService:
             with self.workflow.lock:
                 self._challenge(identity,actor)
                 with self.lock:
-                    self.challenges[identity]['revoked']=True
+                    current=self.challenges.get(identity)
+                    if current is None or current['revoked'] or current['native']['challenge_id']!=native['challenge_id']:
+                        raise ValueError('Challenge was evicted/revoked while the native permission reply was pending')
+                    current['revoked']=True
                     permission_choice=digest({'context':record['context'],'role':role,'permission':permission_id})
                     self.permissions[permission_choice]={'role':role,'context':record['context'],'actor':actor,'spec':deepcopy(spec),
                         'binding':self.receiver_binding(row,spec) if role=='receiver' else None,
                         'grants':{('authorization_id' if role=='giver' else 'grant_id'):permission_id,'control_epoch':result.get('control_epoch')}}
                     while len(self.permissions)>64:self.permissions.popitem(last=False)
-        except ValueError:
+        except Exception:
             # Metadata-only CAS revokes only the just-returned old grant.
             if role=='giver':
                 self.requests[role]('POST','/legacy/explorer/retarget/activation/revoke',{'expected_authorization_id':result.get('authorization_id')})

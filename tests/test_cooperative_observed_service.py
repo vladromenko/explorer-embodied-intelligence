@@ -200,3 +200,26 @@ def test_coordinator_shutdown_revokes_owned_metadata_without_native_stop_or_leas
         assert not pair.gate.allowed() and not pair.provider.status()['execution_permission'] and pair.teleop.lease==lease
         pair.no_native_commands()
     finally:pair.close();client.close()
+
+
+def test_cache_eviction_after_final_challenge_read_still_revokes_just_returned_grant(tmp_path,monkeypatch):
+    service,row,spec,pair,client=configured(tmp_path)
+    try:
+        setup=command(service,row,'observed_refresh')
+        challenge=command(service,row,'observed_challenge',source_setup_choice_id=setup['setup_choices']['receiver']['choice_id'])
+        identity=challenge['challenge_choice_id'];service.observed_frame(identity,authenticated_actor='trusted-owner')
+        original=service.observed_setup._challenge;reads=[]
+        def evict_after_read(choice,actor):
+            result=original(choice,actor);reads.append(choice)
+            if len(reads)==2:
+                with service.observed_setup.lock:service.observed_setup.challenges.pop(choice,None)
+            return result
+        monkeypatch.setattr(service.observed_setup,'_challenge',evict_after_read)
+        with pytest.raises(ValueError,match='evicted/revoked'):
+            command(service,row,'observed_authorize',challenge_choice_id=identity,
+                displayed_jpeg_sha256=challenge['frame']['jpeg_sha256'],observing=True,
+                robot_workspace_checked=True,user_observed_test_confirmed=True)
+        assert not pair.provider.status()['execution_permission']
+        assert not service.observed_setup.permissions
+        pair.no_native_commands()
+    finally:service.close();pair.close();client.close()
