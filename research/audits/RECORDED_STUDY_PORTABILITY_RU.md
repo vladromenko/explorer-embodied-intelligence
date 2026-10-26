@@ -49,3 +49,15 @@ Manifest SHA `7a27d6d16cf7bf00ae13c4ed7c95cb425be7b4d7af0d0f2dc452ceeed7eebdd9`;
 Бюджет: CPU1, 2 GiB памяти, GPU0, nonpreemptible, один общий ingest/disk/network slot; disk=3×estimated payload+256 MiB. Для соблюдения дискового бюджета redundant `.staging-bundle` удаляется **только после** подтверждённого TAR unpack в окончательный `bundle`. Затем сохраняются bundle, TAR и полный restored root. Оригиналы и отрицательные свидетельства не удаляются. Любая ошибка/отмена оставляет partial outputs без completed receipt; повтор прерванного задания требует нового job, не перезаписывает старые попытки. Поддержка exact optimizer resume к этому виду jobs не заявляется.
 
 `download_validation(store, job_id)` принимает только 32hex ID завершённого typed job, проверяет фиксированный `<state>/jobs/<id>/study.tar`, его SHA и размер. Клиент не передаёт filesystem paths. API/UI подключения остаются в основном CC приложении. Новый lazy branch не меняет training math и не обновляет историческое controller proof bc01/515.
+
+## Отдельный router и browser module
+
+`explorer.study_api.install_router(app, get_store)` монтирует только:
+
+- `GET /api/research/studies`: дешёвый реестр и до 50 typed Study export summaries; SQLite ограничивает размер каждой config/result до 128 KiB и суммарно до 2 MiB **до** чтения raw bodies. Другие виды jobs не загружаются.
+- `POST /api/research/studies`: только JSON `{study_id}` размером до 4096 bytes; metadata preparation и создание queued `study_export/06`. Пути, estimates и научные утверждения не принимаются.
+- `GET /api/research/studies/{job_id}/download`: только фиксированный завершённый managed TAR после SHA/size проверки; `no-store`, `nosniff`, `X-Content-SHA256`.
+
+Аутентификация, Origin и CSRF обеспечиваются существующим middleware CC; unit fixture подключает именно его к отдельному private FastAPI/Store. Router не меняет app/index и не запускает Supervisor. Недостоверные oversized/повреждённые metadata удерживаются; ложный COMPLETE/learned/physical scope не публикуется как проверенный Study.
+
+`static/study-export.js` экспортирует `createStudyExportClient({get,post,onChange})`, `studyExportPanel(snapshot)` и `bindStudyExport(root,client,onError)`. Client имеет `refresh`, `choose(studyId)`, `create`, `snapshot`, `destroy`; mount/render/refresh не отправляют POST. Создание требует отдельного выбора текущего зарегистрированного ID. Неизвестный ответ сети не вызывает автоматического повторного создания job. Generation fences не дают поздним GET/POST восстановить уже закрытый view. Панель показывает все сохранённые исходы, PARTIAL runtime/RNG и отдельную проверку записанных bytes/scene/benchmark; download links разрешены только в фиксированном managed API namespace. Main app integration принадлежит основному агенту.
