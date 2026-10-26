@@ -58,9 +58,9 @@ def _native_metadata(path):
     metadata=_json(path);folder=path.parent
     journal=folder/'samples.jsonl'
     summary={'metadata':metadata,'metadata_sha256':file_sha256(path),'raw_rgb_verified_count':0,
-        'raw_rows':0,'camera_ids':[],'camera_profiles':[],'optical_frames':[],
-        'host_boot_ids':[],'controller_boot_ids':[],'arm_history_phases':[],'command_sources':[]}
-    sets={name:set() for name in ('camera_ids','camera_profiles','optical_frames','host_boot_ids','controller_boot_ids','arm_history_phases','command_sources')}
+        'raw_rows':0,'raw_integrity_errors':[],'camera_ids':[],'camera_profiles':[],'optical_frames':[],
+        'host_boot_ids':[],'controller_boot_ids':[],'arm_history_phases':[],'command_sources':[], 'legacy_context_fields_recorded':[]}
+    sets={name:set() for name in ('camera_ids','camera_profiles','optical_frames','host_boot_ids','controller_boot_ids','arm_history_phases','command_sources','legacy_context_fields_recorded')}
     if not journal.is_file():return summary
     if journal.stat().st_size>32*1024**2:raise ValueError('Native journal exceeds the 32MiB inspection bound')
     with journal.open() as stream:
@@ -91,7 +91,7 @@ def _native_metadata(path):
                     if file_sha256(source)!=expected or source.stat().st_size!=image.get('bytes'):
                         raise ValueError('Retained RGB source SHA mismatch')
                     if row.get('image_sha256')!=expected or camera.get('jpeg_sha256')!=expected:
-                        raise ValueError('RGB and source camera identity are not SHA-bound')
+                        summary['raw_integrity_errors'].append('RGB_camera_SHA_binding_mismatch:row_'+str(summary['raw_rows']-1))
                     from PIL import Image
                     with Image.open(source) as decoded:decoded.verify()
                     summary['raw_rgb_verified_count']+=1
@@ -102,6 +102,8 @@ def _native_metadata(path):
                     from PIL import Image
                     with Image.open(source) as decoded:decoded.verify()
                     summary['raw_rgb_verified_count']+=1
+                for field in ('power','health','velocity','odom_velocity','raw_pose','imu','lidar','detections','goal'):
+                    if field in status:sets['legacy_context_fields_recorded'].add(field)
                 arm=status.get('arm_command_state') or {}
                 pairs=[('camera_ids',camera.get('camera_id',row.get('camera_id',metadata.get('camera_id')))),
                     ('camera_profiles',camera.get('source',row.get('image_stamp_source'))),
@@ -225,19 +227,65 @@ def _matching_training(jobs,manifest_sha,managed_root):
     return matches
 
 
-def inspect_mobile_import(job,*,managed_root=None,include_manifest=False,max_episode_bytes=268435456,training_jobs=()):
+def _embodied_evidence(path,manifest,original_episode_id,include_envelope=False):
+    """Delegate the ONE full ROSMASTER9D contract to its authoritative module."""
+    direct=manifest.get('schema')=='explorer_embodied_episode_v1'
+    envelope=manifest if direct else manifest.get('embodied_episode')
+    original_bytes=path.read_bytes() if direct else None
+    binding={'kind':'original_native_document' if direct else 'inline_manifest','path':str(path),'sha256':file_sha256(path)} if envelope is not None else None
+    if binding is not None and not direct:binding['JSON_field']='embodied_episode'
+    artifacts=[]
+    if envelope is None and manifest.get('embodied_episode_path'):
+        source=_member(path.parent,manifest['embodied_episode_path'])
+        if file_sha256(source)!=manifest.get('embodied_episode_sha256'):
+            raise ValueError('Unified embodied envelope SHA mismatch')
+        envelope=_json(source);original_bytes=source.read_bytes()
+        binding={'kind':'original_sidecar','path':str(source),'sha256':file_sha256(source)}
+    payloads={}
+    inventory=manifest.get('source_files_sha256') if direct else manifest.get('embodied_source_files_sha256')
+    if inventory is not None and not isinstance(inventory,dict):raise ValueError('Embodied source inventory must be an object')
+    total=0
+    for name,expected in (inventory or {}).items():
+        source=_member(path.parent,name)
+        total+=source.stat().st_size
+        if total>256*1024**2:raise ValueError('Embodied source payload exceeds total inspection byte budget')
+        if file_sha256(source)!=expected:raise ValueError('Unified embodied source payload SHA mismatch')
+        payloads[name]=source.read_bytes()
+        artifacts.append({'relative_name':name,'path':str(source),'sha256':expected})
+    if envelope is not None:
+        if not isinstance(envelope,dict):raise ValueError('Unified embodied envelope must be an object')
+        if envelope.get('episode_id')!=original_episode_id:
+            raise ValueError('Unified embodied envelope belongs to a different original episode')
+    try:
+        from explorer_shared.embodied_episode import inspect_embodied_episode
+    except ImportError:
+        return {'schema':'explorer_embodied_inspection_unavailable','admitted_for_training':False,
+            'reasons':['mobile_embodied_contract_module_unavailable'],'missing_facts':['unified_sensor_phase_scene_contract'],
+            'channels':{},'phases_verified':False,'scene_split_verified':False,'model_input_plan':None,'source_integrity':False}
+    inspected=inspect_embodied_episode(original_bytes if original_bytes is not None else envelope,source_payloads=payloads)
+    inspected['source_artifacts']=artifacts;inspected['envelope_binding']=binding
+    if include_envelope:inspected['envelope']=envelope
+    return inspected
+
+
+def _inspect_legacy_mobile_import(job,*,managed_root=None,include_manifest=False,max_episode_bytes=268435456,training_jobs=()):
     """Return JSON evidence only; missing/analysis-only imports are normal results."""
     result=job.get('result') or {}
     report={'schema':SCHEMA,'import_job_id':job.get('id'),'original_episode_id':(job.get('config') or {}).get('episode_id',result.get('episode_id')),
         'original_session_id':None,'manifest_path':None,'manifest_sha256':None,'completed_recording':False,
         'operator_success':False,'source_quality_usable':False,'source_training_admission_usable':False,
         'rgb_verified':False,'action9_verified':False,'causal_verified':False,'retained_originals_verified':False,
-        'admitted_for_training':False,'raw_frames_recorded':result.get('frames',0),'raw_rgb_verified_count':0,
+        'admitted_for_training':False,'legacy_RGB9D_contract_admitted':False,
+        'mobile_embodied':{'admitted_for_training':False,'reasons':['mobile_embodied_contract_missing'],'channels':{},'phases_verified':False,'scene_split_verified':False},
+        'raw_frames_recorded':result.get('frames',0),'raw_rgb_verified_count':0,
         'state_basis':result.get('state_basis'),'action_basis':result.get('action_basis'),'action_names':result.get('action_names') or [],'action_units':[],
         'camera_id':None,'camera_profile':None,'clock_domain':None,'episodes':[],'reasons':[],'missing_facts':[],
         'import_rejection_details':_reported_rejections(result),'physical_success_validated':False,
         'joint_measurements_claimed':False,'dispatch_confirmed':False,
         'visual_ACT':{'image_feature':IMAGE_FEATURE,'expected_input_contract':[IMAGE_FEATURE,'observation.state'],
+            'unified_action_dimension':9,'used_features_if_recorded_training_runs':[IMAGE_FEATURE,'observation.state'],
+            'state_feature_semantics':'six arm/gripper command estimates plus three body-command velocity snapshots; never measured sensor substitutes',
+            'depth_lidar_odometry_IMU_goal_sensor_use_in_this_ACT_not_claimed':True,
             'pipeline_reader':'explorer_sim.recorded_training:RecordedChunks.__getitem__',
             'actual_matching_training_jobs':[],'trained_RGB_model_verified':False}}
     reasons=report['reasons'];missing=report['missing_facts'];metadata={};native={}
@@ -315,6 +363,13 @@ def inspect_mobile_import(job,*,managed_root=None,include_manifest=False,max_epi
             if report['original_episode_id'] not in (None,metadata.get('id')):raise ValueError('Original recording identity differs from the import job')
             report['original_episode_id']=metadata.get('id')
             report['original_session_id']=metadata.get('session_id',metadata.get('session'))
+            report['original_session_identity_basis']='explicit_original_recorder_session' if report['original_session_id'] is not None else None
+            report['operator_session_id']=metadata.get('operator_session_id')
+            report['informational_stage_annotations']=metadata.get('stage_annotations') or []
+            report['legacy_context_fields_recorded']=native.get('legacy_context_fields_recorded',[])
+            report['raw_integrity_errors']=native.get('raw_integrity_errors',[])
+            reasons.extend(report['raw_integrity_errors'])
+            report['recording_name']=metadata.get('name')
             report['completed_recording']=metadata.get('state')=='complete'
             report['operator_outcome']=metadata.get('outcome','unknown')
             report['operator_success']=metadata.get('outcome')=='success' and metadata.get('label_source')=='operator'
@@ -338,15 +393,81 @@ def inspect_mobile_import(job,*,managed_root=None,include_manifest=False,max_epi
         if not report['training_episode_ids']:reasons.append('no_original_training_split_episodes')
         if not report['source_training_admission_usable']:reasons.append('source_training_admission_denied')
         if report['original_session_id'] is None:missing.append('original_operator_session_identity_not_recorded')
+        if report.get('operator_session_id') is None:missing.append('human_teaching_session_identity_not_recorded')
         if report['camera_id'] is None:missing.append('camera_hardware_identity_not_recorded')
         if not (report.get('controller_provenance') or {}).get('controller_boot_ids'):missing.append('controller_boot_identity_not_recorded')
         missing.extend(['physical_motor_dispatch_receipts_not_verified','independent_physical_task_success_not_verified'])
-        report['admitted_for_training']=not reasons
+        report['legacy_RGB9D_contract_admitted']=not reasons
     except (OSError,ValueError,KeyError,TypeError) as error:
         reasons.append('evidence_inspection_failed:'+type(error).__name__+':'+str(error))
         report['admitted_for_training']=False
     report['reasons']=sorted(set(reasons));report['missing_facts']=sorted(set(missing))
     report.setdefault('training_episode_ids',[]);report.setdefault('development_episode_ids',[]);report.setdefault('sealed_episode_ids',[])
+    return report
+
+
+
+def inspect_mobile_import(job,*,managed_root=None,include_manifest=False,max_episode_bytes=268435456,training_jobs=()):
+    """Inspect full ROSMASTER evidence independently of its optional legacy ACT view.
+
+    Full structural admission comes only from the authoritative embodied contract.
+    Expert success, split eligibility and actual model usage remain separate facts.
+    A missing command-estimate9 NPZ never causes measured sensor zero-filling.
+    """
+    report=_inspect_legacy_mobile_import(job,managed_root=managed_root,include_manifest=include_manifest,
+        max_episode_bytes=max_episode_bytes,training_jobs=training_jobs)
+    report['legacy_RGB9D_view']={key:report.get(key) for key in (
+        'legacy_RGB9D_contract_admitted','rgb_verified','action9_verified','causal_verified','state_basis',
+        'action_basis','source_quality_usable','source_training_admission_usable','episodes')}
+    report['legacy_RGB9D_view']['reasons']=list(report['reasons'])
+    report['legacy_RGB9D_view']['missing_facts']=list(report['missing_facts'])
+    result=job.get('result') or {};common=[];canonical=None;seen=set()
+    if job.get('kind')!='mobile_import':common.append('not_a_mobile_import')
+    if job.get('status')!='completed':common.append('mobile_import_not_completed')
+    try:
+        # The original native canonical document is a first-class source. Converted
+        # RGB/command-estimate9 views are optional bytes retained for old readers.
+        for candidate in (result.get('embodied_manifest'),result.get('observation_manifest'),result.get('dataset_manifest')):
+            if candidate and str(candidate) not in seen:
+                seen.add(str(candidate));path=_managed(candidate,managed_root);manifest=_json(path)
+                is_canonical=manifest.get('schema')=='explorer_embodied_episode_v1'
+                has_envelope=is_canonical or 'embodied_episode' in manifest or bool(manifest.get('embodied_episode_path'))
+                if has_envelope:
+                    source_id=report.get('original_episode_id')
+                    if source_id is None and is_canonical:source_id=manifest.get('episode_id')
+                    if not source_id:raise ValueError('Original source episode identity is missing')
+                    canonical=_embodied_evidence(path,manifest,source_id,include_manifest)
+                    report.update(original_episode_id=source_id,manifest_path=str(path),manifest_sha256=file_sha256(path))
+                    if include_manifest:report['manifest']=manifest
+                    break
+        if canonical is None:
+            canonical=_embodied_evidence(Path(__file__),{},report.get('original_episode_id'),include_manifest)
+    except (OSError,ValueError,KeyError,TypeError) as error:
+        common.append('embodied_evidence_inspection_failed:'+type(error).__name__+':'+str(error))
+        canonical={'admitted_for_training':False,'reasons':list(common),'channels':{},'source_integrity':False}
+    report['mobile_embodied']=canonical
+    report['embodied_source_files']={item['path']:item['sha256'] for item in canonical.get('source_artifacts',[])}
+    report['phase_labels_verified']=canonical.get('phases_verified') is True
+    report['scene_split_verified']=canonical.get('scene_split_verified') is True
+    report['model_input_evidence']={'actual_saved_model_features':[IMAGE_FEATURE,'observation.state'] if report['visual_ACT']['trained_RGB_model_verified'] else [],
+        'state_feature_semantics':'exact source-bound prior-command9 only when recorded; never synthesized from measured joint and odometry channels',
+        'full_embodied_sensor_fusion_verified':False,'recorded_does_not_imply_model_used':True}
+    if canonical.get('envelope_binding'):
+        for key in ('completed_recording','operator_outcome','operator_success','source_quality_usable','rgb_verified','action9_verified','causal_verified'):
+            if key in canonical:report[key]=canonical[key]
+        for target,key in (('original_session_id','session_id'),('scene_id','scene_id'),('split','split')):
+            if key in canonical:report[target]=canonical[key]
+        report['verification_basis']='source_bound_unified_embodied_contract'
+        report['source_training_admission_usable']=canonical.get('admitted_for_training') is True
+    report['admitted_for_training']=not common and canonical.get('admitted_for_training') is True
+    if not report['admitted_for_training']:
+        common.append('mobile_embodied_admission_denied' if seen else 'mobile_embodied_contract_missing')
+        common.extend(canonical.get('reasons') or [])
+        # Keep historical converter rejection visible when the capture has no full
+        # canonical evidence. It never gates an independently valid full source.
+        common.extend(report['legacy_RGB9D_view']['reasons'])
+    report['reasons']=sorted(set(common))
+    report['missing_facts']=sorted(set((canonical.get('missing_facts') or []) + ([] if canonical.get('envelope_binding') else report['legacy_RGB9D_view']['missing_facts'])))
     return report
 
 

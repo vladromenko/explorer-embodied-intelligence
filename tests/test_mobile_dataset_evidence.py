@@ -35,7 +35,9 @@ def test_complete_converted_RGB9D_contract_is_bound_to_actual_retained_originals
     job,conversion,path=converted_fixture(tmp_path)
     before={str(p):file_sha256(p) for p in tmp_path.rglob('*') if p.is_file()}
     evidence=inspect_mobile_import(job,managed_root=tmp_path,include_manifest=True)
-    assert evidence['admitted_for_training'],evidence['reasons']
+    assert evidence['legacy_RGB9D_contract_admitted'],evidence['reasons']
+    assert not evidence['admitted_for_training'] and not evidence['mobile_embodied']['admitted_for_training']
+    assert 'mobile_embodied_admission_denied' in evidence['reasons']
     assert evidence['rgb_verified'] and evidence['action9_verified'] and evidence['causal_verified']
     assert evidence['retained_originals_verified'] and evidence['source_quality_usable'] and evidence['operator_success']
     assert evidence['raw_frames_recorded']==evidence['raw_rgb_verified_count']==14
@@ -109,3 +111,71 @@ def test_observation_only_summary_does_not_fabricate_qualified_physical_models()
         'observation_or_rejected':3,'operator_labelled_success':0,'trained_RGB9D_models':0}
     assert not summary['physical_success_validated']
     assert all(not item['admitted_for_training'] for item in summary['imports'])
+
+
+def embodied_fixture(tmp_path):
+    # Reuse the authoritative contract's complete *software* source fixture.
+    # It contains no invented prior-command9 and no legacy NPZ dependency.
+    try:
+        import explorer_shared.embodied_episode as contract
+    except ImportError:
+        pytest.skip('authoritative embodied module not integrated in this worktree yet')
+    source=Path(contract.__file__).resolve().parents[2]/'tests/test_embodied_episode.py'
+    spec=importlib.util.spec_from_file_location('authoritative_embodied_evidence_fixtures',source)
+    fixture=importlib.util.module_from_spec(spec);spec.loader.exec_module(fixture)
+    envelope,payloads=fixture.package()
+    folder=tmp_path/'native';folder.mkdir()
+    for name,raw in payloads.items():(folder/name).write_bytes(raw)
+    path=folder/'episode.json';path.write_text(json.dumps(envelope))
+    job={'id':'canonical-software-fixture','kind':'mobile_import','status':'completed','config':{'episode_id':envelope['episode_id']},
+         'result':{'episode_id':envelope['episode_id'],'embodied_manifest':str(path)}}
+    return job,path,envelope,payloads
+
+
+def test_canonical_whole_9d_admission_does_not_require_legacy_state9_or_npz(tmp_path):
+    job,path,envelope,payloads=embodied_fixture(tmp_path)
+    original={str(item):item.read_bytes() for item in tmp_path.rglob('*') if item.is_file()}
+    evidence=inspect_mobile_import(job,managed_root=tmp_path,include_manifest=True)
+    assert evidence['admitted_for_training'],evidence['reasons']
+    assert not evidence['legacy_RGB9D_contract_admitted']
+    assert evidence['legacy_RGB9D_view']['reasons'] and evidence['reasons']==[]
+    assert evidence['completed_recording'] and evidence['operator_success'] and evidence['source_quality_usable']
+    assert evidence['original_session_id']=='session-1' and evidence['scene_id']=='scene-1'
+    assert evidence['mobile_embodied']['raw_simultaneous_actions'][0]['values']==[0.]*9
+    assert evidence['mobile_embodied']['raw_simultaneous_actions'][0]['mask']==[True]*9
+    assert 'preceding_command9' not in envelope['samples'][0]['channels']
+    assert not evidence['visual_ACT']['trained_RGB_model_verified'] and not evidence['physical_success_validated']
+    assert {Path(name).name for name in evidence['embodied_source_files']}==set(payloads)
+    assert original=={str(item):item.read_bytes() for item in tmp_path.rglob('*') if item.is_file()}
+
+
+def test_canonical_source_binding_rejects_payload_corruption_and_wrong_original_id(tmp_path):
+    job,path,envelope,payloads=embodied_fixture(tmp_path)
+    job['config']['episode_id']='different-native-recording'
+    evidence=inspect_mobile_import(job,managed_root=tmp_path)
+    assert not evidence['admitted_for_training'] and any('different original episode' in reason for reason in evidence['reasons'])
+    job['config']['episode_id']=envelope['episode_id']
+    (path.parent/'rgb.bin').write_bytes(b'tampered')
+    evidence=inspect_mobile_import(job,managed_root=tmp_path)
+    assert not evidence['admitted_for_training'] and any('payload SHA mismatch' in reason for reason in evidence['reasons'])
+
+
+def test_valid_canonical_native_source_is_independent_of_broken_optional_legacy_view(tmp_path):
+    job,path,envelope,payloads=embodied_fixture(tmp_path)
+    broken=tmp_path/'optional-legacy.json';broken.write_text('not-json')
+    job['result']['dataset_manifest']=str(broken)
+    evidence=inspect_mobile_import(job,managed_root=tmp_path)
+    assert evidence['admitted_for_training'],evidence['reasons']
+    assert not evidence['legacy_RGB9D_contract_admitted']
+    assert any('evidence_inspection_failed' in reason for reason in evidence['legacy_RGB9D_view']['reasons'])
+
+
+def test_raw_JPEG_integrity_and_camera_frame_binding_failures_are_separate_facts(tmp_path):
+    job,conversion,path=converted_fixture(tmp_path,unknown=True,count=9,outcome='unknown')
+    rows=[json.loads(line) for line in (path.parent/'samples.jsonl').read_text().splitlines()]
+    camera=copy.deepcopy(rows[3]['camera_metadata_raw']);camera['jpeg_sha256']='0'*64
+    FIX.change_raw(path.parent,rows[3],'camera-frame.json',camera);FIX.write_rows(path.parent,rows)
+    evidence=inspect_mobile_import(job,managed_root=tmp_path)
+    assert evidence['raw_rgb_verified_count']==9
+    assert evidence['raw_integrity_errors']==['RGB_camera_SHA_binding_mismatch:row_3']
+    assert not evidence['admitted_for_training'] and not evidence['rgb_verified']
