@@ -1,0 +1,130 @@
+{
+  "4": {
+    "model": {
+      "equal": false,
+      "max_abs_difference": 4.4877953087052447e-07,
+      "tensors": 186,
+      "different_tensors": 93
+    },
+    "optimizer": {
+      "equal": false,
+      "max_abs_difference": 5.587935447692871e-09,
+      "tensors": 315,
+      "different_tensors": 208
+    },
+    "sampler": {
+      "equal": true,
+      "max_abs_difference": 0,
+      "tensors": 1,
+      "different_tensors": 0
+    },
+    "rng": {
+      "equal": true,
+      "max_abs_difference": 0,
+      "tensors": 2,
+      "different_tensors": 0
+    },
+    "losses": {
+      "equal": false,
+      "max_abs_difference": 0,
+      "tensors": 0,
+      "different_tensors": 0
+    },
+    "losses_reference": [
+      0.9924252033233643,
+      1.049904227256775,
+      0.6578014492988586,
+      0.4244571924209595
+    ],
+    "losses_paused_or_resumed": [
+      0.9924252033233643,
+      1.049904227256775,
+      0.657801628112793,
+      0.42445722222328186
+    ],
+    "initial_weights_equal": true,
+    "runtime": {
+      "torch": "2.12.0+cu132",
+      "numpy": "2.2.6",
+      "packages": {
+        "torchvision": "0.27.0+cu132",
+        "lerobot": "0.6.1"
+      },
+      "torch_num_threads": 2,
+      "deterministic_algorithms": false,
+      "matmul_precision": "highest",
+      "cuda_matmul_tf32": false,
+      "cudnn_tf32": false,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": false
+    }
+  },
+  "8": {
+    "model": {
+      "equal": false,
+      "max_abs_difference": 8.719600737094879e-05,
+      "tensors": 186,
+      "different_tensors": 100
+    },
+    "optimizer": {
+      "equal": false,
+      "max_abs_difference": 6.107725312176626e-07,
+      "tensors": 315,
+      "different_tensors": 210
+    },
+    "sampler": {
+      "equal": true,
+      "max_abs_difference": 0,
+      "tensors": 1,
+      "different_tensors": 0
+    },
+    "rng": {
+      "equal": true,
+      "max_abs_difference": 0,
+      "tensors": 2,
+      "different_tensors": 0
+    },
+    "losses": {
+      "equal": false,
+      "max_abs_difference": 0,
+      "tensors": 0,
+      "different_tensors": 0
+    },
+    "losses_reference": [
+      0.9924252033233643,
+      1.049904227256775,
+      0.6578014492988586,
+      0.4244571924209595,
+      0.4368939995765686,
+      0.3598983883857727,
+      0.32227012515068054,
+      0.31353020668029785
+    ],
+    "losses_paused_or_resumed": [
+      0.9924252033233643,
+      1.049904227256775,
+      0.657801628112793,
+      0.42445722222328186,
+      0.436894029378891,
+      0.3598984181880951,
+      0.3222702145576477,
+      0.31353116035461426
+    ],
+    "initial_weights_equal": true,
+    "runtime": {
+      "torch": "2.12.0+cu132",
+      "numpy": "2.2.6",
+      "packages": {
+        "torchvision": "0.27.0+cu132",
+        "lerobot": "0.6.1"
+      },
+      "torch_num_threads": 2,
+      "deterministic_algorithms": false,
+      "matmul_precision": "highest",
+      "cuda_matmul_tf32": false,
+      "cudnn_tf32": false,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": false
+    }
+  }
+}
