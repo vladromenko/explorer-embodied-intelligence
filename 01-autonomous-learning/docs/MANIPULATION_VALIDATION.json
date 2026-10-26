@@ -1,0 +1,490 @@
+{
+  "schema": 1,
+  "date": "2026-10-26",
+  "scope": "Actual Mac CPU CAD contact manipulation DEVELOPMENT; no physical I/O",
+  "implementation_type": "ENGINEERING_GLUE",
+  "method_ids": [
+    "PPO_SB3_2_9",
+    "EXPLORER_CAD_MUJOCO",
+    "ENGINEERING_GLUE"
+  ],
+  "private_evidence_root": "/Users/vladromenko/Desktop/Explorer/_registry/private/engineering_runs/manipulation-20261026",
+  "preservation_receipt_sha256": "f3720b6490d14c316abad2737b7fff75ab3db4d28326e70c64ed969c1f8b6fd9",
+  "sources_unchanged": true,
+  "tests": "14 new targeted passed; 50 combined passed and1existing optional skipped",
+  "runs": [
+    {
+      "run_id": "candy_to_tray-ppo1024-v1",
+      "source_result_sha256": "dd792d0a8efce36dd2eb41e61ef9fadce28ee089f30a73605c448b43d1faadb4",
+      "task": "candy_to_tray",
+      "settings": {
+        "benchmark": true,
+        "benchmark_steps": 50,
+        "evaluation_episodes": 2,
+        "horizon": 600,
+        "seed": 321041,
+        "task": "candy_to_tray",
+        "teacher_steps": 1024
+      },
+      "source_module_sha256": {
+        "manipulation.py": "eca8067c93605936109af9109f8ce1a89db8be5eb1aa7573f3a831fce63cda3a",
+        "manipulation_env.py": "a0bf6c275002d6a9ce457d1e38cbbc188b8edd13cfe1adbfa3026d533c8ffe8a"
+      },
+      "teacher": {
+        "actor_inputs": "privileged_sim_truth_not_deployable_visual",
+        "actual_optimizer_steps": 128,
+        "actual_timesteps": 1024,
+        "algorithm": "maintained_sb3_PPO",
+        "checkpoint_sha256": "7a3da6b35592a7cb942ee54fb2b615d3d295f7102fcc981f1f1f6f0379bcdd76",
+        "optimizer_epochs": 64,
+        "reload_action_max_abs_error": 0.0,
+        "scripted_actions_during_ppo": false,
+        "training_seconds": 4.409122000040952,
+        "training_workers": 1,
+        "weights_changed": true
+      },
+      "scripted_baseline": {
+        "bilateral_substeps": 6542,
+        "carried_above_target": true,
+        "contact_substeps": 6631,
+        "final": {
+          "above_rim": false,
+          "bottom_supported": true,
+          "free_of_fingers": true,
+          "height_bounds_m": [
+            0.007892244579758907,
+            0.027892244579779374
+          ],
+          "inside_all_points": true,
+          "pad_force_N": [
+            0.0,
+            0.0
+          ],
+          "settled": true,
+          "support_force_N": 0.1236059999480965,
+          "within_rim": true
+        },
+        "grasped": true,
+        "lifted": true,
+        "max_height_gain_m": 0.23404577259739534,
+        "settled_seconds": 0.5420000000000004,
+        "substeps": 11200,
+        "success": true
+      },
+      "scripted_replay": {
+        "actions_reexecuted": 448,
+        "evaluator": {
+          "bilateral_substeps": 6542,
+          "carried_above_target": true,
+          "contact_substeps": 6631,
+          "final": {
+            "above_rim": false,
+            "bottom_supported": true,
+            "free_of_fingers": true,
+            "height_bounds_m": [
+              0.007892244579758907,
+              0.027892244579779374
+            ],
+            "inside_all_points": true,
+            "pad_force_N": [
+              0.0,
+              0.0
+            ],
+            "settled": true,
+            "support_force_N": 0.1236059999480965,
+            "within_rim": true
+          },
+          "grasped": true,
+          "lifted": true,
+          "max_height_gain_m": 0.23404577259739534,
+          "settled_seconds": 0.5420000000000004,
+          "substeps": 11200,
+          "success": true
+        },
+        "max_abs_native_state_error": 0.0,
+        "native_state_spec": "mjSTATE_INTEGRATION",
+        "within_1e_minus_9": true
+      },
+      "ppo_evaluation": {
+        "n": 2,
+        "successes": 0,
+        "grasped": 0,
+        "seeds": [
+          331041,
+          331042
+        ]
+      },
+      "ppo_replay": {
+        "actions_reexecuted": 600,
+        "evaluator": {
+          "bilateral_substeps": 0,
+          "carried_above_target": false,
+          "contact_substeps": 0,
+          "final": {
+            "above_rim": false,
+            "bottom_supported": false,
+            "free_of_fingers": true,
+            "height_bounds_m": [
+              -0.00010775542021043867,
+              0.01989224457978956
+            ],
+            "inside_all_points": false,
+            "pad_force_N": [
+              0.0,
+              0.0
+            ],
+            "settled": true,
+            "support_force_N": 0.0,
+            "within_rim": true
+          },
+          "grasped": false,
+          "lifted": false,
+          "max_height_gain_m": 1.0210678774883603e-05,
+          "settled_seconds": 0.0,
+          "substeps": 15000,
+          "success": false
+        },
+        "max_abs_native_state_error": 0.0,
+        "native_state_spec": "mjSTATE_INTEGRATION",
+        "within_1e_minus_9": true
+      },
+      "training_raw_requests": {
+        "rows": 1024,
+        "raw_rows_affected_by_sb3_clipping": 918
+      },
+      "sock_max_pairwise_vertex_distance_change_m": null,
+      "worker_benchmark": {
+        "kind": "actual_independent_physics_benchmark_not_parallel_training",
+        "results": [
+          {
+            "actions": 50,
+            "actions_per_s_including_spawn": 75.08592183079644,
+            "parallel_training": false,
+            "processes": [
+              {
+                "actions": 50,
+                "cpu_seconds": 0.19293300000000002,
+                "peak_rss_native_units": 1055358976,
+                "substeps": 1250,
+                "wall_seconds": 0.19303379202028736
+              }
+            ],
+            "steady_actions_per_s": 259.0220058192978,
+            "thermal_sensor": "NOT_MEASURED",
+            "wall_seconds": 0.6659037910285406,
+            "workers": 1
+          },
+          {
+            "actions": 100,
+            "actions_per_s_including_spawn": 149.54478567064365,
+            "parallel_training": false,
+            "processes": [
+              {
+                "actions": 50,
+                "cpu_seconds": 0.19516999999999984,
+                "peak_rss_native_units": 1042137088,
+                "substeps": 1250,
+                "wall_seconds": 0.19519666698761284
+              },
+              {
+                "actions": 50,
+                "cpu_seconds": 0.195782,
+                "peak_rss_native_units": 1059848192,
+                "substeps": 1250,
+                "wall_seconds": 0.19581345800543204
+              }
+            ],
+            "steady_actions_per_s": 510.69012834258774,
+            "thermal_sensor": "NOT_MEASURED",
+            "wall_seconds": 0.6686960000079125,
+            "workers": 2
+          },
+          {
+            "actions": 200,
+            "actions_per_s_including_spawn": 201.077279764327,
+            "parallel_training": false,
+            "processes": [
+              {
+                "actions": 50,
+                "cpu_seconds": 0.21892800000000012,
+                "peak_rss_native_units": 1048690688,
+                "substeps": 1250,
+                "wall_seconds": 0.24977116700029
+              },
+              {
+                "actions": 50,
+                "cpu_seconds": 0.20853699999999997,
+                "peak_rss_native_units": 956481536,
+                "substeps": 1250,
+                "wall_seconds": 0.20949704200029373
+              },
+              {
+                "actions": 50,
+                "cpu_seconds": 0.22125499999999998,
+                "peak_rss_native_units": 1048821760,
+                "substeps": 1250,
+                "wall_seconds": 0.2515187499811873
+              },
+              {
+                "actions": 50,
+                "cpu_seconds": 0.21046299999999996,
+                "peak_rss_native_units": 968507392,
+                "substeps": 1250,
+                "wall_seconds": 0.21200749999843538
+              }
+            ],
+            "steady_actions_per_s": 795.1693462811791,
+            "thermal_sensor": "NOT_MEASURED",
+            "wall_seconds": 0.9946424590307288,
+            "workers": 4
+          }
+        ],
+        "rss_units": "bytes on macOS; KiB on Linux",
+        "selected_training_workers": 1
+      },
+      "completed_idempotence_verified": true,
+      "artifact_sha256_count": 26
+    },
+    {
+      "run_id": "sock_to_basket-ppo1024-v1",
+      "source_result_sha256": "68b9dc8ed258d1e2c495a4f44cb2b39a8380bcc94485f614a835208b8f98926c",
+      "task": "sock_to_basket",
+      "settings": {
+        "benchmark": true,
+        "benchmark_steps": 50,
+        "evaluation_episodes": 2,
+        "horizon": 600,
+        "seed": 321041,
+        "task": "sock_to_basket",
+        "teacher_steps": 1024
+      },
+      "source_module_sha256": {
+        "manipulation.py": "eca8067c93605936109af9109f8ce1a89db8be5eb1aa7573f3a831fce63cda3a",
+        "manipulation_env.py": "a0bf6c275002d6a9ce457d1e38cbbc188b8edd13cfe1adbfa3026d533c8ffe8a"
+      },
+      "teacher": {
+        "actor_inputs": "privileged_sim_truth_not_deployable_visual",
+        "actual_optimizer_steps": 128,
+        "actual_timesteps": 1024,
+        "algorithm": "maintained_sb3_PPO",
+        "checkpoint_sha256": "f9f7054c91dcfd9a5bd1995cc74746efec2a3ff61b24f02ff411f2e9274ad1f4",
+        "optimizer_epochs": 64,
+        "reload_action_max_abs_error": 0.0,
+        "scripted_actions_during_ppo": false,
+        "training_seconds": 29.074409749999177,
+        "training_workers": 1,
+        "weights_changed": true
+      },
+      "scripted_baseline": {
+        "bilateral_substeps": 6601,
+        "carried_above_target": true,
+        "contact_substeps": 6807,
+        "final": {
+          "above_rim": false,
+          "bottom_supported": true,
+          "free_of_fingers": true,
+          "height_bounds_m": [
+            0.008980784151458542,
+            0.04720847887379814
+          ],
+          "inside_all_points": true,
+          "pad_force_N": [
+            0.0,
+            0.0
+          ],
+          "settled": true,
+          "support_force_N": 0.21581949649807816,
+          "within_rim": true
+        },
+        "grasped": true,
+        "lifted": true,
+        "max_height_gain_m": 0.2144417032509963,
+        "settled_seconds": 0.5100000000000003,
+        "substeps": 11200,
+        "success": true
+      },
+      "scripted_replay": {
+        "actions_reexecuted": 448,
+        "evaluator": {
+          "bilateral_substeps": 6601,
+          "carried_above_target": true,
+          "contact_substeps": 6807,
+          "final": {
+            "above_rim": false,
+            "bottom_supported": true,
+            "free_of_fingers": true,
+            "height_bounds_m": [
+              0.008980784151458542,
+              0.04720847887379814
+            ],
+            "inside_all_points": true,
+            "pad_force_N": [
+              0.0,
+              0.0
+            ],
+            "settled": true,
+            "support_force_N": 0.21581949649807816,
+            "within_rim": true
+          },
+          "grasped": true,
+          "lifted": true,
+          "max_height_gain_m": 0.2144417032509963,
+          "settled_seconds": 0.5100000000000003,
+          "substeps": 11200,
+          "success": true
+        },
+        "max_abs_native_state_error": 0.0,
+        "native_state_spec": "mjSTATE_INTEGRATION",
+        "within_1e_minus_9": true
+      },
+      "ppo_evaluation": {
+        "n": 2,
+        "successes": 0,
+        "grasped": 0,
+        "seeds": [
+          331041,
+          331042
+        ]
+      },
+      "ppo_replay": {
+        "actions_reexecuted": 600,
+        "evaluator": {
+          "bilateral_substeps": 0,
+          "carried_above_target": false,
+          "contact_substeps": 0,
+          "final": {
+            "above_rim": false,
+            "bottom_supported": false,
+            "free_of_fingers": true,
+            "height_bounds_m": [
+              0.000952571226275829,
+              0.0070607690958716
+            ],
+            "inside_all_points": false,
+            "pad_force_N": [
+              0.0,
+              0.0
+            ],
+            "settled": true,
+            "support_force_N": 0.0,
+            "within_rim": true
+          },
+          "grasped": false,
+          "lifted": false,
+          "max_height_gain_m": 0.0,
+          "settled_seconds": 0.0,
+          "substeps": 15000,
+          "success": false
+        },
+        "max_abs_native_state_error": 0.0,
+        "native_state_spec": "mjSTATE_INTEGRATION",
+        "within_1e_minus_9": true
+      },
+      "training_raw_requests": {
+        "rows": 1024,
+        "raw_rows_affected_by_sb3_clipping": 919
+      },
+      "sock_max_pairwise_vertex_distance_change_m": 0.10640533613665652,
+      "worker_benchmark": {
+        "kind": "actual_independent_physics_benchmark_not_parallel_training",
+        "results": [
+          {
+            "actions": 50,
+            "actions_per_s_including_spawn": 19.201439954119206,
+            "parallel_training": false,
+            "processes": [
+              {
+                "actions": 50,
+                "cpu_seconds": 1.9266489999999998,
+                "peak_rss_native_units": 1059733504,
+                "substeps": 1250,
+                "wall_seconds": 1.9324642079882324
+              }
+            ],
+            "steady_actions_per_s": 25.873700425247137,
+            "thermal_sensor": "NOT_MEASURED",
+            "wall_seconds": 2.6039713750360534,
+            "workers": 1
+          },
+          {
+            "actions": 100,
+            "actions_per_s_including_spawn": 36.5693260833347,
+            "parallel_training": false,
+            "processes": [
+              {
+                "actions": 50,
+                "cpu_seconds": 1.978389,
+                "peak_rss_native_units": 1059160064,
+                "substeps": 1250,
+                "wall_seconds": 1.9948403330054134
+              },
+              {
+                "actions": 50,
+                "cpu_seconds": 1.985691,
+                "peak_rss_native_units": 1063272448,
+                "substeps": 1250,
+                "wall_seconds": 2.002863875008188
+              }
+            ],
+            "steady_actions_per_s": 49.928505500450534,
+            "thermal_sensor": "NOT_MEASURED",
+            "wall_seconds": 2.7345322080072947,
+            "workers": 2
+          },
+          {
+            "actions": 200,
+            "actions_per_s_including_spawn": 62.55996959594371,
+            "parallel_training": false,
+            "processes": [
+              {
+                "actions": 50,
+                "cpu_seconds": 2.033545,
+                "peak_rss_native_units": 975814656,
+                "substeps": 1250,
+                "wall_seconds": 2.0366314169950783
+              },
+              {
+                "actions": 50,
+                "cpu_seconds": 2.011754,
+                "peak_rss_native_units": 922419200,
+                "substeps": 1250,
+                "wall_seconds": 2.014784624974709
+              },
+              {
+                "actions": 50,
+                "cpu_seconds": 2.031651,
+                "peak_rss_native_units": 897875968,
+                "substeps": 1250,
+                "wall_seconds": 2.0348072909982875
+              },
+              {
+                "actions": 50,
+                "cpu_seconds": 2.0239320000000003,
+                "peak_rss_native_units": 939048960,
+                "substeps": 1250,
+                "wall_seconds": 2.0270561249926686
+              }
+            ],
+            "steady_actions_per_s": 98.20137229105865,
+            "thermal_sensor": "NOT_MEASURED",
+            "wall_seconds": 3.196932499995455,
+            "workers": 4
+          }
+        ],
+        "rss_units": "bytes on macOS; KiB on Linux",
+        "selected_training_workers": 1
+      },
+      "completed_idempotence_verified": true,
+      "artifact_sha256_count": 26
+    }
+  ],
+  "physical_chassis_movement": false,
+  "controller_configuration_writes": false,
+  "visual_ACT_manipulation_student": "NOT_IMPLEMENTED",
+  "mobile_kitchen_route": "NOT_IMPLEMENTED",
+  "PPO_fulltask_success": "NOT_ESTABLISHED",
+  "scripted_fulltask_success": "1/1 candy and1/1 actual deformable sock",
+  "sealed_evaluation": false,
+  "scientific_novelty_claim": false,
+  "validation_store": "file-backed test harness only; central scheduler integration is separate"
+}
