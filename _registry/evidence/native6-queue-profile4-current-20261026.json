@@ -1,0 +1,18 @@
+{
+  "actual_tests_passed": 2,
+  "archives": {
+    "NATIVE6_QUEUE_PROFILE4_20261026_ACT_QUALIFICATION.json": "4166907a2db99c293e23a79e775deb82b5f83853d3f6138959bbf0cc212bb55c",
+    "NATIVE6_QUEUE_PROFILE4_20261026_DIFFUSION_QUALIFICATION.json": "6b0a31bbc74ee6eefd5dada361e2f454a9b3b642b5197465a251666a7dfe5202",
+    "NATIVE6_QUEUE_PROFILE4_20261026_PREFLIGHT.json": "55dfaed5a5e39b84618a530291044815116e6f30bc8bdbacfce339dd62bd2963",
+    "NATIVE6_QUEUE_PROFILE4_20261026_RUNTIME.json": "14e4e2f6aaae469cd25b31a81c7789d55d8de5dd9a3e3eb600fcf1943d830bf4",
+    "NATIVE6_QUEUE_PROFILE4_20261026_SOURCE_LIBRARY.json": "89444dd7641bcbd8a345d2b86dd69459d30c6f8a5341b0a43cd49c05edc18045",
+    "NATIVE6_QUEUE_PROFILE4_20261026_SOURCE_TREE.json": "1ce4f13e8596d5fa0ad82723cbdbbd12c0b1d46d727da9419c71ab5dcf44d965"
+  },
+  "elapsed_pytest_s": 110.13,
+  "physical_success": false,
+  "production_state_writes": false,
+  "public_production_queue_tested": false,
+  "schema": "explorer_current_profile4_controller_qualification_v1",
+  "scope": "Final Store/Supervisor/bootstrap/job_runner with warm/export dispatch and explicit runtime profile source; private ACT6+Diffusion6 CPU pause/process-exit/newPID resume parity",
+  "source_commit": "bc01c514c766a0ecb793faf262ee154c1858006d"
+}

@@ -36,7 +36,7 @@ pause pointer/checkpoint сохранён до resume; намеренно дру
 
 Публикация binding в production ещё не выполнена: изолированный actual source
 binding ed25369a… должен отдельно соответствовать16 hashes финального release.
-GPU optimizer peak cgroup3,871,834,112B; resume2GB-класса peak указан в JSON;
+GPU optimizer peak cgroup3,871,834,112B; resume peak2,812,211,200B;
 memory max/oom events0, каждый ownunit4GiB/swap0/CPU200%, процесс завершён.
 Сохраняется предупреждение compiled wheel об OrinCC8.7; квалифицирован только
 этот фактически выполненный profile, не весь CUDA stack.
@@ -45,3 +45,16 @@ memory max/oom events0, каждый ownunit4GiB/swap0/CPU200%, процесс �
 done. Public API worker smoke и окончательный current controller run имеют
 отдельные записи. Никаких физических команд, изменения firmware/controller,
 Hub downloads или production-state writes эти fixtures не производили.
+
+Окончательный actual controller на sourcebc01c51 (включая обе новые dispatch
+ветки warm/export, pinned-profile environment и startup fixes) завершён:
+2tests passed110.13s, userunit114.546s, kernel peak3,475,632,128B, max/oom0.
+Для ACT6 и DP6: реальный Supervisor→bootstrap→job_runner, pause после2 updates,
+старый PID завершён/RAM lease освобождён, новый PID выполняет6 updates;
+model/optimizer/losses/TorchRNG/sampler точно равны собственному8step reference.
+Собственное продолжение Python/NumPy RNG checkpoint проверено отдельно.
+Four actual durable worker configs/pins и оба полных git archives совпали:
+1065regular files, tarSHA4a3c8386…, treeSHA7b359610…; source refs опубликованы
+в NATIVE6_QUEUE_PROFILE4_20261026_SOURCE_LIBRARY/SOURCE_TREE.json.
+Это private actual controller qualification; public production worker smoke
+и публикация finalrelease binding остаются отдельными операциями Root.
