@@ -97,6 +97,7 @@ def _record_context(body):
 
 
 class SO101Station:
+    observed_publication_hook_version=1
     def __init__(self, configuration, state_dir, camera):
         self.configuration = json.loads(Path(configuration).read_text())
         self.root = Path(state_dir) / 'station'
@@ -226,13 +227,18 @@ class SO101Station:
                         self._end_session()
                         self._write(follower)
                     if target is not None:
-                        accepted = [min(HIGH[i],max(LOW[i],float(value))) for i,value in enumerate(target)]
-                        self._write(accepted)
-                        dispatched_at = time.monotonic_ns()
-                        self.last_command=dict(control_epoch=self.control_epoch,sequence=self.action_sequence,requested=list(target),
-                            dispatched=accepted,monotonic_ns=dispatched_at,clock_domain=self.clock_domain,
-                            source_observation=dict(self.action_source or {}))
-                        self._sample(frame,follower,target,accepted,measured_at,dispatched_at)
+                        publication_gate=getattr(self,'publication_gate',None)
+                        if publication_gate is not None and publication_gate(self.control_epoch,self.mode,target) is not True:
+                            self._end_session()
+                            self._write(follower)
+                        else:
+                            accepted = [min(HIGH[i],max(LOW[i],float(value))) for i,value in enumerate(target)]
+                            self._write(accepted)
+                            dispatched_at = time.monotonic_ns()
+                            self.last_command=dict(control_epoch=self.control_epoch,sequence=self.action_sequence,requested=list(target),
+                                dispatched=accepted,monotonic_ns=dispatched_at,clock_domain=self.clock_domain,
+                                source_observation=dict(self.action_source or {}))
+                            self._sample(frame,follower,target,accepted,measured_at,dispatched_at)
                 self.last_periods.append(begin - previous)
                 self.last_periods = self.last_periods[-300:]
                 previous = begin

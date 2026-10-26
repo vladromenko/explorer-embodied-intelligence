@@ -49,6 +49,11 @@ class StationObservedPermission:
         self.station,self.camera,self.clock=station,camera,clock;self.command_guard=command_guard or (lambda operation:None)
         self.lock=threading.RLock();self.pending=None;self.grant=None;self.retired=OrderedDict();self.revision=0
         self.process=uuid.uuid4().hex
+        self.publication_gate=None
+        if getattr(type(station),'observed_publication_hook_version',None)==1:
+            from .station_publication_gate import StationPublicationGate
+            if getattr(station,'publication_gate',None) is not None:raise ValueError('Original Station already has a publication permission owner')
+            self.publication_gate=StationPublicationGate(self);station.publication_gate=self.publication_gate
     def _ttl(self):
         value=self.camera.stale_s
         if type(value) not in (int,float) or not math.isfinite(value) or value<=0:raise ValueError('Existing camera freshness contract required')
@@ -250,6 +255,8 @@ class StationObservedPermission:
             grant=self._data(current) if valid else None
         return {'schema':'explorer_station_observed_permission_status_v1','execution_permission':valid,
             'grant':grant,
+            'native_publication_permission_gate_installed':self.publication_gate is not None,
+            'publication_gate':self.publication_gate.status() if self.publication_gate is not None else None,
             'provider_process':self.process,'reason':reason,'native_command_called':False,
             'freshness_basis':'existing_camera_stale_s_not_motor_lease','controller_settings_written':False,
             'permission_is_not_grasp_stationarity_or_physical_success':True}

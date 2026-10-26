@@ -976,7 +976,9 @@ def make_handler(agent):
                         'X-Monotonic-NS':metadata['received_monotonic_ns']}.items():self.send_header(name,str(value))
                     self.end_headers();self.wfile.write(raw)
                 elif path=='/station/status':
-                    self._json(200,agent.station.status())
+                    provider=getattr(agent,'station_observed',None)
+                    gate=getattr(provider,'publication_gate',None)
+                    self._json(200,{**agent.station.status(),'observed_publication_gate':gate.status() if gate is not None else None})
                 elif path=='/station/observation':
                     if urlsplit(self.path).query:raise ValueError('Source observation takes no query parameters')
                     self._json(200,agent.so101_observations.create())
