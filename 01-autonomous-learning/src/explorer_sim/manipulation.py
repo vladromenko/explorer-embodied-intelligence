@@ -223,7 +223,12 @@ def run_manipulation(store,job):
         (folder/'implementation_sources'/source.name).write_bytes(source.read_bytes())
     write_json(folder/'provenance.json',context)
     def update(progress,phase):
-        store.update_job(identity,progress=progress,result=dict(phase=phase,source='actual_mujoco_manipulation',physical_run=False))
+        temporary = base/'frame.tmp.jpg'
+        Image.fromarray(env.render()).save(temporary,quality=90)
+        temporary.replace(base/'frame.jpg')
+        write_json(base/'frame.json',dict(source='actual_mujoco_manipulation',phase=phase,
+            sim_time_s=float(env.data.time),actual_workers=1,wall_utc=utc(),physical_run=False))
+        store.update_job(identity,progress=progress,result=dict(phase=phase,source='actual_mujoco_manipulation',actual_workers=1,physical_run=False))
     torch.set_num_threads(2)
     env = ManipulationEnv(assets,settings['task'],settings['horizon'])
     (folder/'model.xml').write_text(env.xml)

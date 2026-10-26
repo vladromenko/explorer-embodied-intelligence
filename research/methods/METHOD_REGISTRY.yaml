@@ -1984,8 +1984,43 @@
       "test_evidence": [
         {
           "command": "python -m pytest tests/test_direct03_nodes.py tests/test_pi_nano_route.py -q",
-          "result": "32 passed (part of46 targeted suite)",
+          "result": "Included in 46 passed targeted runtime/wizard suite",
           "scope": "SOFTWARE_ONLY_localhost_HTTP_and_retained_source_fixture_tests"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ACT_LEROBOT_0_6_1",
+      "implementation_id": "IMPL-VISUAL-COMPLETE-MANIPULATION-ACT-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/manipulation_student.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "https://github.com/huggingface/lerobot",
+          "role": "Existing pinned maintained official ACT and saved processors"
+        },
+        {
+          "url": "project-file:01-autonomous-learning/docs/VISUAL_MANIPULATION_VALIDATION.json",
+          "role": "Actual optimizer, full contact scripted source and closed-loop independent development evidence"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_ENGINEERING_ADAPTER",
+      "upstream_commit": "NOT_APPLICABLE_NO_CODE_COPIED",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "RANDOM_INITIALIZATION_NO_EXTERNAL_WEIGHTS",
+      "data_license": "PRIVATE_SIMULATED_EVIDENCE",
+      "changes_and_reason": "Complete contact-verified scripted demonstrations distilled into official ACT; only fresh RGB and preceding command9 enter the actor; independent full task development evaluation and exact native replay. Short-budget policy failed0/2; no object mastery claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "EXPLORER_RUN_MANIPULATION_STUDENT_INTEGRATION=1 EXPLORER_SIM_MESH_DIR=<actual CAD> MUJOCO_GL=egl python -m pytest 01-autonomous-learning/tests/test_manipulation_student.py -q",
+          "result": "10 passed,0 skipped; real8 optimizer updates and full contact source",
+          "scope": "SOFTWARE_ONLY"
         }
       ],
       "hardware_run_ids": []
