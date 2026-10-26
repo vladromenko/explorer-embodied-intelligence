@@ -1,0 +1,41 @@
+{
+  "sampled_unix": 1792978271.881375,
+  "source": "actual_CPU_cache_from_existing_ROS_topics",
+  "rgb_shape": [
+    480,
+    640,
+    3
+  ],
+  "rgb_dtype": "uint8",
+  "rgb_mean": 0.26077039930555557,
+  "rgb_max": 11,
+  "depth_shape": [
+    480,
+    640
+  ],
+  "depth_valid_fraction": 0.7472884114583334,
+  "depth_min_m": 0.20800000429153442,
+  "depth_max_m": 2.249000072479248,
+  "metadata": {
+    "source": "onboard_ros_cpu_cache_v1",
+    "image_stamp": 1792978271.7393322,
+    "depth_stamp": 1792978271.7599318,
+    "color_ros_header": {
+      "sec": 1792978271,
+      "nanosec": 739332096,
+      "frame_id": "camera_color_optical_frame"
+    },
+    "depth_ros_header": {
+      "sec": 1792978271,
+      "nanosec": 759931904,
+      "frame_id": "camera_color_optical_frame"
+    },
+    "camera_info_version": "f9623bebe94601dbade469588cd82025864d7c6d0f5752c2fc0c153041a13754",
+    "same_optical_frame_verified": true,
+    "registration_basis": "Existing camera producer owns registration; audited helper checks frame, shape and skew",
+    "exposure_time_source": "ROS_image_header_timestamp",
+    "sensor_exposure_time_verified": false,
+    "clock_alignment_verified": false
+  },
+  "physical_io": false
+}

@@ -1,0 +1,62 @@
+{
+  "rollback": {
+    "schema": "explorer_release_rollback_v1",
+    "node": "homebrain",
+    "dry_run": false,
+    "previous": {
+      "commit": "f87bdd0603ffd9bfa489aec29f6d141ddfa46cf1",
+      "path": "/home/jetsonnx/.local/share/explorer/releases/f87bdd0603ffd9bfa489aec29f6d141ddfa46cf1"
+    },
+    "current": {
+      "commit": "318c958444c60df774030413650326341482fe04",
+      "path": "/home/jetsonnx/.local/share/explorer/releases/318c958444c60df774030413650326341482fe04"
+    },
+    "requested": {
+      "commit": "318c958444c60df774030413650326341482fe04",
+      "path": "/home/jetsonnx/.local/share/explorer/releases/318c958444c60df774030413650326341482fe04"
+    },
+    "restart_units": [
+      "explorer-control-center.service",
+      "explorer-worker.service"
+    ],
+    "jobs": {
+      "authoritative": true,
+      "active_jobs": [],
+      "job_list_limit": 100
+    },
+    "applied": true,
+    "previous_release_hint_changed": false,
+    "controller_settings_changed": false,
+    "restart_completed": true
+  },
+  "return_to_current": {
+    "schema": "explorer_release_rollback_v1",
+    "node": "homebrain",
+    "dry_run": false,
+    "previous": {
+      "commit": "318c958444c60df774030413650326341482fe04",
+      "path": "/home/jetsonnx/.local/share/explorer/releases/318c958444c60df774030413650326341482fe04"
+    },
+    "current": {
+      "commit": "f87bdd0603ffd9bfa489aec29f6d141ddfa46cf1",
+      "path": "/home/jetsonnx/.local/share/explorer/releases/f87bdd0603ffd9bfa489aec29f6d141ddfa46cf1"
+    },
+    "requested": {
+      "commit": "f87bdd0603ffd9bfa489aec29f6d141ddfa46cf1",
+      "path": "/home/jetsonnx/.local/share/explorer/releases/f87bdd0603ffd9bfa489aec29f6d141ddfa46cf1"
+    },
+    "restart_units": [
+      "explorer-control-center.service",
+      "explorer-worker.service"
+    ],
+    "jobs": {
+      "authoritative": true,
+      "active_jobs": [],
+      "job_list_limit": 100
+    },
+    "applied": true,
+    "previous_release_hint_changed": false,
+    "controller_settings_changed": false,
+    "restart_completed": true
+  }
+}

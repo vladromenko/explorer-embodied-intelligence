@@ -1,0 +1,18 @@
+{
+  "probe_kind": "engineering.delivery_probe",
+  "physical_io": false,
+  "created": {
+    "event_id": "93e22ee7-0bcd-4be6-b3b6-6ea32e6a4114",
+    "pid": "8276"
+  },
+  "while_offline": {
+    "delivered": 0,
+    "pid": "8276"
+  },
+  "after_reconnect": {
+    "delivered": 1,
+    "pid": "8276"
+  },
+  "central_copies": 1,
+  "passed": true
+}
