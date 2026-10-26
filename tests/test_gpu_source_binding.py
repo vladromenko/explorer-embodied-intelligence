@@ -5,8 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from explorer.qualification_bindings import (PIPELINES,PACKAGES,publish_gpu_binding,qualified_gpu_binding,
-    resolve_job_release,pipeline_hashes,runtime_identity)
+from explorer.qualification_bindings import (PIPELINES,LEGACY_PIPELINES,SHARED_ACT_SOURCES,PACKAGES,
+    canonical,publish_gpu_binding,qualified_gpu_binding,resolve_job_release,pipeline_hashes,
+    pipeline_graph_version,runtime_identity)
 from explorer.store import Store
 
 
@@ -104,6 +105,44 @@ def test_shared_student_source_or_installed_runtime_record_changes_revoke_matchi
     record.write_text('installed-framework-record-changed')
     with pytest.raises(ValueError,match='installed runtime'):
         qualified_gpu_binding({'kind':'manipulation_student'},old,python,registry)
+
+
+def test_current_shared_optimizer_and_artifact_sources_each_revoke_source_admission(tmp_path):
+    release,_=releases(tmp_path);python=runtime(tmp_path);registry=tmp_path/'registry'
+    publish_gpu_binding(qualification(tmp_path,release),release,'manipulation_student',python,registry)
+    assert pipeline_graph_version(release,'manipulation_student')==2
+    for name in SHARED_ACT_SOURCES:
+        source=release/name;original=source.read_bytes()
+        source.write_bytes(original+b'changed-common-optimizer-or-normalization')
+        with pytest.raises(ValueError,match='pinned source'):
+            qualified_gpu_binding({'kind':'manipulation_student'},release,python,registry)
+        source.write_bytes(original)
+
+
+def test_legacy_immutable_binding_without_graph_marker_still_resolves_only_legacy_source(tmp_path):
+    release,_=releases(tmp_path);python=runtime(tmp_path);registry=tmp_path/'registry'
+    for name in SHARED_ACT_SOURCES:(release/name).unlink()
+    assert pipeline_graph_version(release,'manipulation_student')==1
+    assert set(pipeline_hashes(release,'manipulation_student'))==set(LEGACY_PIPELINES['manipulation_student'])
+    created=publish_gpu_binding(qualification(tmp_path,release),release,'manipulation_student',python,registry)
+    # Historical format lacked this additive field. Preserve and test those bytes.
+    body=created['binding'];body.pop('pipeline_graph_version');raw=canonical(body)
+    legacy_sha=hashlib.sha256(raw).hexdigest()
+    folder=registry/'bindings'/release.name/'manipulation_student'
+    (folder/(created['binding_sha256']+'.json')).unlink()
+    archived=folder/(legacy_sha+'.json');archived.write_bytes(raw)
+    assert qualified_gpu_binding({'kind':'manipulation_student'},release,python,registry)['binding_sha256']==legacy_sha
+    student=release/'01-autonomous-learning/src/explorer_sim/student.py'
+    student.write_text('from explorer_shared.learning.act_backend import optimize_act\n')
+    with pytest.raises(FileNotFoundError):
+        qualified_gpu_binding({'kind':'manipulation_student'},release,python,registry)
+    assert archived.read_bytes()==raw
+
+
+def test_partial_shared_graph_cannot_fall_back_to_old_admission(tmp_path):
+    release,_=releases(tmp_path)
+    (release/SHARED_ACT_SOURCES[1]).unlink()
+    with pytest.raises(FileNotFoundError):pipeline_hashes(release,'manipulation_student')
 
 
 def test_backend_only_passed_flag_is_not_a_new_pipeline_qualification(tmp_path):

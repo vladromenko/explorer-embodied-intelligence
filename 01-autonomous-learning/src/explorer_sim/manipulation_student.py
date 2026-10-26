@@ -134,9 +134,12 @@ def record_visual_rollout(env, folder, seed, controller, *, progress_frame=None)
 
 
 def _sources():
+    from explorer_shared.learning import act_backend, artifacts
     return [Path(__file__), Path(__file__).with_name('manipulation.py'),
         Path(__file__).with_name('manipulation_env.py'), Path(__file__).with_name('student.py'),
-        Path(__file__).with_name('recorded_training.py'), ROOT / 'simulator/explorer_model.py',
+        Path(__file__).with_name('recorded_training.py'), Path(__file__).with_name('pilot.py'),
+        Path(__file__).with_name('dataset_export.py'), Path(act_backend.__file__), Path(artifacts.__file__),
+        ROOT / 'simulator/explorer_model.py',
         ROOT / 'simulator/environment.py', ROOT / 'simulator/model_config.json',
         ROOT / 'config/explorer.urdf', ROOT / 'config/arm-motion.json']
 

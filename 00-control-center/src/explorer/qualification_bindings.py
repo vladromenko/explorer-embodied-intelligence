@@ -15,7 +15,7 @@ import subprocess
 from email.parser import Parser
 
 
-PIPELINES = {
+LEGACY_PIPELINES = {
     'sim_pilot': ('01-autonomous-learning/src/explorer_sim/pilot.py', '01-autonomous-learning/src/explorer_sim/student.py'),
     'train_act': ('01-autonomous-learning/src/explorer_sim/pilot.py','01-autonomous-learning/src/explorer_sim/student.py',
                   '01-autonomous-learning/src/explorer_sim/recorded_training.py'),
@@ -24,6 +24,12 @@ PIPELINES = {
         'explorer_sim/recorded_training.py','explorer_sim/student.py','legacy/simulator/explorer_model.py',
         'legacy/simulator/environment.py','legacy/simulator/model_config.json','legacy/config/explorer.urdf','legacy/config/arm-motion.json')),
 }
+SHARED_ACT_SOURCES = ('shared/explorer_shared/learning/act_backend.py',
+                      'shared/explorer_shared/learning/artifacts.py')
+PIPELINES = {kind: names + SHARED_ACT_SOURCES for kind, names in LEGACY_PIPELINES.items()}
+PIPELINES['manipulation_student'] += ('01-autonomous-learning/src/explorer_sim/pilot.py',
+                                     '01-autonomous-learning/src/explorer_sim/dataset_export.py')
+PIPELINES['train_act'] += ('01-autonomous-learning/src/explorer_sim/dataset_export.py',)
 PACKAGES = ('torch','torchvision','lerobot','numpy','mujoco')
 
 
@@ -106,18 +112,32 @@ def runtime_identity(executable):
         'OS_and_GPU_driver_fully_hashed':False}
 
 
-def pipeline_hashes(release,kind):
+def pipeline_sources(release, kind):
+    """Old immutable releases retain their graph; missing new code cannot downgrade it."""
     root=release_identity(release)
     if kind not in PIPELINES:raise ValueError('This job has no qualified GPU pipeline contract')
-    return {name:sha(root/name) for name in PIPELINES[kind]}
+    student=root/'01-autonomous-learning/src/explorer_sim/student.py'
+    declares_shared='explorer_shared.learning.act_backend' in student.read_text()
+    shared_present=any((root/name).exists() for name in SHARED_ACT_SOURCES)
+    return PIPELINES[kind] if declares_shared or shared_present else LEGACY_PIPELINES[kind]
+
+
+def pipeline_hashes(release,kind):
+    root=release_identity(release)
+    return {name:sha(root/name) for name in pipeline_sources(root,kind)}
+
+
+def pipeline_graph_version(release,kind):
+    return 2 if pipeline_sources(release,kind)==PIPELINES[kind] else 1
 
 
 def _relative_sources(values):
     result={}
     for name,digest in values.items():
         parts=Path(name).parts
-        if '01-autonomous-learning' not in parts:raise ValueError('Qualification source has no explicit monorepo module path')
-        relative=Path(*parts[parts.index('01-autonomous-learning'):]).as_posix()
+        anchors=[index for index,part in enumerate(parts) if part in ('01-autonomous-learning','shared')]
+        if not anchors:raise ValueError('Qualification source has no explicit monorepo module path')
+        relative=Path(*parts[min(anchors):]).as_posix()
         if '..' in Path(relative).parts or not re.fullmatch('[0-9a-f]{64}',str(digest)):
             raise ValueError('Qualification source path/hash is invalid')
         if relative in result and result[relative]!=digest:raise ValueError('Ambiguous qualified source file')
@@ -193,6 +213,7 @@ def publish_gpu_binding(qualification_path,release,kind,executable,registry_root
     receipt_id=_immutable(root,'receipts',raw)
     proof_id=_immutable(root,'proofs',proof_raw) if proof_raw is not None else None
     body={'format':'explorer_gpu_source_binding_v1','execution_commit':release.name,'job_kind':kind,
+        'pipeline_graph_version':pipeline_graph_version(release,kind),
         'pipeline_source_sha256':expected,'runtime_identity':runtime,'qualification_receipt_sha256':receipt_id,
         'qualification_result_sha256':proof_id,'scope':receipt.get('scope'),'physical_skill_qualified':False,
         'state_dimension':dimensions,'action_dimension':dimensions,
@@ -220,7 +241,9 @@ def qualified_gpu_binding(job,release,executable,registry_root,*,required_bindin
             try:
                 raw=path.read_bytes();body=json.loads(raw)
                 if hashlib.sha256(raw).hexdigest()!=path.stem:raise ValueError('Qualification binding is not immutable')
-                if (body.get('format')!='explorer_gpu_source_binding_v1' or body.get('execution_commit')!=release.name
+                graph_version=pipeline_graph_version(release,kind)
+                accepted_graph=body.get('pipeline_graph_version')==graph_version or (graph_version==1 and 'pipeline_graph_version' not in body)
+                if (not accepted_graph or body.get('format')!='explorer_gpu_source_binding_v1' or body.get('execution_commit')!=release.name
                         or body.get('job_kind')!=kind or body.get('pipeline_source_sha256')!=expected
                         or body.get('state_dimension')!=required_dimensions or body.get('action_dimension')!=required_dimensions
                         or body.get('runtime_identity')!=runtime):

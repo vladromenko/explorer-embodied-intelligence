@@ -29,6 +29,16 @@ def test_visual_actor_accepts_only_rgb_and_preceding_named_command_estimate():
         actor_inputs(rgb, np.r_[np.nan, command[1:]], 64)
 
 
+def test_visual_manipulation_provenance_contains_actual_shared_optimizer_and_normalization():
+    from explorer_sim.manipulation_student import _sources
+    from explorer_shared.learning import act_backend, artifacts
+    sources={path.resolve() for path in _sources()}
+    assert Path(act_backend.__file__).resolve() in sources
+    assert Path(artifacts.__file__).resolve() in sources
+    assert Path(__file__).resolve().parents[1]/'src/explorer_sim/pilot.py' in sources
+    assert Path(__file__).resolve().parents[1]/'src/explorer_sim/dataset_export.py' in sources
+
+
 @pytest.mark.parametrize('config', [{'horizon': True}, {'act_steps': 0}, {'device': 'mps'},
                                      {'task': 'cookie_delivery'}, {'evaluation_episodes': -1}])
 def test_invalid_or_unqualified_student_config_is_rejected(config):
