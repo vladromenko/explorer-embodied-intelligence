@@ -1,0 +1,16 @@
+{
+  "status": "PASS_SOFTWARE_ONLY",
+  "source_revision": "e4f99f5",
+  "source_sha256": {
+    "shared/explorer_shared/nano_camera_cache.py": "57f07583d11ab50f1aeb74e6bccff560bda6f9129a29a83e5873fd7760157712",
+    "tests/fixtures/audited_rgbd_snapshot.py": "659974a9083101fdd6da8df9ca516f64123365b36daf283fea665a6eea43a963",
+    "scripts/run_nano_camera_cache.sh": "3feb2d7625208750f29d927190752bc6ce9469d09a607be9aa067652bbc2113f",
+    "scripts/explorer-nano-camera-cache.service": "24b2eb116a10fd12a0d4cba03a8fe6c72c4db0c36da22c0946bef16a3076a0ce"
+  },
+  "independently_executed_tests": 16,
+  "peer_reported_combined_tests": 19,
+  "hardware_activated": false,
+  "gpu_repair_claimed": false,
+  "physical_task_validated": false,
+  "scope": "Source and synthetic/cache software accounting; production activation and frame acceptance are separate integrator work."
+}

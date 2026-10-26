@@ -1290,6 +1290,55 @@
         }
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NANO-CPU-CAMERA-CACHE-001",
+      "function_or_module": "shared/explorer_shared/nano_camera_cache.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/nano_camera_cache.py",
+          "role": "Owner implementation of ROS sensor-data cache sink, inspected at integrated revision e4f99f5"
+        },
+        {
+          "url": "project-file:tests/fixtures/audited_rgbd_snapshot.py",
+          "role": "Byte-pinned legacy pure RGB-D pair/cache helper; SHA256 659974a9083101fdd6da8df9ca516f64123365b36daf283fea665a6eea43a963"
+        },
+        {
+          "url": "project-file:00-control-center/docs/NANO_CPU_CAMERA_CACHE_RU.md",
+          "role": "Ordered single-writer handoff, timestamp scope and activation limitations"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_OWNER_IMPLEMENTATION",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "OWNER_RECORDING_RIGHTS_RETAINED",
+      "changes_and_reason": "CPU-only subscriber to existing ROS color/depth/CameraInfo producer, writes original JPEG and registered RGB-D cache formats with native headers and content hashes. Byte-pinned pure helper, encoding/stride/endian and depth-unit checks, ordered single-writer guard. No TensorRT/GPU/controller imports or camera-driver ownership; cache restoration is not GPU repair or learned-task qualification.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false,
+        "physical_task_validated": false,
+        "hardware_cache_activation_tested": false
+      },
+      "test_evidence": [
+        {
+          "commit": "e4f99f5",
+          "command": "PYTHONPATH=shared python -m pytest tests/test_nano_camera_cache.py -q",
+          "result": "16 passed in 0.09 s; independently executed by research integration auditor on synthetic ROS-message fixtures",
+          "scope": "Encoding/units/stride, header/calibration and source-byte guards, stale/native-writer handoff checks; no ROS hardware stream activation"
+        },
+        {
+          "result": "19 pure/cache and transport tests passed, reported by implementation agent/integrator; transport subset not yet rerun in this research audit",
+          "scope": "Peer-reported software checks, not physical stream or GPU qualification"
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
