@@ -1,0 +1,219 @@
+{
+  "schema": "explorer_fault_repair_qualification_receipt_v1",
+  "run_id": "ace63708c2c949feb58ec7128616e173",
+  "host": "homebrain",
+  "result_path": "/home/jetsonnx/.local/share/explorer/state/qualification/controlled-fault-repair-20261026/jobs/ace63708c2c949feb58ec7128616e173/fault-repair-result.json",
+  "result_sha256": "c9ae2a138dfd705e340e458e6a6049bc1ded1c8fd983acd6d73aa0257235024e",
+  "implementation_sha256": "c254bce7b88056bdfd05353421d18b913561846383b4c428b1d8363c855c4c50",
+  "elapsed_s": 16.52782981600467,
+  "evaluation_domain": "actual_MuJoCo_CAD_simulation",
+  "physical_execution": false,
+  "full_fine_tuning_baseline_executed": false,
+  "hypotheses_status": "UNTESTED_HYPOTHESIS",
+  "independent_development_goal_seeds": [
+    10741,
+    10742
+  ],
+  "goal_seed_count": 2,
+  "matched_executions": 28,
+  "optimizer_steps": 0,
+  "source_and_raw_probe_artifact_hashes_in_result": true,
+  "cases": [
+    {
+      "scenario_id": "nominal",
+      "diagnostic_status": "DIAGNOSED",
+      "diagnosed_causes": [
+        "nominal_within_probe_resolution"
+      ],
+      "estimated_actuator_bias_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "estimated_delay_ticks": 0,
+      "unmodified": {
+        "mean_final_distance_m": 0.0038223494087770253,
+        "mean_success_latency_s": 2.36,
+        "n": 2,
+        "successes": 2,
+        "unknown_outcomes": 0
+      },
+      "targeted_repair": {
+        "mean_final_distance_m": 0.0038223494087770253,
+        "mean_success_latency_s": 2.36,
+        "n": 2,
+        "successes": 2,
+        "unknown_outcomes": 0
+      }
+    },
+    {
+      "scenario_id": "actuator_bias",
+      "diagnostic_status": "DIAGNOSED",
+      "diagnosed_causes": [
+        "actuator_bias"
+      ],
+      "estimated_actuator_bias_deg": [
+        7.000095424985631,
+        -5.0618531176578045,
+        3.985842934646925
+      ],
+      "estimated_delay_ticks": 0,
+      "unmodified": {
+        "mean_final_distance_m": 0.01597113012028665,
+        "mean_success_latency_s": 2.3600000000000003,
+        "n": 2,
+        "successes": 2,
+        "unknown_outcomes": 0
+      },
+      "targeted_repair": {
+        "mean_final_distance_m": 0.003829922971510087,
+        "mean_success_latency_s": 2.36,
+        "n": 2,
+        "successes": 2,
+        "unknown_outcomes": 0
+      }
+    },
+    {
+      "scenario_id": "actuator_delay",
+      "diagnostic_status": "DIAGNOSED",
+      "diagnosed_causes": [
+        "actuator_delay"
+      ],
+      "estimated_actuator_bias_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "estimated_delay_ticks": 3,
+      "unmodified": {
+        "mean_final_distance_m": 0.003822240504600119,
+        "mean_success_latency_s": 2.6,
+        "n": 2,
+        "successes": 2,
+        "unknown_outcomes": 0
+      },
+      "targeted_repair": {
+        "mean_final_distance_m": 0.0038223494087770513,
+        "mean_success_latency_s": 2.36,
+        "n": 2,
+        "successes": 2,
+        "unknown_outcomes": 0
+      }
+    },
+    {
+      "scenario_id": "camera_frame_bias",
+      "diagnostic_status": "DIAGNOSED",
+      "diagnosed_causes": [
+        "camera_frame_bias"
+      ],
+      "estimated_actuator_bias_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "estimated_delay_ticks": 0,
+      "unmodified": {
+        "mean_final_distance_m": 0.03971218965988038,
+        "mean_success_latency_s": 2.0,
+        "n": 2,
+        "successes": 0,
+        "unknown_outcomes": 0
+      },
+      "targeted_repair": {
+        "mean_final_distance_m": 0.0037176462203477355,
+        "mean_success_latency_s": 2.36,
+        "n": 2,
+        "successes": 2,
+        "unknown_outcomes": 0
+      }
+    },
+    {
+      "scenario_id": "sensor_noise_dropout",
+      "diagnostic_status": "DIAGNOSED",
+      "diagnosed_causes": [
+        "sensor_noise",
+        "sensor_dropout"
+      ],
+      "estimated_actuator_bias_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "estimated_delay_ticks": 0,
+      "unmodified": {
+        "mean_final_distance_m": 0.011638368752946632,
+        "mean_success_latency_s": 2.2800000000000002,
+        "n": 2,
+        "successes": 2,
+        "unknown_outcomes": 0
+      },
+      "targeted_repair": {
+        "mean_final_distance_m": 0.010043902367403434,
+        "mean_success_latency_s": 2.2800000000000002,
+        "n": 2,
+        "successes": 2,
+        "unknown_outcomes": 0
+      }
+    },
+    {
+      "scenario_id": "sensor_drift",
+      "diagnostic_status": "DIAGNOSED",
+      "diagnosed_causes": [
+        "sensor_drift"
+      ],
+      "estimated_actuator_bias_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "estimated_delay_ticks": 0,
+      "unmodified": {
+        "mean_final_distance_m": 0.0038223494087770253,
+        "mean_success_latency_s": 2.36,
+        "n": 2,
+        "successes": 2,
+        "unknown_outcomes": 0
+      },
+      "targeted_repair": {
+        "mean_final_distance_m": 0.0038224023818856792,
+        "mean_success_latency_s": 2.36,
+        "n": 2,
+        "successes": 2,
+        "unknown_outcomes": 0
+      }
+    },
+    {
+      "scenario_id": "confounded_without_joint_feedback",
+      "diagnostic_status": "AMBIGUOUS",
+      "diagnosed_causes": [],
+      "estimated_actuator_bias_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "estimated_delay_ticks": 0,
+      "unmodified": {
+        "mean_final_distance_m": 0.03971218965988038,
+        "mean_success_latency_s": 2.0,
+        "n": 2,
+        "successes": 0,
+        "unknown_outcomes": 0
+      },
+      "targeted_repair": {
+        "mean_final_distance_m": 0.03971218965988038,
+        "mean_success_latency_s": 2.0,
+        "n": 2,
+        "successes": 0,
+        "unknown_outcomes": 0
+      }
+    }
+  ],
+  "success_predicate": "final_3_consecutive_control_steps_within_0.025m",
+  "limitations": [
+    "Development seeds reused across matched conditions; no sealed test or science claim",
+    "Cartesian pose-coordinate sensor perturbations, not RGB detection or full camera calibration",
+    "Explicit simulated joint encoders, not evidence of ROSMASTER measured joint feedback",
+    "Fixed-base reach only; friction/contact causes cannot be identified without object contact",
+    "No learned policy/fine-tuning comparison; H4 remains untested"
+  ]
+}
