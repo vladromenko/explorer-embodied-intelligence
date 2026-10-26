@@ -203,7 +203,10 @@ def _tensor_profile(receipt,graph_version,proof=None):
     keys={'device','precision','state_dimension','action_dimension','image_size','batch_size','chunk_size'}
     if graph_version>=4:
         expected=dict(ACT9_TENSOR_PROFILE,cuda_execution_profile=ACT9_CUDA_DETERMINISTIC_PROFILE,runtime_constraints=dict(ACT9_RUNTIME_CONSTRAINTS))
-        if profile!=expected or receipt.get('runtime_constraints_verified_before_CUDA_startup') is not True:
+        constraints=profile.get('runtime_constraints') if isinstance(profile,dict) else None
+        typed_constraints=(isinstance(constraints,dict) and set(constraints)==set(ACT9_RUNTIME_CONSTRAINTS)
+            and all(type(constraints[key]) is type(value) and constraints[key]==value for key,value in ACT9_RUNTIME_CONSTRAINTS.items()))
+        if profile!=expected or not typed_constraints or receipt.get('runtime_constraints_verified_before_CUDA_startup') is not True:
             raise ValueError('Current GPU graph requires the explicit measured deterministic native9 profile and startup constraints')
         keys|={'cuda_execution_profile','runtime_constraints'}
     if (not isinstance(profile,dict) or set(profile)!=keys or profile.get('device')!='cuda' or profile.get('precision')!='float32'

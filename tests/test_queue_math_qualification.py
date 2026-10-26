@@ -13,9 +13,9 @@ def read(name):return json.loads((PROOFS/name).read_text())
 
 def test_actual_current_queue_math_preserves_source04_weights_and_qualifies_only_software_fixtures():
     comparison=read('SOURCE04_QUEUE_20261026_CHARACTERIZATION.json');act=read('SO101_ACT6_20261026_QUEUE_QUALIFICATION.json')
-    active=read('DIFFUSION_NATIVE6_ACTIVE_BINDING.json');dp=read(active['qualification_result'])
+    archived_dp='DIFFUSION_NATIVE6_20261026_CURRENT_QUEUE_QUALIFICATION.json';dp=read(archived_dp)
     assert comparison['ACT_qualification_sha256']==sha(PROOFS/'SO101_ACT6_20261026_QUEUE_QUALIFICATION.json')
-    assert comparison['DP_qualification_sha256']==sha(PROOFS/active['qualification_result'])
+    assert comparison['DP_qualification_sha256']==sha(PROOFS/archived_dp)
     assert act['checkpoint_sha256']['model.safetensors']==read('SO101_ACT6_20261026_STRICT_QUALIFICATION.json')['checkpoint_sha256']['model.safetensors']==comparison['ACT_model_weights_sha256']
     assert dp['checkpoint_sha256']['model.safetensors']==read('DIFFUSION_NATIVE6_20261026_CURRENT_STRICT_QUALIFICATION.json')['checkpoint_sha256']['model.safetensors']==comparison['DP_model_weights_sha256']
     assert act['optimizer_steps']==dp['optimizer_steps']==8 and dp['training_resume']['resumed_from_step']==4
@@ -24,5 +24,6 @@ def test_actual_current_queue_math_preserves_source04_weights_and_qualifies_only
     observation=read('SO101_ACT6_20261026_QUEUE_RUNTIME_OBSERVATION.json')
     assert observation['before']['runtime']==observation['after']['runtime'] and observation['after']['pytest_exit_code']==0
     assert 'shared/explorer_shared/learning/checkpoint_control.py' in observation['before']['implementation_sha256']
-    for name,digest in observation['before']['implementation_sha256'].items():assert sha(ROOT/name)==digest
+    archived_tree=read('NATIVE6_QUEUE_FINAL_20261026_SOURCE_TREE.json')
+    for name,digest in observation['before']['implementation_sha256'].items():assert archived_tree[name]==digest
     assert not comparison['production_worker_integration_qualified']

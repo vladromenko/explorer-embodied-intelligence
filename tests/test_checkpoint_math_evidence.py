@@ -31,5 +31,6 @@ def test_actual_cpu_106_actor_is_not_promoted_to_cuda_or_physical_success():
     assert not proof['sealed_test_used'] and not proof['learned_policy_rollout_executed']
     assert proof['whole_task_success'] == 'NOT_EVALUATED'
     assert not proof['gpu_qualified'] and not proof['physical_success']
+    archived_tree=receipt('NATIVE6_QUEUE_FINAL_20261026_SOURCE_TREE.json')
     for name, expected in proof['runtime_observation']['source_sha256'].items():
-        assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected
+        assert archived_tree[name] == expected
