@@ -220,6 +220,33 @@ def test_default_admission_does_not_accept_self_attested_current_model(tmp_path)
     assert value['blockers'][0]['code']=='A_SOURCE_MODEL_OR_ADMISSION_NOT_VERIFIED'
 
 
+@pytest.mark.parametrize('mutation',['backward_state','changed_reused_state','backward_frame','same_measured_state'])
+def test_source_probe_rejects_backward_camera_or_measured_history_before_actor(tmp_path,mutation):
+    store,job,admission,*_=fixture(tmp_path,'diffusion')
+    binding=source.prepare_source_probe(store,job['id'],'dev-view',admission_verifier=admission)
+    calls=[]
+    class Fake:
+        def predict_history(self,*args,**kwargs):calls.append(True);return np.tile([0.,0.,0.,0.,0.,50.],(4,1))
+    probe=source.SourcePolicyProbe(binding,camera_id='SOFTWARE-camera',loader=lambda *args:Fake())
+    images=np.zeros((2,2,2,3),np.uint8);states=np.zeros((2,6));masks=np.ones((2,6),bool)
+    def observation(frame,frame_tick,state_tick,cutoff):
+        return dict(camera_id='SOFTWARE-camera',frame_id=frame,frame_sha256=sha(b'raw-'+frame.encode()),decoded_rgb_sha256=sha(images[0].tobytes()),width=2,height=2,
+            follower_calibration_sha256=binding['source_calibration_sha256'],state_basis='measured_state',
+            frame_clock_domain='source',state_clock_domain='source',source_cutoff_clock_domain='source',frame_boot_id='boot',state_boot_id='boot',source_cutoff_boot_id='boot',
+            frame_monotonic_ns=frame_tick,state_monotonic_ns=state_tick,source_cutoff_monotonic_ns=cutoff,source_cutoff_basis='native_observation_packet_created')
+    first=observation('frame-one',200,1000,1100);second=observation('frame-two',300,1200,1300)
+    if mutation=='backward_state':second['state_monotonic_ns']=500
+    elif mutation=='changed_reused_state':second['state_monotonic_ns']=1000;states[1,0]=1.
+    elif mutation=='backward_frame':second['frame_monotonic_ns']=100
+    else:second['state_monotonic_ns']=1000
+    if mutation=='same_measured_state':
+        result=probe.predict_history(images,states,valid_mask=masks,observations=[first,second]);assert len(result['predicted_native6'])==4 and calls==[True]
+    else:
+        with pytest.raises(ValueError,match='[Cc]hronological'):
+            probe.predict_history(images,states,valid_mask=masks,observations=[first,second])
+        assert calls==[]
+
+
 def rebind_structural_evaluation(store,evaluation,path,receipt,trace):
     """Explicit TEMP SQL corruption; production terminal jobs remain immutable."""
     raw=canonical(receipt);(path.parent/'evaluation-receipt.json').write_bytes(raw)

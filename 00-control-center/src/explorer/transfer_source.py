@@ -386,9 +386,12 @@ class SourcePolicyProbe:
                 calibration_sha256=self.binding['source_calibration_sha256'],low=np.asarray(LOW),high=np.asarray(HIGH))
             epoch=(observation['frame_clock_domain'],observation['frame_boot_id'])
             tick=observation['source_cutoff_monotonic_ns']
-            if previous and (epoch!=previous[0] or tick<=previous[1] or observation['frame_id']==previous[2]):
+            frame_tick=observation['frame_monotonic_ns'];state_tick=observation['state_monotonic_ns']
+            if previous and (epoch!=previous[0] or tick<=previous[1] or observation['frame_id']==previous[2] or frame_tick<=previous[3]):
                 raise ValueError('Distinct chronological source history in one clock/boot required')
-            previous=(epoch,tick,observation['frame_id'])
+            if previous and (state_tick<previous[4] or state_tick==previous[4] and not np.array_equal(state,previous[5])):
+                raise ValueError('Chronological measured source state required; reused timestamp must retain the same actual values')
+            previous=(epoch,tick,observation['frame_id'],frame_tick,state_tick,state.copy())
         if self.binding['backend']=='act':
             predicted=self.policy.predict_history(images,states,valid_mask=masks,observations=observations)
         else:predicted=self.policy.predict_history(images,states,valid_mask=masks)
