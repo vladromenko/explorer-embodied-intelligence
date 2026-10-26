@@ -9,6 +9,7 @@
     }
     context(epoch) {
       if (epoch !== this.epoch || !this.options.ready()) throw new Error("Управление прервано. Нужны свежая камера и новое явное подключение.");
+      if (this.options.ownershipCurrent && !this.options.ownershipCurrent(this.ownershipToken)) throw new Error("Выбран другой источник управления.");
     }
     packet(observing = true) {
       const keys = this.options.filterKeys ? this.options.filterKeys([...this.keys]) : [...this.keys];
@@ -51,11 +52,12 @@
     changed() { if (this.options.changed) this.options.changed(); }
     async start() {
       if (this.busy || this.starting || this.stopping) throw new Error("Предыдущее управление ещё завершается.");
-      if (this.stopUnconfirmed) { await this.stop(true); if (this.stopUnconfirmed) throw new Error(this.error); }
-      if (this.options.beforeConnect) await this.options.beforeConnect();
-      if (this.busy || this.starting || this.stopping) throw new Error("Предыдущее управление ещё завершается.");
+      this.ownershipToken = this.options.claim ? this.options.claim() : null;
       this.starting = true; this.busy = true; const epoch = ++this.epoch;
       try {
+        if (this.stopUnconfirmed) { await this.cleanup(true); if (this.stopUnconfirmed) throw new Error(this.error); }
+        if (this.options.beforeConnect) await this.options.beforeConnect(this.ownershipToken);
+        this.context(epoch);
         if (this.options.prepare) await this.options.prepare();
         this.context(epoch);
         if (this.heldKeys.size) throw new Error("Перед подключением отпустите клавиши движения.");

@@ -111,7 +111,10 @@
       if (requireNeutral && !(ignoreStart ? neutralExceptStart(frame) : frame.neutral)) throw new Error("Перед включением отпустите все стики и кнопки движения.");
       return frame;
     }
-    current(epoch) { if (epoch !== this.epoch) throw new Error("Запрос завершён: требуется новое явное подключение."); }
+    current(epoch) {
+      if (epoch !== this.epoch) throw new Error("Запрос завершён: требуется новое явное подключение.");
+      if (this.options.ownershipCurrent && !this.options.ownershipCurrent(this.ownershipToken)) throw new Error("Выбран другой источник управления.");
+    }
     packet(keys = [], observing = true) {
       let transmitted = [...keys];
       if (keys.length && typeof this.options.filterKeys === "function") {
@@ -134,13 +137,14 @@
       }
       if (fromStart && (this.state !== "paused" || !this.canResumeFromStart)) return;
       const first = this.context(true, fromStart);
+      this.ownershipToken = this.options.claim ? this.options.claim() : null;
       const epoch = ++this.epoch;
       this.state = "connecting"; this.preview = false; this.busy = true; this.pending = []; this.notify();
       try {
         const controls = await this.options.controls();
         this.current(epoch); this.context(true, fromStart);
         if (!qualifiedControls(controls)) throw new Error("Именованная штатная раскладка explorer-manual-v2 не подтверждена или изменилась.");
-        if (this.options.beforeConnect) await this.options.beforeConnect();
+        if (this.options.beforeConnect) await this.options.beforeConnect(this.ownershipToken);
         this.current(epoch); this.context(true, fromStart);
         const native = this.options.nativeState ? this.options.nativeState() : {};
         this.mode = ["cartesian", "joint"].includes(native.arm_mode) ? native.arm_mode : controls.default_arm_mode || "cartesian";

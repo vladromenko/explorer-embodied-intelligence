@@ -99,7 +99,12 @@ function csrfToken() {
 async function api(path, options = {}) {
   const headers = { Accept: "application/json", ...(options.headers || {}) };
   if (options.method && options.method !== "GET") { headers["Content-Type"] = "application/json"; headers["X-Explorer-CSRF"] = csrfToken(); }
-  const response = await fetch(path, { credentials: "same-origin", ...options, headers });
+  const boundedControl = path.startsWith("/api/robot/teleop") || path === "/api/robot/teaching/mobile" || options.method === "POST" && ["/api/station/", "/api/retarget/stop", "/api/stop"].some(prefix => path.startsWith(prefix));
+  const abort = boundedControl && !options.signal && typeof AbortController !== "undefined" ? new AbortController() : null;
+  const timeout = abort ? setTimeout(() => abort.abort(), 6500) : null;
+  let response;
+  try { response = await fetch(path, { credentials: "same-origin", ...options, ...(abort ? {signal: abort.signal} : {}), headers }); }
+  finally { if (timeout !== null) clearTimeout(timeout); }
   if (response.status === 401) { window.location.assign(`/api/login?next=${encodeURIComponent(window.location.pathname)}`); throw new Error("Требуется вход в станцию."); }
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
@@ -256,14 +261,27 @@ const manualPreview = createManualCameraPreview({
     const status = document.querySelector("#manual-camera-status"); if (status) status.textContent = "Свежий кадр пока не получен";
   }
 });
-const waitManualIdle = async controller => { while (controller.busy || controller.starting || controller.stopping) await new Promise(resolve => setTimeout(resolve, 10)); };
+let manualInputOwner = null;
+let manualInputFreezeCount = 0;
+const claimManualInput = owner => {
+  if (manualInputFreezeCount) throw new Error("Завершается STOP или выход из панели.");
+  manualInputOwner = { owner }; return manualInputOwner;
+};
+const ownsManualInput = token => !manualInputFreezeCount && token === manualInputOwner;
+const waitManualIdle = async (controller, token) => {
+  const check = () => { if (!ownsManualInput(token)) throw new Error("Выбран другой источник управления."); };
+  check();
+  while (controller.busy || controller.starting || controller.stopping) { check(); await new Promise(resolve => setTimeout(resolve, 10)); }
+  check();
+};
 const browserGamepad = ExplorerBrowserGamepad.install({
   window, document, secure: window.isSecureContext,
   getGamepads: typeof navigator.getGamepads === "function" ? () => navigator.getGamepads() : undefined,
   visible: () => !document.hidden, focused: () => document.hasFocus(), routeActive: () => activeProject()?.id === "02" && !dialog.open,
   cameraReady: rosmasterCameraReady, now: () => performance.now(), post,
   controls: async () => { await loadRobot(); return model.robot.controls; }, nativeState: () => model.robot.teleop || {},
-  beforeConnect: async () => { await stopKeyboard(true); await waitManualIdle(keyboard); if (keyboard.stopUnconfirmed) throw new Error("STOP клавиатуры не подтверждён."); },
+  claim: () => claimManualInput("gamepad"), ownershipCurrent: ownsManualInput,
+  beforeConnect: async token => { await stopKeyboard(true); await waitManualIdle(keyboard, token); if (keyboard.stopUnconfirmed) throw new Error("STOP клавиатуры не подтверждён."); },
   filterKeys: filterManualKeysForCurrentOwnerConstraints,
   chassisProhibited: () => true,
   render: () => { model.forceRender = true; render(); }, error: message => toast(message, true)
@@ -271,7 +289,8 @@ const browserGamepad = ExplorerBrowserGamepad.install({
 keyboard.options = {
   post, filterKeys: filterManualKeysForCurrentOwnerConstraints,
   ready: () => rosmasterCameraReady() && document.hasFocus() && !dialog.open,
-  beforeConnect: async () => { await browserGamepad.disconnect("Выбрана клавиатура."); await waitManualIdle(browserGamepad); if (browserGamepad.stopUnconfirmed) throw new Error("STOP геймпада не подтверждён."); },
+  claim: () => claimManualInput("keyboard"), ownershipCurrent: ownsManualInput,
+  beforeConnect: async token => { await browserGamepad.disconnect("Выбрана клавиатура."); await waitManualIdle(browserGamepad, token); if (browserGamepad.stopUnconfirmed) throw new Error("STOP геймпада не подтверждён."); },
   prepare: async () => {
     if (!await manualPreview.ensureFresh()) throw new Error("Дождитесь свежих кадров ROSMASTER.");
     if (!model.robot.controls) await loadRobot();
@@ -799,17 +818,33 @@ document.addEventListener("submit", async (event) => {
 });
 document.querySelector("#stop-button").addEventListener("click", async () => {
   const button = document.querySelector("#stop-button"); button.disabled = true;
+  manualInputFreezeCount += 1;
   void stopKeyboard(true);
   void browserGamepad.disconnect("Общий STOP.");
   // Dispatch both STOP paths immediately, even if one node is unreachable.
   void stopStation(true);
   try { const result = await post("/api/stop"); toast(result.robot_error ? `Задачи остановлены. Запрос STOP роботу не подтверждён: ${result.robot_error}` : "Запрос STOP передан штатному управлению робота. Задачи Explorer останавливаются.", Boolean(result.robot_error)); await refresh(true); }
   catch (error) { toast(error.message, true); }
-  finally { button.disabled = false; }
+  finally { manualInputFreezeCount -= 1; button.disabled = false; }
 });
 document.querySelector("#logout-button").addEventListener("click", async () => {
-  try { await post("/api/logout"); window.location.assign("/api/login"); }
+  manualInputFreezeCount += 1;
+  try {
+    await Promise.allSettled([
+      stopKeyboard(true), browserGamepad.disconnect("Выход из панели."),
+      stationLab.owned || stationLab.present || stationLab.pendingControl ? stopStation(true) : Promise.resolve(),
+      direct03.held || direct03.busy ? direct03Stop(true) : Promise.resolve()
+    ]);
+    const drainUntil = performance.now() + 15000;
+    while (keyboard.busy || keyboard.starting || keyboard.stopping || browserGamepad.busy || browserGamepad.stopping) {
+      if (performance.now() > drainUntil) throw new Error("Завершение управления ещё ожидается. Вход сохранён.");
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+    if (keyboard.stopUnconfirmed || browserGamepad.stopUnconfirmed) throw new Error("STOP не подтверждён. Вход сохранён, повторите STOP перед выходом.");
+    await post("/api/logout"); window.location.assign("/api/login");
+  }
   catch (error) { toast(error.message, true); }
+  finally { manualInputFreezeCount -= 1; }
 });
 window.addEventListener("popstate", () => { if ((keyboard.active || keyboard.starting) && path() !== "/experiments/02") stopKeyboard(true); model.forceRender = true; render(); });
 window.addEventListener("blur", () => { if (keyboard.active || keyboard.starting) stopKeyboard(true); });
