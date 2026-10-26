@@ -17,6 +17,8 @@ import sys
 
 SCHEMA = 'explorer_experiment_projection_v1'
 MIGRATION_TABLE = 'experiment_numbering_migrations'
+RUNTIME_TABLE='experiment_runtime_identity'
+RUNTIME_SQL='CREATE TABLE IF NOT EXISTS experiment_runtime_identity (entity_kind TEXT NOT NULL,entity_id TEXT NOT NULL,numbering_version INTEGER NOT NULL,experiment_slug TEXT NOT NULL,PRIMARY KEY(entity_kind,entity_id))'
 TERMINAL = frozenset(('completed', 'failed', 'cancelled', 'canceled', 'rejected'))
 
 
@@ -36,6 +38,44 @@ def _mapping(value, version):
     from explorer_shared.experiments import canonical_experiment, experiment_slug
     canonical = canonical_experiment(value, numbering_version=version)
     return canonical, experiment_slug(canonical, numbering_version=2)
+
+
+def _epoch(value):
+    if type(value) is not int or value not in (1,2):raise MigrationError('Explicit experiment numbering epoch must be1 or2')
+    return value
+
+
+def _resolve_identity(original,fallback,*,document=None,runtime=None):
+    """Explicit source/runtime identity wins; global epoch is historical fallback."""
+    from explorer_shared.experiments import experiment_id
+    document=document or {};declared=document.get('experiment_numbering_version');slug=document.get('experiment_slug')
+    explicit='experiment_numbering_version' in document
+    version=_epoch(declared) if explicit else None
+    if runtime:
+        trusted=_epoch(runtime['numbering_version']);runtime_slug=runtime['experiment_slug']
+        if version is not None and version!=trusted:raise MigrationError('Explicit source and trusted runtime numbering epochs conflict')
+        version=trusted if version is None else version
+        if slug is not None and slug!=runtime_slug:raise MigrationError('Source/runtime semantic experiment slugs conflict')
+        slug=runtime_slug
+    if version is None and slug is not None:
+        canonical=experiment_id(slug)
+        matches=[candidate for candidate in (1,2) if _mapping(original,candidate)[0]==canonical]
+        if not matches:raise MigrationError('Semantic experiment slug conflicts with original project identity')
+        version=fallback if fallback in matches else matches[0]
+    version=_epoch(fallback if version is None else version)
+    canonical,derived_slug=_mapping(original,version)
+    if slug is not None and slug!=derived_slug:raise MigrationError('Declared semantic experiment identity conflicts with numbering epoch')
+    return dict(original_project_id=original,original_numbering_version=version,canonical_project_id=canonical,experiment_slug=derived_slug,
+        epoch_basis='explicit_source_epoch' if explicit else 'trusted_runtime_identity' if runtime else 'source_semantic_slug' if slug else 'historical_unmarked_fallback')
+
+
+def _runtime_identities(db):
+    rows=_rows(db,RUNTIME_TABLE);result={}
+    for row in rows:
+        key=(row['entity_kind'],row['entity_id'])
+        if key in result:raise MigrationError('Duplicate trusted runtime identity')
+        result[key]=row
+    return result
 
 
 def _readonly(path):
@@ -102,41 +142,47 @@ def _specs(document):
 
 
 def _registry_plan(db, version):
-    jobs = _rows(db, 'jobs'); events = _rows(db, 'events'); skills = _rows(db, 'skills')
-    entries, updates = [], []
-    jobs_by_id = {row['id']: row for row in jobs}
+    jobs=_rows(db,'jobs');events=_rows(db,'events');skills=_rows(db,'skills');runtime=_runtime_identities(db)
+    entries,updates=[],[];jobs_by_id={row['id']:row for row in jobs};job_identities={}
     for row in jobs:
-        original = row['project_id']; canonical, unused = _mapping(original, version)
-        if canonical != original:
-            active = row['status'].lower() not in TERMINAL
-            entries.append(_entry('job', row['id'], encoded(row), original, version,
-                basis='registry_project_id', deferred_active_pin=active,
-                original_status=row['status'], original_execution_commit=json.loads(row['config']).get('_execution_commit')))
-            if not active:
-                updates.append(dict(id=row['id'], original_project_id=original, canonical_project_id=canonical))
+        config=json.loads(row['config']);original=row['project_id']
+        info=_resolve_identity(original,version,document=config,runtime=runtime.get(('job',row['id'])));job_identities[row['id']]=info
+        if info['canonical_project_id']!=original:
+            active=row['status'].lower() not in TERMINAL
+            entries.append(_entry('job',row['id'],encoded(row),original,info['original_numbering_version'],
+                basis='registry_project_id',epoch_basis=info['epoch_basis'],deferred_active_pin=active,
+                original_status=row['status'],original_execution_commit=config.get('_execution_commit')))
+            if not active:updates.append(dict(id=row['id'],original_project_id=original,canonical_project_id=info['canonical_project_id']))
     for row in events:
-        document = json.loads(row['body']); original = document.get('project_id')
+        document=json.loads(row['body']);original=document.get('project_id')
         if original is not None:
-            canonical, unused = _mapping(original, version)
-            if canonical != original:
-                if document.get('sha256') != row['sha256'] or sha(encoded(document.get('payload'))) != row['sha256']:
-                    raise MigrationError('Original event payload SHA mismatch: ' + row['event_id'])
-                entries.append(_entry('event', row['event_id'], row['body'].encode(), original, version,
-                    basis='immutable_event_envelope', original_event_id=document.get('event_id'),
-                    original_payload_sha256=row['sha256'], original_specs=_specs(document)))
+            info=_resolve_identity(original,version,document=document,runtime=runtime.get(('event',row['event_id'])))
+            if info['canonical_project_id']!=original:
+                if document.get('sha256')!=row['sha256'] or sha(encoded(document.get('payload')))!=row['sha256']:raise MigrationError('Original event payload SHA mismatch: '+row['event_id'])
+                entries.append(_entry('event',row['event_id'],row['body'].encode(),original,info['original_numbering_version'],
+                    basis='immutable_event_envelope',epoch_basis=info['epoch_basis'],original_event_id=document.get('event_id'),
+                    original_payload_sha256=row['sha256'],original_specs=_specs(document)))
     for row in skills:
-        card = json.loads(row['body']); owner = card.get('project_id')
-        source_job = card.get('lineage', {}).get('job_id')
-        if owner is None and source_job in jobs_by_id:
-            owner = jobs_by_id[source_job]['project_id']; basis = 'immutable_card_lineage_job_id'
-        else:
-            basis = 'explicit_card_project_id'
+        card=json.loads(row['body']);owner=card.get('project_id',card.get('owner_experiment'));source_job=card.get('lineage',{}).get('job_id');known=runtime.get(('skill',row['id']))
         if owner is not None:
-            canonical, unused = _mapping(owner, version)
-            if canonical != owner:
-                entries.append(_entry('skill', row['id'], row['body'].encode(), owner, version,
-                    basis=basis, lineage_job_id=source_job, original_spec=card, original_spec_sha256=sha(encoded(card))))
-    return entries, updates
+            info=_resolve_identity(owner,version,document=card,runtime=known);basis='explicit_card_project_id'
+        elif source_job in job_identities:
+            # A new card can refer to an old job. Its creation epoch must not be
+            # applied to the parent's retained numeric project ID.
+            info=dict(job_identities[source_job]);owner=info['original_project_id'];basis='immutable_card_lineage_job_id'
+            declared_slug=card.get('experiment_slug') or (known or {}).get('experiment_slug')
+            if declared_slug is not None and declared_slug!=info['experiment_slug']:raise MigrationError('Card semantic owner conflicts with immutable parent job lineage')
+            if 'experiment_numbering_version' in card:_epoch(card['experiment_numbering_version'])
+        elif known:
+            # No numeric owner exists in the card; its retained runtime sidecar
+            # already supplies canonical identity. Do not invent an original ID.
+            _resolve_identity(known['experiment_slug'],version,document=card,runtime=known);info=None
+        else:info=None
+        if info and info['canonical_project_id']!=owner:
+            entries.append(_entry('skill',row['id'],row['body'].encode(),owner,info['original_numbering_version'],basis=basis,epoch_basis=info['epoch_basis'],
+                lineage_job_id=source_job,original_spec=card,original_spec_sha256=sha(encoded(card)),
+                card_declared_numbering_version=card.get('experiment_numbering_version'),card_runtime_numbering_version=(known or {}).get('numbering_version')))
+    return entries,updates
 
 
 def _outbox_plan(path, version, identity):
@@ -146,12 +192,12 @@ def _outbox_plan(path, version, identity):
     for row in rows:
         document = json.loads(row['payload']); original = document.get('project_id')
         if original is not None:
-            canonical, unused = _mapping(original, version)
-            if canonical != original:
+            info=_resolve_identity(original,version,document=document)
+            if info['canonical_project_id']!=original:
                 if document.get('sha256') is not None and sha(encoded(document.get('payload'))) != document['sha256']:
                     raise MigrationError('Original outbox payload SHA mismatch: ' + row['event_id'])
-                entries.append(_entry('outbox_event', identity + ':' + row['event_id'], row['payload'].encode(), original, version,
-                    basis='immutable_outbox_envelope', original_event_id=row['event_id'], delivered=row['delivered'],
+                entries.append(_entry('outbox_event', identity + ':' + row['event_id'], row['payload'].encode(), original, info['original_numbering_version'],
+                    basis='immutable_outbox_envelope',epoch_basis=info['epoch_basis'], original_event_id=row['event_id'], delivered=row['delivered'],
                     outbox_identity=identity, original_specs=_specs(document)))
     return dict(identity=identity, source_path=str(Path(path).resolve()), database=state, entries=entries,
                 total_rows=len(rows), pending_rows=sum(row['delivered'] == 0 for row in rows))
@@ -163,6 +209,25 @@ def _json_pointer(document, pointer):
         key = part.replace('~1', '/').replace('~0', '~')
         value = value[int(key)] if isinstance(value, list) else value[key]
     return value
+
+
+def _artifact_identity(document,pointer,original,fallback):
+    # Walk the exact JSON-pointer path, retaining every declaring ancestor.
+    current=document;ancestors=[current] if isinstance(current,dict) else []
+    parts=pointer.split('/')[1:]
+    for part in parts[:-1]:
+        key=part.replace('~1','/').replace('~0','~')
+        current=current[int(key)] if isinstance(current,list) else current[key]
+        if isinstance(current,dict):ancestors.append(current)
+    declaring=next((item for item in reversed(ancestors) if 'experiment_numbering_version' in item),None)
+    context={}
+    if declaring is not None:context['experiment_numbering_version']=declaring['experiment_numbering_version']
+    # An ancestor's owner slug does not describe a source_project_id reference.
+    # Use a semantic slug only when the pointer selects that same owner's field.
+    key=parts[-1].replace('~1','/').replace('~0','~') if parts else None
+    if key in ('project_id','experiment_id','owner_experiment') and isinstance(current,dict) and current.get(key)==original and current.get('experiment_slug'):
+        context['experiment_slug']=current['experiment_slug']
+    return _resolve_identity(original,fallback,document=context)
 
 
 def _artifact_plan(audit_path, state, version):
@@ -188,13 +253,15 @@ def _artifact_plan(audit_path, state, version):
                     raise MigrationError('Inventory pointer changed')
                 original = reference['value']
                 if original in ('04', '06', 'personal'):
-                    entries.append(_entry('artifact_reference', relative + '#' + reference['pointer'], raw, original, version,
-                        basis='verified_inventory_json_pointer', path=relative, pointer=reference['pointer'], original_reference=original,
+                    info=_artifact_identity(document,reference['pointer'],original,version)
+                    entries.append(_entry('artifact_reference', relative + '#' + reference['pointer'], raw, original, info['original_numbering_version'],
+                        basis='verified_inventory_json_pointer',epoch_basis=info['epoch_basis'], path=relative, pointer=reference['pointer'], original_reference=original,
                         immutable_payload_rewritten=False))
                 else:
                     unresolved.append(dict(path=relative, pointer=reference['pointer'], value=original, reason='NON_PROJECT_REFERENCE_RETAINED_NO_TEXT_REPLACEMENT'))
         except (OSError, ValueError, KeyError, IndexError, TypeError) as error:
-            unresolved.append(dict(path=relative, reason='INVENTORY_SOURCE_CHANGED_OR_MISSING', error_type=type(error).__name__))
+            reason='ARTIFACT_NUMBERING_DECLARATION_INVALID' if isinstance(error,MigrationError) and 'Inventory bytes changed' not in str(error) and 'Inventory pointer changed' not in str(error) else 'INVENTORY_SOURCE_CHANGED_OR_MISSING'
+            unresolved.append(dict(path=relative,reason=reason,error_type=type(error).__name__))
     return entries, dict(available=True, audit_sha256=sha(audit_raw), original_summary=audit.get('summary'), original_scan=audit.get('scan'),
                         verified_projection_references=len(entries), unresolved=unresolved, artifact_payloads_rewritten=False)
 
@@ -202,6 +269,7 @@ def _artifact_plan(audit_path, state, version):
 def dry_run(state, *, source_numbering_version=1, outboxes=(), lineage_inventory=None):
     state = Path(state).resolve(strict=True)
     with closing(_readonly(state / 'research.sqlite3')) as db:
+        added_tables=[] if RUNTIME_TABLE in _tables(db) else [RUNTIME_TABLE]
         database = database_state(db); marker = _completed_migration(db)
         if marker:
             return dict(schema=SCHEMA, no_op=True, existing_migration=marker, database=database, live_state_modified=False)
@@ -213,7 +281,7 @@ def dry_run(state, *, source_numbering_version=1, outboxes=(), lineage_inventory
     entries.extend(artifacts); entries.sort(key=lambda row: (row['entity_kind'], row['entity_id']))
     kinds = sorted({row['entity_kind'] for row in entries})
     core = dict(schema=SCHEMA, source_numbering_version=source_numbering_version, target_numbering_version=2,
-                source_state=str(state), source_database=database, entries=entries, job_updates=updates,
+                source_state=str(state), source_database=database,candidate_added_tables=added_tables, entries=entries, job_updates=updates,
                 outboxes=outbox_reports, artifact_inventory=inventory)
     migration_id = 'experiment-numbers-' + sha(encoded(core))[:24]
     return dict(core, migration_id=migration_id, entries_sha256=sha(encoded(entries)),
@@ -271,7 +339,7 @@ def prepare(state, destination, *, source_numbering_version=1, outboxes=(), line
     # Plan from the consistent COPY, with original artifacts resolved through the
     # explicit live root. The source is never opened writable.
     with closing(_readonly(original)) as db:
-        entries, updates = _registry_plan(db, source_numbering_version); database = database_state(db)
+        entries, updates = _registry_plan(db, source_numbering_version); database = database_state(db);added_tables=[] if RUNTIME_TABLE in _tables(db) else [RUNTIME_TABLE]
     reports=[]
     for index,path in enumerate(outboxes):
         identity='outbox-'+str(index); snapshot=destination/'original'/'outboxes'/(identity+'.sqlite3')
@@ -280,14 +348,16 @@ def prepare(state, destination, *, source_numbering_version=1, outboxes=(), line
     artifact_entries, inventory = _artifact_plan(lineage_inventory, state, source_numbering_version);entries.extend(artifact_entries)
     entries.sort(key=lambda row:(row['entity_kind'],row['entity_id']))
     core=dict(schema=SCHEMA,source_numbering_version=source_numbering_version,target_numbering_version=2,
-              source_state=str(state),source_database=database,entries=entries,job_updates=updates,outboxes=reports,artifact_inventory=inventory)
+              source_state=str(state),source_database=database,candidate_added_tables=added_tables,entries=entries,job_updates=updates,outboxes=reports,artifact_inventory=inventory)
     migration_id='experiment-numbers-'+sha(encoded(core))[:24]
     index=dict(core,migration_id=migration_id,entries_sha256=sha(encoded(entries)),live_state_modified=False,
                raw_scientific_artifacts_modified=False,cross_database_atomic_snapshot=False)
     index_raw=encoded(index);_write(destination/'experiment-projection.json',index_raw)
     _snapshot(original,candidate)
+    _write(destination/'candidate'/'experiment-projection.json',index_raw)
     with closing(sqlite3.connect(candidate)) as db:
         db.execute('BEGIN IMMEDIATE')
+        if added_tables:db.execute(RUNTIME_SQL)
         # A temporary namespace also works with uniqueness constraints and never
         # overwrites old04/06 rows. Config/result/source pins are untouched.
         for update in updates:
@@ -317,6 +387,7 @@ def verify(destination):
         path=(destination/file['path']).resolve()
         if destination not in path.parents or sha(path.read_bytes())!=file['sha256']:raise MigrationError('Preparation file SHA mismatch: '+file['path'])
     index_raw=(destination/'experiment-projection.json').read_bytes();index=json.loads(index_raw)
+    if (destination/'candidate'/'experiment-projection.json').read_bytes()!=index_raw:raise MigrationError('Candidate boot index differs from its bound preparation index')
     if index['schema']!=SCHEMA or sha(encoded(index['entries']))!=index['entries_sha256']:raise MigrationError('Projection index SHA mismatch')
     for entry in index['entries']:
         core={key:value for key,value in entry.items() if key!='projection_sha256'}
@@ -333,7 +404,9 @@ def verify(destination):
         if sorted(expected,key=encoded)!=_rows(candidate,'jobs'):raise MigrationError('Unexpected candidate job/config/result/pin mutation')
         for table in before['tables']:
             if table!='jobs' and before['tables'][table]!=after['tables'].get(table):raise MigrationError('Immutable table changed: '+table)
-        if set(after['tables'])!=set(before['tables']):raise MigrationError('Unexpected candidate schema tables')
+        added=index.get('candidate_added_tables',[])
+        if set(added)-{RUNTIME_TABLE} or set(after['tables'])!=set(before['tables'])|set(added):raise MigrationError('Unexpected candidate schema tables')
+        if added and _rows(candidate,RUNTIME_TABLE):raise MigrationError('New runtime identity table must be empty in prepared copy')
         for entry in index['entries']:
             if entry['entity_kind'] in ('event','skill','job'):
                 table,identity,field={'event':('events','event_id','body'),'skill':('skills','id','body'),'job':('jobs','id',None)}[entry['entity_kind']]
