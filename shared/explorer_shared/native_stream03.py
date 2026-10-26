@@ -62,6 +62,36 @@ class NativeDispatchTap:
         self.canonical_reference = None
         self.capture_failures = 0
         self.intents = {}
+        self.publisher_pending=0;self.base_pending=0;self.publisher_sequence=0
+        self.last_publisher=None;self.publisher_unknown=False;self.base_unknown=False
+
+    def publisher_begin(self):
+        with self.lock:self.publisher_pending+=1
+
+    def publisher_end(self):
+        with self.lock:self.publisher_pending=max(0,self.publisher_pending-1)
+
+    def publisher_returned(self,pose,runtime_ms,started_ns):
+        with self.lock:
+            self.publisher_sequence+=1
+            self.last_publisher={'receipt_id':self.boot_id+':original-publisher:'+str(self.publisher_sequence),
+                'source_id':'original_factory_ManualArm.pub.publish','native_host_publication_returned':True,
+                'pose_deg':list(pose),'runtime_ms':runtime_ms,'call_started_monotonic_ns':started_ns,
+                'stamp':{'clock_domain':self.clock_domain,'boot_id':self.boot_id,'monotonic_ns':self.clock()},
+                'scope':'actual_original_publisher_argument_snapshot_and_return_not_ROS_CDR_or_MCU_attainment'}
+            self.publisher_unknown=False
+
+    def publisher_failed(self):
+        with self.lock:self.publisher_unknown=True
+
+    def issued_snapshot(self):
+        with self.lock:
+            if self.publisher_pending or self.base_pending or self.publisher_unknown or self.base_unknown or self.last_publisher is None or not self.base_history:
+                raise ValueError('ACTUAL_ISSUED_ARM_AND_BASE_CONTEXT_NOT_AVAILABLE_OR_PUBLICATION_INFLIGHT')
+            base=deepcopy(self.base_history[-1]);arm=deepcopy(self.last_publisher);tick=self.clock()
+            return {'command9':list(arm['pose_deg'])+list(base['velocity']),'arm_receipt':arm,'base_receipt':base,
+                'stamp':{'clock_domain':self.clock_domain,'boot_id':self.boot_id,'monotonic_ns':tick},
+                'basis':'actual_original_publisher_and_base_request_as_of_snapshot','journal_values_used':False}
 
     def bind_intent(self, generation, native_received_at, binding):
         if type(generation) is not int or not isinstance(native_received_at, (float,int)) or not math.isfinite(native_received_at):
@@ -79,6 +109,8 @@ class NativeDispatchTap:
             # The counter prohibits a downstream lossless/expert claim.
             with self.lock:
                 self.capture_failures += 1
+                if kind in ('base_drive_host_request','base_stop_host_request','base_release_host_request'):
+                    self.base_unknown=True
             return None
 
     def reference_header(self, record, original_sha256, *, native_guard_verified=False,source_bytes=None):
@@ -132,6 +164,7 @@ class NativeDispatchTap:
             if kind in ('base_drive_host_request','base_stop_host_request','base_release_host_request'):
                 self.base_history.append({'stamp_ns':row['stamp']['monotonic_ns'],
                                           'velocity':list(self.base),'receipt_id':receipt_id})
+                self.base_unknown=False
             if self.arm is not None and self.base is not None:
                 row.update(command9=list(self.arm) + list(self.base), command9_mask=[True] * 9,
                            component_receipt_ids=[self.arm_receipt] * 6 + [self.base_receipt] * 3,
@@ -241,17 +274,31 @@ class NativeTeleopMux:
         if not self.chassis_permit() and any(abs(value) > 1e-12 for value in values):
             raise PermissionError('PHYSICAL_CHASSIS_PROHIBITED_BY_OWNER')
         started = self.tap.clock()
-        result = self.original['base_drive'](values)
-        self.tap.observe('base_drive_host_request', {'velocity': values, 'native_return': result},
-                        source_id='original_manual_teleop.drive', started_ns=started)
-        return result
+        with self.tap.lock:self.tap.base_pending+=1
+        try:
+            result = self.original['base_drive'](values)
+            self.tap.observe('base_drive_host_request', {'velocity': values, 'native_return': result},
+                            source_id='original_manual_teleop.drive', started_ns=started)
+            return result
+        except Exception:
+            with self.tap.lock:self.tap.base_unknown=True
+            raise
+        finally:
+            with self.tap.lock:self.tap.base_pending-=1
 
     def _base_release(self):
         started = self.tap.clock()
-        result = self.original['base_release']()
-        self.tap.observe('base_release_host_request', {'velocity': [0.,0.,0.], 'native_return': result},
-                        source_id='original_manual_teleop.release', started_ns=started)
-        return result
+        with self.tap.lock:self.tap.base_pending+=1
+        try:
+            result = self.original['base_release']()
+            self.tap.observe('base_release_host_request', {'velocity': [0.,0.,0.], 'native_return': result},
+                            source_id='original_manual_teleop.release', started_ns=started)
+            return result
+        except Exception:
+            with self.tap.lock:self.tap.base_unknown=True
+            raise
+        finally:
+            with self.tap.lock:self.tap.base_pending-=1
 
     def _stop_all(self):
         self.active, self.state, self.latest = False, 'STOPPED', [0.] * 6
@@ -260,10 +307,17 @@ class NativeTeleopMux:
         except Exception:
             with self.tap.lock:self.tap.capture_failures+=1
         started = self.tap.clock()
-        result = self.original['stop_all']()
-        self.tap.observe('base_stop_host_request', {'velocity': [0.,0.,0.], 'native_return': result},
-                        source_id='original_global_stop', started_ns=started)
-        return result
+        with self.tap.lock:self.tap.base_pending+=1
+        try:
+            result = self.original['stop_all']()
+            self.tap.observe('base_stop_host_request', {'velocity': [0.,0.,0.], 'native_return': result},
+                            source_id='original_global_stop', started_ns=started)
+            return result
+        except Exception:
+            with self.tap.lock:self.tap.base_unknown=True
+            raise
+        finally:
+            with self.tap.lock:self.tap.base_pending-=1
 
     def begin(self, *, observing, neutral):
         with self.teleop.lock:

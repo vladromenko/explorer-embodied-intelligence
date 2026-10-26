@@ -1,0 +1,101 @@
+{
+  "schema": "explorer_native_issued_asof_qualification_v1",
+  "qualification_kind": "retained_exact_factory_injected_external_publishers_not_hardware",
+  "targeted_tests_passed": 68,
+  "exact_factory_tests_passed": 4,
+  "source_files_sha256": {
+    "shared/explorer_shared/native_cooperative05.py": "1976fd0db28a24adbb1812489745ce8f473ace58598b75038fa71ad26ac3fc86",
+    "shared/explorer_shared/native_stream03.py": "5522247db31761710093808998ab0a2c0af975272950de41e3802e36339b2ead",
+    "tests/test_native_cooperative05.py": "5f404b5136f6d5ad01d4622457f90d1d9e415dc6e638d7f20012bb0df10db5fc",
+    "tests/test_cooperative_transport05.py": "463a371a77a752b056b48a0e1f740d367ec4dac86847145e88c5781ea06212aa"
+  },
+  "cases": [
+    {
+      "case": "test_exact_native_web_startup_0",
+      "receipt_sha256": "5c6b3f40b69f348242c64732ba459b7334f96558628ab18c3eeb30508b7968ca",
+      "actuator_or_external_attempts": [],
+      "errors": [],
+      "source_startup_zero_actuator_requests": true,
+      "physical_commands": 0,
+      "native_mount": null
+    },
+    {
+      "case": "test_exact_native_web_startup_1",
+      "receipt_sha256": "d207bc32038d1b4be211f40514f18a29ed89bd0172d480700f90ea7772d32e0b",
+      "actuator_or_external_attempts": [
+        {
+          "message": {
+            "external_type": "Fake",
+            "fields": {
+              "joint1": 90,
+              "joint2": 90,
+              "joint3": 90,
+              "joint4": 90,
+              "joint5": 90,
+              "joint6": 90,
+              "time": 4000
+            }
+          },
+          "physical_send": false,
+          "topic": "/arm6_joints"
+        }
+      ],
+      "errors": [],
+      "source_startup_zero_actuator_requests": false,
+      "physical_commands": 0,
+      "native_mount": null
+    },
+    {
+      "case": "test_exact_native_web_startup_2",
+      "receipt_sha256": "b53b76ee9987de374a0fc97e22ccd1449dad5a2dde7850fd0ca669909e657345",
+      "actuator_or_external_attempts": [],
+      "errors": [],
+      "source_startup_zero_actuator_requests": true,
+      "physical_commands": 0,
+      "native_mount": {
+        "default_execution_permission": false,
+        "global_stop_wrapped": true,
+        "same_existing_arm": true,
+        "same_existing_teleop": true
+      }
+    },
+    {
+      "case": "test_exact_native_web_startup_3",
+      "receipt_sha256": "cf031b51da3b3ac2bbd61a5aae59ff579cfdc7bca21135ce9a1e1ee8d6a2e01b",
+      "actuator_or_external_attempts": [],
+      "errors": [
+        {
+          "detail": "FACTORY_STARTUP_HOME_WINDOW_ACTIVE_OR_UNKNOWN",
+          "error_type": "ValueError",
+          "factory": "web"
+        }
+      ],
+      "source_startup_zero_actuator_requests": false,
+      "physical_commands": 0,
+      "native_mount": null
+    },
+    {
+      "case": "test_exact_native_web_startup_current",
+      "receipt_sha256": "cf031b51da3b3ac2bbd61a5aae59ff579cfdc7bca21135ce9a1e1ee8d6a2e01b",
+      "actuator_or_external_attempts": [],
+      "errors": [
+        {
+          "detail": "FACTORY_STARTUP_HOME_WINDOW_ACTIVE_OR_UNKNOWN",
+          "error_type": "ValueError",
+          "factory": "web"
+        }
+      ],
+      "source_startup_zero_actuator_requests": false,
+      "physical_commands": 0,
+      "native_mount": null
+    }
+  ],
+  "agent_remote_actions": 0,
+  "physical_commands_executed": 0,
+  "controller_settings_changed": false,
+  "feedback_enabled": false,
+  "new_publishers": 0,
+  "new_servo_threads": 0,
+  "physical_handover_qualified": false,
+  "all_source_requirements_complete": false
+}

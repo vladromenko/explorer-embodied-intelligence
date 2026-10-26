@@ -28,7 +28,20 @@ class ExistingPublisherBoundary:
     def __getattr__(self,key):return getattr(self.original,key)
     def publish(self,message):
         pose=[getattr(message,'joint'+str(index)) for index in range(1,7)]
-        return self.guard.publish(pose,lambda:self.original.publish(message))
+        tap=self.guard.mux.tap;started=tap.clock();attempted=False;tap.publisher_begin()
+        def original():
+            nonlocal attempted
+            attempted=True;result=self.original.publish(message)
+            # Keep receipt order inside the existing publication guard. A
+            # second caller cannot return and then be overwritten by this one.
+            tap.publisher_returned(pose,getattr(message,'time',None),started)
+            return result
+        try:
+            return self.guard.publish(pose,original)
+        except Exception:
+            if attempted:tap.publisher_failed()
+            raise
+        finally:tap.publisher_end()
 
 
 class NativeReceiverHoldBoundary:
@@ -77,7 +90,8 @@ class NativeReceiverHoldBoundary:
             raise ValueError('Original same-boot command estimate required; not measured feedback')
         with self.lock:
             self._current();self._match(body);self.revision+=1;self.pending=self.grant=None
-            self.armed=True;self.last_pose=list(values)
+            actual=self.mux.tap.issued_snapshot()
+            self.armed=True;self.last_pose=list(actual['command9'][:6])
         return self.status()
     def challenge(self,body):
         self._current();self._match(body);identity(body.get('after_receiver_command_id'))
@@ -188,18 +202,20 @@ class NativeCooperativeOwner:
         self.original_publisher=mux.arm.pub
         mux.arm.pub=ExistingPublisherBoundary(self.original_publisher,self.guard)
     def observation(self):
-        frame=self.activation.camera.snapshot(with_jpeg=True);reference=self.reference();ident=uuid.uuid4().hex
+        frame=self.activation.camera.snapshot(with_jpeg=True);self.reference();ident=uuid.uuid4().hex
+        issued=self.mux.tap.issued_snapshot()
         with self.mux.tap.lock:
-            base=deepcopy(self.mux.tap.base);header=deepcopy(self.mux.tap.reference)
-            base_receipt=deepcopy(self.mux.tap.base_history[-1]) if self.mux.tap.base_history else None
+            header=deepcopy(self.mux.tap.reference)
         record={'observation_id':ident,'frame_id':frame['frame_id'],'jpeg_sha256':frame['jpeg_sha256'],
             'monotonic_ns':frame['received_monotonic_ns'],'clock_domain':self.mux.tap.clock_domain,
             'boot_id':self.mux.tap.boot_id,'state_source':'command_estimate',
-            'reference_servo_deg':deepcopy(reference['servo_deg']),
-            'reference_read_native_ns':self.mux.tap.clock(),'reference_is_not_measured':True,
+            'reference_servo_deg':list(issued['command9'][:6]),
+            'reference_read_native_ns':issued['stamp']['monotonic_ns'],'reference_is_not_measured':True,
             'timestamp_basis':frame['timestamp_basis'],'exposure_time_verified':False,
-            'command_reference9':list(reference['servo_deg'])+list(base) if base is not None else None,
-            'base_reference_receipt':base_receipt,'original_reference_header':header,
+            'command_reference9':issued['command9'],'command_reference9_basis':issued['basis'],
+            'issued_context_receipts':{'arm':issued['arm_receipt'],'base':issued['base_receipt']},
+            'journal_pose_used_for_command9':False,
+            'base_reference_receipt':issued['base_receipt'],'original_reference_header':header,
             'unknown_base_never_replaced_with_zero':True}
         with self.frame_lock:
             self.frames[ident]=(deepcopy(record),frame['jpeg'])
@@ -259,9 +275,8 @@ class NativeCooperativeOwner:
                     type(observation.get('monotonic_ns')) is not int or
                     not 0<=mux.tap.clock()-observation['monotonic_ns']<=2_000_000_000 or observation!=retained):
                 raise ValueError('Fresh actual native source observation/command estimate identity required')
-            reference=self.reference();current=reference.get('servo_deg')
-            if (reference.get('boot_id')!=mux.tap.boot_id or reference.get('measured') is not False or
-                    not isinstance(current,list) or len(current)!=6):raise ValueError('Original guarded command estimate unavailable')
+            self.reference()  # Guard validity/fault only, never journal pose.
+            current=mux.tap.issued_snapshot()['command9'][:6]
             if len(self.limits)!=6 or any(not low<=target<=high for target,(low,high) in zip(action[:6],self.limits)):
                 raise ValueError('Policy target outside unchanged original servo limits')
             horizon=mux.arm.motion_config.get('streaming',{}).get('lookahead_s')

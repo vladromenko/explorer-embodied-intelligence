@@ -44,14 +44,14 @@ def test_real_native_api_acceptance_followed_by_actual_correlated_mock_host_publ
     result=transport.submit_observed(command)
     assert result.dispatched and result.command_id==command['command_id']
     assert result.source['basis']=='actual_original_native_host_publication' and not result.source['attainment_verified']
-    assert len(publisher.messages)==1 and teleop.lease==lease
+    assert len(publisher.messages)==2 and teleop.lease==lease
     assert not any(path.endswith('/lease') or path.endswith('/resume') or path.endswith('/begin') for _,path,_ in calls)
 
 
 def test_native_api_ack_alone_times_out_without_fabricated_dispatch():
     transport,command,source,mux,teleop,arm,publisher,tap,calls,binding=setup(emit=False)
     with pytest.raises(TimeoutError,match='accepted but no correlated'):transport.submit_observed(command)
-    assert publisher.messages==[] and any(path.endswith('/input') for _,path,_ in calls)
+    assert len(publisher.messages)==1 and any(path.endswith('/input') for _,path,_ in calls)
 
 
 def test_release_challenge_predates_new_consumed_operator_hold_and_exact_opening_grant_is_required():
@@ -64,7 +64,7 @@ def test_release_challenge_predates_new_consumed_operator_hold_and_exact_opening
     result=transport.submit_observed({**command,'operation':'release'},authorization)
     native=result.source['native_receipt'];boundary=native['original_payload']['cooperative_publication_boundary']
     assert boundary['opening'] and boundary['guard_grant']['operator_confirmation']==proof
-    assert len(publisher.messages)==1 and publisher.messages[0].joint6==80
+    assert len(publisher.messages)==2 and publisher.messages[-1].joint6==80
     assert boundary['native_clock_domain']!='NX:test-boot'
 
 
@@ -77,4 +77,4 @@ def test_consumed_confirmation_from_before_native_challenge_cannot_authorize_ope
     with pytest.raises(ValueError,match='created after this exact native challenge'):
         transport.submit_observed({**command,'operation':'release'},
             {'native_release_challenge':wrapper,'operator_confirmation_receipt':{'confirmation':proof}})
-    assert not publisher.messages and not any(path.endswith('/input') for _,path,_ in calls)
+    assert len(publisher.messages)==1 and not any(path.endswith('/input') for _,path,_ in calls)
