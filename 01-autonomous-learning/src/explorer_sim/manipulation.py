@@ -11,6 +11,7 @@ import json
 import multiprocessing
 from pathlib import Path
 import resource
+import sys
 import time
 import uuid
 
@@ -149,6 +150,8 @@ def replay_trajectory(env, folder):
 
 
 def _benchmark_worker(spec):
+    import torch
+    torch.set_num_threads(1)
     mesh_dir,task,steps,seed = spec
     env = ManipulationEnv(mesh_dir,task,horizon=steps+1)
     observation,_ = env.reset(seed=seed)
@@ -164,18 +167,40 @@ def _benchmark_worker(spec):
 
 
 def benchmark(mesh_dir,task,steps=50,seed=700041):
+    import psutil
     results = []
-    for workers in (1,2,4):
-        started = time.monotonic()
-        with ProcessPoolExecutor(max_workers=workers,mp_context=multiprocessing.get_context('spawn')) as pool:
-            values = list(pool.map(_benchmark_worker,[(str(mesh_dir),task,steps,seed+i) for i in range(workers)]))
-        wall = time.monotonic()-started
-        results.append(dict(workers=workers,actions=sum(v['actions'] for v in values),wall_seconds=wall,
-            actions_per_s_including_spawn=sum(v['actions'] for v in values)/wall,
-            steady_actions_per_s=sum(v['actions'] for v in values)/max(v['wall_seconds'] for v in values),
-            processes=values,parallel_training=False,thermal_sensor='NOT_MEASURED'))
+    worker_peak_bytes = None
+    for workers in (1,2,4,8):
+        available = psutil.virtual_memory().available
+        forecast = workers*worker_peak_bytes*1.25 if worker_peak_bytes else 1024**3
+        if available < 2.5*1024**3+forecast:
+            results.append(dict(workers=workers,executed=False,reason='runtime_memory_reserve',
+                available_memory_bytes=available,estimated_workers_bytes=forecast))
+        else:
+            started = time.monotonic()
+            with ProcessPoolExecutor(max_workers=workers,mp_context=multiprocessing.get_context('spawn')) as pool:
+                values = list(pool.map(_benchmark_worker,[(str(mesh_dir),task,steps,seed+i) for i in range(workers)]))
+            wall = time.monotonic()-started
+            worker_peak_bytes = max(v['peak_rss_native_units'] for v in values)*(1024 if sys.platform.startswith('linux') else 1)
+            results.append(dict(workers=workers,executed=True,actions=sum(v['actions'] for v in values),wall_seconds=wall,
+                actions_per_s_including_spawn=sum(v['actions'] for v in values)/wall,
+                steady_actions_per_s=sum(v['actions'] for v in values)/max(v['wall_seconds'] for v in values),
+                measured_worker_peak_bytes=worker_peak_bytes,available_memory_before_bytes=available,
+                processes=values,parallel_training=False,thermal_sensor='NOT_MEASURED'))
     return dict(kind='actual_independent_physics_benchmark_not_parallel_training',results=results,
                 rss_units='bytes on macOS; KiB on Linux',selected_training_workers=1)
+
+
+def run_manipulation_benchmark(store,job):
+    """Measured process scaling; serialization/reserves belong to the host scheduler."""
+    from explorer.scheduler import host_resources
+    settings=parameters(job.get('config') or {})
+    assets=resolve_mesh_dir((job.get('config') or {}).get('mesh_dir'))
+    before=host_resources(store.root)
+    measured=benchmark(assets,settings['task'],settings['benchmark_steps'],settings['seed'])
+    return dict(measured,host_before=before,host_after=host_resources(store.root),task=settings['task'],
+        implementation_sha256=sha(__file__),cad_mesh_sha256={p.name:sha(p) for p in sorted(assets.glob('*.STL'))},
+        actual_training_workers=1,physical_execution=False)
 
 
 def run_manipulation(store,job):

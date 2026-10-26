@@ -9,7 +9,7 @@ import time
 import psutil
 from pathlib import Path
 
-HEAVY_JOBS = ('sim_pilot', 'train_act', 'world_model', 'dagger', 'skill_cycle', 'manipulation', 'manipulation_student', 'policy_transfer', 'fault_repair')
+HEAVY_JOBS = ('sim_pilot', 'train_act', 'world_model', 'dagger', 'skill_cycle', 'manipulation', 'manipulation_student', 'manipulation_benchmark', 'policy_transfer', 'fault_repair')
 PHYSICAL_JOBS = ('station_rollout', 'handover_physical')
 
 

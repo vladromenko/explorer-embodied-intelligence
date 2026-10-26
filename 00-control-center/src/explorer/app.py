@@ -290,16 +290,16 @@ def datasets():
 @app.post('/api/jobs')
 async def create_job(request: Request):
     body = await request.json()
-    if body.get('kind') not in ('sim_pilot', 'train_act', 'dagger','skill_cycle','program_trace','world_model','virtual_transfer', 'handover_test','handover_runtime_test','station_shadow','station_rollout','manipulation','manipulation_student','policy_transfer','fault_repair') or body.get('project_id') not in (*TITLES.keys(),'personal'):
+    if body.get('kind') not in ('sim_pilot', 'train_act', 'dagger','skill_cycle','program_trace','world_model','virtual_transfer', 'handover_test','handover_runtime_test','station_shadow','station_rollout','manipulation','manipulation_student','manipulation_benchmark','policy_transfer','fault_repair') or body.get('project_id') not in (*TITLES.keys(),'personal'):
         raise HTTPException(400, 'Unsupported job')
     config = body.get('config', {})
     if not isinstance(config, dict):
         raise HTTPException(400, 'Job configuration must be an object')
     if '_execution_commit' in config:
         raise HTTPException(400,'Execution provenance is assigned by the worker')
-    if body['kind'] in ('world_model','dagger','skill_cycle','manipulation','manipulation_student','policy_transfer','fault_repair') and config.get('device','cpu')!='cpu':
+    if body['kind'] in ('world_model','dagger','skill_cycle','manipulation','manipulation_student','manipulation_benchmark','policy_transfer','fault_repair') and config.get('device','cpu')!='cpu':
         raise HTTPException(400,'This engineering benchmark currently uses the verified CPU path')
-    if body['kind'] in ('manipulation','manipulation_student','fault_repair'):
+    if body['kind'] in ('manipulation','manipulation_student','manipulation_benchmark','fault_repair'):
         if body['project_id'] != '01':
             raise HTTPException(400,'Manipulation belongs to experiment 01')
         if body['kind']!='fault_repair' and config.get('task','candy_to_tray') not in ('candy_to_tray','sock_to_basket'):
@@ -329,7 +329,7 @@ async def job_operation(job_id: str, operation: str):
     desired = {'pause':'pause_requested', 'resume':'resume_requested', 'cancel':'cancel_requested'}
     if operation not in desired or job['status'] in ('completed', 'failed', 'cancelled'):
         raise HTTPException(409, 'Operation is not valid for this job')
-    if operation in ('pause','resume') and job['kind'] not in ('sim_pilot','train_act','world_model','dagger','skill_cycle','manipulation','manipulation_student','policy_transfer','fault_repair'):
+    if operation in ('pause','resume') and job['kind'] not in ('sim_pilot','train_act','world_model','dagger','skill_cycle','manipulation','manipulation_student','manipulation_benchmark','policy_transfer','fault_repair'):
         raise HTTPException(409,'Pause and resume apply to training. Stop an interactive attempt and start a fresh one.')
     STORE.update_job(job_id, status=desired[operation])
     if operation=='cancel' and job['kind']=='station_rollout' and (job.get('result') or {}).get('control_epoch'):
