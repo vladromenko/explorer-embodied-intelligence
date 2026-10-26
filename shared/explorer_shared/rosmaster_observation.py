@@ -15,6 +15,7 @@ import threading
 import time
 from types import SimpleNamespace
 from urllib.request import Request,build_opener,ProxyHandler,HTTPRedirectHandler
+from urllib.error import HTTPError,URLError
 import uuid
 
 from .contracts import ACTION_NAMES,ACTION_UNITS,canonical
@@ -25,24 +26,72 @@ from .embodied_episode import observation_channels
 def sha(raw):return hashlib.sha256(raw).hexdigest()
 
 
+class NativeObservationUnavailable(OSError):
+    def __init__(self,status,raw,route):
+        self.status,self.raw,self.route=status,raw,route
+        try:body=json.loads(raw);detail=body.get('detail',body.get('error')) if isinstance(body,dict) else None
+        except (ValueError,UnicodeError):detail=None
+        self.detail=detail if isinstance(detail,(str,list,dict)) else 'Original native API returned HTTP'+str(status)
+        text=self.detail.lower() if isinstance(self.detail,str) else ''
+        self.code=('NATIVE_SOURCE_TRANSPORT_UNAVAILABLE' if status==0 else
+            'NATIVE_REFERENCE_UNAVAILABLE' if status==409 and 'reference' in text else
+            'NATIVE_COMMAND_CONTEXT_UNAVAILABLE' if status==409 and 'actual_issued' in text else
+            'NATIVE_SOURCE_AUTHENTICATION_REJECTED' if status in (401,403) else
+            'NATIVE_SOURCE_API_NOT_INSTALLED' if status==404 else
+            'NATIVE_SOURCE_REJECTED' if 400<=status<500 else 'NATIVE_SOURCE_UNAVAILABLE')
+        super().__init__(self.code+': '+str(self.detail))
+    def record(self):
+        return {'schema':'explorer_native_observation_unavailable_v1','available':False,'code':self.code,
+            'state':{'NATIVE_REFERENCE_UNAVAILABLE':'BLOCKED_REFERENCE','NATIVE_COMMAND_CONTEXT_UNAVAILABLE':'BLOCKED_ISSUED_COMMAND_CONTEXT',
+                'NATIVE_SOURCE_TRANSPORT_UNAVAILABLE':'TRANSPORT_UNAVAILABLE'}.get(self.code,'SOURCE_UNAVAILABLE'),
+            'source_http_status':self.status,'source_route':self.route,'reason':deepcopy(self.detail),
+            'source_http_response_received':self.status!=0,
+            'source_response_sha256':sha(self.raw),'source_response_base64':base64.b64encode(self.raw).decode(),
+            'joint_feedback_required':False,'measured_feedback_claimed':False,'physical_commands_sent':0}
+
+
 class OriginalObservationReader:
     def __init__(self,bridge):
         self.bridge=bridge
         class NoRedirect(HTTPRedirectHandler):
             def redirect_request(self,*args,**kwargs):raise OSError('Fixed original-owner observation must not redirect')
         self.opener=build_opener(ProxyHandler({}),NoRedirect()).open
-    def observation(self):
+    def _json(self,route):
         token=(self.bridge.root/'config/access_token').read_text().strip()
-        request=Request('http://127.0.0.1:8080/api/explorer/cooperative/observation',headers={'Authorization':'Bearer '+token})
-        with self.opener(request,timeout=2) as response:
-            raw=response.read(128*1024+1)
-            if len(raw)>128*1024:raise ValueError('Original observation response exceeds bound')
+        request=Request('http://127.0.0.1:8080'+route,headers={'Authorization':'Bearer '+token})
+        try:
+            with self.opener(request,timeout=2) as response:
+                raw=response.read(128*1024+1)
+                if len(raw)>128*1024:raise ValueError('Original observation response exceeds bound')
+        except HTTPError as error:
+            raw=error.read(16*1024+1)
+            if len(raw)>16*1024:raise ValueError('Original error response exceeds bounded diagnostic budget') from error
+            raise NativeObservationUnavailable(error.code,raw,route) from error
+        except (URLError,TimeoutError,ConnectionError) as error:
+            raw=canonical({'error':'Original native transport unavailable','error_type':type(error).__name__})
+            raise NativeObservationUnavailable(0,raw,route) from error
         value=json.loads(raw)
         if not isinstance(value,dict):raise ValueError('Original runtime observation object required')
-        jpeg,headers=self.bridge.cooperative_frame(value.get('observation_id'))
+        return value,raw
+    def observation(self):
+        value,raw=self._json('/api/explorer/cooperative/observation')
+        try:jpeg,headers=self.bridge.cooperative_frame(value.get('observation_id'))
+        except HTTPError as error:
+            raw_error=error.read(16*1024+1)
+            if len(raw_error)>16*1024:raise ValueError('Original frame error response exceeds bound') from error
+            raise NativeObservationUnavailable(error.code,raw_error,'/api/explorer/cooperative/observations/{id}/frame') from error
         if (sha(jpeg)!=value.get('jpeg_sha256') or headers.get('X-Frame-ID')!=value.get('frame_id') or
                 headers.get('X-Boot-ID')!=value.get('boot_id')):raise ValueError('Exact original pinned RGB/clock identity differs')
         return value,raw,jpeg
+    def status(self):
+        # Status/reference reads do not pin a frame or open another camera.
+        try:
+            native,_=self._json('/api/explorer/cooperative/status')
+            reference,_=self._json('/api/explorer/retarget/reference')
+            return {'schema':'explorer_native_policy_source_status_v1','state':'REFERENCE_GUARD_VALID',
+                'native':native,'reference_guard':reference,'packet_availability_requires_exact_fresh_RGB_and_issued9':True,
+                'packet_created':False,'joint_feedback_required':False,'physical_commands_sent':0}
+        except NativeObservationUnavailable as error:return error.record()
 
 
 class RosmasterCachedObservation:
@@ -50,6 +99,7 @@ class RosmasterCachedObservation:
         self.reader,self.sensors,self.source=reader,sensor_cache,source
         self.domain,self.boot,self.clock=clock_domain,boot_id,clock
         self.lock=threading.RLock();self.pins=OrderedDict();self.views=NativeFeatureViews()
+    def status(self):return self.reader.status()
     def create(self):
         from PIL import Image
         observation,raw,jpeg=self.reader.observation();cutoff=self.clock()

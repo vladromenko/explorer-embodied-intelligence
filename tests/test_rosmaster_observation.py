@@ -97,3 +97,72 @@ def test_actual_authenticated_local_node_serves_only_exact_pinned_cache_and_reje
         assert len(sensors.receipts)==1
     finally:
         server.shutdown();server.server_close();thread.join(timeout=2)
+
+
+@pytest.mark.parametrize('status,detail,code',[
+    (409,'New observed factory reference required after native telemetry fault','NATIVE_REFERENCE_UNAVAILABLE'),
+    (409,'ACTUAL_ISSUED_ARM_AND_BASE_CONTEXT_NOT_AVAILABLE_OR_PUBLICATION_INFLIGHT','NATIVE_COMMAND_CONTEXT_UNAVAILABLE'),
+    (401,'Authentication required','NATIVE_SOURCE_AUTHENTICATION_REJECTED'),
+])
+def test_original_http_error_retains_bounded_actual_reason_instead_of_collapsing_to_transport(tmp_path,status,detail,code):
+    from types import SimpleNamespace
+    from urllib.error import HTTPError
+    from explorer_shared.rosmaster_observation import OriginalObservationReader,NativeObservationUnavailable
+    (tmp_path/'config').mkdir();(tmp_path/'config/access_token').write_text('private-fake-token')
+    reader=OriginalObservationReader(SimpleNamespace(root=tmp_path));raw=canonical({'detail':detail});calls=[]
+    def reject(request,timeout):
+        calls.append(request)
+        assert request.get_method()=='GET' and request.headers['Authorization']=='Bearer private-fake-token'
+        raise HTTPError(request.full_url,status,'Conflict',{},BytesIO(raw))
+    reader.opener=reject
+    with pytest.raises(NativeObservationUnavailable) as caught:reader.observation()
+    result=caught.value.record()
+    assert result['code']==code and result['reason']==detail and result['source_response_sha256']==hashlib.sha256(raw).hexdigest()
+    assert result['source_http_response_received'] and not result['joint_feedback_required'] and result['physical_commands_sent']==0
+    assert len(calls)==1
+
+
+def test_status_checks_only_original_metadata_reference_and_preserves_fault_without_new_pinned_packet(tmp_path):
+    from types import SimpleNamespace
+    from urllib.error import HTTPError,URLError
+    from explorer_shared.rosmaster_observation import OriginalObservationReader
+    (tmp_path/'config').mkdir();(tmp_path/'config/access_token').write_text('private-fake-token')
+    reader=OriginalObservationReader(SimpleNamespace(root=tmp_path));calls=[]
+    def response(request,timeout):
+        calls.append(request.full_url)
+        if request.full_url.endswith('/cooperative/status'):return BytesIO(canonical({'schema':'actual-owner-status'}))
+        assert request.full_url.endswith('/retarget/reference')
+        raise HTTPError(request.full_url,409,'Conflict',{},BytesIO(canonical({'detail':'New observed factory reference required after fault'})))
+    reader.opener=response;result=reader.status()
+    assert result['state']=='BLOCKED_REFERENCE' and len(calls)==2
+    assert not any('/observation' in path for path in calls)
+    def no_transport(*args,**kwargs):raise URLError('connection refused')
+    reader.opener=no_transport;result=reader.status()
+    assert result['state']=='TRANSPORT_UNAVAILABLE' and not result['source_http_response_received']
+
+
+def test_actual_node_http_propagates_source_reference_fault_as_typed409_and_status_is_readonly(tmp_path):
+    import threading
+    from types import SimpleNamespace
+    from http.server import ThreadingHTTPServer
+    from urllib.request import Request,urlopen
+    from urllib.error import HTTPError
+    from explorer_shared.node_agent import make_handler
+    from explorer_shared.rosmaster_observation import OriginalObservationReader
+    (tmp_path/'config').mkdir();(tmp_path/'config/access_token').write_text('private-original-fixture-token')
+    reader=OriginalObservationReader(SimpleNamespace(root=tmp_path));seen=[]
+    def original(request,timeout):
+        seen.append(request.full_url);assert request.get_method()=='GET'
+        if request.full_url.endswith('/cooperative/status'):return BytesIO(canonical({'schema':'actual-native-owner-fixture'}))
+        raise HTTPError(request.full_url,409,'Conflict',{},BytesIO(canonical({'detail':'New observed factory reference required after fault'})))
+    reader.opener=original;source,_,sensors,_,_=fixture();source.reader=reader;token='private-node-fixture-token'
+    server=ThreadingHTTPServer(('127.0.0.1',0),make_handler(SimpleNamespace(token=token,rosmaster_observations=source)))
+    server.daemon_threads=True;thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
+    def get(path):return urlopen(Request('http://127.0.0.1:'+str(server.server_port)+path,headers={'Authorization':'Bearer '+token}),timeout=2)
+    try:
+        with get('/native-policy/status') as response:assert json.load(response)['state']=='BLOCKED_REFERENCE'
+        with pytest.raises(HTTPError) as rejected:get('/native-policy/observation')
+        assert rejected.value.code==409 and json.load(rejected.value)['code']=='NATIVE_REFERENCE_UNAVAILABLE'
+        assert not sensors.receipts and len(seen)==3 and not source.pins
+    finally:
+        server.shutdown();server.server_close();thread.join(timeout=2)

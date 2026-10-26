@@ -55,3 +55,12 @@ worker inference. Кадры разных роботов не объявляют
 epoch, старые результаты остаются историей. `persistent_warm_actor_ready` и
 `reusable_for_native_dispatch` всегда false: ни completed job, ни старое shadow
 не становятся свежим действием в коротком receiver-hold окне.
+
+GET `/native-policy/status` читает только original cooperative status и original
+reference guard, без нового pinned frame или control call. Настоящий source409
+сохраняется как typed `BLOCKED_REFERENCE` / `NATIVE_REFERENCE_UNAVAILABLE` с
+исходным bounded JSON reason и SHA. Отсутствующий actual issued9 имеет отдельный
+`BLOCKED_ISSUED_COMMAND_CONTEXT`, authentication rejection и отсутствие HTTP
+transport тоже различаются. Node observation возвращает typed409 для source409;
+недоступная сеть не выдаётся за fault/reference. Ни этот статус, ни readback=false
+не создают измеренную позу и не выполняют HOME автоматически.

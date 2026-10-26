@@ -850,9 +850,14 @@ def make_handler(agent):
 
         def _get(self, path):
             parts = path.strip("/").split("/")
-            if path=='/native-policy/observation' and agent.rosmaster_observations is not None:
+            if path=='/native-policy/status' and agent.rosmaster_observations is not None:
+                if urlsplit(self.path).query:raise ValueError('Fixed native source status takes no query parameters')
+                self._json(200,agent.rosmaster_observations.status())
+            elif path=='/native-policy/observation' and agent.rosmaster_observations is not None:
                 if urlsplit(self.path).query:raise ValueError('Fixed native policy observation takes no query parameters')
-                self._json(200,agent.rosmaster_observations.create())
+                from .rosmaster_observation import NativeObservationUnavailable
+                try:self._json(200,agent.rosmaster_observations.create())
+                except NativeObservationUnavailable as error:self._json(409 if error.status==409 else 503,error.record())
             elif len(parts)==4 and parts[:2]==['native-policy','observations'] and parts[3]=='frame' and agent.rosmaster_observations is not None:
                 if urlsplit(self.path).query:raise ValueError('Pinned native observation takes no query parameters')
                 raw,metadata=agent.rosmaster_observations.frame(parts[2])
