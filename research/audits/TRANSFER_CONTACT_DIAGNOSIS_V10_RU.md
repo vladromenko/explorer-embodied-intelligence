@@ -63,7 +63,13 @@ RNG seed7401. Состояние не является восстановлен�
 поэтому её реальные контакты также записываются. Low-drop условие проверяет
 контактную чувствительность, а не реализуемость безопасного robot placement.
 
-16 новых попыток по 1 с дают 14000 native шагов. Ресурсы: sequential fresh
+16 новых попыток по 1 с дают 14000 scored contact native шагов. Поддерживаемый
+настоящий env отдельно выполняет constructor reset100 и explicit reset100 до
+пересадки NEW initial condition: ещё 3200 служебных native шагов, всего 17200
+planned calls. Они явно отделены от новых contact outcomes. Статическая позиция
+bin берётся из XML каждой исходной сцены и проверяется после компиляции;
+integration vector не используется как замена `model.body_pos`.
+Ресурсы: sequential fresh
 subprocesses, CPU1 thread, MemoryMax2 GiB, swap0, wall max360 с, disk budget6 GiB;
 renderer/EGL/GPU отсутствуют. Изменяется только новый скопированный SIM XML,
 исходные env/provider/defaults и старые результаты остаются прежними.
