@@ -69,6 +69,8 @@ def test_actual_official_native6_supervisor_bootstrap_pause_process_exit_restart
         paused=store.schedule_status(target['id'])['runtime'];step=paused['checkpoint_pause_receipt']['completed_steps']
         assert 1<=step<8 and paused['phase']=='paused_checkpoint_process_exited' and paused['exact_optimizer_resume']
         assert not paused['memory_retained'] and not psutil.pid_exists(old_pid) and resident>0
+        pause_directory=folder/'act_resume';pause_pointer=json.loads((pause_directory/'latest.json').read_text())
+        pause_payload=torch.load(pause_directory/pause_pointer['checkpoint'],weights_only=True,map_location='cpu')
         store.request_job_operation(target['id'],'resume')
         pump(supervisor,lambda:store.job(target['id'])['status'] in ('completed','failed') and target['id'] not in supervisor.processes)
         actual=store.job(target['id']);expected=store.job(reference['id'])
@@ -82,12 +84,17 @@ def test_actual_official_native6_supervisor_bootstrap_pause_process_exit_restart
             assert hashlib.sha256((directory/pointer['checkpoint']).read_bytes()).hexdigest()==pointer['sha256']
             return torch.load(directory/pointer['checkpoint'],weights_only=True,map_location='cpu')
         ref_payload,actual_payload=payload(reference),payload(target)
-        for key in ('model','optimizer','losses','rng','sampler'):same(ref_payload[key],actual_payload[key])
+        for key in ('model','optimizer','losses','sampler'):same(ref_payload[key],actual_payload[key])
+        same(ref_payload['rng']['torch_cpu'],actual_payload['rng']['torch_cpu'])
+        # Independent processes initialize unused Python/NumPy RNG differently;
+        # continuation must restore this paused job's own exact states.
+        for key in ('python','numpy'):same(pause_payload['rng'][key],actual_payload['rng'][key])
         assert all(hashlib.sha256(Path(path).read_bytes()).hexdigest()==expected_sha for path,expected_sha in original_bytes.items())
         result=dict(schema='explorer_official_native6_queue_pause_qualification_v1',source_commit=commit,source_kind='SIMULATION',
             reference_job_id=reference['id'],resumed_job_id=target['id'],paused_pid=old_pid,paused_at_completed_step=step,
             old_process_gone=True,old_resident_bytes=resident,completed_updates=8,updates_in_resumed_process=8-step,
-            official_ACT_used=True,actual_supervisor_bootstrap_job_runner_used=True,model_optimizer_losses_RNG_sampler_exactly_equal=True,
+            official_ACT_used=True,actual_supervisor_bootstrap_job_runner_used=True,model_optimizer_losses_Torch_RNG_sampler_exactly_equal=True,
+            own_Python_NumPy_RNG_checkpoint_continuation_verified=True,
             immutable_source_bytes_preserved=True,aggregate_manifest_sha256=aggregate['aggregate_manifest_sha256'],
             model_weights_sha256=actual['result']['checkpoint_sha256']['model.safetensors'],saved_official_processors_executed=actual['result']['official_saved_processors_executed'],
             checkpoint_pause_receipt=paused['checkpoint_pause_receipt'],physical_io=False,production_state_writes=False,task_success_claimed=False)
