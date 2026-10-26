@@ -13,6 +13,7 @@ function stationImports(project) {
 }
 function stationSkills() {
   return model.skills.filter((skill) => {
+    if (typeof isSimulationOnlyArtifact === "function" && isSimulationOnlyArtifact(skill)) return false;
     const job = model.jobs.find((item) => item.id === skill.lineage?.job_id);
     if (!job || job.kind !== "train_act" || !stationFinished(job)) return false;
     const expected = array(stationLab.status?.action_names);

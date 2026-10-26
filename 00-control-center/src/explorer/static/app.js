@@ -55,7 +55,9 @@ const STATUS = {
   not_validated: ["Не проверено", "warn"], unvalidated: ["Не проверено", "warn"], validated: ["Проверено", "good"], awaiting_validation: ["Ожидает проверки", "warn"],
   awaiting_evidence: ["Ожидает результатов", "neutral"], untested_hypothesis: ["Гипотеза не проверена", "warn"],
   pause_requested: ["Приостанавливается", "warn"], resume_requested: ["Возобновляется", "neutral"], cancel_requested: ["Отменяется", "warn"],
-  physically_validated: ["Проверено на оборудовании", "good"], simulation_validated: ["Проверено в симуляции", "neutral"]
+  physically_validated: ["Проверено на оборудовании", "good"], simulation_validated: ["Проверено в симуляции", "neutral"],
+  simulation_source_evaluated: ["Проверено в симуляции", "neutral"], simulation_candidate_pending: ["Кандидат ожидает проверки", "neutral"],
+  simulation_candidate_rejected: ["Кандидат отклонён", "warn"], simulation_development_accepted: ["Принят в симуляции", "neutral"]
 };
 function badge(value, fallback = "Ожидаем данные") {
   const item = STATUS[String(value || "").toLowerCase()] || [text(value, fallback) || fallback, "neutral"];
@@ -221,7 +223,7 @@ function experimentsGrid() {
   return `<div class="experiment-grid">${PROJECTS.map((project) => { const state = experimentState(project.id); return `<a class="experiment-card" href="/experiments/${project.id}" data-link><div class="experiment-top"><span class="experiment-index">ОПЫТ ${project.id}</span>${icon(Number(project.id) === 1 ? "chip" : "robot", "nav-icon")}</div><h3>${esc(project.title)}</h3><p>${esc(project.brief)}</p><div class="experiment-bottom">${badge(state.status, "Ожидаем состояние")}<span class="experiment-arrow" aria-hidden="true">↗</span></div></a>`; }).join("")}</div>`;
 }
 const TERMINAL_JOBS = ["completed", "complete", "succeeded", "success", "failed", "error", "cancelled", "canceled"];
-function jobTitle(job) { return text(job.title, text(job.name, { sim_pilot: "Обучение в симуляции", world_model: "Модель изменений сцены", camera_recording: "Запись наблюдения", recording: "Запись наблюдения", train: "Обучение модели", train_act: "Обучение ACT по показу", mobile_import: "Перенос показа ROSMASTER", station_import: "Перенос показа SO-101", station_rollout: "Попытка модели SO-101", station_shadow: "Проверка предсказаний без движения", virtual_transfer: "Проверка геометрического переноса", handover_test: "Проверка протокола передачи", evaluation: "Оценка навыка" }[job.kind] || job.kind || "Исследовательская задача")); }
+function jobTitle(job) { return text(job.title, text(job.name, { sim_pilot: "Обучение в симуляции", dagger: "Обучение с подсказками DAgger", skill_cycle: "Проверка цикла навыка", world_model: "Модель изменений сцены", camera_recording: "Запись наблюдения", recording: "Запись наблюдения", train: "Обучение модели", train_act: "Обучение ACT по показу", mobile_import: "Перенос показа ROSMASTER", station_import: "Перенос показа SO-101", station_rollout: "Попытка модели SO-101", station_shadow: "Проверка предсказаний без движения", virtual_transfer: "Проверка геометрического переноса", handover_test: "Проверка протокола передачи", evaluation: "Оценка навыка" }[job.kind] || job.kind || "Исследовательская задача")); }
 function jobMetrics(job) {
   const metrics = job.metrics || job.result?.metrics || {};
   const list = [];
@@ -270,6 +272,7 @@ function experimentPage(project) {
   if (project.id === "01") {
     const job = jobs.find((entry) => entry.kind === "sim_pilot" && !TERMINAL_JOBS.includes(entry.status)) || jobs.find((entry) => entry.kind === "sim_pilot");
     content += `<div class="two-column">${simulationPanel(job)}${simulationForm()}</div><div class="spaced-section">${flow(project)}</div>`;
+    content += simulationPilotMetrics() + simulationAdvancedPanel();
     content += `<div class="spaced-section">${worldTrainingPanel()}</div>`;
   } else {
     content += notice(project.id === "02" ? "Два разных материала" : "Запись наблюдения с камеры", project.id === "02" ? "Полный показ записывается через штатный ROSMASTER вместе с его командами и наблюдениями. Отдельная кнопка «Записать наблюдение» сохраняет только видео камеры." : "Сейчас мастер сохраняет видео сцены. Такой материал отмечается как наблюдение и не выдаётся за синхронизированный обучающий эпизод.");

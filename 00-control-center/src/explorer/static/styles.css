@@ -9,3 +9,24 @@
 
 .station-steps{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0;margin:0 0 26px}.station-steps li{font-size:11px;color:var(--muted);border-bottom:1px solid var(--line);padding:0 0 14px;display:flex;gap:9px;align-items:center}.station-steps b{font-weight:500;color:var(--orange);font-size:10px}.station-workspace{grid-template-columns:minmax(0,1.4fr) minmax(330px,1fr)}.station-presence{margin:17px 0 12px}.station-presence p{font-size:10px;line-height:1.7;margin-top:8px}.station-live-status{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--muted);margin:19px 0}.station-control form{border-top:1px solid var(--line-soft);padding-top:18px;margin-top:18px}.station-control .form-field{margin-bottom:14px}.station-joint-row{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:11px;color:var(--muted)}.station-joint-row output{font-variant-numeric:tabular-nums;text-align:right;color:var(--text)}.station-joint-head{font-size:9px;color:var(--faint)}.station-joint-head span:not(:first-child){text-align:right}.station-record-active{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0}.station-record-active strong{font-size:11px;font-weight:500}.station-record-active>span:last-child{width:100%;font-size:10px;color:var(--muted)}.station-learning{align-items:start;grid-template-columns:1fr 1fr}.station-learning .form-field{margin:15px 0}.station-learning .form-description{font-size:12px;line-height:1.8;margin-bottom:17px}.station-learning .form-hint,.station-control .form-hint{font-size:10px;line-height:1.8;margin-top:12px}.station-learning .notice{margin:14px 0}.station-learning .skill-metadata{margin-bottom:18px}.station-learning .empty-state{padding:15px 0 23px}.station-control .button.full{white-space:normal}.station-workspace .spaced-section{margin-top:20px}@media(max-width:1100px){.station-workspace{grid-template-columns:1fr}.station-learning{grid-template-columns:1fr}}@media(max-width:700px){.station-steps{grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}.station-steps li{font-size:10px;padding-bottom:10px}.station-joint-row{font-size:10px}.station-control .teleop-actions .button{flex:1}.station-learning{gap:18px}}
 .world-table-wrap{overflow-x:auto;margin:18px 0}.world-comparison{width:100%;border-collapse:collapse;font-size:11px}.world-comparison caption{text-align:left;color:var(--muted);padding-bottom:12px;line-height:1.6}.world-comparison th,.world-comparison td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line-soft);font-variant-numeric:tabular-nums}.world-comparison thead th{color:var(--faint);font-size:10px;font-weight:500}.world-comparison tbody th{font-weight:500}.world-comparison td{white-space:nowrap}.world-episodes{display:grid;gap:10px;max-height:280px;overflow-y:auto;margin:14px 0}.world-episode{display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-size:11px;line-height:1.6}.world-episode input{width:16px;height:16px;flex:none;margin:1px 0;accent-color:var(--orange)}.world-episode span{overflow-wrap:anywhere}
+/* Additional simulation learning: compact actual measurements, no preview scene. */
+.sim-table-scroll { overflow-x: auto; margin-top: 18px; }
+.sim-comparison { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+.sim-comparison th, .sim-comparison td { padding: 12px 10px; border-bottom: 1px solid var(--line, #26374a); vertical-align: top; }
+.sim-comparison thead th { color: var(--muted, #9ba8b8); font-size: 12px; font-weight: 500; }
+.sim-comparison tbody th { font-weight: 500; }
+.sim-comparison td { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sim-learning-panel > summary { display: flex; justify-content: space-between; align-items: center; gap: 16px; cursor: pointer; padding: 22px 24px; }
+.sim-learning-panel > summary strong, .sim-learning-panel > summary .eyebrow { display: block; }
+.sim-learning-panel > summary::after { content: "⌄"; font-size: 22px; color: var(--orange); }
+.sim-learning-panel[open] > summary::after { transform: rotate(180deg); }
+.sim-learning-panel > summary:focus-visible { outline: 2px solid var(--accent, #f5a75f); outline-offset: -3px; }
+.sim-learning-sections { display: grid; gap: 30px; }
+.sim-learning-sections > section + section { border-top: 1px solid var(--line, #26374a); padding-top: 26px; }
+.sim-result-select { margin-top: 20px; }
+.sim-cycle-verdict { margin-top: 18px; }
+.sim-scope-note { margin-top: 18px; color: var(--muted, #9ba8b8); }
+@media (max-width: 600px) {
+  .sim-learning-panel > summary { align-items: flex-start; padding: 18px; flex-direction: column; }
+  .sim-comparison th, .sim-comparison td { padding: 10px 7px; }
+}
