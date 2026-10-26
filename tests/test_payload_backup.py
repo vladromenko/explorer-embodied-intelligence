@@ -247,10 +247,13 @@ def test_dataset_reference_mismatch_prevents_success_even_with_complete_byte_cop
 def test_stream_detects_replacement_and_truncation_before_copy(tmp_path):
     source = put(tmp_path / "file", b"abcdefgh")
     expected = payloads.identity(source.stat())
-    source.unlink()
-    source.write_bytes(b"abcdefgh")
-    with pytest.raises(MaintenanceError, match="identity"):
-        payloads.stream_file(source, tmp_path / "copy", expected)
+    # Keep the old inode allocated: immediate inode/timestamp reuse is legal on
+    # Linux and would make a byte-identical replacement indistinguishable here.
+    with source.open('rb'):
+        source.unlink()
+        source.write_bytes(b"abcdefgh")
+        with pytest.raises(MaintenanceError, match="identity"):
+            payloads.stream_file(source, tmp_path / "copy", expected)
     expected = payloads.identity(source.stat())
     source.write_bytes(b"short")
     with pytest.raises(MaintenanceError, match="identity"):

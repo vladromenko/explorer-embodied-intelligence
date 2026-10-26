@@ -279,7 +279,9 @@ def _run_handover_locked(plan, transports, evidence_provider, folder, *, mode, a
         # gripper command. Preserve failures instead of reporting a clean stop.
         for role in ('giver', 'receiver'):
             try:
-                stop_receipts.append({'role': role, 'confirmed': True, 'receipt': transports[role].stop(plan.run_id)})
+                stopped = transports[role].stop(plan.run_id)
+                stop_receipts.append({'role': role, 'api_returned': True,
+                    'confirmed': isinstance(stopped,dict) and stopped.get('physical_stop_confirmed') is True, 'receipt': stopped})
             except Exception as exc:
                 stop_receipts.append({'role': role, 'confirmed': False, 'error': type(exc).__name__+': '+str(exc)})
     result = {'signature': signature, 'run_id': plan.run_id, 'object_id': plan.object_id, 'mode': mode,

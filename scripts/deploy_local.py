@@ -3,6 +3,7 @@
 import argparse
 import json
 import shlex
+import socket
 import subprocess
 from pathlib import Path
 
@@ -10,7 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def remote(host, args, data=None):
-    result = subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=8',host,shlex.join(args)],
+    command = args if host == socket.gethostname() else ['ssh','-o','BatchMode=yes','-o','ConnectTimeout=8',host,shlex.join(args)]
+    result = subprocess.run(command,
         input=data, capture_output=True)
     if result.returncode:
         raise RuntimeError(host + ': ' + result.stderr.decode(errors='replace')[-1200:])

@@ -35,6 +35,10 @@ def setup(home, node='homebrain'):
     state.mkdir()
     with sqlite3.connect(state / 'research.sqlite3') as database:
         database.execute('CREATE TABLE jobs (id TEXT,kind TEXT,status TEXT,created REAL)')
+    # Rehearse the deployer's explicit ownership/mode contract regardless of host umask.
+    for path in (base,*base.rglob('*')):
+        if not path.is_symlink():
+            path.chmod(0o755 if path.is_dir() else 0o644)
     return base, previous, current, state
 
 

@@ -223,7 +223,7 @@ function experimentsGrid() {
   return `<div class="experiment-grid">${PROJECTS.map((project) => { const state = experimentState(project.id); return `<a class="experiment-card" href="/experiments/${project.id}" data-link><div class="experiment-top"><span class="experiment-index">ОПЫТ ${project.id}</span>${icon(Number(project.id) === 1 ? "chip" : "robot", "nav-icon")}</div><h3>${esc(project.title)}</h3><p>${esc(project.brief)}</p><div class="experiment-bottom">${badge(state.status, "Ожидаем состояние")}<span class="experiment-arrow" aria-hidden="true">↗</span></div></a>`; }).join("")}</div>`;
 }
 const TERMINAL_JOBS = ["completed", "complete", "succeeded", "success", "failed", "error", "cancelled", "canceled"];
-function jobTitle(job) { return text(job.title, text(job.name, { sim_pilot: "Обучение в симуляции", dagger: "Обучение с подсказками DAgger", skill_cycle: "Проверка цикла навыка", program_trace: "Разметка фаз программы", world_model: "Модель изменений сцены", camera_recording: "Запись наблюдения", recording: "Запись наблюдения", train: "Обучение модели", train_act: "Обучение ACT по показу", mobile_import: "Перенос показа ROSMASTER", station_import: "Перенос показа SO-101", station_rollout: "Попытка модели SO-101", station_shadow: "Проверка предсказаний без движения", virtual_transfer: "Проверка геометрического переноса", handover_test: "Проверка протокола передачи", evaluation: "Оценка навыка" }[job.kind] || job.kind || "Исследовательская задача")); }
+function jobTitle(job) { return text(job.title, text(job.name, { manipulation: "Предметная задача · PPO", manipulation_student: "Предметная задача · визуальный ACT", policy_transfer: "Перенос предсказаний ACT", handover_runtime_test: "Координатор передачи · программные сценарии", sim_pilot: "Обучение в симуляции", dagger: "Обучение с подсказками DAgger", skill_cycle: "Проверка цикла навыка", program_trace: "Разметка фаз программы", world_model: "Модель изменений сцены", camera_recording: "Запись наблюдения", recording: "Запись наблюдения", train: "Обучение модели", train_act: "Обучение ACT по показу", mobile_import: "Перенос показа ROSMASTER", station_import: "Перенос показа SO-101", station_rollout: "Попытка модели SO-101", station_shadow: "Проверка предсказаний без движения", virtual_transfer: "Проверка геометрического переноса", handover_test: "Проверка протокола передачи", evaluation: "Оценка навыка" }[job.kind] || job.kind || "Исследовательская задача")); }
 function jobMetrics(job) {
   const metrics = job.metrics || job.result?.metrics || {};
   const list = [];
@@ -243,8 +243,8 @@ function jobRows(jobs, emptyDescription = "Здесь появятся ваши 
     const project = projectId(job.project_id);
     const details = [project ? `Опыт ${project}` : job.project_id === "personal" ? "Личная лаборатория" : "", dateTime(job.created_at || job.created_utc || job.started_at || job.created), ...metrics].filter(Boolean).join(" · ");
     const buttons = [];
-    if (state === "running" && ["sim_pilot", "train_act"].includes(job.kind)) buttons.push(`<button type="button" class="icon-button" data-job="${esc(id)}" data-job-action="pause" aria-label="Приостановить: ${esc(jobTitle(job))}" title="Приостановить">${icon("pause")}</button>`);
-    if (state === "paused" && ["sim_pilot", "train_act"].includes(job.kind)) buttons.push(`<button type="button" class="icon-button" data-job="${esc(id)}" data-job-action="resume" aria-label="Продолжить: ${esc(jobTitle(job))}" title="Продолжить">${icon("play")}</button>`);
+    if (state === "running" && ["sim_pilot", "train_act", "world_model", "dagger", "skill_cycle", "manipulation", "manipulation_student", "policy_transfer"].includes(job.kind)) buttons.push(`<button type="button" class="icon-button" data-job="${esc(id)}" data-job-action="pause" aria-label="Приостановить: ${esc(jobTitle(job))}" title="Приостановить">${icon("pause")}</button>`);
+    if (state === "paused" && ["sim_pilot", "train_act", "world_model", "dagger", "skill_cycle", "manipulation", "manipulation_student", "policy_transfer"].includes(job.kind)) buttons.push(`<button type="button" class="icon-button" data-job="${esc(id)}" data-job-action="resume" aria-label="Продолжить: ${esc(jobTitle(job))}" title="Продолжить">${icon("play")}</button>`);
     if (!TERMINAL_JOBS.includes(state) && !["cancel_requested", "pause_requested", "resume_requested"].includes(state)) buttons.push(`<button type="button" class="icon-button" data-job="${esc(id)}" data-job-action="cancel" aria-label="Отменить: ${esc(jobTitle(job))}" title="Отменить">${icon("cancel")}</button>`);
     return `<article class="job-row"><span class="job-mark">${icon(/record/.test(job.kind || "") ? "camera" : "chip")}</span><div class="job-description"><div class="job-name">${esc(jobTitle(job))}${badge(state)}</div><div class="job-detail">${esc(details)}</div>${progress !== null ? `<div class="job-progress" role="progressbar" aria-label="Ход задачи" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.max(0, Math.min(100, Math.round(progress)))}"><span style="width:${Math.max(0, Math.min(100, progress))}%"></span></div>` : ""}${job.error ? `<div class="job-error">${esc(text(job.error, "Задача завершилась с ошибкой"))}</div>` : ""}</div><div class="job-actions">${buttons.join("")}</div></article>`;
   }).join("")}</div>`;
@@ -270,15 +270,16 @@ function experimentPage(project) {
   let content = heading(project.title, project.subtitle, `Исследовательский опыт / ${project.id}`, action);
   if (state.summary) content += notice("Текущее состояние опыта", text(state.summary));
   if (project.id === "01") {
-    const rendered = (entry) => ["sim_pilot", "dagger", "skill_cycle"].includes(entry.kind);
+    const rendered = (entry) => ["sim_pilot", "dagger", "skill_cycle", "manipulation", "manipulation_student"].includes(entry.kind);
     const job = jobs.find((entry) => rendered(entry) && !TERMINAL_JOBS.includes(entry.status)) || jobs.find(rendered);
     content += `<div class="two-column">${simulationPanel(job)}${simulationForm()}</div><div class="spaced-section">${flow(project)}</div>`;
-    content += simulationPilotMetrics() + simulationAdvancedPanel();
+    content += simulationPilotMetrics() + simulationAdvancedPanel() + manipulationPanel();
     content += `<div class="spaced-section">${worldTrainingPanel()}</div>`;
   } else {
     content += notice(project.id === "02" ? "Два разных материала" : "Запись наблюдения с камеры", project.id === "02" ? "Полный показ записывается через штатный ROSMASTER вместе с его командами и наблюдениями. Отдельная кнопка «Записать наблюдение» сохраняет только видео камеры." : "Сейчас мастер сохраняет видео сцены. Такой материал отмечается как наблюдение и не выдаётся за синхронизированный обучающий эпизод.");
     content += `<div class="overview-grid"><div><div id="camera-slot"></div>${project.id === "02" ? `<div class="spaced-section">${keyboardPanel()}</div><div class="spaced-section">${episodePanel()}</div>` : ""}</div><div class="side-stack">${readinessCard(project)}${flow(project)}</div></div>`;
     if (project.id === "02") content += `<div class="spaced-section">${mobileTrainingPanel()}</div>`;
+    if (project.id === "05") content += handoverRuntimePanel();
   }
   content += `<div class="spaced-section">${jobsPanel(jobs, "Запуски этого опыта")}</div>`;
   if (project.id !== "01") content += `<div class="spaced-section">${recordingsPanel(project.id)}</div>`;

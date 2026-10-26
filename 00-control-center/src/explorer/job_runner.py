@@ -181,6 +181,22 @@ def main(job_id):
             sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
             from explorer_sim.program_trace import export_program_trace
             result=export_program_trace(store.root/'jobs'/source['id']/'result.json',folder/'program_trace')
+        elif job['kind'] in ('manipulation', 'manipulation_student', 'policy_transfer'):
+            sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
+            if job['kind'] == 'manipulation':
+                from explorer_sim.manipulation import run_manipulation
+                result = run_manipulation(store, job)
+            elif job['kind'] == 'manipulation_student':
+                from explorer_sim.manipulation_student import run_manipulation_student
+                result = run_manipulation_student(store, job)
+            else:
+                from .transfer import prepare_policy_transfer
+                from explorer_sim.policy_transfer import run_policy_transfer
+                job['config'] = prepare_policy_transfer(store, job['config'])
+                result = run_policy_transfer(store, job, config)
+        elif job['kind']=='handover_runtime_test':
+            from .transfer import run_handover_runtime_test
+            result = run_handover_runtime_test(store,job)
         elif job['kind'] in ('virtual_transfer', 'handover_test'):
             from .transfer import run_virtual_experiment
             result = run_virtual_experiment(store, job, config)

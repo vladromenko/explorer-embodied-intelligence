@@ -200,17 +200,18 @@ class MujocoTargetVerifier:
     def verify(self, joints, desired):
         goal = self.world_from_base @ desired
         self.data.ctrl[self.actuators] = joints
-        streak, passed, max_contacts, measured = 0, False, 0, []
+        streak, max_contacts, measured = 0, 0, []
         for _ in range(self.steps):
             self.mj.mj_step(self.model, self.data)
             actual = self.data.body(self.tip)
             error = float(np.linalg.norm(actual.xpos-goal[:3, 3]))
             streak = streak+1 if error <= self.tolerance else 0
-            passed = passed or streak >= self.hold_steps
             max_contacts = max(max_contacts, int(self.data.ncon))
             measured.append(error)
         actual = self.data.body(self.tip)
-        return {'task': 'virtual_tool_position_tracking', 'passed': bool(passed),
+        stable = np.isfinite(self.data.qpos).all() and not any(w.number for w in self.data.warning)
+        return {'task': 'virtual_tool_position_tracking', 'passed': bool(streak >= self.hold_steps and stable),
+            'final_consecutive_steps_within_tolerance': streak, 'finite_warning_free_dynamics': bool(stable),
             'position_tolerance_m': self.tolerance, 'required_consecutive_physics_steps': self.hold_steps,
             'physics_steps': self.steps, 'final_error_m': measured[-1], 'minimum_error_m': min(measured),
             'measured_world_xyz_m': actual.xpos.tolist(), 'desired_world_xyz_m': goal[:3, 3].tolist(),
@@ -242,6 +243,10 @@ def _run_policy_transfer_locked(store, job, config):
                 or (options.get('training_result_path') and sha(options['training_result_path']) != lineage['training_receipt_sha256'])
                 or _files(Path(options['checkpoint_path'])) != lineage['checkpoint_files_sha256']):
             raise ValueError('Completed policy transfer source/result signature changed')
+        for path,key in ((root/'04-cross-embodiment-transfer/configs/so101/so101_new_calib.urdf','source_urdf_sha256'),
+                         (root/'01-autonomous-learning/src/legacy/config/explorer.urdf','target_urdf_sha256')):
+            if sha(path) != lineage[key]:
+                raise ValueError('Completed policy transfer geometric model changed')
         return saved
     if (folder/'policy-transfer-trace.json').exists():
         archive = folder/'interrupted_attempts'/uuid.uuid4().hex
@@ -374,7 +379,10 @@ def _run_policy_transfer_locked(store, job, config):
 
 def run_policy_transfer(store, job, config):
     """Single-owner job entry; partial offline attempts are retained, never lost."""
-    folder = Path(store.root)/'jobs'/job['id'];folder.mkdir(parents=True, exist_ok=True)
+    identity = job['id']
+    if not isinstance(identity,str) or not identity or Path(identity).name != identity or identity in ('.','..'):
+        raise ValueError('Invalid policy transfer job identity')
+    folder = Path(store.root)/'jobs'/identity;folder.mkdir(parents=True, exist_ok=True)
     with (folder/'.policy-transfer-owner.lock').open('a') as lock:
         try:
             fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)

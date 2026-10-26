@@ -1741,6 +1741,192 @@
       "hardware_run_ids": [],
       "activation_status": "ACTIVE_SOURCE_IMPLEMENTATION",
       "qualification_scope": "Offline phase/action trace idea applied to already-executed simulation evidence; not AW0 execution, success, neural memory or H1-H5 qualification"
+    },
+    {
+      "method_id": "PPO_SB3_2_9",
+      "implementation_id": "IMPL-FULL-MANIPULATION-PPO-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/manipulation.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "https://arxiv.org/abs/1707.06347",
+          "role": "Maintained upstream API or existing project contract; no externally copied source"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_ENGINEERING_ADAPTER",
+      "upstream_commit": "NOT_APPLICABLE_NO_CODE_COPIED",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_NEW_EXTERNAL_WEIGHTS",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Real maintained SB3 optimization separate from scripted IK. Full contact evaluator and exact native replay; stationary-base only.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "EXPLORER_RUN_POLICY_TRANSFER_INTEGRATION=1 EXPLORER_SIM_MESH_DIR=<verified CAD> MUJOCO_GL=egl python -m pytest 01-autonomous-learning/tests/test_manipulation.py -q",
+          "result": "Included in real 52 passed Homebrain branch integration run on 2026-10-26; no skipped integration tests",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "EXPLORER_CAD_MUJOCO",
+      "implementation_id": "IMPL-FULL-MANIPULATION-CONTACT-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/manipulation_env.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "https://github.com/google-deepmind/mujoco",
+          "role": "Maintained upstream API or existing project contract; no externally copied source"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_ENGINEERING_ADAPTER",
+      "upstream_commit": "NOT_APPLICABLE_NO_CODE_COPIED",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_NEW_EXTERNAL_WEIGHTS",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Existing ROSMASTER CAD with rigid wrapped candy and freely deformable sock; independent substep full-task acceptance. Estimated dynamics; no hardware qualification.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "EXPLORER_RUN_POLICY_TRANSFER_INTEGRATION=1 EXPLORER_SIM_MESH_DIR=<verified CAD> MUJOCO_GL=egl python -m pytest 01-autonomous-learning/tests/test_manipulation.py -q",
+          "result": "Included in real 52 passed Homebrain branch integration run on 2026-10-26; no skipped integration tests",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ACT_LEROBOT_0_6_1",
+      "implementation_id": "IMPL-ACT-PROCESSOR-TRANSFER-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/policy_transfer.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "https://github.com/huggingface/lerobot",
+          "role": "Maintained upstream API or existing project contract; no externally copied source"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_ENGINEERING_ADAPTER",
+      "upstream_commit": "NOT_APPLICABLE_NO_CODE_COPIED",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_NEW_EXTERNAL_WEIGHTS",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Execute official checkpoint and saved processors, explicit measured source mapping, object-relative FK/IK, independently integrated MuJoCo target position. No grasp claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "EXPLORER_RUN_POLICY_TRANSFER_INTEGRATION=1 EXPLORER_SIM_MESH_DIR=<verified CAD> MUJOCO_GL=egl python -m pytest 04-cross-embodiment-transfer/tests/test_policy_transfer_runtime.py -q",
+          "result": "Included in real 52 passed Homebrain branch integration run on 2026-10-26; no skipped integration tests",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "SO101_URDF_FK_IK",
+      "implementation_id": "IMPL-MEASURED-CLUTCH-RETARGET-001",
+      "function_or_module": "shared/explorer_shared/arm_only_retarget.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "https://github.com/huggingface/lerobot",
+          "role": "Maintained upstream API or existing project contract; no externally copied source"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_ENGINEERING_ADAPTER",
+      "upstream_commit": "NOT_APPLICABLE_NO_CODE_COPIED",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_NEW_EXTERNAL_WEIGHTS",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Explicit calibration-evidence-bound named source FK, relative clutch, M3 IK and separate aperture curve. Missing physical registration remains UNREGISTERED.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "EXPLORER_RUN_POLICY_TRANSFER_INTEGRATION=1 EXPLORER_SIM_MESH_DIR=<verified CAD> MUJOCO_GL=egl python -m pytest tests/test_pi_nano_route.py -q",
+          "result": "Included in real 52 passed Homebrain branch integration run on 2026-10-26; no skipped integration tests",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-DIRECT-PI-NANO-TRANSACTIONS-001",
+      "function_or_module": "shared/explorer_shared/pi_nano_route.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/DIRECT_PI_NANO_RU.md",
+          "role": "Maintained upstream API or existing project contract; no externally copied source"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_ENGINEERING_ADAPTER",
+      "upstream_commit": "NOT_APPLICABLE_NO_CODE_COPIED",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_NEW_EXTERNAL_WEIGHTS",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Direct source transactions over existing native plan/start/lease/stop, epochs and pending STOP delivery tracking; no controller configuration write.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "EXPLORER_RUN_POLICY_TRANSFER_INTEGRATION=1 EXPLORER_SIM_MESH_DIR=<verified CAD> MUJOCO_GL=egl python -m pytest tests/test_pi_nano_route.py -q",
+          "result": "Included in real 52 passed Homebrain branch integration run on 2026-10-26; no skipped integration tests",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "HANDOVER_VERIFIED_FSM",
+      "implementation_id": "IMPL-HANDOVER-COORDINATOR-001",
+      "function_or_module": "shared/explorer_shared/handover_runtime.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:05-cooperative-handover/docs/RUNTIME_COORDINATOR_RU.md",
+          "role": "Maintained upstream API or existing project contract; no externally copied source"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE_ENGINEERING_ADAPTER",
+      "upstream_commit": "NOT_APPLICABLE_NO_CODE_COPIED",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_NEW_EXTERNAL_WEIGHTS",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Typed command/evidence/run/object correlations, durable intents and receipts, no automatic interrupted physical replay. Existing transports injected, not invented sensors.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "EXPLORER_RUN_POLICY_TRANSFER_INTEGRATION=1 EXPLORER_SIM_MESH_DIR=<verified CAD> MUJOCO_GL=egl python -m pytest 05-cooperative-handover/tests/test_handover_runtime.py -q",
+          "result": "Included in real 52 passed Homebrain branch integration run on 2026-10-26; no skipped integration tests",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

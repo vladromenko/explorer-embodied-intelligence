@@ -175,8 +175,8 @@ def actions_required():
          'detail':'Роли подтверждены по исходным калибровкам и регистрам подключённых двигателей.' if calibrated else 'Станция проверяет подключённые руки.'},
         {'id':'demonstrations', 'title':'Записать полные показы выбранной задачи', 'status':'NEEDS_DEMONSTRATIONS',
          'detail':'Видео без действий не считается экспертной демонстрацией. Мастер начинает с 3–5 технических эпизодов.'},
-        {'id':'venue', 'title':'Рабочая цель статьи: RSS 2027', 'status':'WORKING_TARGET',
-         'detail':'Первый срок 5 декабря в 14:59 по Москве. Название конференции пока принято как рабочая гипотеза.'},
+        {'id':'venue', 'title':'Определить конференцию и официальный срок статьи', 'status':'UNCONFIRMED',
+         'detail':'Название конференции и CFP не подтверждены. Начало декабря — ориентир пользователя, а не проверенный deadline.'},
         {'id':'disk', 'title':'Проверить содержимое внешнего APFS-диска перед подготовкой хранилища', 'status':'PENDING_IDENTIFICATION',
          'detail':'Пока используются свободные 180+ ГБ внутреннего NVMe. Внешний Samsung T5 не форматировался.'}]
 
@@ -277,15 +277,28 @@ def datasets():
 @app.post('/api/jobs')
 async def create_job(request: Request):
     body = await request.json()
-    if body.get('kind') not in ('sim_pilot', 'train_act', 'dagger','skill_cycle','program_trace','world_model','virtual_transfer', 'handover_test','station_shadow','station_rollout') or body.get('project_id') not in (*TITLES.keys(),'personal'):
+    if body.get('kind') not in ('sim_pilot', 'train_act', 'dagger','skill_cycle','program_trace','world_model','virtual_transfer', 'handover_test','handover_runtime_test','station_shadow','station_rollout','manipulation','manipulation_student','policy_transfer') or body.get('project_id') not in (*TITLES.keys(),'personal'):
         raise HTTPException(400, 'Unsupported job')
     config = body.get('config', {})
     if not isinstance(config, dict):
         raise HTTPException(400, 'Job configuration must be an object')
     if '_execution_commit' in config:
         raise HTTPException(400,'Execution provenance is assigned by the worker')
-    if body['kind'] in ('world_model','dagger','skill_cycle') and config.get('device','cpu')!='cpu':
+    if body['kind'] in ('world_model','dagger','skill_cycle','manipulation','manipulation_student','policy_transfer') and config.get('device','cpu')!='cpu':
         raise HTTPException(400,'This engineering benchmark currently uses the verified CPU path')
+    if body['kind'] in ('manipulation','manipulation_student'):
+        if body['project_id'] != '01':
+            raise HTTPException(400,'Manipulation belongs to experiment 01')
+        if config.get('task','candy_to_tray') not in ('candy_to_tray','sock_to_basket'):
+            raise HTTPException(400,'Unknown full-object task')
+    if body['kind']=='policy_transfer':
+        from .transfer import prepare_policy_transfer
+        if body['project_id'] != '04':
+            raise HTTPException(400,'Policy transfer belongs to experiment 04')
+        try:
+            prepare_policy_transfer(STORE, config)
+        except (ValueError,KeyError,OSError) as error:
+            raise HTTPException(400,str(error)) from error
     if body['kind']=='station_shadow':
         config['shadow']=True
     if body['kind']=='station_rollout':
@@ -303,7 +316,7 @@ async def job_operation(job_id: str, operation: str):
     desired = {'pause':'pause_requested', 'resume':'resume_requested', 'cancel':'cancel_requested'}
     if operation not in desired or job['status'] in ('completed', 'failed', 'cancelled'):
         raise HTTPException(409, 'Operation is not valid for this job')
-    if operation in ('pause','resume') and job['kind'] not in ('sim_pilot','train_act','world_model','dagger','skill_cycle'):
+    if operation in ('pause','resume') and job['kind'] not in ('sim_pilot','train_act','world_model','dagger','skill_cycle','manipulation','manipulation_student','policy_transfer'):
         raise HTTPException(409,'Pause and resume apply to training. Stop an interactive attempt and start a fresh one.')
     STORE.update_job(job_id, status=desired[operation])
     if operation=='cancel' and job['kind']=='station_rollout' and (job.get('result') or {}).get('control_epoch'):
@@ -314,6 +327,27 @@ async def job_operation(job_id: str, operation: str):
         except httpx.HTTPError:
             pass
     return STORE.job(job_id)
+
+
+@app.get('/api/transfer/sources')
+def transfer_sources():
+    from .transfer import policy_transfer_sources
+    return {'sources':policy_transfer_sources(STORE)}
+
+
+@app.api_route('/api/retarget/{operation}',methods=['GET','POST'])
+async def retarget_proxy(operation: str,request: Request):
+    if (request.method=='GET' and operation!='status') or (request.method=='POST' and operation not in ('start','recenter','lease','stop')):
+        raise HTTPException(404)
+    node=next((node for node in CONFIG['nodes'] if node['id']=='pi'),None)
+    if node is None:
+        raise HTTPException(503,'Raspberry Pi is not configured')
+    try:
+        response=await CLIENT.request(request.method,'http://'+node['host']+':'+str(node['port'])+'/arm-retarget/'+operation,
+            headers={'Authorization':'Bearer '+node['token']},json=await request.json() if request.method=='POST' else None)
+        return JSONResponse(response.json(),response.status_code)
+    except (httpx.HTTPError,ValueError) as error:
+        raise HTTPException(503,'Direct Pi→Nano route unavailable') from error
 
 
 def find_camera(camera_id):

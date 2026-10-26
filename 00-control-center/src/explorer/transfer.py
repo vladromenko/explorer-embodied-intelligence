@@ -23,6 +23,60 @@ LELAB_REVISION = '9b5afaee33baa1d773e499937564f3831d25de22'
 SO101_NAMES = ('shoulder_pan', 'shoulder_lift', 'elbow_flex', 'wrist_flex', 'wrist_roll', 'gripper')
 
 
+def policy_transfer_sources(store):
+    """Offer only completed six-axis training with retained immutable originals."""
+    sources = []
+    for job in store.jobs(10000):
+        result = job.get('result') or {}
+        if job['kind'] == 'train_act' and job['status'] == 'completed' and result.get('trained') and result.get('feature_dimension') == 6:
+            manifest_path = Path(result.get('source_manifest_path', ''))
+            checkpoint = store.root/'jobs'/job['id']/'student_act'
+            if manifest_path.is_file() and checkpoint.is_dir():
+                manifest = json.loads(manifest_path.read_text())
+                if tuple(manifest.get('action_names', [])) == SO101_NAMES:
+                    sources.append(dict(job_id=job['id'], created=job['created'], task=manifest.get('task'),
+                        dataset_id=manifest.get('dataset_id'), physical_source_recording=bool(manifest.get('contains_physical_recordings')),
+                        source_manifest_sha256=result['source_manifest_sha256'],
+                        episodes=[dict(id=e['id'], split=e.get('split')) for e in manifest['episodes'] if e.get('split') not in ('test','sealed_test')]))
+    return sources
+
+
+def prepare_policy_transfer(store, options):
+    """Bind a selected actual ACT job to its source episode and saved processors.
+
+    No physical mappings are inferred. Missing measured registration reaches the
+    real inference stage and is reported as blocked_mapping by the job.
+    """
+    source = store.job(options.get('source_job_id', ''))
+    if not source or source['id'] not in {s['job_id'] for s in policy_transfer_sources(store)}:
+        raise ValueError('Select a completed six-axis SO-101 ACT training source')
+    result = source['result']
+    manifest_path = Path(result['source_manifest_path'])
+    if file_sha256(manifest_path) != result['source_manifest_sha256']:
+        raise ValueError('Selected original source manifest changed')
+    manifest = json.loads(manifest_path.read_text())
+    episodes = [e for e in manifest['episodes'] if e.get('split') not in ('test','sealed_test')]
+    episode_id = options.get('source_episode_id')
+    if episode_id is None:
+        episode_id = next((e['id'] for e in episodes if e.get('split') in ('development','validation')), episodes[0]['id'] if episodes else None)
+    if episode_id not in {e['id'] for e in episodes}:
+        raise ValueError('Choose an available unsealed source episode')
+    receipt = store.root/'jobs'/source['id']/'result.json'
+    if not receipt.is_file():
+        raise ValueError('Original training receipt is unavailable')
+    bound = dict(options, dataset_manifest=str(manifest_path), source_episode_id=episode_id,
+        checkpoint_path=str(store.root/'jobs'/source['id']/'student_act'), checkpoint_sha256=result['checkpoint_sha256'],
+        training_result_path=str(receipt), training_result_sha256=file_sha256(receipt))
+    # Registration is supplied as actual evidence; an absent file is not a default calibration.
+    mapping = Path.home()/'.config/explorer/transfer-source-mapping.json'
+    registration = Path.home()/'.config/explorer/transfer-object-registration.json'
+    if 'mapping_profile' not in bound and mapping.is_file():
+        bound['mapping_profile'] = str(mapping)
+    if 'registration' not in bound and registration.is_file():
+        bound['registration'] = json.loads(registration.read_text())
+    return bound
+
+
 def file_sha256(path):
     result = hashlib.sha256()
     with Path(path).open('rb') as stream:
@@ -146,6 +200,55 @@ def run_handover_protocol_tests():
     cases.append(dict(name='virtual_oracle_rejected_for_physical_protocol', passed=rejected))
     return dict(scope='deterministic_protocol_test', method_ids=['HANDOVER_VERIFIED_FSM'], cases=cases, passed=all(case['passed'] for case in cases),
                 trace=fsm.trace, physical_execution=False, physical_success_not_tested=True)
+
+
+def run_handover_runtime_test(store, job):
+    """Execute the coordinator against explicit software transports, never devices.
+
+    The normal case exercises command correlation/journaling; fault cases must
+    stop before giver release. These oracles test protocol behavior only.
+    """
+    from explorer_shared.handover_runtime import (ArmCommand, ArmObservation, CallbackArmTransport,
+        CorrelatedEvidence, DispatchReceipt, HandoverPlan, run_handover)
+    folder = store.root/'jobs'/job['id']
+    cases = []
+    for scenario in ('normal', 'disconnect', 'wrong_object', 'expired_hold'):
+        state = {'stamp':1_000_000_000, 'last':{}, 'commands':[], 'stops':[]}
+        def clock():
+            state['stamp'] += 1_000_000
+            return state['stamp']
+        plan = HandoverPlan(job['id']+':'+scenario,'software-fixture-object','software-fixture-zone',
+            tuple(ArmCommand(str(i),role,operation,{'software_fixture':True}) for i,(role,operation) in enumerate(
+                (('giver','offer'),('receiver','approach'),('receiver','close'),('giver','release'),('receiver','finish')))))
+        def submit(command, run_id, object_id, authorization):
+            if scenario=='disconnect' and command.operation=='close':
+                raise ConnectionError('Injected software transport disconnect')
+            state['commands'].append(command.operation)
+            state['last'][command.role] = command.command_id
+            return DispatchReceipt(command.command_id,run_id,object_id,command.role,True,clock(),'handover-coordinator',{'software_fixture_dispatch':True})
+        def observation(role):
+            return ArmObservation(role,True,clock(),'handover-coordinator',{'software_fixture_observation':True},state['last'].get(role))
+        def stop(role, run_id):
+            state['stops'].append(role)
+            return {'software_fixture_stop':True,'physical_stop_confirmed':False}
+        def evidence(statement, run_id, object_id, role, after, timeout):
+            stamp = clock()
+            if scenario=='expired_hold' and statement=='receiver_holds_object':
+                state['stamp'] += 3_000_000_000
+            envelope_object = 'other-fixture-object' if scenario=='wrong_object' and statement=='receiver_holds_object' else object_id
+            value = HoldEvidence(scenario+':'+statement,envelope_object,role,'virtual_test_oracle',statement,
+                True,stamp,'software-fixture-source',stamp,'handover-coordinator')
+            return CorrelatedEvidence(run_id,envelope_object,role,after,value,{'software_fixture_oracle':True})
+        transports = {role:CallbackArmTransport(role,submit,lambda role=role:observation(role),lambda run_id,role=role:stop(role,run_id))
+            for role in ('giver','receiver')}
+        result = run_handover(plan,transports,evidence,folder/scenario,mode='virtual',authority=lambda:{},clock=clock)
+        dispatched = [next(command.operation for command in plan.commands if command.command_id==receipt['command_id']) for receipt in result['commands_dispatched']]
+        expected = result['protocol_completed'] if scenario=='normal' else not result['protocol_completed'] and 'release' not in dispatched
+        cases.append(dict(scenario=scenario,passed=expected,protocol_completed=result['protocol_completed'],state=result['state'],
+            dispatched_operations=dispatched,error=result['error'],journal=str(folder/scenario/'handover-journal.jsonl')))
+    return dict(scope='software_transport_coordinator_qualification',cases=cases,passed=all(c['passed'] for c in cases),
+        physics_simulation=False,physical_execution=False,physical_success_not_tested=True,
+        method_ids=['HANDOVER_VERIFIED_FSM','ENGINEERING_GLUE'])
 
 
 def _plot(path, desired, achieved, errors):
