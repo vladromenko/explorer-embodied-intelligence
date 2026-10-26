@@ -31,6 +31,7 @@ from .cooperative_policy_adapters import QueuedNativeShadows
 from .cooperative_warm_service import CooperativeWarmService
 from .cooperative_observed_service import CooperativeObservedService
 from .cooperative_policy_job import required_policy_roles
+from .cooperative_native_sessions import CooperativeNativeSessions,OPERATIONS as NATIVE_USER_OPERATIONS
 
 
 def _boot():return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
@@ -66,6 +67,7 @@ class CooperativeService:
         self.warm_compute=CooperativeWarmService(store,clock=clock)
         self.observed_setup=CooperativeObservedService(self.workflow,{role:self._request(role) for role in ('giver','receiver')},
             self._observed_binary,inspect_native=self._inspect_skill,has_prior_evidence=self._prior_test_evidence,clock=clock)
+        self.native_controls=CooperativeNativeSessions(self)
     def _prior_test_evidence(self,row):
         with self.store.connect() as db:
             jobs=list(db.execute("SELECT id,kind,config FROM jobs WHERE json_extract(config,'$.session_id')=? OR json_extract(config,'$.cooperative_shadow_binding.session_id')=?",
@@ -145,7 +147,7 @@ class CooperativeService:
             'record_stage':lambda ref,phase,context:self._record_stage(role,ref,phase,context),
             'record_finish':lambda ref,outcome:self._record_finish(role,ref,outcome),
             'inspect_episode':lambda reference:self._inspect_episode(role,reference),
-            'predict_shadow':(lambda ref,request:self._shadow(role,ref)) if callable(self.models.get(role)) else None,
+            'predict_shadow':lambda ref,request:self._shadow(role,ref),
             'observe_state':lambda:self._observed_state(role),
             'submit_observed':lambda command,authorization:self._submit(role,command,authorization),
             'stop':lambda run:self._stop_native(role,run),
@@ -154,7 +156,7 @@ class CooperativeService:
             'authorize_manual_release':self._authorize_manual_release if role=='giver' else None,
             # Capability describes this concrete binder; readiness still checks
             # current owner/model/observation and defaults authority to false.
-            'native_dispatch_receipts':role=='giver','authoritative_release_deadline':role=='giver'}
+            'native_dispatch_receipts':True,'authoritative_release_deadline':role=='giver'}
     def _models_for(self,role,skill_id,version,spec_sha):
         rows=[]
         for job in self.store.jobs(10000):
@@ -274,11 +276,19 @@ class CooperativeService:
     def _authority(self,row):
         transport=self.transports.get((row['session_id'],'giver'));authority=self.native_bindings.get(row['session_id'])
         receiver=self.transports.get((row['session_id'],'receiver'))
+        giver_state=receiver_state={}
+        try:
+            if transport:giver_state=transport.observe_state()
+            if receiver:receiver_state=receiver.observe_state()
+        except Exception:pass  # unavailable source is never authority.
         current=bool(row.get('observed_test_binding') and row['execution_domain']=='user_observed_physical_test' and
-            authority and authority['epoch']==row['epoch'] and transport and receiver and
-            transport.observe_state()['current_native_owner_ready'] and receiver.observe_state()['current_native_owner_ready'])
-        return {'explicit_user_observed_test_current':current,'source_receipt':deepcopy(authority),
-            'reason':None if current else 'BOTH_EXACT_SCOPED_NATIVE_TRANSPORTS_AND_CURRENT_USER_LEASES_REQUIRED'}
+            row['status'] not in ('STOPPED','INTERRUPTED','COMPLETED') and authority and authority['epoch']==row['epoch'] and
+            giver_state.get('current_native_owner_ready') is True and receiver_state.get('current_native_owner_ready') is True)
+        interlock=receiver_state.get('cooperative_dual_hold_publication_interlock_current') is True
+        return {'explicit_user_observed_test_current':current and interlock,'source_receipt':deepcopy(authority),
+            'both_current_user_grants_and_native_owners':current,'receiver_dual_hold_publication_interlock_current':interlock,
+            'reason':None if current and interlock else 'NATIVE_RECEIVER_DUAL_HOLD_PUBLICATION_INTERLOCK_REQUIRED' if current else
+                'BOTH_EXACT_SCOPED_NATIVE_TRANSPORTS_AND_CURRENT_USER_LEASES_REQUIRED'}
     def _observed_state(self,role):
         with self.lock:candidates=[transport for (session,kind),transport in self.transports.items() if kind==role]
         if len(candidates)==1:return candidates[0].observe_state()
@@ -371,6 +381,7 @@ bound first; default construction cannot turn on policy execution.
                 'warm_model_ready':any(item['compute_ready'] and item['role_readiness'][role]['loaded_model_current'] for item in warm_compute)}
                 for role in ('giver','receiver')},
             'observed_setup':observed,
+            'native_controls':self.native_controls.snapshot(selected) if selected else None,
             'execution_authority':self._authority(selected) if selected else {'explicit_user_observed_test_current':False},
             'persistent_warm_model_actor_ready':any(row['compute_ready'] for row in warm_compute),
             'model_adapters_bound':{role:callable(self.models.get(role)) for role in ('giver','receiver')}}
@@ -501,6 +512,10 @@ idempotent; process restart never queues its missing half automatically.
             elif operation=='observed_observe':result=self.observed_setup.observe(body.get('observation_choice_id'),row,spec,body,actor=authenticated_actor)
             elif operation=='observed_revoke':result=self.observed_setup.revoke(body.get('permission_choice_id'),row,spec,actor=authenticated_actor)
             else:result=self.observed_setup.bind(body.get('observed_choice_id'),row,spec,actor=authenticated_actor)
+        elif operation=='native_refresh' or operation in NATIVE_USER_OPERATIONS:
+            row=self.workflow.snapshot(session);spec=self.workflow.skill(row['skill_id'],row['skill_version'])['spec']
+            result=(self.native_controls.refresh(row,spec,actor=authenticated_actor) if operation=='native_refresh'
+                else self.native_controls.command(operation,row,spec,body,actor=authenticated_actor))
         elif operation=='attach_native_giver':result=self.attach_native_giver(session,body,authenticated_actor=authenticated_actor)
         elif operation=='review_recording':
             available=self._episode_choices(self.workflow.snapshot(session));references={}
