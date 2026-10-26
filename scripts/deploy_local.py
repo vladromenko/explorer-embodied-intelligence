@@ -11,9 +11,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def remote(host, args, data=None):
-    command = args if host == socket.gethostname() else ['ssh','-o','BatchMode=yes','-o','ConnectTimeout=8',host,shlex.join(args)]
+    local = host == socket.gethostname()
+    command = args if local else ['ssh','-o','BatchMode=yes','-o','ConnectTimeout=8',host,shlex.join(args)]
     result = subprocess.run(command,
-        input=data, capture_output=True)
+        input=data, capture_output=True,cwd=Path.home() if local else None)
     if result.returncode:
         raise RuntimeError(host + ': ' + result.stderr.decode(errors='replace')[-1200:])
     return result.stdout
