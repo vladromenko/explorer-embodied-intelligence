@@ -1,0 +1,94 @@
+{
+  "schema": "explorer_so101_dataset_qualification_v1",
+  "skill_id": "software-skill",
+  "skill_version": 1,
+  "action_contract_id": "so101_follower_calibrated_position6_v1",
+  "source_kind": "software_fixture",
+  "source_kinds": [
+    "software_fixture"
+  ],
+  "source_manifests_sha256": {
+    "train-a": "1bf7024ac45fbee6f5ceb2a65854c7a898fbf10f58468d1b1407629ce0ae154f",
+    "train-b": "ae9206f49662359e30979db25cca201cf3de6a056f9038534b5debbe7fc7cb0a",
+    "dev": "a4df956a982f6d9f1f7c9f296847e4d2e9c7b8d571b796a0d3551e78f86aa898",
+    "sealed": "cef11b096b750b0c5bda8d478fcc6bbab678e1c85aff3765dfcb3b645ce71684"
+  },
+  "aggregate_manifest_path": "/tmp/explorer-so101-dataset-qualified-20261026-v3/test_real_official_061_writer_0/aggregate/manifest.json",
+  "aggregate_manifest_sha256": "b7cd264513c7372e6f585544c9d039def739845d7b8ce354f037b0990558b84c",
+  "accepted_train_original_episode_ids": [
+    "train-a",
+    "train-b"
+  ],
+  "accepted_development_original_episode_ids": [
+    "dev"
+  ],
+  "sealed_original_episode_ids": [
+    "sealed"
+  ],
+  "official_dataset_readback_verified": true,
+  "official_dataset": {
+    "format": "LeRobotDataset v3.0",
+    "directory": "/tmp/explorer-so101-dataset-qualified-20261026-v3/test_real_official_061_writer_0/aggregate/lerobot_v3",
+    "repo_id": "local-explorer/so101-b74df2175dee94b578a74285",
+    "episodes": 3,
+    "frames": 9,
+    "fps": 10,
+    "image_only": true,
+    "finalize_called": true,
+    "official_readback_passed": true,
+    "all_frame_state_action_image_checks_passed": true,
+    "causal_alignment_checked": true,
+    "source_splits_preserved": true,
+    "source_npz_immutable": true,
+    "native_monotonic_timestamps_preserved": true,
+    "native_wall_timestamps_preserved": false,
+    "conversion_grid_preserved": true,
+    "source_manifest_sha256": "b7cd264513c7372e6f585544c9d039def739845d7b8ce354f037b0990558b84c",
+    "provenance_sha256": "53afdea8ed3035c6d744b83a4a17c64e3a12b9c9e6e8db3cf752728c1c709c07",
+    "uploaded_to_hub": false
+  },
+  "official_api_compatibility": {
+    "lerobot_version": "0.6.1",
+    "installed_primary_sources_sha256": {
+      "lerobot/robots/so_follower/so_follower.py": "debe2661e7e44761a74f7cb6aaa83838a0771f91d86f80f42fa822ebb9cdd74b",
+      "lerobot/robots/so_follower/config_so_follower.py": "65eecfc4eed9239abf65015e6b89cf0a1cb7d3bc34e5971eb83a034ac166d4f4",
+      "lerobot/scripts/lerobot_replay.py": "cd768d19108843a87fc2f5c6b16dfe30c334b4cdaae70306b5a57305ccf41cc1",
+      "lerobot/datasets/lerobot_dataset.py": "07523e2a4f9c53b6a96df9255ad131ee30e707fd8610ec9d2178d3741023ae3a"
+    },
+    "official_action_keys": [
+      "shoulder_pan.pos",
+      "shoulder_lift.pos",
+      "elbow_flex.pos",
+      "wrist_flex.pos",
+      "wrist_roll.pos",
+      "gripper.pos"
+    ],
+    "official_default_robot_use_degrees": true,
+    "official_default_robot_coordinate_compatible": false,
+    "recorded_native_coordinate_units": [
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "calibrated_normalized_-100_100",
+      "normalized_0_100"
+    ],
+    "required_normalized_software_mapping": {
+      "use_degrees": false
+    },
+    "official_robot_connect_qualified": false,
+    "official_robot_classes_imported": false,
+    "connect_calls_configure_and_writes_controller_registers": true,
+    "hardware_entrypoint_executed": false,
+    "existing_executor_or_controller_settings_changed": false
+  },
+  "full_teaching_provenance_ready": false,
+  "technical_dataset_ready": true,
+  "object_expert_eligible": false,
+  "physical_task_success_verified": false,
+  "physical_io": false,
+  "replay_executed": false,
+  "learned_rollout_executed": false,
+  "uploaded_to_hub": false,
+  "originals_unchanged": true
+}
