@@ -13,6 +13,8 @@ import sys
 import tempfile
 import uuid
 
+import pytest
+
 
 def pytest_sessionstart(session):
     production=(Path.home()/'.local/share/explorer/state').resolve()
@@ -46,3 +48,14 @@ def pytest_sessionstart(session):
         isolated_api_state=str(actual),production_state_used=False,environment_restored=True,
         explicit_private_config_honored=explicit_private,fleet_nodes_configured=len(module.CONFIG.get('nodes',[])),
         optional_model_imported=False,physical_requests=0),indent=2))
+
+
+@pytest.fixture(autouse=True)
+def isolated_API_login_attempts(monkeypatch):
+    """One test is one isolated server; clients within it share the real limit.
+
+    Keep production authentication and its threshold unchanged. The session API
+    import is already private; tests must not share a five-minute IP budget.
+    """
+    module=sys.modules.get('explorer.app')
+    if module is not None:monkeypatch.setattr(module,'LOGIN_ATTEMPTS',{})

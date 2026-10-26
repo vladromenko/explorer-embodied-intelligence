@@ -59,7 +59,7 @@ def test_actual_central_auth_user_display_attach_and_cancel_through_common_nativ
             expected_control_epoch=challenge['control_epoch'],observing=True,robot_workspace_checked=True,user_observed_test_confirmed=True)
         second_client=TestClient(module.app)
         try:
-            second_client.post('/api/login',json={'password':'fixture'})
+            assert second_client.post('/api/login',json={'password':'fixture'}).status_code==200
             stolen=second_client.post(route+'/authorize',json=authority,headers={'X-Explorer-CSRF':second_client.cookies['explorer_csrf']})
             assert stolen.status_code==409 and not provider.status()['execution_permission']
         finally:second_client.close()
@@ -102,7 +102,7 @@ def test_retained_source_frames_are_bound_to_the_selected_attempt_and_original_S
     metadata=folder/(ident+'.json');image=folder/(ident+'.jpg')
     metadata.write_text(json.dumps(dict(observation=dict(frame_sha256=hashlib.sha256(raw).hexdigest(),frame_id='fixture-frame',frame_boot_id='fixture-boot'))));image.write_bytes(raw)
     with TestClient(module.app) as client:
-        client.post('/api/login',json={'password':'fixture'})
+        assert client.post('/api/login',json={'password':'fixture'}).status_code==200
         path='/api/lab/source-evaluations/'+job['id']+'/frames/'+ident
         response=client.get(path);assert response.status_code==200 and response.content==raw
         image.write_bytes(raw+b'changed')

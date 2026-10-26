@@ -34,3 +34,22 @@ def test_authentication_origin_csrf_and_one_time_ticket(tmp_path, monkeypatch):
             db.execute('INSERT INTO tickets VALUES (?,?)',(hashlib.sha256(token.encode()).hexdigest(),time.time()+30))
         assert client.get('/api/login?ticket='+token,follow_redirects=False).status_code==303
         assert client.get('/api/login?ticket='+token,follow_redirects=False).status_code==401
+
+
+def test_login_limit_is_shared_by_clients_and_cannot_be_bypassed_by_forwarded_header(tmp_path,monkeypatch):
+    from types import SimpleNamespace
+    module=importlib.import_module('explorer.app');store=Store(tmp_path/'rate-limit-state')
+    monkeypatch.setattr(module,'STORE',store)
+    monkeypatch.setattr(module,'CONFIG',dict(module.CONFIG,nodes=[],password_salt='rate-fixture',
+        password_hash=hashlib.pbkdf2_hmac('sha256',b'fixture',b'rate-fixture',310000).hex()))
+    clock=[1000.];monkeypatch.setattr(module,'time',SimpleNamespace(time=lambda:clock[0]))
+    first,second=TestClient(module.app),TestClient(module.app)
+    try:
+        for index in range(16):
+            client=first if index%2==0 else second
+            assert client.post('/api/login',json={'password':'wrong'}).status_code==401
+        assert second.post('/api/login',json={'password':'fixture'},headers={'X-Forwarded-For':'another-host'}).status_code==429
+        clock[0]+=301
+        assert first.post('/api/login',json={'password':'fixture'}).status_code==200
+        assert len(module.LOGIN_ATTEMPTS['testclient'])==1
+    finally:first.close();second.close()
