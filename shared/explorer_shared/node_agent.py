@@ -503,11 +503,17 @@ class NodeAgent:
             source.close()
         self.delivery.close()
 
+    def native_teaching_request(self,path,payload=None):
+        try:
+            return self.legacy_bridge.request(path,payload)
+        except (OSError,ValueError):
+            return 503,{'error':'Native recording interface unavailable; existing cache remains readable'}
+
     def teaching_status(self):
         observed=self.mobile_capture.status() if self.mobile_capture else {}
         if observed.get('active'):
             return 200,observed
-        code,native=self.legacy_bridge.request('teaching/mobile')
+        code,native=self.native_teaching_request('teaching/mobile')
         if native.get('active'):
             return code,native
         latest=observed.get('last') or {}
@@ -528,11 +534,14 @@ class NodeAgent:
                 raise ValueError('Unknown data recording operation')
             methods[operation]()
             return 200,self.mobile_capture.status()
-        code,result=self.legacy_bridge.request('teaching/mobile/'+operation,payload)
+        code,result=self.native_teaching_request('teaching/mobile/'+operation,payload)
         detail=str(result.get('detail',result.get('error','')))
-        unavailable=code>=500 or any(text in detail for text in ('из-за питания','истории команд руки','свежего состояния','свежего кадра'))
+        unavailable=code>=500 or any(text in detail for text in ('из-за питания','истории команд руки','свежего состояния','свежего кадра','требует наблюдателя'))
         if operation=='start' and code>=400 and unavailable and self.mobile_capture:
-            self.mobile_capture.start(**payload)
+            try:
+                self.mobile_capture.start(**payload)
+            except RuntimeError as error:
+                return 409,{'detail':str(error)}
             return 200,self.mobile_capture.status()
         return code,result
 
