@@ -65,3 +65,25 @@
 .observed-native-panel details { margin-top:24px; padding-top:16px; border-top:1px solid var(--line); }
 .observed-native-panel .camera-preview { display:block; max-width:100%; margin-top:20px; }
 @media(max-width:700px) { .calibration-corners { grid-template-columns:1fr; } .calibration-corners fieldset { gap:6px; padding:10px; } }
+
+/* Shared form semantics: several workbenches use the label as its own field. */
+label.form-field { display:flex; flex-direction:column; gap:8px; min-width:0; color:var(--text); font-size:12px; }
+.form-field :is(input,select,textarea) { min-width:0; max-width:100%; }
+.form-field textarea { width:100%; min-height:96px; padding:10px 12px; border:1px solid #36505f; border-radius:10px; color:var(--text); background:#0e1f2e; resize:vertical; }
+.check-field { display:flex; align-items:flex-start; gap:9px; margin:12px 0; line-height:1.5; }
+.check-field input[type=checkbox] { flex:none; width:17px; height:17px; margin-top:2px; accent-color:var(--orange); }
+.cooperative-workbench .panel-body { display:grid; gap:18px; }
+.cooperative-workbench figure { min-width:0; max-width:100%; margin:0; }
+.cooperative-workbench figcaption { margin-bottom:8px; font-size:12px; }
+.cooperative-workbench .camera-preview { display:block; width:100%; max-width:100%; height:auto; aspect-ratio:4/3; object-fit:contain; border-radius:8px; background:var(--bg); }
+.cooperative-workbench fieldset { min-width:0; margin:0; padding:14px; border:1px solid var(--line); border-radius:9px; }
+.cooperative-workbench legend { max-width:100%; padding:0 6px; overflow-wrap:anywhere; }
+.cooperative-workbench .panel-heading { flex-wrap:wrap; gap:14px; }
+.cooperative-workbench .form-grid { align-items:start; }
+.panel,.two-column>*,.station-learning>* { min-width:0; }
+.lab-skills-panel .panel-body>label,.lab-skills-panel form label { display:flex; flex-direction:column; gap:8px; margin:14px 0; font-size:12px; }
+.lab-skills-panel :is(input,select,textarea) { min-width:0; max-width:100%; width:100%; padding:10px 12px; color:var(--text); background:#0e1f2e; border:1px solid #36505f; border-radius:10px; }
+.lab-skills-panel label:has(input[type=checkbox]) { flex-direction:row; align-items:flex-start; }
+.lab-skills-panel input[type=checkbox] { flex:none; width:17px; height:17px; margin-top:2px; }
+.lab-skills-panel img { max-width:100%; height:auto; }
+@media(max-width:700px) { .cooperative-workbench .form-grid { grid-template-columns:minmax(0,1fr); } }

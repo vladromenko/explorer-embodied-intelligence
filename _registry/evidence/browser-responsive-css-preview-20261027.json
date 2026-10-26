@@ -1,0 +1,32 @@
+{
+  "schema": "explorer_browser_candidate_css_preview_v1",
+  "browser": "Firefox153/BiDi on Homebrain",
+  "release_under_test": "36a2d6c72295b8bf0598e1af953ade06cf217752",
+  "candidate_css_sha256": "3b4f3f05669e425940dfa3dda84ce8e6034b8d763f38fa893632a78c55dc4a3b",
+  "preview_only_not_live_css": true,
+  "physical_control_requests_sent": 0,
+  "pages": [
+    {
+      "page": "cooperative-desktop",
+      "settled": true,
+      "error": null,
+      "horizontalOverflow": false,
+      "before_horizontal_overflow": false
+    },
+    {
+      "page": "cooperative-mobile",
+      "settled": true,
+      "error": null,
+      "horizontalOverflow": false,
+      "before_horizontal_overflow": true
+    },
+    {
+      "page": "calibration-mobile",
+      "settled": true,
+      "error": null,
+      "horizontalOverflow": false,
+      "before_horizontal_overflow": true
+    }
+  ],
+  "scope": "Actual authenticated GET-only pages with candidate CSS injected into ephemeral browser DOM. Original camera pixels retained in private screenshots. No user physical test or model mastery claimed."
+}
