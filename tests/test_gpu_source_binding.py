@@ -41,6 +41,33 @@ def qualification(tmp_path,release,kind='manipulation_student',name='latest.json
     path.write_text(json.dumps(receipt));return path
 
 
+def test_runtime_identity_follows_literal_shared_dependencies_and_preserves_gpu_package_precedence(tmp_path):
+    import shutil
+    executable=runtime(tmp_path)
+    primary=executable.parent.parent/'lib/python3.12/site-packages'
+    linked=tmp_path/'shared-venv/lib/python3.12/site-packages';linked.mkdir(parents=True)
+    for name in ('lerobot','mujoco'):
+        shutil.move(str(primary/(name+'-fixture.dist-info')),linked)
+    shadow=linked/'torch-cpu.dist-info';shadow.mkdir()
+    (shadow/'METADATA').write_text('Name: torch\nVersion: wrong-CPU-shadow\n')
+    path_file=primary/'shared-dependencies.pth';path_file.write_text(str(linked)+'\n')
+    identity=runtime_identity(executable)
+    assert identity['distribution_records']['torch']['version']=='fixture-1'
+    assert identity['distribution_records']['lerobot']['metadata_path'].startswith(str(linked))
+    assert identity['site_path_files_sha256'][str(path_file)]==hashlib.sha256(path_file.read_bytes()).hexdigest()
+    before=identity
+    path_file.write_text(str(linked)+'\n# declared environment changed\n')
+    assert runtime_identity(executable)!=before
+
+
+def test_same_site_duplicate_distribution_is_still_rejected(tmp_path):
+    executable=runtime(tmp_path)
+    duplicate=executable.parent.parent/'lib/python3.12/site-packages/torch-other.dist-info'
+    duplicate.mkdir();(duplicate/'METADATA').write_text('Name: torch\nVersion: ambiguous-other\n')
+    with pytest.raises(ValueError,match='Ambiguous'):
+        runtime_identity(executable)
+
+
 def test_qualified_old_source_remains_admitted_after_deploy_and_mutable_latest_receipt_change(tmp_path):
     old,current=releases(tmp_path);python=runtime(tmp_path);registry=tmp_path/'qualification-registry'
     receipt=qualification(tmp_path,old)

@@ -11,6 +11,7 @@ import json
 import os
 from pathlib import Path
 import re
+import subprocess
 from email.parser import Parser
 
 
@@ -61,19 +62,47 @@ def runtime_identity(executable):
     venv=executable.parent.parent
     configuration=venv/'pyvenv.cfg'
     if not configuration.is_file():raise ValueError('GPU runtime must be an explicit versioned virtual environment')
+    sites=list(sorted((venv/'lib').glob('python*/site-packages')))
+    path_files={}
+    for site in list(sites):
+        for path_file in sorted(site.glob('*.pth')):
+            path_files[str(path_file)] = sha(path_file)
+            for line in path_file.read_text().splitlines():
+                value=line.strip()
+                if value and not value.startswith(('#','import ' ,'import\t')):
+                    linked=(site/value).resolve()
+                    if linked.is_dir() and linked not in sites:sites.append(linked)
+    # Metadata resolution uses the actual qualified interpreter, never imports
+    # torch/CUDA, and sees literal .pth dependencies used by this GPU environment.
+    selected=None
+    if os.access(executable,os.X_OK):
+        query="import importlib.metadata as m,json;print(json.dumps({n:str(m.distribution(n)._path/'METADATA') for n in "+repr(PACKAGES)+"}))"
+        try:
+            process=subprocess.run([str(executable),'-c',query],capture_output=True,text=True,check=True,timeout=10)
+            selected=json.loads(process.stdout)
+        except (subprocess.SubprocessError,ValueError) as error:
+            raise ValueError('GPU interpreter distribution resolution is unavailable') from error
+        if not isinstance(selected,dict) or set(selected)!=set(PACKAGES):raise ValueError('GPU interpreter distribution resolution is incomplete')
     packages={}
-    for site in sorted((venv/'lib').glob('python*/site-packages')):
+    for site in sites:
+        candidates={}
         for metadata in site.glob('*.dist-info/METADATA'):
             fields=Parser().parsestr(metadata.read_text())
             name=re.sub('[-_.]+','-',str(fields.get('Name','')).lower())
-            if name in PACKAGES:
-                if name in packages:raise ValueError('Ambiguous GPU runtime distribution identity: '+name)
+            if name in PACKAGES:candidates.setdefault(name,[]).append((metadata,fields))
+        for name,entries in candidates.items():
+            if name not in packages:
+                if len(entries)!=1:raise ValueError('Ambiguous GPU runtime distribution identity: '+name)
+                metadata,fields=entries[0]
+                if selected is not None and metadata.resolve()!=Path(selected[name]).resolve():
+                    raise ValueError('GPU runtime distribution path order differs from interpreter resolution: '+name)
                 record=metadata.parent/'RECORD'
                 packages[name]={'version':fields.get('Version'),'metadata_sha256':sha(metadata),
-                    'record_sha256':sha(record) if record.is_file() else None}
+                    'record_sha256':sha(record) if record.is_file() else None,'metadata_path':str(metadata.resolve())}
     if set(packages)!=set(PACKAGES):raise ValueError('GPU runtime distribution evidence is incomplete')
     return {'executable':str(executable),'resolved_executable_sha256':sha(executable.resolve()),
-        'pyvenv_config_sha256':sha(configuration),'distribution_records':packages,
+        'pyvenv_config_sha256':sha(configuration),'distribution_records':packages,'site_path_files_sha256':path_files,
+        'distribution_resolution':'qualified_interpreter_importlib_metadata' if selected is not None else 'nonexecutable_software_fixture_path_order',
         'OS_and_GPU_driver_fully_hashed':False}
 
 
