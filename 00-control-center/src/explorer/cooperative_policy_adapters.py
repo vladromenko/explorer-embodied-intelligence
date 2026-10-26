@@ -22,11 +22,13 @@ class QueuedNativeShadows:
         self.store,self.root,self.current=store,Path(root),current_session
         self.root.mkdir(parents=True,exist_ok=True);self.lock=threading.RLock()
 
-    def _plan(self,session,spec):
+    def _plan(self,session,spec,*,roles=('giver','receiver')):
         if (session.get('skill_id')!=spec.get('skill_id') or session.get('skill_version')!=spec.get('version') or
                 session.get('spec_sha256')!=spec.get('spec_sha256')):raise ValueError('Exact cooperative source specification required')
+        if not isinstance(roles,(list,tuple)) or not roles or list(roles)!=[role for role in ('giver','receiver') if role in roles]:
+            raise ValueError('Explicit nonempty ordered native policy roles required')
         plans={}
-        for role in ('giver','receiver'):
+        for role in roles:
             reference=native_role_reference(role,spec['subskills'][role])
             if reference['experiment_slug']=='cross_embodiment_transfer':
                 raise ValueError('TRANSFER_NATIVE9_SHADOW_PROVIDER_NOT_BOUND')

@@ -59,6 +59,9 @@ class CooperativeWarmService:
             'schedule':self.store.schedule_status(job['id']),'compute_ready':False,'physical_execution_authorized':False,
             'native_transports_automatically_attached':False,'hardware_lease_renewed':False,
             'paired_runtime_benchmark_qualified':False,'blockers':[]}
+        roles=settings['required_policy_roles'];result['required_policy_roles']=list(roles)
+        result['role_readiness']={role:{'required':role in roles,'loaded_model_current':False,
+            'compute_requirement_satisfied':role not in roles} for role in ('giver','receiver')}
         if (session.get('session_id')!=settings['session_id'] or session.get('epoch')!=settings['cooperative_epoch'] or
                 session.get('process_session')!=settings['cooperative_process_session']):result['blockers'].append('COOPERATIVE_SESSION_PROCESS_EPOCH_CHANGED')
         try:
@@ -70,13 +73,16 @@ class CooperativeWarmService:
             # Ready describes actual CPU-loaded models only. It grants no
             # native execution; paired finite ML/RSS qualification is separate.
             models=lease.get('model_receipts') or {}
-            if (models.get('model_pair_verified') is not True or models.get('software_model_fixture') is not False or
-                    models.get('action_dimensions')!={'giver':9,'receiver':6}):
-                result['blockers'].append('ACTUAL_HASH_BOUND_LOADED_MODEL_PAIR_NOT_VERIFIED')
+            verified=models.get('native_models_verified') is True or (roles==['giver','receiver'] and models.get('model_pair_verified') is True)
+            if (not verified or models.get('software_model_fixture') is not False or
+                    models.get('action_dimensions')!={role:ROLE_CONTRACTS[role]['dimension'] for role in roles}):
+                result['blockers'].append('ACTUAL_HASH_BOUND_REQUIRED_NATIVE_MODELS_NOT_VERIFIED')
             row,spec=current_source(self.store,settings)
             if warm_request(self.store,row,spec,compute_ttl_s=settings['compute_ttl_s'])!=settings:
                 result['blockers'].append('ORIGINAL_NATIVE_MODEL_SOURCE_BINDING_CHANGED')
             result['compute_ready']=not result['blockers']
+            if result['compute_ready']:
+                for role in roles:result['role_readiness'][role].update(loaded_model_current=True,compute_requirement_satisfied=True)
         except (ValueError,OSError,KeyError,TypeError) as error:
             result['blockers'].append('CURRENT_WARM_WORKER_NOT_READY:'+type(error).__name__+':'+str(error))
         return result
@@ -92,6 +98,7 @@ actor token can silently replace this model callback.
         if role not in ('giver','receiver'):raise ValueError('Actual separate native role required')
         job=self.store.job(job_id)
         if not job or job['kind']!='cooperative_policy_warm':raise ValueError('Select an actual authoritative warm compute job')
+        if role not in binding_from_config(job['config'])['required_policy_roles']:raise ValueError('Manual input role has no required policy predictor')
         state=self.snapshot_job(job,session)
         if not state['compute_ready']:raise ValueError('Actual current two-head warm compute models not ready')
         settings=binding_from_config(job['config']);reference=settings['native_plans'][role]['reference']

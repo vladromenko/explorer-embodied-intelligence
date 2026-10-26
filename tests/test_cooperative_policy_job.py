@@ -20,8 +20,8 @@ from test_rosmaster_observation import fixture as nano_source
 from test_so101_live_shadow_transport import rig as pi_source
 
 
-def queued(tmp_path):
-    service,store,calls,client,spec,session,models=configured(tmp_path)
+def queued(tmp_path,*,roles=('giver','receiver')):
+    service,store,calls,client,spec,session,models=configured(tmp_path,input_policy_roles=roles,pin_manual_models=False)
     settings=warm_request(store,session,spec)
     job=store.create_job('cooperative_policy_warm','05',settings);store.update_job(job['id'],status='running')
     store.update_schedule_runtime(job['id'],worker=worker_identity(),launch_nonce='c'*32,bootstrap_admitted=True)
@@ -115,3 +115,63 @@ def test_worker_requires_original_process_epoch_and_durable_bootstrap_before_mod
         with pytest.raises(ValueError,match='boot/process/session/epoch'):current_source(store,settings)
         assert not calls
     finally:service.close();client.close()
+
+
+@pytest.mark.parametrize('role',['giver','receiver'])
+def test_real_single_head_ipc_never_loads_predicts_or_reads_manual_role(tmp_path,monkeypatch,role):
+    service,store,calls,client,spec,session,job,settings=queued(tmp_path,roles=(role,))
+    ready=threading.Event();errors=[];requests=[];loaded=[];manual='receiver' if role=='giver' else 'giver'
+    nano,_,_,_,_=nano_source();_,_,pi,_=pi_source();temporary=tempfile.TemporaryDirectory(prefix='ex-one-')
+    ref=spec['subskills']['receiver']
+    class Nine:
+        def predict(self,observation,read,verify_observation):
+            assert verify_observation(observation,None)['preceding_command9']['admitted']
+            return {'action9':[90]*6+[0]*3,'hardware_io':False,'software_model_fixture':True}
+    class Six:
+        camera_id='pi-overview';calibration_sha256='a'*64;last_receipt={'software_model_fixture':True}
+        shadow_lineage={'checkpoint_sha256':ref.get('checkpoint_sha256'),'skill_id':ref['skill_id'],
+            'skill_version':ref['skill_version'],'spec_sha256':ref['spec_sha256'],'software_model_fixture':True}
+        def predict(self,rgb,state,*,valid_mask,observation):
+            validate_observation(rgb,state,valid_mask,observation,camera_id=self.camera_id,
+                calibration_sha256=self.calibration_sha256,low=LOW,high=HIGH)
+            return np.array([0]*5+[50],np.float32)
+    def loader(_store,actual,_config,**kwargs):
+        assert actual['required_policy_roles']==[role] and set(actual['native_plans'])=={role}
+        loaded.append(role)
+        return {role:Nine() if role=='giver' else Six()},{'action_dimensions':{role:9 if role=='giver' else 6},'software_model_fixture':True}
+    def handler(request):
+        assert request.method=='GET';requests.append(request.url.path)
+        if role=='giver':
+            assert request.url.path.startswith('/native-policy/')
+            if request.url.path=='/native-policy/observation':return httpx.Response(200,json=nano.create())
+            raw,meta=nano.frame(request.url.path.split('/')[3]);headers={'X-Observation-ID':meta['observation_id'],
+                'X-Frame-ID':meta['frame_id'],'X-JPEG-SHA256':meta['jpeg_sha256'],'X-Boot-ID':meta['boot_id'],'X-Clock-Domain':meta['clock_domain']}
+        else:
+            assert request.url.path.startswith('/station/')
+            if request.url.path=='/station/observation':return httpx.Response(200,json=pi.create())
+            raw,meta=pi.frame(request.url.path.split('/')[3]);headers={'X-Observation-ID':meta['observation_id'],
+                'X-Frame-ID':meta['frame_id'],'X-JPEG-SHA256':meta['frame_sha256'],'X-Boot-ID':meta['frame_boot_id']}
+        return httpx.Response(200,content=raw,headers=headers)
+    original=store.update_schedule_runtime
+    def update(identity,**values):
+        result=original(identity,**values)
+        if values.get('phase')=='cooperative_actor_ready':ready.set()
+        return result
+    monkeypatch.setattr(store,'update_schedule_runtime',update)
+    def run():
+        try:run_cooperative_policy_session(store,job,service.config,model_loader=loader,
+            client_factory=lambda **kwargs:httpx.Client(**kwargs,transport=httpx.MockTransport(handler)),socket_root=temporary.name)
+        except Exception as error:errors.append(error);ready.set()
+    thread=threading.Thread(target=run);thread.start();assert ready.wait(3)
+    try:
+        assert loaded==[role] and not errors and not requests
+        lease=read_lease(store.root/'jobs'/job['id'])
+        actor=NativeActorClient(job['id'],store.root/'jobs'/job['id'],settings,actor_instance_id=lease['actor_instance_id'],
+            valid=lambda lease:store.job(job['id'])['status']=='running',socket_root=temporary.name)
+        with pytest.raises(ValueError,match='Manual role'):actor.predict(manual)
+        assert not requests
+        result=actor.predict(role);assert result['native_role']==role and len(requests)==(2 if role=='giver' else 3)
+        assert not result['dispatch_performed'] and not calls
+    finally:
+        store.update_job(job['id'],status='cancel_requested');thread.join(3);temporary.cleanup();service.close();client.close()
+    assert not thread.is_alive() and not errors

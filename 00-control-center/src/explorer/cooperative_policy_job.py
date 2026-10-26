@@ -25,7 +25,11 @@ from .rosmaster_shadow_job import run_rosmaster_shadow
 from .so101_shadow_job import run_so101_shadow,_get
 
 FIELDS=('schema','session_id','cooperative_epoch','cooperative_process_session','cooperative_spec_sha256',
-    'clock_domain','compute_ttl_s','warmup_timeout_s','device','native_plans','physical_execution_authorized')
+    'clock_domain','compute_ttl_s','warmup_timeout_s','device','native_plans','required_policy_roles','physical_execution_authorized')
+
+
+def required_policy_roles(session):
+    return [role for role in ('giver','receiver') if session.get(role+'_input_mode')=='policy']
 
 
 def _sha(path):
@@ -37,7 +41,11 @@ def binding_from_config(config):
     if (set(result)!=set(FIELDS) or result['schema']!='explorer_cooperative_warm_request_v1' or
             result['device']!='cpu' or result['physical_execution_authorized'] is not False or
             type(result['compute_ttl_s']) is not int or not 30<=result['compute_ttl_s']<=600 or result['warmup_timeout_s']!=120):
-        raise ValueError('Typed two-head CPU-only compute session request required')
+        raise ValueError('Typed native CPU-only compute session request required')
+    roles=result['required_policy_roles']
+    if (not isinstance(roles,list) or not roles or roles!=[role for role in ('giver','receiver') if role in roles] or
+            not isinstance(result['native_plans'],dict) or set(result['native_plans'])!=set(roles)):
+        raise ValueError('Exact nonempty required policy roles/native plans required; no manual placeholders')
     return result
 
 
@@ -52,6 +60,7 @@ def current_source(store,settings):
     if (row.get('schema')!='explorer_cooperative_session_v1' or row.get('session_id')!=identity or
             row.get('epoch')!=settings['cooperative_epoch'] or row.get('process_session')!=settings['cooperative_process_session'] or
             row.get('spec_sha256')!=settings['cooperative_spec_sha256'] or
+            required_policy_roles(row)!=settings.get('required_policy_roles') or
             row.get('clock_domain')!=settings['clock_domain'] or settings['clock_domain']!='nx:'+boot or
             row.get('status') in ('STOPPED','INTERRUPTED','COMPLETED')):
         raise ValueError('Current original cooperative boot/process/session/epoch required; no authority recovery')
@@ -73,11 +82,14 @@ def warm_request(store,session,spec,*,compute_ttl_s=120):
         'cooperative_epoch':session['epoch'],'cooperative_process_session':session['process_session'],
         'cooperative_spec_sha256':spec['spec_sha256'],'clock_domain':session['clock_domain'],
         'compute_ttl_s':compute_ttl_s,'warmup_timeout_s':120,'device':'cpu','physical_execution_authorized':False,
-        'native_plans':{}}
-    settings=binding_from_config(settings);current_source(store,settings)
+        'native_plans':{},'required_policy_roles':required_policy_roles(session)}
+    if not settings['required_policy_roles']:raise ValueError('No policy roles require warm computation; both manual inputs work without models')
+    # Validate cheap request bounds before original cohort file hashing.
+    if type(compute_ttl_s) is not int or not 30<=compute_ttl_s<=600:raise ValueError('Compute TTL must be30..600s')
+    current_source(store,settings)
     queue=QueuedNativeShadows(store,store.root/'cooperative05/queued-shadows',current_session=lambda _id:session)
-    settings['native_plans']=queue._plan(session,spec)
-    return settings
+    settings['native_plans']=queue._plan(session,spec,roles=settings['required_policy_roles'])
+    return binding_from_config(settings)
 
 
 def _node_client(config,node_id,client_factory):
@@ -92,23 +104,30 @@ def _node_client(config,node_id,client_factory):
 
 def load_native_models(store,settings,config,*,client_factory=httpx.Client):
     """Runs only inside admitted worker; hashes actual loaded implementations."""
-    from explorer_shared.learning.rosmaster_skill_pipeline import RosmasterSkillPolicy
-    from .so101_shadow import load_shadow_policy
+    import torch
     import psutil
-    plans=settings['native_plans'];giver=store.job(plans['giver']['settings']['model_job_id'])
-    path=Path(giver['result']['model_manifest']);saved=json.loads(path.read_bytes())
-    implementation=saved.get('implementation_sha256') or {}
+    # Host-only inference profile used by the retained finite CPU pair proof.
+    # This does not change native loops, motor settings or model mathematics.
+    torch.set_num_threads(2)
+    plans=settings['native_plans'];models={}
     learning=Path(__file__).parents[3]/'shared/explorer_shared/learning'
-    for name in ('rosmaster_skill_pipeline.py','rosmaster_skill_features.py','rosmaster_skill_hybrid.py'):
-        if implementation.get(name)!=_sha(learning/name):raise ValueError('Native106D saved model/implementation binding differs')
-    native9=RosmasterSkillPolicy(path,candidate='ACT9')
-    with _node_client(config,'pi',client_factory) as client:
-        raw,_=_get(client,'/station/observation',128*1024);source=json.loads(raw)['observation']
-    native6=load_shadow_policy(store,plans['receiver']['settings']['model_job_id'],
-        expected_camera_id=source['camera_id'],expected_calibration_sha256=source['follower_calibration_sha256'])
+    if 'giver' in plans:
+        from explorer_shared.learning.rosmaster_skill_pipeline import RosmasterSkillPolicy
+        giver=store.job(plans['giver']['settings']['model_job_id'])
+        path=Path(giver['result']['model_manifest']);saved=json.loads(path.read_bytes())
+        implementation=saved.get('implementation_sha256') or {}
+        for name in ('rosmaster_skill_pipeline.py','rosmaster_skill_features.py','rosmaster_skill_hybrid.py'):
+            if implementation.get(name)!=_sha(learning/name):raise ValueError('Native106D saved model/implementation binding differs')
+        models['giver']=RosmasterSkillPolicy(path,candidate='ACT9')
+    if 'receiver' in plans:
+        from .so101_shadow import load_shadow_policy
+        with _node_client(config,'pi',client_factory) as client:
+            raw,_=_get(client,'/station/observation',128*1024);source=json.loads(raw)['observation']
+        models['receiver']=load_shadow_policy(store,plans['receiver']['settings']['model_job_id'],
+            expected_camera_id=source['camera_id'],expected_calibration_sha256=source['follower_calibration_sha256'])
     versions={name:importlib.metadata.version(name) for name in ('torch','torchvision','lerobot')}
     if versions['lerobot']!='0.6.1':raise ValueError('Verified official LeRobot0.6.1 required')
-    for role,policy in (('giver',native9),('receiver',native6)):
+    for role,policy in models.items():
         if any(parameter.device.type!='cpu' for parameter in policy.policy.parameters()):raise ValueError('CPU-only native predictors required')
         training=store.job(plans[role]['settings']['model_job_id']);expected=training['result'].get('framework_versions')
         if not isinstance(expected,dict) or not expected or any(versions.get(key)!=value for key,value in expected.items()):
@@ -119,12 +138,18 @@ def load_native_models(store,settings,config,*,client_factory=httpx.Client):
         if source_file and (name.startswith('lerobot.') or name in ('torch.nn.modules.transformer','torchvision.models.resnet')):
             path=Path(source_file)
             if path.is_file():files[name]={'path':str(path.resolve()),'sha256':_sha(path)}
-    for name in ('act_policy.py','act_backend.py','rosmaster_skill_pipeline.py','rosmaster_skill_features.py','rosmaster_skill_hybrid.py'):
+    implementations=['act_policy.py','act_backend.py']
+    if 'giver' in plans:implementations+=['rosmaster_skill_pipeline.py','rosmaster_skill_features.py','rosmaster_skill_hybrid.py']
+    for name in implementations:
         files['explorer_shared.learning.'+name]={'sha256':_sha(learning/name)}
-    return {'giver':native9,'receiver':native6},{'schema':'explorer_cooperative_loaded_native_models_v1',
+    return models,{'schema':'explorer_cooperative_loaded_native_models_v1',
         'native_model_bindings':deepcopy(plans),'framework_versions':versions,'loaded_implementation_sha256':files,
-        'loaded_pair_rss_bytes':psutil.Process().memory_info().rss,'device':'cpu','action_dimensions':{'giver':9,'receiver':6},
-        'physical_execution_authorized':False,'model_pair_verified':True,'software_model_fixture':False}
+        'loaded_pair_rss_bytes':psutil.Process().memory_info().rss,'device':'cpu',
+        'action_dimensions':{role:ROLE_CONTRACTS[role]['dimension'] for role in plans},
+        'required_policy_roles':list(settings['required_policy_roles']),
+        'inference_profile':{'device':'cpu','torch_num_threads':torch.get_num_threads(),'gpu_requested':False},
+        'physical_execution_authorized':False,'native_models_verified':True,
+        'model_pair_verified':set(models)=={'giver','receiver'},'software_model_fixture':False}
 
 
 class _InferenceStore:
@@ -163,11 +188,13 @@ def run_cooperative_policy_session(store,job,config,*,model_loader=load_native_m
     try:
         check_warmup();store.update_schedule_runtime(job['id'],phase='cooperative_models_loading',warm_actor=None)
         models,receipts=model_loader(store,settings,config,client_factory=client_factory);check_warmup()
-        if set(models)!={'giver','receiver'} or receipts.get('action_dimensions')!={'giver':9,'receiver':6}:
-            raise ValueError('Separate actual native106→9 and measured6→6 CPU models required')
+        roles=settings['required_policy_roles']
+        if set(models)!=set(roles) or receipts.get('action_dimensions')!={role:ROLE_CONTRACTS[role]['dimension'] for role in roles}:
+            raise ValueError('Actual native CPU models required only for the exact policy roles; no manual placeholders')
         sequence=max([int(path.name.split('-')[0]) for path in (root/'inferences').glob('[0-9]*-*')]+[0])
         def predict(role):
             nonlocal sequence
+            if role not in models:raise ValueError('Manual role has no policy model or implicit prediction')
             if not valid():raise ValueError('Current source session revoked before inference')
             current,spec=current_source(store,settings)
             try:

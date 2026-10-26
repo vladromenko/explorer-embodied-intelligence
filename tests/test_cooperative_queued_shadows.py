@@ -16,7 +16,7 @@ from test_rosmaster_observation import fixture as nano_source
 from test_so101_live_shadow_transport import rig as pi_source
 
 
-def configured(tmp_path):
+def configured(tmp_path,*,input_policy_roles=(),pin_manual_models=True):
     service,store,calls,active,contexts,client=fixture(tmp_path);choices=service.native_choices();models={}
     for role,choice in ((role,choices[role][0]) for role in ('giver','receiver')):
         ref=choice['reference'];folder=store.root/'models'/role;folder.mkdir(parents=True)
@@ -38,15 +38,18 @@ def configured(tmp_path):
             path=folder/'model_manifest.json';path.write_bytes(canonical(model))
             result.update(model_manifest=str(path),model_manifest_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
         store.complete_job(job['id'],result);models[role]=job['id']
-    proposed=service.command('propose_skill',{'name':'two original heads software fixture','object_description':'block',
+    mode=('both_policy' if len(input_policy_roles)==2 else 'giver_policy_receiver_manual' if 'giver' in input_policy_roles
+        else 'giver_manual_receiver_policy' if 'receiver' in input_policy_roles else 'both_manual')
+    proposed=service.command('propose_skill',{'name':'two original heads software fixture','object_description':'block','mode':mode,
         'receiver_goal_description':'box','outcome_criteria':['independent placement'],
         **{role+'_choice_id':choices[role][0]['choice_id'] for role in ('giver','receiver')},
-        **{role+'_model_id':value for role,value in models.items()}},authenticated_actor='owner')['result']
+        **{role+'_model_id':value for role,value in models.items() if pin_manual_models or role in input_policy_roles}},authenticated_actor='owner')['result']
     spec=proposed['spec'];service.command('confirm_skill',{'skill_id':spec['skill_id'],'version':1,'spec_sha256':spec['spec_sha256']},authenticated_actor='owner')
     variants={role:next(row['variant_id'] for row in choices[role][0]['native_variants'] if row['split']=='train') for role in ('giver','receiver')}
     session=service.command('create_session',{'skill_id':spec['skill_id'],'version':1,'spec_sha256':spec['spec_sha256'],
         'scene_id':'scene','object_instance_id':'real-object-label-not-an-outcome','split':'train','native_variants':variants,
-        'giver_input_mode':'keyboard','receiver_input_mode':'leader','stationary_chassis_confirmed':True},authenticated_actor='owner')['result']
+        'giver_input_mode':'policy' if 'giver' in input_policy_roles else 'keyboard',
+        'receiver_input_mode':'policy' if 'receiver' in input_policy_roles else 'leader','stationary_chassis_confirmed':True},authenticated_actor='owner')['result']
     return service,store,calls,client,spec,session,models
 
 

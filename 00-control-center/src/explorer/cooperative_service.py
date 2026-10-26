@@ -29,6 +29,7 @@ from .mobile_dataset_evidence import inspect_mobile_import
 from .cooperative_policy_adapters import QueuedNativeShadows
 from .cooperative_warm_service import CooperativeWarmService
 from .cooperative_observed_service import CooperativeObservedService
+from .cooperative_policy_job import required_policy_roles
 
 
 def _boot():return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
@@ -347,6 +348,7 @@ bound first; default construction cannot turn on policy execution.
         native_choices=self.native_choices()
         with self.lock:model_errors=deepcopy(self.model_errors)
         warm_compute=self.warm_compute.snapshots(selected) if selected else []
+        required=required_policy_roles(selected) if selected else []
         observed=self.observed_setup.snapshot(selected,self.workflow.skill(selected['skill_id'],selected['skill_version'])['spec']) if selected else None
         return {'schema':'explorer_cooperative_service_v1','workbench':workbench,'catalogue':self.workflow.catalogue(),
             'native_choices':native_choices,'pending_evidence':self.inbox.pending(),'cameras':cameras,
@@ -356,6 +358,10 @@ bound first; default construction cannot turn on policy execution.
             'queued_native_shadows':self.queued_shadows.snapshots(selected) if selected else [],
             'queued_native_shadow_supported':True,
             'warm_compute_sessions':warm_compute,
+            'required_policy_roles':required,
+            'policy_role_readiness':{role:{'required':role in required,'manual_input_does_not_require_model':role not in required,
+                'warm_model_ready':any(item['compute_ready'] and item['role_readiness'][role]['loaded_model_current'] for item in warm_compute)}
+                for role in ('giver','receiver')},
             'observed_setup':observed,
             'execution_authority':self._authority(selected) if selected else {'explicit_user_observed_test_current':False},
             'persistent_warm_model_actor_ready':any(row['compute_ready'] for row in warm_compute),
