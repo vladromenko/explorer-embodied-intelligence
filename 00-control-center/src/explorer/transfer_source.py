@@ -79,6 +79,7 @@ def _metadata(store, job, *, admission_verifier=None):
     if (any(result.get(key) != outer.get(key) for key in ('skill_id','skill_version','spec_sha256','action_contract_id','source_kind')) or
             result.get('aggregate_manifest_sha256') != config['aggregate_manifest_sha256'] or
             result.get('source_manifest_sha256') != config['aggregate_manifest_sha256'] or
+            result.get('framework')!='LeRobot' or result.get('framework_version')!='0.6.1' or
             result.get('sealed_payload_used') is not False or
             not all(result.get(key) is True for key in ('trained','weights_changed','save_reload_passed')) or
             type(result.get('optimizer_steps')) is not int or result['optimizer_steps'] < 1):
@@ -110,6 +111,13 @@ def _metadata(store, job, *, admission_verifier=None):
         raise ValueError('Current native6 source loaders own CPU-qualified models')
     if saved.get('input_features',{}).get('observation.state',{}).get('shape') != [6] or saved.get('output_features',{}).get('action',{}).get('shape') != [6]:
         raise ValueError('Native6 source state/action head required; no silent12D reduction')
+    visual={key:value for key,value in saved.get('input_features',{}).items() if key.startswith('observation.images.')}
+    shape=(visual.get('observation.images.overview') or {}).get('shape')
+    if len(visual)!=1 or not isinstance(shape,list) or len(shape)!=3 or shape[0]!=3 or shape[1]!=shape[2] or not 32<=shape[1]<=224:
+        raise ValueError('Exact qualified source RGB slot/shape required')
+    normalization=saved.get('normalization_mapping') or {}
+    if set(normalization)!={'VISUAL','STATE','ACTION'} or any(value!='IDENTITY' for value in normalization.values()):
+        raise ValueError('Saved source identity normalization required; no duplicate preprocessing')
     pre = _json(checkpoint/'explorer_preprocessing.json')
     expected = dict(action_contract_id=CONTRACT, action_names=list(NAMES), action_units=list(UNITS),
         state_low=list(LOW), state_high=list(HIGH), state_basis='measured_state', official_robot_use_degrees=False)
@@ -138,15 +146,23 @@ def _metadata(store, job, *, admission_verifier=None):
             raise ValueError('Saved official ACT processor/camera/calibration qualification differs')
         history, predictions = 1, 1
     else:
-        from explorer_shared.learning.diffusion_backend import PROFILE_ID
+        from explorer_shared.learning.diffusion_backend import PROFILE_ID,compact_profile
         required = {'config.json','model.safetensors','explorer_preprocessing.json'}
         if (not required <= hashes.keys() or pre.get('profile_id') != PROFILE_ID or
                 result.get('profile_id') != PROFILE_ID or pre.get('history_steps') != 2 or pre.get('chunk_prediction_steps') != 4 or
                 pre.get('image_size') != 64 or pre.get('RGB_transform') != 'uint8/255_NCHW_bilinear_resize_once'):
             raise ValueError('Distinct qualified Diffusion history2/profile/processor required')
+        for key,value in compact_profile()['configuration'].items():
+            expected=list(value) if isinstance(value,tuple) else value
+            if saved.get(key)!=expected:raise ValueError('Saved native Diffusion compact profile differs: '+key)
         history, predictions = 2, 4
     cards = [card for card in store.skills() if card.get('id') == (result.get('skill_card') or {}).get('id')]
-    if not cards or cards[0].get('lineage',{}).get('checkpoint_sha256') != digest(hashes):
+    expected_lineage=dict(job_id=job['id'],skill_id=outer['skill_id'],skill_version=outer['skill_version'],
+        spec_sha256=outer['spec_sha256'],dataset_manifest_sha256=config['aggregate_manifest_sha256'],checkpoint_sha256=digest(hashes))
+    if (not cards or any(cards[0].get('lineage',{}).get(key)!=value for key,value in expected_lineage.items()) or
+            cards[0].get('source_kind')!=outer['source_kind'] or
+            any(cards[0].get('action_contract',{}).get(key)!=value for key,value in
+                dict(id=CONTRACT,names=list(NAMES),units=list(UNITS),state_basis='measured_state',official_robot_use_degrees=False).items())):
         raise ValueError('Registered native source SkillCard missing or changed')
     episodes = [dict(id=row.get('id'), original_episode_id=row.get('source_episode_id'),split=row['split'])
         for row in view.get('episodes',[]) if row.get('split') in ('train','development')]
