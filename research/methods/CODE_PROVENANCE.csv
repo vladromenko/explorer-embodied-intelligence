@@ -61,3 +61,8 @@ shared/explorer_shared/tabletop_grounding.py,ENGINEERING_GLUE,IMPL-TABLETOP06-GE
 shared/explorer_shared/lab_semantics.py,ENGINEERING_GLUE,IMPL-TABLETOP06-SEMANTIC-EVENTS-001,ENGINEERING_GLUE,project-file:shared/perception/TABLETOP06.md,NOT_APPLICABLE,SOFTWARE_ONLY
 01-autonomous-learning/src/explorer_sim/so101_dataset_qualification.py,ENGINEERING_GLUE,IMPL-SO101-OFFICIAL-DATASET-001,ENGINEERING_GLUE,project-file:learning/so101-personal-lab/docs/DATASET_REPLAY_QUALIFICATION_RU.md,NOT_APPLICABLE,SOFTWARE_ONLY
 00-control-center/src/explorer/skill_catalogue.py,ENGINEERING_GLUE,IMPL-SKILL-CATALOGUE-06-05-001,ENGINEERING_GLUE,project-file:00-control-center/docs/SKILL_CATALOGUE06_RU.md,NOT_APPLICABLE,SOFTWARE_ONLY
+shared/explorer_shared/lab_vision_service.py,ENGINEERING_GLUE,IMPL-LAB06-VISION-SERVICE-001,ENGINEERING_GLUE,project-file:shared/perception/TABLETOP06.md,NOT_APPLICABLE,SOFTWARE_ONLY
+shared/explorer_shared/hailo_segmentation.py,ENGINEERING_GLUE,IMPL-HAILO10-INSTANCE-SEG-001,ADAPTED,project-file:shared/perception/HAILO_SEGMENTATION_RU.md,7b850e0444a142ada88443d675e3c3ddda18bd74,SOFTWARE_ONLY
+shared/explorer_shared/native_stream03.py,ENGINEERING_GLUE,IMPL-NATIVE-STREAM03-MUX-001,ENGINEERING_GLUE,project-file:03-lerobot-teaching/docs/NATIVE_STREAM_RU.md,NOT_APPLICABLE,SOFTWARE_ONLY
+shared/explorer_shared/native_stream03_api.py,ENGINEERING_GLUE,IMPL-NATIVE-STREAM03-HTTP-001,ENGINEERING_GLUE,project-file:03-lerobot-teaching/docs/NATIVE_STREAM_RU.md,NOT_APPLICABLE,SOFTWARE_ONLY
+shared/explorer_shared/native_stream03_client.py,ENGINEERING_GLUE,IMPL-NATIVE-STREAM03-CLIENT-001,ENGINEERING_GLUE,project-file:03-lerobot-teaching/docs/NATIVE_STREAM_RU.md,NOT_APPLICABLE,SOFTWARE_ONLY

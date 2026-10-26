@@ -2513,6 +2513,156 @@
         }
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-LAB06-VISION-SERVICE-001",
+      "function_or_module": "shared/explorer_shared/lab_vision_service.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/perception/TABLETOP06.md",
+          "role": "Pinned original sources and scoped software verification"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Use existing device owners only. Preserve literal source bytes and state/command/mask provenance; code or mocked receipts do not qualify physical tasks.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "5 cached-frame/selection/semantic service tests; no actual NPU or physical calibration",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-HAILO10-INSTANCE-SEG-001",
+      "function_or_module": "shared/explorer_shared/hailo_segmentation.py",
+      "implementation_type": "ADAPTED",
+      "sources": [
+        {
+          "url": "project-file:shared/perception/HAILO_SEGMENTATION_RU.md",
+          "role": "Pinned original sources and scoped software verification"
+        }
+      ],
+      "upstream_repo": "https://github.com/hailo-ai/Hailo-Application-Code-Examples",
+      "upstream_commit": "7b850e0444a142ada88443d675e3c3ddda18bd74",
+      "code_license": "MIT_UPSTREAM_WITH_RETAINED_LICENSE",
+      "model_license": "HAILO_MODEL_TERMS",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Use existing device owners only. Preserve literal source bytes and state/command/mask provenance; code or mocked receipts do not qualify physical tasks.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "32 segmentation/factory/cache/semantic software tests; actual NPU qualification pending",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-STREAM03-MUX-001",
+      "function_or_module": "shared/explorer_shared/native_stream03.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/NATIVE_STREAM_RU.md",
+          "role": "Pinned original sources and scoped software verification"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Use existing device owners only. Preserve literal source bytes and state/command/mask provenance; code or mocked receipts do not qualify physical tasks.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "12 source/mock mux/tap/FKIK tests; actual original-Ruckig numerical-only replay; native mount/deploy pending",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-STREAM03-HTTP-001",
+      "function_or_module": "shared/explorer_shared/native_stream03_api.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/NATIVE_STREAM_RU.md",
+          "role": "Pinned original sources and scoped software verification"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Use existing device owners only. Preserve literal source bytes and state/command/mask provenance; code or mocked receipts do not qualify physical tasks.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "Authenticated in-process routes tested with fake owners; default observed permit false",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-STREAM03-CLIENT-001",
+      "function_or_module": "shared/explorer_shared/native_stream03_client.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/NATIVE_STREAM_RU.md",
+          "role": "Pinned original sources and scoped software verification"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Use existing device owners only. Preserve literal source bytes and state/command/mask provenance; code or mocked receipts do not qualify physical tasks.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "Typed native transport source/mock tests; no actual native motor POST",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

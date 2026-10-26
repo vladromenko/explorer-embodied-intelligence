@@ -1,4 +1,4 @@
-"""Startup-mounted adapter for the EXISTING factory ManualArm/ManualTeleop.
+"""ENGINEERING_GLUE: Startup-mounted adapter for the EXISTING factory ManualArm/ManualTeleop.
 
 No ROS/serial/device creation, finite trajectory queue, readback or settings
 writes. Install only in the original owner process after reviewing its startup.

@@ -515,6 +515,12 @@ class NodeAgent:
         if mode == "pi" and hailo_model and "pi-overview" in self.sources:
             from .hailo_observer import HailoObserver
             self.observer = HailoObserver(self.sources["pi-overview"], hailo_model, self.delivery.emit)
+        self.lab_vision=None
+        if mode=='pi' and self.observer is not None:
+            from .lab_vision_service import LabVisionService
+            self.lab_vision=LabVisionService(self.sources['pi-overview'],self.observer,
+                clock_domain=self.delivery.clock_domain,boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip(),
+                config_path=Path.home()/'.config/explorer/lab-vision.json',emit=self.delivery.emit)
         from .retarget_service import registered_geometry, PiRetargetService, nano_gateway
         retarget_config_dir = Path(retarget_config_dir or Path.home()/'.config/explorer')
         geometry = registered_geometry(retarget_config_dir)
@@ -539,11 +545,15 @@ class NodeAgent:
             self.observer.start()
         if self.station:
             self.station.start()
+        if self.lab_vision:
+            self.lab_vision.start()
         if self.mode == 'pi':
             self.arm_retarget.start_worker()
 
     def close(self):
         retarget_error = None
+        if self.lab_vision:
+            self.lab_vision.close()
         if self.mode == 'pi':
             try:
                 self.arm_retarget.close()
@@ -691,6 +701,7 @@ class NodeAgent:
                 "hardware": {"architecture": os.uname().machine, "hailo_device_present": Path("/dev/hailo0").exists()},
                 "cameras": cameras, "serial_devices": serial, "calibrations": calibrations,
                 "perception": observer, "station": station,"mobile_observation":mobile,
+                "lab_vision":self.lab_vision.snapshot() if self.lab_vision else None,
                 "capabilities": {"physical_motion": bool(station and station['available']) or self.mode=='nano', "servo_bus_access": bool(station and station['available']),
                                  "serial_discovery": True, "joint_measurements": bool(station and station['measurements']),
                                  "calibration_verified": bool(station and len(station['roles'])==2), "arm_roles_assigned": bool(station and len(station['roles'])==2),
@@ -745,7 +756,20 @@ def make_handler(agent):
 
         def _get(self, path):
             parts = path.strip("/").split("/")
-            if path == '/arm-retarget/status':
+            if path=='/lab/vision/status' and agent.lab_vision is not None:
+                self._json(200,agent.lab_vision.snapshot())
+            elif path=='/lab/vision/freeze' and agent.lab_vision is not None:
+                frame,observation=agent.lab_vision.frozen()
+                self._json(200,dict(frame=frame.metadata(),observation=observation))
+            elif len(parts)==4 and parts[:3]==['lab','vision','frames'] and agent.lab_vision is not None:
+                frame,_=agent.lab_vision.frozen(parts[3])
+                self.send_response(200)
+                for key,value in {'Content-Type':'image/jpeg','Content-Length':len(frame.jpeg),'Cache-Control':'no-store',
+                    'X-Frame-ID':frame.frame_id,'X-Frame-SHA256':frame.sha256,'X-Clock-Domain':frame.clock_domain,
+                    'X-Monotonic-NS':frame.monotonic_ns,'X-Boot-ID':frame.boot_id,'X-Timestamp-Basis':frame.timestamp_basis}.items():
+                    self.send_header(key,str(value))
+                self.end_headers();self.wfile.write(frame.jpeg)
+            elif path == '/arm-retarget/status':
                 self._json(200, agent.retarget_status())
             elif agent.mode == 'pi' and path == '/arm-retarget/recordings':
                 self._json(200, {'recordings':agent.arm_retarget.recorder.recordings()})
@@ -869,7 +893,8 @@ def make_handler(agent):
             legacy = path.startswith("/legacy/") and agent.legacy_bridge is not None
             station = path.startswith('/station/') and agent.station is not None
             retarget = path.startswith('/arm-retarget/')
-            if path != "/recordings" and not legacy and not station and not retarget:
+            lab=path.startswith('/lab/vision/') and agent.lab_vision is not None
+            if path != "/recordings" and not legacy and not station and not retarget and not lab:
                 self.close_connection = True
                 self._json(404, {"error": "Endpoint not found; no physical API is provided"})
                 return
@@ -880,7 +905,9 @@ def make_handler(agent):
                 payload = json.loads(self.rfile.read(length))
                 if not isinstance(payload, dict):
                     raise ValueError("Expected a JSON object")
-                if retarget:
+                if lab:
+                    self._json(200,agent.lab_vision.command(path.removeprefix('/lab/vision/'),payload))
+                elif retarget:
                     self._json(200, agent.retarget_command(path.removeprefix('/arm-retarget/'), payload))
                 elif station:
                     if path == '/station/stop' and agent.mode == 'pi':

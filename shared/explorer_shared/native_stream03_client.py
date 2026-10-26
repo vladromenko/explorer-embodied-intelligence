@@ -1,4 +1,4 @@
-"""Authenticated Pi -> existing Nano observer -> original native-owner stream.
+"""ENGINEERING_GLUE: Authenticated Pi -> existing Nano observer -> original native-owner stream.
 
 No device access or motor setting writes; a source sample does not renew the
 original native user-observation lease. This client does not run automatically.

@@ -1,4 +1,4 @@
-"""Pinned official YOLOv5 segmentation decoder plus HailoRT5 single-owner adapter.
+"""ENGINEERING_GLUE: Pinned official YOLOv5 segmentation decoder plus HailoRT5 single-owner adapter.
 
 Import never opens a camera, VDevice, serial port or robot. Receives cached BGR
 from the existing observer. MIT upstream subset lives in _vendor/hailo_yolov5_seg.
