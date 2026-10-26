@@ -550,6 +550,7 @@ class NodeAgent:
         self.mobile_capture=None
         self.native_capture=None
         self.sensor_cache=None
+        self.rosmaster_observations=None
         if mode=='nano':
             from .mobile_records import MobileRecords
             from .mobile_capture import MobileCaptureRecorder
@@ -557,6 +558,10 @@ class NodeAgent:
             self.mobile_capture=MobileCaptureRecorder(legacy_dir,self.state_dir)
             from .native_capture_service import NativeCaptureService
             self.native_capture=NativeCaptureService.from_agent(self)
+            from .rosmaster_observation import RosmasterCachedObservation,OriginalObservationReader
+            self.rosmaster_observations=RosmasterCachedObservation(OriginalObservationReader(self.legacy_bridge),
+                self.sensor_cache,self.sources.get('nano-rgbd'),clock_domain=self.delivery.clock_domain,
+                boot_id=self.delivery.clock_domain.rsplit(':',1)[-1])
         self.stream_slots = threading.BoundedSemaphore(3)
         self.observer = None
         self.station = None
@@ -845,7 +850,19 @@ def make_handler(agent):
 
         def _get(self, path):
             parts = path.strip("/").split("/")
-            if parts[:3]==['lab','vision','calibration'] and agent.lab_vision is not None:
+            if path=='/native-policy/observation' and agent.rosmaster_observations is not None:
+                if urlsplit(self.path).query:raise ValueError('Fixed native policy observation takes no query parameters')
+                self._json(200,agent.rosmaster_observations.create())
+            elif len(parts)==4 and parts[:2]==['native-policy','observations'] and parts[3]=='frame' and agent.rosmaster_observations is not None:
+                if urlsplit(self.path).query:raise ValueError('Pinned native observation takes no query parameters')
+                raw,metadata=agent.rosmaster_observations.frame(parts[2])
+                self.send_response(200)
+                for name,value in {'Content-Type':'image/jpeg','Content-Length':len(raw),'Cache-Control':'no-store',
+                    'X-Observation-ID':metadata['observation_id'],'X-Frame-ID':metadata['frame_id'],
+                    'X-JPEG-SHA256':metadata['jpeg_sha256'],'X-Boot-ID':metadata['boot_id'],
+                    'X-Clock-Domain':metadata['clock_domain']}.items():self.send_header(name,str(value))
+                self.end_headers();self.wfile.write(raw)
+            elif parts[:3]==['lab','vision','calibration'] and agent.lab_vision is not None:
                 query=parse_qs(urlsplit(self.path).query,keep_blank_values=True)
                 if path=='/lab/vision/calibration/status':
                     if set(query)-{'session_id'} or any(len(values)!=1 for values in query.values()):

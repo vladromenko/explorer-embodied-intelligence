@@ -237,6 +237,9 @@ def main(job_id):
         elif job['kind']=='so101_skill_shadow':
             from .so101_shadow_job import run_so101_shadow
             result=run_so101_shadow(store,job,config)
+        elif job['kind']=='rosmaster_skill_shadow':
+            from .rosmaster_shadow_job import run_rosmaster_shadow
+            result=run_rosmaster_shadow(store,job,config)
         elif job['kind'] == 'so101_skill_train':
             if job['config'].get('backend','act')=='diffusion':
                 from .so101_diffusion_training import run_so101_diffusion_train

@@ -1,0 +1,37 @@
+# Изолированная проверка двух настоящих action contracts
+
+`explorer.rosmaster_shadow_job.shadow_request(store, model_job_id)` проверяет
+завершённый `rosmaster_skill_train`, server-managed model manifest и каждый файл
+checkpoint. Допускается ACT9 с состоянием106 и выходом9, только physical cohort.
+Историческое состояние9, SIMULATION и смешанный cohort здесь не подменяют106D.
+Функция не импортирует Torch и не загружает веса в Control Center.
+
+Задание `rosmaster_skill_shadow` исполняется через общий durable scheduler:
+CPU2cores/2GiB/GPU0, последовательный inference slot, без вытеснения. Worker
+загружает модель **до** получения нового сенсорного пакета. Затем выполняет
+только authenticated GET к Nano `/native-policy/observation` и
+`/native-policy/observations/{observation_id}/frame`. Пакет сохраняет исходные
+JSON/JPEG/сенсорные assets и SHA, независимые native boot/domain, cutoff,
+отсутствующие каналы с масками и настоящие квитанции исходного publisher+базы.
+Журнал позы, accepted API, измеренная odometry и запрет шасси не создают issued9.
+Отсутствующий feedback сам по себе не блокирует командную оценку.
+
+Node использует исходный owner cache и уже существующий NativeSensorCache;
+новая камера/serial/ROS publisher не открывается. Новый packet требует actual
+Tap basis; старый live owner без него корректно отказывается. Freshness проверяется
+на Nano в его clock domain и отдельно на NX по времени получения/инференса.
+Сравнения монотонных часов разных машин нет. Исходные bytes и предсказание
+fsync-сохраняются; возвращаются hashes worker/loader, model/checkpoint и каналов.
+
+Receiver04 использует существующий `so101_skill_shadow` и
+`SO101CachedObservation`: его measured native6 и калибровка не преобразуются
+в ROSMASTER9. Два предсказания остаются двумя native heads. Это shadow-only
+проверка, без begin/input/lease/STOP, без физического успеха или разрешения.
+Постоянного прогретого actor с scheduler lease пока нет: job warmup нельзя
+выдавать за готовность выполнять release в двухсекундном окне удержания.
+
+Регрессии используют настоящий локальный authenticated HTTP handler, точные
+JPEG/JSON hashes и CPU predictor fixture. Они проверяют пропуски/будущие stamps,
+иной boot, исходные нулевые base-команды, channel/outer-context tamper,
+legacy9 rejection, warmup-before-source и cancel-before-I/O. Это проверка ПО,
+не обучение модели106D и не физическое испытание.
