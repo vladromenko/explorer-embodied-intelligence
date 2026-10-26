@@ -45,6 +45,27 @@ def _record_identity(body):
     return dict(**experiment_identity(SOURCE_ROLE),recording_request_identity=dict(original_project_id=original,original_numbering_version=version,basis=identity['basis']))
 
 
+def inspect_native_phase_annotation(sample,*,episode_id):
+    """Causal source annotation receipt, never camera exposure or task success."""
+    result=dict(phase_id=None,available_for_state_sample=False,available_for_camera_exposure=False,
+        contact_or_task_success_inferred=False,reasons=[])
+    if not isinstance(sample,dict) or not isinstance(sample.get('source_context'),dict):return dict(result,reasons=['native_phase_annotation_not_recorded'])
+    annotation=sample['source_context'].get('native_phase_annotation')
+    if not isinstance(annotation,dict):return dict(result,reasons=['native_phase_annotation_not_recorded'])
+    stamp=annotation.get('native_stamp');stamp=stamp if isinstance(stamp,dict) else {};domain=sample.get('clock_domain');boot=sample.get('boot_id')
+    times=[stamp.get('monotonic_ns'),sample.get('state_monotonic_ns'),sample.get('action_monotonic_ns')]
+    reasons=[]
+    if annotation.get('episode_id')!=episode_id:reasons.append('annotation_episode_mismatch')
+    if not domain or not boot or stamp.get('clock_domain')!=domain or stamp.get('boot_id')!=boot:reasons.append('annotation_native_clock_or_boot_mismatch')
+    if any(type(value) is not int or value<0 for value in times) or not times[0]<=times[1]<=times[2]:reasons.append('annotation_not_causal_to_native_state_sample')
+    if not isinstance(annotation.get('phase_id'),str):reasons.append('annotation_phase_identity_missing')
+    frame=sample.get('frame');frame_time=frame.get('monotonic_ns') if isinstance(frame,dict) else None
+    return dict(result,phase_id=annotation.get('phase_id') if not reasons else None,available_for_state_sample=not reasons,
+        reasons=reasons,annotation_id=annotation.get('annotation_id'),annotation_native_stamp=stamp,
+        frame_predates_annotation=frame_time<times[0] if type(frame_time) is int and type(times[0]) is int else None,
+        interpretation='declared_phase_at_native_host_sample_not_observed_contact_or_camera_exposure')
+
+
 def save(path, value):
     temporary = path.with_suffix('.tmp')
     with temporary.open('w') as stream:
@@ -350,7 +371,7 @@ class SO101Station:
             state_basis='measured_state',action_basis='dispatched_command',action_names=list(NAMES),action_units=UNITS,
             normalization={'low':LOW,'high':HIGH},fps=10,split=context.get('split','train'),**identity,
             name=str(body.get('name','SO-101 recording'))[:80],state='recording',outcome='unknown',samples=[],queued_samples=0,
-            task=str(body.get('task',body.get('name','Imitate the recorded robot demonstration')))[:240],
+            task=str(body.get('task',body.get('name','Imitate the recorded robot demonstration')))[:240],stage_events=[],
             demonstration_actor=str(body.get('actor','human_operator'))[:80],execution_mode=self.mode,
             calibration_metadata=json.loads(json.dumps(self.profiles,allow_nan=False)),clock_domain=self.clock_domain,started_wall_utc=time.time(),
             boot_id=self.boot,recording_provenance_version=2,source_context=context,
@@ -364,6 +385,61 @@ class SO101Station:
         save(folder/'manifest.json',self.record)
         self.last_sample_ns = 0
         return dict(episode_id=ident,state='recording',**experiment_identity(SOURCE_ROLE))
+
+    def record_stage(self, body):
+        """Source-host annotation only; no control, exposure or attainment claim.
+
+        The existing _sample deep-copies source_context, so each subsequent row
+        retains its own annotation snapshot without changing the control/sample
+        loop. The final recording manifest is authoritative durable evidence.
+        """
+        allowed={'episode_id','recording_id','phase_id','request_id','annotation_source','phase_scope','coordinator_context'}
+        if not isinstance(body,dict) or set(body)-allowed:raise ValueError('Only bounded recording stage metadata is accepted')
+        episode=body.get('episode_id',body.get('recording_id'))
+        if 'episode_id' in body and 'recording_id' in body and body['episode_id']!=body['recording_id']:raise ValueError('Stage recording identities differ')
+        phase=body.get('phase_id');request=body.get('request_id')
+        if not isinstance(phase,str) or re.fullmatch('[A-Za-z0-9_.:-]{1,80}',phase) is None:raise ValueError('A bounded phase ID is required')
+        if not isinstance(request,str) or re.fullmatch('[A-Za-z0-9_.:-]{1,128}',request) is None:raise ValueError('An immutable bounded stage request ID is required')
+        source=body.get('annotation_source','operator_or_coordinator_declared')
+        scope=body.get('phase_scope','operator_annotation')
+        coordinator=body.get('coordinator_context',{})
+        if not isinstance(source,str) or not source or len(source)>128 or scope not in ('source_skill_phase','coordinator_phase','operator_annotation') or not isinstance(coordinator,dict):raise ValueError('Explicit bounded annotation source/scope/context required')
+        intent=dict(episode_id=episode,phase_id=phase,request_id=request,annotation_source=source,phase_scope=scope,coordinator_context=coordinator)
+        serialized=json.dumps(intent,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+        if len(serialized.encode())>2048:raise ValueError('Stage annotation exceeds2KiB')
+        signature=hashlib.sha256(serialized.encode()).hexdigest()
+        with self.lock:
+            record=self.record
+            if not record or self.finishing_record is not None or record.get('state')!='recording' or episode!=record['episode_id']:raise ValueError('Stage must match the exact active source recording')
+            identity=so101_source_identity(record.get('project_id'),numbering_version=record.get('experiment_numbering_version'))
+            if not identity['verified']:raise ValueError('Active source recording identity is not qualified')
+            history=record.get('stage_events',[])
+            previous=next((item for item in history if item['request_id']==request),None)
+            if previous is not None:
+                if previous['intent_sha256']!=signature:raise ValueError('Immutable stage request identity changed')
+                annotation=previous;duplicate=True
+            else:
+                if len(history)>=512:raise ValueError('Recording stage history exceeds512 annotations')
+                annotation=dict(schema='explorer_so101_native_stage_annotation_v1',annotation_id=uuid.uuid4().hex,
+                    episode_id=episode,sequence=len(history),request_id=request,phase_id=phase,phase_scope=scope,annotation_source=source,
+                    intent_sha256=signature,coordinator_context=json.loads(json.dumps(coordinator,allow_nan=False)),
+                    native_stamp=dict(monotonic_ns=time.monotonic_ns(),clock_domain=self.clock_domain,boot_id=self.boot),
+                    timestamp_basis='source_Pi_host_annotation_receive_not_camera_exposure',
+                    phase_semantics='operator_or_coordinator_declaration_not_observed_contact_or_attainment',
+                    sample_association='source_context_snapshot_consumer_must_verify_stamp_against_native_sample_clock',
+                    camera_exposure_timestamp_available=False,MCU_application_time_verified=False,contact_or_task_success_inferred=False,
+                    **experiment_identity(SOURCE_ROLE))
+                context=dict(record.get('source_context') or {},native_phase_annotation=annotation)
+                if len(json.dumps(context,ensure_ascii=False,allow_nan=False).encode())>8192:raise ValueError('Source context plus native annotation exceeds8KiB')
+                # One existing recorder owns disk writes. No second manifest
+                # writer is introduced; unfinished episodes stay non-admitted.
+                record['stage_events']=history+[annotation]
+                record['source_context']=context
+                duplicate=False
+            return dict(accepted=True,episode_id=episode,annotation=json.loads(json.dumps(annotation,allow_nan=False)),idempotent_retry=duplicate,
+                durable=False,persistence='accepted_in_recorder_memory_verify_finalized_source_manifest',
+                finalized_evidence_location='manifest.stage_events_and_sample.source_context.native_phase_annotation',
+                physical_commands_dispatched=False,**experiment_identity(SOURCE_ROLE))
 
     def _sample(self, frame, state, requested, accepted, measured_at, dispatched_at):
         if self.record and frame and measured_at-self.last_sample_ns >= 95_000_000:
