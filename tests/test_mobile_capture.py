@@ -236,3 +236,27 @@ def test_stage_and_observing_annotations_are_manifest_and_journal_information(tm
         assert finished["motion_commands"] == 0
     finally:
         recorder.close()
+
+
+def test_interrupted_telemetry_only_recovery_does_not_invent_camera_frames(tmp_path):
+    source, status, camera = fixture(tmp_path)
+    (source / "frame-raw.jpg").unlink()
+    recorder = MobileCaptureRecorder(source, tmp_path / "state")
+    record = recorder.start()
+    wait_rows(recorder)
+    completed = recorder.finish()
+    assert completed["samples"] == 1 and completed["frames"] == 0
+    folder = recorder.folder(record["id"])
+    recorder.close()
+    stored = json.loads((folder / "episode.json").read_text())
+    stored["state"] = "recording"
+    save(folder / "episode.json", stored)
+    (folder.parent / (record["id"] + ".archive.json")).unlink()
+    recovered = MobileCaptureRecorder(source, tmp_path / "state")
+    try:
+        result = recovered.get(record["id"])
+        assert result["state"] == "interrupted" and result["samples"] == 1 and result["frames"] == 0
+        assert result["outcome"] == "unknown"
+        recovered.archive(record["id"])
+    finally:
+        recovered.close()

@@ -172,8 +172,8 @@ class MobileCaptureRecorder:
                 try:
                     record = strict_object((folder / "episode.json").read_bytes())
                     if record.get("format") == FORMAT and record.get("state") in ("recording", "finishing"):
-                        count, note = self._journal_count(folder)
-                        record.update(state="interrupted", outcome="unknown", samples=count, frames=count,
+                        count, frames, note = self._journal_count(folder)
+                        record.update(state="interrupted", outcome="unknown", samples=count, frames=frames,
                                       recovery_note=note, finished_at=time.time(), recovered_after_restart=True)
                         record["training_admission"]["operator_success_label"] = False
                         self._persist(record)
@@ -188,7 +188,7 @@ class MobileCaptureRecorder:
 
     @staticmethod
     def _journal_count(folder):
-        count, note = 0, "All complete journal rows recovered; original journal bytes retained"
+        count, frames, note = 0, 0, "All complete journal rows recovered; original journal bytes retained"
         journal = folder / "samples.jsonl"
         if journal.exists():
             with journal.open("rb") as stream:
@@ -201,11 +201,16 @@ class MobileCaptureRecorder:
                             path = folder / source["file"]
                             if path.is_symlink() or not path.resolve().is_relative_to(folder.resolve()) or file_sha(path) != source["sha256"]:
                                 raise ValueError("Interrupted source checksum differs")
+                        if row.get("image") is not None:
+                            image = row.get("source_files", {}).get("frame-raw.jpg", {})
+                            if row["image"] != image.get("file") or row.get("image_sha256") != image.get("sha256"):
+                                raise ValueError("Interrupted image reference differs")
+                            frames += 1
                         count += 1
                     except (OSError, ValueError, KeyError):
                         note = "Incomplete/invalid journal tail excluded from sample count; original bytes retained"
                         break
-        return count, note
+        return count, frames, note
 
     def start(self, name="Наблюдение ROSMASTER", observing=False, **options):
         if not isinstance(name, str) or len(name) > 200 or type(observing) is not bool:
@@ -422,8 +427,8 @@ class MobileCaptureRecorder:
 
     def _archive(self, record):
         folder = self.folder(record["id"])
-        verified_rows, _ = self._journal_count(folder)
-        if verified_rows != record["samples"]:
+        verified_rows, verified_frames, _ = self._journal_count(folder)
+        if (verified_rows, verified_frames) != (record["samples"], record["frames"]):
             raise ValueError("Recorded source bytes differ from the durable journal")
         files = {}
         for path in sorted(folder.rglob("*")):
