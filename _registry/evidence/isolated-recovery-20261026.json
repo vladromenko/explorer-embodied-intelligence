@@ -1,0 +1,134 @@
+{
+  "created_unix_s": 1793008580.1685567,
+  "limitations": [
+    "No host/Pi/Nano reboot",
+    "No physical Wi-Fi disconnect or production network changes",
+    "No original controller writes or robot commands",
+    "Gateway epoch check uses an explicitly non-physical executor fixture",
+    "OOM qualification, when requested, is limited to a new own constrained user cgroup; it does not test production learner OOM recovery"
+  ],
+  "oom": {
+    "after": {
+      "high": 0,
+      "low": 0,
+      "max": 38,
+      "oom": 1,
+      "oom_group_kill": 0,
+      "oom_kill": 1
+    },
+    "child_pid": 1079471,
+    "child_signal": 9,
+    "child_wait_status": 9,
+    "host_memory_exhaustion_attempted": false,
+    "memory_max": "67108864",
+    "memory_peak": "67108864",
+    "memory_swap_max": "0",
+    "oom_kill_delta": 1,
+    "passed": true,
+    "preflight": {
+      "before": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0
+      },
+      "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-isolated-oom-qualification-64b0683cb356.service",
+      "memory_max": "67108864",
+      "memory_swap_max": "0"
+    },
+    "production_worker_interrupted": false,
+    "scope": "actual kernel OOM only inside a new own 64MiB/swap0 transient user cgroup",
+    "status": "KERNEL_CGROUP_OOM_TESTED",
+    "unit": "explorer-isolated-oom-qualification-64b0683cb356"
+  },
+  "outbox": {
+    "HTTP_requests": [
+      {
+        "event_id": "1bca709e-1d85-4b1b-ba10-6ad0324e8152",
+        "inserted": true
+      },
+      {
+        "event_id": "1bca709e-1d85-4b1b-ba10-6ad0324e8152",
+        "inserted": false
+      },
+      {
+        "event_id": "974a4a03-20fc-4d80-bb12-2379ff730272",
+        "inserted": true
+      },
+      {
+        "event_id": "bc556e0e-ad2a-4f77-9b71-1a8ed78bfcc6",
+        "inserted": true
+      }
+    ],
+    "acknowledged_events": 3,
+    "actual_first_outage_error_type": "URLError",
+    "central_unique_events": 3,
+    "conflicting_outbox_identity_rejected": true,
+    "event_ids": [
+      "1bca709e-1d85-4b1b-ba10-6ad0324e8152",
+      "974a4a03-20fc-4d80-bb12-2379ff730272",
+      "bc556e0e-ad2a-4f77-9b71-1a8ed78bfcc6"
+    ],
+    "immutable_event_bodies_preserved": true,
+    "loopback_port": 54349,
+    "outbox_integrity": "ok",
+    "passed": true,
+    "physical_WiFi_interrupted": false,
+    "preserved_pending_after_durable_ingest_without_ACK": 3,
+    "preserved_pending_after_outage_and_SIGKILL": 3,
+    "processes_SIGKILLed": [
+      1078965,
+      1078979,
+      1078981
+    ],
+    "receiver_integrity": "ok",
+    "scope": "actual EventDelivery processes and loopback HTTP outage/lost ACK/reconnect"
+  },
+  "ownership_epochs": {
+    "cancelled_owner_epoch": "e2a67b3dc9d54e5e8f187431eb97a931",
+    "original_executor_calls_after_restart": [],
+    "passed": true,
+    "physical_commands_dispatched": 0,
+    "physical_controller_reset_or_reboot_tested": false,
+    "restarted_epoch": "5772e825c76d4b7e9577b3ab3525d6fd",
+    "scope": "actual NanoArmGateway epoch validation in two separate processes with a non-physical executor fixture",
+    "stale_action_and_lease_rejected_before_and_after_process_restart": true
+  },
+  "passed": true,
+  "qualifier_sha256": "09c4487744e1cdb38f1e925572c9e4f5446c7ac691f7789e6a263b3fc082ac05",
+  "scheduler": {
+    "conflicting_finalization_rejected": true,
+    "current_release_after_restart": "914022c07b664f9b3c8e6d0bf03779fa4f404693",
+    "database_integrity": "ok",
+    "execution_commit": "b3c8107a439d5c8a880e187d77be0ea3425154d8",
+    "final_status": "completed",
+    "job_id": "23c82c734d9d4dd9901b7c72fcd9b24d",
+    "kernel_or_device_reboot_tested": false,
+    "killed_isolated_supervisor_pid": 1078130,
+    "killed_isolated_worker_pid": 1078185,
+    "passed": true,
+    "physical_execution": false,
+    "scope": "actual isolated supervisor SIGKILL and non-physical handover_test recovery",
+    "single_completion_event": 1,
+    "source_commit_after_restart": "b3c8107a439d5c8a880e187d77be0ea3425154d8",
+    "source_commit_before_crash": "b3c8107a439d5c8a880e187d77be0ea3425154d8",
+    "status_at_crash": "running",
+    "worker_module_path_before_crash": "/home/jetsonnx/.local/share/explorer/state/qualification/isolated-recovery-20261026-v1/releases/b3c8107a439d5c8a880e187d77be0ea3425154d8/00-control-center/src:/home/jetsonnx/.local/share/explorer/state/qualification/isolated-recovery-20261026-v1/releases/b3c8107a439d5c8a880e187d77be0ea3425154d8/shared"
+  },
+  "schema": "explorer_isolated_recovery_qualification_v1",
+  "source_commits": [
+    "b3c8107a439d5c8a880e187d77be0ea3425154d8",
+    "914022c07b664f9b3c8e6d0bf03779fa4f404693"
+  ],
+  "source_repository": "/home/jetsonnx/work/Explorer",
+  "source_sha256": {
+    "00-control-center/src/explorer/job_runner.py": "f06ac082e64a3498bcc34e3b31a727a53c66713d86d7c73b483fa1f87e1049a5",
+    "00-control-center/src/explorer/scheduler.py": "bdee65d095e360dcbd6fd1806898401b3e7247eaeb411646a173ac853cc365eb",
+    "00-control-center/src/explorer/store.py": "f0c250329e8aa5d9206503b4dd0f4efb019c1ce266eac872e58126cea35d7ca3",
+    "shared/explorer_shared/node_agent.py": "88aada3bd871b6e6546293fbafb81c68f2dbfcdafdd077a8fefc9c9f2ad2fcc7",
+    "shared/explorer_shared/outbox.py": "4028a16450734f6595766a6a5dff05bb76a0b9e52d1f3523d3d2a19a9ca9a3fb",
+    "shared/explorer_shared/pi_nano_route.py": "1c02a3bbb58f755eb8373c93225570f57c9b1223cf399e228ef98390e44a6b57"
+  }
+}
