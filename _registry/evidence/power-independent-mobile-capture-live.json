@@ -1,0 +1,254 @@
+{
+  "recording_id": "e87b6a2b1d394c8e9b80dc38c93a4350",
+  "start": {
+    "active": {
+      "format": "explorer_mobile_observation_episode_v1",
+      "frames": 0,
+      "id": "e87b6a2b1d394c8e9b80dc38c93a4350",
+      "joint_state_source": "unknown_arm_pose_preserved",
+      "label_source": "operator",
+      "last_heartbeat_at": 1792982462.4086497,
+      "motion_commands": 0,
+      "name": "Low-power camera and raw sensor capture, no motion",
+      "native_9d_contract_satisfied": false,
+      "object_metadata": {},
+      "observing": false,
+      "outcome": "unknown",
+      "physical_sample_rate_hz": 5,
+      "polls": 0,
+      "project_id": "02",
+      "quality": {
+        "analysis_usable": true,
+        "reason": "observation_only_unverified_9d_arm_action_contract",
+        "usable": false
+      },
+      "requested_duration_s": 300,
+      "samples": 0,
+      "session": "e87b6a2b1d394c8e9b80dc38c93a4350",
+      "source": "read_only_existing_mobile_cache",
+      "source_available": {},
+      "source_errors": {},
+      "source_type": "mobile_observation",
+      "stage": "observation",
+      "stage_annotations": [],
+      "started_at": 1792982462.4086497,
+      "started_wall_utc": "2026-10-26T02:41:02.408650+00:00",
+      "state": "recording",
+      "stored_bytes": 0,
+      "timestamp_policy": "Original source stamps retained verbatim; collector times separately labelled; no frame-stamp relabel",
+      "training_admission": {
+        "operator_success_label": false,
+        "reason": "Observation-only cache capture; native causal 9D arm/state/action contract is unverified",
+        "source_quality_usable": false
+      }
+    },
+    "actuator_commands": 0,
+    "capture_power_gate": false,
+    "format": "explorer_mobile_observation_episode_v1",
+    "last": null,
+    "recent": [
+      {
+        "format": "explorer_mobile_observation_episode_v1",
+        "frames": 0,
+        "id": "e87b6a2b1d394c8e9b80dc38c93a4350",
+        "joint_state_source": "unknown_arm_pose_preserved",
+        "label_source": "operator",
+        "last_heartbeat_at": 1792982462.4086497,
+        "motion_commands": 0,
+        "name": "Low-power camera and raw sensor capture, no motion",
+        "native_9d_contract_satisfied": false,
+        "object_metadata": {},
+        "observing": false,
+        "outcome": "unknown",
+        "physical_sample_rate_hz": 5,
+        "polls": 0,
+        "project_id": "02",
+        "quality": {
+          "analysis_usable": true,
+          "reason": "observation_only_unverified_9d_arm_action_contract",
+          "usable": false
+        },
+        "requested_duration_s": 300,
+        "samples": 0,
+        "session": "e87b6a2b1d394c8e9b80dc38c93a4350",
+        "source": "read_only_existing_mobile_cache",
+        "source_available": {},
+        "source_errors": {},
+        "source_type": "mobile_observation",
+        "stage": "observation",
+        "stage_annotations": [],
+        "started_at": 1792982462.4086497,
+        "started_wall_utc": "2026-10-26T02:41:02.408650+00:00",
+        "state": "recording",
+        "stored_bytes": 0,
+        "timestamp_policy": "Original source stamps retained verbatim; collector times separately labelled; no frame-stamp relabel",
+        "training_admission": {
+          "operator_success_label": false,
+          "reason": "Observation-only cache capture; native causal 9D arm/state/action contract is unverified",
+          "source_quality_usable": false
+        }
+      }
+    ]
+  },
+  "finish": {
+    "active": null,
+    "actuator_commands": 0,
+    "capture_power_gate": false,
+    "format": "explorer_mobile_observation_episode_v1",
+    "last": {
+      "elapsed_s": 3.8601096470010816,
+      "finished_at": 1792982466.2716777,
+      "format": "explorer_mobile_observation_episode_v1",
+      "frames": 18,
+      "id": "e87b6a2b1d394c8e9b80dc38c93a4350",
+      "joint_state_source": "unknown_arm_pose_preserved",
+      "label_source": "operator",
+      "last_frame_sha256": "d26b81df68ee2ec35e488e5f1a0b4c0da963c30cb4764b410758b6977c8c5114",
+      "last_heartbeat_at": 1792982465.7080154,
+      "last_source_status_at": 1792982465.7887266,
+      "motion_commands": 0,
+      "name": "Low-power camera and raw sensor capture, no motion",
+      "native_9d_contract_satisfied": false,
+      "object_metadata": {},
+      "observing": false,
+      "outcome": "unknown",
+      "physical_sample_rate_hz": 5,
+      "polls": 18,
+      "project_id": "02",
+      "quality": {
+        "analysis_usable": true,
+        "captured_any_source": true,
+        "reason": "observation_only_unverified_9d_arm_action_contract",
+        "usable": false
+      },
+      "requested_duration_s": 300,
+      "samples": 18,
+      "session": "e87b6a2b1d394c8e9b80dc38c93a4350",
+      "source": "read_only_existing_mobile_cache",
+      "source_available": {
+        "camera-frame.json": true,
+        "frame-raw.jpg": true,
+        "rgbd-cache-metadata.json": true,
+        "rgbd-snapshot.npz": true,
+        "status.json": true
+      },
+      "source_errors": {},
+      "source_type": "mobile_observation",
+      "stage": "observation",
+      "stage_annotations": [],
+      "started_at": 1792982462.4086497,
+      "started_wall_utc": "2026-10-26T02:41:02.408650+00:00",
+      "state": "complete",
+      "stored_bytes": 39160374,
+      "timestamp_policy": "Original source stamps retained verbatim; collector times separately labelled; no frame-stamp relabel",
+      "training_admission": {
+        "operator_success_label": false,
+        "reason": "Observation-only cache capture; native causal 9D arm/state/action contract is unverified",
+        "source_quality_usable": false
+      }
+    },
+    "recent": [
+      {
+        "elapsed_s": 3.8601096470010816,
+        "finished_at": 1792982466.2716777,
+        "format": "explorer_mobile_observation_episode_v1",
+        "frames": 18,
+        "id": "e87b6a2b1d394c8e9b80dc38c93a4350",
+        "joint_state_source": "unknown_arm_pose_preserved",
+        "label_source": "operator",
+        "last_frame_sha256": "d26b81df68ee2ec35e488e5f1a0b4c0da963c30cb4764b410758b6977c8c5114",
+        "last_heartbeat_at": 1792982465.7080154,
+        "last_source_status_at": 1792982465.7887266,
+        "motion_commands": 0,
+        "name": "Low-power camera and raw sensor capture, no motion",
+        "native_9d_contract_satisfied": false,
+        "object_metadata": {},
+        "observing": false,
+        "outcome": "unknown",
+        "physical_sample_rate_hz": 5,
+        "polls": 18,
+        "project_id": "02",
+        "quality": {
+          "analysis_usable": true,
+          "captured_any_source": true,
+          "reason": "observation_only_unverified_9d_arm_action_contract",
+          "usable": false
+        },
+        "requested_duration_s": 300,
+        "samples": 18,
+        "session": "e87b6a2b1d394c8e9b80dc38c93a4350",
+        "source": "read_only_existing_mobile_cache",
+        "source_available": {
+          "camera-frame.json": true,
+          "frame-raw.jpg": true,
+          "rgbd-cache-metadata.json": true,
+          "rgbd-snapshot.npz": true,
+          "status.json": true
+        },
+        "source_errors": {},
+        "source_type": "mobile_observation",
+        "stage": "observation",
+        "stage_annotations": [],
+        "started_at": 1792982462.4086497,
+        "started_wall_utc": "2026-10-26T02:41:02.408650+00:00",
+        "state": "complete",
+        "stored_bytes": 39160374,
+        "timestamp_policy": "Original source stamps retained verbatim; collector times separately labelled; no frame-stamp relabel",
+        "training_admission": {
+          "operator_success_label": false,
+          "reason": "Observation-only cache capture; native causal 9D arm/state/action contract is unverified",
+          "source_quality_usable": false
+        }
+      }
+    ],
+    "import_job": {
+      "id": "f06515dce8e34f399461fd3e97fb3104",
+      "kind": "mobile_import",
+      "project_id": "02",
+      "status": "queued",
+      "created": 1792982466.714152,
+      "updated": 1792982466.714152,
+      "config": {
+        "episode_id": "e87b6a2b1d394c8e9b80dc38c93a4350"
+      },
+      "result": null,
+      "progress": 0.0,
+      "error": null,
+      "frame_available": false
+    }
+  },
+  "import_job": {
+    "id": "f06515dce8e34f399461fd3e97fb3104",
+    "kind": "mobile_import",
+    "project_id": "02",
+    "status": "completed",
+    "created": 1792982466.714152,
+    "updated": 1792982474.337602,
+    "config": {
+      "episode_id": "e87b6a2b1d394c8e9b80dc38c93a4350",
+      "_execution_commit": "3c64df919148eeb2d4fb1faeb1021e34538db50c"
+    },
+    "result": {
+      "episode_id": "e87b6a2b1d394c8e9b80dc38c93a4350",
+      "observation_only": true,
+      "observation_manifest": "/home/jetsonnx/.local/share/explorer/state/episodes/mobile/e87b6a2b1d394c8e9b80dc38c93a4350/episode.json",
+      "source_archive_sha256": "b43f02db8aab6ccc189fcba281d267a86848147e5606c89bd49e1ea870dc5477",
+      "source_original_retained": true,
+      "physical_success_inferred": false,
+      "frames": 18,
+      "telemetry_rows": 18,
+      "state_basis": "unknown_axes_preserved",
+      "training_admission": {
+        "operator_success_label": false,
+        "reason": "Observation-only cache capture; native causal 9D arm/state/action contract is unverified",
+        "source_quality_usable": false
+      },
+      "result_scope": "Actual camera and raw telemetry; unverified arm/action contract, analysis only",
+      "execution_commit": "3c64df919148eeb2d4fb1faeb1021e34538db50c"
+    },
+    "progress": 1.0,
+    "error": null,
+    "frame_available": false
+  },
+  "physical_motion_requested": false
+}

@@ -37,9 +37,10 @@ async def poll_nodes():
             payload=response.json()
             STORE.update_node(node['id'],payload)
             capture=payload.get('mobile_observation') or {}
-            completed=capture.get('last') or {}
-            if capture.get('archive_ready') and completed.get('state') in ('complete','interrupted'):
-                STORE.create_import_job('mobile_import','02',completed['id'])
+            imported={job['config'].get('episode_id') for job in STORE.jobs(10000) if job['kind']=='mobile_import'}
+            for recording_id in capture.get('ready_recording_ids',[]):
+                if recording_id not in imported:
+                    STORE.create_import_job('mobile_import','02',recording_id)
         except Exception:
             pass
     while True:
@@ -406,12 +407,20 @@ async def robot_proxy(path: str, request: Request):
     url = 'http://' + node['host'] + ':' + str(node['port']) + '/legacy/' + path
     try:
         finishing_id=None
-        if request.method=='POST' and path=='teaching/mobile/finish':
+        body=await request.json() if request.method=='POST' else None
+        if request.method=='POST' and path in ('teaching/mobile/finish','teaching/mobile/stage'):
             before=await CLIENT.get('http://'+node['host']+':'+str(node['port'])+'/legacy/teaching/mobile',headers={'Authorization':'Bearer '+node['token']})
             before.raise_for_status()
-            finishing_id=(before.json().get('active') or {}).get('id')
+            current=before.json()
+            active=(current.get('active') or {}).get('id')
+            expected=body.get('expected_id',body.get('session'))
+            if active and expected is not None and expected!=active:
+                return JSONResponse({'detail':'Recording session changed; no labels applied'},409)
+            expected=expected or active or (current.get('last') or {}).get('id')
+            body['expected_id']=expected
+            if path=='teaching/mobile/finish':finishing_id=expected
         response = await CLIENT.request(request.method, url, headers={'Authorization':'Bearer ' + node['token']},
-            **({'json':await request.json()} if request.method == 'POST' else {}),
+            **({'json':body} if request.method == 'POST' else {}),
             timeout=30 if path=='teaching/mobile/finish' else 4)
         result=response.json()
         if response.is_success and finishing_id and (result.get('last') or {}).get('id')==finishing_id:

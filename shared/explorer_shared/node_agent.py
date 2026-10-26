@@ -524,6 +524,14 @@ class NodeAgent:
 
     def teaching_command(self,operation,payload):
         active=self.mobile_capture.status().get('active') if self.mobile_capture else None
+        expected=payload.get('expected_id',payload.get('session'))
+        if active and operation in ('finish','stage') and expected is not None and expected!=active['id']:
+            return 409,{'detail':'Recording session changed; data labels were not applied'}
+        if not active and operation=='finish' and self.mobile_capture:
+            code,current=self.teaching_status()
+            last=current.get('last') or {}
+            if last.get('format')=='explorer_mobile_observation_episode_v1' and expected in (None,last['id']):
+                return 200,current
         if active and operation=='start':
             return 409,{'detail':'Запись данных уже выполняется'}
         if active and operation!='start':
@@ -546,7 +554,7 @@ class NodeAgent:
         return code,result
 
     def mobile_archive(self,ident):
-        if self.mobile_capture:
+        if self.mobile_capture and isinstance(ident,str) and re.fullmatch('[0-9a-f]{32}',ident):
             try:
                 self.mobile_capture.get(ident)
             except FileNotFoundError:
@@ -571,6 +579,8 @@ class NodeAgent:
             last=mobile.get('last') or {}
             mobile={key:mobile[key] for key in ('active','last','format','capture_power_gate','actuator_commands')}
             mobile['archive_ready']=bool(last and (self.mobile_capture.root/(last['id']+'.archive.json')).is_file())
+            mobile['ready_recording_ids']=[r['id'] for r in self.mobile_capture.recordings()
+                if r['state'] in ('complete','interrupted') and (self.mobile_capture.root/(r['id']+'.archive.json')).is_file()]
         if station:
             for item in serial:
                 for role,profile in station['roles'].items():

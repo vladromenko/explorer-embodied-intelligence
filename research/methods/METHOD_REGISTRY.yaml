@@ -1582,7 +1582,47 @@
       ],
       "hardware_run_ids": [],
       "source_sha256": {
-        "mobile_capture.py": "b91ee4fc8d0c9c2becae8590e87e2c6451e8acbcfd636a5adb20e7bb0fef73d3"
+        "mobile_capture.py": "729c917ef5a17a997beafed52969cc89049dc8d1994142b0b2c79344bd57fde5"
+      }
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-MOBILE-OBSERVATION-ADAPTER-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/mobile_observation_adapter.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "paper_ids": [],
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/mobile_capture.py",
+          "role": "Original raw observation/journal source and unchanged byte hashes"
+        },
+        {
+          "url": "https://huggingface.co/docs/lerobot/lerobot-dataset-v3",
+          "role": "Official dataset export API"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE_NO_MODEL",
+      "data_license": "PRIVATE_OWNER_OBSERVATIONS_NO_PUBLIC_UPLOAD",
+      "changes_and_reason": "Qualify actual raw host command history into causal next-target snapshots. Preserve all unknown rows for analysis; positive manual-source, boot, fault evidence and JPEG binding required for derived labels. Target-cache writes precede publication; dispatch is not confirmed. No native-v3 original forged, no source bytes altered.",
+      "verification": {
+        "paper_read": false,
+        "code_inspected": true,
+        "installed": false,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "test_mobile_observation_adapter.py",
+          "result": "18 meaningful software tests passed including actual official LeRobot v3 roundtrip on software fixtures; no hardware training claim"
+        }
+      ],
+      "hardware_run_ids": [],
+      "source_sha256": {
+        "mobile_observation_adapter.py": "5e4ca628594cc9e2c3b4c189a4b702f2243f0d89def423799132b4bc2ef3f0dc"
       }
     }
   ],

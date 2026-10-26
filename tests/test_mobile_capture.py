@@ -39,6 +39,46 @@ def test_node_routes_power_refusal_to_observation_without_motor_requests(tmp_pat
         recorder.close()
 
 
+def test_native_outage_and_delayed_finish_preserve_new_session(tmp_path):
+    from explorer_shared.node_agent import NodeAgent
+    source=fixture(tmp_path)[0]
+    class Offline:
+        def request(self,*args):
+            raise OSError('software transport outage')
+    recorder=MobileCaptureRecorder(source,tmp_path/'node')
+    node=NodeAgent.__new__(NodeAgent);node.mobile_capture=recorder;node.legacy_bridge=Offline()
+    try:
+        first=node.teaching_command('start',{'name':'first'})[1]['active']['id']
+        assert node.teaching_command('finish',{'outcome':'unknown','expected_id':first})[0]==200
+        assert node.teaching_command('finish',{'outcome':'success','expected_id':first})[1]['last']['outcome']=='unknown'
+        second=node.teaching_command('start',{'name':'second'})[1]['active']['id']
+        assert node.teaching_command('finish',{'outcome':'success','expected_id':first})[0]==409
+        assert node.teaching_command('stage',{'stage':'stale','expected_id':first})[0]==409
+        assert node.teaching_status()[1]['active']['id']==second
+    finally:
+        recorder.close()
+
+
+def test_native_demonstrations_and_legacy_archive_names_remain_available(tmp_path):
+    from types import SimpleNamespace
+    from explorer_shared.node_agent import NodeAgent
+    source=fixture(tmp_path)[0]
+    class Native:
+        def request(self,*args):
+            return 200,{'active':{'id':'a'*32,'format':'explorer_mobile_episode_v3'}}
+    recorder=MobileCaptureRecorder(source,tmp_path/'node')
+    node=NodeAgent.__new__(NodeAgent);node.mobile_capture=recorder;node.legacy_bridge=Native()
+    legacy=tmp_path/'legacy.tar';legacy.write_bytes(b'fixture only')
+    node.mobile_records=SimpleNamespace(archive=lambda ident:legacy)
+    try:
+        code,result=node.teaching_command('start',{'name':'native','observing':True})
+        assert code==200 and result['active']['format']=='explorer_mobile_episode_v3'
+        assert recorder.status()['active'] is None
+        assert node.mobile_archive('old.named-episode')==legacy
+    finally:
+        recorder.close()
+
+
 def fixture(tmp_path):
     source = tmp_path / "legacy-data"
     source.mkdir()

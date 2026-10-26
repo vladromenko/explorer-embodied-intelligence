@@ -27,7 +27,7 @@ ROW_SCHEMA = "explorer_mobile_observation_sample_v1"
 AXES = ["base", "shoulder", "elbow", "wrist_pitch", "wrist_roll", "gripper", "vx", "vy", "wz"]
 SOURCE_LIMITS = {"status.json": 2 * 1024**2, "camera-frame.json": 256 * 1024,
                  "frame-raw.jpg": 16 * 1024**2, "rgbd-cache-metadata.json": 256 * 1024,
-                 "rgbd-snapshot.npz": 64 * 1024**2}
+                 "rgbd-snapshot.npz": 64 * 1024**2, "arm-telemetry-fault.json": 256 * 1024}
 IDENTITY = re.compile(r"[0-9a-f]{32}")
 
 

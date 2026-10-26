@@ -104,11 +104,20 @@ def station_import(store, job, config):
     if mobile:
         descriptor=json.loads((destination/'episode.json').read_text())
         if descriptor.get('format')=='explorer_mobile_observation_episode_v1':
-            return dict(episode_id=episode_id,observation_only=True,observation_manifest=str(destination/'episode.json'),
+            sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
+            from explorer_sim.mobile_observation_adapter import convert_mobile_observation
+            converted=convert_mobile_observation(destination/'episode.json',store.root/'datasets'/('mobile-observation-'+episode_id))
+            exported=None
+            if converted['dataset_manifest']:
+                from explorer_sim.dataset_export import export_lerobot_v3
+                exported=export_lerobot_v3(Path(converted['dataset_manifest']),Path(converted['dataset_manifest']).parent/'lerobot_v3')
+            return dict(episode_id=episode_id,observation_only=not converted['dataset_available'],observation_manifest=str(destination/'episode.json'),
                 source_archive_sha256=digest,source_original_retained=True,physical_success_inferred=False,
-                frames=descriptor.get('frames',0),telemetry_rows=descriptor.get('samples',0),
-                state_basis='unknown_axes_preserved',training_admission=descriptor['training_admission'],
-                result_scope='Actual camera and raw telemetry; unverified arm/action contract, analysis only')
+                frames=converted['frames'] if converted['dataset_available'] else descriptor.get('frames',0),telemetry_rows=descriptor.get('samples',0),
+                state_basis=converted['state_basis'],training_admission=converted['training_admission'],
+                dataset_manifest=converted['dataset_manifest'],action_names=converted['action_names'],
+                action_basis=converted['action_basis'],dispatch_confirmed=False,lerobot_v3=exported,qualification=converted['qualification'],
+                result_scope='Raw observations plus qualified host-target labels only where available; no physical success inferred')
     sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
     from explorer_sim.station_adapter import convert_station_episode
     from explorer_sim.dataset_export import export_lerobot_v3

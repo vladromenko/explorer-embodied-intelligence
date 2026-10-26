@@ -70,10 +70,12 @@ def supervise(config, store):
             elif process is None and job['status'] in ('queued', 'resume_requested'):
                 training = job['kind'] in ('sim_pilot', 'train_act','world_model','dagger')
                 inference=job['kind'] in ('station_shadow','station_rollout')
+                data_job=job['kind'] in ('station_import','mobile_import','camera_recording')
                 busy = any(store.job(key)['kind'] in ('sim_pilot', 'train_act','world_model','dagger') for key in processes)
                 inference_busy=any(store.job(key)['kind'] in ('station_shadow','station_rollout') for key in processes)
+                data_busy=any(store.job(key)['kind'] in ('station_import','mobile_import','camera_recording') for key in processes)
                 memory_ok = psutil.virtual_memory().available > 2.5 * 1024 ** 3
-                if (not training or not busy) and (not inference or not inference_busy) and (not (training or inference) or memory_ok):
+                if (not training or not busy) and (not inference or not inference_busy) and (not data_job or not data_busy) and (not (training or inference or data_job) or memory_ok):
                     folder = store.root / 'jobs' / job_id
                     folder.mkdir(parents=True, exist_ok=True)
                     try:
