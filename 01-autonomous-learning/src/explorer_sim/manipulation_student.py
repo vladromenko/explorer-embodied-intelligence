@@ -25,6 +25,7 @@ from .pilot import ACTION_NAMES, LOW, HIGH, sha, state_digest, utc, write_json
 from .recorded_training import RecordedChunks
 from .student import (IMAGE_KEY, framework_info, make_act_policy, optimize_act,
                       prepare_rgb, preprocessing_config, save_reload_act)
+from explorer_shared.learning import runtime_profiles
 
 
 def parameters(config):
@@ -40,6 +41,9 @@ def parameters(config):
     result['task'], result['device'] = config.get('task', TASKS[0]), config.get('device', 'cpu')
     if result['task'] not in TASKS or result['device'] not in ('cpu', 'cuda'):
         raise ValueError('Select a supported complete manipulation task and CPU/CUDA runtime')
+    if config.get('cuda_execution_profile') is not None:
+        result['cuda_execution_profile']=config['cuda_execution_profile']
+    runtime_profiles.act_cuda_profile(result,9,9)
     return result
 
 
@@ -138,7 +142,7 @@ def _sources():
     return [Path(__file__), Path(__file__).with_name('manipulation.py'),
         Path(__file__).with_name('manipulation_env.py'), Path(__file__).with_name('student.py'),
         Path(__file__).with_name('recorded_training.py'), Path(__file__).with_name('pilot.py'),
-        Path(__file__).with_name('dataset_export.py'), Path(act_backend.__file__), Path(artifacts.__file__),Path(checkpoint_control.__file__),
+        Path(__file__).with_name('dataset_export.py'), Path(act_backend.__file__), Path(artifacts.__file__),Path(checkpoint_control.__file__),Path(runtime_profiles.__file__),
         ROOT / 'simulator/explorer_model.py',
         ROOT / 'simulator/environment.py', ROOT / 'simulator/model_config.json',
         ROOT / 'config/explorer.urdf', ROOT / 'config/arm-motion.json']
@@ -303,6 +307,7 @@ def _run_locked(store, job, folder, settings, assets):
             result = dict(status='trained_and_development_evaluated', trained=True, task=settings['task'],
                 source='contact_verified_scripted_IK_to_official_visual_ACT', actual_workers=1,
                 student=dict(algorithm='official LeRobot ACT', official_module=type(policy).__module__, device=settings['device'],
+                    runtime_profile_receipt=policy.explorer_runtime_profile_receipt,
                     parameter_device=str(next(policy.parameters()).device),parameter_dtype=str(next(policy.parameters()).dtype), TF32_enabled=bool(torch.backends.cuda.matmul.allow_tf32) if settings['device']=='cuda' else None,
                     optimizer_steps=len(losses), weights_changed=initial != state_digest(policy),
                     checkpoint_dir=str(checkpoint), checkpoint_sha256={p.name: sha(p) for p in checkpoint.iterdir() if p.is_file()},

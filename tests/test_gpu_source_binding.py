@@ -5,10 +5,14 @@ from pathlib import Path
 
 import pytest
 
-from explorer.qualification_bindings import (PIPELINES,V2_PIPELINES,LEGACY_PIPELINES,SHARED_ACT_SOURCES,CHECKPOINT_CONTROL_SOURCE,PACKAGES,OFFICIAL_ACT_SOURCES,
+from explorer.qualification_bindings import (PIPELINES,V2_PIPELINES,V3_PIPELINES,LEGACY_PIPELINES,SHARED_ACT_SOURCES,CHECKPOINT_CONTROL_SOURCE,RUNTIME_PROFILES_SOURCE,PACKAGES,OFFICIAL_ACT_SOURCES,
     canonical,publish_gpu_binding,qualified_gpu_binding,resolve_job_release,pipeline_hashes,
     pipeline_graph_version,runtime_identity)
 from explorer.store import Store
+from explorer_shared.learning.runtime_profiles import ACT9_CUDA_DETERMINISTIC_PROFILE,ACT9_RUNTIME_CONSTRAINTS
+
+def cuda_config():
+    return dict(device='cuda',image_size=64,batch_size=2,chunk_size=4,cuda_execution_profile=ACT9_CUDA_DETERMINISTIC_PROFILE)
 
 
 def releases(tmp_path):
@@ -40,6 +44,9 @@ def qualification(tmp_path,release,kind='manipulation_student',name='latest.json
         'state_dimension':9,'action_dimension':9,
         'framework_versions':{'torch':'fixture-1','torchvision':'fixture-1'},'lerobot':'fixture-1',
         'qualified_tensor_profile':dict(device='cuda',precision='float32',state_dimension=9,action_dimension=9,image_size=64,batch_size=2,chunk_size=4)}
+    if pipeline_graph_version(release,kind)>=4:
+        receipt['qualified_tensor_profile'].update(cuda_execution_profile=ACT9_CUDA_DETERMINISTIC_PROFILE,runtime_constraints=dict(ACT9_RUNTIME_CONSTRAINTS))
+        receipt['runtime_constraints_verified_before_CUDA_startup']=True
     path.write_text(json.dumps(receipt));return path
 
 
@@ -74,7 +81,7 @@ def test_qualified_old_source_remains_admitted_after_deploy_and_mutable_latest_r
     old,current=releases(tmp_path);python=runtime(tmp_path);registry=tmp_path/'qualification-registry'
     receipt=qualification(tmp_path,old)
     first=publish_gpu_binding(receipt,old,'manipulation_student',python,registry)
-    store=Store(tmp_path/'state');job=store.create_job('manipulation_student','01',dict(device='cuda',image_size=64,batch_size=2,chunk_size=4))
+    store=Store(tmp_path/'state');job=store.create_job('manipulation_student','01',cuda_config())
     assert resolve_job_release({'root':str(old)},store,job)==old
     qualification(tmp_path,current)  # Existing mutable latest receipt is replaced.
     publish_gpu_binding(receipt,current,'manipulation_student',python,registry)
@@ -89,7 +96,7 @@ def test_current_source_receipt_cannot_admit_an_unqualified_older_pinned_pipelin
     old,current=releases(tmp_path);python=runtime(tmp_path);registry=tmp_path/'qualification-registry'
     publish_gpu_binding(qualification(tmp_path,current),current,'manipulation_student',python,registry)
     with pytest.raises(ValueError,match='No immutable'):
-        qualified_gpu_binding({'kind':'manipulation_student','config':dict(device='cuda',image_size=64,batch_size=2,chunk_size=4)},old,python,registry)
+        qualified_gpu_binding({'kind':'manipulation_student','config':cuda_config()},old,python,registry)
     with pytest.raises(ValueError,match='source differs'):
         publish_gpu_binding(qualification(tmp_path,current),old,'manipulation_student',python,registry)
 
@@ -100,23 +107,23 @@ def test_shared_student_source_or_installed_runtime_record_changes_revoke_matchi
     student=old/'01-autonomous-learning/src/explorer_sim/student.py';original=student.read_bytes()
     student.write_bytes(original+b'changed-shared-normalization')
     with pytest.raises(ValueError,match='pinned source'):
-        qualified_gpu_binding({'kind':'manipulation_student','config':dict(device='cuda',image_size=64,batch_size=2,chunk_size=4)},old,python,registry)
+        qualified_gpu_binding({'kind':'manipulation_student','config':cuda_config()},old,python,registry)
     student.write_bytes(original)
     record=next((python.parent.parent/'lib').glob('python*/site-packages/torch-*.dist-info/RECORD'))
     record.write_text('installed-framework-record-changed')
     with pytest.raises(ValueError,match='installed runtime'):
-        qualified_gpu_binding({'kind':'manipulation_student','config':dict(device='cuda',image_size=64,batch_size=2,chunk_size=4)},old,python,registry)
+        qualified_gpu_binding({'kind':'manipulation_student','config':cuda_config()},old,python,registry)
 
 
 def test_current_shared_optimizer_and_artifact_sources_each_revoke_source_admission(tmp_path):
     release,_=releases(tmp_path);python=runtime(tmp_path);registry=tmp_path/'registry'
     publish_gpu_binding(qualification(tmp_path,release),release,'manipulation_student',python,registry)
-    assert pipeline_graph_version(release,'manipulation_student')==3
+    assert pipeline_graph_version(release,'manipulation_student')==4
     for name in SHARED_ACT_SOURCES:
         source=release/name;original=source.read_bytes()
         source.write_bytes(original+b'changed-common-optimizer-or-normalization')
         with pytest.raises(ValueError,match='pinned source'):
-            qualified_gpu_binding({'kind':'manipulation_student','config':dict(device='cuda',image_size=64,batch_size=2,chunk_size=4)},release,python,registry)
+            qualified_gpu_binding({'kind':'manipulation_student','config':cuda_config()},release,python,registry)
         source.write_bytes(original)
 
 
@@ -132,11 +139,11 @@ def test_legacy_immutable_binding_without_graph_marker_still_resolves_only_legac
     folder=registry/'bindings'/release.name/'manipulation_student'
     (folder/(created['binding_sha256']+'.json')).unlink()
     archived=folder/(legacy_sha+'.json');archived.write_bytes(raw)
-    assert qualified_gpu_binding({'kind':'manipulation_student','config':dict(device='cuda',image_size=64,batch_size=2,chunk_size=4)},release,python,registry)['binding_sha256']==legacy_sha
+    assert qualified_gpu_binding({'kind':'manipulation_student','config':cuda_config()},release,python,registry)['binding_sha256']==legacy_sha
     student=release/'01-autonomous-learning/src/explorer_sim/student.py'
     student.write_text('from explorer_shared.learning.act_backend import optimize_act\n')
     with pytest.raises(FileNotFoundError):
-        qualified_gpu_binding({'kind':'manipulation_student','config':dict(device='cuda',image_size=64,batch_size=2,chunk_size=4)},release,python,registry)
+        qualified_gpu_binding({'kind':'manipulation_student','config':cuda_config()},release,python,registry)
     assert archived.read_bytes()==raw
 
 
@@ -149,12 +156,49 @@ def test_partial_shared_graph_cannot_fall_back_to_old_admission(tmp_path):
 def test_old_shared_graph2_remains_source_pinned_and_new_checkpoint_import_cannot_downgrade(tmp_path):
     release,_=releases(tmp_path);python=runtime(tmp_path);registry=tmp_path/'registry'
     (release/CHECKPOINT_CONTROL_SOURCE).unlink()
+    (release/RUNTIME_PROFILES_SOURCE).unlink()
     assert pipeline_graph_version(release,'manipulation_student')==2
     assert set(pipeline_hashes(release,'manipulation_student'))==set(V2_PIPELINES['manipulation_student'])
     created=publish_gpu_binding(qualification(tmp_path,release),release,'manipulation_student',python,registry)
-    assert qualified_gpu_binding({'kind':'manipulation_student','config':dict(device='cuda',image_size=64,batch_size=2,chunk_size=4)},release,python,registry)['binding_sha256']==created['binding_sha256']
+    assert qualified_gpu_binding({'kind':'manipulation_student','config':cuda_config()},release,python,registry)['binding_sha256']==created['binding_sha256']
     (release/'shared/explorer_shared/learning/act_backend.py').write_text('from . import checkpoint_control\n')
     with pytest.raises(FileNotFoundError):pipeline_hashes(release,'manipulation_student')
+
+
+def test_old_checkpoint_graph3_retains_original_profile_and_new_profile_import_cannot_downgrade(tmp_path):
+    release,_=releases(tmp_path);python=runtime(tmp_path);registry=tmp_path/'registry'
+    (release/RUNTIME_PROFILES_SOURCE).unlink()
+    assert pipeline_graph_version(release,'manipulation_student')==3
+    assert set(pipeline_hashes(release,'manipulation_student'))==set(V3_PIPELINES['manipulation_student'])
+    created=publish_gpu_binding(qualification(tmp_path,release),release,'manipulation_student',python,registry)
+    legacy_config=dict(device='cuda',image_size=64,batch_size=2,chunk_size=4)
+    assert qualified_gpu_binding(dict(kind='manipulation_student',config=legacy_config),release,python,registry)['binding_sha256']==created['binding_sha256']
+    (release/'shared/explorer_shared/learning/act_backend.py').write_text('from . import runtime_profiles\n')
+    with pytest.raises(FileNotFoundError):pipeline_hashes(release,'manipulation_student')
+
+
+def test_new_profile_requires_startup_constraints_and_explicit_job_identity(tmp_path):
+    release,_=releases(tmp_path);python=runtime(tmp_path);registry=tmp_path/'registry'
+    path=qualification(tmp_path,release);document=json.loads(path.read_text())
+    document['runtime_constraints_verified_before_CUDA_startup']=False;path.write_text(json.dumps(document))
+    with pytest.raises(ValueError,match='startup constraints'):publish_gpu_binding(path,release,'manipulation_student',python,registry)
+    path=qualification(tmp_path,release);publish_gpu_binding(path,release,'manipulation_student',python,registry)
+    anonymous=dict(device='cuda',image_size=64,batch_size=2,chunk_size=4)
+    with pytest.raises(ValueError,match='explicit source-bound'):qualified_gpu_binding(dict(kind='manipulation_student',config=anonymous),release,python,registry)
+
+
+def test_worker_environment_sets_named_profile_before_launch_without_mutating_parent_or_legacy(tmp_path,monkeypatch):
+    from explorer.scheduler import execution_environment
+    current,old=releases(tmp_path);store=Store(tmp_path/'state')
+    monkeypatch.setenv('CUBLAS_WORKSPACE_CONFIG','parent-value')
+    new=store.create_job('manipulation_student','01',cuda_config())
+    environment=execution_environment({'root':str(current)},store,new)
+    assert environment['CUBLAS_WORKSPACE_CONFIG']==':4096:8'
+    import os
+    assert os.environ['CUBLAS_WORKSPACE_CONFIG']=='parent-value'
+    (old/RUNTIME_PROFILES_SOURCE).unlink()
+    old_job=store.create_job('manipulation_student','01',dict(device='cuda',image_size=64,batch_size=2,chunk_size=4))
+    assert execution_environment({'root':str(old)},store,old_job)['CUBLAS_WORKSPACE_CONFIG']=='parent-value'
 
 
 def test_new_measured_receipt_binds_actual_official_library_even_if_wheel_record_is_unchanged(tmp_path):
@@ -167,11 +211,11 @@ def test_new_measured_receipt_binds_actual_official_library_even_if_wheel_record
         official_implementation_sha256={str((site/name).resolve()):hashlib.sha256((site/name).read_bytes()).hexdigest() for name in OFFICIAL_ACT_SOURCES})
     path.write_text(json.dumps(document))
     publish_gpu_binding(path,release,'manipulation_student',python,registry)
-    selected=qualified_gpu_binding({'kind':'manipulation_student','config':dict(device='cuda',image_size=64,batch_size=2,chunk_size=4)},release,python,registry)
+    selected=qualified_gpu_binding({'kind':'manipulation_student','config':cuda_config()},release,python,registry)
     assert selected['execution_commit']==release.name
     (site/'lerobot/policies/act/modeling_act.py').write_text('modified-policy-with-untouched-RECORD')
     with pytest.raises(ValueError,match='official ACT implementation'):
-        qualified_gpu_binding({'kind':'manipulation_student','config':dict(device='cuda',image_size=64,batch_size=2,chunk_size=4)},release,python,registry)
+        qualified_gpu_binding({'kind':'manipulation_student','config':cuda_config()},release,python,registry)
     with pytest.raises(ValueError,match='official ACT implementation'):
         publish_gpu_binding(path,release,'manipulation_student',python,registry)
 
@@ -179,7 +223,7 @@ def test_new_measured_receipt_binds_actual_official_library_even_if_wheel_record
 def test_new_GPU_graph_rejects_unmeasured_tensor_shapes_instead_of_spending_an_unbounded_UMA_budget(tmp_path):
     release,_=releases(tmp_path);python=runtime(tmp_path);registry=tmp_path/'registry'
     publish_gpu_binding(qualification(tmp_path,release),release,'manipulation_student',python,registry)
-    config=dict(device='cuda',image_size=64,batch_size=2,chunk_size=4)
+    config=cuda_config()
     for key,value in [('image_size',224),('batch_size',32),('chunk_size',100)]:
         with pytest.raises(ValueError,match='tensor profile'):
             qualified_gpu_binding(dict(kind='manipulation_student',config=dict(config,**{key:value})),release,python,registry)
@@ -198,6 +242,7 @@ def test_backend_only_passed_flag_is_not_a_new_pipeline_qualification(tmp_path):
 def test_actual_nine_axis_result_source_manifest_is_archived_and_survives_original_path_removal(tmp_path):
     old,_=releases(tmp_path);python=runtime(tmp_path);registry=tmp_path/'registry'
     (old/CHECKPOINT_CONTROL_SOURCE).unlink()  # Historical graph2 source/result ABI.
+    (old/RUNTIME_PROFILES_SOURCE).unlink()
     proof=tmp_path/'actual-result-fixture.json'
     hashes={'/retired-worktree/'+name:value for name,value in pipeline_hashes(old,'manipulation_student').items()}
     proof.write_text(json.dumps({'provenance':{'context':{'source_sha256':hashes,'versions':{'numpy':'fixture-1'}}}}))
@@ -207,7 +252,7 @@ def test_actual_nine_axis_result_source_manifest_is_archived_and_survives_origin
         'official_saved_processors_executed':True,'result_path':str(proof),'result_sha256':proof_sha}))
     binding=publish_gpu_binding(receipt,old,'manipulation_student',python,registry)
     receipt.unlink();proof.unlink()
-    selected=qualified_gpu_binding({'kind':'manipulation_student','config':dict(device='cuda',image_size=64,batch_size=2,chunk_size=4)},old,python,registry)
+    selected=qualified_gpu_binding({'kind':'manipulation_student','config':cuda_config()},old,python,registry)
     assert selected['binding_sha256']==binding['binding_sha256']
     assert (registry/'proofs'/(proof_sha+'.json')).is_file()
     with pytest.raises(ValueError,match='backend-only'):
@@ -224,7 +269,7 @@ def test_archived_receipt_or_binding_content_tampering_blocks_dispatch_selection
     receipt=registry/'receipts'/(created['binding']['qualification_receipt_sha256']+'.json')
     receipt.write_text('{"passed":true}')
     with pytest.raises(ValueError,match='receipt changed'):
-        qualified_gpu_binding({'kind':'manipulation_student','config':dict(device='cuda',image_size=64,batch_size=2,chunk_size=4)},old,python,registry)
+        qualified_gpu_binding({'kind':'manipulation_student','config':cuda_config()},old,python,registry)
 
 
 def test_missing_original_pinned_release_cannot_fall_back_to_current(tmp_path):

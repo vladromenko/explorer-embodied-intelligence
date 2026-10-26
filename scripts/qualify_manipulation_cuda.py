@@ -33,8 +33,12 @@ def qualify(root, output):
     from explorer.qualification_bindings import (runtime_identity,pipeline_hashes,
         pipeline_graph_version,publish_gpu_binding,qualified_gpu_binding)
     from explorer_shared.learning.artifacts import sha,write_json
+    from explorer_shared.learning.runtime_profiles import (ACT9_CUDA_DETERMINISTIC_PROFILE,ACT9_TENSOR_PROFILE,ACT9_RUNTIME_CONSTRAINTS,ACT9_WORKER_ENVIRONMENT)
     code=pipeline_hashes(root,'manipulation_student')
-    if pipeline_graph_version(root,'manipulation_student')!=3:raise ValueError('Current checkpoint-aware shared ACT graph required')
+    if pipeline_graph_version(root,'manipulation_student')!=4:raise ValueError('Current explicitly profiled shared ACT graph required')
+    import os
+    if 'torch' in sys.modules or any(os.environ.get(name)!=value for name,value in ACT9_WORKER_ENVIRONMENT.items()):
+        raise ValueError('Named CUDA environment must be validated before importing optional Torch libraries')
     runtime_before=runtime_identity(sys.executable)
     package=importlib.metadata.distribution('lerobot')
     names=('lerobot/policies/act/configuration_act.py','lerobot/policies/act/modeling_act.py',
@@ -43,11 +47,12 @@ def qualify(root, output):
     official={str(package.locate_file(name)):sha(package.locate_file(name)) for name in names}
     write_json(output/'preflight.json',dict(source_commit=root.name,pipeline_source_sha256=code,
         runtime=runtime_before,official_implementation_sha256=official,cgroup_limits=limits,
-        qualification_script_sha256=sha(__file__),physical_io=False))
-    import os
+        qualification_script_sha256=sha(__file__),named_profile_environment_validated_before_Torch_import=True,
+        cuda_execution_profile=ACT9_CUDA_DETERMINISTIC_PROFILE,physical_io=False))
     import pytest
     os.environ['EXPLORER_RUN_MANIPULATION_STUDENT_INTEGRATION']='1'
     os.environ['EXPLORER_MANIPULATION_STUDENT_TEST_DEVICE']='cuda'
+    os.environ['EXPLORER_MANIPULATION_STUDENT_TEST_CUDA_PROFILE']=ACT9_CUDA_DETERMINISTIC_PROFILE
     status=pytest.main(['-x','-q',str(root/'01-autonomous-learning/tests/test_manipulation_student.py'),
                         '--basetemp='+str(output/'pytest')])
     import torch
@@ -65,12 +70,17 @@ def qualify(root, output):
             and student['TF32_enabled'] is False and result['scripted_baseline']['successes']==1
             and result['evaluation']['n']==1 and result['evaluation']['episodes'][0]['native_replay']['within_1e_minus_9']):
         raise ValueError('Actual result does not establish narrow ACT9 CUDA path')
-    receipt=dict(schema='explorer_shared_act9_cuda_qualification_v2',passed=True,
+    measured=student.get('runtime_profile_receipt') or {}
+    if (measured.get('CUDA_initialized_before_configuration') is not False
+            or measured.get('runtime_constraints')!=ACT9_RUNTIME_CONSTRAINTS
+            or measured.get('environment_validated_before_configuration') is not True):
+        raise ValueError('Actual worker did not establish named deterministic constraints before CUDA startup')
+    receipt=dict(schema='explorer_shared_act9_cuda_qualification_v3',passed=True,
         scope='Current shared compact nine-axis official ACT CUDA; real CAD contact teacher,8updates,saved processors,independent32step RGB+command9 evaluation. Software only.',
-        qualified_job_kinds=['manipulation_student'],pipeline_graph_version=3,
+        qualified_job_kinds=['manipulation_student'],pipeline_graph_version=4,
         state_dimension=9,action_dimension=9,optimizer_steps=8,weights_changed=True,
-        qualified_tensor_profile=dict(device='cuda',precision='float32',state_dimension=9,action_dimension=9,
-            **{name:result['provenance']['context']['settings'][name] for name in ('image_size','batch_size','chunk_size')}),
+        qualified_tensor_profile=dict(ACT9_TENSOR_PROFILE,cuda_execution_profile=ACT9_CUDA_DETERMINISTIC_PROFILE,runtime_constraints=dict(ACT9_RUNTIME_CONSTRAINTS)),
+        runtime_constraints_verified_before_CUDA_startup=True,
         official_saved_processors_executed=True,pipeline_source_sha256=code,
         framework_versions=result['provenance']['context']['versions'],lerobot=importlib.metadata.version('lerobot'),
         runtime_identity=runtime_after,official_implementation_sha256=official,

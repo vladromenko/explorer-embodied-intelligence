@@ -13,6 +13,7 @@ import torch
 
 from explorer_shared.learning.act_backend import make_act_policy, optimize_act
 from explorer_shared.learning.artifacts import state_digest, write_json
+from explorer_shared.learning.runtime_profiles import ACT9_CUDA_DETERMINISTIC_PROFILE
 from explorer_sim.recorded_training import RecordedChunks
 
 
@@ -34,7 +35,8 @@ def main():
     random.seed(71)
     np.random.seed(71)
     torch.set_num_threads(2)
-    settings = dict(device='cuda', seed=321041, image_size=64, batch_size=2, chunk_size=4, act_steps=8)
+    settings = dict(device='cuda', seed=321041, image_size=64, batch_size=2, chunk_size=4, act_steps=8,
+        cuda_execution_profile=ACT9_CUDA_DETERMINISTIC_PROFILE)
     samples = RecordedChunks(manifest_path, manifest, manifest['episodes'], 4, 64)
     deterministic_candidate = os.environ.get('EXPLORER_ACT9_CUDA_DETERMINISTIC_CANDIDATE') == '1'
     if deterministic_candidate:
@@ -74,6 +76,7 @@ def main():
         process_peak_RSS_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024,
         cuda_peak_allocated_bytes=torch.cuda.max_memory_allocated(),
         cuda_peak_reserved_bytes=torch.cuda.max_memory_reserved(),
+        runtime_profile_receipt=policy.explorer_runtime_profile_receipt,
         deterministic_candidate_only=deterministic_candidate,
         deterministic_algorithms=torch.are_deterministic_algorithms_enabled(),
         cudnn_deterministic=torch.backends.cudnn.deterministic,

@@ -13,6 +13,8 @@ from pathlib import Path
 import re
 import subprocess
 from email.parser import Parser
+from explorer_shared.learning.runtime_profiles import (ACT9_CUDA_DETERMINISTIC_PROFILE,
+    ACT9_TENSOR_PROFILE,ACT9_RUNTIME_CONSTRAINTS)
 
 
 LEGACY_PIPELINES = {
@@ -27,12 +29,14 @@ LEGACY_PIPELINES = {
 V2_SHARED_ACT_SOURCES = ('shared/explorer_shared/learning/act_backend.py',
                          'shared/explorer_shared/learning/artifacts.py')
 CHECKPOINT_CONTROL_SOURCE='shared/explorer_shared/learning/checkpoint_control.py'
-SHARED_ACT_SOURCES=V2_SHARED_ACT_SOURCES+(CHECKPOINT_CONTROL_SOURCE,)
+RUNTIME_PROFILES_SOURCE='shared/explorer_shared/learning/runtime_profiles.py'
+SHARED_ACT_SOURCES=V2_SHARED_ACT_SOURCES+(CHECKPOINT_CONTROL_SOURCE,RUNTIME_PROFILES_SOURCE)
 V2_PIPELINES = {kind: names + V2_SHARED_ACT_SOURCES for kind, names in LEGACY_PIPELINES.items()}
 V2_PIPELINES['manipulation_student'] += ('01-autonomous-learning/src/explorer_sim/pilot.py',
                                      '01-autonomous-learning/src/explorer_sim/dataset_export.py')
 V2_PIPELINES['train_act'] += ('01-autonomous-learning/src/explorer_sim/dataset_export.py',)
-PIPELINES={kind:names+(CHECKPOINT_CONTROL_SOURCE,) for kind,names in V2_PIPELINES.items()}
+V3_PIPELINES={kind:names+(CHECKPOINT_CONTROL_SOURCE,) for kind,names in V2_PIPELINES.items()}
+PIPELINES={kind:names+(RUNTIME_PROFILES_SOURCE,) for kind,names in V3_PIPELINES.items()}
 PACKAGES = ('torch','torchvision','lerobot','numpy','mujoco')
 OFFICIAL_ACT_SOURCES = ('lerobot/policies/act/configuration_act.py',
     'lerobot/policies/act/modeling_act.py','lerobot/policies/act/processor_act.py',
@@ -127,8 +131,10 @@ def pipeline_sources(release, kind):
     shared_present=any((root/name).exists() for name in SHARED_ACT_SOURCES)
     if not declares_shared and not shared_present:return LEGACY_PIPELINES[kind]
     backend=root/V2_SHARED_ACT_SOURCES[0]
+    declares_profiles=backend.is_file() and 'runtime_profiles' in backend.read_text()
+    if declares_profiles or (root/RUNTIME_PROFILES_SOURCE).exists():return PIPELINES[kind]
     declares_checkpoint=backend.is_file() and 'checkpoint_control' in backend.read_text()
-    return PIPELINES[kind] if declares_checkpoint or (root/CHECKPOINT_CONTROL_SOURCE).exists() else V2_PIPELINES[kind]
+    return V3_PIPELINES[kind] if declares_checkpoint or (root/CHECKPOINT_CONTROL_SOURCE).exists() else V2_PIPELINES[kind]
 
 
 def pipeline_hashes(release,kind):
@@ -138,13 +144,13 @@ def pipeline_hashes(release,kind):
 
 def pipeline_graph_version(release,kind):
     selected=pipeline_sources(release,kind)
-    return 3 if selected==PIPELINES[kind] else 2 if selected==V2_PIPELINES[kind] else 1
+    return 4 if selected==PIPELINES[kind] else 3 if selected==V3_PIPELINES[kind] else 2 if selected==V2_PIPELINES[kind] else 1
 
 
 def _measured_official_sources(receipt,runtime):
     """New measured receipts bind actual library bytes, beyond wheel RECORD text."""
     declared=receipt.get('official_implementation_sha256')
-    required=receipt.get('schema')=='explorer_shared_act9_cuda_qualification_v2'
+    required=receipt.get('schema') in ('explorer_shared_act9_cuda_qualification_v2','explorer_shared_act9_cuda_qualification_v3')
     if not required and declared is None:return None
     if receipt.get('runtime_identity')!=runtime:
         raise ValueError('Installed runtime differs from the actual measured runtime')
@@ -195,14 +201,27 @@ def _tensor_profile(receipt,graph_version,proof=None):
     if graph_version<3:return None
     profile=receipt.get('qualified_tensor_profile')
     keys={'device','precision','state_dimension','action_dimension','image_size','batch_size','chunk_size'}
+    if graph_version>=4:
+        expected=dict(ACT9_TENSOR_PROFILE,cuda_execution_profile=ACT9_CUDA_DETERMINISTIC_PROFILE,runtime_constraints=dict(ACT9_RUNTIME_CONSTRAINTS))
+        if profile!=expected or receipt.get('runtime_constraints_verified_before_CUDA_startup') is not True:
+            raise ValueError('Current GPU graph requires the explicit measured deterministic native9 profile and startup constraints')
+        keys|={'cuda_execution_profile','runtime_constraints'}
     if (not isinstance(profile,dict) or set(profile)!=keys or profile.get('device')!='cuda' or profile.get('precision')!='float32'
-            or any(type(profile.get(key)) is not int or profile[key]<1 for key in keys-{'device','precision'})
+            or any(type(profile.get(key)) is not int or profile[key]<1 for key in ('state_dimension','action_dimension','image_size','batch_size','chunk_size'))
             or profile['state_dimension']!=receipt.get('state_dimension') or profile['action_dimension']!=receipt.get('action_dimension')):
         raise ValueError('New GPU graph requires its explicit actual measured tensor profile')
     if proof is not None:
         settings=proof.get('provenance',{}).get('context',{}).get('settings',{})
         if any(settings.get(key)!=profile[key] for key in ('device','image_size','batch_size','chunk_size')):
             raise ValueError('GPU tensor profile differs from the actual optimizer result settings')
+        if graph_version>=4:
+            measured=proof.get('student',{}).get('runtime_profile_receipt') or {}
+            if (settings.get('cuda_execution_profile')!=ACT9_CUDA_DETERMINISTIC_PROFILE
+                    or measured.get('cuda_execution_profile')!=ACT9_CUDA_DETERMINISTIC_PROFILE
+                    or measured.get('runtime_constraints')!=ACT9_RUNTIME_CONSTRAINTS
+                    or measured.get('CUDA_initialized_before_configuration') is not False
+                    or measured.get('environment_validated_before_configuration') is not True):
+                raise ValueError('Actual worker did not establish named CUDA runtime constraints before startup')
     return profile
 
 
@@ -213,6 +232,8 @@ def _check_job_tensor_profile(job,profile):
         defaults={'device':'cpu','image_size':64,'batch_size':8,'chunk_size':16}
         actual={key:config.get(key,default) for key,default in defaults.items()}
         if any(type(actual[key]) is not int for key in ('image_size','batch_size','chunk_size')) or any(actual[key]!=profile[key] for key in actual):raise ValueError('GPU job image/batch/chunk/device exceeds or differs from its narrowly measured tensor profile')
+        if 'cuda_execution_profile' in profile and config.get('cuda_execution_profile')!=profile['cuda_execution_profile']:
+            raise ValueError('Current GPU job requires its explicit source-bound deterministic CUDA execution profile')
 
 
 def _immutable(root,group,data):

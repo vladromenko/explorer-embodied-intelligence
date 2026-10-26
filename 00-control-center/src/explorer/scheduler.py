@@ -124,7 +124,12 @@ def executable_for(job,release=None,store=None):
 def execution_environment(config,store,job):
     from .qualification_bindings import resolve_job_release
     release=resolve_job_release(config,store,job)
-    return dict(os.environ,PYTHONPATH=str(release/'00-control-center/src')+':'+str(release/'shared'))
+    environment=dict(os.environ,PYTHONPATH=str(release/'00-control-center/src')+':'+str(release/'shared'))
+    from .qualification_bindings import pipeline_graph_version
+    if job.get('config',{}).get('device')=='cuda' and job['kind'] in ('train_act','sim_pilot','manipulation_student') and pipeline_graph_version(release,job['kind'])>=4:
+        from explorer_shared.learning.runtime_profiles import act_worker_environment
+        environment.update(act_worker_environment(job['config']))
+    return environment
 
 
 class Supervisor:

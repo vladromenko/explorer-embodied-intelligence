@@ -37,6 +37,18 @@ def test_visual_manipulation_provenance_contains_actual_shared_optimizer_and_nor
     assert Path(artifacts.__file__).resolve() in sources
     assert Path(__file__).resolve().parents[1]/'src/explorer_sim/pilot.py' in sources
     assert Path(__file__).resolve().parents[1]/'src/explorer_sim/dataset_export.py' in sources
+    from explorer_shared.learning import runtime_profiles
+    assert Path(runtime_profiles.__file__).resolve() in sources
+
+
+def test_current_CUDA_requests_require_explicit_named_native9_shape_profile():
+    from explorer_shared.learning.runtime_profiles import ACT9_CUDA_DETERMINISTIC_PROFILE
+    with pytest.raises(ValueError,match='explicit qualified profile'):parameters(dict(device='cuda'))
+    with pytest.raises(ValueError,match='image64/batch2/chunk4'):
+        parameters(dict(device='cuda',cuda_execution_profile=ACT9_CUDA_DETERMINISTIC_PROFILE))
+    chosen=parameters(dict(device='cuda',image_size=64,batch_size=2,chunk_size=4,cuda_execution_profile=ACT9_CUDA_DETERMINISTIC_PROFILE))
+    assert chosen['cuda_execution_profile']==ACT9_CUDA_DETERMINISTIC_PROFILE
+    assert parameters({})['batch_size']==8 and 'cuda_execution_profile' not in parameters({})
 
 
 @pytest.mark.parametrize('config', [{'horizon': True}, {'act_steps': 0}, {'device': 'mps'},
@@ -104,9 +116,12 @@ def test_actual_official_act_full_object_development_cycle(tmp_path):
         def update_job(self, *args, **kwargs): pass
         def skills(self): return self.cards
         def add_skill(self, card): self.cards.append(card)
+    profile_options={}
+    if os.environ.get('EXPLORER_MANIPULATION_STUDENT_TEST_DEVICE')=='cuda':
+        profile_options['cuda_execution_profile']=os.environ['EXPLORER_MANIPULATION_STUDENT_TEST_CUDA_PROFILE']
     result = run_manipulation_student(Store(), dict(id='visual-cycle', config=dict(task='candy_to_tray', seed=321041,
         demonstration_episodes=1, act_steps=8, batch_size=2, chunk_size=4, evaluation_episodes=1, horizon=32,
-        device=os.environ.get('EXPLORER_MANIPULATION_STUDENT_TEST_DEVICE','cpu'))))
+        device=os.environ.get('EXPLORER_MANIPULATION_STUDENT_TEST_DEVICE','cpu'),**profile_options)))
     assert result['trained'] and result['student']['optimizer_steps'] == 8
     assert result['student']['weights_changed'] and result['student']['save_reload_passed']
     assert result['student']['official_saved_processors_executed']
@@ -123,7 +138,7 @@ def test_actual_official_act_full_object_development_cycle(tmp_path):
     assert 'demonstrations/scripted-321041/result.json' in result['artifact_sha256']
     saved = run_manipulation_student(Store(), dict(id='visual-cycle', config=dict(task='candy_to_tray', seed=321041,
         demonstration_episodes=1, act_steps=8, batch_size=2, chunk_size=4, evaluation_episodes=1, horizon=32,
-        device=os.environ.get('EXPLORER_MANIPULATION_STUDENT_TEST_DEVICE','cpu'))))
+        device=os.environ.get('EXPLORER_MANIPULATION_STUDENT_TEST_DEVICE','cpu'),**profile_options)))
     assert saved['artifact_sha256'] == result['artifact_sha256']
 
 

@@ -26,6 +26,7 @@ from packaging.version import Version
 from .artifacts import sha, state_digest, write_json
 from . import artifacts
 from . import checkpoint_control
+from . import runtime_profiles
 
 IMAGE_KEY = "observation.images.overview"
 
@@ -44,12 +45,9 @@ def make_act_policy(settings, state_dim, action_dim):
     from lerobot.policies.act.configuration_act import ACTConfig
     from lerobot.policies.act.modeling_act import ACTPolicy
 
+    runtime_profile = runtime_profiles.configure_act_runtime(settings, state_dim, action_dim, torch)
     torch.manual_seed(settings["seed"])
     device = settings["device"]
-    if device=='cuda':
-        torch.set_float32_matmul_precision('highest')
-        torch.backends.cuda.matmul.allow_tf32=False
-        torch.backends.cudnn.allow_tf32=False
     config = ACTConfig(device=device, input_features={
         IMAGE_KEY: PolicyFeature(type=FeatureType.VISUAL, shape=(3, settings["image_size"], settings["image_size"])),
         "observation.state": PolicyFeature(type=FeatureType.STATE, shape=(state_dim,))},
@@ -60,7 +58,9 @@ def make_act_policy(settings, state_dim, action_dim):
         n_decoder_layers=1, n_vae_encoder_layers=2, latent_dim=16,
         use_vae=True, kl_weight=.1, pretrained_backbone_weights=None,
         optimizer_lr=3e-4, optimizer_lr_backbone=1e-4, push_to_hub=False)
-    return ACTPolicy(config).to(device)
+    policy = ACTPolicy(config).to(device)
+    policy.explorer_runtime_profile_receipt = runtime_profile
+    return policy
 
 
 def _plain(value):
@@ -169,7 +169,8 @@ def _resume_signature(policy, samples, settings, context, interval):
         if not Path(item["path"]).is_file() or sha(item["path"]) != item["sha256"]:
             raise ValueError("ACT resume source checksum changed: " + str(item["path"]))
     implementations = {"act_backend": sha(__file__), "artifacts": sha(artifacts.__file__),
-                       "checkpoint_control": sha(checkpoint_control.__file__)}
+                       "checkpoint_control": sha(checkpoint_control.__file__),
+                       "runtime_profiles": sha(runtime_profiles.__file__)}
     for label, cls in [("dataset", type(samples)), ("policy", type(policy))]:
         path = inspect.getsourcefile(cls)
         if path and Path(path).is_file():
@@ -192,7 +193,10 @@ def _resume_signature(policy, samples, settings, context, interval):
                     "matmul_precision": torch.get_float32_matmul_precision(),
                     "cuda_matmul_tf32": torch.backends.cuda.matmul.allow_tf32,
                     "cudnn_tf32": torch.backends.cudnn.allow_tf32, "cudnn_benchmark": torch.backends.cudnn.benchmark,
-                    "cudnn_deterministic": torch.backends.cudnn.deterministic}}
+                    "cudnn_deterministic": torch.backends.cudnn.deterministic,
+                    "CUBLAS_WORKSPACE_CONFIG": os.environ.get('CUBLAS_WORKSPACE_CONFIG'),
+                    "FP32_environment": {name:os.environ.get(name) for name in runtime_profiles.ACT9_WORKER_ENVIRONMENT},
+                    "execution_profile": runtime_profiles.act_cuda_profile(settings)}}
     return hashlib.sha256(json.dumps(metadata, sort_keys=True, allow_nan=False).encode()).hexdigest(), metadata
 
 
