@@ -5,6 +5,8 @@ shared/perception/PROVENANCE.md. Importing this module never opens a device.
 """
 from __future__ import annotations
 
+from collections import OrderedDict
+from copy import deepcopy
 from contextlib import ExitStack
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -14,6 +16,7 @@ from pathlib import Path
 import subprocess
 import threading
 import time
+import uuid
 
 
 COCO_CLASSES = (
@@ -146,6 +149,14 @@ class HailoDetector:
         self._resources.close()
 
 
+
+def create_hailo_detector(path,threshold=.35):
+    """Select a qualified decoder without creating another capture/device owner."""
+    from .hailo_segmentation import MODEL_SHA256,HailoSegmentationDetector
+    with Path(path).open('rb') as stream:digest=hashlib.file_digest(stream,'sha256').hexdigest()
+    return HailoSegmentationDetector(path,threshold) if digest==MODEL_SHA256 else HailoDetector(path,threshold)
+
+
 def box_iou(a, b):
     intersection = max(0.0, min(a[2], b[2]) - max(a[0], b[0])) * max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
     area = lambda box: max(0.0, box[2] - box[0]) * max(0.0, box[3] - box[1])
@@ -178,7 +189,7 @@ class IoUTracker:
 
 class HailoObserver:
     """Independent bounded worker. Camera capture does not wait for inference."""
-    def __init__(self, source, model_path, emit, detector_factory=HailoDetector,
+    def __init__(self, source, model_path, emit, detector_factory=create_hailo_detector,
                  inference_hz=2.0, event_interval_s=5.0):
         self.source, self.model_path, self.emit = source, model_path, emit
         self.detector_factory = detector_factory
@@ -194,6 +205,10 @@ class HailoObserver:
         self._paused = threading.Event()
         self._wake = threading.Event()
         self._semantic_release_unknown = False
+        self._observation_frames = OrderedDict()
+        self._observation_results = OrderedDict()
+        self._observation_cache_bytes = 0
+        self._track_session_id = uuid.uuid4().hex
 
     def start(self):
         self.thread = threading.Thread(target=self._work, name="hailo-observer", daemon=True)
@@ -201,10 +216,37 @@ class HailoObserver:
 
     def snapshot(self):
         with self.lock:
-            result = dict(self.state)
+            result = deepcopy(self.state)
         if result["available"] and self.source.latest() is None:
             result.update(available=False, state="camera_stale")
         return result
+
+    def cached_observation_frame(self,frame_id):
+        """Exact original JPEG Frame for one of the last eight inference results.
+
+        A30FPS latest preview must never substitute for an older2FPS mask frame.
+        Missing/evicted IDs return None; this method never captures or infers.
+        """
+        if not isinstance(frame_id,str):return None
+        with self.lock:return self._observation_frames.get(frame_id)
+
+    def cached_observation(self,frame_id):
+        """Frozen result for the exact cached frame; no current-result fallback."""
+        if not isinstance(frame_id,str):return None
+        with self.lock:
+            result=self._observation_results.get(frame_id)
+            return deepcopy(result) if result is not None else None
+
+    def cached_observation_pair(self,frame_id):
+        """Atomically return original Frame + frozen JSON observation, or None."""
+        if not isinstance(frame_id,str):return None
+        with self.lock:
+            frame=self._observation_frames.get(frame_id);result=self._observation_results.get(frame_id)
+            return (frame,deepcopy(result)) if frame is not None and result is not None else None
+
+    @staticmethod
+    def _frame_cache_bytes(frame):
+        return len(frame.jpeg)+max(0,int(getattr(getattr(frame,'bgr',None),'nbytes',0)))
 
     def close(self):
         self.stop_event.set()
@@ -269,13 +311,28 @@ class HailoObserver:
                     now = time.monotonic()
                     detections = tracker.update(detections, now)
                     current = tuple(sorted(item["class_id"] for item in detections))
+                    jpeg=getattr(frame,'jpeg',None)
+                    frame_hash=hashlib.sha256(jpeg).hexdigest() if isinstance(jpeg,bytes) else None
                     observation = {"available": True, "state": "running", "camera_id": self.source.camera_id,
                                    "frame_id": frame.frame_id, "frame_wall_utc": frame.wall_utc,
                                    "frame_monotonic_ns": frame.monotonic_ns,
                                    "timestamp_basis": frame.timestamp_basis, "model": detector.model_info,
+                                   "frame_sha256": frame_hash, "model_sha256": detector.model_info.get("sha256"),
+                                   "track_session_id": self._track_session_id,
                                    "inference_ms": elapsed, "detections": detections,
                                    "evidence_type": "vision_estimate", "contact_verified": False}
                     with self.lock:
+                        if frame_hash is not None:
+                            previous=self._observation_frames.pop(frame.frame_id,None)
+                            if previous is not None:self._observation_cache_bytes-=self._frame_cache_bytes(previous)
+                            self._observation_frames[frame.frame_id]=frame
+                            self._observation_results[frame.frame_id]=observation
+                            self._observation_results.move_to_end(frame.frame_id)
+                            self._observation_cache_bytes+=self._frame_cache_bytes(frame)
+                            while len(self._observation_frames)>8 or self._observation_cache_bytes>64*1024**2:
+                                expired,original=self._observation_frames.popitem(last=False)
+                                self._observation_results.pop(expired,None)
+                                self._observation_cache_bytes-=self._frame_cache_bytes(original)
                         self.state = observation
                     if now - last_event >= self.event_interval and (current != signature or now - last_event >= 30):
                         self.emit({"kind": "perception.observation", **observation})

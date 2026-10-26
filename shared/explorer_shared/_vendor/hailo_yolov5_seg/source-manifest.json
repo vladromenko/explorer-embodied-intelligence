@@ -1,0 +1,40 @@
+{
+  "upstream_repository": "https://github.com/hailo-ai/Hailo-Application-Code-Examples",
+  "commit": "7b850e0444a142ada88443d675e3c3ddda18bd74",
+  "license": "MIT",
+  "sources": {
+    "LICENSE": "5aa7a48615e6140973072c468e5a5df96f1b15e75d8d1ba8df155d2bd76adbf5",
+    "upstream-config.json": "65299e166aa72ceb5f7db841db00c6aeff953bed4fb3538e643cf846133b3359",
+    "upstream-postprocessing.py.txt": "f75d5502c79541e6bed1554b514d05f6c7e899a8dd0758015be0d983f7594bf2",
+    "upstream-cython_nms.pyx.txt": "a186acb99e9bc1561a40898004577ed9ee24353d90da3381416a7561ff782134",
+    "upstream-default-preprocess.py.txt": "04faa8f231b0e9e8ce30eb6488c7969aa2b0e8f132e81d3a30ce01a4326fd889"
+  },
+  "derived_functions": [
+    "_finalize_detections_yolov5_seg",
+    "_make_grid",
+    "_normalize_yolov5_seg_bboxes",
+    "_organize_hpp_yolov5_seg_outputs",
+    "_sigmoid",
+    "_yolov5_decoding",
+    "crop_mask_roi_vectorized",
+    "fast_resize_masks",
+    "non_max_suppression",
+    "process_mask_optimized",
+    "xywh2xyxy",
+    "yolov5_seg_postprocess"
+  ],
+  "local_adaptations": [
+    "dependency isolation; no visualization/hardware imports",
+    "empty branch structure without loop shortcut",
+    "NumPy port of upstream Cython +1 IoU and >= suppression",
+    "topK bounded masks and configurable single-label source option"
+  ],
+  "upstream_toolbox_sha256": "63df591cf15ca6bf65eb984826bba43ad2b28415795806fe3e7cf47a0c443360",
+  "upstream_source_urls": {
+    "upstream-postprocessing.py.txt": "https://raw.githubusercontent.com/hailo-ai/Hailo-Application-Code-Examples/7b850e0444a142ada88443d675e3c3ddda18bd74/runtime/python/instance_segmentation/post_process/postprocessing.py",
+    "upstream-cython_nms.pyx.txt": "https://raw.githubusercontent.com/hailo-ai/Hailo-Application-Code-Examples/7b850e0444a142ada88443d675e3c3ddda18bd74/runtime/python/instance_segmentation/post_process/cython_nms.pyx",
+    "upstream-config.json": "https://raw.githubusercontent.com/hailo-ai/Hailo-Application-Code-Examples/7b850e0444a142ada88443d675e3c3ddda18bd74/runtime/python/instance_segmentation/config.json",
+    "upstream-default-preprocess.py.txt": "https://raw.githubusercontent.com/hailo-ai/Hailo-Application-Code-Examples/7b850e0444a142ada88443d675e3c3ddda18bd74/runtime/python/common/toolbox.py",
+    "LICENSE": "https://raw.githubusercontent.com/hailo-ai/Hailo-Application-Code-Examples/7b850e0444a142ada88443d675e3c3ddda18bd74/LICENSE"
+  }
+}
