@@ -1,0 +1,23 @@
+{
+  "scope": "injected_execution_adapter_fixture_not_physical_handover",
+  "new_runtime_tests_passed": 17,
+  "full_ordered_dispatch_fixture": {
+    "result_sha256": "8eda4b6404c057604f39c8355601b00780b26e745fde8ab9527ebbcf8885f129",
+    "journal_sha256": "71a7e3aeae8f9885415eb184fe04b73d938b30d7cb706b72e824dad7385f80ba",
+    "commands": [
+      "offer",
+      "approach",
+      "close",
+      "release",
+      "finish"
+    ],
+    "protocol_completed": true,
+    "outcome": "unknown",
+    "physical_skill_success_claimed": false,
+    "implementation_sha256": "0ca4349ec915b006667b28f71075d43caafdf66f9b5c3952736a738c3a78a3af"
+  },
+  "private_artifacts": "/tmp/explorer-handover-runtime-validation/success-v1",
+  "hardware_io_performed": false,
+  "actual_M3_transport_binding": "ROOT_OWNS_NOT_QUALIFIED_BY_THIS_FIXTURE",
+  "physical_object_hold_and_transfer": "NOT_TESTED"
+}

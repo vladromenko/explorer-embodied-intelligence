@@ -1,0 +1,27 @@
+# Runtime coordinator передачи предмета
+
+`explorer_shared.handover_runtime.run_handover(plan, transports, evidence_provider, folder, ...)` реально отправляет последовательность через adapters, ожидает dispatch receipts и independent/operator evidence. Это отдельный исполнитель над существующим `HandoverFSM`, а не ещё один тест переходов FSM. Ни calibration/PID/limits/firmware, ни оригинальный контроллер он не меняет. Chassis operations отсутствуют.
+
+Порядок: подтверждение предмета у giver → offer → stationary → receiver approach → stationary → close → **подтверждённое удержание receiver** → giver release → независимое подтверждение transfer → receiver finish. Принятая команда закрытия, время ожидания или HTTP200 удержание не подтверждают. Объект, run, роль и `after_command_id` должны совпасть; старое/ложное/просроченное подтверждение не выпускает giver.
+
+## Root-owned интеграция
+
+- `HandoverPlan`: уникальные run/object IDs, ID реально зарегистрированной зоны и пять `ArmCommand` (giver offer, receiver approach/close, giver release, receiver finish). Payloads готовятся root из проверенных native contracts и workspace profiles; модуль не угадывает позиции/единицы/апертуры.
+- `transports={'giver':..., 'receiver':...}`: `submit` возвращает **DispatchReceipt**, `observe` — свежий **ArmObservation**, `stop` — существующее hold/stop. `CallbackArmTransport` связывает существующие adapters без нового драйвера. Root обязан держать имеющиеся exclusive ownership/leases обоих механизмов и не принимать произвольные клиентские callbacks.
+- **SO101StationTransport** использует существующие `/station/action`, `/station/status`, `/station/stop`, исходный control_epoch, sequence и свежий Pi frame clock. Успешный POST не равен отправке в servo: adapter ожидает `last_command` с теми же epoch/sequence/frame/requested action. Старый или accepted-only ответ не продвигает протокол. Не повторяет неопределённую команду автоматически. `policy/start` и interactive admission остаются в root.
+- Для M3 root связывает существующий arm-only finite/manual adapter с `CallbackArmTransport`, преобразуя настоящие dispatch receipts. Эта записка не объявляет неизвестный payload `/legacy/arm/finite` проверенным и не подменяет отсутствие referenced pose. Если реальный endpoint не выдаёт нужную обратную связь — capability остаётся blocked, а не считается достижением позы.
+- `observe` должен получать настоящие measured stationary/goal observations, с исходным receipt и привязкой к последней команде. Командный acknowledgement не является stationary measurement. Callback может ждать завершения текущей bounded arm operation; он обязан иметь конечный timeout.
+- `evidence_provider(statement,run_id,object_id,role,after_command_id,timeout_s)` ожидает событие и возвращает **CorrelatedEvidence** с настоящим источником и **HoldEvidence**. Поддержаны force/tactile independent measurement либо явное operator confirmation по существующему FSM. `object_transferred_to_receiver` означает подтверждённую передачу, включая отсутствие удержания giver; один только повторный сигнал receiver force этого не устанавливает. Неподтверждённые условия возвращаются как unknown/timeout.
+- `authority()` для physical mode обязан отражать актуальное условие пользователя: обе руки видны через Pi **или** оператор находится рядом. Наличие произвольного кадра само по себе не равно `pi_arms_visible=true`. При потере условия последовательность прекращается. Root сохраняет существующие остановку, control authority и глобальную отмену.
+
+Непосредственно перед giver release повторно проверяется свежесть receiver hold. Передача в adapter несёт run/object/evidence/close-command IDs и deadline; production giver adapter обязан проверить этот deadline у фактической dispatch boundary и не ставить просроченный release в очередь. Нельзя превратить подтверждение на координаторе в гарантию arbitrarily delayed remote dispatch. SO101 adapter проверяет deadline перед submission; обычный callback должен сделать эквивалентную проверку внутри своего существующего dispatcher.
+
+## Ошибки, остановка, повторный запуск
+
+Journal fsync записывает intention до внешней операции и receipt после неё. При потере связи, несоответствии receipts, отмене, timeout или утрате присутствия новые шаги не отправляются; root-owned stop callbacks вызываются для обоих механизмов. Они должны использовать уже установленное удержание/остановку, никогда открытие giver. Ошибка stop отдельно сохраняется и не выдаётся за подтверждённую остановку.
+
+Завершённый результат повторно читается только с совпадающим signature и journal checksum, без повторной отправки. После прерывания процесса существующий journal требует нового run и обновлённых наблюдений — старое разрешение на release не возобновляется. Nonblocking file lock запрещает два coordinator одного run; глобальные robot leases остаются ответственностью root adapters.
+
+Результат содержит typed commands/dispatch evidence/FSM trace/stop receipts, source hashes и `protocol_completed`. Всегда `physical_skill_success_claimed=false`, `outcome=unknown`: успешный software protocol не присваивает предметному навыку физическую успешность.
+
+17 новых тестов действительно вызывают transport adapters, проверяют порядок пяти отправок, correlation/freshness, disconnect, accepted-only receipt, presence, interruption/idempotency, и JSON-контракт существующего Pi endpoint. Это software fixtures, не физическая передача и не новая physics oracle. Проверки реального hardware/bindings и измерения остаются за root.
