@@ -196,6 +196,10 @@ class Store:
                 if saved['payload']['result']!=result:
                     raise ValueError('Completed job evidence cannot change')
                 terminal=saved['payload']['status']
+                if row['status']!=terminal:raise ValueError('Terminal job row conflicts with immutable finalized event')
+                return terminal
+            elif row['status'] in ('completed','failed','cancelled'):
+                raise ValueError('Terminal job outcome cannot be revived or rewritten by a late worker result')
             else:
                 projected=self.experiment_projection.identity(db,'job',job_id,row['project_id'],declared_version=json.loads(row['config']).get('experiment_numbering_version'))
                 body=event('nx',projected['project_id'],{'kind':'job.finalized','job_id':job_id,'status':terminal,'result':result,

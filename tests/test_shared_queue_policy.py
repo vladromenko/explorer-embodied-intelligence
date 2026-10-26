@@ -67,6 +67,24 @@ def test_atomic_cancel_intent_dominates_delayed_pause_resume_and_late_worker_sta
     assert store.job(other['id'])['status']=='cancel_requested' and not store.schedule_status(other['id'])['runtime']['user_pause_requested']
 
 
+def test_late_complete_cannot_revive_terminal_outcome_and_same_finalized_event_is_byte_exact_idempotent(tmp_path):
+    store=Store(tmp_path/'state');failed=store.create_job('world_model','01',{})
+    store.update_job(failed['id'],status='failed',error='first_terminal_outcome')
+    with store.connect() as db:before=tuple(db.execute('SELECT * FROM jobs WHERE id=?',(failed['id'],)).fetchone())
+    with pytest.raises(ValueError,match='Terminal'):store.complete_job(failed['id'],{'late_actual_result':'retained_in_worker_artifact'})
+    with store.connect() as db:
+        assert tuple(db.execute('SELECT * FROM jobs WHERE id=?',(failed['id'],)).fetchone())==before
+        assert db.execute('SELECT 1 FROM events WHERE event_id=?',('job.completed:'+failed['id'],)).fetchone() is None
+    complete=store.create_job('world_model','01',{});result={'second_key':2,'first_key':1}
+    assert store.complete_job(complete['id'],result)=='completed'
+    with store.connect() as db:raw=tuple(db.execute('SELECT * FROM jobs WHERE id=?',(complete['id'],)).fetchone())
+    assert store.complete_job(complete['id'],{'first_key':1,'second_key':2})=='completed'
+    with store.connect() as db:assert tuple(db.execute('SELECT * FROM jobs WHERE id=?',(complete['id'],)).fetchone())==raw
+    cancelled=store.create_job('world_model','01',{});store.request_job_operation(cancelled['id'],'cancel')
+    assert store.complete_job(cancelled['id'],{'actual_finish_after_cancel_request':True})=='cancelled'
+    assert store.job(cancelled['id'])['status']=='cancelled'
+
+
 def test_CPU_parallel_budget_and_single_GPU_UMA_growth_reserve_include_stopped_process_memory():
     cpu=[job(str(index),role=str(index)) for index in range(4)]
     selected=plan(cpu)
