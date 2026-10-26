@@ -240,6 +240,13 @@ def main(job_id):
         elif job['kind']=='rosmaster_skill_shadow':
             from .rosmaster_shadow_job import run_rosmaster_shadow
             result=run_rosmaster_shadow(store,job,config)
+        elif job['kind']=='so101_skill_eval':
+            def interrupted(signum,frame):
+                raise RuntimeError('Source evaluation process interrupted')
+            signal.signal(signal.SIGTERM,interrupted)
+            signal.signal(signal.SIGINT,interrupted)
+            from .source_evaluation_transport import run_source_evaluation
+            result=run_source_evaluation(store,job,config)
         elif job['kind']=='study_export':
             from .study_job import run_study_export
             result=run_study_export(store,job,job['config'])
