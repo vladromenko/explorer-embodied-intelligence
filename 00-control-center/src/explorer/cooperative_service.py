@@ -318,6 +318,7 @@ bound first; default construction cannot turn on policy execution.
             'missing_native_providers':['cross_embodiment_transfer'],'physical_execution_default':False,
             'model_source_errors':model_errors,
             'queued_native_shadows':self.queued_shadows.snapshots(selected) if selected else [],
+            'queued_native_shadow_supported':True,
             'persistent_warm_model_actor_ready':False,
             'model_adapters_bound':{role:callable(self.models.get(role)) for role in ('giver','receiver')}}
     def artifact(self,kind,identity,role=None):

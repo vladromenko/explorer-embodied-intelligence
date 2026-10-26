@@ -23,6 +23,13 @@
   }
   function readiness(data, session) { return session?.readiness || data?.readiness?.[session?.session_id] || {}; }
   function activeStopped(view, session) { return Boolean(session && (view.stops?.[session.session_id] || ["STOPPED","INTERRUPTED","COMPLETED"].includes(session.status))); }
+  function shadowSupported(data, skill) {
+    const refs = skill?.spec?.subskills;
+    return data?.queued_native_shadow_supported === true && skill?.confirmed === true &&
+      ["rosmaster_keyboard_learning","rosmaster_leader_learning"].includes(refs?.giver?.experiment_slug) &&
+      refs?.receiver?.experiment_slug === "so101_source_learning" &&
+      ["giver","receiver"].every(role => Boolean(refs?.[role]?.model_id));
+  }
   function selected(view) {
     return {skill:specRows(view.data).find(row => key(row) === view.selectedSkill),session:sessions(view.data).find(row => row.session_id === view.selectedSession)};
   }
@@ -32,7 +39,7 @@
     const stops = {}, draft = {name:"Передать предмет ROSMASTER → SO101 и завершить задачу",object_description:"",receiver_goal_description:"",outcome_criteria:"",mode:"both_manual",giver_choice_id:"",receiver_choice_id:"",giver_model_id:"",receiver_model_id:"",phase_maps:{giver:{},receiver:{}},scene:"",object_instance:"",split:"train",giver_input_mode:"keyboard",receiver_input_mode:"leader",execution_domain:"observation_only",stationary_chassis_confirmed:false,native_variants:{giver:"",receiver:""},zone_checked:false,zone_observing:false,record_phase:"",finish:freshFinish(),review:{status:"unknown",whole_episode_seen:false,phase_outcomes:{},native_episode_choice_ids:{giver:"",receiver:""}},evidence:{}};
     const storage = options.storage ?? (typeof sessionStorage !== "undefined" ? sessionStorage : null);
     const storageKey = options.storageKey || "explorer.cooperative-workbench.v1";
-    let reviewRecordingID = "", finishRecordingID = "";
+    let reviewRecordingID = "", finishRecordingID = "", pendingShadow = null;
     function clearObservationChecks() {draft.zone_checked = false;draft.zone_observing = false;draft.finish.observed = false;draft.finish.giver_visible = false;draft.finish.giver_full_task = false;draft.review.whole_episode_seen = false;draft.evidence = {};}
     try {
       const raw = storage?.getItem(storageKey);
@@ -48,6 +55,7 @@
           for (const [id,stop] of Object.entries(saved.stops || {})) if (id !== "__proto__" && stop && typeof stop.originalEpoch === "string") stops[id] = copy(stop);
           selectedSkill = typeof saved.selectedSkill === "string" ? saved.selectedSkill : "";selectedSession = typeof saved.selectedSession === "string" ? saved.selectedSession : "";
           reviewRecordingID = saved.reviewRecordingID || "";finishRecordingID = saved.finishRecordingID || "";
+          if (typeof saved.pendingShadow?.pin === "string" && /^[0-9a-f-]{36}$/.test(saved.pendingShadow?.request_id || "")) pendingShadow = copy(saved.pendingShadow);
           clearObservationChecks(); // A prior current-observation affirmation never survives page recreation.
         }
       }
@@ -56,7 +64,7 @@
       try {
         const safeDraft = copy(draft);safeDraft.evidence = {};safeDraft.zone_checked = false;safeDraft.zone_observing = false;
         safeDraft.finish.observed = false;safeDraft.finish.giver_visible = false;safeDraft.finish.giver_full_task = false;safeDraft.review.whole_episode_seen = false;
-        storage?.setItem(storageKey,JSON.stringify({schema:1,draft:safeDraft,stops,selectedSkill,selectedSession,reviewRecordingID,finishRecordingID}));
+        storage?.setItem(storageKey,JSON.stringify({schema:1,draft:safeDraft,stops,selectedSkill,selectedSession,reviewRecordingID,finishRecordingID,pendingShadow}));
       } catch (_) { /* Explicit server save remains authoritative. */ }
     }
     const notify = () => {persist();options.onChange?.();};
@@ -196,7 +204,22 @@
       return operation("train",{skill_id:row.spec.skill_id,version:row.spec.version,settings:{}});
     }
     function trainingPlan() { const row = skillRequired();return operation("training_plan",{skill_id:row.spec.skill_id,version:row.spec.version}); }
-    function shadow() { const session = sessionRequired();if (!["giver","receiver"].every(role => data?.model_adapters_bound?.[role] === true && current().skill?.spec?.subskills?.[role]?.model_id)) throw new Error("Для shadow нужны обе закреплённые модели и реальные серверные адаптеры наблюдения / inference");return operation("shadow",{session_id:session.session_id,expected_epoch:session.epoch}); }
+    function shadow() {
+      const session = sessionRequired(), skill = current().skill;
+      if (!shadowSupported(data,skill)) throw new Error("Для shadow нужны обе закреплённые native-модели и серверная общая очередь inference");
+      if (busy) throw new Error("Дождитесь текущего запроса; STOP доступен всегда");
+      const pin = `${session.session_id}:${session.epoch}:${key(skill)}`;
+      if (pendingShadow?.pin !== pin) {
+        const request_id = options.uuid ? options.uuid() : globalThis.crypto?.randomUUID?.();
+        if (!/^[0-9a-f-]{36}$/.test(request_id || "")) throw new Error("Браузер не предоставил идентификатор запроса; обновите защищённую страницу");
+        pendingShadow = {pin,request_id};
+      }
+      const request = pendingShadow;
+      return operation("shadow",{session_id:session.session_id,expected_epoch:session.epoch,request_id:request.request_id}).then(reply => {
+        if (!reply?.ignored && pendingShadow === request) {pendingShadow = null;persist();}
+        return reply;
+      });
+    }
     return {snapshot,refresh,edit,chooseSkill,chooseSession,propose,confirm,createSession,registerZone,recordStart,recordStage,recordFinish,step,stop,confirmEvidence,review,aggregate,trainingPlan,train,shadow};
   }
 
@@ -246,14 +269,18 @@
       return safe ? `<p><a class="text-link" href="${esc(url)}" target="_blank" rel="noopener">Открыть исходный показ ${role === "giver" ? "ROSMASTER" : "SO101"}</a></p>` : `<p class="form-hint">${role === "giver" ? "ROSMASTER" : "SO101"}: ссылка на исходный показ не предоставлена сервером; текущая миниатюра не заменяет полный просмотр.</p>`;
     }).join("") : "";
     const review = session?.last_recording_id ? `<details><summary>Независимый разбор завершённого показа</summary>${check("review.whole_episode_seen","Просмотрел весь исходный показ и конкретный предмет",draft.review?.whole_episode_seen)}${select("review.status","Полный исход",Object.entries(outcomes),draft.review?.status)}<div class="form-grid">${phases.map(phase => select(`review.phase_outcomes.${phase}`,labels[phase] || phase,[["","Выберите исход"],...Object.entries(outcomes)],draft.review?.phase_outcomes?.[phase] || "")).join("")}</div>${["giver","receiver"].map(role => select(`review.native_episode_choice_ids.${role}`,role === "giver" ? "Завершённый оригинал ROSMASTER" : "Завершённый оригинал SO101",[["","Нет выбранного допущенного оригинала"],...episodeChoices(data,session,role).map(row => [choiceID(row),row.name || row.title || "Исходный показ · "+(row.status || "допуск проверяется")])],draft.review?.native_episode_choice_ids?.[role] || "")).join("")}<p>Отсутствующий оригинал остаётся недоступным. Ручной ввод ID, подмена intent на dispatch и перенос sealed в train не выполняются.</p>${sourceReviewLinks}${button("review","Сохранить независимый разбор",busy)}</details>` : "";
-    const shadowReady = ["giver","receiver"].every(role => data?.model_adapters_bound?.[role] === true && skill?.spec?.subskills?.[role]?.model_id);
+    const shadowReady = shadowSupported(data,skill);
+    const queuedShadows = rows(data?.queued_native_shadows).map(receipt => `<section><h3>Проверка двух native-моделей в очереди</h3>${["giver","receiver"].map(role => {
+      const head = receipt.native_heads?.[role], queued = receipt.jobs?.[role], error = receipt.errors?.[role];
+      return `<p>${role === "giver" ? "ROSMASTER9D" : "SO1016D"}: ${esc(head?.status || (queued ? "В очереди" : "Не поставлено"))} ${head?.job_id ? "· "+esc(head.job_id.slice(0,8)) : ""}${head?.verified_fresh_shadow_at_worker_time === true ? " · свежее наблюдение проверено worker" : ""}</p>${reasons([...(head?.schedule?.waiting_reasons || []),...(head?.evidence_error ? [head.evidence_error] : []),...(error ? [error] : [])])}`;
+    }).join("")}<p class="form-hint">${receipt.current_session_epoch ? "Текущая версия сессии" : "Историческая версия сессии"}. Это отдельные предсказания без команд; часы роботов не синхронизированы. Постоянный actor и физическое исполнение этим не подтверждаются. <a href="/queue">Открыть общую очередь</a></p></section>`).join("");
     const trainReady = Boolean(skill?.confirmed && view.trainingPlanReceipt?.skillKey === key(skill) && view.trainingPlanReceipt?.result?.ready === true && view.aggregateReceipt?.skillKey === key(skill) && /^[a-f0-9]{64}$/.test(view.aggregateReceipt?.result?.aggregate_manifest_sha256 || ""));
     const trainResult = view.lastResult?.operation === "train" ? `<section><h3>Раздельные задачи в общей очереди</h3>${["giver","receiver"].map(role => {
       const job = view.lastResult.result?.jobs?.[role], error = view.lastResult.result?.errors?.[role];
       return `<p>${role === "giver" ? "ROSMASTER9D" : "SO1016D"}: ${job ? "задача "+esc(String(job.id).slice(0,8))+" · "+esc(job.status) : "задача не подтверждена"}</p>${error ? `<p class="form-error">${esc(error)}</p>` : ""}`;
     }).join("")}<p class="form-hint">Частичный результат сохраняется сервером. Это отдельные native datasets/models; coordinator не объявляется обученной моделью, физический запуск не разрешается.</p></section>` : "";
     const results = view.lastResult ? `<div role="status"><p>Серверный результат: ${esc(view.lastResult.operation)}</p>${reasons(view.lastResult.result?.blockers || view.lastResult.result?.reasons)}${view.lastResult.result?.ready != null ? `<p>${view.lastResult.result.ready ? "План готов в заявленной сервером области" : "Есть незакрытые требования"}</p>` : ""}</div>` : "";
-    return `<section class="panel cooperative-workbench" style="min-width:0;overflow-wrap:anywhere"><div class="panel-heading" style="position:sticky;top:0;z-index:2;background:var(--panel,var(--bg))"><div><p class="eyebrow">05 · Совместный навык</p><h2>Передать предмет и завершить действие</h2></div><div class="teleop-actions">${button("refresh","Обновить состояние")}${button("stop","STOP · остановить текущую сессию",!session)}</div></div><div class="panel-body"><p>Общий навык связывает проверенные версии ROSMASTER и SO101. Шасси неподвижно. Данные, модели и clocks двух роботов остаются раздельными. Свободный текст описывает SkillSpec и не добавляет ACT языковой вход.</p>${view.error ? `<p class="form-error" role="alert">${esc(view.error)}</p>` : ""}${!data ? '<p>Состояние ещё не загружено. Обновление читает сервер и не запускает действия.</p>' : ""}${cameras}${skillSelect}${spec}${creation}${newSession}${sessionSelect}${session ? `<p class="form-hint">Сцена: ${esc(session.scene_id)} · предмет: ${esc(session.object_instance_id)} · ${esc(session.split)} · ${esc(session.execution_domain)}</p>${reasons(state.metadata_and_recording_blockers)}${reasons(state.observed_execution_blockers)}` : ""}${zone}${recording}${protocol}${pending}${review}${skill ? `<section><h3>Данные → план обучения → shadow</h3>${button("aggregate","Собрать только допущенные пары показов",busy)}${button("training-plan","Проверить план двух native обучений",busy)}${button("train","Поставить две native-задачи обучения в общую очередь",busy || !trainReady)}${!trainReady ? '<p class="form-hint">Для enqueue нужны допущенный парный train/development агрегат и готовый план этой точной версии. Все допуски повторно проверяет сервер.</p>' : ""}${button("shadow","Проверить отдельные модели без команд",busy || stopped || !session || !shadowReady)}${!shadowReady ? '<p class="form-hint">Shadow заблокирован: требуются обе закреплённые модели и реальные серверные adapters наблюдения/inference.</p>' : ""}<p class="form-hint">Агрегат не означает, что обучение запущено; план не означает готовность физического навыка. Shadow использует реальные серверные наблюдения и не отправляет команды. Исполнение и deploy выбираются отдельно после квалификации.</p>${results}${trainResult}</section>` : ""}</div></section>`;
+    return `<section class="panel cooperative-workbench" style="min-width:0;overflow-wrap:anywhere"><div class="panel-heading" style="position:sticky;top:0;z-index:2;background:var(--panel,var(--bg))"><div><p class="eyebrow">05 · Совместный навык</p><h2>Передать предмет и завершить действие</h2></div><div class="teleop-actions">${button("refresh","Обновить состояние")}${button("stop","STOP · остановить текущую сессию",!session)}</div></div><div class="panel-body"><p>Общий навык связывает проверенные версии ROSMASTER и SO101. Шасси неподвижно. Данные, модели и clocks двух роботов остаются раздельными. Свободный текст описывает SkillSpec и не добавляет ACT языковой вход.</p>${view.error ? `<p class="form-error" role="alert">${esc(view.error)}</p>` : ""}${!data ? '<p>Состояние ещё не загружено. Обновление читает сервер и не запускает действия.</p>' : ""}${cameras}${skillSelect}${spec}${creation}${newSession}${sessionSelect}${session ? `<p class="form-hint">Сцена: ${esc(session.scene_id)} · предмет: ${esc(session.object_instance_id)} · ${esc(session.split)} · ${esc(session.execution_domain)}</p>${reasons(state.metadata_and_recording_blockers)}${reasons(state.observed_execution_blockers)}` : ""}${zone}${recording}${protocol}${pending}${review}${skill ? `<section><h3>Данные → план обучения → shadow</h3>${button("aggregate","Собрать только допущенные пары показов",busy)}${button("training-plan","Проверить план двух native обучений",busy)}${button("train","Поставить две native-задачи обучения в общую очередь",busy || !trainReady)}${!trainReady ? '<p class="form-hint">Для enqueue нужны допущенный парный train/development агрегат и готовый план этой точной версии. Все допуски повторно проверяет сервер.</p>' : ""}${button("shadow","Проверить отдельные модели без команд",busy || stopped || !session || !shadowReady)}${!shadowReady ? '<p class="form-hint">Shadow заблокирован: требуются обе закреплённые native-модели и серверная общая очередь inference.</p>' : ""}<p class="form-hint">Агрегат не означает, что обучение запущено; план не означает готовность физического навыка. Shadow использует реальные серверные наблюдения и не отправляет команды. Исполнение и deploy выбираются отдельно после квалификации.</p>${results}${trainResult}${queuedShadows}</section>` : ""}</div></section>`;
   }
 
   function bindCooperativeWorkbench(root,client,onError = () => {}) {

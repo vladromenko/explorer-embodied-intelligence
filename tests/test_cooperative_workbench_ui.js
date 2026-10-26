@@ -72,10 +72,33 @@ test("review uses only server choices, explicit per-phase outcomes, and preserve
   assert.equal(posts[0][1].phase_outcomes.SO101_FINISH,"unknown");assert.equal(posts[0][1].outcome,"unknown");assert.deepEqual(posts[0][1].native_episode_choice_ids,{giver:"original-giver",receiver:"original-receiver"});
 });
 test("aggregate/training plan/shadow are separate explicit calls, without browser RGB/state or dispatch",async () => {
-  const state=fixture();state.model_adapters_bound={giver:true,receiver:true};state.workbench.skills[0].spec.subskills.giver.model_id="giver-model";state.workbench.skills[0].spec.subskills.receiver.model_id="receiver-model";const calls=[];const {client}=await rig({get:async()=>clone(state),post:async(path,body)=>{calls.push(["POST",path,body]);return {result:{ready:false},snapshot:clone(state)};}});await client.aggregate();await client.trainingPlan();await client.shadow();const posts=calls.filter(row=>row[0]==="POST");assert.deepEqual(posts.map(row=>row[1]),["/api/cooperative/aggregate","/api/cooperative/training_plan","/api/cooperative/shadow"]);assert.deepEqual(posts[2][2],{session_id:"server-session",expected_epoch:"epoch-one"});assert.ok(posts.every(row=>!JSON.stringify(row[2]).includes("action9")));
+  const state=fixture();state.queued_native_shadow_supported=true;state.workbench.skills[0].spec.subskills.giver.model_id="giver-model";state.workbench.skills[0].spec.subskills.receiver.model_id="receiver-model";const calls=[];const {client}=await rig({uuid:()=>"11111111-1111-4111-8111-111111111111",get:async()=>clone(state),post:async(path,body)=>{calls.push(["POST",path,body]);return {result:{ready:false},snapshot:clone(state)};}});await client.aggregate();await client.trainingPlan();await client.shadow();const posts=calls.filter(row=>row[0]==="POST");assert.deepEqual(posts.map(row=>row[1]),["/api/cooperative/aggregate","/api/cooperative/training_plan","/api/cooperative/shadow"]);assert.deepEqual(posts[2][2],{session_id:"server-session",expected_epoch:"epoch-one",request_id:"11111111-1111-4111-8111-111111111111"});assert.ok(posts.every(row=>!JSON.stringify(row[2]).includes("action9")));
 });
 test("server immutable-version drift cannot silently re-pin confirm",async () => {
   const state=fixture();const {client}=await rig({get:async()=>clone(state)});state.workbench.skills[0].spec.spec_sha256="d".repeat(64);await client.refresh();assert.throws(()=>client.confirm(),/точную версию/);
+});
+test("queued shadow retries retain request ID across reload; a new successful click gets a new ID",async () => {
+  const state=fixture(), posts=[], values=new Map();let ids=0,fail=true;
+  state.queued_native_shadow_supported=true;state.model_adapters_bound={giver:false,receiver:false};
+  state.workbench.skills[0].spec.subskills.giver.model_id="native9-model";
+  state.workbench.skills[0].spec.subskills.receiver.model_id="native6-model";
+  const options={storage:{getItem:key=>values.get(key),setItem:(key,value)=>values.set(key,value)},
+    uuid:()=>`${String(++ids).padStart(8,"0")}-1111-4111-8111-111111111111`,get:async()=>clone(state),
+    post:async(path,body)=>{posts.push([path,body]);if(fail)throw new Error("reply lost after possible commit");return {result:{complete_native_reservation:true},snapshot:clone(state)};}};
+  const first=createCooperativeWorkbenchClient(options);await first.refresh();first.chooseSession("server-session");
+  await assert.rejects(first.shadow(),/reply lost/);assert.equal(posts.length,1);assert.equal(ids,1);
+  const second=createCooperativeWorkbenchClient(options);await second.refresh();assert.equal(posts.length,1);
+  fail=false;await second.shadow();assert.equal(posts[0][1].request_id,posts[1][1].request_id);assert.equal(ids,1);
+  await second.shadow();assert.notEqual(posts[2][1].request_id,posts[1][1].request_id);assert.equal(ids,2);
+  assert.ok(posts.every(([path,body])=>path.endsWith("/shadow") && !body.action9 && !body.authorization_id));
+});
+test("queued shadow status is visible without claiming synchronized or physical execution",async () => {
+  const {client}=await rig();const view=client.snapshot();view.data.queued_native_shadows=[{
+    current_session_epoch:true,native_heads:{giver:{job_id:"abc12345",status:"completed",verified_fresh_shadow_at_worker_time:true},
+      receiver:{job_id:"def12345",status:"failed",evidence_error:"Source <changed>"}},jobs:{},errors:{}}];
+  const html=cooperativeWorkbenchPanel(view);assert.match(html,/abc12345/);assert.match(html,/failed/);
+  assert.match(html,/Source &lt;changed&gt;/);assert.match(html,/часы роботов не синхронизированы/);
+  assert.match(html,/физическое исполнение этим не подтверждаются/);
 });
 test("renderer escapes user/backend text, blocks external/script image URLs and has no raw ID/JSON editor",async () => {
   const {client}=await rig();const view=client.snapshot();view.error='<script>move()</script>';view.data.cameras.giver.preview_url="javascript:move()";view.data.workbench.skills[0].spec.name='"><img src=x onerror=move()>';
@@ -112,19 +135,19 @@ test("new recording and source original reset prior success labels rather than c
   state.workbench.sessions[0].recording_id="second-recording";state.workbench.sessions[0].last_recording_id="new-original";await client.refresh();assert.equal(client.snapshot().draft.finish.status,"unknown");assert.equal(client.snapshot().draft.finish.observed,false);assert.equal(client.snapshot().draft.review.status,"unknown");assert.deepEqual(client.snapshot().draft.review.phase_outcomes,{});
 });
 test("native giver success requires explicit exact-source phases and separate visible/full-task review",async () => {
-  const state=fixture();state.workbench.sessions[0].recording_id="native-review-original";const calls=[];const {client}=await rig({get:async()=>clone(state),post:async(path,body)=>{calls.push([path,body]);return {result:{},snapshot:clone(state)};}});
+  const state=fixture();state.workbench.sessions[0].recording_id="native-review-original";const calls=[];const {client}=await rig({uuid:()=>"11111111-1111-4111-8111-111111111111",get:async()=>clone(state),post:async(path,body)=>{calls.push([path,body]);return {result:{},snapshot:clone(state)};}});
   client.edit("finish.observed",true);client.edit("finish.giver","success");assert.throws(()=>client.recordFinish(),/исходного навыка/);
   client.edit("finish.giver_visible",true);client.edit("finish.giver_full_task",true);client.edit("finish.giver_phases.approach",true);client.edit("finish.giver_phases.grasp",true);await client.recordFinish();assert.deepEqual(calls[0][1].outcome.native_roles.giver.review,{completed_stages:["approach","grasp"],object_and_goal_visible:true,full_task_confirmed:true});
   client.edit("finish.giver","failure");assert.deepEqual(client.snapshot().draft.finish.giver_phases,{});assert.equal(client.snapshot().draft.finish.giver_full_task,false);
 });
 test("missing model or observation provider blocks shadow without inventing browser inputs",async () => {
-  const {client,calls}=await rig();const before=calls.length;assert.throws(()=>client.shadow(),/серверные адаптеры/);assert.equal(calls.length,before);assert.match(cooperativeWorkbenchPanel(client.snapshot()),/Shadow заблокирован/);
+  const {client,calls}=await rig();const before=calls.length;assert.throws(()=>client.shadow(),/серверная общая очередь/);assert.equal(calls.length,before);assert.match(cooperativeWorkbenchPanel(client.snapshot()),/Shadow заблокирован/);
 });
 test("malformed optional local draft storage cannot replace typed form structures",async () => {
   const storage={getItem:()=>JSON.stringify({schema:1,draft:{finish:null,phase_maps:{giver:null,receiver:false},review:{phase_outcomes:null},scene:{evil:true}}}),setItem:()=>{}};const client=createCooperativeWorkbenchClient({storage,get:async()=>fixture(),post:async()=>{throw new Error("no POST");}});await client.refresh();assert.equal(client.snapshot().draft.finish.status,"unknown");assert.deepEqual(client.snapshot().draft.phase_maps.giver,{});assert.equal(client.snapshot().draft.scene,"");assert.doesNotThrow(()=>cooperativeWorkbenchPanel(client.snapshot()));
 });
 test("unreviewed failure stays reported analysis data and still closes native recordings as unknown",async () => {
-  const state=fixture();state.workbench.sessions[0].recording_id="partial-failure";const calls=[];const {client}=await rig({get:async()=>clone(state),post:async(path,body)=>{calls.push(body);return {result:{},snapshot:clone(state)};}});
+  const state=fixture();state.workbench.sessions[0].recording_id="partial-failure";const calls=[];const {client}=await rig({uuid:()=>"11111111-1111-4111-8111-111111111111",get:async()=>clone(state),post:async(path,body)=>{calls.push(body);return {result:{},snapshot:clone(state)};}});
   client.edit("finish.status","failure");client.edit("finish.giver","failure");await client.recordFinish();assert.equal(calls[0].outcome.status,"failure");assert.equal(calls[0].outcome.native_roles.giver.operator_reported_status,"failure");assert.equal(calls[0].outcome.native_roles.giver.status,"unknown");assert.equal(calls[0].outcome.native_roles.giver.method,"unknown");
 });
 test("real enqueue is separate explicit action gated on accepted aggregate and ready plan for this exact spec",async () => {
