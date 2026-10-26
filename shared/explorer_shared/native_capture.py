@@ -139,11 +139,13 @@ class NativeCaptureWriter:
         if page.get('boot_id')==self.boot and page.get('clock_domain')==self.domain:
             for row in page.get('receipts',[]):
                 if row.get('kind')=='arm_host_publish':
-                    tick=row.get('stamp',{}).get('monotonic_ns')
-                    frame=self.camera.before(tick) if self.camera is not None else None
+                    tick=row.get('stamp',{}).get('monotonic_ns');cutoff=row.get('call_started_monotonic_ns')
+                    frame=(self.camera.before(cutoff) if self.camera is not None and type(cutoff) is int and
+                        type(tick) is int and 0<=cutoff<=tick else None)
                     if frame is not None:
                         frames[row['receipt_id']]={'jpeg':frame.jpeg,
-                            'metadata':{**frame.metadata(),'camera_id':self.camera.camera_id}}
+                            'metadata':{**frame.metadata(),'camera_id':self.camera.camera_id},
+                            'native_metadata_bytes':getattr(frame,'native_metadata_bytes',None)}
                     if self.observation_provider is not None:
                         try:
                             observations[row['receipt_id']]=self.observation_provider(row,frame)
@@ -274,6 +276,12 @@ class NativeCaptureWriter:
                 'camera_id':metadata['camera_id'],'frame_id':metadata['frame_id'],'encoding':'jpeg',
                 'width':metadata['width'],'height':metadata['height'],'timestamp_basis':metadata['timestamp_basis']},
                 camera_stamp,'existing_single_owner_camera_history')
+            original=frame.get('native_metadata_bytes')
+            if original:
+                name='sources/camera-metadata/'+_sha(original)+'.json';self._save(name,original)
+                channels['camera_rgb']['value'].update(original_metadata_source_file=name,
+                    original_metadata_sha256=_sha(original),native_frame_id=json.loads(original)['frame_id'],
+                    wrapper_frame_id=metadata['frame_id'],exposure_timestamp_verified=False)
         else:
             channels['camera_rgb']['unavailable_reason']='NO_ORIGINAL_CAMERA_FRAME_BEFORE_DISPATCH'
         estimate=row.get('original_payload',{}).get('q_estimated_deg')

@@ -21,8 +21,12 @@ class NativeCaptureService:
     @classmethod
     def from_agent(cls,agent):
         boot=agent.delivery.clock_domain.rsplit(':',1)[-1]
+        from .native_sensor_cache import NativeSensorCache
+        agent.sensor_cache=NativeSensorCache(agent.state_dir/'nano-camera-cache'/'sensors',
+            clock_domain=agent.delivery.clock_domain,boot_id=boot,camera_root=agent.legacy_bridge.root/'data')
         writer=NativeCaptureWriter(agent.state_dir/'native-captures',agent.sources.get('nano-rgbd'),
-            clock_domain=agent.delivery.clock_domain,boot_id=boot,emit=agent.delivery.emit)
+            clock_domain=agent.delivery.clock_domain,boot_id=boot,emit=agent.delivery.emit,
+            observation_provider=agent.sensor_cache.observation_provider)
         try:
             client=OriginalNativeStreamReader(agent.legacy_bridge.root)
         except (OSError,ValueError):

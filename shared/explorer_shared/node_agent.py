@@ -71,13 +71,17 @@ class Frame:
     timestamp_basis: str = "host_receive_estimate"
     source_wall_utc: str | None = None
     bgr: object = field(default=None, repr=False, compare=False)
+    native_metadata_bytes: bytes | None = field(default=None, repr=False, compare=False)
 
     def metadata(self):
         return {"frame_id": self.frame_id, "wall_utc": self.wall_utc,
                 "monotonic_ns": self.monotonic_ns, "width": self.width,
                 "height": self.height, "timestamp_basis": self.timestamp_basis,
                 "source_wall_utc": self.source_wall_utc,
-                "exposure_timestamp_available": False}
+                "exposure_timestamp_available": False,
+                **({'original_source_metadata':json.loads(self.native_metadata_bytes),
+                    'original_source_metadata_sha256':hashlib.sha256(self.native_metadata_bytes).hexdigest()}
+                    if self.native_metadata_bytes else {})}
 
 
 class CameraSource:
@@ -97,7 +101,7 @@ class CameraSource:
 
     @staticmethod
     def _frame_bytes(frame):
-        return len(frame.jpeg) + int(getattr(frame.bgr, 'nbytes', 0))
+        return len(frame.jpeg)+len(frame.native_metadata_bytes or b'')+int(getattr(frame.bgr,'nbytes',0))
 
     def frame_by_id(self, frame_id):
         """Exact bounded retained bytes; age still needs checking by the caller."""
@@ -125,13 +129,13 @@ class CameraSource:
         return frame if frame and 0 <= (time.monotonic_ns() - frame.monotonic_ns) / 1e9 <= self.stale_s else None
 
     def publish(self, jpeg, width, height, *, bgr=None, source_wall_utc=None,
-                monotonic_ns=None, timestamp_basis="host_receive_estimate"):
+                monotonic_ns=None, timestamp_basis="host_receive_estimate",native_metadata_bytes=None):
         if len(jpeg) > MAX_JPEG_BYTES or not jpeg.startswith(b"\xff\xd8") or not jpeg.endswith(b"\xff\xd9"):
             raise ValueError("Invalid or oversized JPEG")
         self.counter += 1
         frame = Frame(f"{self.camera_id}:{self.session_id}:{self.counter}", jpeg, wall_utc(),
                       time.monotonic_ns() if monotonic_ns is None else monotonic_ns,
-                      width, height, timestamp_basis, source_wall_utc, bgr)
+                      width, height, timestamp_basis, source_wall_utc, bgr,native_metadata_bytes)
         with self.lock:
             self.frame, self.error = frame, None
             self._history.append(frame)
@@ -207,11 +211,40 @@ class OpenCVCamera(CameraSource):
 
 class LegacyFileCamera(CameraSource):
     """Reads an existing controller artifact; never owns a V4L2 device."""
-    def __init__(self, frame_path, status_path, stale_s=2.0):
+    def __init__(self, frame_path, status_path, stale_s=2.0,*,clock_domain=None,boot_id=None):
         super().__init__("nano-rgbd", "Камера действующего Explorer · Jetson Nano", stale_s)
         self.frame_path, self.status_path = Path(frame_path), Path(status_path)
         self.status_available = False
         self.status_age_s = None
+        self.native_domain,self.native_boot=clock_domain,boot_id
+
+    def _native_metadata(self,jpeg,width,height):
+        """Exact own-cache bytes; read completion is the causal frame cutoff."""
+        path=self.frame_path.with_name('camera-frame.json')
+        if not path.is_file() or path.stat().st_size>256*1024:return None
+        raw=path.read_bytes();body=json.loads(raw);received=body.get('received_monotonic_ns')
+        if (body.get('jpeg_sha256')!=hashlib.sha256(jpeg).hexdigest() or
+                body.get('native_clock_domain')!=self.native_domain or body.get('native_boot_id')!=self.native_boot or
+                not self.native_domain or not self.native_boot or not isinstance(body.get('frame_id'),str) or
+                body.get('width')!=width or body.get('height')!=height or type(received) is not int or
+                not 0<=time.monotonic_ns()-received<=int(self.stale_s*1e9)):
+            return None
+        return raw
+
+    def latest(self):
+        frame=super().latest()
+        if frame and frame.native_metadata_bytes:
+            received=json.loads(frame.native_metadata_bytes)['received_monotonic_ns']
+            if not 0<=time.monotonic_ns()-received<=int(self.stale_s*1e9):return None
+        return frame
+
+    def before(self,monotonic_ns,max_age_ns=None):
+        frame=super().before(monotonic_ns,max_age_ns)
+        if frame and frame.native_metadata_bytes:
+            age=int(self.stale_s*1e9) if max_age_ns is None else max_age_ns
+            received=json.loads(frame.native_metadata_bytes)['received_monotonic_ns']
+            if not 0<=monotonic_ns-received<=age:return None
+        return frame
 
     def _capture(self):
         previous = None
@@ -233,10 +266,14 @@ class LegacyFileCamera(CameraSource):
                         from PIL import Image
                         with Image.open(BytesIO(jpeg)) as image:
                             width, height = image.size
+                        try:native_metadata=self._native_metadata(jpeg,width,height)
+                        except (OSError,ValueError,TypeError):native_metadata=None
+                        completed=time.monotonic_ns()
                         self.publish(jpeg, width, height,
-                                     monotonic_ns=time.monotonic_ns() - int(age_s * 1e9),
+                                     monotonic_ns=completed if native_metadata else completed-int(age_s*1e9),
                                      source_wall_utc=wall_utc(before.st_mtime),
-                                     timestamp_basis="legacy_file_mtime_estimate")
+                                     timestamp_basis="node_cache_read_completed_not_exposure" if native_metadata else "legacy_file_mtime_estimate",
+                                     native_metadata_bytes=native_metadata)
                         previous = stamp
                 if age_s > self.stale_s:
                     self.error = "legacy_frame_stale"
@@ -250,10 +287,12 @@ class LegacyFileCamera(CameraSource):
             self.stop_event.wait(0.05)
 
     def metadata(self):
+        frame=self.latest()
         return {**super().metadata(), "source": "existing_controller_file",
                 "legacy_status_available": self.status_available,
                 "legacy_status_age_s": self.status_age_s,
-                "camera_identity_verified": False}
+                "camera_identity_verified": bool(frame and frame.native_metadata_bytes),
+                "camera_to_base_extrinsics_verified":False}
 
 
 def discover_serial(root=Path("/dev/serial/by-id")):
@@ -503,12 +542,14 @@ class NodeAgent:
         self.sources = sources if sources is not None else ({"pi-overview": OpenCVCamera(
             camera_device or "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D4EA612F-video-index0",
             self.state_dir / "camera-capture.lock")} if mode == "pi" else {"nano-rgbd": LegacyFileCamera(
-                Path(legacy_dir) / "frame-raw.jpg", Path(legacy_dir) / "status.json")})
+                Path(legacy_dir) / "frame-raw.jpg", Path(legacy_dir) / "status.json",
+                clock_domain=self.delivery.clock_domain,boot_id=self.delivery.clock_domain.rsplit(':',1)[-1])})
         self.calibration_dirs = calibration_dirs or ([Path.home()/'.cache/huggingface/lerobot/calibration'] if mode=='pi' else [])
         self.recordings = RecordingManager(self.state_dir / "recordings", self.sources, self.delivery.emit)
         self.mobile_records=None
         self.mobile_capture=None
         self.native_capture=None
+        self.sensor_cache=None
         if mode=='nano':
             from .mobile_records import MobileRecords
             from .mobile_capture import MobileCaptureRecorder
@@ -744,6 +785,7 @@ class NodeAgent:
                 "perception": observer, "station": station,"mobile_observation":mobile,
                 "lab_vision":lab_vision,
                 "native_capture":self.native_capture.status() if self.native_capture else None,
+                "native_sensor_cache":self.sensor_cache.status() if self.sensor_cache else None,
                 "capabilities": {"physical_motion": bool(station and station['available']) or self.mode=='nano', "servo_bus_access": bool(station and station['available']),
                                  "serial_discovery": True, "joint_measurements": bool(station and station['measurements']),
                                  "calibration_verified": bool(station and len(station['roles'])==2), "arm_roles_assigned": bool(station and len(station['roles'])==2),

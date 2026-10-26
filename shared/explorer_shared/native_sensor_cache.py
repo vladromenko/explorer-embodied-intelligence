@@ -235,8 +235,12 @@ class NativeSensorCache:
         if self.camera_root is None or frame is None:return output
         try:
             path=self.camera_root/'camera-frame.json'
-            if path.stat().st_size>256*1024:raise ValueError('Camera metadata exceeds bound')
-            raw=path.read_bytes();metadata=json.loads(raw);jpeg_sha=sha(frame.jpeg)
+            raw=getattr(frame,'native_metadata_bytes',None)
+            if raw is None:
+                if path.stat().st_size>256*1024:raise ValueError('Camera metadata exceeds bound')
+                raw=path.read_bytes()
+            if len(raw)>256*1024:raise ValueError('Camera metadata exceeds bound')
+            metadata=json.loads(raw);jpeg_sha=sha(frame.jpeg)
             received=metadata.get('received_monotonic_ns')
             if metadata.get('jpeg_sha256')!=jpeg_sha or metadata.get('native_boot_id')!=self.boot or metadata.get('native_clock_domain')!=self.domain or type(received) is not int or not 0<=cutoff-received<=self.max_age:raise ValueError('Exact JPEG/native boot/causal callback metadata missing')
             stamp=dict(clock_domain=self.domain,boot_id=self.boot,monotonic_ns=received)

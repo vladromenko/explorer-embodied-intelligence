@@ -247,7 +247,7 @@ class CacheSink:
 def readonly_check(legacy_root):
     root = Path(legacy_root).resolve()
     helper = load_helper(root)
-    packages = {name: importlib.util.find_spec(name) is not None for name in ('numpy', 'PIL', 'rclpy', 'sensor_msgs')}
+    packages = {name: importlib.util.find_spec(name) is not None for name in ('numpy', 'PIL', 'rclpy', 'sensor_msgs','nav_msgs','std_msgs')}
     return dict(read_only=True, helper_sha256=HELPER_SHA256, helper_api_verified=bool(helper), packages=packages,
                 legacy_data_exists=(root / 'data').is_dir(), native_unit_state=NativeGuard.read_unit(),
                 controller_writes=0, gpu_imports=False, camera_device_open=False,
