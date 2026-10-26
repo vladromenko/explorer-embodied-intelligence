@@ -127,3 +127,11 @@ def test_raw_import_rejects_archive_traversal_and_duplicate_members(tmp_path):
         with pytest.raises(ValueError,match='Unsafe or duplicate'):
             import_cooperative_recording(path,tmp_path/('out'+str(index)),expected_sha256=sha_file(path))
     assert not (tmp_path/'escape').exists()
+
+
+def test_fixed_authenticated_private_sources_bypass_environment_proxies(tmp_path,nodes,monkeypatch):
+    sources,calls,jpegs=nodes
+    monkeypatch.setenv('HTTP_PROXY','http://127.0.0.1:1');monkeypatch.setenv('http_proxy','http://127.0.0.1:1')
+    monkeypatch.setenv('NO_PROXY','');monkeypatch.setenv('no_proxy','')
+    direct=CachedNodeObservation(sources['giver'].origin,TOKEN,'giver')
+    assert direct.snapshot()['jpeg']==jpegs['giver']

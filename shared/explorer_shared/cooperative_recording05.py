@@ -17,7 +17,7 @@ import tarfile
 import threading
 import time
 from urllib.parse import urlsplit
-from urllib.request import Request,build_opener,HTTPRedirectHandler
+from urllib.request import Request,build_opener,HTTPRedirectHandler,ProxyHandler
 import uuid
 
 from .cooperative_contract05 import canonical,digest
@@ -62,7 +62,7 @@ class CachedNodeObservation:
         self.origin,self.token,self.role=origin.rstrip('/'),token,role
         class NoRedirect(HTTPRedirectHandler):
             def redirect_request(self,*args,**kwargs):raise OSError('Authenticated fixed native source must not redirect')
-        self.timeout,self.opener,self.clock=timeout,opener or build_opener(NoRedirect()).open,clock
+        self.timeout,self.opener,self.clock=timeout,opener or build_opener(ProxyHandler({}),NoRedirect()).open,clock
         self.camera='nano-rgbd' if role=='giver' else 'pi-overview'
     def _get(self,path,limit):
         with self.opener(Request(self.origin+path,headers={'Authorization':'Bearer '+self.token}),timeout=self.timeout) as response:
