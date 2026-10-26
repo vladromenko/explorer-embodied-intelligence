@@ -110,6 +110,29 @@ def test_old_leader_is_neutralized_despite_continuing_keyboard_lease_and_never_a
     assert mux.status()['state'] == 'ACTIVE'
 
 
+def test_old_nonzero_permit_is_revoked_immediately_by_clutch_and_cannot_revive_after_resume():
+    mux,teleop,arm,_,epoch,_=setup_mux()
+    mux.resume(epoch,observing=True);mux.leader_intent(epoch,1,[2.]*6,evidence())
+    teleop._update_arm_stream_locked({},False);old_permit=arm.calls[-1]['permit']
+    assert old_permit()
+    mux.recenter(epoch)
+    assert not old_permit()  # no next native tick required
+    mux.resume(epoch,observing=True)
+    assert not old_permit()  # same native generation must not resurrect it
+
+
+def test_old_nonzero_permit_expires_before_tick_even_if_keyboard_renews_native_lease():
+    mux,teleop,arm,_,epoch,clock=setup_mux()
+    mux.resume(epoch,observing=True);mux.leader_intent(epoch,1,[2.]*6,evidence())
+    teleop._update_arm_stream_locked({},False);old_permit=arm.calls[-1]['permit']
+    source_deadline=mux.intent_deadline;teleop.lease=100.;clock[0]=source_deadline+.01
+    assert not old_permit()
+    with pytest.raises(ValueError,match='explicit recenter'):
+        mux.leader_intent(epoch,2,[2.]*6,evidence())
+    mux.recenter(epoch);mux.resume(epoch,observing=True)
+    assert not old_permit()
+
+
 def test_global_stop_preemption_and_old_generations_cannot_restart_mirror():
     mux,teleop,arm,_,epoch,_ = setup_mux()
     mux.resume(epoch,observing=True); mux.leader_intent(epoch,1,[2.]*6,evidence())
@@ -208,6 +231,22 @@ def test_prior_command9_uses_original_ruckig_estimate_and_actual_base_context_no
     assert row['preceding_command9']['reference_id']=='e'*64
     assert row['preceding_command9']['state_source']=='command_estimate'
     assert not row['hardware_dispatch_verified']
+
+
+def test_base_update_during_arm_publication_is_never_backdated_into_prepublication_state():
+    tick=[100];tap=NativeDispatchTap(boot_id='boot',clock_domain='nano',clock=lambda:tick[0])
+    tap.append('base_stop_host_request',{'velocity':[0.,0.,0.]},source_id='mock-base',started_ns=90)
+    tick[0]=250
+    tap.append('base_drive_host_request',{'velocity':[.1,0.,0.]},source_id='mock-base',started_ns=240)
+    tick[0]=300
+    row=tap.append('arm_host_publish',{'q_commanded_deg':[92.]*6,'q_estimated_deg':[91.]*6},
+                   source_id='mock-arm',started_ns=200)
+    assert row['preceding_command9']['values']==[91.]*6+[0.,0.,0.]
+    assert row['command9']==[92.]*6+[.1,0.,0.]
+    assert row['preceding_command9']['base_component_receipt_id'].endswith(':1')
+    early=tap.append('arm_host_publish',{'q_commanded_deg':[92.]*6,'q_estimated_deg':[91.]*6},
+                     source_id='mock-arm',started_ns=50)
+    assert early['preceding_command9'] is None
 
 
 def geometry():

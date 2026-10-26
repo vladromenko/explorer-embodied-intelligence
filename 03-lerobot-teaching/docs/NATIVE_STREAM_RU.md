@@ -50,6 +50,9 @@ owner не могут восстановить прежнее управлени
 операторский lease. Для latest leader intent сохраняется deadline, который уже
 задала исходная ManualTeleop; постоянные keyboard heartbeat не удерживают старую
 скорость после потери leader. Истечение требует нового recenter, без автозапуска.
+Permit проверяет ACTIVE, текущий source deadline и отдельную revision clutch.
+Он отзывается сразу при recenter/истечении, до следующего native tick, и прежний
+ненулевой intent не получает разрешение снова после resume в том же generation.
 
 Запрет владельца на шасси применяется до исходного base dispatch; это политика
 ввода, не настройка контроллера. По умолчанию chassis_motion_allowed=false.
@@ -103,7 +106,16 @@ reference header tap также записывает preceding_command9 непо
 native host-границе. Первые шесть значений — именно исходная оценка Ruckig перед
 публикацией, а не новый endpoint и не measured q. Без известного base context
 это поле отсутствует; нули не подставляются. Источник reference и предыдущие
-native receipts остаются в записи.
+native receipts остаются в записи. Base для preceding9 берётся только из
+сохранённой квитанции с timestamp <= начала arm publication. Обновление базы,
+пришедшее во время arm call, не переносится назад в предыдущее состояние; если
+такой ранней квитанции уже нет в ограниченной истории, preceding9 неизвестен.
+
+Для canonical capture reference_header дополнительно требует положительный
+native_guard_verified от доверенного чтения исходного factory reference; default
+false. После такого guard snapshot сохраняет исходную Ruckig-оценку/известную
+base-команду/boot/clock/previous reference SHA как native_command_estimate_snapshot.
+Это источник оценки команды, без утверждения об attainment или измеренном q.
 
 GET dispatch принимает только один bounded nonnegative after_sequence;
 неизвестные/повторные параметры отвергаются в NodeAgent и LegacyBridge. Native

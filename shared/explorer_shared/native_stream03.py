@@ -16,6 +16,7 @@ import uuid
 import numpy as np
 
 from .kinematics import ObjectRegistration
+from .contracts import ACTION_NAMES,ACTION_UNITS
 
 BASE_ACTIONS = ('forward', 'backward', 'left', 'right', 'turn_left', 'turn_right')
 AUDITED_FACTORY_SHA256 = {
@@ -55,7 +56,9 @@ class NativeDispatchTap:
         self.lock = threading.RLock()
         self.rows, self.sequence = deque(maxlen=capacity), 0
         self.arm, self.base, self.arm_receipt, self.base_receipt = None, None, None, None
+        self.base_history=deque(maxlen=capacity)
         self.reference = None
+        self.canonical_reference = None
         self.capture_failures = 0
         self.intents = {}
 
@@ -77,7 +80,7 @@ class NativeDispatchTap:
                 self.capture_failures += 1
             return None
 
-    def reference_header(self, record, original_sha256):
+    def reference_header(self, record, original_sha256, *, native_guard_verified=False):
         if (record.get('boot_id') != self.boot_id or len(original_sha256) != 64 or
                 record.get('measured') is not False):
             raise ValueError('Original same-boot command reference required; never measured feedback')
@@ -85,20 +88,24 @@ class NativeDispatchTap:
         with self.lock:
             self.reference = {'original': deepcopy(record), 'source_sha256': original_sha256,
                               'reference_id': original_sha256, 'reference_receipt_id': 'factory-reference:'+original_sha256,
-                              'state_source': 'command_estimate', 'attainment_measured': False}
+                              'state_source': 'command_estimate', 'attainment_measured': False,
+                              'native_guard_verified':native_guard_verified is True}
 
     def append(self, kind, payload, *, source_id, started_ns=None):
         with self.lock:
             self.sequence += 1
             receipt_id = self.boot_id + ':native-host:' + str(self.sequence)
             prior = None
-            if kind == 'arm_host_publish' and payload.get('q_estimated_deg') is not None and self.base is not None:
-                prior = {'values': _vector(payload['q_estimated_deg'],6).tolist() + list(self.base),
+            base_before=next((item for item in reversed(self.base_history)
+                              if type(started_ns) is int and item['stamp_ns']<=started_ns),None)
+            if kind == 'arm_host_publish' and payload.get('q_estimated_deg') is not None and base_before is not None:
+                prior = {'values': _vector(payload['q_estimated_deg'],6).tolist() + list(base_before['velocity']),
+                         'names':list(ACTION_NAMES),'units':list(ACTION_UNITS),
                          'state_source': 'command_estimate',
                          'estimator_id': 'original-factory-ruckig:'+AUDITED_FACTORY_SHA256['src/arm_velocity.py'],
                          'reference_id': self.reference['reference_id'] if self.reference else None,
                          'last_dispatch_receipt_id': self.arm_receipt or (self.reference['reference_receipt_id'] if self.reference else None),
-                         'base_component_receipt_id': self.base_receipt,
+                         'base_component_receipt_id': base_before['receipt_id'],
                          'timestamp_basis': 'native_host_before_publish_cache_observation'}
             if kind == 'arm_host_publish':
                 self.arm = _vector(payload.get('q_commanded_deg'), 6).tolist()
@@ -116,6 +123,9 @@ class NativeDispatchTap:
                    'measured_q_mask': [False] * 6, 'attainment_measured': False,
                    'contact_verified': False}
             row['preceding_command9'] = prior
+            if kind in ('base_drive_host_request','base_stop_host_request','base_release_host_request'):
+                self.base_history.append({'stamp_ns':row['stamp']['monotonic_ns'],
+                                          'velocity':list(self.base),'receipt_id':receipt_id})
             if self.arm is not None and self.base is not None:
                 row.update(command9=list(self.arm) + list(self.base), command9_mask=[True] * 9,
                            component_receipt_ids=[self.arm_receipt] * 6 + [self.base_receipt] * 3,
@@ -127,6 +137,15 @@ class NativeDispatchTap:
                            command9_mask=[self.arm is not None]*6 + [self.base is not None]*3,
                            block_reasons=['ARM_AND_BASE_NATIVE_COMMAND_CONTEXT_NOT_BOTH_OBSERVED'])
             self.rows.append(row)
+            if prior is not None and self.reference and self.reference['native_guard_verified']:
+                self.canonical_reference={
+                    'reference_id':prior['reference_id'],'estimator_id':prior['estimator_id'],
+                    'reference_kind':'native_command_estimate_snapshot','state_source':'command_estimate',
+                    'reference_action9':list(prior['values'][:6])+list(self.base),
+                    'units':['deg']*6+['m/s','m/s','rad/s'],'stamp':deepcopy(row['stamp']),
+                    'reference_receipt_id':receipt_id,'command_log_contiguous_since_reference':True,
+                    'native_guard_verified':True,'prior_reference_sha256':self.reference['source_sha256'],
+                    'qualification_scope':'command_estimate_reference_not_measured_or_attained_state'}
             return deepcopy(row)
 
     def since(self, after_sequence=0, limit=None):
@@ -147,13 +166,15 @@ class NativeDispatchTap:
                     'capture_failures': self.capture_failures,
                     'first_available_sequence': first,
                     'reference': self.reference}
+            metadata['canonical_reference']=self.canonical_reference
         # Copy/JSON work is outside the native publication lock. Objects stored
         # in the ring/binding table are immutable after insertion.
         rows=deepcopy(selected)
         for row,binding in zip(rows,bindings):
             row['source_intent_binding']=deepcopy(binding)
             row['source_intent_link_basis']='exact_native_generation_and_input_received_at_not_cross_device_clock_conversion'
-        return {**metadata,'reference':deepcopy(metadata['reference']),'receipts':rows}
+        return {**metadata,'reference':deepcopy(metadata['reference']),
+                'canonical_reference':deepcopy(metadata['canonical_reference']),'receipts':rows}
 
 
 class NativeTeleopMux:
@@ -173,6 +194,7 @@ class NativeTeleopMux:
         self.epoch, self.generation, self.sequence = None, None, -1
         self.latest, self.intent_deadline, self.dropped = [0.] * 6, 0., 0
         self.latest_source = None
+        self.intent_revision=0
         self.original = {}
 
     def install(self):
@@ -216,6 +238,7 @@ class NativeTeleopMux:
 
     def _stop_all(self):
         self.active, self.state, self.latest = False, 'STOPPED', [0.] * 6
+        self.intent_revision+=1
         started = self.tap.clock()
         result = self.original['stop_all']()
         self.tap.observe('base_stop_host_request', {'velocity': [0.,0.,0.], 'native_return': result},
@@ -231,12 +254,14 @@ class NativeTeleopMux:
             self.epoch = uuid.uuid4().hex
             self.generation = self.teleop.generation
             self.active, self.state, self.sequence = True, 'CLUTCHED', -1
+            self.intent_revision+=1
             self.latest, self.intent_deadline = [0.] * 6, self.teleop.lease
             return self.status()
 
     def recenter(self, epoch):
         with self.teleop.lock:
             self._check(epoch)
+            self.intent_revision+=1
             self.latest, self.intent_deadline, self.state = [0.] * 6, self.teleop.lease, 'CLUTCHED'
             return self.status()
 
@@ -263,6 +288,10 @@ class NativeTeleopMux:
                 raise ValueError('Out-of-order leader sample dropped')
             if self.state != 'ACTIVE' or self.clock() >= self.teleop.lease:
                 raise ValueError('Observed native user lease/recenter is not active')
+            if self.clock()>=self.intent_deadline:
+                self.latest,self.state=[0.]*6,'SOURCE_EXPIRED_RECENTER_REQUIRED'
+                self.intent_revision+=1
+                raise ValueError('Leader source expired; explicit recenter required')
             if not isinstance(source_evidence, dict) or not all(source_evidence.get(key) for key in
                     ('clock_domain', 'boot_id', 'sample_id', 'calibration_sha256')):
                 raise ValueError('Original measured leader source identity required')
@@ -297,12 +326,16 @@ class NativeTeleopMux:
             return self.original['arm_update'](values, precision)
         if self.teleop.owner != 'keyboard' or self.teleop.generation != self.generation:
             self.active, self.state, self.latest = False, 'PREEMPTED', [0.] * 6
+            self.intent_revision+=1
             return self.original['arm_update'](values, precision)
         if self.clock() >= self.intent_deadline and any(abs(value) > 1e-8 for value in self.latest):
             self.latest, self.state = [0.] * 6, 'SOURCE_EXPIRED_RECENTER_REQUIRED'
+            self.intent_revision+=1
         velocity = list(self.latest) if self.state == 'ACTIVE' else [0.] * 6
-        generation, epoch = self.generation, self.epoch
-        permit = lambda: (self.active and self.epoch == epoch and self.teleop._stream_permitted(generation))
+        generation, epoch,revision = self.generation, self.epoch,self.intent_revision
+        permit = lambda: (self.active and self.epoch==epoch and self.intent_revision==revision and
+                          self.state=='ACTIVE' and self.clock()<self.intent_deadline and
+                          self.teleop._stream_permitted(generation))
         result = self.arm.stream_velocity(velocity, [0.,0.,0.], generation, self.teleop.lease,
                                           permit, owner='keyboard', coordinated=True)
         if result.get('accepted') is True:
@@ -321,6 +354,7 @@ class NativeTeleopMux:
         with self.teleop.lock:
             self._check(epoch)
             self.active, self.state, self.latest = False, 'STOPPED', [0.] * 6
+            self.intent_revision+=1
             return self.teleop.stop()
 
     def status(self):
