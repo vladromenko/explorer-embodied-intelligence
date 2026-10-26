@@ -48,6 +48,51 @@ def test_dependencies_wait_fail_cancel_and_sealed_model_identity_never_changes_t
     assert plan([a,b,c],edits={'a':{'dependencies':['b','c']}})['start']==['a']
 
 
+@pytest.mark.parametrize('new_status',['running','failed'])
+def test_schedule_budget_guard_reads_durable_status_inside_transaction(tmp_path,monkeypatch,new_status):
+    store=Store(tmp_path/'state');selected=store.create_job('so101_skill_train','04',dict(image_size=64,batch_size=2))
+    initial=store.schedule_job(selected['id']);original=store.job;changed=[False]
+    def snapshot_then_transition(identity):
+        snapshot=original(identity)
+        if not changed[0]:
+            changed[0]=True;store.update_job(identity,status=new_status)
+        return snapshot
+    monkeypatch.setattr(store,'job',snapshot_then_transition)
+    with pytest.raises(ValueError,match='Active|Terminal'):
+        store.schedule_job(selected['id'],dict(resources={'memory_bytes':4*GIB}))
+    assert store.schedule_status(selected['id'])['revision']==initial['revision']
+
+
+def test_worker_claim_rejects_stale_schedule_revision_without_changing_status(tmp_path):
+    store=Store(tmp_path/'state');selected=store.create_job('so101_skill_train','04',dict(image_size=64,batch_size=2))
+    old=store.schedule_job(selected['id']);new=store.schedule_job(selected['id'],dict(resources={'memory_bytes':4*GIB}))
+    assert not store.claim_job_start(selected['id'],expected_schedule_revision=old['revision'])
+    assert store.job(selected['id'])['status']=='queued'
+    assert store.claim_job_start(selected['id'],expected_schedule_revision=new['revision'])
+
+
+@pytest.mark.parametrize('status',['completed','failed','cancelled','cancel_requested'])
+def test_late_execution_pins_cannot_rewrite_terminal_or_cancelling_history(tmp_path,status):
+    store=Store(tmp_path/'state');job=store.create_job('world_model','01',{})
+    store.update_job(job['id'],status=status)
+    with store.connect() as db:before=tuple(db.execute('SELECT * FROM jobs WHERE id=?',(job['id'],)).fetchone())
+    for operation in (lambda:store.pin_job_release(job['id'],'c'*40),lambda:store.pin_job_policy_binding(job['id'],'a'*64)):
+        with pytest.raises(ValueError,match='Terminal/cancelling'):operation()
+    with store.connect() as db:assert tuple(db.execute('SELECT * FROM jobs WHERE id=?',(job['id'],)).fetchone())==before
+    pinned=store.create_job('world_model','01',{});store.pin_job_release(pinned['id'],'c'*40)
+    store.pin_job_gpu_binding(pinned['id'],'c'*40,'a'*64);store.pin_job_policy_binding(pinned['id'],'b'*64)
+    store.update_job(pinned['id'],status=status)
+    with store.connect() as db:
+        settings=json.loads(db.execute('SELECT config FROM jobs WHERE id=?',(pinned['id'],)).fetchone()['config'])
+        # Preserve even a historical JSON representation, not only its parsed value.
+        db.execute('UPDATE jobs SET config=? WHERE id=?',(json.dumps(settings,indent=3),pinned['id']))
+    with store.connect() as db:original=tuple(db.execute('SELECT * FROM jobs WHERE id=?',(pinned['id'],)).fetchone())
+    assert store.pin_job_release(pinned['id'],'d'*40)=='c'*40
+    assert store.pin_job_gpu_binding(pinned['id'],'c'*40,'a'*64)=='a'*64
+    assert store.pin_job_policy_binding(pinned['id'],'b'*64)=='b'*64
+    with store.connect() as db:assert tuple(db.execute('SELECT * FROM jobs WHERE id=?',(pinned['id'],)).fetchone())==original
+
+
 def test_atomic_cancel_intent_dominates_delayed_pause_resume_and_late_worker_status(tmp_path):
     store=Store(tmp_path/'state');job=store.create_job('world_model','01',{});store.update_job(job['id'],status='running')
     store.request_job_operation(job['id'],'cancel');runtime=store.schedule_status(job['id'])['runtime']

@@ -193,7 +193,7 @@ class Supervisor:
             self.store.update_schedule_runtime(identity,phase='worker_failed',memory_retained=False,worker=None)
         else:self.store.update_schedule_runtime(identity,phase='worker_exited',memory_retained=False,worker=None,process_exit_code=code)
 
-    def _start(self,job,metadata):
+    def _start(self,job,metadata,expected_revision=None):
         identity=job['id'];folder=self.store.root/'jobs'/identity;folder.mkdir(parents=True,exist_ok=True)
         try:
             from .qualification_bindings import resolve_job_release
@@ -205,7 +205,7 @@ class Supervisor:
             used={cpu for key in self.processes for cpu in self._runtime(key).get('worker_cpus',[])}
             cpus=[cpu for cpu in pool if cpu not in used][:cores]
             if len(cpus)<cores:raise ValueError('Reserved control/camera CPU pool has insufficient free worker cores')
-            if not self.store.claim_job_start(identity):return
+            if not self.store.claim_job_start(identity,expected_schedule_revision=expected_revision):return
             nonce=uuid.uuid4().hex;bootstrap=(release/'00-control-center/src/explorer/worker_bootstrap.py').is_file()
             if bootstrap:environment['EXPLORER_WORKER_LEASE_NONCE']=nonce
             command=[executable,'-m','explorer.worker_bootstrap',identity,nonce] if bootstrap else [executable,'-m','explorer.job_runner',identity]
@@ -249,10 +249,10 @@ class Supervisor:
                 self.store.charge_scheduling_usage(metadata['experiment_slug'],elapsed*(budget['cpu_cores']+2*budget['gpu_slots']))
         jobs=self.store.queue_jobs();known={job['id'] for job in jobs}
         jobs += [self.store.job(identity) for identity in self.processes if identity not in known]
-        schedules={};active=[]
+        schedules={};revisions={};active=[]
         for job in jobs:
             if job['status'] not in TERMINAL or job['id'] in self.processes:
-                record=self.store.schedule_job(job['id']);schedules[job['id']]=record['metadata']
+                record=self.store.schedule_job(job['id']);schedules[job['id']]=record['metadata'];revisions[job['id']]=record['revision']
                 if job['status'] in ('queued','resume_requested') and job['id'] not in self.processes:
                     waited=record['runtime'].get('waited_seconds',0)+elapsed
                     self.store.update_schedule_runtime(job['id'],waited_seconds=waited)
@@ -267,7 +267,7 @@ class Supervisor:
                     active.append(dict(job_id=job['id'],resources=record['metadata']['resources'],resident_memory_bytes=resident,process_stopped=job['status']=='paused'))
         resources=self.resource_provider();plan=queue_plan(jobs,schedules,resources,active,service_seconds=self.store.scheduling_usage(),now=self.wall())
         for identity,state in plan['waiting'].items():self.store.update_schedule_runtime(identity,phase='waiting',wait_reasons=state['reasons'],queue_score=state['effective_score'])
-        for identity in plan['start']:self._start(self.store.job(identity),schedules[identity])
+        for identity in plan['start']:self._start(self.store.job(identity),schedules[identity],revisions[identity])
         # Fair quantum and urgent inference can request only an ACTUAL active
         # checkpoint. Unsupported phases keep running; RAM is never claimed free.
         waiting=[self.store.job(identity) for identity in plan['ranked'] if identity in plan['waiting'] and not any(reason.startswith(('dependency_','scheduled_time')) for reason in plan['waiting'][identity]['reasons'])]

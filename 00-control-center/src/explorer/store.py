@@ -152,12 +152,13 @@ class Store:
             raise ValueError('Execution release must be a complete commit identity')
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')
-            row=db.execute('SELECT config FROM jobs WHERE id=?',(job_id,)).fetchone()
+            row=db.execute('SELECT config,status FROM jobs WHERE id=?',(job_id,)).fetchone()
             if row is None:
                 raise ValueError('Unknown job')
             settings=json.loads(row['config'])
             pinned=settings.get('_execution_commit')
             if pinned is None:
+                if row['status'] in ('completed','failed','cancelled','cancel_requested'):raise ValueError('Terminal/cancelling job cannot receive a new source pin')
                 settings['_execution_commit']=commit
                 db.execute('UPDATE jobs SET config=? WHERE id=?',(json.dumps(settings),job_id))
                 pinned=commit
@@ -170,7 +171,7 @@ class Store:
             raise ValueError('GPU binding requires its immutable SHA256')
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')
-            row=db.execute('SELECT config FROM jobs WHERE id=?',(job_id,)).fetchone()
+            row=db.execute('SELECT config,status FROM jobs WHERE id=?',(job_id,)).fetchone()
             if row is None:raise ValueError('Unknown job')
             settings=json.loads(row['config'])
             if settings.get('_execution_commit')!=commit:
@@ -178,8 +179,10 @@ class Store:
             previous=settings.get('_gpu_binding_sha256')
             if previous is not None and previous!=binding_sha256:
                 raise ValueError('Existing GPU qualification binding cannot silently change')
-            settings['_gpu_binding_sha256']=binding_sha256
-            db.execute('UPDATE jobs SET config=? WHERE id=?',(json.dumps(settings),job_id))
+            if previous is None:
+                if row['status'] in ('completed','failed','cancelled','cancel_requested'):raise ValueError('Terminal/cancelling job cannot receive a new GPU binding')
+                settings['_gpu_binding_sha256']=binding_sha256
+                db.execute('UPDATE jobs SET config=? WHERE id=?',(json.dumps(settings),job_id))
         return binding_sha256
 
     def complete_job(self,job_id,result):
@@ -214,12 +217,14 @@ class Store:
         if not re.fullmatch('[0-9a-f]{64}',binding_sha256):raise ValueError('Policy runtime binding requires an immutable SHA256')
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')
-            row=db.execute('SELECT config FROM jobs WHERE id=?',(job_id,)).fetchone()
+            row=db.execute('SELECT config,status FROM jobs WHERE id=?',(job_id,)).fetchone()
             if row is None:raise ValueError('Unknown job')
             settings=json.loads(row['config']);previous=settings.get('_policy_runtime_binding_sha256')
             if previous is not None and previous!=binding_sha256:raise ValueError('Existing policy runtime binding cannot silently change')
-            settings['_policy_runtime_binding_sha256']=binding_sha256
-            db.execute('UPDATE jobs SET config=? WHERE id=?',(json.dumps(settings),job_id))
+            if previous is None:
+                if row['status'] in ('completed','failed','cancelled','cancel_requested'):raise ValueError('Terminal/cancelling job cannot receive a new policy runtime binding')
+                settings['_policy_runtime_binding_sha256']=binding_sha256
+                db.execute('UPDATE jobs SET config=? WHERE id=?',(json.dumps(settings),job_id))
         return binding_sha256
 
     def jobs(self, limit=100):
@@ -305,10 +310,12 @@ class Store:
         job=self.job(job_id)
         if job is None:raise ValueError('Unknown job')
         if options is not None and not isinstance(options,dict):raise ValueError('Scheduling options must be an object')
-        if options and job['status'] in ('completed','failed','cancelled'):raise ValueError('Terminal scheduling history is immutable')
-        if options and job['status']!='queued' and set(options)&{'dependencies','not_before','resources'}:raise ValueError('Active scheduling dependencies/budgets cannot change; adjust priority/preemption only')
         with self.connect() as db:
-            db.execute('BEGIN IMMEDIATE');row=db.execute('SELECT * FROM job_scheduling WHERE job_id=?',(job_id,)).fetchone()
+            db.execute('BEGIN IMMEDIATE')
+            status=db.execute('SELECT status FROM jobs WHERE id=?',(job_id,)).fetchone()['status']
+            if options and status in ('completed','failed','cancelled'):raise ValueError('Terminal scheduling history is immutable')
+            if options and status!='queued' and set(options)&{'dependencies','not_before','resources'}:raise ValueError('Active scheduling dependencies/budgets cannot change; adjust priority/preemption only')
+            row=db.execute('SELECT * FROM job_scheduling WHERE job_id=?',(job_id,)).fetchone()
             old=json.loads(row['metadata']) if row else default_metadata(job);old_revision=row['revision'] if row else digest(old)
             if expected_revision is not None and expected_revision!=old_revision:raise ValueError('Scheduling metadata changed; refresh before editing')
             metadata=validate_options(job,old,{} if options is None else options)
@@ -348,8 +355,12 @@ class Store:
         with self.connect() as db:
             db.execute('INSERT INTO scheduler_usage VALUES(?,?,?) ON CONFLICT(experiment_slug) DO UPDATE SET service_s=service_s+excluded.service_s,updated=excluded.updated',(experiment_slug,seconds,time.time()))
 
-    def claim_job_start(self,job_id):
+    def claim_job_start(self,job_id,*,expected_schedule_revision=None):
         with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            if expected_schedule_revision is not None:
+                selected=db.execute('SELECT revision FROM job_scheduling WHERE job_id=?',(job_id,)).fetchone()
+                if selected is None or selected['revision']!=expected_schedule_revision:return False
             return bool(db.execute("UPDATE jobs SET status='running',updated=? WHERE id=? AND status IN ('queued','resume_requested')",(time.time(),job_id)).rowcount)
 
     def request_job_operation(self,job_id,operation):

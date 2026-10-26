@@ -56,6 +56,22 @@ def test_unsupported_manual_pause_is_explicit_memory_retained_and_keeps_lease_un
     assert store.job(job['id'])['status']=='running' and signals[-1]==(os.getpid(),signal.SIGCONT)
 
 
+def test_queued_budget_edit_after_plan_cannot_launch_using_old_resources(tmp_path,monkeypatch):
+    supervisor,store,clock,signals,started=rig(tmp_path,monkeypatch)
+    job=store.create_job('so101_skill_train','04',dict(image_size=64,batch_size=2))
+    original=supervisor._start;edited=[False]
+    def edit_after_selection(row,metadata,revision):
+        if not edited[0]:
+            edited[0]=True;store.schedule_job(row['id'],dict(resources={'memory_bytes':4*GIB}))
+        return original(row,metadata,revision)
+    monkeypatch.setattr(supervisor,'_start',edit_after_selection)
+    supervisor.tick()
+    assert not started and store.job(job['id'])['status']=='queued' and not signals
+    supervisor.tick()
+    assert len(started)==1 and store.job(job['id'])['status']=='running'
+    assert store.schedule_status(job['id'])['metadata']['resources']['memory_bytes']==4*GIB
+
+
 def test_lost_or_invalid_pause_receipt_fails_only_one_job_and_does_not_claim_resume(tmp_path,monkeypatch):
     supervisor,store,clock,signals,started=rig(tmp_path,monkeypatch)
     job=store.create_job('so101_skill_train','04',dict(image_size=64,batch_size=2));supervisor.tick()
