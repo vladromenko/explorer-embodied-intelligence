@@ -23,6 +23,15 @@ from .source_evaluation_transport import pi_connection
 ID=re.compile('[0-9a-f]{32}')
 
 
+async def bounded_body(request):
+    raw=bytearray()
+    async for chunk in request.stream():
+        if len(raw)+len(chunk)>4096:raise HTTPException(400,'Source evaluation accepts a bounded model/context/confirmation form only')
+        raw.extend(chunk)
+    try:return json.loads(raw)
+    except (ValueError,UnicodeDecodeError,RecursionError) as error:raise HTTPException(400,'A bounded source evaluation JSON form is required') from error
+
+
 def typed_job(store,identity,*,active=False):
     if not isinstance(identity,str) or not ID.fullmatch(identity):raise ValueError('Choose a source evaluation from the server list')
     job=store.job(identity)
@@ -103,7 +112,7 @@ def install_router(app,get_store,get_config,get_actor):
 
     @app.post(base)
     async def prepare(request:Request):
-        body=await request.json()
+        body=await bounded_body(request)
         if request.query_params or not isinstance(body,dict) or 'model_job_id' not in body:raise HTTPException(400,'Choose one current source model and object context')
         def create():
             store=get_store();settings=evaluation.request_settings(store,body['model_job_id'],{key:value for key,value in body.items() if key!='model_job_id'})
@@ -167,7 +176,7 @@ def install_router(app,get_store,get_config,get_actor):
 
     @app.post(base+'/{job_id}/{operation}')
     async def operation(job_id:str,operation:str,request:Request):
-        body=await request.json()
+        body=await bounded_body(request)
         if request.query_params or not isinstance(body,dict) or operation not in ('challenge','authorize','observe','phase'):
             raise HTTPException(400,'Known explicit source operation required')
         def perform():
@@ -197,7 +206,7 @@ def install_router(app,get_store,get_config,get_actor):
 
     @app.post(base+'/{job_id}/outcomes/{challenge_id}')
     async def outcome(job_id:str,challenge_id:str,request:Request):
-        body=await request.json()
+        body=await bounded_body(request)
         if request.query_params or not isinstance(body,dict) or set(body)-{'status','observing','note'} or body.get('status') not in ('success','failure','unknown'):
             raise HTTPException(400,'Record one explicit observed outcome')
         def record():

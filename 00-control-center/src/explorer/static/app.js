@@ -134,8 +134,7 @@ const observedNative = createObservedNativeClient({api,now:()=>performance.now()
     const response=await fetch(`/api/native-activation/frame/${encodeURIComponent(id)}`,{credentials:"same-origin",cache:"no-store"});
     if(!response.ok)throw new Error("Точный native-кадр недоступен; обновите запрос");
     const bytes=await response.arrayBuffer();
-    if(bytes.byteLength>2*1024**2 || !window.crypto?.subtle)throw new Error("Нужен HTTPS и проверяемый ограниченный JPEG");
-    const checksum=Array.from(new Uint8Array(await window.crypto.subtle.digest("SHA-256",bytes)),b=>b.toString(16).padStart(2,"0")).join("");
+    const checksum=await explorerSha256Bytes(bytes,{maxBytes:2*1024**2});
     if(checksum!==response.headers.get("X-JPEG-SHA256"))throw new Error("Контрольная сумма native-кадра не совпала");
     return {blob:new Blob([bytes],{type:"image/jpeg"}),sha256:checksum,frame_id:response.headers.get("X-Frame-ID"),boot_id:response.headers.get("X-Boot-ID")};
   },onChange:()=>{if(path()==="/evening"||rosmasterDemonstrationRoute()){model.forceRender=true;render();}}

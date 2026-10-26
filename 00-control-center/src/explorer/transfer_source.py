@@ -72,6 +72,7 @@ def _admission(store, config):
 
 
 def _metadata(store, job, *, admission_verifier=None):
+    if not isinstance(job,dict):raise ValueError('Source model job not found')
     config, result = job.get('config') or {}, job.get('result') or {}
     if job.get('kind') != 'so101_skill_train' or job.get('status') != 'completed' or job.get('project_id') != experiment_id('so101_source_learning'):
         raise ValueError('Completed current semantic source04 whole-skill model required')

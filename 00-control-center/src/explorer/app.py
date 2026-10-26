@@ -948,7 +948,8 @@ async def cooperative_state(request: Request):
 
 @app.post('/api/cooperative/{operation}')
 async def cooperative_operation(operation: str,request: Request):
-    if operation not in {'propose_skill','confirm_skill','create_session','register_zone','record_start','record_stage','record_finish','step','stop','confirm_evidence','review_recording','aggregate','training_plan','train','shadow','warm_models','attach_native_giver'}:
+    if operation not in {'propose_skill','confirm_skill','create_session','register_zone','record_start','record_stage','record_finish','step','stop','confirm_evidence','review_recording','aggregate','training_plan','train','shadow','warm_models','attach_native_giver',
+            'observed_refresh','observed_challenge','observed_authorize','bind_observed_test','observed_display','observed_observe','observed_revoke'}:
         raise HTTPException(404,'Unsupported cooperative workflow operation')
     try:
         body=await request.json()
@@ -958,6 +959,18 @@ async def cooperative_operation(operation: str,request: Request):
     except FileNotFoundError as error:raise HTTPException(404,'Original cooperative source does not exist') from error
     except (ValueError,KeyError,TypeError,RuntimeError) as error:
         return JSONResponse({'detail':str(error),'reasons':getattr(error,'reasons',[])},409)
+
+
+@app.get('/api/cooperative/observed-frame/{choice_id}')
+async def cooperative_observed_frame(choice_id:str,request:Request):
+    if not re.fullmatch('[0-9a-f]{32}',choice_id) or request.query_params:raise HTTPException(400,'Choose one current displayed cooperative source frame')
+    try:
+        raw,headers=await asyncio.to_thread(lambda:cooperative_service().observed_frame(choice_id,authenticated_actor=session_actor(request)))
+        lower={key.lower():value for key,value in headers.items()}
+        if (not raw.startswith(b'\xff\xd8') or not raw.endswith(b'\xff\xd9') or len(raw)>8*1024**2 or
+                hashlib.sha256(raw).hexdigest()!=lower.get('x-jpeg-sha256')):raise ValueError('Original cooperative camera SHA differs')
+        return Response(raw,media_type='image/jpeg',headers={key:lower[key] for key in ('x-jpeg-sha256','x-frame-id','x-boot-id')})
+    except (ValueError,OSError,KeyError,TypeError) as error:raise HTTPException(409,'The exact observed source frame is unavailable; refresh it explicitly') from error
 
 
 @app.get('/api/cooperative/artifacts/{kind}/{identity}')

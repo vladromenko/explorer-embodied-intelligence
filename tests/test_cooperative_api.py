@@ -15,6 +15,9 @@ def test_cooperative_routes_pin_session_scope_actor_and_managed_artifact(tmp_pat
         def command(self,operation,body,*,authenticated_actor):
             calls.append(('POST',operation,body,authenticated_actor));return {'result':{'operation':operation},'snapshot':self.snapshot(body.get('session_id'))}
         def artifact(self,kind,ident,role):calls.append(('artifact',kind,ident,role));return source,'image/jpeg'
+        def observed_frame(self,choice_id,*,authenticated_actor):
+            calls.append(('displayed_frame',choice_id,authenticated_actor))
+            return raw,{'X-JPEG-SHA256':hashlib.sha256(raw).hexdigest(),'X-Frame-ID':'fake-frame','X-Boot-ID':'fake-boot'}
     service=Service();monkeypatch.setattr(module,'cooperative_service',lambda:service)
     monkeypatch.setattr(module,'STORE',store)
     monkeypatch.setattr(module,'CONFIG',dict(module.CONFIG,nodes=[],password_salt='fixture',password_hash=hashlib.pbkdf2_hmac('sha256',b'fixture',b'fixture',310000).hex()))
@@ -33,6 +36,11 @@ def test_cooperative_routes_pin_session_scope_actor_and_managed_artifact(tmp_pat
         body={'session_id':ident,'actor_id':'spoofed','expected_epoch':'current-fixture'}
         assert client.post('/api/cooperative/step',json=body,headers=headers).status_code==200
         assert client.post('/api/cooperative/warm_models',json={'session_id':ident,'expected_epoch':'current-fixture'},headers=headers).status_code==200
+        assert client.post('/api/cooperative/observed_challenge',json={'session_id':ident,'expected_epoch':'current-fixture','source_setup_choice_id':'server-only'},headers=headers).status_code==200
+        frame=client.get('/api/cooperative/observed-frame/'+ident)
+        assert frame.status_code==200 and frame.content==raw and frame.headers['x-jpeg-sha256']==hashlib.sha256(raw).hexdigest()
+        assert next(row for row in calls if row[0]=='displayed_frame')[-1].startswith('authenticated-session:')
+        assert client.get('/api/cooperative/observed-frame/'+ident+'?path=/etc/passwd').status_code==400
         command=next(row for row in calls if row[0]=='POST')
         assert command[-1].startswith('authenticated-session:') and command[-1]!='spoofed'
         media=client.get('/api/cooperative/artifacts/zone/'+ident+'?role=giver')

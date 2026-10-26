@@ -41,6 +41,8 @@ def test_actual_central_auth_user_display_attach_and_cancel_through_common_nativ
         assert listed.json()['models'][0]['id']==model['id'] and listed.json()['models'][0]['eligible']
         body=dict(model_job_id=model['id'],duration_s=.5,object_instance_id='fixture-object',scene_id='fixture-scene',goal_instance_id='fixture-bin')
         assert client.post(base,json=body).status_code==403
+        assert client.post(base,json=dict(body,model_job_id='0'*32),headers=csrf).status_code==409
+        assert client.post(base,content=b'{"padding":"'+b'x'*4096+b'"}',headers=csrf).status_code==400
         assert client.post(base,json=dict(body,grant_id='f'*32),headers=csrf).status_code==409
         created=client.post(base,json=body,headers=csrf);assert created.status_code==200,created.text
         identity=created.json()['id'];job=store.job(identity);assert job['kind']=='so101_skill_eval'
