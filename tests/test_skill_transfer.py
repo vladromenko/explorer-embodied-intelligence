@@ -8,7 +8,7 @@ import pytest
 
 from explorer_shared.contracts import canonical
 from explorer_shared.kinematics import URDFChain
-from explorer_shared.skill_transfer import load_source_trace,TaskRelativeMapper,record_target_trial,SCHEMA,_path,_free_grid
+from explorer_shared.skill_transfer import load_source_trace,TaskRelativeMapper,record_target_trial,derive_cad_tool_adapter,SCHEMA,_path,_free_grid
 from explorer_shared.so101_station import NAMES
 from explorer_shared.transfer_mapping04 import SourceCoordinates,TargetCoordinates,TransferBlocked,sha
 from explorer_shared.transfer_calibration import fit_aperture_reference,register_task_frames
@@ -163,3 +163,17 @@ def test_distinct_CAD_tool_axes_are_explicit_and_preserve_the_common_object_effe
     with pytest.raises(TransferBlocked,match='EXPLICIT_COMMON_TOOL_FRAME_ADAPTER'):
         TaskRelativeMapper(mapper.source,mapper.target,mapper.source_coordinates,mapper.target_coordinates,source_profile=mapper.source_profile,source_aperture=mapper.source_aperture,target_aperture=mapper.target_aperture,
             task_frames=dict(provenance='synthetic',frames={key:dict(base_from_frame=np.eye(4).tolist(),calibration_id=key) for key in ('source_object','source_goal','target_object','target_goal')}),target_low=mapper.low,target_high=mapper.high,collision_checker=mapper.collision_checker)
+
+
+def test_pinned_CAD_terminal_offsets_define_different_approach_axes_without_zero_matching():
+    mapper=mapper_fixture();result=derive_cad_tool_adapter(mapper.source,mapper.target,source_closing_axis_tip=[0,1,0],target_closing_axis_tip=[0,1,0])
+    source=np.asarray(result['source_tip_from_common_tool']);target=np.asarray(result['target_tip_from_common_tool'])
+    assert abs(source[2,2])>.99 and abs(target[0,2])>.99
+    assert not np.allclose(source,target)
+    for chain,matrix in ((mapper.source,source),(mapper.target,target)):
+        wrist_offset=chain.joints[-1].origin[:3,3];approach=chain.joints[-1].origin[:3,:3]@matrix[:3,2]
+        assert np.allclose(approach,wrist_offset/np.linalg.norm(wrist_offset))
+        assert np.linalg.det(matrix[:3,:3])==pytest.approx(1.)
+    assert not result['physical_tool_registration_verified'] and not result['physical_execution_authorized']
+    with pytest.raises(TransferBlocked,match='PARALLEL'):
+        derive_cad_tool_adapter(mapper.source,mapper.target,source_closing_axis_tip=source[:3,2],target_closing_axis_tip=[0,1,0])

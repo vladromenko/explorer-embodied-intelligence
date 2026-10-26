@@ -117,6 +117,33 @@ def _path(free,start,goal):
     return None
 
 
+def derive_cad_tool_adapter(source_chain,target_chain,*,source_closing_axis_tip,target_closing_axis_tip):
+    """Compute approach from the actual terminal wrist→tip CAD translation.
+
+    Closing axes are explicit CAD conventions, not measured physical directions.
+    Their projection makes an orthonormal tool frame without matching joint zero
+    poses. The result authorizes geometry/SIM only, never a physical movement.
+    """
+    def derive(chain,closing):
+        terminal=chain.joints[-1]
+        if terminal.kind!='fixed':raise TransferBlocked('TERMINAL_FIXED_CAD_TOOL_FRAME_REQUIRED','A',chain.tip)
+        offset=terminal.origin[:3,3];length=float(np.linalg.norm(offset))
+        closing=np.asarray(closing,float)
+        if length<.001 or closing.shape!=(3,) or not np.isfinite(closing).all():raise TransferBlocked('DECLARED_CAD_TOOL_APPROACH_AND_CLOSING_AXES_REQUIRED','A')
+        approach=terminal.origin[:3,:3].T@offset/length
+        projected=closing-approach*float(closing@approach)
+        if np.linalg.norm(projected)<1e-6:raise TransferBlocked('TOOL_CLOSING_AXIS_PARALLEL_TO_APPROACH','A')
+        y=projected/np.linalg.norm(projected);x=np.cross(y,approach);matrix=np.eye(4);matrix[:3,:3]=np.column_stack([x,y,approach])
+        return rigid_transform(matrix).tolist(),dict(terminal_joint=terminal.name,terminal_origin=terminal.origin.tolist(),
+            declared_closing_axis_tip=closing.tolist(),approach_axis_tip=approach.tolist(),
+            basis='terminal_CAD_translation_and_explicit_closing_convention_not_joint_zero_matching')
+    source,source_proof=derive(source_chain,source_closing_axis_tip);target,target_proof=derive(target_chain,target_closing_axis_tip)
+    return dict(schema='explorer_skill_transfer_common_tool_adapter_v1',basis='CAD_derived',source_tip=source_chain.tip,target_tip=target_chain.tip,
+        source_urdf_sha256=source_chain.source_sha256,target_urdf_sha256=target_chain.source_sha256,
+        source_tip_from_common_tool=source,target_tip_from_common_tool=target,source_geometry=source_proof,target_geometry=target_proof,
+        physical_tool_registration_verified=False,physical_execution_authorized=False)
+
+
 class TaskRelativeMapper:
     def __init__(self,source_chain,target_chain,source_coordinates,target_coordinates,*,source_profile,source_aperture,target_aperture,task_frames,target_low,target_high,collision_checker,tool_frame_adapter=None):
         self.source,self.target=source_chain,target_chain;self.source_coordinates,self.target_coordinates=source_coordinates,target_coordinates
