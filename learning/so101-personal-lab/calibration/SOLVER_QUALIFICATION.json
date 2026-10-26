@@ -1,0 +1,124 @@
+{
+  "schema": "explorer_tabletop_solver_qualification_v1",
+  "date": "2026-10-26",
+  "scope": "synthetic_projected_corners_and_rendered_JPEG_only_no_physical_camera_robot_calibration",
+  "homebrain_opencv": {
+    "opencv_version": "4.13.0",
+    "aruco_available": true,
+    "CharucoBoard": true,
+    "CharucoDetector": true,
+    "calibrateCameraExtended": true,
+    "solvePnP": true,
+    "device_opened": false
+  },
+  "pi_synthetic_intrinsics_solve": {
+    "scope": "SYNTHETIC_PROJECTED_CORNERS_ONLY_NO_DEVICE",
+    "opencv": "4.10.0",
+    "input_sha256": "18c3574b31ef6538c6f5369d84d6ea6e5792932bf385a872a46427a4319daf02",
+    "rms_px": 9.558544201473174e-06,
+    "K": [
+      [
+        699.9999971328923,
+        0.0,
+        319.9998459807024
+      ],
+      [
+        0.0,
+        710.0000081505157,
+        240.0000944153904
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "distortion": [
+      -0.07999992886030327,
+      0.014996379241581924,
+      0.0009999861726524679,
+      -0.0020000066938413914,
+      0.0030182724495510047
+    ],
+    "max_per_view_rms_px": 1.2430150904334887e-05
+  },
+  "software_tests": {
+    "passed": 14,
+    "command": "PYTHONPATH=shared python -m pytest -q tests/test_tabletop_calibrate.py"
+  },
+  "synthetic_roundtrip": {
+    "accepted_views": 12,
+    "rejected_views": [],
+    "opencv_version": "4.13.0",
+    "physical_execution_allowed": false,
+    "rms_px": 9.558544202440492e-06,
+    "reference_pose_rms_px": 5.198556209506933e-06,
+    "registration_rmse_m": 0.0,
+    "plane_rmse_m": 0.0,
+    "image_span": [
+      0.6359838485717774,
+      0.8695958455403646
+    ],
+    "centroid_span": [
+      0.4064776420593262,
+      0.4199960708618164
+    ],
+    "corner_id_coverage": 1.0
+  },
+  "printable_board": {
+    "board_origin_on_page_mm": [
+      15.0,
+      28.5
+    ],
+    "board_size_mm": [
+      180.0,
+      240.0
+    ],
+    "board_spec": {
+      "board_id": "explorer-charuco-6x8-30mm-v1",
+      "border_bits": 1,
+      "dictionary": "DICT_4X4_50",
+      "legacy_pattern": false,
+      "marker_length_m": 0.0225,
+      "page_mm": [
+        210.0,
+        297.0
+      ],
+      "schema": "explorer_metric_charuco_board_v1",
+      "square_length_m": 0.03,
+      "squares_x": 6,
+      "squares_y": 8
+    },
+    "board_spec_sha256": "9e6dfee73e22483e9124f61c83579a306eb0c11113dac754838ed7b873707cca",
+    "marker_length_mm": 22.5,
+    "metric_scale_physical_verified": false,
+    "opencv_aruco_version_generated": "4.13.0",
+    "operator_must_measure_printed_square_and_100mm_ruler": true,
+    "page_mm": [
+      210.0,
+      297.0
+    ],
+    "pdf_sha256": "6bd99216503b9114224dc413fc6601d26eef62a5f790a5c809691ff88ba8fe7e",
+    "physical_calibration_produced": false,
+    "raster_sha256": "0bfa32e7e6ceaf87eb65c352ce2e1075d9c30ae19982ec157020659c1414731d",
+    "raster_size": [
+      1440,
+      1920
+    ],
+    "schema": "explorer_printable_metric_board_v1",
+    "square_length_mm": 30.0,
+    "svg_sha256": "286a2697183dec1a90a55471854f1994789f5e2eab8cd1f138a0d543609df38a"
+  },
+  "physical_print_scale_verified": false,
+  "real_board_present": false,
+  "real_camera_calibrated": false,
+  "real_robot_extrinsics_measured": false,
+  "physical_execution_allowed": false,
+  "remaining_real_inputs": [
+    "Printed issued board with physically measured100mm ruler",
+    "At least10 diverse original cached JPEG board views",
+    "Known fixed camera/mount and robot/base identities",
+    "Human source-bound board-to-base meter measurements and workspace polygon",
+    "Independent physical geometry check under separate observed user test"
+  ]
+}
