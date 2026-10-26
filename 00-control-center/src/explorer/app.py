@@ -480,6 +480,10 @@ async def job_operation(job_id: str, operation: str, request: Request):
         raise HTTPException(409,'Pause and resume apply to training. Stop an interactive attempt and start a fresh one.')
     try:STORE.request_job_operation(job_id,operation)
     except ValueError as error:raise HTTPException(409,str(error)) from error
+    if operation=='cancel' and job['kind']=='so101_skill_eval':
+        from .source_evaluation_transport import revoke_source_attempt
+        try:await asyncio.to_thread(revoke_source_attempt,STORE,job,CONFIG)
+        except (ValueError,OSError,httpx.HTTPError):pass
     if operation=='cancel' and job['kind']=='station_rollout' and (job.get('result') or {}).get('control_epoch'):
         node=next(node for node in CONFIG['nodes'] if node['id']=='pi')
         try:
@@ -926,6 +930,8 @@ from .lab_skill_api import install_router as install_lab_skill_routes
 install_lab_skill_routes(app,lambda:STORE)
 from .research_export_api import install_router as install_research_export_routes
 install_research_export_routes(app,lambda:STORE)
+from .source_evaluation_api import install_router as install_source_evaluation_routes
+install_source_evaluation_routes(app,lambda:STORE,lambda:CONFIG,session_actor)
 
 
 @app.get('/api/cooperative')

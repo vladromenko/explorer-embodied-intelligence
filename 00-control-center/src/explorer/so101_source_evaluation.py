@@ -370,6 +370,7 @@ def run_so101_skill_eval(store,job,config=None,*,station=None,permission=None,ph
             raise EvaluationBlocked('Observed grant camera/calibration/native boot/clock differs from the model before native start')
         _write(folder/'prestart-observation.json',canonical(initial_packet))
         _write(folder/'prestart-observation.jpg',initial_jpeg)
+        _alive(store,job['id'])
         _grant(permission,grant_id,requested['binding'],initial_epoch)
         current=station.status()
         if (current.get('control_epoch')!=initial_epoch or current.get('available') is not True or current.get('configuration_writes')!=0 or
@@ -564,7 +565,7 @@ def _finish(store,job,requested,model,folder,rows,error,stop,inbox,clock,sleep,a
                 if path.is_file() and path.name!='.inbox.lock':retain('raw/'+tree+'/'+path.relative_to(folder/tree).as_posix(),path.read_bytes())
         for path in sorted((folder/'implementation-snapshot').rglob('*')):
             if path.is_file():retain('implementation-snapshot/'+path.relative_to(folder/'implementation-snapshot').as_posix(),path.read_bytes())
-        for name in ('attempt-context.json','runtime-actor.json','grant-before-load.json','grant-after-load.json','native-policy-start-status.json','stop-receipt.json'):
+        for name in ('attempt-context.json','runtime-actor.json','grant-before-load.json','grant-after-load.json','prestart-observation.json','prestart-observation.jpg','native-policy-start-status.json','stop-receipt.json'):
             retain('raw/'+name,(folder/name).read_bytes())
         source_trace=dict(schema='explorer_skill_transfer_source_trace_v1',experiment_slug='so101_source_learning',source_kind='QUALIFIED_SOURCE_MODEL',
             source_domain=model['source_domain'],task_type=model['manifest']['skill_spec']['task_type'],
