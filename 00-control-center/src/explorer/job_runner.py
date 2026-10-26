@@ -149,6 +149,10 @@ def main(job_id):
             sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
             from explorer_sim.world_model import run_world_model
             result=run_world_model(store,job)
+        elif job['kind']=='dagger':
+            sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
+            from explorer_sim.dagger import run_dagger
+            result=run_dagger(store,job)
         elif job['kind'] in ('virtual_transfer', 'handover_test'):
             from .transfer import run_virtual_experiment
             result = run_virtual_experiment(store, job, config)

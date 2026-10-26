@@ -2,7 +2,7 @@
   "method_id": "DAGGER_ROSS_2011",
   "implementation_id": "IMPL-DAGGER-CAD-ACT-001",
   "function_or_module": "01-autonomous-learning/src/explorer_sim/dagger.py",
-  "implementation_type": "ADAPTED",
+  "implementation_type": "ENGINEERING_GLUE",
   "paper_ids": [
     "P003"
   ],
@@ -45,7 +45,7 @@
       }
     }
   },
-  "changes_and_reason": "One beta0 aggregation round after successful-expert-only ACT initialization. Query privileged PPO on pre-step learner states, preserve requested/executed/counterfactual action identities, supervise one valid current-action chunk position for both source roles, retain finite teacher queries from failed learner rollouts. Actor sees RGB+command estimate only. All evaluation is explicitly development, independently executed before/after. No novel algorithm, executed teacher recovery, hardware or cloth/kitchen success claim.",
+  "changes_and_reason": "Own implementation of the published algorithm; no original DAgger code copied. Maintained dependency implementations are separately pinned. One beta0 aggregation round after successful-expert-only ACT initialization. Query privileged PPO on pre-step learner states, preserve requested/executed/counterfactual action identities, supervise one valid current-action chunk position for both source roles, retain finite teacher queries from failed learner rollouts. Actor sees RGB+command estimate only. All evaluation is explicitly development, independently executed before/after. No novel algorithm, executed teacher recovery, hardware or cloth/kitchen success claim.",
   "source_sha256": {
     "dagger.py": "29f6c1bc3bd7ad008afbc7a97c9fb09b1ca91158c77196c63b6b1bff234cf591"
   },
@@ -81,7 +81,7 @@
     "research/literature/reviews/P003.json"
   ],
   "hardware_run_ids": [],
-  "activation_status": "STANDALONE_RECORD_READY_FOR_ROOT_SHARED_REGISTRY_INTEGRATION",
+  "activation_status": "ACTIVE_SOURCE_IMPLEMENTATION",
   "qualification_scope": "Two development engineering runs; no sealed final test, causal matched-update ablation or independently branched recovery verification",
   "dependency_exception": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds"
 }
