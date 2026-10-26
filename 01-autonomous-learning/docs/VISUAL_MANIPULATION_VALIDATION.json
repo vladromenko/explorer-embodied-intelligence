@@ -1,0 +1,82 @@
+{
+  "scope": "Actual complete contact scripted demonstrations -> official visual ACT -> independent MuJoCo full-task evaluator",
+  "physical_io": false,
+  "full_object_skill_mastered": false,
+  "hypotheses": "UNTESTED",
+  "engineering_run": {
+    "run_id": "candy-visual-act64-v1",
+    "result_path": "/home/jetsonnx/.local/share/explorer/state/qualification/visual-manipulation-20261026/jobs/candy-visual-act64-v1/visual-manipulation-result.json",
+    "result_sha256": "603215c18bd2d08a2384344174e005d5576b632faaf5cf17b696c89351fb58f2",
+    "source_snapshot": "/home/jetsonnx/.local/share/explorer/state/qualification/visual-manipulation-20261026/source-snapshots/candy-visual-act64-v1",
+    "implementation_sha256": "54ab638f67755fc12fdfa79d8f1ae458df043cdfd73b3727b482b26349378960",
+    "scripted_baseline": {
+      "source": "scripted_truth_IK_not_PPO_not_learned",
+      "successes": 2,
+      "n": 2,
+      "actions_per_episode": [
+        448,
+        448
+      ]
+    },
+    "student": {
+      "actual_optimizer_steps": 64,
+      "training_frames": 896,
+      "weights_changed": true,
+      "reload_max_abs_error": 0.0,
+      "losses_first_last": [
+        1.0938509702682495,
+        0.1785965859889984
+      ],
+      "official_saved_processors_executed": true,
+      "actor_inputs": [
+        "RGB",
+        "preceding_command9_estimate"
+      ]
+    },
+    "evaluation": {
+      "successes": 0,
+      "n": 2,
+      "seeds": [
+        331041,
+        331042
+      ],
+      "actions_per_trial": [
+        700,
+        700
+      ],
+      "maximum_native_replay_errors": [
+        0.0,
+        0.0
+      ]
+    },
+    "source_revision_note": "Run preceded metadata-only nested-receipt checksum/SkillCard/source-snapshot improvements; exact measured source retained."
+  },
+  "final_source_integration": {
+    "retained_result_path": "/home/jetsonnx/.local/share/explorer/state/qualification/visual-manipulation-20261026/final-current-source-integration/jobs/visual-cycle/visual-manipulation-result.json",
+    "result_sha256": "571eea82977163c5764961c5f038055a5e47577585830acd239ba742a21a64d8",
+    "module_sha256": "c91679f06148ad99a799940beaeed9b825dc9531f66e9da0ddb209a32db9a62d",
+    "actual_optimizer_steps": 8,
+    "weights_changed": true,
+    "reload_max_abs_error": 0.0,
+    "complete_scripted_demonstrations": 1,
+    "visual_trials": 1,
+    "visual_successes": 0,
+    "horizon": 32,
+    "purpose": "Short final-source integration and corruption/idempotency qualification; not a full-horizon scientific trial",
+    "nested_evaluator_receipts_hashed": true,
+    "trained_skill_card": "trained",
+    "physical_run_ids": []
+  },
+  "tests": {
+    "passed": 10,
+    "skipped": 0,
+    "elapsed_seconds": 69.95,
+    "command": "EXPLORER_SIM_MESH_DIR=<actual verified CAD> MUJOCO_GL=egl EXPLORER_RUN_MANIPULATION_STUDENT_INTEGRATION=1 python -m pytest 01-autonomous-learning/tests/test_manipulation_student.py -q"
+  },
+  "limitations": [
+    "Only a narrow local stationary candy scene evaluated; development seeds, not sealed generalization",
+    "Short-budget learned ACT did not grasp or complete either full trial; scripted successes do not establish learned manipulation",
+    "PPO remains a separate privileged teacher pilot; this job uses an explicitly labelled scripted truth/IK baseline",
+    "No physical controllers, robot motion, real contact calibration, mobile kitchen navigation or H1-H5 gain tested"
+  ]
+}
