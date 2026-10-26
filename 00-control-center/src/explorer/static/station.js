@@ -14,7 +14,7 @@ function stationImports(project) {
 function stationSkills() {
   return model.skills.filter((skill) => {
     const job = model.jobs.find((item) => item.id === skill.lineage?.job_id);
-    if (!job || !stationFinished(job)) return false;
+    if (!job || job.kind !== "train_act" || !stationFinished(job)) return false;
     const expected = array(stationLab.status?.action_names);
     const names = array(skill.action_contract?.names);
     return names.length === 6 && expected.length === 6 && names.every((name, index) => name === expected[index]) && (job?.result?.trained === true || skill.status === "trained_offline_only") && (job?.result?.feature_dimension === undefined || job.result.feature_dimension === 6);

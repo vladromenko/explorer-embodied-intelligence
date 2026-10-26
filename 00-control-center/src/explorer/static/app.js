@@ -75,6 +75,7 @@ function reasonText(value) {
 const model = { state: null, jobs: [], skills: [], research: {}, recordings: [], actions: [], lastUpdate: null, lastExtras: 0, error: null, refreshing: false, simDraft: { task: "reach", updates: 256, seed: 0 }, robot: { teleop: null, controls: null, teaching: null, error: null, episodeName: "Первый показ" } };
 const keyboard = { active: false, paused: false, keys: new Set(), mode: "cartesian", busy: false, lastKeys: "", error: null };
 const mobileLearning = { manifest: "", busy: false, importJob: "" };
+const worldLearning = { datasets: [], error: null, loading: false, lastLoad: 0, manifest: "", development: null, signature: "", busy: false };
 let episodeLeaseBusy = false;
 const main = document.querySelector("#main");
 const dialog = document.querySelector("#record-dialog");
@@ -112,7 +113,7 @@ function toast(message, error = false) {
 }
 function path() { return window.location.pathname.replace(/\/$/, "") || "/"; }
 function activeProject() { return PROJECTS.find((project) => path() === `/experiments/${project.id}`); }
-function navigate(url) { if (path() !== url && (stationLab.owned || stationLab.present)) stopStation(true); if (keyboard.active && url !== "/experiments/02") stopKeyboard(true); if (path() !== url) history.pushState({}, "", url); render(); main.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); }
+function navigate(url) { if (path() !== url && (stationLab.owned || stationLab.present)) stopStation(true); if (keyboard.active && url !== "/experiments/02") stopKeyboard(true); if (path() !== url) history.pushState({}, "", url); render(); main.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); if (url === "/experiments/01") refreshWorldDatasets(); }
 
 function navigation() {
   const item = (href, label, symbol, ordinal) => `<a href="${href}" data-link class="nav-item ${path() === href ? "active" : ""}" ${path() === href ? 'aria-current="page"' : ""}>${ordinal ? `<span class="nav-number">${ordinal}</span>` : icon(symbol, "nav-icon")}<span>${label}</span></a>`;
@@ -220,7 +221,7 @@ function experimentsGrid() {
   return `<div class="experiment-grid">${PROJECTS.map((project) => { const state = experimentState(project.id); return `<a class="experiment-card" href="/experiments/${project.id}" data-link><div class="experiment-top"><span class="experiment-index">ОПЫТ ${project.id}</span>${icon(Number(project.id) === 1 ? "chip" : "robot", "nav-icon")}</div><h3>${esc(project.title)}</h3><p>${esc(project.brief)}</p><div class="experiment-bottom">${badge(state.status, "Ожидаем состояние")}<span class="experiment-arrow" aria-hidden="true">↗</span></div></a>`; }).join("")}</div>`;
 }
 const TERMINAL_JOBS = ["completed", "complete", "succeeded", "success", "failed", "error", "cancelled", "canceled"];
-function jobTitle(job) { return text(job.title, text(job.name, { sim_pilot: "Обучение в симуляции", camera_recording: "Запись наблюдения", recording: "Запись наблюдения", train: "Обучение модели", train_act: "Обучение ACT по показу", mobile_import: "Перенос показа ROSMASTER", station_import: "Перенос показа SO-101", station_rollout: "Попытка модели SO-101", station_shadow: "Проверка предсказаний без движения", virtual_transfer: "Проверка геометрического переноса", handover_test: "Проверка протокола передачи", evaluation: "Оценка навыка" }[job.kind] || job.kind || "Исследовательская задача")); }
+function jobTitle(job) { return text(job.title, text(job.name, { sim_pilot: "Обучение в симуляции", world_model: "Модель изменений сцены", camera_recording: "Запись наблюдения", recording: "Запись наблюдения", train: "Обучение модели", train_act: "Обучение ACT по показу", mobile_import: "Перенос показа ROSMASTER", station_import: "Перенос показа SO-101", station_rollout: "Попытка модели SO-101", station_shadow: "Проверка предсказаний без движения", virtual_transfer: "Проверка геометрического переноса", handover_test: "Проверка протокола передачи", evaluation: "Оценка навыка" }[job.kind] || job.kind || "Исследовательская задача")); }
 function jobMetrics(job) {
   const metrics = job.metrics || job.result?.metrics || {};
   const list = [];
@@ -269,6 +270,7 @@ function experimentPage(project) {
   if (project.id === "01") {
     const job = jobs.find((entry) => entry.kind === "sim_pilot" && !TERMINAL_JOBS.includes(entry.status)) || jobs.find((entry) => entry.kind === "sim_pilot");
     content += `<div class="two-column">${simulationPanel(job)}${simulationForm()}</div><div class="spaced-section">${flow(project)}</div>`;
+    content += `<div class="spaced-section">${worldTrainingPanel()}</div>`;
   } else {
     content += notice(project.id === "02" ? "Два разных материала" : "Запись наблюдения с камеры", project.id === "02" ? "Полный показ записывается через штатный ROSMASTER вместе с его командами и наблюдениями. Отдельная кнопка «Записать наблюдение» сохраняет только видео камеры." : "Сейчас мастер сохраняет видео сцены. Такой материал отмечается как наблюдение и не выдаётся за синхронизированный обучающий эпизод.");
     content += `<div class="overview-grid"><div><div id="camera-slot"></div>${project.id === "02" ? `<div class="spaced-section">${keyboardPanel()}</div><div class="spaced-section">${episodePanel()}</div>` : ""}</div><div class="side-stack">${readinessCard(project)}${flow(project)}</div></div>`;
@@ -288,6 +290,80 @@ function episodePanel() {
   const teaching = model.robot.teaching || {}; const active = teaching.active; const last = teaching.last;
   return `<section class="panel"><div class="panel-heading"><div><h2>Полноценный показ ROSMASTER</h2><p>Команды, одометрия, камера и этапы штатной записи</p></div>${badge(active ? "running" : "not_started")}</div><div class="panel-body">${active ? `<p class="form-description">Идёт запись: ${esc(text(active.name, active.id || "показ"))}. Завершите показ и отметьте наблюдавшийся результат.</p><div class="episode-outcomes"><button class="button primary" data-episode-outcome="success" type="button">Задача выполнена</button><button class="button secondary" data-episode-outcome="failure" type="button">Не получилось</button><button class="button secondary" data-episode-outcome="unknown" type="button">Результат неясен</button></div><p class="form-hint">Оценка оператора сохраняется отдельно от независимой проверки навыка.</p>` : `<form id="episode-form"><div class="form-field"><label for="episode-name">Название задачи</label><input id="episode-name" name="name" value="${esc(model.robot.episodeName)}" maxlength="80" required placeholder="Например: подвести захват к предмету"></div><button type="submit" class="button primary" style="margin-top:16px">${icon("record")}Начать полный показ</button><p class="form-hint">Запись использует существующий формат робота. Она не запускает автоматическое воспроизведение.</p></form>`}${last ? `<div class="episode-last"><span class="status-dot good"></span>Последний показ сохранён${last.outcome ? ` · ${esc({ success: "отмечен успех", failure: "отмечена неудача", unknown: "результат неясен" }[last.outcome] || last.outcome)}` : ""}</div>` : ""}${array(teaching.record_errors).length ? `<p class="form-error">${esc(teaching.record_errors.map(reasonText).join(". "))}</p>` : ""}</div></section>`;
 }
+
+// ENGINEERING_GLUE: explicit whole-episode holdout and offline scene prediction only.
+function worldDatasetPlan(dataset, requestedDevelopment = null) {
+  const fail = (reason) => ({ reason, training: [], development: [], sealed: [], unused: [], episodes: [] });
+  if (!dataset || typeof dataset.dataset_manifest !== "string" || !dataset.dataset_manifest.trim()) return fail("Выберите набор записанных эпизодов.");
+  const episodes = array(dataset.episodes); const ids = episodes.map((episode) => episode.id);
+  if (!ids.length || ids.some((id) => typeof id !== "string" || !id) || new Set(ids).size !== ids.length) return fail("Нужны различные эпизоды с уникальными названиями.");
+  const trainSplits = ["train", "training", "imitation_train"], devSplits = ["development", "validation", "dev"], sealedSplits = ["test", "sealed_test", "sealed_final_test"];
+  if (episodes.some((episode) => ![...trainSplits, ...devSplits, ...sealedSplits].includes(episode.split))) return fail("Разделение исходных эпизодов на обучение, проверку и тест ещё не подтверждено.");
+  const sealed = episodes.filter((episode) => sealedSplits.includes(episode.split));
+  const available = episodes.filter((episode) => !sealedSplits.includes(episode.split));
+  const train = available.filter((episode) => trainSplits.includes(episode.split));
+  const declaredDevelopment = available.filter((episode) => devSplits.includes(episode.split));
+  if (available.length < 2 || !train.length) return fail("Нужны хотя бы два незакрытых эпизода, включая один обучающий.");
+  const defaults = declaredDevelopment.length ? declaredDevelopment.map((episode) => episode.id) : train.slice(-Math.max(1, Math.ceil(train.length * .2))).map((episode) => episode.id);
+  const requested = requestedDevelopment === null ? defaults : requestedDevelopment;
+  if (!Array.isArray(requested) || new Set(requested).size !== requested.length || requested.some((id) => !available.some((episode) => episode.id === id))) return fail("Проверка может использовать только различные незакрытые эпизоды этого набора.");
+  const development = available.filter((episode) => requested.includes(episode.id)).map((episode) => episode.id);
+  const training = train.filter((episode) => !development.includes(episode.id)).map((episode) => episode.id);
+  const unused = available.filter((episode) => !training.includes(episode.id) && !development.includes(episode.id)).map((episode) => episode.id);
+  return { reason: !development.length ? "Выберите хотя бы один целый эпизод для проверки." : !training.length ? "Оставьте хотя бы один обучающий эпизод вне проверки." : "", training, development, sealed: sealed.map((episode) => episode.id), unused, episodes };
+}
+function worldSelectedDataset() { return worldLearning.datasets.find((dataset) => dataset.dataset_manifest === worldLearning.manifest); }
+function worldJobs() { return model.jobs.filter((job) => job.kind === "world_model" && projectId(job.project_id) === "01"); }
+function worldTrainingRequest() {
+  if (worldLearning.error || worldLearning.loading) throw new Error("Дождитесь доступного каталога записей.");
+  const dataset = worldSelectedDataset(); const plan = worldDatasetPlan(dataset, worldLearning.development);
+  if (plan.reason) throw new Error(plan.reason);
+  if (worldJobs().some((job) => !TERMINAL_JOBS.includes(job.status))) throw new Error("Модель сцены уже обучается или ожидает запуска.");
+  return { kind: "world_model", project_id: "01", config: { dataset_manifest: dataset.dataset_manifest, optimizer_steps: 120, device: "cpu", development_episode_ids: plan.development } };
+}
+function isWorldModelArtifact(item) {
+  const job = model.jobs.find((entry) => entry.id === item?.lineage?.job_id);
+  return item?.kind === "world_model" || item?.source_type === "world_model" || item?.task === "offline_one_step_observation_prediction" || job?.kind === "world_model";
+}
+function worldMetric(value) { return typeof value === "number" && Number.isFinite(value) ? value.toExponential(5) : "Нет данных"; }
+function worldComparison(evaluation) {
+  const learned = [evaluation.action_conditioned, evaluation.action_agnostic], baseline = evaluation.persistence;
+  const values = (entry) => [entry?.episode_weighted?.rgb_mse_0_1, entry?.episode_weighted?.normalized_state_mse];
+  const complete = (entry) => values(entry).every((value) => typeof value === "number" && Number.isFinite(value) && value >= 0);
+  if (!baseline || !complete(baseline) || !(baseline.episodes > 0 && baseline.transitions > 0) || !learned.every((entry) => complete(entry) && entry.episodes > 0 && entry.episodes === baseline.episodes && entry.transitions === baseline.transitions)) return "Сравнение будет доступно после получения сопоставимых ошибок на проверочных эпизодах.";
+  if (learned.every((entry) => values(baseline).every((value, index) => value < values(entry)[index]))) return "В этом запуске сохранение текущего наблюдения точнее обеих обученных моделей по двум показателям.";
+  return "Сравнивайте ошибки кадра и состояния отдельно. Эти показатели относятся только к выбранным проверочным эпизодам.";
+}
+function worldResults(jobs) {
+  const methods = [["action_conditioned", "Модель с командами"], ["action_agnostic", "Модель без команд"], ["persistence", "Сохранить текущее наблюдение"], ["command_copy_plus_rgb_persistence", "Повторить команду и текущий кадр"]];
+  return jobs.filter((job) => job.status === "completed").slice(0, 4).map((job) => {
+    const result = job.result || {}, evaluation = result.evaluation || {};
+    const rows = methods.filter(([key]) => evaluation[key]);
+    const optimization = result.optimization || {};
+    return `<section class="panel spaced-section"><div class="panel-heading"><div><h3>Проверка модели изменений сцены</h3><p>${esc(dateTime(job.updated || job.created))}</p></div>${badge(job.status)}</div><div class="panel-body"><p class="form-description">${esc(worldComparison(evaluation))}</p>${rows.length ? `<div class="world-table-wrap"><table class="world-comparison"><caption>Средние ошибки с одинаковым весом каждого эпизода. Меньше — точнее на этой записи.</caption><thead><tr><th scope="col">Метод</th><th scope="col">Ошибка кадра, MSE [0–1]</th><th scope="col">Ошибка состояния, MSE норм.</th><th scope="col">Эпизоды / переходы</th></tr></thead><tbody>${rows.map(([key, label]) => `<tr><th scope="row">${esc(label)}</th><td>${worldMetric(evaluation[key].episode_weighted?.rgb_mse_0_1)}</td><td>${worldMetric(evaluation[key].episode_weighted?.normalized_state_mse)}</td><td>${count(evaluation[key].episodes)} / ${count(evaluation[key].transitions)}</td></tr>`).join("")}</tbody></table></div>` : notice("Численные результаты ещё не получены", "Состояние запуска сохранено; сравнение появится при получении фактических метрик.")}<dl class="skill-metadata">${["action_conditioned", "action_agnostic"].filter((key) => optimization[key]).map((key) => kv(`${key === "action_conditioned" ? "С командами" : "Без команд"}: обновления весов`, count(optimization[key].optimizer_steps)) + kv("Изменение весов", optimization[key].weights_changed === true ? "Подтверждено" : "Не подтверждено") + kv("Ошибка повторной загрузки", worldMetric(optimization[key].reload_max_abs_error))).join("")}${kv("Независимость сеансов записи", result.source?.independent_session_split_verified === true ? "Подтверждена" : "Не подтверждена")}${kv("Успех физической задачи", "Этим запуском не оценивался")}</dl><p class="form-hint">${result.source?.state_basis === "command_estimate" ? "Состояние исходника — командная оценка; низкая ошибка может отражать повторение сохранённых команд. " : ""}Это одношаговый прогноз по записям. Управление роботом и проверка выполнения задачи выполняются отдельно.</p></div></section>`;
+  }).join("");
+}
+function worldTrainingPanel() {
+  const dataset = worldSelectedDataset();
+  const signature = dataset ? JSON.stringify([dataset.dataset_manifest, dataset.episodes]) : "";
+  if (signature !== worldLearning.signature) { worldLearning.signature = signature; worldLearning.development = dataset ? worldDatasetPlan(dataset).development : null; }
+  const plan = worldDatasetPlan(dataset, worldLearning.development); const jobs = worldJobs();
+  const active = jobs.some((job) => !TERMINAL_JOBS.includes(job.status));
+  const reason = worldLearning.loading ? "Получаем каталог записей." : worldLearning.error || (worldLearning.busy ? "Ставим обучение в очередь." : active ? "Модель сцены уже обучается или ожидает запуска." : plan.reason);
+  const source = { measured_state: "Измеренное состояние", command_estimate: "Командная оценка состояния" }[dataset?.state_basis] || "Основа состояния не уточнена";
+  const origin = { real_mujoco_ppo_rollouts: "Записи MuJoCo и PPO", station_demonstration: "Показы SO-101", explorer_mobile_episode_v3: "Показы ROSMASTER" }[dataset?.source] || "Тип исходных записей не уточнён";
+  const action = { simulated_command: "Команды симуляции", command_endpoint_labels: "Записанные командные метки", accepted_action: "Принятые команды", dispatched_command: "Отправленные команды" }[dataset?.action_basis] || "Основа команд не уточнена";
+  return `<section class="panel"><div class="panel-heading"><div><p class="eyebrow">Дополнительный опыт / Прогноз по записи</p><h2>Модель изменений сцены</h2></div><span class="badge neutral">Без выполнения на роботе</span></div><div class="panel-body"><p class="form-description">Модель учится прогнозировать следующий кадр и состояние с учётом записанной команды. Сравниваем её с моделью без команд и сохранением текущего наблюдения. Управление движением остаётся у штатного контроллера.</p>${worldLearning.datasets.length ? `<div class="form-field"><label for="world-dataset">Набор записанных эпизодов</label><select id="world-dataset"><option value="">Выберите набор данных</option>${worldLearning.datasets.map((item) => `<option value="${esc(item.dataset_manifest)}" ${item.dataset_manifest === worldLearning.manifest ? "selected" : ""} ${worldDatasetPlan(item).reason ? "disabled" : ""}>${esc(item.name || item.id || "Записанные эпизоды")}${worldDatasetPlan(item).reason ? " · нужны отдельные эпизоды обучения и проверки" : ""}</option>`).join("")}</select></div>` : notice("Каталог записей", worldLearning.error || (worldLearning.loading ? "Получаем доступные наборы данных." : "Здесь появятся записанные эпизоды симуляции и показов."))}<button type="button" class="quiet-button text-link" data-action="world-refresh">Обновить каталог записей</button>${dataset ? `<p class="form-hint">${esc(origin)} · ${esc(source)} · ${esc(action)}</p><dl class="skill-metadata">${kv("Эпизодов для обучения", count(plan.training.length))}${kv("Целых эпизодов для проверки", count(plan.development.length))}${kv("Закрытых тестовых эпизодов — не используются", count(plan.sealed.length))}${plan.unused.length ? kv("Других неиспользуемых эпизодов", count(plan.unused.length)) : ""}</dl><details><summary>Выбрать проверочные эпизоды · ${count(plan.development.length)}</summary><p class="form-hint">Сохраняем исходные проверочные эпизоды; иначе по умолчанию откладываем последние 20%, минимум один. Закрытые тесты не участвуют. Неудачные и неоценённые попытки также могут описывать изменения сцены.</p><div class="world-episodes">${plan.episodes.map((episode) => `<label class="world-episode"><input type="checkbox" data-world-development="${esc(episode.id)}" ${plan.development.includes(episode.id) ? "checked" : ""} ${plan.sealed.includes(episode.id) ? "disabled" : ""}><span>${esc(episode.id)} · ${count(episode.frames)} кадров${plan.sealed.includes(episode.id) ? " · закрытый тест" : ["development", "validation", "dev"].includes(episode.split) ? " · проверочный эпизод исходника" : ""}</span></label>`).join("")}</div></details>` : ""}<button type="button" class="button primary full" data-action="world-train" ${reason ? "disabled" : ""}>${icon("chip")}Обучить модель сцены на CPU</button><p class="form-hint" role="status">${esc(reason || "120 обновлений каждой обучаемой модели. Проверочные эпизоды целиком исключены из обучения; исходное разделение записей сохраняется.")}</p>${jobRows(jobs.slice(0, 5), "Здесь появятся фактические состояния запуска и сравнение прогнозов.")}</div></section>${worldResults(jobs)}`;
+}
+async function refreshWorldDatasets() {
+  if (worldLearning.loading) return;
+  worldLearning.loading = true;
+  const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 8000);
+  try { const result = await api("/api/datasets", { signal: controller.signal }); worldLearning.datasets = array(result.datasets); worldLearning.error = null; }
+  catch (_) { worldLearning.error = "Каталог записей не обновлён. Повторите запрос перед обучением."; }
+  finally { clearTimeout(timeout); worldLearning.loading = false; worldLearning.lastLoad = Date.now(); if (activeProject()?.id === "01") { model.forceRender = true; render(); } }
+}
+// END offline scene-prediction UI.
 
 // ENGINEERING_GLUE: offline ROSMASTER demonstration selection and result presentation.
 function mobileImportJobs() {
@@ -396,7 +472,7 @@ function researchPage() {
   return heading("Исследования", "Проверяем идеи по данным, сохраняем происхождение методов и отделяем программную готовность от научного результата.", "Explorer / Research hub") + `<section class="panel research-status"><span class="icon-box">${icon("research")}</span><div><h2>От вопроса — к проверяемому результату</h2><p>${esc(status)}</p></div></section><div class="metric-grid">${metric("Источников в реестре", papers, "Наличие записи ещё не означает глубокое прочтение")}${metric("Проверенных источников", verified)}${metric("Исследовательских запусков", defined(c.runs, r.run_count, Array.isArray(r.runs) ? runs.length : undefined))}${metric("Гипотез", defined(c.hypotheses, r.hypothesis_count, Array.isArray(r.hypotheses) ? hypotheses.length : undefined))}</div><div class="two-column"><section class="panel"><div class="panel-heading"><h2>Проверяемые гипотезы</h2></div><div class="panel-body">${hypotheses.length ? `<ul class="plain-list">${hypotheses.map((entry) => `<li><h3>${esc(text(entry.title, text(entry.question, entry.id || "Исследовательский вопрос")))}</h3><p>${esc(text(entry.description, text(entry.hypothesis, entry.statement || "")))}</p><div class="meta">${esc([text(entry.id), text(entry.status)].filter(Boolean).join(" · "))}</div></li>`).join("")}</ul>` : empty("Гипотезы ещё не загружены", "Здесь появятся вопросы из исследовательского реестра.", "research")}</div></section><section class="panel"><div class="panel-heading"><h2>Фактические результаты</h2></div><div class="panel-body">${runs.length ? `<ul class="plain-list">${runs.slice(0, 10).map((entry) => `<li><h3>${esc(text(entry.title, text(entry.name, entry.id || "Исследовательский запуск")))}</h3><p>${esc(text(entry.summary, text(entry.result, "Результат сохранён в реестре")))}</p><div class="meta">${esc(dateTime(entry.created_at || entry.wall_utc || entry.created))} · ${esc(text(entry.project_id, "Общая программа"))}</div></li>`).join("")}</ul>` : empty("Научные результаты ещё не получены", "Графики и выводы появятся после реальных запусков и независимой оценки. Они не создаются из примерных данных.", "book")}</div></section></div><section class="spaced-section"><div class="section-heading"><h2>Общая программа</h2></div>${experimentsGrid()}</section>`;
 }
 function skillsPage() {
-  const list = model.skills;
+  const list = model.skills.filter((skill) => !isWorldModelArtifact(skill));
   return heading("Библиотека навыков", "Данные, модели и независимые проверки в одном месте. Записанные показы, обучение и попытки каждой версии сохраняются отдельно.", "Explorer / Навыки") + notice("Как появляется навык", "Показы связываются с набором данных, обучение создаёт новую версию модели, а отдельная оценка показывает границы её применения.") + (list.length ? `<div class="skill-grid">${list.map((skill) => {
     const validation = skill.validation || skill.evaluation || {};
     const passed = validation.accepted === true || skill.validated === true;
@@ -501,6 +577,7 @@ async function refresh(forceExtras = false) {
       model.lastExtras = Date.now();
     }
     if (activeProject()?.id === "02") await loadRobot();
+    if (activeProject()?.id === "01" && (forceExtras || Date.now() - worldLearning.lastLoad > 20000)) await refreshWorldDatasets();
     if (stationRoute()) await pollStation(forceExtras);
   } catch (error) { model.error = error.message === "Failed to fetch" ? "Проверьте подключение к домашней сети." : error.message; }
   finally { model.refreshing = false; render(); }
@@ -562,6 +639,17 @@ document.addEventListener("click", async (event) => {
   if (action === "record") { openRecord(button.dataset.project); return; }
   if (action === "choose-skill") { model.forceRender = true; navigate("/skills"); return; }
   if (action === "refresh") { await refresh(true); return; }
+  if (action === "world-refresh") { await refreshWorldDatasets(); return; }
+  if (action === "world-train") {
+    if (worldLearning.busy) return;
+    try {
+      const request = worldTrainingRequest(); worldLearning.busy = true; button.disabled = true;
+      const job = await post("/api/jobs", request); model.jobs = [job, ...model.jobs.filter((entry) => entry.id !== job.id)];
+      toast("Обучение прогноза сцены поставлено в очередь. Команды на робота не передаются."); await refresh(true);
+    } catch (error) { toast(error.message, true); }
+    finally { worldLearning.busy = false; model.forceRender = true; render(); }
+    return;
+  }
   if (action === "mobile-train") {
     if (mobileLearning.busy) return;
     try {
@@ -608,6 +696,11 @@ document.addEventListener("input", (event) => {
 });
 document.addEventListener("change", (event) => {
   if (event.target.id === "mobile-dataset") { mobileLearning.manifest = event.target.value; model.forceRender = true; render(); }
+  if (event.target.id === "world-dataset") { worldLearning.manifest = event.target.value; worldLearning.signature = ""; worldLearning.development = null; model.forceRender = true; render(); }
+  if (event.target.dataset.worldDevelopment !== undefined) {
+    const id = event.target.dataset.worldDevelopment; const selected = array(worldLearning.development).filter((value) => value !== id);
+    worldLearning.development = event.target.checked ? [...selected, id] : selected; model.forceRender = true; render();
+  }
 });
 document.addEventListener("submit", async (event) => {
   if (event.target.id === "episode-form") {
