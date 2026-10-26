@@ -3151,7 +3151,7 @@
       "implementation_type": "ENGINEERING_GLUE",
       "sources": [
         {
-          "url": "project-file:04-cross-embodiment-transfer/docs/MAPPING_AUDIT_RU.md",
+          "url": "project-file:06-cross-embodiment-transfer/docs/MAPPING_AUDIT_RU.md",
           "role": "Read-only calibration SHA, pinned original coordinate source, exact official arithmetic comparison"
         }
       ],
@@ -3172,6 +3172,481 @@
           "scope": "SOFTWARE_ONLY"
         }
       ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-EVENING-20261026",
+      "function_or_module": "00-control-center/src/explorer/evening.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-EXPERIMENT-PROJECTION-20261026",
+      "function_or_module": "00-control-center/src/explorer/experiment_projection.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-POLICY-RUNTIME-20261026",
+      "function_or_module": "00-control-center/src/explorer/policy_runtime.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SO101-DIFFUSION-TRAINING-20261026",
+      "function_or_module": "00-control-center/src/explorer/so101_diffusion_training.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-TRAINING-OPTIONS-20261026",
+      "function_or_module": "00-control-center/src/explorer/training_options.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-TRANSFER-CALIBRATION-20261026",
+      "function_or_module": "00-control-center/src/explorer/transfer_calibration.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-EXPERIMENTS-20261026",
+      "function_or_module": "shared/explorer_shared/experiments.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-ACTIVATION-20261026",
+      "function_or_module": "shared/explorer_shared/native_activation.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-LEADER-GEOMETRY-20261026",
+      "function_or_module": "shared/explorer_shared/native_leader_geometry.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-LEADER-REGISTRATION-20261026",
+      "function_or_module": "shared/explorer_shared/native_leader_registration.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-OWNER-MOUNT-20261026",
+      "function_or_module": "shared/explorer_shared/native_owner_mount.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-OWNER-PATCH-20261026",
+      "function_or_module": "shared/explorer_shared/native_owner_patch.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-STARTUP-CHARACTERIZATION-20261026",
+      "function_or_module": "shared/explorer_shared/native_startup_characterization.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-WEB-STARTUP-PROBE-20261026",
+      "function_or_module": "shared/explorer_shared/native_web_startup_probe.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-PI-NATIVE-RETARGET-20261026",
+      "function_or_module": "shared/explorer_shared/pi_native_retarget.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SKILL-TRANSFER-20261026",
+      "function_or_module": "shared/explorer_shared/skill_transfer.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SKILL-TRANSFER-MUJOCO-20261026",
+      "function_or_module": "shared/explorer_shared/skill_transfer_mujoco.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-TRANSFER-CALIBRATION-20261026",
+      "function_or_module": "shared/explorer_shared/transfer_calibration.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-TRANSFER-MAPPING-20261026",
+      "function_or_module": "shared/explorer_shared/transfer_mapping.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/ARCHITECTURE_LAYERS_RU.md",
+          "role": "Repository layering and typed adapters; algorithms remain separately attributed in shared policy modules"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [],
       "hardware_run_ids": []
     }
   ],

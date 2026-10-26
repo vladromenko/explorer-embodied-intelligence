@@ -1,4 +1,4 @@
-"""SO101 source-role adapter to shared official Diffusion; offline arrays only.
+"""ENGINEERING_GLUE: SO101 source-role adapter to official Diffusion; offline arrays only.
 
 The semantic experiment registry owns page numbering. Historical source fields
 and SHA are preserved; this adapter never starts a station/camera/control client.
