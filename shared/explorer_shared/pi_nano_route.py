@@ -161,7 +161,7 @@ class NanoArmGateway:
             # Never cancel a foreign/busy owner merely because our pure plan was rejected.
             if start_requested and not rejected:
                 try:
-                    receipt["original_cancel"] = self._request("arm/trajectory/stop", {})
+                    receipt["original_cancel"] = self.cancel_all("Ambiguous original start reply")
                 except Exception as cancel_error:
                     receipt["cancel_error"] = type(cancel_error).__name__
             return receipt
@@ -218,7 +218,7 @@ class NanoArmHTTPClient:
         self.base_url, self._token, self.timeout = base_url.rstrip("/"), token, timeout
 
     def _request(self, operation, body=None):
-        if operation not in {"status", "start", "action", "lease", "stop"}:
+        if operation not in {"status", "start", "action", "lease", "stop", "cancel"}:
             raise ValueError("Unknown direct-arm operation")
         request = Request(self.base_url + "/arm-retarget/" + operation,
                           data=json.dumps(body, allow_nan=False).encode() if body is not None else None,
@@ -243,6 +243,9 @@ class NanoArmHTTPClient:
 
     def stop(self, body):
         return self._request("stop", body)
+
+    def cancel(self):
+        return self._request("cancel", {})
 
 
 class PiNanoRetargetSession:

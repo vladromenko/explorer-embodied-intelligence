@@ -445,7 +445,7 @@ class RecordingManager:
 class NodeAgent:
     def __init__(self, node_id, mode, state_dir, token, *, sources=None, delivery=None,
                  central_url=None, ingest_token=None, calibration_dirs=(), camera_device=None,
-                 legacy_dir=Path("/home/vlad/Explorer/data"), hailo_model=None):
+                 legacy_dir=Path("/home/vlad/Explorer/data"), hailo_model=None, retarget_config_dir=None):
         if mode not in ("pi", "nano"):
             raise ValueError("mode must be pi or nano")
         if not token or len(token) < 16:
@@ -481,6 +481,18 @@ class NodeAgent:
         if mode == "pi" and hailo_model and "pi-overview" in self.sources:
             from .hailo_observer import HailoObserver
             self.observer = HailoObserver(self.sources["pi-overview"], hailo_model, self.delivery.emit)
+        from .retarget_service import registered_geometry, PiRetargetService, nano_gateway
+        retarget_config_dir = Path(retarget_config_dir or Path.home()/'.config/explorer')
+        geometry = registered_geometry(retarget_config_dir)
+        if mode == 'nano':
+            self.arm_retarget = nano_gateway(geometry, self.legacy_bridge)
+        else:
+            try:
+                self.arm_retarget = PiRetargetService.from_config(
+                    geometry, self.station, self.sources.get('pi-overview'), self.state_dir, retarget_config_dir)
+            except (OSError, ValueError, TypeError, KeyError) as error:
+                self.arm_retarget = PiRetargetService(geometry, self.station, self.sources.get('pi-overview'), self.state_dir)
+                self.arm_retarget.error = 'Private direct-arm peer configuration is invalid: '+type(error).__name__
 
     def start(self):
         for source in self.sources.values():
@@ -490,8 +502,16 @@ class NodeAgent:
             self.observer.start()
         if self.station:
             self.station.start()
+        if self.mode == 'pi':
+            self.arm_retarget.start_worker()
 
     def close(self):
+        retarget_error = None
+        if self.mode == 'pi':
+            try:
+                self.arm_retarget.close()
+            except Exception as error:
+                retarget_error = error
         if self.mobile_capture:
             self.mobile_capture.close()
         if self.station:
@@ -502,6 +522,44 @@ class NodeAgent:
         for source in self.sources.values():
             source.close()
         self.delivery.close()
+        if retarget_error is not None:
+            raise retarget_error
+
+    def retarget_status(self):
+        if self.mode == 'nano':
+            # Absent physical registration stays useful even when the old API is offline.
+            registration = self.arm_retarget.registration
+            return {**self.arm_retarget.status(refresh=registration.get('state') == 'REGISTERED_DECLARATION'),
+                    **({'state':'UNREGISTERED'} if registration.get('state') == 'UNREGISTERED' else {})}
+        return self.arm_retarget.status()
+
+    def retarget_command(self, operation, payload):
+        if self.mode == 'pi':
+            return self.arm_retarget.command(operation, payload)
+        method = {'start':self.arm_retarget.start, 'action':self.arm_retarget.action,
+                  'lease':self.arm_retarget.heartbeat, 'stop':self.arm_retarget.stop}.get(operation)
+        if operation == 'cancel':
+            return self.arm_retarget.cancel_all()
+        if method is None:
+            raise ValueError('Unknown direct arm endpoint')
+        return method(payload)
+
+    def legacy_request(self, path, payload=None):
+        global_stop = payload is not None and ((path == 'control' and payload.get('op') == 'stop') or path in ('teleop/stop','teleop/disconnect','arm/trajectory/stop'))
+        direct = self.arm_retarget.status()
+        if global_stop:
+            cancellation = None
+            try:
+                cancellation = self.arm_retarget.cancel_all('Existing manual/global STOP')
+            except Exception as error:
+                cancellation = {'state':'UNKNOWN_OUTCOME', 'error_type':type(error).__name__}
+            code, result = self.legacy_bridge.request(path, payload)
+            return code, {**result, 'direct_retarget_cancel':cancellation}
+        competing = path in ('arm/jog','arm/finite','arm/trajectory/plan','arm/trajectory/start','arm/trajectory/lease',
+                             'teleop/input','teleop/select','teleop/mode','teleop/resume')
+        if payload is not None and competing and (direct['state'] == 'ACTIVE' or direct['inflight'] or direct['pending_stops'] or direct['stop_delivery_uncertain']):
+            return 409, {'detail':'Direct arm route owns this Explorer adapter; STOP it before manual commands'}
+        return self.legacy_bridge.request(path, payload)
 
     def native_teaching_request(self,path,payload=None):
         try:
@@ -650,7 +708,9 @@ def make_handler(agent):
 
         def _get(self, path):
             parts = path.strip("/").split("/")
-            if agent.mobile_records is not None and path=='/mobile/recordings':
+            if path == '/arm-retarget/status':
+                self._json(200, agent.retarget_status())
+            elif agent.mobile_records is not None and path=='/mobile/recordings':
                 self._json(200,{'recordings':agent.mobile_records.recordings()+(agent.mobile_capture.recordings() if agent.mobile_capture else [])})
             elif agent.mobile_records is not None and len(parts)==4 and parts[:2]==['mobile','recordings'] and parts[3]=='download':
                 self._download(agent.mobile_archive(parts[2]),parts[2])
@@ -669,7 +729,7 @@ def make_handler(agent):
                 else:
                     raise LookupError('Unknown station endpoint')
             elif path.startswith("/legacy/") and agent.legacy_bridge is not None:
-                code, payload = agent.legacy_bridge.request(path.removeprefix("/legacy/"))
+                code, payload = agent.legacy_request(path.removeprefix("/legacy/"))
                 self._json(code, payload)
             elif path == "/inventory":
                 self._json(200, agent.inventory())
@@ -762,7 +822,8 @@ def make_handler(agent):
             path = unquote(urlsplit(self.path).path)
             legacy = path.startswith("/legacy/") and agent.legacy_bridge is not None
             station = path.startswith('/station/') and agent.station is not None
-            if path != "/recordings" and not legacy and not station:
+            retarget = path.startswith('/arm-retarget/')
+            if path != "/recordings" and not legacy and not station and not retarget:
                 self.close_connection = True
                 self._json(404, {"error": "Endpoint not found; no physical API is provided"})
                 return
@@ -773,13 +834,21 @@ def make_handler(agent):
                 payload = json.loads(self.rfile.read(length))
                 if not isinstance(payload, dict):
                     raise ValueError("Expected a JSON object")
-                if station:
+                if retarget:
+                    self._json(200, agent.retarget_command(path.removeprefix('/arm-retarget/'), payload))
+                elif station:
+                    if path == '/station/stop' and agent.mode == 'pi':
+                        agent.arm_retarget.stop()
+                    direct = agent.arm_retarget.status() if agent.mode == 'pi' else {}
+                    if path in ('/station/teleop/start','/station/policy/start','/station/teleop/recenter','/station/action') and (
+                            direct.get('state') == 'ACTIVE' or direct.get('lifecycle_inflight')):
+                        raise RuntimeError('Direct ROSMASTER teaching uses the idle measured source cache; stop that route first')
                     self._json(200,agent.station.command(path.removeprefix('/station/'),payload))
                 elif legacy:
                     if path.startswith('/legacy/teaching/mobile/') and agent.mobile_capture is not None:
                         code,result=agent.teaching_command(path.rsplit('/',1)[1],payload)
                     else:
-                        code, result = agent.legacy_bridge.request(path.removeprefix("/legacy/"), payload)
+                        code, result = agent.legacy_request(path.removeprefix("/legacy/"), payload)
                     self._json(code, result)
                 else:
                     manifest = agent.recordings.start(payload.get("camera_id"), payload.get("duration_s"),

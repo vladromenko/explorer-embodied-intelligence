@@ -69,3 +69,73 @@ Nano gateway хранит owner, control_epoch, монотонный sequence, �
 | UI03 | Отдельная цель **ROSMASTER**, профиль ARM_ONLY, фактический REGISTERED/UNREGISTERED state, source feedback, target API receipt, recenter, existing held heartbeat и STOP. Локальная SO-101 follower-панель не является этой целью. Не добавлять chassis controls. |
 
 Root выполняет конкретную аппаратную регистрацию и реальные испытания отдельно. Локальные тесты содержат условные calibration fixtures, реальные URDF FK/IK и подставной HTTP executor, включая сериализацию direct Pi→Nano. Они проверяют алгоритм/ABI/STOP race/epoch/error handling и **не являются** свидетельством физической калибровки или работы оборудования.
+
+## Подключённый Node runtime
+
+NodeAgent теперь создаёт маршрут на обоих узлах. По умолчанию профиль
+`~/.config/explorer/arm-retarget-registration.json` отсутствует, поэтому
+`GET /arm-retarget/status` возвращает `UNREGISTERED`. Такой запрос и попытка
+`start` при отсутствии регистрации не обращаются к старому motor API.
+Неверный JSON регистрации также остаётся `UNREGISTERED`, а камеры продолжают
+иметь собственный сервис. Калибровки и controller settings не переписываются.
+
+На Pi адрес Nano и **существующий** закрытый token observer читаются из
+`~/.config/explorer/arm-retarget-peer.json`; пример без рабочего секрета находится
+в `configs/arm-retarget-peer.example.json`. Этот файл нельзя коммитить с настоящим
+значением. На Nano профиль регистрации и его evidence должны быть доступны
+локально с теми же SHA. Совпадение `registration_id` и всего профиля обязательно.
+Наличие файла не заменяет реальные измерения и процедуру допуска.
+
+Авторизованные API:
+
+- Pi: GET `status`; POST `start`, `recenter`, `lease`, `stop` под `/arm-retarget/`.
+  `start/recenter` требуют `expected_control_epoch` из свежего Pi status.
+  `lease` требует `control_epoch`, возрастающий `sequence`, `held=true`,
+  `observing=true`. `stop` может дополнительно проверять
+  `expected_control_epoch`; пустой объект — явный STOP текущего маршрута.
+- Nano: GET `status`; POST `start`, `action`, `lease`, `stop`, `cancel` под тем же
+  префиксом. `cancel` — явная повторная доставка STOP после неопределённого
+  ответа; команда движения никогда автоматически не повторяется.
+
+На Pi SO101Station остаётся в `idle`: сервис только читает уже измеренный leader
+cache и SHA оригинальной leader calibration. Он не вызывает `teleop/start`, не
+включает follower и не открывает второй serial bus. Устаревшее или будущее
+измерение отклоняется по уже существующему freshness contract камеры.
+`recenter` при незавершённой обработке sample возвращает отказ: следующая попытка
+нуждается в новом явном запросе, прежний sample не попадает в новую anchor.
+
+Один явный операторский heartbeat разрешает обработать не более одного
+coalesced sample. Pi worker не генерирует lease самостоятельно. Наличие новых
+leader measurements после отпускания кнопки само по себе не запускает команды.
+Таким образом частота команд соответствует фактическим held-events и готовности
+исходного планировщика; этот runtime **не заявляет 30 Гц моторного исполнения**.
+После STOP/start-race поздний ответ start отменяется и не восстанавливает
+маршрут. Новый процесс начинает с `IDLE`, без восстановления старых команд.
+
+Каждая явная сессия создаёт частный
+`node-state/direct-teaching/<run_id>/events.jsonl`. Journal сохраняет fsync после
+события: исходный measured snapshot/clock/calibration SHA, registration SHA,
+геометрическое предложение, оригинальные receipts и STOP. Записи не объявляются
+синхронизированным датасетом target RGB-D: источник Nano камеры и достоверность
+фактической доставки остаются отдельными критериями. Логи не превращаются
+автоматически в BC-targets.
+
+Глобальный STOP, переданный через существующий Explorer Nano adapter,
+инвалидирует direct epoch и доставляет оригинальный arm-only STOP перед штатным
+STOP. Конкурирующие motor requests через **тот же новый adapter** отклоняются
+на время прямого владения. Прежний web-процесс, вызываемый в обход observer,
+по-прежнему не становится транзакционной частью этого mutex. Полная физическая
+арбитрация исходных независимых процессов ещё должна быть подтверждена.
+
+`direct03.js` предоставляет настоящую отдельную панель ROSMASTER ARM_ONLY:
+фактический статус регистрации, явное включение anchor, recenter, удерживаемая
+кнопка передачи и STOP. Она использует интеграторский proxy
+`/api/retarget/{operation}`. Обычная панель leader→follower SO-101 не выдаётся за
+этот прямой маршрут.
+
+Тест `tests/test_direct03_nodes.py` запускает два настоящих localhost HTTP
+NodeAgent с bearer authentication и подставленным original executor. Проверены
+Pi→Nano сериализация, measured cache, отсутствие команд после последнего
+held-event, fsynced journal, stale source, recenter epoch, STOP во время start,
+отказ competing manual request и потеря start/STOP replies. Эти результаты —
+`SOFTWARE_TESTED`; аппаратный маршрут и регистрация пока `NOT_VALIDATED`.

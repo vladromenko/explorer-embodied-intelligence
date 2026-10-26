@@ -8,10 +8,11 @@ from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-GET_PATHS = {'status', 'teleop', 'teleop/controls', 'arm/manual', 'arm/feedback', 'teaching/mobile', 'skills'}
+GET_PATHS = {'status', 'teleop', 'teleop/controls', 'arm/manual', 'arm/feedback', 'teaching/mobile', 'skills', 'arm/trajectory'}
 POST_PATHS = {'control', 'teleop/select', 'teleop/mode', 'teleop/speed', 'teleop/input',
     'teleop/stop', 'teleop/resume', 'teleop/disconnect', 'teaching/mobile/start',
-    'teaching/mobile/lease', 'teaching/mobile/finish', 'teaching/mobile/stage', 'arm/jog', 'arm/finite'}
+    'teaching/mobile/lease', 'teaching/mobile/finish', 'teaching/mobile/stage', 'arm/jog', 'arm/finite',
+    'arm/trajectory/plan', 'arm/trajectory/start', 'arm/trajectory/lease', 'arm/trajectory/stop'}
 
 
 class LegacyBridge:
