@@ -789,9 +789,9 @@ def sim_frame(job_id: str):
 
 @app.post('/api/stop')
 async def stop():
-    for job in STORE.jobs():
-        if job['status'] in ('running', 'queued', 'paused'):
-            STORE.update_job(job['id'], status='cancel_requested')
+    for job in STORE.queue_jobs():
+        try:STORE.request_job_operation(job['id'],'cancel')
+        except ValueError:pass  # A concurrently terminal job keeps its original bytes.
     async def deliver(node):
         path,payload=('/legacy/control',{'op':'stop'}) if node['id']=='nano' else ('/station/stop',{})
         try:

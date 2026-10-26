@@ -84,7 +84,8 @@ def install_router(app,get_store,get_config,get_actor):
                 models.append(dict(id=source['job_id'],title=source.get('task',source['job_id'][:8]),
                     backend=source.get('backend'),eligible=source.get('technical_source_ready') is True and source.get('source_domain')=='PHYSICAL' and source.get('task_type') not in (None,'hold','trajectory','joint_trajectory'),
                     reason='Нужна модель из настоящего source04 cohort с совпадающей камерой и калибровкой; SIM остаётся офлайн.'))
-            return dict(models=models,attempts=[attempt_view(store,job) for job in store.jobs(10000) if job['kind']=='so101_skill_eval'][:32],
+            attempts=[job for job in store.jobs(10000) if job['kind']=='so101_skill_eval'][:32]
+            return dict(models=models,attempts=[attempt_view(store,job) for job in attempts],
                 physical_execution_authorized=False,schema='explorer_source_evaluation_workbench_v1')
         return await safe(inspect)
 
