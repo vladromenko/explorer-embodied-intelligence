@@ -70,8 +70,13 @@ def service(host, name, source):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--nodes', nargs='*', default=['homebrain','explorer-pi','explorer'])
+    parser.add_argument('--dry-run', action='store_true', help='Print the exact managed-service scope without SSH or writes')
     args = parser.parse_args()
     commit = subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+    if args.dry_run:
+        print(json.dumps({'read_only':True,'commit':commit,'nodes':args.nodes,'actions':['install commit-addressed source','preserve existing private configuration','activate only Explorer managed user services','refresh previously adopted CPU camera cache only'],
+                          'existing_controller_settings_changed':False,'existing_camera_controller_mcu_restarted':False},indent=2))
+        return
     archive = subprocess.check_output(['git','archive','--format=tar.gz',commit],cwd=ROOT)
     for host in args.nodes:
         remote(host, ['python3','-c',INSTALL,commit], archive)

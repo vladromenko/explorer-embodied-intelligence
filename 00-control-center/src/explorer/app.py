@@ -259,7 +259,7 @@ def datasets():
                 try:
                     data=json.loads(path.read_text())
                     if data.get('format') in ('explorer_npz_episode_v1','explorer_robot_episode_v1'):
-                        found[data['dataset_id']]=dict(id=data['dataset_id'],name=data.get('task',data['dataset_id']),
+                        found[data['dataset_id']]=dict(id=data['dataset_id'],name='Симуляция достижения цели' if job['kind']=='sim_pilot' else data.get('task',data['dataset_id']),created=job['created'],
                             dataset_manifest=str(path),source=data.get('source'),state_basis=data.get('state_basis','command_estimate'),
                             action_basis=data.get('action_basis','simulated_command'),
                             episodes=[{key:row.get(key) for key in ('id','split','frames','outcome')} for row in data['episodes']])

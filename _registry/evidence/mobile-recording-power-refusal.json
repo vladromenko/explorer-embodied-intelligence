@@ -1,0 +1,21 @@
+{
+  "sampled_unix": 1792979108.778655,
+  "read_only": true,
+  "power": {
+    "charging": null,
+    "filtered_voltage": 11.216803744228974,
+    "motion_allowed": true,
+    "shutdown_required": false,
+    "speed_scale": 0.35,
+    "state": "LOW_POWER",
+    "warning": true
+  },
+  "battery": 11.21129035949707,
+  "active_recording": null,
+  "previous_start_response": {
+    "http_status": 409,
+    "detail": "Запись остановлена из-за питания"
+  },
+  "motion_requested": false,
+  "controller_files_unchanged": true
+}

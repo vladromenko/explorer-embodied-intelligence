@@ -37,5 +37,11 @@
     "sensor_exposure_time_verified": false,
     "clock_alignment_verified": false
   },
-  "physical_io": false
+  "physical_io": false,
+  "owner_context": {
+    "reported_at_unix": 1792979344.185725,
+    "room_lights": "off",
+    "source": "direct_user_reply",
+    "statement_ru": "В комнате выключен свет, поэтому камера темная"
+  }
 }
