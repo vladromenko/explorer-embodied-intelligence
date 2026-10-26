@@ -24,6 +24,32 @@ socket и сохраняют REVOKED с token=null; прекращение пр�
 Пять software tests используют настоящий AF_UNIX и блокированный callback:
 native role9/6, таймаут с revocation, cancel во время inference, token/nonce replay,
 точный private-file mode, recovery без продления deadline и stale-client reject.
-Это квалификация IPC primitive, не обучение/physical test. Queue worker bridge,
-actual source/model loading и central lifecycle должны подключаться отдельно;
-готовность этого primitive сама по себе не включает observed execution.
+Это квалификация IPC primitive, не обучение/physical test; готовность primitive
+сама по себе не включает observed execution.
+
+`explorer.cooperative_policy_job.run_cooperative_policy_session(store, job,
+config)` — новый worker entry для `cooperative_policy_warm`. Pure metadata helper
+`warm_request` не импортирует Torch. Entry сначала сверяет durable scheduler
+PID/start/boot/launch nonce/bootstrap admission, managed original session,
+coordinator process/epoch, подтверждённый Spec и оба native model/source plans.
+Warmup ограничен120s от первого сохранённого старта. Default loader использует
+настоящие прежние `RosmasterSkillPolicy(ACT9)`106→9 и `load_shadow_policy`6→6:
+cohort/checkpoint/preprocessing/camera/calibration/source hashes остаются
+обязательными. Проверяются saved/current framework versions, CPU всех parameters;
+READY receipt содержит SHA фактически загруженных official/adapter modules и RSS.
+
+После READY inference переиспользует оба загруженных объекта через существующие
+GET-only source workers; исходные packet/JPEG/prediction/result сохраняются в
+отдельных `jobs/<warm-job>/inferences/<sequence>-<role>` с SHA. Общий лимит
+original evidence128MiB требует новой явной compute session, без удаления данных.
+Отмена проверяется по родительскому authoritative job даже внутри этих вызовов.
+Источник/model/hash сменился — actor отзывается; transient отсутствие camera или
+reference не создаёт output и не выполняет HOME. SIGTERM/exit отзывает private
+lease. Никакой native hardware lease не продлевается.
+
+Три дополнительных worker tests используют actual temp Store/runtime nonce,
+настоящий AF_UNIX и authenticated fake sensor HTTP с explicit dummy CPU models.
+Проверены warm-before-source, обе independent native heads с original artifacts,
+durable cancel после READY, cancel во время model load и отсутствие admission.
+Это8 software tests вместе с IPC, без утверждения об actual trained-model warmup
+или физическом handover. Central lifecycle/observed binding подключаются отдельно.

@@ -187,6 +187,8 @@ class NativeActorClient:
             if uid!=os.getuid() or pid!=lease['worker']['pid']:raise ValueError('Actual private actor process identity differs')
             connection.sendall(canonical(body)+b'\n');reply=_receive(connection,REPLY_LIMIT)
         current=self._lease()
+        if reply.get('schema')=='explorer_cooperative_cpu_actor_error_v1' and reply.get('actor_instance_id')==self.instance:
+            raise ValueError('Native source/inference rejected: '+str(reply.get('error'))[:2048])
         if (self.clock()-begin>2_000_000_000 or current.get('token')!=lease['token'] or
                 reply.get('schema')!='explorer_cooperative_cpu_actor_reply_v1' or reply.get('request_id')!=request_id or
                 reply.get('actor_instance_id')!=self.instance or reply.get('binding_sha256')!=digest(self.binding) or
