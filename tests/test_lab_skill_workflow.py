@@ -26,12 +26,14 @@ def proposal(store):
     return flow.confirm(store,chosen['spec']['skill_id'],1,{'spec_sha256':chosen['spec_sha256']})
 
 
-def native_source(store,chosen,variant,index,*,legacy=False,hold=False,outcome='success',image_offset=None,evidence_fault=None):
+def native_source(store,chosen,variant,index,*,legacy=False,hold=False,outcome='success',image_offset=None,evidence_fault=None,jpeg_suffix=None,first_image_offset=None):
     skill=chosen['spec'];session=flow.create_session(store,skill['skill_id'],1,{'scene_id':'scene-'+str(index),'split':variant['split']})
     context=flow.capture_context(store,skill['skill_id'],1,{'variant_id':variant['variant_id'],'session_id':session['session_id'],'object_instance_id':'object-'+str(index)})['record_start_body']
     ident=uuid.uuid4().hex;folder=store.root/'episodes/station'/ident;folder.mkdir(parents=True);rows=[]
     for step in range(8):
-        image=folder/(str(step)+'.jpg');Image.fromarray(np.full((24,32,3),(index*35 if image_offset is None else image_offset)+step*2,np.uint8)).save(image)
+        intensity=first_image_offset if step==0 and first_image_offset is not None else (index*35 if image_offset is None else image_offset)+step*2
+        image=folder/(str(step)+'.jpg');Image.fromarray(np.full((24,32,3),intensity,np.uint8)).save(image)
+        if jpeg_suffix is not None:image.write_bytes(image.read_bytes()+jpeg_suffix)
         stamp=1_000_000_000+step*100_000_000;state=[float(0 if hold else step+j) for j in range(6)];issued=[float(step+j+3) for j in range(6)]
         row={'frame':{'file':image.name,'sha256':hashlib.sha256(image.read_bytes()).hexdigest(),'frame_id':ident+':'+str(step),
             'camera_id':'software-camera-not-physical','monotonic_ns':stamp,'clock_domain':'software-boot-'+ident},
@@ -143,7 +145,7 @@ def test_immutable_all_source_aggregate_actual_official_dataset_and_idempotent_t
 @pytest.mark.skipif(os.environ.get('EXPLORER_RUN_06_OPTIMIZER')!='1',reason='Explicit final8-update CPU qualification; avoid repeated model jobs in broad unit runs')
 def test_real_official_ACT6_eight_CPU_updates_reload_registered_SIMULATION_card_and_readiness(tmp_path):
     from explorer_sim.so101_skill_training import run_so101_skill_train
-    store,chosen,_=full_cohort(tmp_path);identity=chosen['spec']['skill_id']
+    store,chosen,sources=full_cohort(tmp_path);identity=chosen['spec']['skill_id']
     job=flow.enqueue_training(store,identity,1,{'request_id':'actual8','act_steps':8,'image_size':32,'chunk_size':4,'batch_size':2})
     store.update_job(job['id'],status='running');result=run_so101_skill_train(store,store.job(job['id']));store.complete_job(job['id'],result)
     assert result['optimizer_steps']==8 and result['weights_changed'] and result['save_reload_passed']
@@ -154,6 +156,20 @@ def test_real_official_ACT6_eight_CPU_updates_reload_registered_SIMULATION_card_
     readiness=flow.model_readiness(store,identity,1)
     assert readiness['demos']['ready'] and readiness['trained']['ready'] and not readiness['shadow']['ready'] and not readiness['physical']['ready']
     assert not readiness['physical_execution_authorized'] and not result['evaluation']['rollout_success_claimed']
+    from explorer.so101_shadow import load_shadow_policy,infer_shadow
+    camera_id='software-camera-not-physical';calibration_sha256=hashlib.sha256(b'follower').hexdigest()
+    with pytest.raises(ValueError,match='SIMULATION'):load_shadow_policy(store,job['id'],expected_camera_id=camera_id,expected_calibration_sha256=calibration_sha256)
+    adapter=load_shadow_policy(store,job['id'],expected_camera_id=camera_id,expected_calibration_sha256=calibration_sha256,allow_simulation=True)
+    row=sources[3][2]['samples'][0];rgb=np.asarray(Image.open(sources[3][1].parent/row['frame']['file']).convert('RGB'))
+    source_boot=sources[3][2]['boot_id'];clock=row['clock_domain']
+    observation=dict(camera_id=camera_id,frame_id=row['frame']['frame_id'],frame_sha256=row['frame']['sha256'],decoded_rgb_sha256=hashlib.sha256(rgb.tobytes()).hexdigest(),
+        state_basis='measured_state',follower_calibration_sha256=calibration_sha256,frame_clock_domain=clock,state_clock_domain=clock,source_cutoff_clock_domain=clock,
+        frame_boot_id=source_boot,state_boot_id=source_boot,source_cutoff_boot_id=source_boot,frame_monotonic_ns=row['frame']['monotonic_ns'],
+        state_monotonic_ns=row['state_monotonic_ns'],source_cutoff_monotonic_ns=row['action_monotonic_ns'],source_cutoff_basis='original_native_dispatch_time_for_offline_evaluation')
+    prediction=infer_shadow(adapter,rgb,np.asarray(row['state'],np.float32),valid_mask=np.ones(6,bool),observation=observation)
+    assert prediction['execution_kind']=='offline_original_observation_policy_inference' and prediction['official_saved_processors_executed']
+    assert len(prediction['predicted_native6'])==6 and not prediction['hardware_commands_dispatched'] and not prediction['physical_execution_authorized']
+    (tmp_path/'actual8-shadow-qualification.json').write_text(json.dumps(prediction,indent=2))
     (tmp_path/'actual8-qualification.json').write_text(json.dumps(result,indent=2))
     model=Path(result['checkpoint_dir'])/'config.json';original=model.read_bytes();model.write_bytes(original+b' ')
     assert not flow.model_readiness(store,identity,1)['trained']['ready']

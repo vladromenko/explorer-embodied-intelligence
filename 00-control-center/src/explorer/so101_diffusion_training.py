@@ -35,23 +35,7 @@ def _data_tools():
     return load_episode,verify_lerobot_v3
 
 
-def _aggregate(store,config):
-    path=_file(store,config['aggregate_manifest'],config['aggregate_manifest_sha256']);outer=json.loads(path.read_text())
-    if outer.get('schema')!='explorer_so101_skill_dataset_v1' or outer.get('action_contract_id')!='so101_follower_calibrated_position6_v1':raise ValueError('Native SO101 whole-skill aggregate required')
-    if outer.get('action_names')!=list(NAMES) or outer.get('action_units')!=UNITS or any(config.get(key)!=outer.get(key) for key in ('skill_id','skill_version','spec_sha256')):raise ValueError('Source skill/version/native coordinate contract differs')
-    if digest(outer['skill_spec'])!=outer['spec_sha256']:raise ValueError('Whole SkillSpec SHA changed')
-    with store.connect() as db:
-        receipts=[json.loads(row['body'])['payload'] for row in db.execute("SELECT body FROM events WHERE event_id LIKE 'lab.skill.aggregate:%' ORDER BY rowid")]
-    bound=[row for row in receipts if row.get('aggregate_manifest_sha256')==config['aggregate_manifest_sha256'] and row.get('skill_id')==outer['skill_id'] and row.get('skill_version')==outer['skill_version'] and row.get('spec_sha256')==outer['spec_sha256']]
-    if not bound or not all(bound[-1].get(key) is True for key in ('full_teaching_provenance_ready','object_expert_eligible','global_split_groups_verified','official_dataset_readback_verified')):raise ValueError('Server-bound accepted whole-skill aggregate receipt required; raw/hold archives stay analysis-only')
-    for name,expected in outer['source_files_sha256'].items():_file(store,path.parent/name,expected)
-    view_path=_file(store,path.parent/outer['internal_view'],outer['source_files_sha256'][outer['internal_view']]);view=json.loads(view_path.read_text())
-    if view.get('state_basis')!='measured_state' or view.get('action_basis')!='dispatched_command' or view.get('action_normalization')!={'low':LOW,'high':HIGH}:raise ValueError('Measured follower6 and original dispatched calibrated native6 labels required')
-    if any(row.get('split') not in ('train','development') for row in view['episodes']):raise ValueError('Sealed payload must be absent from model dataset')
-    for descriptor in view['episodes']:
-        with np.load(view_path.parent/descriptor['file'],allow_pickle=False) as data:
-            if not {'state_native','action_native','rgb'}<=set(data.files):raise ValueError('No reconstruction of missing measured native state or issued command')
-    return path,outer,view_path,view
+from .so101_dataset_admission import verify_so101_aggregate as _aggregate,admission_sources
 
 
 def run_so101_diffusion_train(store,job):
@@ -86,6 +70,7 @@ def run_so101_diffusion_train(store,job):
     samples.resume_context.update(source_signature=sha(path),skill_id=outer['skill_id'],skill_version=outer['skill_version'],spec_sha256=outer['spec_sha256'],
         native_consumer_implementation_sha256=sha(__file__))
     samples.resume_context['source_files'].append(dict(path=str(path),sha256=sha(path)))
+    samples.resume_context['source_files'] += [dict(path=str(source),sha256=sha(source)) for source in admission_sources()]
     samples.resume_context['source_files'].append(dict(path=experiment_registry.__file__,sha256=sha(experiment_registry.__file__)))
     preview=samples[0];Image.fromarray(samples.cache['rgb'][0]).save(folder/'frame.jpg')
     write_json(folder/'frame.json',dict(source='actual_accepted_source_dataset_RGB',source_episode_id=training[0]['source_episode_id'],live_camera=False,backend='diffusion'))

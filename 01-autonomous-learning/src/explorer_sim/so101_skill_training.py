@@ -42,12 +42,8 @@ def run_so101_skill_train(store,job):
     config=job.get('config') or {}
     identity=experiment_identity('so101_source_learning')
     if job.get('kind')!='so101_skill_train' or not _source_job_identity(job)['verified'] or config.get('device','cpu')!='cpu':raise ValueError('This learner owns the CPU SO101 source role ACT6 only; legacy06 requires explicit v1')
-    source=_verify(store,config['aggregate_manifest'],config['aggregate_manifest_sha256']);outer=json.loads(source.read_text())
-    if outer.get('schema')!='explorer_so101_skill_dataset_v1' or outer.get('action_contract_id')!='so101_follower_calibrated_position6_v1':raise ValueError('A source-bound native SO101 whole-skill dataset is required')
-    if any(config.get(key)!=outer.get(key) for key in ('skill_id','skill_version','spec_sha256')) or outer.get('action_names')!=list(NAMES) or outer.get('action_units')!=UNITS:raise ValueError('Queued skill/version or coordinate contract differs')
-    for name,expected in outer['source_files_sha256'].items():_verify(store,source.parent/name,expected)
-    view_path=_verify(store,source.parent/outer['internal_view'],outer['source_files_sha256'][outer['internal_view']]);view=json.loads(view_path.read_text())
-    if view['state_basis']!='measured_state' or view['action_basis']!='dispatched_command' or view['action_normalization']!={'low':LOW,'high':HIGH}:raise ValueError('ACT6 needs measured follower state and unchanged native issued-command units')
+    from explorer.so101_dataset_admission import verify_so101_aggregate,admission_sources
+    source,outer,view_path,view=verify_so101_aggregate(store,config)
     official=source.parent/outer['official_dataset'];provenance=json.loads((official/'explorer_provenance.json').read_text())
     official_readback=verify_lerobot_v3(official,provenance['repo_id'],view_path)
     train=[row for row in view['episodes'] if row['split']=='train'];development=[row for row in view['episodes'] if row['split']=='development']
@@ -70,6 +66,7 @@ def run_so101_skill_train(store,job):
     samples.resume_context.update(source_signature=sha(source),skill_id=outer['skill_id'],skill_version=outer['skill_version'],spec_sha256=outer['spec_sha256'])
     samples.resume_context['learner_implementation_sha256']=sha(__file__)
     samples.resume_context['source_files']+=[{'path':str(source),'sha256':sha(source)}]
+    samples.resume_context['source_files'] += [dict(path=str(rule),sha256=sha(rule)) for rule in admission_sources()]
     preview=samples[0];Image.fromarray(samples.cache['rgb'][0]).save(folder/'frame.jpg')
     write_json(folder/'frame.json',{'source':'actual_selected_native_dataset_RGB','source_episode_id':train[0]['source_episode_id'],'live_camera':False})
     update(.05,'verified_official_dataset_and_original_native_provenance')
@@ -78,8 +75,22 @@ def run_so101_skill_train(store,job):
     inputs={key:preview[key].unsqueeze(0) for key in (IMAGE_KEY,'observation.state')}
     preprocessing=preprocessing_config(np.asarray(LOW,np.float32),np.asarray(HIGH,np.float32),range(6))
     preprocessing.update(state_basis='measured_state',action_names=list(NAMES),action_units=UNITS,action_contract_id=outer['action_contract_id'],
-        official_robot_use_degrees=False,hardware_executor='existing_native_Pi_station_only',ACT_language_input=False)
+        official_robot_use_degrees=False,hardware_executor='existing_native_Pi_station_only',ACT_language_input=False,
+        source_calibration_metadata=outer['source_calibration_metadata'],
+        source_camera_ids=sorted({camera for row in view['source_records'] for camera in row['source_evidence']['camera_ids']}))
     reloaded,checkpoint,error=save_reload_act(policy,optimizer,folder,preprocessing,inputs,'cpu')
+    from lerobot.policies.factory import make_pre_post_processors
+    pre,post=make_pre_post_processors(policy.config)
+    pre.save_pretrained(checkpoint,push_to_hub=False,config_filename='policy_preprocessor.json')
+    post.save_pretrained(checkpoint,push_to_hub=False,config_filename='policy_postprocessor.json')
+    loaded_pre,loaded_post=make_pre_post_processors(reloaded.config,pretrained_path=str(checkpoint),
+        preprocessor_overrides={'device_processor':{'device':'cpu'}})
+    reloaded.reset()
+    with torch.inference_mode():
+        expected_first=reloaded.predict_action_chunk(inputs)[:,0]
+        processed=loaded_post(reloaded.select_action(loaded_pre({key:preview[key] for key in (IMAGE_KEY,'observation.state')})))
+    processor_error=float((expected_first-processed).abs().max())
+    if processor_error>1e-6:raise ValueError('Saved official ACT processor pair changed source normalization')
     validation=RecordedChunks(view_path,view,development,settings['chunk_size'],settings['image_size'])
     evaluation=offline_evaluation(reloaded,validation,'cpu',list(NAMES),UNITS,np.asarray(LOW),np.asarray(HIGH))
     for name,expected in outer['source_files_sha256'].items():_verify(store,source.parent/name,expected)
@@ -94,6 +105,7 @@ def run_so101_skill_train(store,job):
         internal_view_manifest_sha256=sha(view_path),official_dataset_readback=official_readback,
         optimizer_steps=len(losses),loss_first=float(losses[0]['loss']),loss_last=float(losses[-1]['loss']),weights_changed=True,
         training_resume=optimizer.explorer_resume_info,save_reload_passed=True,reload_max_abs_error=error,
+        official_saved_processors_executed=True,saved_processor_reload_max_abs_error=processor_error,
         checkpoint_dir=str(checkpoint),checkpoint_sha256=hashes,checkpoint_content_sha256=digest(hashes),evaluation=evaluation,
         training_original_episode_ids=outer['receipt']['accepted_train_original_episode_ids'],development_original_episode_ids=outer['receipt']['accepted_development_original_episode_ids'],
         sealed_original_episode_ids=outer['receipt']['sealed_original_episode_ids'],sealed_payload_used=False,
