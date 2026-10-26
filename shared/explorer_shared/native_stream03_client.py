@@ -20,8 +20,11 @@ class NativeStreamClient:
             raise ValueError('Explicit authenticated Nano observer origin required')
         self.origin, self.token, self.timeout, self.opener = nano_observer_url.rstrip('/'),token,timeout,opener
         self.prefix='/legacy/explorer/retarget/'
+        self.authorization_id=None
 
     def _request(self, operation, body=None, *, preserve_source_bytes=False):
+        if body is not None and operation in ('begin','recenter','resume','input','base'):
+            body={**body,'authorization_id':self.authorization_id}
         return self._send(self.prefix+operation,body,preserve_source_bytes=preserve_source_bytes)
 
     def _send(self,path,body=None,*,preserve_source_bytes=False):
@@ -90,6 +93,15 @@ class NativeStreamClient:
 
     def capture_finish(self,recording_id,outcome_evidence=None):
         return self._send('/native-capture/record/finish',{'recording_id':recording_id,'outcome_evidence':outcome_evidence})
+
+    def activation_status(self):return self._request('activation/status')
+    def activation_challenge(self):return self._request('activation/challenge')
+    def activation_authorize(self,body):
+        result=self._request('activation/authorize',body)
+        self.authorization_id=result.get('authorization_id');return result
+    def activation_revoke(self,body=None):
+        result=self._request('activation/revoke',body or {})
+        self.authorization_id=None;return result
 
 
 class OriginalNativeStreamReader(NativeStreamClient):

@@ -1,0 +1,166 @@
+{
+  "cases": [
+    {
+      "actuator_requests": [],
+      "adapter_source_sha256": {
+        "native_activation.py": "8dba0d36835069b39ffe43b38916c54172dc99031b38b3785e70108e7a95aac3",
+        "native_owner_mount.py": "72bcbeffd92742287aa3edf01280a26c1c14f720f61a24560d401e58bbb2eafe",
+        "native_stream03.py": "3846deecbe65d70dd46646ba2b92ec9efc525af35514f593e60a0c4288571160",
+        "native_stream03_api.py": "f430fa95d564338fcf1c14ed44759c1acdb4559271426650802371bc6bf98c52",
+        "native_web_startup_probe.py": "5b3fd65c0b9ea16a07554b7cdb09ac739a567087eeed8079f0a5a686b5d96213"
+      },
+      "candidate": false,
+      "candidate_web_sha256": null,
+      "errors": [],
+      "external_driver_implementation_executed": false,
+      "input_inventory_sha256": "31af87657cb15f4a35e27040177cc66785b8f98e7b28a43a0488f69d2b17f615",
+      "loaded_native_modules": 86,
+      "native_mount": null,
+      "original_owner_restarted": false,
+      "physical_commands": 0,
+      "readonly_http": {
+        "native_mux": 404,
+        "teleop": 200
+      },
+      "receipt_sha256": "c1e51d36ba97e092629a357bba73646a830852805c36008dfddeee465f2ab5db",
+      "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
+      "source_startup_zero_actuator_requests": true,
+      "startup_threads": 11,
+      "timers": 3,
+      "uptime_s": 18002.49
+    },
+    {
+      "actuator_requests": [
+        {
+          "message": {
+            "external_type": "Fake",
+            "fields": {
+              "joint1": 90,
+              "joint2": 90,
+              "joint3": 90,
+              "joint4": 90,
+              "joint5": 90,
+              "joint6": 90,
+              "time": 4000
+            }
+          },
+          "physical_send": false,
+          "topic": "/arm6_joints"
+        }
+      ],
+      "adapter_source_sha256": {
+        "native_activation.py": "8dba0d36835069b39ffe43b38916c54172dc99031b38b3785e70108e7a95aac3",
+        "native_owner_mount.py": "72bcbeffd92742287aa3edf01280a26c1c14f720f61a24560d401e58bbb2eafe",
+        "native_stream03.py": "3846deecbe65d70dd46646ba2b92ec9efc525af35514f593e60a0c4288571160",
+        "native_stream03_api.py": "f430fa95d564338fcf1c14ed44759c1acdb4559271426650802371bc6bf98c52",
+        "native_web_startup_probe.py": "5b3fd65c0b9ea16a07554b7cdb09ac739a567087eeed8079f0a5a686b5d96213"
+      },
+      "candidate": false,
+      "candidate_web_sha256": null,
+      "errors": [],
+      "external_driver_implementation_executed": false,
+      "input_inventory_sha256": "31af87657cb15f4a35e27040177cc66785b8f98e7b28a43a0488f69d2b17f615",
+      "loaded_native_modules": 86,
+      "native_mount": null,
+      "original_owner_restarted": false,
+      "physical_commands": 0,
+      "readonly_http": {
+        "native_mux": 404,
+        "teleop": 200
+      },
+      "receipt_sha256": "dc6dcf47fa13175b899350ea31afc9cb72fd8d5312cb02c465d3c3e68ed4f810",
+      "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
+      "source_startup_zero_actuator_requests": false,
+      "startup_threads": 11,
+      "timers": 3,
+      "uptime_s": 120.0
+    },
+    {
+      "actuator_requests": [],
+      "adapter_source_sha256": {
+        "native_activation.py": "8dba0d36835069b39ffe43b38916c54172dc99031b38b3785e70108e7a95aac3",
+        "native_owner_mount.py": "72bcbeffd92742287aa3edf01280a26c1c14f720f61a24560d401e58bbb2eafe",
+        "native_stream03.py": "3846deecbe65d70dd46646ba2b92ec9efc525af35514f593e60a0c4288571160",
+        "native_stream03_api.py": "f430fa95d564338fcf1c14ed44759c1acdb4559271426650802371bc6bf98c52",
+        "native_web_startup_probe.py": "5b3fd65c0b9ea16a07554b7cdb09ac739a567087eeed8079f0a5a686b5d96213"
+      },
+      "candidate": true,
+      "candidate_web_sha256": "cd2bbc6e40d4c71aa659c4b86dcca7bc2236f0de86821c79d1758903df850154",
+      "errors": [],
+      "external_driver_implementation_executed": false,
+      "input_inventory_sha256": "31af87657cb15f4a35e27040177cc66785b8f98e7b28a43a0488f69d2b17f615",
+      "loaded_native_modules": 86,
+      "native_mount": {
+        "default_execution_permission": false,
+        "global_stop_wrapped": true,
+        "same_existing_arm": true,
+        "same_existing_teleop": true
+      },
+      "original_owner_restarted": false,
+      "physical_commands": 0,
+      "readonly_http": {
+        "native_mux": 200,
+        "teleop": 200
+      },
+      "receipt_sha256": "61494e1c0b9cc38fa1a4720e59386917e4aca98b003d08b6019c8367ee21b2de",
+      "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
+      "source_startup_zero_actuator_requests": true,
+      "startup_threads": 11,
+      "timers": 3,
+      "uptime_s": 18002.49
+    },
+    {
+      "actuator_requests": [],
+      "adapter_source_sha256": {
+        "native_activation.py": "8dba0d36835069b39ffe43b38916c54172dc99031b38b3785e70108e7a95aac3",
+        "native_owner_mount.py": "72bcbeffd92742287aa3edf01280a26c1c14f720f61a24560d401e58bbb2eafe",
+        "native_stream03.py": "3846deecbe65d70dd46646ba2b92ec9efc525af35514f593e60a0c4288571160",
+        "native_stream03_api.py": "f430fa95d564338fcf1c14ed44759c1acdb4559271426650802371bc6bf98c52",
+        "native_web_startup_probe.py": "5b3fd65c0b9ea16a07554b7cdb09ac739a567087eeed8079f0a5a686b5d96213"
+      },
+      "candidate": true,
+      "candidate_web_sha256": "cd2bbc6e40d4c71aa659c4b86dcca7bc2236f0de86821c79d1758903df850154",
+      "errors": [
+        {
+          "detail": "FACTORY_STARTUP_HOME_WINDOW_ACTIVE_OR_UNKNOWN",
+          "error_type": "ValueError",
+          "factory": "web"
+        }
+      ],
+      "external_driver_implementation_executed": false,
+      "input_inventory_sha256": "31af87657cb15f4a35e27040177cc66785b8f98e7b28a43a0488f69d2b17f615",
+      "loaded_native_modules": 9,
+      "native_mount": null,
+      "original_owner_restarted": false,
+      "physical_commands": 0,
+      "readonly_http": {},
+      "receipt_sha256": "e12013538b3ae1fcfe1c9cc2d6385af014934d32474d174c3cac793832d84b19",
+      "source_inventory_sha256": "964ab3956be0914700423e6fee9bbcf1fc4ef2beae2c8ae33b303529b4a131e3",
+      "source_startup_zero_actuator_requests": false,
+      "startup_threads": 0,
+      "timers": 0,
+      "uptime_s": 120.0
+    }
+  ],
+  "controller_baseline_six_unchanged": true,
+  "controller_settings_written": false,
+  "physical_qualification": false,
+  "qualification_scope": "exact_original_and_candidate_Python_factory_with_injected_external_ROS_devices_and_fixture_scheduling",
+  "readonly_live_after": {
+    "controller_sha256": {
+      "arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+      "arm_model.json": "842dfe7960fd01be18992e62dabe293added502d0df3715a9d31944b60317d4f",
+      "controller-calibration.json": "3203d59ef9a06fb5215446b0e3e1f7f4aaf68d27c8b85f26375fdb5dca5be53a",
+      "factory-arm-startup.json": "5a26edf01d8e20e440dc51c33da214d739357cd9130ff12a16601b7874e79ec5",
+      "factory-runtime.json": "7088214801e6a0c7e29eabb8a2ac41a00e83df0118f3fb7984709120c42fd9ca",
+      "gripper-reference.json": "ed275d5b774814963fc855009a4f93715ffbe4657796b2ed32f9c1c9718e11cb"
+    },
+    "native_web_mainpid": "2418",
+    "uptime_s": 21422.77
+  },
+  "schema": "explorer_native_web_startup_qualification_summary_v1",
+  "targeted_tests": {
+    "passed": 101,
+    "skipped": 0
+  }
+}

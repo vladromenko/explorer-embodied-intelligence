@@ -180,11 +180,21 @@ def test_stale_leader_interrupts_without_automatic_lease_or_restart(tmp_path):
     source,station,peer=service(tmp_path);start(source)
     station.tick-=3_000_000_000;source.start_worker()
     try:
-        wait_for(lambda:source.mode=='INTERRUPTED')
+        wait_for(lambda:source.status()['state']=='INTERRUPTED')
         assert not any(name in ('input','base','stop') for name,_ in peer.calls)
         assert 'stale' in source.error
     finally:
         source.close()
+
+
+def test_late_stop_after_close_cannot_remove_permanent_shutdown_latch(tmp_path):
+    source,_,peer=service(tmp_path);start(source);peer.block='stop'
+    thread=threading.Thread(target=source.stop);thread.start();assert peer.entered.wait(2)
+    source.close();assert source.mode=='CLOSED'
+    peer.block=None;peer.release.set();thread.join(2)
+    assert not peer.active and source.mode=='CLOSED' and source.shutdown.is_set()
+    with pytest.raises(ValueError,match='permanently closed'):
+        start(source)
 
 
 def test_capture_proxy_keeps_common_context_and_typed_outcome_but_does_not_duplicate_new_ids(tmp_path):

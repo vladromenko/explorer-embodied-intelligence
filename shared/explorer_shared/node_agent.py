@@ -590,6 +590,9 @@ class NodeAgent:
         return method(payload)
 
     def legacy_request(self, path, payload=None, *, query=None):
+        if (path=='arm/prepare' and self.native_capture is not None and
+                self.native_capture.status().get('active_recording_id') is not None):
+            return 409,{'detail':'Finish native capture before observed HOME reference'}
         global_stop = payload is not None and ((path == 'control' and payload.get('op') == 'stop') or path in ('teleop/stop','teleop/disconnect','arm/trajectory/stop'))
         direct = self.arm_retarget.status()
         if global_stop:
@@ -796,6 +799,14 @@ def make_handler(agent):
                         raise LookupError('Unknown native capture recording operation')
                 else:
                     raise LookupError('Unknown native capture endpoint')
+            elif agent.mode=='nano' and len(parts)==3 and parts[:2]==['native-activation','frame']:
+                if urlsplit(self.path).query:
+                    raise ValueError('Pinned activation frame takes no query parameters')
+                jpeg,headers=agent.legacy_bridge.activation_frame(parts[2])
+                self.send_response(200);self.send_header('Content-Type','image/jpeg')
+                self.send_header('Content-Length',str(len(jpeg)));self.send_header('Cache-Control','no-store')
+                for name,value in headers.items():self.send_header(name,value)
+                self.end_headers();self.wfile.write(jpeg)
             elif path == '/arm-retarget/status':
                 self._json(200, agent.retarget_status())
             elif agent.mode == 'pi' and path == '/arm-retarget/recordings':

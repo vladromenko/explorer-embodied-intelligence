@@ -4,6 +4,8 @@ import hashlib
 import json
 from pathlib import Path
 import base64
+import sys
+from types import SimpleNamespace
 
 from fastapi import FastAPI
 import pytest
@@ -74,7 +76,7 @@ def test_mount_creates_no_publisher_no_start_and_preserves_global_stop_invalidat
     header=mount['tap'].reference
     assert base64.b64decode(header['original_source_bytes_base64'])==raw
     assert header['native_guard_verified'] and header['source_sha256']==sha(raw)
-    mux=mount['mux'];mux.clock=lambda:10.
+    mux=mount['mux'];mux.clock=lambda:10.;mux.observation_permit=lambda:True  # isolated global STOP regression
     epoch=mux.begin(observing=True,neutral=True)['control_epoch'];mux.resume(epoch,observing=True)
     from test_native_stream03 import evidence
     mux.leader_intent(epoch,1,[1.]*6,evidence());teleop._update_arm_stream_locked({},False)
@@ -95,6 +97,23 @@ def test_current_canonical_reference_cannot_relabel_prepublication_q_as_after_pu
     page=tap.since();assert page['receipts'][-1]['preceding_command9']['values']==[91.]*6+[0.,0.,0.]
     assert page['canonical_reference']['reference_action9']==[92.]*6+[0.,0.,0.]
     assert page['canonical_reference']['stamp']['monotonic_ns']==200
+
+
+def test_reference_reader_uses_stationary_guard_before_start_and_coordinated_guard_when_active(tmp_path,monkeypatch):
+    files(tmp_path);checks=[];coordinated=object()
+    monkeypatch.setattr(native_owner_mount,'AUDITED_FACTORY_SHA256',{})
+    monkeypatch.setattr(native_owner_mount,'audit_factory_binding',lambda value:{'exact_audited_source':True})
+    monkeypatch.setitem(sys.modules,'arm_commissioning',SimpleNamespace(coordinated_status=coordinated))
+    arm=Arm();arm.factory_timed=True;arm.boot='boot'
+    current={'boot_id':'boot','servo_deg':[90]*6,'at':10.,'measured':False}
+    def reference(check):
+        checks.append(check);return current
+    arm.reference=reference
+    (tmp_path/'data/arm-startup.json').write_text(json.dumps({**current,'startup_reference':True,'command_completed':True}))
+    teleop=Teleop(arm);teleop.arm=arm
+    mount=native_owner_mount.mount_factory_owner(FastAPI(),tmp_path,arm,teleop,'local-test-token-long',clock_domain='nano:boot')
+    mount['reference_reader']();assert checks==[None]
+    teleop.stop_latched=False;mount['reference_reader']();assert checks[-1] is coordinated
 
 
 def test_prepared_patch_and_rollback_are_exact_hash_guarded_and_never_restart(tmp_path,monkeypatch):

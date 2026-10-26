@@ -204,6 +204,9 @@ class NativeTeleopMux:
         self.latest, self.intent_deadline, self.dropped = [0.] * 6, 0., 0
         self.latest_source = None
         self.intent_revision=0
+        self.observation_permit=lambda:True
+        self.observation_evidence=lambda authorization_id:None
+        self.on_invalidate=lambda reason:None
         self.original = {}
 
     def install(self):
@@ -248,6 +251,9 @@ class NativeTeleopMux:
     def _stop_all(self):
         self.active, self.state, self.latest = False, 'STOPPED', [0.] * 6
         self.intent_revision+=1
+        try:self.on_invalidate('ORIGINAL_GLOBAL_STOP')
+        except Exception:
+            with self.tap.lock:self.tap.capture_failures+=1
         started = self.tap.clock()
         result = self.original['stop_all']()
         self.tap.observe('base_stop_host_request', {'velocity': [0.,0.,0.], 'native_return': result},
@@ -289,7 +295,7 @@ class NativeTeleopMux:
                 self.generation != self.teleop.generation):
             raise ValueError('Old, stopped or preempted control epoch')
 
-    def leader_intent(self, epoch, source_sequence, joint_velocity_deg_s, source_evidence):
+    def leader_intent(self, epoch, source_sequence, joint_velocity_deg_s, source_evidence,*,authorization_id=None):
         velocities = _vector(joint_velocity_deg_s, 6).tolist()
         with self.teleop.lock:
             self._check(epoch)
@@ -309,6 +315,8 @@ class NativeTeleopMux:
                 raise ValueError('Command echo is not a measured leader sample')
             self.latest, self.sequence = velocities, source_sequence
             self.latest_source = {'control_epoch': self.epoch, 'source_sequence': source_sequence,
+                                  'native_observed_authorization_id':authorization_id,
+                                  'native_observed_authorization_receipt':self.observation_evidence(authorization_id),
                                   'source_evidence': deepcopy(source_evidence),
                                   'received_target_monotonic_ns': self.tap.clock(),
                                   'target_clock_domain': self.tap.clock_domain, 'target_boot_id': self.tap.boot_id,
@@ -337,6 +345,9 @@ class NativeTeleopMux:
         if self.teleop.owner != 'keyboard' or self.teleop.generation != self.generation:
             self.active, self.state, self.latest = False, 'PREEMPTED', [0.] * 6
             self.intent_revision+=1
+            try:self.on_invalidate('NATIVE_OWNER_PREEMPTED')
+            except Exception:
+                with self.tap.lock:self.tap.capture_failures+=1
             return self.original['arm_update'](values, precision)
         if self.clock() >= self.intent_deadline and any(abs(value) > 1e-8 for value in self.latest):
             self.latest, self.state = [0.] * 6, 'SOURCE_EXPIRED_RECENTER_REQUIRED'
@@ -345,6 +356,7 @@ class NativeTeleopMux:
         generation, epoch,revision = self.generation, self.epoch,self.intent_revision
         permit = lambda: (self.active and self.epoch==epoch and self.intent_revision==revision and
                           self.state=='ACTIVE' and self.clock()<self.intent_deadline and
+                          self.observation_permit() and
                           self.teleop._stream_permitted(generation))
         result = self.arm.stream_velocity(velocity, [0.,0.,0.], generation, self.teleop.lease,
                                           permit, owner='keyboard', coordinated=True)
@@ -371,6 +383,7 @@ class NativeTeleopMux:
         with self.teleop.lock:
             return {'schema': 'explorer_native_retarget_mux_v1', 'state': self.state, 'active': self.active,
                     'control_epoch': self.epoch, 'native_generation': self.generation,
+                    'owner_generation':self.teleop.generation,
                     'latest_source_sequence': self.sequence, 'out_of_order_dropped': self.dropped,
                     'native_owner': self.teleop.owner, 'native_lease_remaining_s': max(0., self.teleop.lease-self.clock()),
                     'stop_latched':self.teleop.stop_latched,

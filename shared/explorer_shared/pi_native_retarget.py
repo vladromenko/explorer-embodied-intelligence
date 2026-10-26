@@ -83,6 +83,7 @@ class PiNativeRetargetService:
                 'control_epoch':self.epoch,'target_control_epoch':self.target_epoch,'registration':registration,
                 'peer_configured':self.client is not None,'lifecycle_inflight':self.lifecycle_inflight,
                 'step_inflight':self.step_inflight,'stop_delivery_uncertain':self.stop_uncertain,
+                'closed':self.shutdown.is_set(),
                 'inflight':self.lifecycle_inflight or self.step_inflight,'pending_stops':self.pending_stops,
                 'source':'existing_SO101Station_measured_cache','target':'ROSMASTER_UNIFIED_9D_NATIVE_MUX',
                 'target_camera':'nano-rgbd','native_backend':'factory_micro_ros_ruckig_velocity',
@@ -136,6 +137,8 @@ class PiNativeRetargetService:
             raise ValueError('Source control epoch changed; old operator packet rejected')
 
     def start(self,body):
+        if self.shutdown.is_set():
+            raise ValueError('Pi native source is permanently closed')
         if self.geometry.status()['state']=='UNREGISTERED':
             return self.status()
         self._observe(body)
@@ -144,7 +147,7 @@ class PiNativeRetargetService:
             raise ValueError('Synthetic registration cannot activate a physical peer')
         with self.lock:
             self._match(body)
-            if (self.client is None or self.lifecycle_inflight or self.step_inflight or self.pending_stops or
+            if (self.shutdown.is_set() or self.client is None or self.lifecycle_inflight or self.step_inflight or self.pending_stops or
                     self.mode in ('ACTIVE','STOPPING','CLOSED') or self.stop_uncertain):
                 raise ValueError('Native peer/session not idle or STOP delivery unknown')
             expected=self.epoch;self.lifecycle_inflight=True
@@ -154,6 +157,7 @@ class PiNativeRetargetService:
             measured=self._measurement();native=self.client.status()
             if native.get('execution_permission') is not True:
                 raise ValueError('NATIVE_OWNER_REQUIRES_SEPARATE_USER_OBSERVED_TEST')
+            self.client.authorization_id=(native.get('activation') or {}).get('authorization_id')
             if native.get('active') or native.get('stop_latched') is False:
                 raise ValueError('Explicit native STOP required before selecting leader mirror')
             self.target_boot=native.get('boot_id')
@@ -196,7 +200,7 @@ class PiNativeRetargetService:
         self._observe(body)
         with self.lock:
             self._match(body)
-            if self.lifecycle_inflight or self.pending_stops or self.target_epoch is None or self.mode=='CLOSED':
+            if self.shutdown.is_set() or self.lifecycle_inflight or self.pending_stops or self.target_epoch is None or self.mode=='CLOSED':
                 raise ValueError('Native lifecycle operation already pending')
             # Fence immediately, including a source HTTP request already in flight.
             self.epoch=uuid.uuid4().hex;self.mode='CLUTCHING'
@@ -231,6 +235,8 @@ class PiNativeRetargetService:
     def lease(self,body):
         with self.lock:
             self._match(body)
+            if self.shutdown.is_set():
+                raise ValueError('Pi native source is permanently closed')
             sequence=body.get('sequence')
             if type(sequence) is not int or sequence<=self.last_lease_sequence:
                 raise ValueError('Old operator heartbeat rejected')
@@ -274,11 +280,13 @@ class PiNativeRetargetService:
                         if peer.get('active'):
                             raise
             with self.lock:
-                self.mode='STOPPED';self.target_epoch=None;self.stop_uncertain=False;self.error=None
+                self.mode='CLOSED' if self.shutdown.is_set() else 'STOPPED'
+                self.target_epoch=None;self.stop_uncertain=False;self.error=None
             return self.status()
         except Exception as error:
             with self.lock:
-                self.mode='STOP_DELIVERY_UNKNOWN';self.stop_uncertain=True;self.error=type(error).__name__
+                self.mode='CLOSED' if self.shutdown.is_set() else 'STOP_DELIVERY_UNKNOWN'
+                self.stop_uncertain=True;self.error=type(error).__name__
             raise
         finally:
             self.operation_lock.release()
@@ -288,8 +296,13 @@ class PiNativeRetargetService:
     def command(self,operation,body):
         if operation in ('start','recenter','lease','stop'):
             return getattr(self,operation)(body)
+        if self.shutdown.is_set():
+            raise ValueError('Pi native source is permanently closed')
         if self.client is None:
             raise ValueError('Native target peer is not configured')
+        if operation in ('activation/status','activation/challenge','activation/authorize','activation/revoke'):
+            method=getattr(self.client,operation.replace('/','_'))
+            return method(body) if operation.endswith(('authorize','revoke')) else method()
         if operation=='record/start':
             context=body.get('skill_context')
             if not isinstance(context,dict) or context.get('project_id')!='03':

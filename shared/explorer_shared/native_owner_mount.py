@@ -11,6 +11,7 @@ import time
 
 from .native_stream03 import AUDITED_FACTORY_SHA256,audit_factory_binding,NativeDispatchTap,NativeTeleopMux
 from .native_stream03_api import mount_native_stream_api
+from .native_activation import NativeCachedObservation,ObservedNativeActivation
 
 
 def assert_native_restart_safe(root,*,source_sha256,baseline=None,uptime=None,now=None):
@@ -62,7 +63,7 @@ def assert_native_restart_safe(root,*,source_sha256,baseline=None,uptime=None,no
             'scope':'conditional_current_boot_startup_gate_not_physical_motion_validation'}
 
 
-def mount_factory_owner(app,root,manual_arm,teleop,token,*,clock_domain,observed_test_permit=lambda:False,
+def mount_factory_owner(app,root,manual_arm,teleop,token,*,clock_domain,observed_test_permit=None,
                         status_check=None):
     root=Path(root)
     binding=audit_factory_binding({name:(root/name).read_bytes() for name in AUDITED_FACTORY_SHA256})
@@ -73,14 +74,23 @@ def mount_factory_owner(app,root,manual_arm,teleop,token,*,clock_domain,observed
     if status_check is None:
         # This is the existing pure telemetry guard, not an arm/MCU reader.
         from arm_commissioning import coordinated_status
-        status_check=coordinated_status
+        # Start reads the reference while the original STOP is still latched;
+        # that must use the original stationary guard. Active/recenter uses the
+        # original coordinated guard, whose contract requires STOP released.
+        read_status_check=lambda:None if teleop.stop_latched else coordinated_status
+    else:
+        read_status_check=lambda:status_check
     if not isinstance(clock_domain,str) or not clock_domain.endswith(':'+manual_arm.boot):
         raise ValueError('Actual observer clock-domain name and same kernel boot required')
     tap=NativeDispatchTap(boot_id=manual_arm.boot,clock_domain=clock_domain)
     mux=NativeTeleopMux(teleop,manual_arm,tap,chassis_motion_allowed=False)
+    activation=ObservedNativeActivation(mux,NativeCachedObservation(root,manual_arm.boot))
+    mux.observation_permit=activation.allowed
+    mux.observation_evidence=activation.receipt
+    mux.on_invalidate=activation.revoke
 
     def guarded_reference():
-        current=manual_arm.reference(status_check)
+        current=manual_arm.reference(read_status_check())
         # Preserve the real native startup/reference identity across streamed
         # state updates. Never accept/erase a later telemetry fault ourselves.
         # Original reference() already invalidates current on such a fault.
@@ -98,9 +108,11 @@ def mount_factory_owner(app,root,manual_arm,teleop,token,*,clock_domain,observed
         return current
 
     mux.install()
-    mounted=mount_native_stream_api(app,mux,token=token,observed_test_permit=observed_test_permit,
+    mounted=mount_native_stream_api(app,mux,token=token,
+                                    observed_test_permit=observed_test_permit or activation.allowed,
+                                    activation=activation,
                                     reference_reader=guarded_reference)
-    return {'mount':mounted,'binding':binding,'mux':mux,'tap':tap,'reference_reader':guarded_reference,
+    return {'mount':mounted,'binding':binding,'mux':mux,'tap':tap,'activation':activation,'reference_reader':guarded_reference,
             # Assign web.stop_all to this callback as well. Wrapping only the
             # teleop field would miss original /api/control STOP's global call.
             'global_stop':mux._stop_all}

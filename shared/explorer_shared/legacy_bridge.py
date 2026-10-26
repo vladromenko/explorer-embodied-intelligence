@@ -4,6 +4,8 @@ Only existing operational commands are exposed. Controller configuration,
 firmware, calibration settings and service lifecycle are never written here.
 """
 import json
+import hashlib
+import re
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
@@ -11,12 +13,14 @@ from urllib.parse import parse_qsl, urlencode
 
 GET_PATHS = {'status', 'teleop', 'teleop/controls', 'arm/manual', 'arm/feedback', 'teaching/mobile', 'skills', 'arm/trajectory'}
 GET_PATHS |= {'explorer/retarget/status', 'explorer/retarget/reference', 'explorer/retarget/dispatch'}
+GET_PATHS |= {'explorer/retarget/activation/status','explorer/retarget/activation/challenge'}
 POST_PATHS = {'control', 'teleop/select', 'teleop/mode', 'teleop/speed', 'teleop/input',
     'teleop/stop', 'teleop/resume', 'teleop/disconnect', 'teaching/mobile/start',
     'teaching/mobile/lease', 'teaching/mobile/finish', 'teaching/mobile/stage', 'arm/jog', 'arm/finite',
     'arm/trajectory/plan', 'arm/trajectory/start', 'arm/trajectory/lease', 'arm/trajectory/stop'}
 POST_PATHS |= {'explorer/retarget/begin', 'explorer/retarget/recenter', 'explorer/retarget/resume',
                'explorer/retarget/input', 'explorer/retarget/base', 'explorer/retarget/stop'}
+POST_PATHS |= {'explorer/retarget/activation/authorize','explorer/retarget/activation/revoke','arm/prepare'}
 
 
 def parse_dispatch_query(raw_query):
@@ -45,6 +49,17 @@ class LegacyBridge:
             raise ValueError('Expected an object')
         if path == 'control' and body.get('op') not in ('stop', 'clear_stop'):
             raise ValueError('Use existing teleop input for movement')
+        if path=='arm/prepare':
+            if (body.get('observing') is not True or body.get('space_clear') is not True or
+                    body.get('acknowledge_factory_home_motion') is not True or not body.get('authorization_id')):
+                raise ValueError('Explicit observed HOME90x6/4000 confirmation and activation ID required')
+            code,activation=self.request('explorer/retarget/activation/status')
+            if (code!=200 or activation.get('execution_permission') is not True or
+                    activation.get('authorization_id')!=body['authorization_id'] or
+                    activation.get('native_active') is not False or activation.get('native_stop_latched') is not True):
+                raise ValueError('Fresh observed activation and original native STOP required before HOME')
+            # Preserve original native ArmHome ABI exactly; metadata stays here.
+            body={'observing':True,'space_clear':True}
         suffix=''
         if query is not None:
             if (body is not None or path!='explorer/retarget/dispatch' or not isinstance(query,dict) or
@@ -66,4 +81,19 @@ class LegacyBridge:
             except ValueError:
                 payload = {'detail':'Existing controller rejected this operation'}
             return error.code, payload
+
+    def activation_frame(self,challenge_id):
+        if not isinstance(challenge_id,str) or not re.fullmatch('[0-9a-f]{32}',challenge_id):
+            raise ValueError('Exact native activation challenge ID required')
+        token=(self.root/'config/access_token').read_text().strip()
+        request=Request('http://127.0.0.1:8080/api/explorer/retarget/activation/frame/'+challenge_id,
+                        headers={'Authorization':'Bearer '+token})
+        with urlopen(request,timeout=2) as response:
+            jpeg=response.read(2*1024**2+1)
+            digest=response.headers.get('X-JPEG-SHA256','')
+            if (len(jpeg)>2*1024**2 or not jpeg.startswith(b'\xff\xd8') or not jpeg.endswith(b'\xff\xd9') or
+                    hashlib.sha256(jpeg).hexdigest()!=digest):
+                raise ValueError('Pinned observed native JPEG/hash mismatch')
+            headers={name:response.headers[name] for name in ('X-JPEG-SHA256','X-Frame-ID','X-Monotonic-NS','X-Boot-ID')}
+            return jpeg,headers
 
