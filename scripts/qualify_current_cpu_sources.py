@@ -179,9 +179,13 @@ def one_result(output,phase):
     pattern={'act':'test_real_official_ACT6_eig*/actual8-qualification.json',
         'diffusion':'test_same_accepted_whole_skill*/qualification.json',
         'fused106':'test_actual_eight_official_ACT_o*/state/jobs/*/result.json'}[phase]
-    matches=list((output/'pytest').glob(pattern))
+    boundary=(output/'pytest').resolve();matches=set()
+    for candidate in (output/'pytest').glob(pattern):
+        resolved=candidate.resolve()
+        if not resolved.is_relative_to(boundary):raise QualificationRejected('Pytest result alias escaped own basetemp')
+        matches.add(resolved)
     if len(matches)!=1:raise QualificationRejected('Expected one exact actual '+phase+' result, found '+str(len(matches)))
-    return matches[0]
+    return next(iter(matches))
 
 
 def validate_result(result,phase,reference=None):
@@ -253,14 +257,60 @@ def run_phase(plan_path,phase):
     return dict(phase=phase,pytest_exit_code=0,output=str(output),actual_result=str(result_path))
 
 
+def validate_retained_act(plan_path,old_output):
+    """Repair a reporting-only alias ambiguity; never rerun/relabel optimizer.
+
+    The original actual pytest0+wrapper1 attempt stays untouched. This NEW
+    receipt links its real checkpoint/runtime/source and explicitly records
+    that no model was executed by the validation-only process.
+    """
+    plan=read_plan(plan_path);stage=plan['stages']['act'];bound=limits();old=Path(old_output).resolve()
+    if Path(bound['path']).name!=stage['unit']+'.service' or Path(sys.executable).absolute()!=BASE_PYTHON.absolute():
+        raise QualificationRejected('Use exact ACT validation interpreter and declared own unit')
+    old_plan=read(old.parent/'plan.json');before=read(old/'runtime-before.json');after=read(old/'runtime-after.json')
+    if (old_plan.get('source_commit')!=plan['source_commit'] or old_plan.get('source_root')!=plan['source_root'] or
+            old_plan.get('source_sha256')!=plan['source_sha256'] or old_plan.get('auxiliary_source_sha256')!=plan['auxiliary_source_sha256'] or
+            old_plan['stages']['act']['test']!=TESTS['act'] or old_plan['stages']['act']['parameters']!=PARAMETERS['act']):
+        raise QualificationRejected('Retained actual ACT source/recipe is not the same frozen computation')
+    old_script=old.parent/'orchestrator-source.py'
+    if sha(old_script)!=old_plan['orchestrator_sha256'] or before['launcher_sha256']!=old_plan['orchestrator_sha256']:
+        raise QualificationRejected('Retained wrapper source identity is unavailable')
+    if (after.get('pytest_exit_code')!=0 or (after.get('failure') or {}).get('error_type')!='QualificationRejected' or
+            (after.get('failure') or {}).get('detail')!='Expected one exact actual act result, found 2' or before['runtime']!=after['runtime']):
+        raise QualificationRejected('Only the known reporting-only duplicate-result failure can be revalidated')
+    root=assert_source(plan['source_root'],plan['source_commit'],plan['source_sha256']['diffusion'][STATION],plan['auxiliary_source_sha256'][GATE])
+    code=file_hashes(root,plan['source_sha256']['act']);aux=file_hashes(root,plan['auxiliary_source_sha256'])
+    if code!=before['implementation_sha256'] or aux!=before['auxiliary_source_sha256'] or runtime('act')!=before['runtime']:
+        raise QualificationRejected('Actual retained source/runtime no longer matches')
+    path=one_result(old,'act');result=read(path);validate_result(result,'act',plan['old_R2_references']['act'])
+    checkpoint=Path(result['checkpoint_dir']).resolve()
+    if not checkpoint.is_relative_to(old):raise QualificationRejected('Retained checkpoint escaped original actual attempt')
+    for name,expected in result['checkpoint_sha256'].items():
+        if Path(name).name!=name or sha(checkpoint/name)!=expected:raise QualificationRejected('Retained real checkpoint/processor changed')
+    output=Path(plan_path).resolve().parent/'act';output.mkdir(mode=0o700)
+    receipt=dict(schema='explorer_retained_actual_ACT_artifact_validation_v1',source_commit=plan['source_commit'],
+        implementation_sha256=code,auxiliary_source_sha256=aux,actual_runtime=runtime('act'),limits=bound,**resource_end(bound),
+        original_actual_result=str(path),original_actual_result_sha256=sha(path),original_actual_optimizer_steps=8,
+        original_actual_pytest_exit_code=0,original_reporting_wrapper_exit_code=1,
+        original_runtime_before_sha256=sha(old/'runtime-before.json'),original_runtime_after_sha256=sha(old/'runtime-after.json'),
+        original_wrapper_source_sha256=sha(old_script),original_attempt_unchanged=True,
+        actual_model_or_optimizer_executed_this_process=False,artifact_alias_resolved_within_original_basetemp=True,
+        model_weights_equal_R2=True,reload_max_abs_error=0,physical_io=False,production_state_writes=False)
+    write(output/'retained-actual-validation.json',receipt)
+    return receipt
+
+
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--source-root',type=Path);parser.add_argument('--output',type=Path)
     parser.add_argument('--commit');parser.add_argument('--station-sha256');parser.add_argument('--gate-sha256');parser.add_argument('--label')
-    parser.add_argument('--plan',type=Path);parser.add_argument('--phase',choices=tuple(TESTS))
+    parser.add_argument('--plan',type=Path);parser.add_argument('--phase',choices=tuple(TESTS));parser.add_argument('--validate-retained-act',type=Path)
     args=parser.parse_args()
     if args.phase:
         if args.plan is None:parser.error('--phase requires existing immutable --plan')
-        result=run_phase(args.plan,args.phase)
+        if args.validate_retained_act is not None:
+            if args.phase!='act':parser.error('Retained artifact repair is ACT-only')
+            result=validate_retained_act(args.plan,args.validate_retained_act)
+        else:result=run_phase(args.plan,args.phase)
     else:
         if any(value is None for value in (args.source_root,args.output,args.commit,args.station_sha256,args.gate_sha256,args.label)):
             parser.error('plan requires source-root/output/fullcommit/finalStationSHA/finalGateSHA/newlabel')

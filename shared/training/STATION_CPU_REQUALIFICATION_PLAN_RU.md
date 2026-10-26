@@ -21,3 +21,15 @@ python scripts/qualify_current_cpu_sources.py --source-root <frozen-worktree> --
 ```
 
 Команды фаз запускаются соответствующим interpreter через согласованные own units; имена, source hashes, тесты и неизменные параметры находятся в `plan.json`. Orchestrator не редактирует app, Station, shared math, defaults или source helpers. Полный package/OS closure и физическое мастерство этим не объявляются.
+
+R3 wrapper-reporting negative: actual ACT8 pytest прошёл, но locator ошибочно
+посчитал `test_*_0` и pytest `test_*_current` двумя результатами. Оба пути
+указывали на один canonical файл. Исправленный locator дедуплицирует только
+тот же resolved файл внутри собственного basetemp; два разных результата
+и escaping alias по-прежнему отвергаются. Новый R3B может явно выполнить
+`--phase act --validate-retained-act <старый-act-dir>`: это только проверка
+подлинного уже выполненного ACT результата/всех checkpoint SHA/source/runtime
+и старых R2 weights. Она записывает отдельный receipt с
+`actual_model_or_optimizer_executed_this_process=false`, сохраняет original
+pytest0/wrapper1 и не перегенерирует dataset/не выдаёт старый wrapper за успех.
+Старый plan, script, journal и failure остаются неизменными.

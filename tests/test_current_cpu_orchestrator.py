@@ -93,3 +93,17 @@ def test_cli_plan_import_is_stdlib_only_no_torch_or_mujoco():
     code="import runpy,sys;runpy.run_path("+repr(str(PATH))+");assert 'torch' not in sys.modules;assert 'mujoco' not in sys.modules;assert 'numpy' not in sys.modules"
     outcome=subprocess.run([sys.executable,'-c',code],text=True,capture_output=True)
     assert outcome.returncode==0,outcome.stdout+outcome.stderr
+
+
+def test_result_locator_deduplicates_only_same_canonical_current_alias_inside_basetemp(tmp_path):
+    output=tmp_path/'act';root=output/'pytest';directory=root/'test_real_official_ACT6_eight_0';directory.mkdir(parents=True)
+    result=directory/'actual8-qualification.json';result.write_text('{}')
+    (root/'test_real_official_ACT6_eight_current').symlink_to(directory,target_is_directory=True)
+    assert module.one_result(output,'act')==result.resolve()
+    another=root/'test_real_official_ACT6_eight_1';another.mkdir();(another/result.name).write_text('{}')
+    with pytest.raises(module.QualificationRejected,match='found 2'):module.one_result(output,'act')
+    (another/result.name).unlink();another.rmdir()
+    (root/'test_real_official_ACT6_eight_current').unlink()
+    outside=tmp_path/'outside';outside.mkdir();(outside/result.name).write_text('{}')
+    (root/'test_real_official_ACT6_eight_current').symlink_to(outside,target_is_directory=True)
+    with pytest.raises(module.QualificationRejected,match='escaped'):module.one_result(output,'act')
