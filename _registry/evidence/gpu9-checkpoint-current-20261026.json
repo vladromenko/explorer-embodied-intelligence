@@ -1,0 +1,35 @@
+{
+  "actual_optimizer_updates": 8,
+  "archives": {
+    "ACT9_SHARED_CUDA_QUEUE_20261026_BINDING.json": "3c72ff3b0f11e1f5c84804075228424dfb04b3cbf7c8dabf0305851bd990edc3",
+    "ACT9_SHARED_CUDA_QUEUE_20261026_PREFLIGHT.json": "9f449cf09c99d05b29b38788746f0d4130267f0742088b42e5fee473884e5958",
+    "ACT9_SHARED_CUDA_QUEUE_20261026_QUALIFICATION.json": "d7737ae4b75fe6e8a089825e3fc8f8e96de1404b3cffdada11364f5a99e0b688",
+    "ACT9_SHARED_CUDA_QUEUE_20261026_RESULT.json": "983facc28421b4d854894b7074e3364b43dd36d1a0d23398c9bcc2354bb4c336"
+  },
+  "binding_sha256": "b89e78656b5957005d78833ef9c96689c37c1669b927d2429f2bb9ce49a881f0",
+  "independent_development_successes": 0,
+  "independent_development_trials": 1,
+  "job_kind": "manipulation_student",
+  "other_actor_shapes_qualified": false,
+  "physical_skill_qualified": false,
+  "preserved_legacy_evidence": [
+    "_registry/evidence/gpu9-shared-current-20261026.json",
+    "_registry/evidence/gpu9-current-source-20261026.json"
+  ],
+  "production_state_writes": false,
+  "qualification_result_sha256": "983facc28421b4d854894b7074e3364b43dd36d1a0d23398c9bcc2354bb4c336",
+  "qualified_tensor_profile": {
+    "action_dimension": 9,
+    "batch_size": 2,
+    "chunk_size": 4,
+    "device": "cuda",
+    "image_size": 64,
+    "precision": "float32",
+    "state_dimension": 9
+  },
+  "registry_publication": "Isolated immutable-source-bindings only; production publication requires identical measured15source hashes and explicit final release binding",
+  "schema": "explorer_shared_act9_cuda_evidence_index_v3",
+  "source_commit": "253f6c610b1a77f5103098e61c0684f8064317d6",
+  "tests_passed": 12,
+  "training_resume_process_restart_tested": false
+}
