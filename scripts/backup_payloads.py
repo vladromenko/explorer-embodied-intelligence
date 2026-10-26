@@ -296,20 +296,57 @@ def reference_checks(data: Path, source_state: Path, source_aliases: list[str] |
             return None
         return base / relative(raw)
 
-    def checkpoint_references(value: dict, base: Path) -> None:
+    hash_bindings = 0
+    unlocated_source_digests = 0
+    source_snapshot_documents = 0
+    generated_test_documents = 0
+    detached_qualification_digests = 0
+
+    def source_snapshot(path):
+        for parent in path.parents:
+            if parent==data:break
+            if parent.parent.name=='releases' and re.fullmatch('[0-9a-f]{40}',parent.name):
+                marker=parent/'RELEASE_COMMIT'
+                if marker.is_file() and marker.read_text().strip()==parent.name:return True
+            if parent.name=='implementation_sources':return True
+        return False
+
+    def checkpoint_references(value: dict, base: Path, *, library_binding: bool = False) -> None:
+        nonlocal hash_bindings,unlocated_source_digests,detached_qualification_digests
         for key in ("files_sha256", "source_files_sha256", "artifact_sha256"):
             hashes = value.get(key)
             if isinstance(hashes, dict):
                 for name, checksum in hashes.items():
                     path = local_path(name, base)
                     if path is not None:
-                        check(path.parent, path.name, checksum)
+                        if key=='source_files_sha256' and not Path(name).is_absolute() and not path.exists():
+                            # Admission/report sidecars can retain source-relative
+                            # digests while an aggregate's source_artifact_map
+                            # locates the actual payload elsewhere. No locator
+                            # is invented from the sidecar's directory.
+                            if not isinstance(checksum,str) or not SHA.fullmatch(checksum):raise MaintenanceError('Invalid source digest metadata')
+                            unlocated_source_digests += 1
+                        elif not Path(name).is_absolute() and base.is_relative_to(data/'qualification') and not path.exists():
+                            # Qualification summaries may be byte-identical
+                            # copies of a result rooted at a different job.
+                            # Relative digest names alone do not locate files.
+                            if not isinstance(checksum,str) or not SHA.fullmatch(checksum):raise MaintenanceError('Invalid qualification digest metadata')
+                            detached_qualification_digests += 1
+                        else:check(path.parent, path.name, checksum)
         hashes = value.get("checkpoint_sha256")
         if isinstance(hashes, dict):
-            directory = local_path(value["checkpoint_dir"], base) if isinstance(value.get("checkpoint_dir"), str) else base / "student_act"
-            if directory is not None:
-                for name, checksum in hashes.items():
-                    check(directory, name, checksum)
+            if not isinstance(value.get('checkpoint_dir'),str):
+                # A hash binding without a file locator is not a claim that a
+                # checkpoint lives in this JSON document's directory. Keep it
+                # explicitly unresolved rather than inventing student_act/.
+                if not hashes or any(not isinstance(name,str) or not isinstance(checksum,str) or not SHA.fullmatch(checksum) for name,checksum in hashes.items()):
+                    raise MaintenanceError('Invalid declarative library checkpoint digest binding')
+                hash_bindings += 1
+            else:
+                directory = local_path(value["checkpoint_dir"], base)
+                if directory is not None:
+                    for name, checksum in hashes.items():
+                        check(directory, name, checksum)
         if isinstance(value.get("checkpoint"), str) and isinstance(value.get("sha256"), str):
             path = local_path(value["checkpoint"], base)
             if path is not None:
@@ -318,9 +355,9 @@ def reference_checks(data: Path, source_state: Path, source_aliases: list[str] |
             path = local_path(value["source_manifest_path"], base)
             if path is not None:
                 check(path.parent, path.name, value["source_manifest_sha256"])
-        for child in value.values():
+        for child_name,child in value.items():
             if isinstance(child, dict):
-                checkpoint_references(child, base)
+                checkpoint_references(child, base,library_binding=child_name=='library_binding')
             elif isinstance(child, list):
                 for item in child:
                     if isinstance(item, dict):
@@ -328,7 +365,17 @@ def reference_checks(data: Path, source_state: Path, source_aliases: list[str] |
 
     for path in sorted(data.rglob("*.json")):
         if not path.is_symlink() and path.is_file():
-            if path.stat().st_size > 32 * 1024 * 1024:
+            if path.relative_to(data).parts[0]=='qualification' and any(part.startswith('test_') for part in path.relative_to(data).parts[:-1]):
+                # Generated qualification tests intentionally retain corrupt,
+                # missing-reference and failure cases. Back up their exact
+                # bytes; admitting those fixtures as healthy runtime datasets
+                # is neither requested nor valid.
+                generated_test_documents += 1
+            elif source_snapshot(path):
+                # A preserved executable source tree contains historical docs,
+                # not new runtime datasets rooted in each document directory.
+                source_snapshot_documents += 1
+            elif path.stat().st_size > 32 * 1024 * 1024:
                 skipped += 1
             else:
                 try:
@@ -343,6 +390,11 @@ def reference_checks(data: Path, source_state: Path, source_aliases: list[str] |
                             check(path.parent, episode["file"], episode["sha256"])
                     checkpoint_references(value, path.parent)
     return {"known_dataset_manifests_checked": datasets, "local_hashed_references_checked": checked,
+            "checkpoint_digest_groups_without_file_locator": hash_bindings,
+            "source_relative_digests_requiring_their_original_or_aggregate_locator": unlocated_source_digests,
+            "preserved_source_snapshot_documents_not_reinterpreted_as_runtime_artifacts": source_snapshot_documents,
+            "generated_qualification_test_documents_preserved_without_runtime_admission": generated_test_documents,
+            "detached_qualification_relative_digest_entries_without_locator": detached_qualification_digests,
             "unparsed_or_large_json_files": skipped, "original_absolute_provenance_paths_retained": external,
             "arbitrary_model_deserialization_executed": False}
 

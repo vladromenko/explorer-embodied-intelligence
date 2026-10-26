@@ -281,6 +281,21 @@ def test_stream_detects_change_after_bytes_read(tmp_path, monkeypatch, operation
     assert source.exists()
 
 
+def test_program_library_hash_binding_does_not_invent_local_checkpoint_and_explicit_paths_stay_required(tmp_path,monkeypatch):
+    state,config,calibration,store,ident=setup_state(tmp_path,monkeypatch)
+    checkpoint=state/'jobs/finished/model.safetensors'
+    program=state/'jobs/finished/program_trace/program.json'
+    binding={'skill_id':'actual-library-id','weights_sha256':'b'*64,'checkpoint_sha256':{'model.safetensors':payloads.stream_file(checkpoint)[0]}}
+    put(program,json.dumps({'schema':'explorer_declarative_trace_program_v1','statements':[{'library_binding':binding}]}))
+    receipt=payloads.create_backup(state,config,calibration,ROOT,tmp_path/'backup')
+    assert receipt['completed'] and receipt['test_restore_passed']
+    assert receipt['references']['checkpoint_digest_groups_without_file_locator']==1
+    binding['checkpoint_dir']=str(state/'jobs/finished/missing-explicit-checkpoint')
+    put(program,json.dumps({'statements':[{'library_binding':binding}]}))
+    with pytest.raises(MaintenanceError,match='reference is missing'):
+        payloads.create_backup(state,config,calibration,ROOT,tmp_path/'broken-explicit-path')
+
+
 def test_actual_checkpoint_and_artifact_reference_hashes_are_exercised(tmp_path, monkeypatch):
     state, config, calibration, store, ident = setup_state(tmp_path, monkeypatch)
     checkpoint = state / "jobs/finished"
@@ -290,6 +305,50 @@ def test_actual_checkpoint_and_artifact_reference_hashes_are_exercised(tmp_path,
         "artifact_sha256": {"optimizer.pt": payloads.stream_file(checkpoint / "optimizer.pt")[0]}}))
     receipt = payloads.create_backup(state, config, calibration, ROOT, tmp_path / "backup")
     assert receipt["references"]["local_hashed_references_checked"] == 3
+
+
+def test_detached_qualification_summary_does_not_invent_its_original_job_root(tmp_path,monkeypatch):
+    state,config,calibration,store,ident=setup_state(tmp_path,monkeypatch)
+    summary=state/'qualification/actual-run/copied-summary.json'
+    put(summary,json.dumps({'artifact_sha256':{'original-job/frame.jpg':'a'*64}}))
+    receipt=payloads.create_backup(state,config,calibration,ROOT,tmp_path/'backup')
+    assert receipt['completed'] and receipt['references']['detached_qualification_relative_digest_entries_without_locator']==1
+    put(summary,json.dumps({'checkpoint_dir':str(state/'qualification/missing-explicit-directory'),'checkpoint_sha256':{'config.json':'a'*64}}))
+    with pytest.raises(MaintenanceError,match='reference is missing'):
+        payloads.create_backup(state,config,calibration,ROOT,tmp_path/'missing-checkpoint')
+
+
+def test_retained_negative_qualification_fixture_is_restored_byte_identical_without_admitting_it(tmp_path,monkeypatch):
+    state,config,calibration,store,ident=setup_state(tmp_path,monkeypatch)
+    fixture=state/'qualification/rehearsal/test_deliberately_broken0/negative.json'
+    put(fixture,json.dumps({'artifact_sha256':{'intentionally-missing':'a'*64},'scope':'SOFTWARE_NEGATIVE_FIXTURE'}))
+    receipt=payloads.create_backup(state,config,calibration,ROOT,tmp_path/'backup')
+    assert receipt['completed'] and receipt['test_restore_passed']
+    assert receipt['references']['generated_qualification_test_documents_preserved_without_runtime_admission']==1
+    assert (tmp_path/'backup/data'/fixture.relative_to(state)).read_bytes()==fixture.read_bytes()
+
+
+def test_frozen_release_documents_are_copied_as_source_and_not_reinterpreted_as_new_artifacts(tmp_path,monkeypatch):
+    state,config,calibration,store,ident=setup_state(tmp_path,monkeypatch)
+    revision='a'*40;source=state/'qualification/recovery/releases'/revision
+    put(source/'RELEASE_COMMIT',revision+'\n')
+    put(source/'docs/historical-result.json',json.dumps({'artifact_sha256':{'old-run-only.json':'b'*64}}))
+    receipt=payloads.create_backup(state,config,calibration,ROOT,tmp_path/'backup')
+    assert receipt['completed'] and receipt['test_restore_passed']
+    assert receipt['references']['preserved_source_snapshot_documents_not_reinterpreted_as_runtime_artifacts']==1
+    assert (tmp_path/'backup/data/qualification/recovery/releases'/revision/'docs/historical-result.json').read_bytes()==(source/'docs/historical-result.json').read_bytes()
+
+
+def test_admission_report_retains_source_digests_without_inventing_a_sidecar_payload_root(tmp_path,monkeypatch):
+    state,config,calibration,store,ident=setup_state(tmp_path,monkeypatch)
+    report=state/'jobs/finished/reports/canonical-admission.json'
+    put(report,json.dumps({'source_integrity':{'source_files_sha256':{'depth.u16':'a'*64}}}))
+    receipt=payloads.create_backup(state,config,calibration,ROOT,tmp_path/'backup')
+    assert receipt['completed'] and receipt['test_restore_passed']
+    assert receipt['references']['source_relative_digests_requiring_their_original_or_aggregate_locator']==1
+    put(report,json.dumps({'artifact_sha256':{'explicit-missing-file':'a'*64}}))
+    with pytest.raises(MaintenanceError,match='reference is missing'):
+        payloads.create_backup(state,config,calibration,ROOT,tmp_path/'missing-explicit-artifact')
 
 
 def test_absolute_and_nested_hash_provenance_remaps_local_and_marks_external(tmp_path, monkeypatch):
