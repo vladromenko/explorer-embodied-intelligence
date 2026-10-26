@@ -1,0 +1,143 @@
+{
+  "schema": "explorer_official_act9_cuda_process_resume_qualification_v1",
+  "source_kind": "SCRIPTED_SIMULATION",
+  "source_files_sha256": {
+    "/mnt/explorer-data/explorer-work/qualification-act9-checkpoint-cuda-20261026/result/pytest/test_actual_official_act_full_0/jobs/visual-cycle/dataset/manifest.json": "fc6f0d704624712b7a36a015f192d50a3cfdb1ec404407c72f74d195b26a92bc",
+    "/mnt/explorer-data/explorer-work/qualification-act9-checkpoint-cuda-20261026/result/pytest/test_actual_official_act_full_0/jobs/visual-cycle/dataset/scripted-321041.npz": "2400ad8ffa181d2315288868a021303e1bf22421f57f38627672aaa3d05be2bb"
+  },
+  "reference": {
+    "cublas_workspace_config": ":4096:8",
+    "cuda_peak_allocated_bytes": 312611328,
+    "cuda_peak_reserved_bytes": 354418688,
+    "cudnn_deterministic": true,
+    "deterministic_algorithms": true,
+    "deterministic_candidate_only": true,
+    "final_weights_sha256": "681d792e7046b0708495e41c520b73fd4fac6b94912dafc98c75d59c8fbcc8e2",
+    "initial_weights_sha256": "a0f12016f10192f95579ae305400cb8c67c5eb7b376aeb70a9bdc37bb050e9cc",
+    "official_policy": "lerobot.policies.act.modeling_act.ACTPolicy",
+    "optimizer_steps": 8,
+    "parameter_device": "cuda:0",
+    "parameter_dtype": "torch.float32",
+    "physical_io": false,
+    "process_peak_RSS_bytes": 2324340736,
+    "settings": {
+      "act_steps": 8,
+      "batch_size": 2,
+      "chunk_size": 4,
+      "device": "cuda",
+      "image_size": 64,
+      "seed": 321041
+    },
+    "tf32_enabled": false,
+    "training_resume": {
+      "active_optimizer_elapsed_s": 4.0415389300032984,
+      "checkpoint_interval": 4,
+      "checkpoint_loaded": false,
+      "completed_steps": 8,
+      "non_durable_updates_may_be_replayed": true,
+      "optimizer_steps_executed_this_process": 8,
+      "resumed_from_step": 0,
+      "retained_history_is_not_total_compute_across_failed_attempts": true,
+      "rng_sources": [
+        "python",
+        "numpy_global",
+        "torch_cpu",
+        "all_initialized_cuda",
+        "explicit_batch_sampler"
+      ],
+      "signature": "98b21737130d21d52cd79ebdb1d51dda0448b07a7a04ff163033a4112cba661d",
+      "supported": true
+    },
+    "versions": {
+      "lerobot": "0.6.1",
+      "numpy": "2.2.6",
+      "torch": "2.12.0+cu132",
+      "torchvision": "0.27.0+cu132"
+    }
+  },
+  "resumed": {
+    "cublas_workspace_config": ":4096:8",
+    "cuda_peak_allocated_bytes": 311562752,
+    "cuda_peak_reserved_bytes": 348127232,
+    "cudnn_deterministic": true,
+    "deterministic_algorithms": true,
+    "deterministic_candidate_only": true,
+    "final_weights_sha256": "681d792e7046b0708495e41c520b73fd4fac6b94912dafc98c75d59c8fbcc8e2",
+    "initial_weights_sha256": "2c302833c4c28b295317109cfbada8a6847f36dd14683156960ffdfca3283ec0",
+    "official_policy": "lerobot.policies.act.modeling_act.ACTPolicy",
+    "optimizer_steps": 8,
+    "parameter_device": "cuda:0",
+    "parameter_dtype": "torch.float32",
+    "physical_io": false,
+    "process_peak_RSS_bytes": 2475356160,
+    "settings": {
+      "act_steps": 8,
+      "batch_size": 2,
+      "chunk_size": 4,
+      "device": "cuda",
+      "image_size": 64,
+      "seed": 321041
+    },
+    "tf32_enabled": false,
+    "training_resume": {
+      "active_optimizer_elapsed_s": 3.8872191020054743,
+      "checkpoint_interval": 4,
+      "checkpoint_loaded": true,
+      "completed_steps": 8,
+      "non_durable_updates_may_be_replayed": true,
+      "optimizer_steps_executed_this_process": 4,
+      "resumed_from_step": 4,
+      "retained_history_is_not_total_compute_across_failed_attempts": true,
+      "rng_sources": [
+        "python",
+        "numpy_global",
+        "torch_cpu",
+        "all_initialized_cuda",
+        "explicit_batch_sampler"
+      ],
+      "signature": "98b21737130d21d52cd79ebdb1d51dda0448b07a7a04ff163033a4112cba661d",
+      "supported": true
+    },
+    "versions": {
+      "lerobot": "0.6.1",
+      "numpy": "2.2.6",
+      "torch": "2.12.0+cu132",
+      "torchvision": "0.27.0+cu132"
+    }
+  },
+  "paused_pid": 1993663,
+  "resumed_pid": 1993773,
+  "old_process_gone": true,
+  "old_resident_bytes": 2340921344,
+  "checkpoint_pause_receipt": {
+    "acknowledged_monotonic_ns": 80229325968343,
+    "backend": "act",
+    "checkpoint_pointer_sha256": "b707ee579c0346d42831a04a68fee9bb74a2d708e86dca8a107ea327ef0b4fd9",
+    "checkpoint_sha256": "0b3258ca512194fb9b5b7228d6eee4961a4ae56f8334c0992e0cf3c6e417844e",
+    "completed_steps": 4,
+    "memory_release_basis": "process_exit_must_be_verified_by_supervisor",
+    "operation": "pause",
+    "optimizer_RNG_sampler_durably_saved": true,
+    "physical_io": false,
+    "process_exit_code": 75,
+    "request_id": "50ed98cbc0f84329a5ebba01f86b377a",
+    "schema": "explorer_optimizer_checkpoint_control_v1",
+    "signature": "98b21737130d21d52cd79ebdb1d51dda0448b07a7a04ff163033a4112cba661d",
+    "worker": {
+      "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2",
+      "pid": 1993663,
+      "start_ticks": 8021922
+    }
+  },
+  "model_optimizer_losses_all_RNG_sampler_exactly_equal": true,
+  "optimizer_steps": 8,
+  "paused_completed_steps": 4,
+  "updates_in_new_process": 4,
+  "source_bytes_preserved": true,
+  "CUDA_process_resume_verified": true,
+  "physical_io": false,
+  "task_success_claimed": false,
+  "deterministic_candidate_only": true,
+  "production_runtime_or_math_changed": false,
+  "scope": "Same64/2/4 FP32 officialACT9 RGB+preceding command9 optimizer on existing CAD source; no other actor shapes/devices or queue-controller scope"
+}

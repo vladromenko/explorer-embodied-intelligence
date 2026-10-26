@@ -1,0 +1,21 @@
+{
+  "actual_test_elapsed_s": 42.73,
+  "archives": {
+    "ACT9_CUDA_DETERMINISTIC_CANDIDATE_20261026_PREFLIGHT.json": "a7abd32aedc661639311422883d6d87b0919bcf19fd6cb4a8923ba106be4515b",
+    "ACT9_CUDA_DETERMINISTIC_CANDIDATE_20261026_QUALIFICATION.json": "4c3833a29844ed53983301cb4d78e4f8a224bee41cdd69c71f9945e839fab514",
+    "ACT9_CUDA_DETERMINISTIC_CANDIDATE_20261026_RUNTIME.json": "bd522dcd93c316c4009f04a4017e5331dfcb85e346cfd628f80c81aa718a368e"
+  },
+  "model_optimizer_losses_all_RNG_sampler_exactly_equal": true,
+  "optimizer_steps": 8,
+  "passed": true,
+  "paused_completed_steps": 4,
+  "physical_io": false,
+  "production_math_or_runtime_changed": false,
+  "production_profile_qualified": false,
+  "raw_path": "/mnt/explorer-data/explorer-work/qualification-official-act9-cuda-deterministic-candidate-20261026",
+  "schema": "explorer_act9_cuda_deterministic_fixture_candidate_v1",
+  "settings_scope": "Fixture-only CUDA64/batch2/chunk4FP32, strictdeterministic algorithms/cudnn and CUBLAS4096:8",
+  "source_commit": "3f5379187908dd991f90da2719be0a9d4cbd67c5",
+  "task_success_claimed": false,
+  "updates_in_new_process": 4
+}
