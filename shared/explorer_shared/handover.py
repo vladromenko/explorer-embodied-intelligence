@@ -29,10 +29,11 @@ class HoldEvidence:
 
 
 class HandoverFSM:
-    def __init__(self, object_id, *, mode='physical', clock_domain='coordinator', hold_ttl_s=2.0, phase_timeout_s=30.0):
+    def __init__(self, object_id, *, mode='physical', clock_domain='coordinator', hold_ttl_s=2.0, phase_timeout_s=30.0,run_id=None):
         if mode not in ('physical', 'virtual') or hold_ttl_s <= 0 or phase_timeout_s <= 0:
             raise ValueError('Invalid handover mode or timeout')
         self.object_id, self.mode, self.clock_domain = object_id, mode, clock_domain
+        self.run_id=run_id;self.receiver_hold_evidence_ids=set()
         self.hold_ttl_ns, self.phase_timeout_ns = int(hold_ttl_s * 1e9), int(phase_timeout_s * 1e9)
         self.state, self.completed, self.hold = 'PREPARE', False, None
         self.trace, self.seen = [], {}
@@ -104,9 +105,16 @@ class HandoverFSM:
             self.state = 'RECEIVER_GRASP_CHECK'
         elif self.state == 'RECEIVER_GRASP_CHECK' and event == 'receiver_closed':
             reason = 'closed_joint_command_is_not_hold_evidence'
-        elif self.state == 'RECEIVER_GRASP_CHECK' and event == 'receiver_hold_confirmed':
+        elif self.state in ('RECEIVER_GRASP_CHECK','RELEASE_AUTHORIZED') and event == 'receiver_hold_confirmed':
+            if self.state=='RELEASE_AUTHORIZED':
+                if (self.run_id is None or facts.get('run_id')!=self.run_id or facts.get('receiver_role')!='receiver' or
+                        (self.phase_started_ns is not None and now-self.phase_started_ns>self.phase_timeout_ns)):
+                    raise ValueError('Hold renewal requires the same current run/receiver and unexpired protocol phase')
             if not self._valid_hold(evidence, now, 'receiver_holds_object'):
                 raise ValueError('Independent hold measurement or explicit operator confirmation required')
+            if evidence.evidence_id in self.receiver_hold_evidence_ids:
+                raise ValueError('Receiver hold receipt cannot be reused or automatically renewed')
+            self.receiver_hold_evidence_ids.add(evidence.evidence_id)
             self.hold, self.state = evidence, 'RELEASE_AUTHORIZED'
         elif self.state == 'RELEASE_AUTHORIZED' and event == 'release_requested':
             if not self.release_permitted(now) or facts.get('both_stationary') is not True:
