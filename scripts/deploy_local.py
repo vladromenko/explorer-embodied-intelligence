@@ -21,6 +21,8 @@ INSTALL = '''import io,os,pathlib,re,sys,tarfile
 b=pathlib.Path.home()/'.local/share/explorer'
 release=b/'releases'/sys.argv[1]
 release.parent.mkdir(parents=True,exist_ok=True)
+b.chmod(0o755)
+release.parent.chmod(0o755)
 if not release.exists():
  stage=release.with_name(release.name+'.staging')
  stage.mkdir(exist_ok=False)
@@ -34,7 +36,9 @@ for source in sources:
  if source.parent==release.parent and re.fullmatch('[0-9a-f]{40}',source.name) and (source/'RELEASE_COMMIT').read_text().strip()==source.name:
   for entry in [source,*source.rglob('*')]:
    if not entry.is_symlink():entry.chmod(0o755 if entry.is_dir() or entry.stat().st_mode&0o111 else 0o644)
-if current.is_symlink():(b/'previous-release').write_text(str(current.resolve()))
+if current.is_symlink():
+ (b/'previous-release').write_text(str(current.resolve()))
+ (b/'previous-release').chmod(0o644)
 temporary=b/'current.next'
 if temporary.is_symlink():temporary.unlink()
 temporary.symlink_to(release,target_is_directory=True)
