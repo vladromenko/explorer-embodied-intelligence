@@ -104,7 +104,7 @@ def test_restore_refuses_existing_live_and_implicit_destinations(tmp_path, monke
 
 
 def test_doctor_requires_real_finite_recent_same_clock_feedback():
-    hashes = {"a" * 64, "b" * 64}
+    hashes = {"leader": "a" * 64, "follower": "b" * 64}
     inventory = {"monotonic_ns": 2_000_000_000, "clock_domain": "pi:boot",
                  "capabilities": {"joint_measurements": True},
                  "cameras": [{"id": "pi-overview", "available": True, "frame": {"frame_id": "pi:1", "monotonic_ns": 1_900_000_000}}],
@@ -114,6 +114,9 @@ def test_doctor_requires_real_finite_recent_same_clock_feedback():
     facts = doctor.inventory_facts(inventory, hashes)
     assert facts["station"]["fresh_measured_six_axis_feedback"]
     assert facts["station"]["both_original_calibration_hashes_match"]
+    inventory["station"]["roles"]["leader"]["calibration_sha256"] = "b" * 64
+    inventory["station"]["roles"]["follower"]["calibration_sha256"] = "a" * 64
+    assert not doctor.inventory_facts(inventory, hashes)["station"]["both_original_calibration_hashes_match"]
     inventory["station"]["measurement_age_ms"] = 5000
     inventory["station"]["measurements"]["follower"][0] = float("nan")
     inventory["cameras"][0]["frame"]["monotonic_ns"] = -2_000_000_000

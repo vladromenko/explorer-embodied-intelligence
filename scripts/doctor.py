@@ -39,7 +39,7 @@ def age_seconds(value, now: float) -> float | None:
         return None
 
 
-def inventory_facts(inventory: dict, expected_calibration: set[str]) -> dict:
+def inventory_facts(inventory: dict, expected_calibration: dict[str, str]) -> dict:
     cameras = []
     now_ns = inventory.get("monotonic_ns")
     for camera in inventory.get("cameras", [])[:16]:
@@ -57,7 +57,8 @@ def inventory_facts(inventory: dict, expected_calibration: set[str]) -> dict:
     clock_ok = bool(measured.get("clock_domain") and measured.get("clock_domain") == inventory.get("clock_domain"))
     fresh_measured = bool(station.get("available") and finite and clock_ok and isinstance(age, (int, float)) and 0 <= age <= 1000)
     role_hashes = {role: profile.get("calibration_sha256") for role, profile in station.get("roles", {}).items() if role in {"leader", "follower"}}
-    verified_calibration = bool(len(role_hashes) == 2 and set(role_hashes.values()) == expected_calibration and len(expected_calibration) == 2)
+    verified_calibration = bool(len(role_hashes) == 2 and role_hashes == expected_calibration and len(expected_calibration) == 2
+                                and all(re.fullmatch(r"[0-9a-f]{64}", value or "") for value in expected_calibration.values()))
     perception = inventory.get("perception") or {}
     return {"reachable": True, "cameras": cameras,
             "station": {"available": bool(station.get("available")), "fresh_measured_six_axis_feedback": fresh_measured,
@@ -147,7 +148,8 @@ def doctor(home: Path, root: Path, node: str, *, no_http: bool = False, controll
         result["database_or_outbox_read"] = {"error_type": type(error).__name__}
     calibration_file = root / "_registry/so101-calibration-manifest.json"
     expected = read_json(calibration_file) if calibration_file.is_file() else {}
-    hashes = {row["sha256"] for row in expected.values()}
+    hashes = {"leader": expected.get("teleoperators/so_leader/so101_leader.json", {}).get("sha256"),
+              "follower": expected.get("robots/so_follower/so101_follower.json", {}).get("sha256")}
     result["local_calibration"] = [{"path": relative, "present": (home / ".cache/huggingface/lerobot/calibration" / relative).is_file(),
                                     "original_hash_matches": (home / ".cache/huggingface/lerobot/calibration" / relative).is_file() and digest(home / ".cache/huggingface/lerobot/calibration" / relative) == row["sha256"]} for relative, row in expected.items()]
     baseline = read_json(root / "_registry/controller-config-baseline.json")
