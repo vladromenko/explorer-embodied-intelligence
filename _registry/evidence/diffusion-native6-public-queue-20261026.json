@@ -1,0 +1,48 @@
+{
+  "schema": "explorer_native6_diffusion_public_queue_qualification_v1",
+  "passed": true,
+  "execution_commit": "bde96e9fbb7b1abf6dfe015b933e40de7a3917d9",
+  "public_queue_integration_qualified": true,
+  "qualified_scope": "actual authenticated ASGI train route + immutable aggregate + actual durable supervisor + pinned isolated CPU worker + official native6 optimizer/reload + API SIMULATION_ONLY card",
+  "job_id": "8e6ce621a4ce468c9486f1a504103705",
+  "request": {
+    "version": 1,
+    "backend": "diffusion",
+    "optimizer_steps": 8,
+    "batch_size": 2,
+    "image_size": 64,
+    "seed": 41,
+    "request_id": "actual-isolated-public-queue-20261026"
+  },
+  "runtime_binding_sha256": "7a22979b618572c237c85f77733e3ed856103c9c7ed56e1421724bf79c7875a3",
+  "actual_runtime_executable": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/bin/python",
+  "completed_optimizer_updates": 8,
+  "loss_first": 1.2903050184249878,
+  "loss_last": 0.6897179484367371,
+  "reload_max_abs_error": 0.0,
+  "aggregate_manifest_sha256": "b868b2fb33c406673061e66fdd7d20d676b5054206e50f0614e070d991d4074f",
+  "checkpoint_sha256": {
+    "model.safetensors": "149e662f58be6c77a2043c26eb0e41b45eabe61334993569ade0a271d41c87e5",
+    "explorer_preprocessing.json": "bb72d17e54aeba40b3a10094d293c69b54d72962e996c9ffb8e856bc30c11623",
+    "config.json": "5cfec7ddf559544e02f8066a9f108e371596430ad132c279ad6a4757dcfb7548"
+  },
+  "operator_demo_source": "EXPLICIT_SYNTHETIC_SOFTWARE_FIXTURES_NOT_PHYSICAL_DEMONSTRATIONS",
+  "original_sources_unchanged": true,
+  "sealed_payload_used": false,
+  "result_path": "/mnt/explorer-data/explorer-work/qualification-diffusion-public-queue-20261026-b/fixture/state/jobs/8e6ce621a4ce468c9486f1a504103705/result.json",
+  "result_sha256": "adeb7f85a01ff094fa98688d5b628430220152bb2de9d96ec2a8c9818817cb8d",
+  "pipeline_source_sha256": {
+    "00-control-center/src/explorer/lab_skill_api.py": "0360db553559b16aba1f2f249c277798d6d16a7045f4d6afad0f014634378a07",
+    "00-control-center/src/explorer/lab_skill_workflow.py": "b5a019970aa6db86b443829fc4c485175476aaeb100ba63c8020a03bae42a56d",
+    "00-control-center/src/explorer/training_options.py": "5a49b3878e57aec5ce5ddd8324e3c0cfdf509f54e7201f5f08e5bc0ebb7336f7",
+    "00-control-center/src/explorer/scheduler.py": "157b9068559edc8ca319d3338393195793c527b18637b9c8e601035de7f928bf",
+    "00-control-center/src/explorer/job_runner.py": "e992461634e66128ed7c0587842cae056fe0353a5b195624e50217e8c3df1f71",
+    "00-control-center/src/explorer/policy_runtime.py": "8eb93be7e0b03e8dcb4115c33cecee118e2fec2d3a17d4232cb5fc8d4b070c3d",
+    "00-control-center/src/explorer/store.py": "689ad5cb77b58cf2fa37e58c53e3f1b153494bb8fdde1e1ce3bb4abc056d6834"
+  },
+  "elapsed_s": 27.803680793003878,
+  "production_state_writes": false,
+  "configured_physical_nodes": 0,
+  "physical_commands": 0,
+  "physical_rollout_qualified": false
+}

@@ -795,7 +795,9 @@ async def station_proxy(path: str, request: Request):
             headers={'Authorization':'Bearer '+node['token']},**({'json':payload} if payload is not None else {}))
         result = response.json()
         if path=='record/finish' and response.is_success:
-            result['import_job']=STORE.create_import_job('station_import',canonical_project(result.get('project_id','personal')),result['episode_id'])
+            from explorer_shared.experiments import canonical_experiment
+            source_project=canonical_experiment(result.get('project_id','personal'),numbering_version=result.get('experiment_numbering_version',1))
+            result['import_job']=STORE.create_import_job('station_import',source_project,result['episode_id'])
         return JSONResponse(result,response.status_code)
     except httpx.HTTPError:
         raise HTTPException(503,'SO-101 station interface is unavailable')

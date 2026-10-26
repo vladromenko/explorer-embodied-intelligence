@@ -89,6 +89,9 @@ class Store:
         project_id=canonical_experiment(project_id,numbering_version=2)
         if kind not in ('station_import','mobile_import','retarget_import'):
             raise ValueError('Unknown immutable import kind')
+        from explorer_shared.experiments import experiment_id
+        role={'station_import':'so101_source_learning','mobile_import':'rosmaster_keyboard_learning','retarget_import':'rosmaster_leader_learning'}[kind]
+        if project_id!=experiment_id(role):raise ValueError('Original recording producer belongs to a different semantic experiment')
         settings={'episode_id':episode_id}
         if source_format not in (None,'native_capture_v1'):raise ValueError('Unknown source producer format')
         if source_format=='native_capture_v1':

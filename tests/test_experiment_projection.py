@@ -35,6 +35,7 @@ def test_current_jobs_use_semantic_identity_without_double_swapping(tmp_path):
     assert source['project_id']=='04' and source['experiment_slug']=='so101_source_learning'
     assert target['project_id']=='06' and target['experiment_slug']=='cross_embodiment_transfer'
     assert store.job(source['id'])==source
+    with pytest.raises(ValueError,match='producer belongs'):store.create_import_job('station_import','06','wrong-source')
 
 
 def test_mixed_event_epochs_preserve_exact_originals_and_idempotency(tmp_path):

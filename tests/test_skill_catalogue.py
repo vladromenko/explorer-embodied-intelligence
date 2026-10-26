@@ -171,7 +171,9 @@ def test_standalone_panel_renders_actual_owner_queries_and_separate_readiness_wi
     script=Path(__file__).parents[1]/'00-control-center/src/explorer/static/skill-catalogue.js'
     runner=tmp_path/'render.cjs';runner.write_text(r'''
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
-const context={};vm.createContext(context);vm.runInContext(fs.readFileSync(process.argv[3],'utf8'),context);
+const context={};vm.createContext(context);
+vm.runInContext(fs.readFileSync(require('path').join(require('path').dirname(process.argv[3]),'experiment-registry.js'),'utf8'),context);
+vm.runInContext(fs.readFileSync(process.argv[3],'utf8'),context);
 context.view=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
 const html=vm.runInContext('skillCataloguePanel(view)',context);
 assert(html.includes('/experiments/05'));assert(html.includes('&lt;unsafe-object&gt;'));assert(!html.includes('<unsafe-object>'));
