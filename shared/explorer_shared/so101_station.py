@@ -267,12 +267,13 @@ class SO101Station:
                 recording_error=self.record_errors.get(self.record['episode_id']) if self.record else None,
                 last_command=dict(self.last_command) if self.last_command else None,
                 preceding_command=dict(self.preceding_command) if self.preceding_command else None,
-                last_hold_error=self.last_hold_error,
+                last_hold_error=self.last_hold_error,recording_identity_fence=True,
                 action_names=NAMES,action_units=UNITS,position_hold='existing_position_mode',configuration_writes=0)
 
     def command(self, operation, body):
         if operation == 'record/finish':
-            return self._finish_record(body.get('outcome','unknown'))
+            return self._finish_record(body.get('outcome','unknown'),
+                expected_episode_id=body.get('episode_id',body.get('recording_id')))
         with self.lock:
             if operation == 'stop':
                 if body.get('expected_control_epoch') is not None and body['expected_control_epoch']!=self.control_epoch:
@@ -511,14 +512,19 @@ class SO101Station:
             finally:
                 self.record_queue.task_done()
 
-    def _finish_record(self, outcome, state='complete'):
+    def _finish_record(self, outcome, state='complete',*,expected_episode_id=None):
         with self.finish_lock:
-            return self._finish_record_locked(outcome,state)
+            return self._finish_record_locked(outcome,state,expected_episode_id=expected_episode_id)
 
-    def _finish_record_locked(self, outcome, state='complete'):
+    def _finish_record_locked(self, outcome, state='complete',*,expected_episode_id=None):
         if outcome not in ('success','failure','unknown'):
             raise ValueError('Unknown outcome label')
         with self.lock:
+            current=self.finishing_record or self.record
+            if expected_episode_id is not None:
+                if (not isinstance(expected_episode_id,str) or not expected_episode_id or
+                        (current or self.last_finished or {}).get('episode_id')!=expected_episode_id):
+                    raise ValueError('Recording identity changed; stale finish cannot seal another episode')
             if not self.record and not self.finishing_record:
                 if self.last_finished and self.last_finished['outcome']==outcome:
                     return dict(self.last_finished)
