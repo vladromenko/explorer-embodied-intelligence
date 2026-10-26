@@ -1,0 +1,184 @@
+{
+  "before": {
+    "implementation_sha256": {
+      "00-control-center/src/explorer/so101_diffusion_training.py": "1ac9307dd8f1ffea48f2fab6e2fdc36e5295f3637b8e5a194e78f1f69dc7dece",
+      "01-autonomous-learning/src/explorer_sim/dataset_export.py": "0e1163980f598d5bd7cf8dee8077db446537cb32c473ead1719ecf2efc82a589",
+      "shared/explorer_shared/experiments.py": "1a2795fab6d78883e8887ff0dcb9e69c1b8e40180e4e08bfd43072671b249478",
+      "shared/explorer_shared/learning/act_backend.py": "cd3c84114081456357b7d7a721400029ba79597ad406a9a9b2818413dc3c5418",
+      "shared/explorer_shared/learning/artifacts.py": "c218abfc061878c85fdc7651df1de95beb2727d2afc4de193ba4b6d284d8d626",
+      "shared/explorer_shared/learning/diffusion_backend.py": "615dc208f8166a55d229cb979157c9a7929b838c04fa6eaa2472c15d77317434",
+      "shared/explorer_shared/learning/diffusion_optimizer.py": "dd0d1876e4be1d9de2d3bc8149a822d7e571502fc0350b81f79258553b7ba2c3",
+      "shared/explorer_shared/learning/diffusion_policy.py": "141db2020785dc6337215737c04e8431442f3329c42137d5c6285a289d722a8b",
+      "shared/explorer_shared/learning/history_windows.py": "cad221cc249521ed1fe37b340f12c483ba12a48b01f7459f8c85c4aeee2ca795"
+    },
+    "limits": {
+      "cpu_quota_cores": 2.0,
+      "memory_max": 4294967296,
+      "memory_swap_max": 0,
+      "path": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-diffusion-qual-current6-20261026.service"
+    },
+    "runtime": {
+      "backend_source_sha256": "615dc208f8166a55d229cb979157c9a7929b838c04fa6eaa2472c15d77317434",
+      "executable": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/bin/python",
+      "executable_resolved": "/usr/bin/python3.12",
+      "executable_sha256": "c86f21d0da9290ece2d7d49a3f7ed52aed59cb029abdf0ea25c79634f6cbe960",
+      "official_sources_sha256": {
+        "diffusers/schedulers/scheduling_ddim.py": "a61e4d99402d1186d2aec1bec8b0f336108b06d72c07e7eb2eb837a44a9b196c",
+        "diffusers/schedulers/scheduling_ddpm.py": "3822205d8e95938da6af85dfb9e0455c15bc37983d2d5842ee586c29bc75b74a",
+        "lerobot/optim/optimizers.py": "9b028586c0c2f9b07693bcb42df0dd0719388f439a8bfb764e6ebfd01faf1aea",
+        "lerobot/policies/diffusion/configuration_diffusion.py": "d5b9626e0e8156745e646cf81092263ba01a4f8d75a7ccdf37241d5b682ef8ad",
+        "lerobot/policies/diffusion/modeling_diffusion.py": "b5512f37729ab636badcdd589395ecfd14312289eaa621d6f9d38db9d5df531d"
+      },
+      "packages": {
+        "diffusers": {
+          "location": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/lib/python3.12/site-packages",
+          "record_sha256": "396954931ae194b60d66a69c040bb397023c074f889c1ac7ef2fa6fd164dad4a",
+          "version": "0.38.0"
+        },
+        "huggingface-hub": {
+          "location": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages",
+          "record_sha256": "3cf0e78ef56a91a278714b25dccad02c3e1daca6ff30447c0bb277e8f8b3314d",
+          "version": "1.33.0"
+        },
+        "importlib_metadata": {
+          "location": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/lib/python3.12/site-packages",
+          "record_sha256": "73b850874ddb2e1e4617e34b0bc7de61cc5e2a7e0ac9689dafd09d81d0675bfa",
+          "version": "8.7.0"
+        },
+        "lerobot": {
+          "location": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages",
+          "record_sha256": "2197e427eb677540e6cadab89f7e36803690e4be9209cc822ad0e83a637a7b17",
+          "version": "0.6.1"
+        },
+        "numpy": {
+          "location": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages",
+          "record_sha256": "0ce8faaa9b93df6b976720a5f95af6506b26b035ed54c146c4e3f807b889627c",
+          "version": "2.2.6"
+        },
+        "regex": {
+          "location": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/lib/python3.12/site-packages",
+          "record_sha256": "0d5b005f230005ecfe23e90dcaa469ba163e3bb76357a7b79e0affd5d6678c9b",
+          "version": "2024.11.6"
+        },
+        "safetensors": {
+          "location": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages",
+          "record_sha256": "57349ad4abc788ea12940bd6a4b9b6dea6ff2049693d0ae622ee8c434d0f13f8",
+          "version": "0.8.0"
+        },
+        "torch": {
+          "location": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages",
+          "record_sha256": "caa5ed44c65b699b2b9440ca044493409c195958ba37043562f282a7ef7fe2fc",
+          "version": "2.11.0"
+        },
+        "torchvision": {
+          "location": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages",
+          "record_sha256": "9fde4575e851216bf4529868f39d61ea5cad84d01b9b853b4459b655071979ce",
+          "version": "0.26.0"
+        },
+        "zipp": {
+          "location": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/lib/python3.12/site-packages",
+          "record_sha256": "1af1beb26093c2cf2526b8336a8e79a4ea2e1c51df0254bceafd988432808c95",
+          "version": "3.23.0"
+        }
+      },
+      "prefix": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu",
+      "python_version": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+      "qualification_script_sha256": "83c24219d5ed8a0907326a2bfbcf7bcd2559d9619966aa80db93db7aab55c4ca"
+    },
+    "source_commit": "e9df048d3a8099fef2e4d78c1b2e63f9de81ce2a"
+  },
+  "after": {
+    "cgroup_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "cgroup_peak_memory_bytes": 1409556480,
+    "hardware_io": false,
+    "implementation_sha256": {
+      "00-control-center/src/explorer/so101_diffusion_training.py": "1ac9307dd8f1ffea48f2fab6e2fdc36e5295f3637b8e5a194e78f1f69dc7dece",
+      "01-autonomous-learning/src/explorer_sim/dataset_export.py": "0e1163980f598d5bd7cf8dee8077db446537cb32c473ead1719ecf2efc82a589",
+      "shared/explorer_shared/experiments.py": "1a2795fab6d78883e8887ff0dcb9e69c1b8e40180e4e08bfd43072671b249478",
+      "shared/explorer_shared/learning/act_backend.py": "cd3c84114081456357b7d7a721400029ba79597ad406a9a9b2818413dc3c5418",
+      "shared/explorer_shared/learning/artifacts.py": "c218abfc061878c85fdc7651df1de95beb2727d2afc4de193ba4b6d284d8d626",
+      "shared/explorer_shared/learning/diffusion_backend.py": "615dc208f8166a55d229cb979157c9a7929b838c04fa6eaa2472c15d77317434",
+      "shared/explorer_shared/learning/diffusion_optimizer.py": "dd0d1876e4be1d9de2d3bc8149a822d7e571502fc0350b81f79258553b7ba2c3",
+      "shared/explorer_shared/learning/diffusion_policy.py": "141db2020785dc6337215737c04e8431442f3329c42137d5c6285a289d722a8b",
+      "shared/explorer_shared/learning/history_windows.py": "cad221cc249521ed1fe37b340f12c483ba12a48b01f7459f8c85c4aeee2ca795"
+    },
+    "launcher_sha256": "312fc447338fa5741098c06c774cc14c041ee6e063df46816e6b2f46e75ca4ce",
+    "limits": {
+      "cpu_quota_cores": 2.0,
+      "memory_max": 4294967296,
+      "memory_swap_max": 0,
+      "path": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-diffusion-qual-current6-20261026.service"
+    },
+    "process_peak_RSS_bytes": 1327288320,
+    "production_state_writes": false,
+    "pytest_exit_code": 0,
+    "runtime": {
+      "backend_source_sha256": "615dc208f8166a55d229cb979157c9a7929b838c04fa6eaa2472c15d77317434",
+      "executable": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/bin/python",
+      "executable_resolved": "/usr/bin/python3.12",
+      "executable_sha256": "c86f21d0da9290ece2d7d49a3f7ed52aed59cb029abdf0ea25c79634f6cbe960",
+      "official_sources_sha256": {
+        "diffusers/schedulers/scheduling_ddim.py": "a61e4d99402d1186d2aec1bec8b0f336108b06d72c07e7eb2eb837a44a9b196c",
+        "diffusers/schedulers/scheduling_ddpm.py": "3822205d8e95938da6af85dfb9e0455c15bc37983d2d5842ee586c29bc75b74a",
+        "lerobot/optim/optimizers.py": "9b028586c0c2f9b07693bcb42df0dd0719388f439a8bfb764e6ebfd01faf1aea",
+        "lerobot/policies/diffusion/configuration_diffusion.py": "d5b9626e0e8156745e646cf81092263ba01a4f8d75a7ccdf37241d5b682ef8ad",
+        "lerobot/policies/diffusion/modeling_diffusion.py": "b5512f37729ab636badcdd589395ecfd14312289eaa621d6f9d38db9d5df531d"
+      },
+      "packages": {
+        "diffusers": {
+          "location": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/lib/python3.12/site-packages",
+          "record_sha256": "396954931ae194b60d66a69c040bb397023c074f889c1ac7ef2fa6fd164dad4a",
+          "version": "0.38.0"
+        },
+        "huggingface-hub": {
+          "location": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages",
+          "record_sha256": "3cf0e78ef56a91a278714b25dccad02c3e1daca6ff30447c0bb277e8f8b3314d",
+          "version": "1.33.0"
+        },
+        "importlib_metadata": {
+          "location": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/lib/python3.12/site-packages",
+          "record_sha256": "73b850874ddb2e1e4617e34b0bc7de61cc5e2a7e0ac9689dafd09d81d0675bfa",
+          "version": "8.7.0"
+        },
+        "lerobot": {
+          "location": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages",
+          "record_sha256": "2197e427eb677540e6cadab89f7e36803690e4be9209cc822ad0e83a637a7b17",
+          "version": "0.6.1"
+        },
+        "numpy": {
+          "location": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages",
+          "record_sha256": "0ce8faaa9b93df6b976720a5f95af6506b26b035ed54c146c4e3f807b889627c",
+          "version": "2.2.6"
+        },
+        "regex": {
+          "location": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/lib/python3.12/site-packages",
+          "record_sha256": "0d5b005f230005ecfe23e90dcaa469ba163e3bb76357a7b79e0affd5d6678c9b",
+          "version": "2024.11.6"
+        },
+        "safetensors": {
+          "location": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages",
+          "record_sha256": "57349ad4abc788ea12940bd6a4b9b6dea6ff2049693d0ae622ee8c434d0f13f8",
+          "version": "0.8.0"
+        },
+        "torch": {
+          "location": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages",
+          "record_sha256": "caa5ed44c65b699b2b9440ca044493409c195958ba37043562f282a7ef7fe2fc",
+          "version": "2.11.0"
+        },
+        "torchvision": {
+          "location": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages",
+          "record_sha256": "9fde4575e851216bf4529868f39d61ea5cad84d01b9b853b4459b655071979ce",
+          "version": "0.26.0"
+        },
+        "zipp": {
+          "location": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/lib/python3.12/site-packages",
+          "record_sha256": "1af1beb26093c2cf2526b8336a8e79a4ea2e1c51df0254bceafd988432808c95",
+          "version": "3.23.0"
+        }
+      },
+      "prefix": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu",
+      "python_version": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+      "qualification_script_sha256": "83c24219d5ed8a0907326a2bfbcf7bcd2559d9619966aa80db93db7aab55c4ca"
+    }
+  }
+}

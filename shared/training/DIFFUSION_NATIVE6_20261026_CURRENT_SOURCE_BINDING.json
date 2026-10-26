@@ -1,0 +1,35 @@
+{
+  "schema": "explorer_native6_diffusion_source_qualification_binding_v1",
+  "qualification_result": "/mnt/explorer-data/explorer-work/qualification-dp6-current-20261026/pytest/test_same_accepted_whole_skill0/qualification.json",
+  "qualification_result_sha256": "7ad2bf7e92d739aadd7de7fcd24a6b6c68d2ccc48daf194d52859d543431419e",
+  "actual_runtime_executable": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/bin/python",
+  "runtime_binding_sha256": "b5e1dbada08fb70d24a0a3bad08ca4f85a696f29b1617918dd8a5f253e272070",
+  "implementation_sha256": {
+    "00-control-center/src/explorer/so101_diffusion_training.py": "1ac9307dd8f1ffea48f2fab6e2fdc36e5295f3637b8e5a194e78f1f69dc7dece",
+    "01-autonomous-learning/src/explorer_sim/dataset_export.py": "0e1163980f598d5bd7cf8dee8077db446537cb32c473ead1719ecf2efc82a589",
+    "shared/explorer_shared/experiments.py": "1a2795fab6d78883e8887ff0dcb9e69c1b8e40180e4e08bfd43072671b249478",
+    "shared/explorer_shared/learning/act_backend.py": "cd3c84114081456357b7d7a721400029ba79597ad406a9a9b2818413dc3c5418",
+    "shared/explorer_shared/learning/artifacts.py": "c218abfc061878c85fdc7651df1de95beb2727d2afc4de193ba4b6d284d8d626",
+    "shared/explorer_shared/learning/diffusion_backend.py": "615dc208f8166a55d229cb979157c9a7929b838c04fa6eaa2472c15d77317434",
+    "shared/explorer_shared/learning/diffusion_optimizer.py": "dd0d1876e4be1d9de2d3bc8149a822d7e571502fc0350b81f79258553b7ba2c3",
+    "shared/explorer_shared/learning/diffusion_policy.py": "141db2020785dc6337215737c04e8431442f3329c42137d5c6285a289d722a8b",
+    "shared/explorer_shared/learning/history_windows.py": "cad221cc249521ed1fe37b340f12c483ba12a48b01f7459f8c85c4aeee2ca795"
+  },
+  "actual_source_commit": "e9df048d3a8099fef2e4d78c1b2e63f9de81ce2a",
+  "actual_scope": "Current canonical source04 full accepted cohort + officialDataset + native6 Diffusion4/restart4 + saved loader + SIMULATION_ONLY card",
+  "runtime_observation": "DIFFUSION_NATIVE6_20261026_CURRENT_RUNTIME_OBSERVATION.json",
+  "runtime_observation_sha256": "08d1e95740e9960d934873fb8fb2fd439282a1fe0b9db66cdcfb92296930f4a1",
+  "cgroup_limits_verified": {
+    "cpu_quota_cores": 2.0,
+    "memory_max": 4294967296,
+    "memory_swap_max": 0,
+    "path": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-diffusion-qual-current6-20261026.service"
+  },
+  "process_peak_RSS_bytes": 1327288320,
+  "cgroup_peak_memory_bytes": 1409556480,
+  "cgroup_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "public_queue_integration_qualified": false,
+  "physical_io": false,
+  "physical_rollout_qualified": false,
+  "production_state_writes": false
+}
