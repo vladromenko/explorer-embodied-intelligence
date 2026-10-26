@@ -1,0 +1,87 @@
+{
+  "method_id": "DAGGER_ROSS_2011",
+  "implementation_id": "IMPL-DAGGER-CAD-ACT-001",
+  "function_or_module": "01-autonomous-learning/src/explorer_sim/dagger.py",
+  "implementation_type": "ADAPTED",
+  "paper_ids": [
+    "P003"
+  ],
+  "sources": [
+    {
+      "url": "https://proceedings.mlr.press/v15/ross11a.html",
+      "role": "Original DAgger method; Section3 / Algorithm3.1, printed629–630"
+    },
+    {
+      "url": "https://proceedings.mlr.press/v15/ross11a/ross11a.pdf",
+      "sha256": "17bdd6e049e64f09010b322f9e2d4fb5c744c33ff7ac99b4c4561e39bd9082a7",
+      "role": "Inspected primary full text; author copyright is not a code/model license"
+    }
+  ],
+  "upstream_repo": "NOT_APPLICABLE_NO_DAGGER_IMPLEMENTATION_COPIED",
+  "upstream_commit": "NOT_APPLICABLE",
+  "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+  "model_license": "PRIVATE_LOCAL_TRAINED_ARTIFACT_NO_SEPARATE_LICENSE_SELECTED",
+  "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE_CAD_RIGHTS_NOT_EXPANDED",
+  "dependency_methods": [
+    "PPO_SB3_2_9",
+    "ACT_LEROBOT_0_6_1",
+    "EXPLORER_CAD_MUJOCO"
+  ],
+  "dependency_pins": {
+    "stable-baselines3": {
+      "version": "2.9.0",
+      "repo": "https://github.com/DLR-RM/stable-baselines3",
+      "commit": "8908708f10c8ff29759c67f55c8acb56cab27463",
+      "license": "MIT"
+    },
+    "lerobot": {
+      "version": "0.6.1",
+      "repo": "https://github.com/huggingface/lerobot",
+      "commit": "7e241bd630a3719a56157a497ce5d08f244784f1",
+      "license": "Apache-2.0",
+      "source_sha256": {
+        "modeling_act.py": "a6c1a49c5daafa513b9abee9b986205d327e25c70ed13623ab2e6c0ab6b1f577",
+        "configuration_act.py": "35a60c0dd3c811b137b5eb035bdbd40d40e2c24ba0cda61756052e6e1c829282"
+      }
+    }
+  },
+  "changes_and_reason": "One beta0 aggregation round after successful-expert-only ACT initialization. Query privileged PPO on pre-step learner states, preserve requested/executed/counterfactual action identities, supervise one valid current-action chunk position for both source roles, retain finite teacher queries from failed learner rollouts. Actor sees RGB+command estimate only. All evaluation is explicitly development, independently executed before/after. No novel algorithm, executed teacher recovery, hardware or cloth/kitchen success claim.",
+  "source_sha256": {
+    "dagger.py": "29f6c1bc3bd7ad008afbc7a97c9fb09b1ca91158c77196c63b6b1bff234cf591"
+  },
+  "verification": {
+    "paper_read": true,
+    "code_inspected": true,
+    "installed": true,
+    "software_tested": true,
+    "hardware_tested": false
+  },
+  "test_evidence": [
+    {
+      "command": "PYTHONPATH=01-autonomous-learning/src EXPLORER_SIM_MESH_DIR=<verified CAD> /tmp/explorer-sim-env/bin/python -m pytest -q 01-autonomous-learning/tests/test_dagger.py 01-autonomous-learning/tests/test_reach_pilot.py",
+      "result": "21 passed, 1 skipped (existing explicit pilot integration test; actual DAgger execution separately recorded here)",
+      "date": "2026-10-26",
+      "scope": "Semantic boundary tests and actual CAD dynamics; separate real CPU optimizer/rollouts in validation receipt"
+    },
+    {
+      "command": "run_dagger local Mac CPU; fixed source/seed plan,120+120 updates",
+      "result": "0/6 to0/6,127teacher queries,120from failed learner episodes; weights changed and reload error0",
+      "run_id": "dagger-cpu-development-v3",
+      "result_sha256": "0dc9c3815cdec0d51c0aa5836213ae3596a0c70e181ce6dd5625332469a0128b"
+    },
+    {
+      "command": "run_dagger explicit DEVELOPMENT tuning,480+480 updates",
+      "result": "0/6 to2/6,240teacher queries from4failed learner episodes; teacher6/6; weights changed and reload error0",
+      "run_id": "dagger-cpu-development-tuning480-v1",
+      "result_sha256": "81fe25dd1588ce70e12eb5432a8337a3bd288975dcc54b24720b5c4aa5865faf"
+    }
+  ],
+  "validation_receipt": "01-autonomous-learning/docs/DAGGER_DEVELOPMENT_VALIDATION.json",
+  "paper_review_evidence": [
+    "research/literature/reviews/P003.json"
+  ],
+  "hardware_run_ids": [],
+  "activation_status": "STANDALONE_RECORD_READY_FOR_ROOT_SHARED_REGISTRY_INTEGRATION",
+  "qualification_scope": "Two development engineering runs; no sealed final test, causal matched-update ablation or independently branched recovery verification",
+  "dependency_exception": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds"
+}

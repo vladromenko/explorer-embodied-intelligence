@@ -1,0 +1,2007 @@
+{
+  "schema": "explorer_dagger_development_validation_v1",
+  "date": "2026-10-26",
+  "execution_host": "local Mac, CPU optimizer and MuJoCo simulation only",
+  "python": "3.12.13",
+  "dagger_source_sha256": "29f6c1bc3bd7ad008afbc7a97c9fb09b1ca91158c77196c63b6b1bff234cf591",
+  "runs": [
+    {
+      "task": "one_round_dagger_fixed_base_reach",
+      "status": "simulation_development_evaluated",
+      "physical_io": false,
+      "sealed_final_test": false,
+      "method_ids": [
+        "DAGGER_ROSS_2011",
+        "PPO_SB3_2_9",
+        "ACT_LEROBOT_0_6_1",
+        "EXPLORER_CAD_MUJOCO",
+        "ENGINEERING_GLUE"
+      ],
+      "source_context": {
+        "cad_mesh_sha256": {
+          "Camera.STL": "12d7158cdf2fab1072f2bd3989726e854a20d1fe717206cb7edc114afe59fdbe",
+          "DCW2.STL": "085efb1ffed33d9440071886bf1c2ce769facda5e45fd7e1ab24d4d55298d1a1",
+          "Gripping.STL": "e35ed860419dad49687084f9c8493f43c81cfece5b421d7e63944d27d22d63f7",
+          "arm1.STL": "d12f701abb74171df8ed3179b3885d10c6af2863f29d13e52bcce2d0d8933643",
+          "arm2.STL": "6ec3d8c7b02106560f61035e03a034637b988d153319d87bb50994e96728271e",
+          "arm3.STL": "74e309203df8ed80e57962a5ccc871909163cb07c1b1f6db0628233684360a98",
+          "arm4.STL": "8f74b107bdaba930ea482c95e6685d5cf5dccb3923a1e6d8b9280b7986811cda",
+          "arm5.STL": "1a52a732e4664ac3b703968416446b76d67067a78632b520d33858a80a26a281",
+          "arm_base_Link.STL": "bbd67c0a59cdbb8fd02c567e8ddff62bde72d3cae753ee63da7681f98f29871c",
+          "base_link.STL": "82897ec12100b78d8f33800edd7be19f86de3ffbc3574ed446f1d2bf04079f4a",
+          "llink1.STL": "0acf2b0ea73e9eb63e3ef9fec5637f0a151dae108ac3eed58ffd98f0062a6c9d",
+          "llink2.STL": "e356dfad82f1468a6c80e20fe127df4b7b40c395398cf5cb85a1522d9691b31c",
+          "llink3.STL": "81f1c9f5ab75d86362d7e227fda6018c87488db713bd9621f6eb761bbec3109d",
+          "lwheel1.STL": "e629352d69aaef698c948505f046fb241b1d9a7e734f0417a06dfe2d383eacfd",
+          "lwheel2.STL": "f07f85985d6c189b71d839a0d44bf3e893eacfd76dccc4f954b63d247a78ae1b",
+          "rlink1.STL": "9e3bb9c0d08d3d177e01a532d275f108f514eb4be13e857c0a596c61c32891a6",
+          "rlink2.STL": "ff22b15d51ff0d96cddcaa74b6056c9e5f88e1abe6886023a2a90ca80ec3230d",
+          "rlink3.STL": "bcf76ccbadf426c3e7ec6135f0fd09c0669b54735e7de91bbee92276b5404b25",
+          "rwheel1.STL": "7218e9bea1d0862cacd44b0a8a72e207085d367a022843bfd4e6be23f6786fff",
+          "rwheel2.STL": "f8daf44a79b1b3d5bdec95ef3885e8151f3a39f21f93c2bf2e8fcbf09d57c323"
+        },
+        "dagger_source_sha256": "29f6c1bc3bd7ad008afbc7a97c9fb09b1ca91158c77196c63b6b1bff234cf591",
+        "legacy_model_source_sha256": "2c46df3f6a81a2395132cd89bc702737c088171b83d3e05bb7eb63f5b4657d87",
+        "pilot_source_sha256": "e8371617f8c7446b8d214797cdd39125f3259fa4a7e2717ace063aee4324ea19",
+        "seed_plan": {
+          "beta": 0.0,
+          "blocked_source_seeds": [
+            41,
+            2041,
+            2042,
+            2043,
+            2044,
+            2045,
+            2046,
+            2047,
+            2048,
+            2049,
+            2050,
+            2051,
+            2052,
+            10040,
+            10041,
+            10042,
+            10043,
+            10044,
+            10045,
+            10046
+          ],
+          "collection": [
+            54041,
+            54042,
+            54043,
+            54044
+          ],
+          "collection_role": "development_training_only",
+          "development": [
+            62041,
+            62042,
+            62043,
+            62044,
+            62045,
+            62046
+          ],
+          "development_observations_fit": false,
+          "evaluation_role": "engineering_development_evaluation",
+          "rounds": 1,
+          "sealed_final_test": false
+        },
+        "settings": {
+          "act_steps": 120,
+          "batch_size": 8,
+          "chunk_size": 8,
+          "collection_episodes": 4,
+          "device": "cpu",
+          "evaluation_episodes": 6,
+          "horizon": 60,
+          "image_size": 64,
+          "initial_act_steps": 120,
+          "seed": 52041
+        },
+        "source_files_sha256": {
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0000.npz": "1f4f5ca3e1a3202012f1b7fec72b1c06631ecc211f6341d61a803ff1c18e75bf",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0001.npz": "b927c4d450b1392f4b97eab30bf6e04e86b9cb34987cc5fd259308cf36616054",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0002.npz": "623eda9d67d0103e2dc3bdbe0656915f09864e1e32eb6c93f53d21739019ba99",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0003.npz": "a85f25a3653c03521163bc00d00a7480b5e5df56d0cf34488c21be75efd75bbb",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0004.npz": "a2fbcb51fab85160c6fea556c9a392a71c6c7559aadb5a2c3963d226c9cd9322",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0005.npz": "ebd4f0f92515864c091fbf94e759046a9f401fa1388acfb238cdfb6e213c6c61",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0006.npz": "6e29e673004ea7c1a804b8f29aeea291178738b5e3ba62e5442badb3a62463a0",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0007.npz": "04db9d8026a505952b666f52cb3c9a9f064eb489969deb7b886670ea83d6f3bf",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0008.npz": "22f7f5e043880de7d2c115785f99d5ba81b634062352c829c882f595c4805b1a",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0009.npz": "d07a33e44d06d2fd691e9c72c119c8a49e7f84bd769bb95b76a75b5a2c3f1276",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0010.npz": "f72e1d80f1193c8f6f8e62e8343a1c8dddb7fc8bfa4beade9d63a7843bbcbdfb",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0011.npz": "d66a932abd7f6a612d62d47a8d258fc52c6b8193503d343a8c2cf9c3f8d55930",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/manifest.json": "c8e7ed44c870b2d201c258fdb06371f89669e1e0ebfe6659fcac60411ec9efc7",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/model.xml": "476c2c19aec7243f62b90390c523afbc6609e8ea6f88571f2918f19583072df7",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/provenance.json": "248c1276b9bd8de0900c6a9a76d734e488dac9500a33b74064e3b705187a9177",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/result.json": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/teacher_ppo.zip": "4dd8bb7fa192424dd9389d12926d47f3d92111ea3b02954235d071c28846ebea"
+        },
+        "student_source_sha256": "7e44e95c171c9056983927035dbe6358ec7526ec5eb66c6c6948abc5f35204f9"
+      },
+      "seed_plan": {
+        "beta": 0.0,
+        "blocked_source_seeds": [
+          41,
+          2041,
+          2042,
+          2043,
+          2044,
+          2045,
+          2046,
+          2047,
+          2048,
+          2049,
+          2050,
+          2051,
+          2052,
+          10040,
+          10041,
+          10042,
+          10043,
+          10044,
+          10045,
+          10046
+        ],
+        "collection": [
+          54041,
+          54042,
+          54043,
+          54044
+        ],
+        "collection_role": "development_training_only",
+        "development": [
+          62041,
+          62042,
+          62043,
+          62044,
+          62045,
+          62046
+        ],
+        "development_observations_fit": false,
+        "evaluation_role": "engineering_development_evaluation",
+        "rounds": 1,
+        "sealed_final_test": false
+      },
+      "before": {
+        "episodes": [
+          {
+            "command9": [
+              100.44815826416016,
+              96.1181411743164,
+              91.98395538330078,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.07825089820974554,
+            "goal_xyz": [
+              -0.08593994804257815,
+              0.03237724415122879,
+              0.5241616241833025
+            ],
+            "grasp_center_xyz": [
+              -0.014384553405655972,
+              0.008562909836479518,
+              0.5450399873885837
+            ],
+            "initial_distance_m": 0.12244700482095748,
+            "physical_run": false,
+            "return": -90.07110100276957,
+            "seed": 62041,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              100.45266723632812,
+              96.11663818359375,
+              91.98277282714844,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.10647422394827107,
+            "goal_xyz": [
+              0.09174870393130496,
+              0.016507406234307055,
+              0.5415095501127057
+            ],
+            "grasp_center_xyz": [
+              -0.014370028629827569,
+              0.008564073474800885,
+              0.5450420321971848
+            ],
+            "initial_distance_m": 0.06470148571935855,
+            "physical_run": false,
+            "return": -131.6076825939341,
+            "seed": 62042,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              100.45240020751953,
+              96.11677551269531,
+              91.98248291015625,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.08827727999012563,
+            "goal_xyz": [
+              0.07359924393923478,
+              0.0012263912796443548,
+              0.5457706001877615
+            ],
+            "grasp_center_xyz": [
+              -0.014369560280336884,
+              0.008563758384154895,
+              0.5450421150421668
+            ],
+            "initial_distance_m": 0.04409101889151046,
+            "physical_run": false,
+            "return": -109.95765238508875,
+            "seed": 62043,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              100.45232391357422,
+              96.11693572998047,
+              91.9823226928711,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.08405974552052653,
+            "goal_xyz": [
+              0.06968916512300483,
+              0.008299489705514765,
+              0.5452808774041369
+            ],
+            "grasp_center_xyz": [
+              -0.014369825870854799,
+              0.00856374349240053,
+              0.5450420887820816
+            ],
+            "initial_distance_m": 0.04108133434813971,
+            "physical_run": false,
+            "return": -104.80391660260074,
+            "seed": 62044,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              100.45179748535156,
+              96.11476135253906,
+              91.98279571533203,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.1415450501665696,
+            "goal_xyz": [
+              0.1267111610353036,
+              0.004390103888240394,
+              0.5342400780814508
+            ],
+            "grasp_center_xyz": [
+              -0.014359339290403358,
+              0.008561357626314941,
+              0.5450435870838077
+            ],
+            "initial_distance_m": 0.09822886001250195,
+            "physical_run": false,
+            "return": -173.81141318575064,
+            "seed": 62045,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              100.44781494140625,
+              96.11771392822266,
+              91.98248291015625,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.08121025563591604,
+            "goal_xyz": [
+              -0.09079997856772151,
+              0.02432680370880573,
+              0.522549505552676
+            ],
+            "grasp_center_xyz": [
+              -0.01437574924262417,
+              0.008560992429374305,
+              0.545041326004056
+            ],
+            "initial_distance_m": 0.1255443964967158,
+            "physical_run": false,
+            "return": -93.5883796261809,
+            "seed": 62046,
+            "steps": 60,
+            "success": false
+          }
+        ],
+        "evaluation_domain": "simulation",
+        "independent_from_training_episodes": true,
+        "mean_final_distance_m": 0.0966362422451924,
+        "n": 6,
+        "physical_run_ids": [],
+        "sealed_final_test": false,
+        "split_role": "engineering_development_evaluation",
+        "success_rate": 0.0,
+        "successes": 0
+      },
+      "after": {
+        "episodes": [
+          {
+            "command9": [
+              108.14065551757812,
+              88.78898620605469,
+              91.1722183227539,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.12463128736175232,
+            "goal_xyz": [
+              -0.08593994804257815,
+              0.03237724415122879,
+              0.5241616241833025
+            ],
+            "grasp_center_xyz": [
+              0.03198970915664923,
+              8.97134113771252e-05,
+              0.5483084480126084
+            ],
+            "initial_distance_m": 0.12244700482095748,
+            "physical_run": false,
+            "return": -149.86121500754123,
+            "seed": 62041,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              108.14065551757812,
+              88.78902435302734,
+              91.17213439941406,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.062344911672286805,
+            "goal_xyz": [
+              0.09174870393130496,
+              0.016507406234307055,
+              0.5415095501127057
+            ],
+            "grasp_center_xyz": [
+              0.03198984737700257,
+              8.96707812919164e-05,
+              0.5483084498282746
+            ],
+            "initial_distance_m": 0.06470148571935855,
+            "physical_run": false,
+            "return": -74.64969863468647,
+            "seed": 62042,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              108.14073181152344,
+              88.78905487060547,
+              91.17212677001953,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.04170236121259627,
+            "goal_xyz": [
+              0.07359924393923478,
+              0.0012263912796443548,
+              0.5457706001877615
+            ],
+            "grasp_center_xyz": [
+              0.031989699164160876,
+              8.97173263942192e-05,
+              0.5483084509794701
+            ],
+            "initial_distance_m": 0.04409101889151046,
+            "physical_run": false,
+            "return": -49.87217441914796,
+            "seed": 62043,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              108.14073181152344,
+              88.7890396118164,
+              91.17211151123047,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.03870149363604142,
+            "goal_xyz": [
+              0.06968916512300483,
+              0.008299489705514765,
+              0.5452808774041369
+            ],
+            "grasp_center_xyz": [
+              0.03198985121166118,
+              8.967003672279787e-05,
+              0.5483084509012534
+            ],
+            "initial_distance_m": 0.04108133434813971,
+            "physical_run": false,
+            "return": -46.27453837988552,
+            "seed": 62044,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              108.1407241821289,
+              88.78903198242188,
+              91.17211151123047,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.09585680069080531,
+            "goal_xyz": [
+              0.1267111610353036,
+              0.004390103888240394,
+              0.5342400780814508
+            ],
+            "grasp_center_xyz": [
+              0.03198992131369406,
+              8.964625006814387e-05,
+              0.5483084485763032
+            ],
+            "initial_distance_m": 0.09822886001250195,
+            "physical_run": false,
+            "return": -114.85947718411329,
+            "seed": 62045,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              108.140625,
+              88.78898620605469,
+              91.17223358154297,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.12778205159947098,
+            "goal_xyz": [
+              -0.09079997856772151,
+              0.02432680370880573,
+              0.522549505552676
+            ],
+            "grasp_center_xyz": [
+              0.03198965413720918,
+              8.97306176623156e-05,
+              0.5483084476725041
+            ],
+            "initial_distance_m": 0.1255443964967158,
+            "physical_run": false,
+            "return": -153.64676012226283,
+            "seed": 62046,
+            "steps": 60,
+            "success": false
+          }
+        ],
+        "evaluation_domain": "simulation",
+        "independent_from_training_episodes": true,
+        "mean_final_distance_m": 0.08183648436215886,
+        "n": 6,
+        "physical_run_ids": [],
+        "sealed_final_test": false,
+        "split_role": "engineering_development_evaluation",
+        "success_rate": 0.0,
+        "successes": 0
+      },
+      "privileged_teacher_reference": {
+        "episodes": [
+          {
+            "command9": [
+              95.73068237304688,
+              102.74214172363281,
+              98.17256927490234,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.02265461639000633,
+            "goal_xyz": [
+              -0.08593994804257815,
+              0.03237724415122879,
+              0.5241616241833025
+            ],
+            "grasp_center_xyz": [
+              -0.07938090558928196,
+              0.011101602716648585,
+              0.528351813608779
+            ],
+            "initial_distance_m": 0.12244700482095748,
+            "physical_run": false,
+            "return": 1.0871363603522952,
+            "seed": 62041,
+            "steps": 18,
+            "success": true
+          },
+          {
+            "command9": [
+              93.60107421875,
+              83.43759155273438,
+              84.6388931274414,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.020488310746501946,
+            "goal_xyz": [
+              0.09174870393130496,
+              0.016507406234307055,
+              0.5415095501127057
+            ],
+            "grasp_center_xyz": [
+              0.09305831596275399,
+              -0.003931018395625094,
+              0.5420810325874099
+            ],
+            "initial_distance_m": 0.06470148571935855,
+            "physical_run": false,
+            "return": 7.287944316815369,
+            "seed": 62042,
+            "steps": 4,
+            "success": true
+          },
+          {
+            "command9": [
+              92.44886016845703,
+              85.36653900146484,
+              86.50534057617188,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.0031410530814331436,
+            "goal_xyz": [
+              0.07359924393923478,
+              0.0012263912796443548,
+              0.5457706001877615
+            ],
+            "grasp_center_xyz": [
+              0.07351699442817357,
+              -0.0018904107042721444,
+              0.5453898182667555
+            ],
+            "initial_distance_m": 0.04409101889151046,
+            "physical_run": false,
+            "return": 8.470845531080354,
+            "seed": 62043,
+            "steps": 3,
+            "success": true
+          },
+          {
+            "command9": [
+              92.41323852539062,
+              85.72823333740234,
+              86.75676727294922,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.010054141301006262,
+            "goal_xyz": [
+              0.06968916512300483,
+              0.008299489705514765,
+              0.5452808774041369
+            ],
+            "grasp_center_xyz": [
+              0.07022038361478256,
+              -0.0017257816022666146,
+              0.5458263124781546
+            ],
+            "initial_distance_m": 0.04108133434813971,
+            "physical_run": false,
+            "return": 7.264084421713809,
+            "seed": 62044,
+            "steps": 3,
+            "success": true
+          },
+          {
+            "command9": [
+              95.12166595458984,
+              79.93160247802734,
+              81.53113555908203,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.013015481403963596,
+            "goal_xyz": [
+              0.1267111610353036,
+              0.004390103888240394,
+              0.5342400780814508
+            ],
+            "grasp_center_xyz": [
+              0.1267556486268684,
+              -0.00858044802601073,
+              0.5331604670075749
+            ],
+            "initial_distance_m": 0.09822886001250195,
+            "physical_run": false,
+            "return": 10.122153256431766,
+            "seed": 62045,
+            "steps": 5,
+            "success": true
+          },
+          {
+            "command9": [
+              92.19447326660156,
+              102.85113525390625,
+              99.03390502929688,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.021522539706666455,
+            "goal_xyz": [
+              -0.09079997856772151,
+              0.02432680370880573,
+              0.522549505552676
+            ],
+            "grasp_center_xyz": [
+              -0.0840350280433654,
+              0.004312853397085053,
+              0.526660095868923
+            ],
+            "initial_distance_m": 0.1255443964967158,
+            "physical_run": false,
+            "return": 5.575675437302091,
+            "seed": 62046,
+            "steps": 12,
+            "success": true
+          }
+        ],
+        "evaluation_domain": "simulation",
+        "independent_from_training_episodes": true,
+        "mean_final_distance_m": 0.015146023771596288,
+        "n": 6,
+        "physical_run_ids": [],
+        "sealed_final_test": false,
+        "split_role": "engineering_development_evaluation",
+        "success_rate": 1.0,
+        "successes": 6
+      },
+      "collection": {
+        "episodes": [
+          {
+            "command9": [
+              100.4526138305664,
+              96.11731719970703,
+              91.98280334472656,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.09038044310082642,
+            "goal_xyz": [
+              0.07599258801140561,
+              0.010136435048483421,
+              0.5448885910338811
+            ],
+            "grasp_center_xyz": [
+              -0.014374059617901112,
+              0.008564771754642703,
+              0.5450414499009111
+            ],
+            "initial_distance_m": 0.047641982410846044,
+            "physical_run": false,
+            "return": -112.37102473048553,
+            "seed": 54041,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              100.0,
+              96.11692810058594,
+              91.98749542236328,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.013353551715928695,
+            "goal_xyz": [
+              -0.0249127594072562,
+              -0.0002018051520792768,
+              0.5436224538012279
+            ],
+            "grasp_center_xyz": [
+              -0.014641006433532718,
+              0.008215483789616581,
+              0.5450216253949896
+            ],
+            "initial_distance_m": 0.05471971615782721,
+            "physical_run": false,
+            "return": 7.660010110835437,
+            "seed": 54042,
+            "steps": 4,
+            "success": true
+          },
+          {
+            "command9": [
+              97.5,
+              96.11537170410156,
+              91.98799133300781,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.0064773466985084665,
+            "goal_xyz": [
+              -0.012932341268552841,
+              0.0004158047126505397,
+              0.5451798509240882
+            ],
+            "grasp_center_xyz": [
+              -0.015799900155757957,
+              0.0062180872357120685,
+              0.5449216963121514
+            ],
+            "initial_distance_m": 0.04265685088554578,
+            "physical_run": false,
+            "return": 7.969510222942841,
+            "seed": 54043,
+            "steps": 3,
+            "success": true
+          },
+          {
+            "command9": [
+              100.45228576660156,
+              96.11693572998047,
+              91.98235321044922,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.0845419403758571,
+            "goal_xyz": [
+              0.07017091296464809,
+              0.00818552533473089,
+              0.5452315903394709
+            ],
+            "grasp_center_xyz": [
+              -0.014369968971768982,
+              0.008563738322931825,
+              0.5450420676143802
+            ],
+            "initial_distance_m": 0.04153211669831463,
+            "physical_run": false,
+            "return": -105.38516050920774,
+            "seed": 54044,
+            "steps": 60,
+            "success": false
+          }
+        ],
+        "evaluation_domain": "simulation",
+        "independent_from_training_episodes": true,
+        "mean_final_distance_m": 0.04868832047278017,
+        "n": 4,
+        "physical_run_ids": [],
+        "sealed_final_test": false,
+        "split_role": "engineering_development_evaluation",
+        "success_rate": 0.5,
+        "successes": 2
+      },
+      "initial_training": {
+        "actor_samples": 47,
+        "checkpoint_dir": "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-v3/round0_expert/student_act",
+        "checkpoint_sha256": {
+          "config.json": "5a1056188f424b8ec15c63516f8a77362efdcce99edb84e7b6286d67c7da1219",
+          "explorer_preprocessing.json": "a05990724159b83148b6a547a6fef90d1883e2f53523526616f021403cd01bc8",
+          "model.safetensors": "3cfce39536f152399ca8cd19887b255d0eeb33380d93bfe38eb0cfca0d9d9f4e"
+        },
+        "elapsed_s": 6.29535837500589,
+        "losses_first_last": [
+          1.1577413082122803,
+          0.10163328796625137
+        ],
+        "optimizer_steps": 120,
+        "reload_max_abs_error": 0.0,
+        "save_reload_passed": true,
+        "weights_after_sha256": "e59862e50f320b1531c5d5e3d159d6aefee001476e0c3c9f960cedcd08ca2bda",
+        "weights_before_sha256": "3121c89ce1807e2f0dbdc981515d5a2be32effe092b80b62d97c0e428c74cb89",
+        "weights_changed": true
+      },
+      "aggregated_training": {
+        "actor_samples": 174,
+        "checkpoint_dir": "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-v3/round1_aggregated/student_act",
+        "checkpoint_sha256": {
+          "config.json": "51e7850bcd8af61fdb4c7e32eef24fd7f98cfab82287da8f54ad53da09a2d843",
+          "explorer_preprocessing.json": "768584e2b3277c76f51d8a749025b6f0f9ef91416abdc9eabd051218fe240488",
+          "model.safetensors": "b5337a6b5ecc7e204557654dff2907f943247a22f87f6c9865fa0b3ea59e73b4"
+        },
+        "elapsed_s": 6.25746695799171,
+        "losses_first_last": [
+          0.0941237285733223,
+          0.06880202889442444
+        ],
+        "optimizer_steps": 120,
+        "reload_max_abs_error": 0.0,
+        "save_reload_passed": true,
+        "weights_after_sha256": "3956b01dc6226f6f6ced42f356a6f4046816ad8b6554c8aecc4d4c83901799ed",
+        "weights_before_sha256": "e59862e50f320b1531c5d5e3d159d6aefee001476e0c3c9f960cedcd08ca2bda",
+        "weights_changed": true
+      },
+      "expert_training_episodes": 10,
+      "excluded_source_episodes": [
+        {
+          "id": "episode_0008",
+          "reason": "Only explicitly successful training demonstrations are expert targets",
+          "split": "imitation_train",
+          "success": false
+        },
+        {
+          "id": "episode_0009",
+          "reason": "Only explicitly successful training demonstrations are expert targets",
+          "split": "imitation_train",
+          "success": false
+        }
+      ],
+      "correction_episodes": 4,
+      "teacher_query_labels": 127,
+      "valid_corrections_from_failed_learner_episodes": 120,
+      "correction_manifest_sha256": "4366df9ec0232de7fffa052e8950c54e5c6bc98794ed8b1fba7d4eff61178951",
+      "learner_executed_actions_used_as_targets": false,
+      "original_sources_unchanged": true,
+      "teacher_query_recovery_executed": false,
+      "primary_success_rate_delta": 0.0,
+      "mean_final_distance_delta_m": -0.014799757883033546,
+      "primary_improvement_observed": false,
+      "limitations": [
+        "One development round; no sealed final test or statistical recovery guarantee",
+        "No matched extra-BC-update control; any observed gain cannot be uniquely attributed to aggregation",
+        "Fixed simulated base and three active CAD arm axes only; no cloth, kitchen, contact or hardware qualification",
+        "Privileged learned PPO teacher can be wrong on learner-visited states; finite queries are not task-success guarantees"
+      ],
+      "elapsed_s": 30.431258166005136,
+      "framework_versions": {
+        "torch": "2.14.1",
+        "torchvision": "0.29.1"
+      },
+      "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds",
+      "artifact_sha256": {
+        "after.json": "81b28add422df00f6a8c6d3ae962ca7908613bfaacb5519a20e3192e257ac908",
+        "before.json": "9d26da2c1a7b61bad6ef9972a39304a5e5f0093af40b01a740fb7d426ce713c1",
+        "collection.json": "491059b296aac89b0f329734dcc47661453dedabfe12740f8b631e29d980b443",
+        "corrections/episode_0000.npz": "716966caadaefaf66459018b1db71275b56001a9f42210d8c76fec783ca316a8",
+        "corrections/episode_0001.npz": "af08a63e70dec89108f2cf057c0d4c12ae81d1967eadbf8bd11c08419973d214",
+        "corrections/episode_0002.npz": "cc4c9a1abed9683be350d7945e3ee49fe4308501e85d5a59728548cca54a4134",
+        "corrections/episode_0003.npz": "af93d7b96fd43adbbad963166cb3ad49238ef147969a179f72341201e7e90c1c",
+        "corrections/manifest.json": "4366df9ec0232de7fffa052e8950c54e5c6bc98794ed8b1fba7d4eff61178951",
+        "development_after/episode_0000.npz": "f09f1a51a2f528ca13c53db884d1968ce527787b27e7a833a0650fa1ff8baf27",
+        "development_after/episode_0001.npz": "c07f89bd1e87115be0d42ff7a37424a812edacbf965e1f41da5d0c0d56bbd5fa",
+        "development_after/episode_0002.npz": "037ea66ea912c0cf399a07ef929c2fb5bcda893c518e5e8a33651d258c2c7005",
+        "development_after/episode_0003.npz": "beb01dc715777696cd2d6dc42a9d475b2da305eb42b675f657e0c24671b5f4c5",
+        "development_after/episode_0004.npz": "bc1f3003b03fd4991da7a8332ba91db0f150cf69deab1ce818c62245109df862",
+        "development_after/episode_0005.npz": "ba0b211d1fa97a93647790552178b06702c4b3b76db0116125d0efd5b9667f6b",
+        "development_after/manifest.json": "c66d73ed6176ce3a55ed13691e60bb592556b2d1cfe8ced6cd1ef15ae3d28f2b",
+        "development_before/episode_0000.npz": "c42a021032dddf4b64013664834135d89ad7567ead80fdff5f13ddcb6f2c22f6",
+        "development_before/episode_0001.npz": "09c3f93cff0b6811487e818d74b558501ddfe30490893c5ff78149d1c8d618d9",
+        "development_before/episode_0002.npz": "398ee0930d629e816cd16fec6e4ac61b5750cf320227b4aa2c1dd8b92f878f51",
+        "development_before/episode_0003.npz": "15384f526fa4b3156e9c24e0affcf890d1107b1de1243c99002170ef106399ee",
+        "development_before/episode_0004.npz": "4321cba3cd29938dc24b8a277d4d81b56df239b17151dde03d5d2c6cc6c193f4",
+        "development_before/episode_0005.npz": "930b2c845ad81caf7de412e1c5235b6635aadc48aebfdb65954848b561e4e43e",
+        "development_before/manifest.json": "75d7113a389212d41a1314a0b7033633cdf45a95f17f6bd350a7a2d058540064",
+        "frame.jpg": "7d008cb42db50f2e6bf89f5075eb6ecd62b42d81216372ec995f2ce8130a8599",
+        "frame.json": "cf37521d9866a5c692e7cba341184cb008d852f0b580b4af0382f1e9ccae5dae",
+        "model.xml": "476c2c19aec7243f62b90390c523afbc6609e8ea6f88571f2918f19583072df7",
+        "provenance.json": "5cf2e2a944d0948554d6f9eb00e0af2222f2ca9ac0ad984546e0e10cde56b77d",
+        "round0_expert/act_optimizer.pt": "e8ccda6cdc9529be239bdcab910cb30112376b80557d077ceb7416e2aa649584",
+        "round0_expert/act_training.json": "f17fb5d041a0f64cb3f733edd9313281c79a9ac67aea1a4b86fd0aa8f9553ccc",
+        "round0_expert/student_act/config.json": "5a1056188f424b8ec15c63516f8a77362efdcce99edb84e7b6286d67c7da1219",
+        "round0_expert/student_act/explorer_preprocessing.json": "a05990724159b83148b6a547a6fef90d1883e2f53523526616f021403cd01bc8",
+        "round0_expert/student_act/model.safetensors": "3cfce39536f152399ca8cd19887b255d0eeb33380d93bfe38eb0cfca0d9d9f4e",
+        "round0_expert/training_result.json": "64102b12d5e0580a1a04014674c70705cfb8ba6c48090523f8af9a5accde00de",
+        "round1_aggregated/act_optimizer.pt": "57d24fe435acb808cc78f5d9c90f1889aba7a9f215f04cf08f9f5017d2b58684",
+        "round1_aggregated/act_training.json": "f47d93d0430169c492d6b56ca5debbda5a8ab7f68d8ddffef842d7357d72e253",
+        "round1_aggregated/student_act/config.json": "51e7850bcd8af61fdb4c7e32eef24fd7f98cfab82287da8f54ad53da09a2d843",
+        "round1_aggregated/student_act/explorer_preprocessing.json": "768584e2b3277c76f51d8a749025b6f0f9ef91416abdc9eabd051218fe240488",
+        "round1_aggregated/student_act/model.safetensors": "b5337a6b5ecc7e204557654dff2907f943247a22f87f6c9865fa0b3ea59e73b4",
+        "round1_aggregated/training_result.json": "3a833e070e0ea49aa3ef43b42ff929db7ddb790c4bae699d0cc64621640cf834"
+      },
+      "job_id": "dagger-cpu-development-v3",
+      "result_path": "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-v3/result.json",
+      "result_sha256": "0dc9c3815cdec0d51c0aa5836213ae3596a0c70e181ce6dd5625332469a0128b",
+      "idempotent_source_and_artifact_recheck_passed": true
+    },
+    {
+      "task": "one_round_dagger_fixed_base_reach",
+      "status": "simulation_development_evaluated",
+      "physical_io": false,
+      "sealed_final_test": false,
+      "method_ids": [
+        "DAGGER_ROSS_2011",
+        "PPO_SB3_2_9",
+        "ACT_LEROBOT_0_6_1",
+        "EXPLORER_CAD_MUJOCO",
+        "ENGINEERING_GLUE"
+      ],
+      "source_context": {
+        "cad_mesh_sha256": {
+          "Camera.STL": "12d7158cdf2fab1072f2bd3989726e854a20d1fe717206cb7edc114afe59fdbe",
+          "DCW2.STL": "085efb1ffed33d9440071886bf1c2ce769facda5e45fd7e1ab24d4d55298d1a1",
+          "Gripping.STL": "e35ed860419dad49687084f9c8493f43c81cfece5b421d7e63944d27d22d63f7",
+          "arm1.STL": "d12f701abb74171df8ed3179b3885d10c6af2863f29d13e52bcce2d0d8933643",
+          "arm2.STL": "6ec3d8c7b02106560f61035e03a034637b988d153319d87bb50994e96728271e",
+          "arm3.STL": "74e309203df8ed80e57962a5ccc871909163cb07c1b1f6db0628233684360a98",
+          "arm4.STL": "8f74b107bdaba930ea482c95e6685d5cf5dccb3923a1e6d8b9280b7986811cda",
+          "arm5.STL": "1a52a732e4664ac3b703968416446b76d67067a78632b520d33858a80a26a281",
+          "arm_base_Link.STL": "bbd67c0a59cdbb8fd02c567e8ddff62bde72d3cae753ee63da7681f98f29871c",
+          "base_link.STL": "82897ec12100b78d8f33800edd7be19f86de3ffbc3574ed446f1d2bf04079f4a",
+          "llink1.STL": "0acf2b0ea73e9eb63e3ef9fec5637f0a151dae108ac3eed58ffd98f0062a6c9d",
+          "llink2.STL": "e356dfad82f1468a6c80e20fe127df4b7b40c395398cf5cb85a1522d9691b31c",
+          "llink3.STL": "81f1c9f5ab75d86362d7e227fda6018c87488db713bd9621f6eb761bbec3109d",
+          "lwheel1.STL": "e629352d69aaef698c948505f046fb241b1d9a7e734f0417a06dfe2d383eacfd",
+          "lwheel2.STL": "f07f85985d6c189b71d839a0d44bf3e893eacfd76dccc4f954b63d247a78ae1b",
+          "rlink1.STL": "9e3bb9c0d08d3d177e01a532d275f108f514eb4be13e857c0a596c61c32891a6",
+          "rlink2.STL": "ff22b15d51ff0d96cddcaa74b6056c9e5f88e1abe6886023a2a90ca80ec3230d",
+          "rlink3.STL": "bcf76ccbadf426c3e7ec6135f0fd09c0669b54735e7de91bbee92276b5404b25",
+          "rwheel1.STL": "7218e9bea1d0862cacd44b0a8a72e207085d367a022843bfd4e6be23f6786fff",
+          "rwheel2.STL": "f8daf44a79b1b3d5bdec95ef3885e8151f3a39f21f93c2bf2e8fcbf09d57c323"
+        },
+        "dagger_source_sha256": "29f6c1bc3bd7ad008afbc7a97c9fb09b1ca91158c77196c63b6b1bff234cf591",
+        "legacy_model_source_sha256": "2c46df3f6a81a2395132cd89bc702737c088171b83d3e05bb7eb63f5b4657d87",
+        "pilot_source_sha256": "e8371617f8c7446b8d214797cdd39125f3259fa4a7e2717ace063aee4324ea19",
+        "seed_plan": {
+          "beta": 0.0,
+          "blocked_source_seeds": [
+            41,
+            2041,
+            2042,
+            2043,
+            2044,
+            2045,
+            2046,
+            2047,
+            2048,
+            2049,
+            2050,
+            2051,
+            2052,
+            10040,
+            10041,
+            10042,
+            10043,
+            10044,
+            10045,
+            10046
+          ],
+          "collection": [
+            54041,
+            54042,
+            54043,
+            54044
+          ],
+          "collection_role": "development_training_only",
+          "development": [
+            62041,
+            62042,
+            62043,
+            62044,
+            62045,
+            62046
+          ],
+          "development_observations_fit": false,
+          "evaluation_role": "engineering_development_evaluation",
+          "rounds": 1,
+          "sealed_final_test": false
+        },
+        "settings": {
+          "act_steps": 480,
+          "batch_size": 8,
+          "chunk_size": 8,
+          "collection_episodes": 4,
+          "device": "cpu",
+          "evaluation_episodes": 6,
+          "horizon": 60,
+          "image_size": 64,
+          "initial_act_steps": 480,
+          "seed": 52041
+        },
+        "source_files_sha256": {
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0000.npz": "1f4f5ca3e1a3202012f1b7fec72b1c06631ecc211f6341d61a803ff1c18e75bf",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0001.npz": "b927c4d450b1392f4b97eab30bf6e04e86b9cb34987cc5fd259308cf36616054",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0002.npz": "623eda9d67d0103e2dc3bdbe0656915f09864e1e32eb6c93f53d21739019ba99",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0003.npz": "a85f25a3653c03521163bc00d00a7480b5e5df56d0cf34488c21be75efd75bbb",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0004.npz": "a2fbcb51fab85160c6fea556c9a392a71c6c7559aadb5a2c3963d226c9cd9322",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0005.npz": "ebd4f0f92515864c091fbf94e759046a9f401fa1388acfb238cdfb6e213c6c61",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0006.npz": "6e29e673004ea7c1a804b8f29aeea291178738b5e3ba62e5442badb3a62463a0",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0007.npz": "04db9d8026a505952b666f52cb3c9a9f064eb489969deb7b886670ea83d6f3bf",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0008.npz": "22f7f5e043880de7d2c115785f99d5ba81b634062352c829c882f595c4805b1a",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0009.npz": "d07a33e44d06d2fd691e9c72c119c8a49e7f84bd769bb95b76a75b5a2c3f1276",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0010.npz": "f72e1d80f1193c8f6f8e62e8343a1c8dddb7fc8bfa4beade9d63a7843bbcbdfb",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0011.npz": "d66a932abd7f6a612d62d47a8d258fc52c6b8193503d343a8c2cf9c3f8d55930",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/manifest.json": "c8e7ed44c870b2d201c258fdb06371f89669e1e0ebfe6659fcac60411ec9efc7",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/model.xml": "476c2c19aec7243f62b90390c523afbc6609e8ea6f88571f2918f19583072df7",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/provenance.json": "248c1276b9bd8de0900c6a9a76d734e488dac9500a33b74064e3b705187a9177",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/result.json": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60",
+          "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/teacher_ppo.zip": "4dd8bb7fa192424dd9389d12926d47f3d92111ea3b02954235d071c28846ebea"
+        },
+        "student_source_sha256": "7e44e95c171c9056983927035dbe6358ec7526ec5eb66c6c6948abc5f35204f9"
+      },
+      "seed_plan": {
+        "beta": 0.0,
+        "blocked_source_seeds": [
+          41,
+          2041,
+          2042,
+          2043,
+          2044,
+          2045,
+          2046,
+          2047,
+          2048,
+          2049,
+          2050,
+          2051,
+          2052,
+          10040,
+          10041,
+          10042,
+          10043,
+          10044,
+          10045,
+          10046
+        ],
+        "collection": [
+          54041,
+          54042,
+          54043,
+          54044
+        ],
+        "collection_role": "development_training_only",
+        "development": [
+          62041,
+          62042,
+          62043,
+          62044,
+          62045,
+          62046
+        ],
+        "development_observations_fit": false,
+        "evaluation_role": "engineering_development_evaluation",
+        "rounds": 1,
+        "sealed_final_test": false
+      },
+      "before": {
+        "episodes": [
+          {
+            "command9": [
+              92.90248107910156,
+              88.253662109375,
+              88.67711639404297,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.1384004267733846,
+            "goal_xyz": [
+              -0.08593994804257815,
+              0.03237724415122879,
+              0.5241616241833025
+            ],
+            "grasp_center_xyz": [
+              0.04631877596865057,
+              -0.0007366837373615474,
+              0.5479476670186684
+            ],
+            "initial_distance_m": 0.12244700482095748,
+            "physical_run": false,
+            "return": -167.71778333693692,
+            "seed": 62041,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              92.90789794921875,
+              88.24095153808594,
+              88.66455078125,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.04889607776933078,
+            "goal_xyz": [
+              0.09174870393130496,
+              0.016507406234307055,
+              0.5415095501127057
+            ],
+            "grasp_center_xyz": [
+              0.046450707966341084,
+              -0.0007423182268478142,
+              0.5479411120378368
+            ],
+            "initial_distance_m": 0.06470148571935855,
+            "physical_run": false,
+            "return": -57.085774401706395,
+            "seed": 62042,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              92.90638732910156,
+              88.24580383300781,
+              88.6700668334961,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.027359503304928524,
+            "goal_xyz": [
+              0.07359924393923478,
+              0.0012263912796443548,
+              0.5457706001877615
+            ],
+            "grasp_center_xyz": [
+              0.0463971693632499,
+              -0.0007400284573803434,
+              0.5479437898418854
+            ],
+            "initial_distance_m": 0.04409101889151046,
+            "physical_run": false,
+            "return": -31.148716818214954,
+            "seed": 62043,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              92.90657806396484,
+              88.24532318115234,
+              88.66963195800781,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.025121712459136615,
+            "goal_xyz": [
+              0.06968916512300483,
+              0.008299489705514765,
+              0.5452808774041369
+            ],
+            "grasp_center_xyz": [
+              0.04640195814044326,
+              -0.0007402337906011582,
+              0.5479435502989262
+            ],
+            "initial_distance_m": 0.04108133434813971,
+            "physical_run": false,
+            "return": -28.54219748441662,
+            "seed": 62044,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              92.9072036743164,
+              88.24188995361328,
+              88.66576385498047,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.08159390774104827,
+            "goal_xyz": [
+              0.1267111610353036,
+              0.004390103888240394,
+              0.5342400780814508
+            ],
+            "grasp_center_xyz": [
+              0.04643977452360188,
+              -0.000741850859007781,
+              0.5479416593192453
+            ],
+            "initial_distance_m": 0.09822886001250195,
+            "physical_run": false,
+            "return": -96.23979455375034,
+            "seed": 62045,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              92.90160369873047,
+              88.25553131103516,
+              88.67861938476562,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.1416682542701648,
+            "goal_xyz": [
+              -0.09079997856772151,
+              0.02432680370880573,
+              0.522549505552676
+            ],
+            "grasp_center_xyz": [
+              0.04630087121846069,
+              -0.0007359131720010993,
+              0.5479485503854111
+            ],
+            "initial_distance_m": 0.1255443964967158,
+            "physical_run": false,
+            "return": -171.65737721539304,
+            "seed": 62046,
+            "steps": 60,
+            "success": false
+          }
+        ],
+        "evaluation_domain": "simulation",
+        "independent_from_training_episodes": true,
+        "mean_final_distance_m": 0.07717331371966561,
+        "n": 6,
+        "physical_run_ids": [],
+        "sealed_final_test": false,
+        "split_role": "engineering_development_evaluation",
+        "success_rate": 0.0,
+        "successes": 0
+      },
+      "after": {
+        "episodes": [
+          {
+            "command9": [
+              95.65849304199219,
+              86.6731185913086,
+              87.1410903930664,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.1541695769260738,
+            "goal_xyz": [
+              -0.08593994804257815,
+              0.03237724415122879,
+              0.5241616241833025
+            ],
+            "grasp_center_xyz": [
+              0.06238737871750519,
+              -0.003096321368809686,
+              0.546720186528177
+            ],
+            "initial_distance_m": 0.12244700482095748,
+            "physical_run": false,
+            "return": -188.14347607759882,
+            "seed": 62041,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              95.65848541259766,
+              86.6730728149414,
+              87.1410140991211,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.0356862716810081,
+            "goal_xyz": [
+              0.09174870393130496,
+              0.016507406234307055,
+              0.5415095501127057
+            ],
+            "grasp_center_xyz": [
+              0.06238798912588557,
+              -0.003096377221912714,
+              0.5467201246306636
+            ],
+            "initial_distance_m": 0.06470148571935855,
+            "physical_run": false,
+            "return": -40.00396508196973,
+            "seed": 62042,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              95.65849304199219,
+              86.6730728149414,
+              87.1410140991211,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.01209178636715125,
+            "goal_xyz": [
+              0.07359924393923478,
+              0.0012263912796443548,
+              0.5457706001877615
+            ],
+            "grasp_center_xyz": [
+              0.0623579900153637,
+              -0.003143491960603647,
+              0.5466364109260163
+            ],
+            "initial_distance_m": 0.04409101889151046,
+            "physical_run": false,
+            "return": 7.380741044548514,
+            "seed": 62043,
+            "steps": 3,
+            "success": true
+          },
+          {
+            "command9": [
+              95.65849304199219,
+              86.6730728149414,
+              87.14100646972656,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.013657419310645487,
+            "goal_xyz": [
+              0.06968916512300483,
+              0.008299489705514765,
+              0.5452808774041369
+            ],
+            "grasp_center_xyz": [
+              0.062358015156742386,
+              -0.0031434939992397884,
+              0.5466364091565072
+            ],
+            "initial_distance_m": 0.04108133434813971,
+            "physical_run": false,
+            "return": 6.855252988952422,
+            "seed": 62044,
+            "steps": 3,
+            "success": true
+          },
+          {
+            "command9": [
+              95.65848541259766,
+              86.67308807373047,
+              87.14100646972656,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.06594905541805007,
+            "goal_xyz": [
+              0.1267111610353036,
+              0.004390103888240394,
+              0.5342400780814508
+            ],
+            "grasp_center_xyz": [
+              0.06238792335356366,
+              -0.0030963709740305426,
+              0.5467201301169199
+            ],
+            "initial_distance_m": 0.09822886001250195,
+            "physical_run": false,
+            "return": -76.01555996370638,
+            "seed": 62045,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              95.65848541259766,
+              86.6731185913086,
+              87.1410903930664,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.15748846224811497,
+            "goal_xyz": [
+              -0.09079997856772151,
+              0.02432680370880573,
+              0.522549505552676
+            ],
+            "grasp_center_xyz": [
+              0.06238737837593769,
+              -0.0030963168870716106,
+              0.5467201876008898
+            ],
+            "initial_distance_m": 0.1255443964967158,
+            "physical_run": false,
+            "return": -192.14995713547276,
+            "seed": 62046,
+            "steps": 60,
+            "success": false
+          }
+        ],
+        "evaluation_domain": "simulation",
+        "independent_from_training_episodes": true,
+        "mean_final_distance_m": 0.07317376199184061,
+        "n": 6,
+        "physical_run_ids": [],
+        "sealed_final_test": false,
+        "split_role": "engineering_development_evaluation",
+        "success_rate": 0.3333333333333333,
+        "successes": 2
+      },
+      "privileged_teacher_reference": {
+        "episodes": [
+          {
+            "command9": [
+              95.73068237304688,
+              102.74214172363281,
+              98.17256927490234,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.02265461639000633,
+            "goal_xyz": [
+              -0.08593994804257815,
+              0.03237724415122879,
+              0.5241616241833025
+            ],
+            "grasp_center_xyz": [
+              -0.07938090558928196,
+              0.011101602716648585,
+              0.528351813608779
+            ],
+            "initial_distance_m": 0.12244700482095748,
+            "physical_run": false,
+            "return": 1.0871363603522952,
+            "seed": 62041,
+            "steps": 18,
+            "success": true
+          },
+          {
+            "command9": [
+              93.60107421875,
+              83.43759155273438,
+              84.6388931274414,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.020488310746501946,
+            "goal_xyz": [
+              0.09174870393130496,
+              0.016507406234307055,
+              0.5415095501127057
+            ],
+            "grasp_center_xyz": [
+              0.09305831596275399,
+              -0.003931018395625094,
+              0.5420810325874099
+            ],
+            "initial_distance_m": 0.06470148571935855,
+            "physical_run": false,
+            "return": 7.287944316815369,
+            "seed": 62042,
+            "steps": 4,
+            "success": true
+          },
+          {
+            "command9": [
+              92.44886016845703,
+              85.36653900146484,
+              86.50534057617188,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.0031410530814331436,
+            "goal_xyz": [
+              0.07359924393923478,
+              0.0012263912796443548,
+              0.5457706001877615
+            ],
+            "grasp_center_xyz": [
+              0.07351699442817357,
+              -0.0018904107042721444,
+              0.5453898182667555
+            ],
+            "initial_distance_m": 0.04409101889151046,
+            "physical_run": false,
+            "return": 8.470845531080354,
+            "seed": 62043,
+            "steps": 3,
+            "success": true
+          },
+          {
+            "command9": [
+              92.41323852539062,
+              85.72823333740234,
+              86.75676727294922,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.010054141301006262,
+            "goal_xyz": [
+              0.06968916512300483,
+              0.008299489705514765,
+              0.5452808774041369
+            ],
+            "grasp_center_xyz": [
+              0.07022038361478256,
+              -0.0017257816022666146,
+              0.5458263124781546
+            ],
+            "initial_distance_m": 0.04108133434813971,
+            "physical_run": false,
+            "return": 7.264084421713809,
+            "seed": 62044,
+            "steps": 3,
+            "success": true
+          },
+          {
+            "command9": [
+              95.12166595458984,
+              79.93160247802734,
+              81.53113555908203,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.013015481403963596,
+            "goal_xyz": [
+              0.1267111610353036,
+              0.004390103888240394,
+              0.5342400780814508
+            ],
+            "grasp_center_xyz": [
+              0.1267556486268684,
+              -0.00858044802601073,
+              0.5331604670075749
+            ],
+            "initial_distance_m": 0.09822886001250195,
+            "physical_run": false,
+            "return": 10.122153256431766,
+            "seed": 62045,
+            "steps": 5,
+            "success": true
+          },
+          {
+            "command9": [
+              92.19447326660156,
+              102.85113525390625,
+              99.03390502929688,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.021522539706666455,
+            "goal_xyz": [
+              -0.09079997856772151,
+              0.02432680370880573,
+              0.522549505552676
+            ],
+            "grasp_center_xyz": [
+              -0.0840350280433654,
+              0.004312853397085053,
+              0.526660095868923
+            ],
+            "initial_distance_m": 0.1255443964967158,
+            "physical_run": false,
+            "return": 5.575675437302091,
+            "seed": 62046,
+            "steps": 12,
+            "success": true
+          }
+        ],
+        "evaluation_domain": "simulation",
+        "independent_from_training_episodes": true,
+        "mean_final_distance_m": 0.015146023771596288,
+        "n": 6,
+        "physical_run_ids": [],
+        "sealed_final_test": false,
+        "split_role": "engineering_development_evaluation",
+        "success_rate": 1.0,
+        "successes": 6
+      },
+      "collection": {
+        "episodes": [
+          {
+            "command9": [
+              92.90701293945312,
+              88.24467468261719,
+              88.66874694824219,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.03166676721528448,
+            "goal_xyz": [
+              0.07599258801140561,
+              0.010136435048483421,
+              0.5448885910338811
+            ],
+            "grasp_center_xyz": [
+              0.04640974500949818,
+              -0.0007405645848272959,
+              0.5479431654344271
+            ],
+            "initial_distance_m": 0.047641982410846044,
+            "physical_run": false,
+            "return": -36.39449489348336,
+            "seed": 54041,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              92.90303039550781,
+              88.25275421142578,
+              88.67610931396484,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.07137458489446984,
+            "goal_xyz": [
+              -0.0249127594072562,
+              -0.0002018051520792768,
+              0.5436224538012279
+            ],
+            "grasp_center_xyz": [
+              0.04632867232277334,
+              -0.0007371068989964929,
+              0.5479471764458804
+            ],
+            "initial_distance_m": 0.05471971615782721,
+            "physical_run": false,
+            "return": -87.35849846621521,
+            "seed": 54042,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              92.90332794189453,
+              88.25220489501953,
+              88.67588806152344,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.05934107430523916,
+            "goal_xyz": [
+              -0.012932341268552841,
+              0.0004158047126505397,
+              0.5451798509240882
+            ],
+            "grasp_center_xyz": [
+              0.04633296517870841,
+              -0.0007372894117843713,
+              0.5479469659112766
+            ],
+            "initial_distance_m": 0.04265685088554578,
+            "physical_run": false,
+            "return": -72.92122523688693,
+            "seed": 54043,
+            "steps": 60,
+            "success": false
+          },
+          {
+            "command9": [
+              92.90660095214844,
+              88.24530792236328,
+              88.6695785522461,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.025533733364962476,
+            "goal_xyz": [
+              0.07017091296464809,
+              0.00818552533473089,
+              0.5452315903394709
+            ],
+            "grasp_center_xyz": [
+              0.04640228916771278,
+              -0.0007402476410701824,
+              0.5479435341326233
+            ],
+            "initial_distance_m": 0.04153211669831463,
+            "physical_run": false,
+            "return": -29.032555728548097,
+            "seed": 54044,
+            "steps": 60,
+            "success": false
+          }
+        ],
+        "evaluation_domain": "simulation",
+        "independent_from_training_episodes": true,
+        "mean_final_distance_m": 0.04697903994498899,
+        "n": 4,
+        "physical_run_ids": [],
+        "sealed_final_test": false,
+        "split_role": "engineering_development_evaluation",
+        "success_rate": 0.0,
+        "successes": 0
+      },
+      "initial_training": {
+        "actor_samples": 47,
+        "checkpoint_dir": "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/round0_expert/student_act",
+        "checkpoint_sha256": {
+          "config.json": "5a1056188f424b8ec15c63516f8a77362efdcce99edb84e7b6286d67c7da1219",
+          "explorer_preprocessing.json": "a05990724159b83148b6a547a6fef90d1883e2f53523526616f021403cd01bc8",
+          "model.safetensors": "213af6b3bc60c7f55f6c88939d96d5956a46d444213948bf4bcf71cd7b4c3efc"
+        },
+        "elapsed_s": 24.349120541999582,
+        "losses_first_last": [
+          1.1577413082122803,
+          0.039935152977705
+        ],
+        "optimizer_steps": 480,
+        "reload_max_abs_error": 0.0,
+        "save_reload_passed": true,
+        "weights_after_sha256": "786e67ac41ca62074dda1f813052a84b29440aefb4766361d8e3ea6105d8823c",
+        "weights_before_sha256": "3121c89ce1807e2f0dbdc981515d5a2be32effe092b80b62d97c0e428c74cb89",
+        "weights_changed": true
+      },
+      "aggregated_training": {
+        "actor_samples": 287,
+        "checkpoint_dir": "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/round1_aggregated/student_act",
+        "checkpoint_sha256": {
+          "config.json": "51e7850bcd8af61fdb4c7e32eef24fd7f98cfab82287da8f54ad53da09a2d843",
+          "explorer_preprocessing.json": "269ab8e574eb2246a3dfcf318be281cc8b2491934288324c761c62613b345515",
+          "model.safetensors": "286996ee06d40900680b5753b839eee3307d7d03a0f7a2768e746f1640d5118c"
+        },
+        "elapsed_s": 24.38356441599899,
+        "losses_first_last": [
+          0.03798075020313263,
+          0.02815162017941475
+        ],
+        "optimizer_steps": 480,
+        "reload_max_abs_error": 0.0,
+        "save_reload_passed": true,
+        "weights_after_sha256": "6fd4fe6b44d4eaa2010a73c2c41bc0772310af6b3cc5a5a405bd330e7a1815e8",
+        "weights_before_sha256": "786e67ac41ca62074dda1f813052a84b29440aefb4766361d8e3ea6105d8823c",
+        "weights_changed": true
+      },
+      "expert_training_episodes": 10,
+      "excluded_source_episodes": [
+        {
+          "id": "episode_0008",
+          "reason": "Only explicitly successful training demonstrations are expert targets",
+          "split": "imitation_train",
+          "success": false
+        },
+        {
+          "id": "episode_0009",
+          "reason": "Only explicitly successful training demonstrations are expert targets",
+          "split": "imitation_train",
+          "success": false
+        }
+      ],
+      "correction_episodes": 4,
+      "teacher_query_labels": 240,
+      "valid_corrections_from_failed_learner_episodes": 240,
+      "correction_manifest_sha256": "eb6cd231be33bec81613c9ab1409f7b3fe2a02735d699ad9c1ea3042bf23e826",
+      "learner_executed_actions_used_as_targets": false,
+      "original_sources_unchanged": true,
+      "teacher_query_recovery_executed": false,
+      "primary_success_rate_delta": 0.3333333333333333,
+      "mean_final_distance_delta_m": -0.003999551727824999,
+      "primary_improvement_observed": true,
+      "limitations": [
+        "One development round; no sealed final test or statistical recovery guarantee",
+        "No matched extra-BC-update control; any observed gain cannot be uniquely attributed to aggregation",
+        "Fixed simulated base and three active CAD arm axes only; no cloth, kitchen, contact or hardware qualification",
+        "Privileged learned PPO teacher can be wrong on learner-visited states; finite queries are not task-success guarantees"
+      ],
+      "elapsed_s": 65.06797866700799,
+      "framework_versions": {
+        "torch": "2.14.1",
+        "torchvision": "0.29.1"
+      },
+      "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds",
+      "artifact_sha256": {
+        "after.json": "2786de1dadf39c1da7262c3b6abbdddb5a98cfa077d0f9551fe3b10ade9990d7",
+        "before.json": "53e9d9f60f77fac823e9837bedbd872b5b46ecf6016945f4bec7a8aaf8417a0a",
+        "collection.json": "bc0cbf9c5baf30f3c23171c87b8d4ba94d97e1e98a57b3e0739bc7a875d0911b",
+        "corrections/episode_0000.npz": "beb2a3079820705cd2ecd9ff9adca5b521b9578bd5e1601da40a0d449b5d4a84",
+        "corrections/episode_0001.npz": "0cbfd5ed414cd871ff31f649ef715a0c49a016fc71d7a5e20f448ba19e6d6bcb",
+        "corrections/episode_0002.npz": "f07909b1ede090d0ea4ac0c2dfbba52f2b1aaadc42d37b2a6871e2c6c022fa4e",
+        "corrections/episode_0003.npz": "8a532a290eb7fb7babbf4079c9d408cb43426d8df4ed01aadb52a173e9bc94a5",
+        "corrections/manifest.json": "eb6cd231be33bec81613c9ab1409f7b3fe2a02735d699ad9c1ea3042bf23e826",
+        "development_after/episode_0000.npz": "028e4694fc8d59076a2c50534e746effb186fe50762adf15b1cb52148aa02988",
+        "development_after/episode_0001.npz": "aa1f2c4716f6a0d723e8296801385ee89a94ad4c5a3f1a81f9294b030ab7d934",
+        "development_after/episode_0002.npz": "e569a63fa7ab9c341b4409ebfd44b406f78b75838c06f53b23f9e0ed5a35fd8b",
+        "development_after/episode_0003.npz": "2c212d3629295c5ab31cbc5dcbcd7066c659e4cad60a6657f3770e0301cd1903",
+        "development_after/episode_0004.npz": "a60364a68b08d48b3850f5cc6c15d65dbba02fdd3f2058670f0b90b747534fc5",
+        "development_after/episode_0005.npz": "2267b22369e0fd4bd8792ee7910ca0ff03f64f69109a13dfa8bec47f514b5ac5",
+        "development_after/manifest.json": "f77fd070446d4744f002c85637bfcbd792b7316f81102a261a0e1cc57292ffca",
+        "development_before/episode_0000.npz": "31d534643f1c5414b31297369609d1375be53a9f221dca29b05cc4ddccc2196e",
+        "development_before/episode_0001.npz": "d151331f2ef5770daed49d637f3638e5472c0976f120ac420a5b7b112e6ac88f",
+        "development_before/episode_0002.npz": "488cb8f04f4ce6f931bc5a232e4b9724dad86f6687cf164320a10c5c59797fae",
+        "development_before/episode_0003.npz": "990d4a420ddfecfea4c705d53bcb094ce1c49ad1d918e6b3c721c7977d3a9cb0",
+        "development_before/episode_0004.npz": "aecc7e6f1dd823f8f1f9c1b4c34489d1a11addd771944cb1e24d79b86f2cce82",
+        "development_before/episode_0005.npz": "748ade22e3862e883c4984b8242377434376b7e8fe3168a3054972781ce3505a",
+        "development_before/manifest.json": "9c7e176ec5389de39127ef0fd0f0b4b1caa53ed843677e5c7661059455fab489",
+        "frame.jpg": "bceaebcb4a0c68312213e1887d00438bec5bb2cb00951c893d7e57cfe9acaa2c",
+        "frame.json": "99b2efd7c9f1aa9a2e12c15bedaf4240b8b5f0394796c83297b9468bf5f6b65b",
+        "model.xml": "476c2c19aec7243f62b90390c523afbc6609e8ea6f88571f2918f19583072df7",
+        "provenance.json": "0869566c187385ab943cabd01f8f989696d63e2570a0eee7db31f559667cf5f7",
+        "round0_expert/act_optimizer.pt": "ebc0c779902eb0111ae9e1da4e5fcfd984493d4d3f5c3ee86fcf0b27f6aafafa",
+        "round0_expert/act_training.json": "c0d08a7c1a4e476b4dfcc5107a3b140ada6d9fd1b03ae4b851d7dd49fe4a33ab",
+        "round0_expert/student_act/config.json": "5a1056188f424b8ec15c63516f8a77362efdcce99edb84e7b6286d67c7da1219",
+        "round0_expert/student_act/explorer_preprocessing.json": "a05990724159b83148b6a547a6fef90d1883e2f53523526616f021403cd01bc8",
+        "round0_expert/student_act/model.safetensors": "213af6b3bc60c7f55f6c88939d96d5956a46d444213948bf4bcf71cd7b4c3efc",
+        "round0_expert/training_result.json": "19228ed839ea23f73a6165eb276678d6a23c77a7d4b9711a15868e8a595618b7",
+        "round1_aggregated/act_optimizer.pt": "1cf09410d69960fe5a77fed10ab870dfdc13423a1d915e00543a9d231dc79092",
+        "round1_aggregated/act_training.json": "67a94bc1938c5b1d2a08d55d79cac6c54a285d2e7b9804dd82b2c4d60877c87a",
+        "round1_aggregated/student_act/config.json": "51e7850bcd8af61fdb4c7e32eef24fd7f98cfab82287da8f54ad53da09a2d843",
+        "round1_aggregated/student_act/explorer_preprocessing.json": "269ab8e574eb2246a3dfcf318be281cc8b2491934288324c761c62613b345515",
+        "round1_aggregated/student_act/model.safetensors": "286996ee06d40900680b5753b839eee3307d7d03a0f7a2768e746f1640d5118c",
+        "round1_aggregated/training_result.json": "7e6b8f6132fc91148f453aec89b764c97a196f1892100363197dc806487570bf"
+      },
+      "job_id": "dagger-cpu-development-tuning480-v1",
+      "result_path": "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/result.json",
+      "result_sha256": "81fe25dd1588ce70e12eb5432a8337a3bd288975dcc54b24720b5c4aa5865faf",
+      "idempotent_source_and_artifact_recheck_passed": true
+    }
+  ],
+  "tests": {
+    "command": "PYTHONPATH=01-autonomous-learning/src EXPLORER_SIM_MESH_DIR=<verified CAD> /tmp/explorer-sim-env/bin/python -m pytest -q 01-autonomous-learning/tests/test_dagger.py 01-autonomous-learning/tests/test_reach_pilot.py",
+    "result": "21 passed, 1 skipped (existing explicit pilot integration test; actual DAgger execution separately recorded here)"
+  },
+  "preservation": {
+    "directory": "/Users/vladromenko/Desktop/Explorer/_registry/private/engineering_runs/dagger-20261026",
+    "receipt_sha256": "7b578225a666953243f9ae6801b283ff9c8cb080369dcb267749a612d811812c",
+    "all_copied_payload_hashes_verified": true,
+    "originals_retained": true
+  },
+  "tuning_disclosure": "480+480 run was one explicit development tuning run requested after the negative120+120 result; same predefined development seeds and success criterion; no sealed evaluation or matched extra-BC control.",
+  "physical_run_ids": []
+}
