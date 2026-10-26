@@ -96,6 +96,9 @@ def test_same_target_producer_full9_actual_mock_native_commands_original_bytes_a
         assert all(hashlib.sha256((writer.folder/name).read_bytes()).hexdigest()==digest
                    for name,digest in result['embodied_source_files_sha256'].items())
         assert result['motor_commands']==0 and not result['physical_success_inferred']
+        descriptor=writer.ready_recordings()[0]
+        assert descriptor['recording_id']==ident and descriptor['project_id']==project
+        assert descriptor['input_mode']==mode and len(descriptor['archive_sha256'])==64
     finally:
         writer.close()
 
@@ -223,5 +226,29 @@ def test_archive_nx_import_preserves_exact_originals_and_rechecks_existing_colli
             import_native_capture(archive,digest,tmp_path/'nx')
         with pytest.raises(ValueError,match='archive SHA'):
             import_native_capture(archive,'0'*64,tmp_path/'other')
+    finally:
+        writer.close()
+
+
+def test_available_causal_optional_sensor_cache_is_retained_with_original_bytes_and_partial_masks(tmp_path):
+    raw=b'{"actual_sensor_cache":"MOCK raw bytes with original clock"}'
+    def provider(row,frame):
+        stamp={'clock_domain':'nano','boot_id':'boot','monotonic_ns':row['call_started_monotonic_ns']-10}
+        return {'source_payloads':{'sensors/'+hashlib.sha256(raw).hexdigest()+'.json':raw},'channels':{
+            'base_velocity':{'present':True,'available':True,'value':{'values':[0.,0.,0.],
+                'units':['m/s','m/s','rad/s'],'state_source':'measured'},'mask':True,
+                'stamp':stamp,'source_id':'MOCK-original-wheel-odometry'},
+            'camera_calibration':{'present':True,'available':True,'value':{'intrinsics':[1,0,1,0,1,1,0,0,1],
+                'distortion':[0,0,0,0,0],'extrinsics':None},'mask':{'intrinsics':True,'distortion':True,'extrinsics':False},
+                'stamp':stamp,'source_id':'MOCK-original-camera-info'}}}
+    writer,tap,camera,clock,ident,_=setup(tmp_path,observation_provider=provider)
+    try:
+        packet,_=publication(tap,camera,clock);writer.submit(ident,packet)
+        result=sealed(writer,ident,outcomes(ident));report=result['admission']
+        assert report['admitted_for_dataset'],report['missing_facts']
+        assert report['channels']['base_velocity']['recorded'] and report['channels']['base_velocity']['admitted']
+        assert not report['channels']['base_velocity']['model_used']
+        assert report['channels']['camera_calibration']['available'] and not report['channels']['camera_calibration']['admitted']
+        assert (writer.folder/('sensors/'+hashlib.sha256(raw).hexdigest()+'.json')).read_bytes()==raw
     finally:
         writer.close()

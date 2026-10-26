@@ -47,7 +47,23 @@ record/status/list, manifest/download. `skill_context` — metadata only: skill_
 skill_version, skill_spec_sha256, variant_id, session_id, project_id, input_mode,
 episode_scope, phase_id и split. Передача этих полей не выбирает controller,
 не делает move/resume/home и не создаёт успешные labels. Пока endpoints/fetch
-не смонтированы, сам класс не означает работающую аппаратную запись.
+не смонтированы в работающем процессе, класс не означает аппаратную квалификацию.
+
+`NativeCaptureService` реализует incremental GET fetch и lifecycle в NodeAgent
+Nano. Пока новый original-owner tap не смонтирован, capability
+native_owner_ready=false, start отвергается и legacy writer не получает kwargs.
+Новый HTTP prefix `/native-capture/`: capabilities/status/recordings,
+record/start, record/stage, record/finish, recordings/{id}/manifest|download.
+Все пути требуют node token. Finish дожидается уже начатого GET, сохраняет его
+original bytes и исключает training rows после местного finish timestamp;
+никакого STOP или другого motor POST не делает.
+
+Каталог отдельный: ready_recordings содержит recording_id, project_id,
+input_mode, native_input_mode/input_mode_basis, archive SHA/size. Новые03 не
+попадают в legacy mobile_observation.ready_recording_ids02 или Pi raw catalog.
+Экспорт создаётся после sealing в file worker. Для пустого analysis-only capture
+input_mode может быть только явно помеченной validated metadata декларацией,
+а не native proof. Импорт маршрутизируется по producer descriptor, не по странице.
 
 ## Настоящая граница источника
 
@@ -87,6 +103,14 @@ Clock domain/boot packet обязаны совпадать с конкретны
 часы Pi не приравниваются к Nano. Исходные frame ID, JPEG SHA, receive/exposure
 timestamp basis и времена native publications сохраняются. Нет обещания измерить
 exposure time по HTTP receive timestamp.
+
+Дополнительный observation_provider(row,frame) возвращает channels и
+source_payloads {immutable_relative_name:exactbytes} из существующего sensor cache.
+Он вызывается вне control loop при приёме packet. Writer сохраняет sensor bytes
+и component masks; один immutable key нельзя переиспользовать для разных bytes.
+Источник не заменяет authoritative RGB/clocks/prior9/native command. Доступные
+intrinsics с неизвестными extrinsics сохраняются частично; более новый sensor
+timestamp не переносится назад. Нужны as-of snapshots с оригинальными stamps/boot.
 
 Измеренные q, depth, LiDAR, IMU, force и другие неэкспонированные каналы остаются
 null/maskFalse с unavailable_reason и present=null (наличие устройства неизвестно

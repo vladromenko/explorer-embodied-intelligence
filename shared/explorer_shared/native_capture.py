@@ -1,4 +1,4 @@
-"""Same Nano canonical producer for native keyboard02 and leader03.
+"""ENGINEERING_GLUE: same Nano producer for native keyboard02 and leader03.
 
 Consumes original native HTTP receipt bytes and the existing camera history.
 Its independent writer owns files only, never cameras, servo ports or settings.
@@ -54,11 +54,12 @@ def _record(value,stamp,source_id,*,available=True,reason=None):
 class NativeCaptureWriter:
     """Metadata-only start; original source packets and images are preserved."""
     def __init__(self,root,camera,*,clock_domain,boot_id,clock=time.monotonic_ns,emit=None,queue_limit=4,
-                 admission_byte_budget=128*1024**2,max_sample_metadata=20000):
+                 admission_byte_budget=128*1024**2,max_sample_metadata=20000,observation_provider=None):
         self.root,self.camera=Path(root),camera
         self.root.mkdir(parents=True,exist_ok=True,mode=0o700)
         self.domain,self.boot,self.clock,self.emit=clock_domain,boot_id,clock,emit
         self.admission_byte_budget,self.max_sample_metadata=admission_byte_budget,max_sample_metadata
+        self.observation_provider=observation_provider
         self.lock=threading.RLock();self.items=queue.Queue(maxsize=queue_limit)
         self.wake,self.closed,self.done=threading.Event(),threading.Event(),threading.Event()
         self.state='IDLE';self.active=None;self.pending_finish=None;self.error=None
@@ -75,6 +76,13 @@ class NativeCaptureWriter:
         self.thread.start()
 
     def _save(self,name,content):
+        if (not isinstance(name,str) or name.startswith('/') or '\\' in name or
+                any(part in ('','.','..') for part in name.split('/'))):
+            raise ValueError('Immutable safe source payload name required')
+        if name in self.payloads:
+            if self.payloads[name]['sha256']!=_sha(content):
+                raise ValueError('An original source key was reused with changed bytes')
+            return
         path=self.folder/name;path.parent.mkdir(parents=True,exist_ok=True)
         _write(path,content);self.payloads[name]={'sha256':_sha(content),'bytes':len(content)}
 
@@ -96,6 +104,7 @@ class NativeCaptureWriter:
             self.initial_page=deepcopy(page);self.dropped=0;self.blockers=set();self.phase_events=[]
             self.state,self.error,self.pending_finish='RECORDING',None,None;self.done.clear()
             self.started_ns=self.clock()
+            self.end_boundary_ns=None;self.post_finish_receipts=0
             self._save('sources/initial-native-page.json',initial_source_packet)
             self._save('sources/skill-context.json',_bytes(skill_context))
             if skill_context.get('phase_id'):
@@ -126,7 +135,7 @@ class NativeCaptureWriter:
         page=json.loads(source_packet)
         # Snapshot immutable existing JPEG bytes before queueing. File I/O and
         # fsync happen in the independent writer, never the native servo loop.
-        frames={}
+        frames={};observations={}
         if page.get('boot_id')==self.boot and page.get('clock_domain')==self.domain:
             for row in page.get('receipts',[]):
                 if row.get('kind')=='arm_host_publish':
@@ -135,11 +144,16 @@ class NativeCaptureWriter:
                     if frame is not None:
                         frames[row['receipt_id']]={'jpeg':frame.jpeg,
                             'metadata':{**frame.metadata(),'camera_id':self.camera.camera_id}}
+                    if self.observation_provider is not None:
+                        try:
+                            observations[row['receipt_id']]=self.observation_provider(row,frame)
+                        except Exception as error:
+                            observations[row['receipt_id']]={'error':type(error).__name__}
         with self.lock:
             if recording_id!=self.active or self.state!='RECORDING':
                 return False
             try:
-                self.items.put_nowait((recording_id,source_packet,frames))
+                self.items.put_nowait((recording_id,source_packet,frames,observations))
             except queue.Full:
                 self.dropped+=1;self.blockers.add('SOURCE_PACKET_QUEUE_DROP');return False
         self.wake.set();return True
@@ -150,8 +164,16 @@ class NativeCaptureWriter:
                 raise ValueError('Recording changed or is already sealing')
             if outcome_source_bytes is not None and not isinstance(outcome_source_bytes,bytes):
                 raise ValueError('Exact authenticated outcome evidence bytes required')
+            if self.end_boundary_ns is None:
+                self.end_boundary_ns=self.clock()
             self.state='SEALING';self.pending_finish=outcome_source_bytes or b'{}'
         self.wake.set();return self.status()
+
+    def finish_boundary(self,recording_id,monotonic_ns):
+        with self.lock:
+            if recording_id!=self.active or self.state!='RECORDING' or type(monotonic_ns) is not int:
+                raise ValueError('Original active native recording and local finish clock required')
+            self.end_boundary_ns=monotonic_ns
 
     def status(self):
         with self.lock:
@@ -159,6 +181,9 @@ class NativeCaptureWriter:
                     'cursor':getattr(self,'cursor',None),'samples_written':len(getattr(self,'samples',[])),
                     'packets_dropped':getattr(self,'dropped',0),'queued':self.items.qsize(),'error':self.error,
                     'embodied_manifest':str(self.folder/'manifest.json') if hasattr(self,'folder') and self.state=='SEALED' else None,
+                    'project_id':getattr(self,'context',{}).get('project_id'),
+                    'input_mode':getattr(self,'context',{}).get('input_mode'),
+                    'phase':deepcopy(self.phase_events[-1]) if getattr(self,'phase_events',[]) else None,
                     'motor_commands':0,'camera_owners_created':0,'controller_settings_written':False}
 
     def close(self):
@@ -169,13 +194,43 @@ class NativeCaptureWriter:
             raise ValueError('Original server recording identity required')
         return archive_native_capture(self.root/recording_id)
 
-    def _consume(self,raw,frames):
+    def ready_recordings(self):
+        """New typed catalogue, never merged into legacy02 ready IDs."""
+        ready=[]
+        for path in sorted(self.root.glob('*/manifest.json')):
+            info_path=path.with_name('archive-info.json')
+            if info_path.is_file():
+                try:
+                    manifest=json.loads(path.read_bytes());info=json.loads(info_path.read_bytes())
+                    if (manifest.get('schema')=='explorer_native_embodied_capture_manifest_v1' and
+                            manifest.get('state')=='completed' and manifest.get('project_id') in ('02','03') and
+                            info.get('recording_id')==manifest.get('recording_id')):
+                        ready.append({'recording_id':manifest['recording_id'],'project_id':manifest['project_id'],
+                            'input_mode':(manifest.get('embodied_episode',{}).get('input_adapter',{}).get('input_mode') or
+                                          manifest.get('skill_context',{}).get('input_mode')),
+                            'native_input_mode':manifest.get('embodied_episode',{}).get('input_adapter',{}).get('input_mode'),
+                            'input_mode_basis':('native_binding' if manifest.get('embodied_episode',{}).get('input_adapter',{}).get('input_mode') else
+                                                'validated_skill_context_declaration_not_native_proof'),
+                            'client_declared_input_mode':manifest.get('skill_context',{}).get('input_mode'),
+                            'archive_sha256':info['archive_sha256'],'archive_bytes':info['bytes'],
+                            'manifest_sha256':_sha(path.read_bytes()),
+                            'producer_schema':'explorer_native_capture_service_v1',
+                            'analysis_only':manifest.get('analysis_only',True)})
+                except (OSError,ValueError,KeyError):
+                    self.error='CATALOGUE_SOURCE_UNREADABLE'
+        return ready
+
+    def _consume(self,raw,frames,observations=None):
         page=json.loads(raw);self.packet_number+=1
         name='sources/native-page-'+str(self.packet_number).zfill(6)+'.json'
         self._save(name,raw)
         self._save(name.removesuffix('.json')+'-camera.json',_bytes({ident:{
             'metadata':image['metadata'],'jpeg_sha256':_sha(image['jpeg']),
             'source_file':'frames/'+_sha(image['jpeg'])+'.jpg'} for ident,image in frames.items()}))
+        for image in frames.values():
+            image_name='frames/'+_sha(image['jpeg'])+'.jpg'
+            if image_name not in self.payloads:
+                self._save(image_name,image['jpeg'])
         if page.get('boot_id')!=self.boot or page.get('clock_domain')!=self.domain:
             self.blockers.add('NATIVE_CLOCK_OR_BOOT_CHANGED');return
         if page.get('gap') or page.get('capture_failures',0)>self.initial_page.get('capture_failures',0):
@@ -187,11 +242,16 @@ class NativeCaptureWriter:
                     self.blockers.add('NATIVE_DISPATCH_SEQUENCE_GAP')
                 self.cursor=sequence
                 if row.get('kind')=='arm_host_publish':
-                    self._sample(row,frames.get(row.get('receipt_id')),name)
+                    tick=row.get('stamp',{}).get('monotonic_ns')
+                    if self.end_boundary_ns is not None and type(tick) is int and tick>self.end_boundary_ns:
+                        self.post_finish_receipts+=1
+                    else:
+                        self._sample(row,frames.get(row.get('receipt_id')),name,
+                                     (observations or {}).get(row.get('receipt_id')))
             elif type(sequence) is not int:
                 self.blockers.add('INVALID_NATIVE_RECEIPT_SEQUENCE')
 
-    def _sample(self,row,frame,source_file):
+    def _sample(self,row,frame,source_file,observation=None):
         if (row.get('schema')!='explorer_native_host_dispatch_v1' or
                 row.get('native_host_publication_returned') is not True or
                 row.get('command9_semantics')!='current_native_command_snapshot_after_this_publication'):
@@ -220,6 +280,17 @@ class NativeCaptureWriter:
         if estimate is not None:
             channels['joint_command']=_record({'values':deepcopy(estimate),'units':'deg',
                 'state_source':'command_trajectory_estimate'},before,'original_factory_ruckig')
+        if observation:
+            if observation.get('error'):
+                self.blockers.add('SENSOR_SOURCE_CAPTURE_FAILED')
+            for name,content in observation.get('source_payloads',{}).items():
+                self._save(name,content)
+            for name,record in observation.get('channels',{}).items():
+                if name in REQUIRED_CHANNELS and name not in ('camera_rgb','clocks','joint_command'):
+                    original=deepcopy(record)
+                    if 'provenance' in original:
+                        original['source_record_origin']=original.pop('provenance')
+                    channels[name]=original
         action={'values':deepcopy(row.get('command9')),'mask':deepcopy(row.get('command9_mask')),
                 'stage':'native_dispatch','source_id':row.get('source_id'),'command_id':row.get('receipt_id'),
                 'stamp':deepcopy(stamp),'delivery':{'level':'native_dispatch','observer_kind':'native_dispatch_callback',
@@ -267,8 +338,14 @@ class NativeCaptureWriter:
             quality=False
         else:
             quality=True
-        skill={'id':context.get('skill_id'),'version':context.get('skill_version'),
+        skill={'id':context.get('skill_id'),'version':context.get('skill_version',context.get('version')),
                'variant_id':context.get('variant_id'),'session_id':context.get('session_id')}
+        source_split=deepcopy(context.get('split'))
+        if not isinstance(source_split,dict):
+            source_split={'partition':source_split,'session_id':context.get('session_id'),
+                'scene_id':context.get('scene_id'),'object_instance_id':context.get('object_instance_id'),
+                'group_id':context.get('group_id'),
+                'group_by':['scene_id','session_id','episode_id','object_instance_id']}
         facts={'schema':SCHEMA,'episode_id':self.active,'run_id':self.active,'project_id':context.get('project_id'),
                'source_kind':'physical','skill':skill,'episode_scope':context.get('episode_scope'),
                'action_contract':{'id':ACTION_CONTRACT_ID,'names':list(ACTION_NAMES),'units':list(ACTION_UNITS),'simultaneous':True},
@@ -278,9 +355,11 @@ class NativeCaptureWriter:
                'causal_protocol':{'max_observation_age_ns':int(self.camera.stale_s*1e9) if self.camera else 0},
                'recording':{'status':'completed','source_quality_usable':quality,
                             'operator_outcome':outcome.get('operator_outcome'),'capture_blockers':sorted(self.blockers),
-                            'source_packets_dropped':self.dropped},'samples':self.samples,'phases':[],
+                            'source_packets_dropped':self.dropped,'finish_received_monotonic_ns':self.end_boundary_ns,
+                            'post_finish_native_receipts_retained_not_training_samples':self.post_finish_receipts},
+               'samples':self.samples,'phases':[],
                'outcomes':deepcopy(outcome.get('outcomes',{})),
-               'split':deepcopy(context.get('split',{})),
+               'split':source_split,
                'model_input':{'implementation_id':'official_ACT_RGB_command_estimate9_contract',
                    'channels':['camera_rgb','preceding_command9'],'action_contract_id':ACTION_CONTRACT_ID,
                    'output_names':list(ACTION_NAMES),'usage':'declared_plan'},
@@ -337,11 +416,15 @@ class NativeCaptureWriter:
                   'source_quality_usable':quality,'physical_success_inferred':False,
                   'motor_commands':0,'controller_settings_written':False}
         _write(self.folder/'manifest.json',_bytes(manifest))
+        archive=archive_native_capture(self.folder)
+        archive_info=json.loads(archive.with_name('archive-info.json').read_bytes())
         if self.emit:
             try:
                 self.emit({'kind':'native.embodied_recording.completed','recording_id':self.active,
                            'embodied_manifest':str(self.folder/'manifest.json'),
                            'manifest_sha256':_sha((self.folder/'manifest.json').read_bytes()),
+                           'project_id':context.get('project_id'),'input_mode':adapter.get('input_mode'),
+                           'archive_sha256':archive_info['archive_sha256'],
                            'admitted_for_dataset':admission['admitted_for_dataset']})
             except Exception:
                 self.error='EVENT_DELIVERY_FAILED_SOURCE_MANIFEST_RETAINED'
@@ -353,9 +436,9 @@ class NativeCaptureWriter:
             self.wake.wait(.2);self.wake.clear()
             try:
                 while not self.items.empty():
-                    ident,raw,frames=self.items.get_nowait()
+                    ident,raw,frames,observations=self.items.get_nowait()
                     if ident==self.active:
-                        self._consume(raw,frames)
+                        self._consume(raw,frames,observations)
                 with self.lock:
                     finish=self.pending_finish if self.state=='SEALING' and self.items.empty() else None
                 if finish is not None:

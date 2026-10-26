@@ -4,6 +4,8 @@ No device access or motor setting writes; a source sample does not renew the
 original native user-observation lease. This client does not run automatically.
 """
 import json
+from pathlib import Path
+import re
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 from urllib.parse import urlsplit
@@ -17,11 +19,13 @@ class NativeStreamClient:
                 not isinstance(token,str) or len(token)<16):
             raise ValueError('Explicit authenticated Nano observer origin required')
         self.origin, self.token, self.timeout, self.opener = nano_observer_url.rstrip('/'),token,timeout,opener
+        self.prefix='/legacy/explorer/retarget/'
 
     def _request(self, operation, body=None, *, preserve_source_bytes=False):
         content = json.dumps(body,allow_nan=False).encode() if body is not None else None
-        request = Request(self.origin+'/legacy/explorer/retarget/'+operation,data=content,
-                          headers={'Authorization':'Bearer '+self.token,'Content-Type':'application/json'})
+        request = Request(self.origin+self.prefix+operation,data=content,
+                          headers={'Authorization':'Bearer '+self.token,'Content-Type':'application/json',
+                                   'Origin':self.origin})
         try:
             with self.opener(request,timeout=self.timeout) as response:
                 raw=response.read(8*1024**2+1)
@@ -68,3 +72,17 @@ class NativeStreamClient:
 
     def stop(self, epoch):
         return self._request('stop',{'control_epoch':epoch})
+
+
+class OriginalNativeStreamReader(NativeStreamClient):
+    """Read-only local consumer; cannot invoke any inherited control mutation."""
+    def __init__(self,controller_root,*,timeout=1.,opener=urlopen):
+        token=(Path(controller_root)/'config/access_token').read_text().strip()
+        super().__init__('http://127.0.0.1:8080',token,timeout=timeout,opener=opener)
+        self.prefix='/api/explorer/retarget/'
+
+    def _request(self,operation,body=None,**kwargs):
+        if body is not None or not (operation in ('status','reference') or
+                                    re.fullmatch(r'dispatch\?after_sequence=[0-9]{1,19}',operation)):
+            raise PermissionError('Native capture source is GET-only')
+        return super()._request(operation,None,**kwargs)

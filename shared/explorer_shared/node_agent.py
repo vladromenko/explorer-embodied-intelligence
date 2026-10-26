@@ -500,11 +500,14 @@ class NodeAgent:
         self.recordings = RecordingManager(self.state_dir / "recordings", self.sources, self.delivery.emit)
         self.mobile_records=None
         self.mobile_capture=None
+        self.native_capture=None
         if mode=='nano':
             from .mobile_records import MobileRecords
             from .mobile_capture import MobileCaptureRecorder
             self.mobile_records=MobileRecords(Path(legacy_dir)/'mobile-demonstrations',self.state_dir/'mobile-archives')
             self.mobile_capture=MobileCaptureRecorder(legacy_dir,self.state_dir)
+            from .native_capture_service import NativeCaptureService
+            self.native_capture=NativeCaptureService.from_agent(self)
         self.stream_slots = threading.BoundedSemaphore(3)
         self.observer = None
         self.station = None
@@ -561,6 +564,8 @@ class NodeAgent:
                 retarget_error = error
         if self.mobile_capture:
             self.mobile_capture.close()
+        if self.native_capture:
+            self.native_capture.close()
         if self.station:
             self.station.close()
         self.recordings.close()
@@ -709,6 +714,7 @@ class NodeAgent:
                 "cameras": cameras, "serial_devices": serial, "calibrations": calibrations,
                 "perception": observer, "station": station,"mobile_observation":mobile,
                 "lab_vision":lab_vision,
+                "native_capture":self.native_capture.status() if self.native_capture else None,
                 "capabilities": {"physical_motion": bool(station and station['available']) or self.mode=='nano', "servo_bus_access": bool(station and station['available']),
                                  "serial_discovery": True, "joint_measurements": bool(station and station['measurements']),
                                  "calibration_verified": bool(station and len(station['roles'])==2), "arm_roles_assigned": bool(station and len(station['roles'])==2),
@@ -776,6 +782,27 @@ def make_handler(agent):
                     'X-Monotonic-NS':frame.monotonic_ns,'X-Boot-ID':frame.boot_id,'X-Timestamp-Basis':frame.timestamp_basis}.items():
                     self.send_header(key,str(value))
                 self.end_headers();self.wfile.write(frame.jpeg)
+            elif path.startswith('/native-capture/'):
+                service=getattr(agent,'native_capture',None)
+                if service is None:
+                    raise LookupError('Native target capture is available only on Nano')
+                if path=='/native-capture/capabilities':
+                    self._json(200,service.capabilities())
+                elif path=='/native-capture/status':
+                    self._json(200,service.status())
+                elif path=='/native-capture/recordings':
+                    self._json(200,{'schema':'explorer_native_capture_service_v1',
+                        'ready_recordings':service.writer.ready_recordings()})
+                elif len(parts)==4 and parts[1]=='recordings':
+                    if parts[3]=='download':
+                        self._download(service.writer.archive(parts[2]),parts[2])
+                    elif parts[3]=='manifest':
+                        from .retarget_recording import identity
+                        self._json(200,json.loads((service.writer.root/identity(parts[2])/'manifest.json').read_bytes()))
+                    else:
+                        raise LookupError('Unknown native capture recording operation')
+                else:
+                    raise LookupError('Unknown native capture endpoint')
             elif path == '/arm-retarget/status':
                 self._json(200, agent.retarget_status())
             elif agent.mode == 'pi' and path == '/arm-retarget/recordings':
@@ -907,19 +934,33 @@ def make_handler(agent):
             station = path.startswith('/station/') and agent.station is not None
             retarget = path.startswith('/arm-retarget/')
             lab=path.startswith('/lab/vision/') and agent.lab_vision is not None
-            if path != "/recordings" and not legacy and not station and not retarget and not lab:
+            native_capture=path.startswith('/native-capture/') and getattr(agent,'native_capture',None) is not None
+            if path != "/recordings" and not legacy and not station and not retarget and not native_capture and not lab:
                 self.close_connection = True
                 self._json(404, {"error": "Endpoint not found; no physical API is provided"})
                 return
             try:
                 length = int(self.headers.get("Content-Length", "0"))
-                if not 0 < length <= MAX_BODY_BYTES:
+                body_limit=256*1024 if native_capture else MAX_BODY_BYTES
+                if not 0 < length <= body_limit:
                     raise ValueError("Invalid request body length")
                 payload = json.loads(self.rfile.read(length))
                 if not isinstance(payload, dict):
                     raise ValueError("Expected a JSON object")
                 if lab:
                     self._json(200,agent.lab_vision.command(path.removeprefix('/lab/vision/'),payload))
+                elif native_capture:
+                    service=agent.native_capture
+                    if path=='/native-capture/record/start':
+                        result=service.start(payload.get('skill_context'))
+                    elif path=='/native-capture/record/stage':
+                        result=service.stage(payload.get('recording_id'),payload.get('phase_id',payload.get('stage')),
+                            reason=payload.get('reason','explicit_operator_annotation'),recovery_of=payload.get('recovery_of'))
+                    elif path=='/native-capture/record/finish':
+                        result=service.finish(payload.get('recording_id'),payload.get('outcome_evidence'))
+                    else:
+                        raise ValueError('Unknown native capture operation')
+                    self._json(200,result)
                 elif retarget:
                     self._json(200, agent.retarget_command(path.removeprefix('/arm-retarget/'), payload))
                 elif station:
