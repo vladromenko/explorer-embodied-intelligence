@@ -22,6 +22,8 @@ REQUIRED_CHANNELS = (
     'joint_feedback', 'gripper', 'clocks', 'detections', 'goal', 'power_context',
 )
 OPTIONAL_CHANNELS = ('preceding_command9',)
+COMMAND_ESTIMATE_PROFILE = 'rosmaster_command_estimate9_v1'
+COMMAND_ESTIMATE_REQUIRED = ('camera_rgb', 'clocks', 'preceding_command9')
 _KINDS = {
     'camera_rgb': 'image_asset', 'camera_depth': 'depth_asset_with_units',
     'camera_calibration': 'intrinsics_distortion_extrinsics_uncertainty',
@@ -42,6 +44,7 @@ def observation_channels():
 
 def sensor_contract():
     return {name: {'required': name in REQUIRED_CHANNELS, 'kind': _KINDS[name],
+                   'required_means_schema_declaration_not_sensor_availability': True,
                    'recorded_admitted_model_used_are_distinct': True}
             for name in observation_channels()}
 
@@ -259,6 +262,21 @@ def _full_mask(mask, value):
             all(item is True for item in mask))
 
 
+def _partial_vector_declaration(name, record):
+    lengths = {'joint_command': 6, 'joint_feedback': 6, 'base_velocity': 3, 'preceding_command9': 9}
+    mask, value = record.get('mask'), _mapping(record.get('value'))
+    values = value.get('values')
+    if (name not in lengths or not isinstance(mask, list) or not isinstance(values, list) or
+            len(mask) != lengths[name] or len(values) != lengths[name] or
+            any(type(item) is not bool for item in mask) or
+            any(valid and not _finite(number) for valid, number in zip(mask, values))):
+        return False
+    units_okay = (value.get('units') == 'deg' if name.startswith('joint_') else
+                  value.get('units') == ['m/s', 'm/s', 'rad/s'] if name == 'base_velocity' else
+                  value.get('names') == list(ACTION_NAMES))
+    return units_okay and record.get('available') is any(mask)
+
+
 def _verified_outcome(record, evidence, path):
     record = _mapping(record)
     return (record.get('status') in ('success', 'failure', 'inconclusive') and
@@ -307,7 +325,7 @@ def canonicalize_episode(source_envelope, source_payloads=None):
     identity = _mapping(envelope.get('identity'))
     identity_fields = ('episode_id', 'run_id', 'project_id', 'source_kind', 'skill', 'episode_scope', 'action_contract')
     identity_okay = (all(identity.get(key) == envelope.get(key) for key in identity_fields) and
-                     envelope.get('project_id') == '02' and envelope.get('source_kind') in ('physical', 'simulation') and
+                     envelope.get('project_id') in ('02', '03') and envelope.get('source_kind') in ('physical', 'simulation') and
                      evidence.record(identity, 'identity'))
     if not identity_okay:
         missing.append('identity.source_bound_episode_skill_action_contract')
@@ -324,6 +342,27 @@ def canonicalize_episode(source_envelope, source_payloads=None):
         domain_okay = domain_okay and okay
     if not domain_okay:
         missing.append('clock_domains')
+    profile = _mapping(envelope.get('admission_profile'))
+    command_estimate_profile = profile.get('id') == COMMAND_ESTIMATE_PROFILE
+    required_values = COMMAND_ESTIMATE_REQUIRED if command_estimate_profile else REQUIRED_CHANNELS
+    if profile and (not command_estimate_profile or profile.get('required_channels') != list(COMMAND_ESTIMATE_REQUIRED) or
+                    not evidence.record(profile, 'admission_profile')):
+        missing.append('admission_profile.source_bound_supported_requirements')
+    reference = _mapping(envelope.get('state_estimate_reference'))
+    reference_stamp, reference_clock_okay = _stamp(reference, domains)
+    reference_okay = False
+    if command_estimate_profile:
+        reference_okay = (reference_clock_okay and reference.get('state_source') == 'command_estimate' and
+                          _text(reference.get('reference_id')) and _text(reference.get('estimator_id')) and
+                          reference.get('reference_kind') in ('factory_startup_reference', 'explicit_operator_reference',
+                                                              'simulation_initial_state') and
+                          _vector(reference.get('reference_action9'), 9) and
+                          reference.get('units') == list(ACTION_UNITS) and
+                          reference.get('command_log_contiguous_since_reference') is True and
+                          _text(reference.get('reference_receipt_id')) and
+                          evidence.record(reference, 'state_estimate_reference'))
+        if not reference_okay:
+            missing.append('state_estimate_reference.boot_reference_command_log')
     recording = _mapping(envelope.get('recording'))
     recording_verified = evidence.record(recording, 'recording')
     completed = recording_verified and recording.get('status') == 'completed'
@@ -349,7 +388,8 @@ def canonicalize_episode(source_envelope, source_payloads=None):
     channels = {name: {'present': False, 'available': False, 'mask': False, 'recorded': False,
                        'admitted': False, 'model_used': False, 'source_id': None, 'clock_domain': None,
                        'boot_id': None, 'presence_known': False, 'sample_count': 0, 'valid_sample_count': 0,
-                       'sample_masks': [], 'sample_available': []}
+                       'sample_masks': [], 'sample_available': [], 'declaration_admitted': True,
+                       'diagnostics': []}
                 for name in observation_channels()}
     action_rows, action_validity, sample_ids, action_epochs, action_ticks = [], [], set(), set(), []
     for index, sample_value in enumerate(samples):
@@ -387,10 +427,16 @@ def canonicalize_episode(source_envelope, source_payloads=None):
         action_validity.append(valid_action)
         if not valid_action:
             missing.append(prefix + '.actual_simultaneous_9d_delivery')
+        if command_estimate_profile and (not reference_okay or
+                stamp.get('clock_domain') != reference_stamp.get('clock_domain') or
+                stamp.get('boot_id') != reference_stamp.get('boot_id') or
+                stamp.get('monotonic_ns', -1) < reference_stamp.get('monotonic_ns', 0)):
+            missing.append(prefix + '.command_estimate_reference_clock_boot')
         source_channels = _mapping(sample.get('channels'))
         for name in observation_channels():
             record = _mapping(source_channels.get(name))
             report = channels[name]
+            diagnostic_start = len(missing)
             present = record.get('present') is True
             available = (record.get('available') is True and present and record.get('value') is not None and
                          _full_mask(record.get('mask'), record.get('value')))
@@ -404,14 +450,36 @@ def canonicalize_episode(source_envelope, source_payloads=None):
             asset = (evidence.asset(record.get('value'), prefix + '.' + name)
                      if available and name in ('camera_rgb', 'camera_depth') else True)
             valid = available and recorded and causal and shape and asset and _text(record.get('source_id'))
+            unavailable_declared = (record.get('available') is False and record.get('value') is None and
+                                    record.get('mask') is False and _text(record.get('unavailable_reason')))
+            declaration_okay = (recorded and isinstance(record.get('present'), bool) and
+                                isinstance(record.get('available'), bool) and _text(record.get('source_id')) and
+                                (unavailable_declared or (present and record.get('available') is True and
+                                                          record.get('value') is not None and _full_mask(record.get('mask'), record.get('value')) and shape) or
+                                 (present and _partial_vector_declaration(name, record))))
+            if name == 'preceding_command9' and command_estimate_profile and valid:
+                estimate = _mapping(record.get('value'))
+                allowed_receipts = {reference['reference_receipt_id']} if _text(reference.get('reference_receipt_id')) else set()
+                allowed_receipts.update(item for row in action_rows[:-1]
+                                        if _text(item := _mapping(row.get('delivery')).get('receipt_id')))
+                valid = (reference_okay and estimate.get('state_source') == 'command_estimate' and
+                         estimate.get('reference_id') == reference.get('reference_id') and
+                         estimate.get('estimator_id') == reference.get('estimator_id') and
+                         _text(estimate.get('last_dispatch_receipt_id')) and
+                         estimate.get('last_dispatch_receipt_id') in allowed_receipts)
+                if not valid:
+                    missing.append(prefix + '.' + name + '.reference_and_prior_dispatch')
             if name == 'camera_calibration' and valid:
                 value = record['value']
                 tick = record['stamp']['monotonic_ns']
                 valid = (isinstance(value.get('valid_from_ns'), int) and isinstance(value.get('valid_until_ns'), int) and
                          value['valid_from_ns'] <= tick <= value['valid_until_ns'])
             report['present'] = report['present'] or present
+            if name in REQUIRED_CHANNELS or record:
+                report['declaration_admitted'] = report['declaration_admitted'] and declaration_okay
             report['presence_known'] = report['presence_known'] or isinstance(record.get('present'), bool)
-            report['available'] = report['available'] or available
+            report['available'] = report['available'] or (record.get('available') is True and present and
+                                                          record.get('value') is not None)
             report['recorded'] = report['recorded'] or recorded
             report['sample_count'] += 1
             report['valid_sample_count'] += int(valid)
@@ -421,15 +489,22 @@ def canonicalize_episode(source_envelope, source_payloads=None):
                 report['source_id'] = record.get('source_id')
                 report['clock_domain'] = _mapping(record.get('stamp')).get('clock_domain')
                 report['boot_id'] = _mapping(record.get('stamp')).get('boot_id')
-            if name in REQUIRED_CHANNELS and not valid:
+            diagnostics = missing[diagnostic_start:]
+            del missing[diagnostic_start:]
+            report['diagnostics'].extend(diagnostics)
+            if (name in REQUIRED_CHANNELS or name in required_values) and not declaration_okay:
+                missing.append(prefix + '.' + name + '.explicit_source_measurement_or_unavailable_declaration')
+            if name in required_values and not valid:
+                missing.extend(diagnostics)
                 missing.append(prefix + '.' + name + '.complete_source_causal_measurement')
         rgb = _mapping(_mapping(source_channels.get('camera_rgb')).get('value'))
         depth = _mapping(_mapping(source_channels.get('camera_depth')).get('value'))
         calibration = _mapping(_mapping(source_channels.get('camera_calibration')).get('value'))
         clocks = _mapping(_mapping(source_channels.get('clocks')).get('value'))
-        if (not rgb.get('camera_id') or rgb.get('camera_id') != calibration.get('camera_id') or
+        if (('camera_depth' in required_values or 'camera_calibration' in required_values) and
+                (not rgb.get('camera_id') or rgb.get('camera_id') != calibration.get('camera_id') or
                 depth.get('camera_id') != calibration.get('depth_camera_id') or
-                depth.get('aligned_to_rgb_frame_id') != rgb.get('frame_id')):
+                depth.get('aligned_to_rgb_frame_id') != rgb.get('frame_id'))):
             missing.append(prefix + '.rgb_depth_calibration_identity')
         if (clocks.get('clock_domain') != stamp.get('clock_domain') or clocks.get('boot_id') != stamp.get('boot_id')):
             missing.append(prefix + '.clock_channel_action_identity')
@@ -495,7 +570,7 @@ def canonicalize_episode(source_envelope, source_payloads=None):
     for name in channels:
         channels[name]['model_used'] = model_okay and model.get('usage') == 'executed' and name in used
     missing = sorted(set(missing))
-    admitted = not missing and all(action_validity) and all(channels[name]['admitted'] for name in REQUIRED_CHANNELS)
+    admitted = not missing and all(action_validity) and all(channels[name]['admitted'] for name in required_values)
     document = {
         'schema': ADMISSION_SCHEMA, 'source_schema': envelope.get('schema'),
         'episode_id': envelope.get('episode_id'), 'run_id': envelope.get('run_id'),
@@ -535,7 +610,14 @@ def canonicalize_episode(source_envelope, source_payloads=None):
                              'source_files_sha256': {name: _sha(value) for name, value in payloads.items()},
                              'qualification_scope': 'source_declarations_not_hardware_attestation'},
         'physical_qualification': False,
+        'admission_profile': COMMAND_ESTIMATE_PROFILE if command_estimate_profile else 'full_multimodal_measurement_v1',
+        'required_value_channels': list(required_values),
+        'command_estimate_reference_verified': bool(reference_okay),
+        'measured_joint_feedback_required': 'joint_feedback' in required_values,
+        'measured_attainment_or_contact_claimed': False,
     }
+    document['causal_verified'] = bool(samples) and all(channels[name]['admitted'] for name in required_values)
+    document['capability_admission'] = _capability_admission(document)
     originals = {'envelope': envelope_bytes, 'payloads': MappingProxyType(dict(payloads))}
     return EvidenceBundle(document, MappingProxyType(originals))
 
@@ -544,16 +626,32 @@ def inspect_embodied_episode(source_envelope, source_payloads=None):
     return canonicalize_episode(source_envelope, source_payloads).document
 
 
+def _capability_admission(evidence):
+    channels = _mapping(evidence.get('channels'))
+    contact = (COMMAND_ESTIMATE_REQUIRED if evidence.get('admission_profile') == COMMAND_ESTIMATE_PROFILE else
+               ('camera_rgb', 'clocks', 'joint_feedback', 'base_velocity'))
+    requirements = {
+        'perception_3d': ('camera_rgb', 'camera_depth', 'camera_calibration', 'detections', 'goal'),
+        'navigation': ('lidar', 'odometry_pose', 'base_velocity', 'goal', 'clocks'),
+        'contact_act_bc': contact,
+    }
+    result = {}
+    for capability, required in requirements.items():
+        missing = [name for name in required if not _mapping(channels.get(name)).get('admitted')]
+        result[capability] = {'required_channels': list(required), 'missing_channels': missing,
+                              'evidence_admitted': evidence.get('admitted_for_dataset') is True and not missing,
+                              'implementation_verified': False}
+    return result
+
+
 def hierarchy_plan(spec, evidence=None):
     """Describe internal components; this function implements no controller."""
     evidence = _mapping(evidence)
     channels = _mapping(evidence.get('channels'))
-    definitions = (
-        ('perception', ('camera_rgb', 'camera_depth', 'camera_calibration', 'detections', 'goal')),
-        ('navigation', ('lidar', 'odometry_pose', 'base_velocity', 'imu', 'goal')),
-        ('contact_act_bc', ('camera_rgb', 'joint_command', 'joint_feedback', 'gripper')),
-        ('coordinator', REQUIRED_CHANNELS),
-    )
+    capabilities = _capability_admission(evidence)
+    coordinator = sorted({name for capability in capabilities.values() for name in capability['required_channels']})
+    definitions = tuple((name, capability['required_channels']) for name, capability in capabilities.items()) + (
+        ('coordinator', coordinator),)
     stages = []
     for name, required in definitions:
         stages.append({'id': name, 'required_channels': list(required),
@@ -561,10 +659,10 @@ def hierarchy_plan(spec, evidence=None):
                        'admitted_channels': [key for key in required if _mapping(channels.get(key)).get('admitted')],
                        'model_used_channels': [key for key in required if _mapping(channels.get(key)).get('model_used')],
                        'implementation_status': 'NOT_IMPLEMENTED_BY_THIS_CONTRACT'})
-    missing = [key for key in REQUIRED_CHANNELS if not _mapping(channels.get(key)).get('admitted')]
+    missing = [key for key in coordinator if not _mapping(channels.get(key)).get('admitted')]
     return {'schema': 'explorer_embodied_hierarchy_plan_v1', 'action_contract_id': ACTION_CONTRACT_ID,
             'unified_action_names': list(ACTION_NAMES), 'simultaneous_9d': True,
             'resources': ['arm', 'gripper', 'base'], 'stages': stages,
-            'full_hierarchy_status': 'EVIDENCE_DECLARED' if evidence.get('admitted_for_training') is True else 'BLOCKED',
+            'full_hierarchy_status': ('EVIDENCE_DECLARED' if evidence.get('admitted_for_dataset') is True and not missing else 'BLOCKED'),
             'missing_channels': missing,
             'scope': 'internal_components_of_one_mobile_manipulator_not_separate_tasks'}

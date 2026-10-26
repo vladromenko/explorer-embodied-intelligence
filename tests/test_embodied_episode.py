@@ -7,7 +7,8 @@ import pytest
 
 from explorer_shared.contracts import ACTION_NAMES, ACTION_UNITS
 from explorer_shared.embodied_episode import (
-    ACTION_CONTRACT_ID, REQUIRED_CHANNELS, SCHEMA, canonicalize_episode,
+    ACTION_CONTRACT_ID, COMMAND_ESTIMATE_PROFILE, COMMAND_ESTIMATE_REQUIRED,
+    REQUIRED_CHANNELS, SCHEMA, canonicalize_episode,
     hierarchy_plan, inspect_embodied_episode, observation_channels, sensor_contract,
 )
 
@@ -103,6 +104,9 @@ def package(facts=None, images=None):
 
     for key in ('identity', 'causal_protocol', 'recording', 'split', 'model_input'):
         bind(envelope[key], '/' + key)
+    for key in ('admission_profile', 'state_estimate_reference'):
+        if key in envelope:
+            bind(envelope[key], '/' + key)
     for name, domain in envelope['clock_domains'].items():
         bind(domain, '/clock_domains/' + name)
     for index, link in enumerate(envelope.get('clock_mappings', [])):
@@ -315,3 +319,89 @@ def test_metadata_is_unified_and_mutating_result_does_not_mutate_input():
     assert envelope == original
     assert set(sensor_contract()) == set(observation_channels())
     assert all(sensor_contract()[name]['required'] for name in REQUIRED_CHANNELS)
+
+
+def command_estimate_facts():
+    facts, images = source_facts()
+    facts['source_kind'] = facts['identity']['source_kind'] = 'physical'
+    facts['project_id'] = facts['identity']['project_id'] = '03'
+    facts['admission_profile'] = {'id': COMMAND_ESTIMATE_PROFILE,
+                                 'required_channels': list(COMMAND_ESTIMATE_REQUIRED)}
+    facts['state_estimate_reference'] = {
+        'reference_id': 'factory-known-reference', 'estimator_id': 'original-native-no-readback',
+        'reference_kind': 'factory_startup_reference', 'state_source': 'command_estimate',
+        'reference_action9': [0.] * 9, 'units': list(ACTION_UNITS), 'stamp': stamp(0),
+        'command_log_contiguous_since_reference': True, 'reference_receipt_id': 'reference-receipt',
+    }
+    channels = facts['samples'][0]['channels']
+    for name in REQUIRED_CHANNELS:
+        if name not in COMMAND_ESTIMATE_REQUIRED:
+            channels[name].update(available=False, value=None, mask=False,
+                                   unavailable_reason='INTENTIONALLY_NO_READBACK_OR_SENSOR_NOT_AVAILABLE')
+    channels['preceding_command9'] = {
+        'present': True, 'available': True, 'mask': [True] * 9, 'source_id': 'native-command-estimator',
+        'stamp': stamp(10), 'value': {'values': [0.] * 9, 'names': list(ACTION_NAMES),
+                                     'state_source': 'command_estimate', 'reference_id': 'factory-known-reference',
+                                     'estimator_id': 'original-native-no-readback',
+                                     'last_dispatch_receipt_id': 'reference-receipt'},
+    }
+    action = facts['samples'][0]['action']
+    action['stage'] = action['delivery']['level'] = 'native_dispatch'
+    action['delivery']['observer_kind'] = 'native_dispatch_callback'
+    facts['model_input'].update(channels=['camera_rgb','preceding_command9'], usage='declared_plan')
+    return facts, images
+
+
+def test_no_readback_admission_preserves_nulls_masks_and_full9_without_fake_sensor_values():
+    facts, images = command_estimate_facts()
+    report = inspect(facts, images)
+    assert report['admitted_for_dataset'], report['missing_facts']
+    assert report['action9_verified'] and report['causal_verified'] and report['command_estimate_reference_verified']
+    assert not report['measured_joint_feedback_required'] and not report['measured_attainment_or_contact_claimed']
+    for name in ('joint_feedback','camera_depth','lidar','imu','gripper','power_context'):
+        assert report['channels'][name]['recorded'] and report['channels'][name]['declaration_admitted']
+        assert not report['channels'][name]['mask'] and not report['channels'][name]['admitted']
+        assert facts['samples'][0]['channels'][name]['value'] is None
+    assert report['raw_simultaneous_actions'][0]['values'] == [0.] * 9
+    assert report['capability_admission']['contact_act_bc']['evidence_admitted']
+    assert not report['capability_admission']['navigation']['evidence_admitted']
+    assert hierarchy_plan({},report)['full_hierarchy_status'] == 'BLOCKED'
+
+
+@pytest.mark.parametrize('fault', ['boot', 'reference', 'dispatch', 'unavailable_mask', 'unbound_profile'])
+def test_no_readback_profile_still_requires_actual_causal_reference_and_dispatch_proof(fault):
+    facts, images = command_estimate_facts()
+    if fault == 'boot':
+        facts['state_estimate_reference']['stamp']['boot_id'] = 'previous-boot'
+    elif fault == 'reference':
+        facts['samples'][0]['channels']['preceding_command9']['value']['reference_id'] = 'other-reference'
+    elif fault == 'dispatch':
+        facts['samples'][0]['action']['delivery']['level'] = 'api_accepted'
+    elif fault == 'unavailable_mask':
+        facts['samples'][0]['channels']['joint_feedback']['mask'] = True
+    envelope, payloads = package(facts, images)
+    if fault == 'unbound_profile':
+        envelope['admission_profile']['required_channels'] = []
+    assert not inspect_embodied_episode(envelope,payloads)['admitted_for_dataset']
+
+
+def test_no_readback_reference_does_not_synthesize_missing_preceding_command9_or_native_targets():
+    facts, images = command_estimate_facts()
+    del facts['samples'][0]['channels']['preceding_command9']
+    report = inspect(facts, images)
+    assert report['analysis_only']
+    assert 'preceding_command9' not in facts['samples'][0]['channels']
+    assert not report['channels']['joint_feedback']['mask']
+
+
+def test_partial_optional_joint_feedback_mask_is_retained_without_blocking_command_estimate_dataset():
+    facts, images = command_estimate_facts()
+    record = facts['samples'][0]['channels']['joint_feedback']
+    record.update(available=True, value={'values':[None, 0., 0., None, 0., 0.], 'units':'deg',
+                                          'state_source':'measured'}, mask=[False,True,True,False,True,True])
+    report = inspect(facts, images)
+    assert report['admitted_for_dataset'], report['missing_facts']
+    assert report['channels']['joint_feedback']['available']
+    assert report['channels']['joint_feedback']['sample_masks'] == [[False,True,True,False,True,True]]
+    assert not report['channels']['joint_feedback']['admitted']
+    assert facts['samples'][0]['channels']['joint_feedback']['value']['values'][0] is None

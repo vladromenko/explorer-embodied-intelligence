@@ -57,7 +57,7 @@ assert bundle.source_bytes["envelope"] == original_envelope_bytes
 | Поле | Значение |
 | --- | --- |
 | episode_id, run_id | Непустые исходные идентификаторы |
-| project_id, source_kind | `02`; `physical` или `simulation` |
+| project_id, source_kind | `02` или ROSMASTER-target `03`; `physical` или `simulation` |
 | skill | id, version, variant_id, session_id |
 | episode_scope | whole_episode, targeted_subskill, recovery |
 | action_contract | id, names, units; simultaneous=true |
@@ -71,6 +71,59 @@ assert bundle.source_bytes["envelope"] == original_envelope_bytes
 | outcomes | Независимый end_to_end и per_phase для каждой фазы |
 | split | partition, scene_id, session_id, episode_id, object_instance_id, group_id, group_by |
 | model_input | implementation_id, channels, action_contract_id, output_names, usage, доказательство |
+
+### Профиль без обратного чтения ROSMASTER
+
+Уточнение владельца: заводская обратная связь намеренно отключена из-за
+исторического зависания readback. Этот модуль не включает её и не требует
+обновления firmware. Отсутствие измеренных суставов, depth, LiDAR, IMU или силы
+само по себе не запрещает честный dataset с оценкой команд. Полный набор 14
+каналов обязателен как **описание схемы и масок**, а доступность значений зависит
+от конкретного pipeline. Неизвестные значения остаются неизвестными.
+
+Для такого источника задаются две дополнительные исходные записи с provenance:
+
+```json
+{
+  "admission_profile": {
+    "id": "rosmaster_command_estimate9_v1",
+    "required_channels": ["camera_rgb", "clocks", "preceding_command9"]
+  },
+  "state_estimate_reference": {
+    "reference_id": "<original reference>", "estimator_id": "<original native estimator>",
+    "reference_kind": "factory_startup_reference", "state_source": "command_estimate",
+    "reference_action9": [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    "units": ["deg", "deg", "deg", "deg", "deg", "deg", "m/s", "m/s", "rad/s"],
+    "stamp": {"clock_domain": "<original>", "boot_id": "<original>", "monotonic_ns": 0},
+    "command_log_contiguous_since_reference": true,
+    "reference_receipt_id": "<original reference receipt>"
+  }
+}
+```
+
+Показанные нули — лишь синтаксический пример; их нельзя применять к реальному
+роботу без соответствующего исходного reference. Допустимы также
+explicit_operator_reference и simulation_initial_state. Reference обязан
+совпадать с boot/clock действия, а сама 9D-оценка остаётся явно записанной.
+`preceding_command9.value` содержит reference_id, estimator_id,
+last_dispatch_receipt_id и state_source=command_estimate. Последняя квитанция
+должна принадлежать reference либо предыдущей записанной доставке. Reference не
+позволяет синтезировать отсутствующий вектор, продолжить его через reboot или
+превратить HTTP acceptance в native dispatch.
+
+Недоступный канал имеет available=false, value=null, mask=false и непустой
+unavailable_reason в точной исходной записи. Для частичного суставного вектора
+сохраняются null/реальные значения и покомпонентная маска. Неполная обратная связь
+не блокирует профиль command_estimate и не становится допущенным measured q.
+Запрошенный моделью канал всё равно должен иметь проверенные доступные значения.
+Старый полный мультимодальный профиль без admission_profile продолжает требовать
+все исходные значения; это не подразумеваемая конфигурация физического ROSMASTER.
+
+Dataset-admission отделён от `capability_admission`: источник RGB+оценка9 может
+быть допущен для contact ACT/BC, а полноценная 3D-перцепция или навигация останутся
+BLOCKED без необходимых именно им наблюдений. IMU, joint feedback или сила
+не назначаются обязательными для всех pipelines. Никаких утверждений о достижении
+позы/контакте из оценки команд нет (`measured_attainment_or_contact_claimed=false`).
 
 Каждая запись со свидетельством содержит:
 
@@ -124,7 +177,7 @@ assert bundle.source_bytes["envelope"] == original_envelope_bytes
 | detections | detections (включая честный пустой список), model_id, frame_id |
 | goal | goal_id, description |
 | power_context | voltage, units=V, current, current_available, charging; неизвестное null |
-| preceding_command9 (необязательный) | Только явно записанные values[9], names[9]; не сборка из суставов и одометрии |
+| preceding_command9 | Обязателен для command_estimate9; только явно записанные values[9], names[9]; не сборка из суставов и одометрии |
 
 Измерительные state_source — `measured` для physical и `simulated` для
 simulation. Командное эхо и `busy=false` не заменяют измерение. Напряжение не
