@@ -83,7 +83,7 @@ def test_authenticated_new_jobs_reject_wrong_project_and_unavailable_source(tmp_
     assert client.post('/api/jobs',json={'kind':'manipulation','project_id':'01','config':{}}).status_code==403
     for body in ({'kind':'manipulation','project_id':'04','config':{}},
                  {'kind':'policy_transfer','project_id':'04','config':{'source_job_id':'missing'}},
-                 {'kind':'manipulation_student','project_id':'01','config':{'device':'cuda'}}):
+                 {'kind':'manipulation_student','project_id':'01','config':{'device':'mps'}}):
         assert client.post('/api/jobs',json=body,headers=headers).status_code==400
     response=client.post('/api/jobs',json={'kind':'manipulation','project_id':'01','config':{'task':'sock_to_basket'}},headers=headers)
     assert response.status_code==200 and response.json()['status']=='queued'

@@ -297,8 +297,10 @@ async def create_job(request: Request):
         raise HTTPException(400, 'Job configuration must be an object')
     if '_execution_commit' in config:
         raise HTTPException(400,'Execution provenance is assigned by the worker')
-    if body['kind'] in ('world_model','dagger','skill_cycle','manipulation','manipulation_student','manipulation_benchmark','policy_transfer','fault_repair') and config.get('device','cpu')!='cpu':
+    if body['kind'] in ('world_model','dagger','skill_cycle','manipulation','manipulation_benchmark','policy_transfer','fault_repair') and config.get('device','cpu')!='cpu':
         raise HTTPException(400,'This engineering benchmark currently uses the verified CPU path')
+    if body['kind']=='manipulation_student' and config.get('device','cpu') not in ('cpu','cuda'):
+        raise HTTPException(400,'Unsupported manipulation learner device')
     if body['kind'] in ('manipulation','manipulation_student','manipulation_benchmark','fault_repair'):
         if body['project_id'] != '01':
             raise HTTPException(400,'Manipulation belongs to experiment 01')

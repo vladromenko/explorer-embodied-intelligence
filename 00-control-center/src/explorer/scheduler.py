@@ -1,5 +1,6 @@
 """ENGINEERING_GLUE: independent durable resource scheduler; no robot I/O."""
 import fcntl
+import hashlib
 import json
 import os
 import signal
@@ -65,11 +66,19 @@ def admission(job, resources):
 
 
 def executable_for(job):
-    if job['kind'] in ('train_act','sim_pilot') and job.get('config',{}).get('device')=='cuda':
+    if job['kind'] in ('train_act','sim_pilot','manipulation_student') and job.get('config',{}).get('device')=='cuda':
         runtime=Path.home()/'.local/share/explorer/gpu-venv/bin/python'
         evidence=Path.home()/'.local/share/explorer/state/qualification/act-cu132-fp32-20261026/qualification.json'
         if not runtime.is_file() or not evidence.is_file() or not json.loads(evidence.read_text()).get('passed'):
             raise ValueError('The selected GPU runtime has not passed its actual ACT qualification')
+        if job['kind']=='manipulation_student':
+            qualification=Path.home()/'.local/share/explorer/state/qualification/manipulation-act9-cuda-20261026/qualification.json'
+            source=Path(__file__).resolve().parents[3]/'01-autonomous-learning/src/explorer_sim/manipulation_student.py'
+            if not qualification.is_file():
+                raise ValueError('Nine-axis manipulation CUDA path requires its own actual qualification')
+            receipt=json.loads(qualification.read_text())
+            if not receipt.get('passed') or receipt.get('implementation_sha256')!=hashlib.sha256(source.read_bytes()).hexdigest():
+                raise ValueError('Nine-axis CUDA qualification does not match this implementation')
         return str(runtime)
     return sys.executable
 
