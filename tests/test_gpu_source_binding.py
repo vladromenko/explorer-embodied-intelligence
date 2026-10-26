@@ -192,7 +192,10 @@ def test_new_profile_requires_startup_constraints_and_explicit_job_identity(tmp_
 
 def test_worker_environment_sets_named_profile_before_launch_without_mutating_parent_or_legacy(tmp_path,monkeypatch):
     from explorer.scheduler import execution_environment
+    from explorer_shared.learning import runtime_profiles
     current,old=releases(tmp_path);store=Store(tmp_path/'state')
+    (current/RUNTIME_PROFILES_SOURCE).write_bytes(Path(runtime_profiles.__file__).read_bytes())
+    monkeypatch.setattr(runtime_profiles,'act_worker_environment',lambda settings:(_ for _ in ()).throw(AssertionError('Current helper must not configure an old release')))
     monkeypatch.setenv('CUBLAS_WORKSPACE_CONFIG','parent-value')
     new=store.create_job('manipulation_student','01',cuda_config())
     environment=execution_environment({'root':str(current)},store,new)

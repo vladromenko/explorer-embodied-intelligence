@@ -1,5 +1,6 @@
 """ENGINEERING_GLUE: independent durable resource scheduler; no robot I/O."""
 import fcntl
+import importlib.util
 import json
 import os
 import signal
@@ -127,8 +128,14 @@ def execution_environment(config,store,job):
     environment=dict(os.environ,PYTHONPATH=str(release/'00-control-center/src')+':'+str(release/'shared'))
     from .qualification_bindings import pipeline_graph_version
     if job.get('config',{}).get('device')=='cuda' and job['kind'] in ('train_act','sim_pilot','manipulation_student') and pipeline_graph_version(release,job['kind'])>=4:
-        from explorer_shared.learning.runtime_profiles import act_worker_environment
-        environment.update(act_worker_environment(job['config']))
+        # The binding was validated against this immutable release. A future CC
+        # profile must not change the process environment of an older job.
+        source=(release/'shared/explorer_shared/learning/runtime_profiles.py').resolve()
+        if not source.is_relative_to(release) or not source.is_file():raise ValueError('Pinned runtime profile escaped its source release')
+        specification=importlib.util.spec_from_file_location('explorer_pinned_runtime_profiles_'+release.name,source)
+        if specification is None or specification.loader is None:raise ValueError('Pinned runtime profile cannot be loaded')
+        module=importlib.util.module_from_spec(specification);specification.loader.exec_module(module)
+        environment.update(module.act_worker_environment(job['config']))
     return environment
 
 
