@@ -1,0 +1,17 @@
+{
+  "schema": "explorer_source04_strict_admission_characterization_v1",
+  "source_commit": "d4b02cfbbc8b036c4385a316bee7831f2a24d669",
+  "actual_ACT_updates": 8,
+  "actual_DP_updates": 8,
+  "DP_resumed_from_step": 4,
+  "ACT_model_weights_sha256_unchanged_vs_prior_qualification": "4305ead320fe9c301a960317b1f4ec852150b61125d8607a2ebbf5dd9ea6c5b1",
+  "DP_model_weights_sha256_unchanged_vs_prior_qualification": "149e662f58be6c77a2043c26eb0e41b45eabe61334993569ade0a271d41c87e5",
+  "prior_ACT_qualification_sha256": "a5a5693805df88e997f84e29ff973da81c579df6ba253af5d1ee6047add981f3",
+  "prior_DP_qualification_sha256": "7ad2bf7e92d739aadd7de7fcd24a6b6c68d2ccc48daf194d52859d543431419e",
+  "ACT_qualification_sha256": "f480a34f5615790c42bfffb943d37f36b45f1cc059e05dde73765753624b32b0",
+  "DP_qualification_sha256": "a0d462f9adb5d92dc95aafadeff61838f1914be1e49297590b616e43c54c8520",
+  "model_math_settings_normalization_unchanged": true,
+  "physical_io": false,
+  "task_success_claimed": false,
+  "production_queue_integration_qualified": false
+}

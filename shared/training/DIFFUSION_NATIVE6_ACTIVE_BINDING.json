@@ -1,6 +1,6 @@
 {
   "schema": "explorer_native6_diffusion_active_binding_v1",
-  "source_binding": "DIFFUSION_NATIVE6_20261026_CURRENT_SOURCE_BINDING.json",
-  "qualification_result": "DIFFUSION_NATIVE6_20261026_CURRENT_QUALIFICATION.json",
-  "implementation_binding": "DIFFUSION_NATIVE6_20261026_CURRENT_IMPLEMENTATION_BINDING.json"
+  "source_binding": "DIFFUSION_NATIVE6_20261026_CURRENT_STRICT_SOURCE_BINDING.json",
+  "qualification_result": "DIFFUSION_NATIVE6_20261026_CURRENT_STRICT_QUALIFICATION.json",
+  "implementation_binding": "DIFFUSION_NATIVE6_20261026_CURRENT_STRICT_IMPLEMENTATION_BINDING.json"
 }

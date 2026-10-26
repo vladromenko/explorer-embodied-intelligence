@@ -1,0 +1,42 @@
+{
+  "schema": "explorer_native6_diffusion_source_qualification_binding_v1",
+  "qualification_result": "/mnt/explorer-data/explorer-work/qualification-source04-strict-20261026/diffusion/pytest/test_same_accepted_whole_skill0/qualification.json",
+  "qualification_result_sha256": "a0d462f9adb5d92dc95aafadeff61838f1914be1e49297590b616e43c54c8520",
+  "actual_runtime_executable": "/home/jetsonnx/.local/share/explorer/policy-runtimes/diffusion-0.38.0-cpu/bin/python",
+  "runtime_binding_sha256": "b5e1dbada08fb70d24a0a3bad08ca4f85a696f29b1617918dd8a5f253e272070",
+  "implementation_sha256": {
+    "00-control-center/src/explorer/lab_skill_workflow.py": "b5a019970aa6db86b443829fc4c485175476aaeb100ba63c8020a03bae42a56d",
+    "00-control-center/src/explorer/skill_catalogue.py": "f8a53d30c9efd8979c966eeefc3aff6d3519db1e61bedaa9070faa2d61f8ed22",
+    "00-control-center/src/explorer/so101_dataset_admission.py": "bc680faf7ff2f8568d85904b59ab2b6305f8cbb174d756bc60711686cc9ea2cc",
+    "00-control-center/src/explorer/so101_diffusion_training.py": "bb744ee0e98b9963a15ffb00dd244facfb2f13e9d0e19b92a9e66f09fe65ead8",
+    "01-autonomous-learning/src/explorer_sim/dataset_export.py": "0e1163980f598d5bd7cf8dee8077db446537cb32c473ead1719ecf2efc82a589",
+    "01-autonomous-learning/src/explorer_sim/so101_dataset_qualification.py": "d0e4ec0ed169236eae49c460ff4092e9c3d76e4910bb285b5800477c838b93b5",
+    "01-autonomous-learning/src/explorer_sim/station_adapter.py": "b1980e5afbac715c1c2ff3bca0142adcc8c074d4299df27ea02799cccfea21cd",
+    "shared/explorer_shared/contracts.py": "4f7742e754126ad9c29b9d4fb2f01fa32c1c5d82d22239d722d63b445d03d6da",
+    "shared/explorer_shared/experiments.py": "1a2795fab6d78883e8887ff0dcb9e69c1b8e40180e4e08bfd43072671b249478",
+    "shared/explorer_shared/learning/act_backend.py": "cd3c84114081456357b7d7a721400029ba79597ad406a9a9b2818413dc3c5418",
+    "shared/explorer_shared/learning/artifacts.py": "c218abfc061878c85fdc7651df1de95beb2727d2afc4de193ba4b6d284d8d626",
+    "shared/explorer_shared/learning/diffusion_backend.py": "615dc208f8166a55d229cb979157c9a7929b838c04fa6eaa2472c15d77317434",
+    "shared/explorer_shared/learning/diffusion_optimizer.py": "dd0d1876e4be1d9de2d3bc8149a822d7e571502fc0350b81f79258553b7ba2c3",
+    "shared/explorer_shared/learning/diffusion_policy.py": "141db2020785dc6337215737c04e8431442f3329c42137d5c6285a289d722a8b",
+    "shared/explorer_shared/learning/history_windows.py": "cad221cc249521ed1fe37b340f12c483ba12a48b01f7459f8c85c4aeee2ca795",
+    "shared/explorer_shared/so101_station.py": "7ca45a5338f8aaadc12fcbd94e3781698f5fda56c09fa1df5fa4da0c64e8d949"
+  },
+  "actual_source_commit": "d4b02cfbbc8b036c4385a316bee7831f2a24d669",
+  "actual_scope": "Strict durable server/cohort/source/whole-episode admission + officialDataset + native6 Diffusion4/restart4 + saved loader; SIMULATION fixtures only",
+  "runtime_observation": "DIFFUSION_NATIVE6_20261026_CURRENT_STRICT_RUNTIME_OBSERVATION.json",
+  "runtime_observation_sha256": "5f68766d45bb4ba9fc8d86f263041b33c36f98b226f3d44f912781bbaedee451",
+  "cgroup_limits_verified": {
+    "cpu_quota_cores": 2.0,
+    "memory_max": 4294967296,
+    "memory_swap_max": 0,
+    "path": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-source04-qual-diffusion-strict-20261026.service"
+  },
+  "process_peak_RSS_bytes": 1241292800,
+  "cgroup_peak_memory_bytes": 1392971776,
+  "cgroup_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "public_queue_integration_qualified": false,
+  "physical_io": false,
+  "physical_rollout_qualified": false,
+  "production_state_writes": false
+}
