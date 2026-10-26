@@ -1,0 +1,1665 @@
+{
+  "schema": "explorer_executed_skill_cycle_validation_v1",
+  "date": "2026-10-26",
+  "run_id": "1a23e3f18f7d43108a114e22a7127857",
+  "source_result_path": "/private/tmp/explorer-skill-cycle-validation-v3/jobs/1a23e3f18f7d43108a114e22a7127857/result.json",
+  "source_result_sha256": "04537958eee149be26afff146eea40cab1f50c090be8d197770d956388f39ebe",
+  "skill_cycle_source_sha256": "b0776fa90b734d703df0841eb7c0919986bf88da301f28e2fca67aee49d6dd64",
+  "execution": "local Mac CPU optimizer; actual MuJoCo and SQLite; no devices/network/controller imports",
+  "tests": {
+    "command": "EXPLORER_SIM_MESH_DIR=<verified CAD> /tmp/explorer-sim-env/bin/python -m pytest -q 01-autonomous-learning/tests/test_skill_cycle.py 01-autonomous-learning/tests/test_dagger.py 01-autonomous-learning/tests/test_reach_pilot.py",
+    "result": "29 passed,1 skipped (existing explicit pilot integration test); actual skill cycle separately executed"
+  },
+  "completed_idempotent_recheck_passed": true,
+  "preservation": {
+    "path": "/Users/vladromenko/Desktop/Explorer/_registry/private/engineering_runs/skill-cycle-20261026",
+    "receipt_sha256": "886cc91c27e45681808b213fabba889fb508f8641b157c282ae42f027efae7af",
+    "files_hash_verified": 54,
+    "sqlite_backup_API": true,
+    "sqlite_jobs": 1,
+    "sqlite_skills": 4,
+    "originals_unchanged": true
+  },
+  "task": "executed_simulation_skill_cycle",
+  "status": "completed_engineering_development_cycle",
+  "context": {
+    "plan": {
+      "adaptation_steps": 64,
+      "blocked_source_seeds": [
+        41,
+        2041,
+        2042,
+        2043,
+        2044,
+        2045,
+        2046,
+        2047,
+        2048,
+        2049,
+        2050,
+        2051,
+        2052,
+        10040,
+        10041,
+        10042,
+        10043,
+        10044,
+        10045,
+        10046,
+        52041,
+        54041,
+        54042,
+        54043,
+        54044,
+        62041,
+        62042,
+        62043,
+        62044,
+        62045,
+        62046
+      ],
+      "continuation_on_failed_composition_stage": true,
+      "development_observations_fit": false,
+      "gate": {
+        "declared_before_trials": true,
+        "max_retention_success_drop": 0,
+        "min_candidate_successes": 4,
+        "min_composition_successes": 2,
+        "require_no_success_regression_against_retrieved": true,
+        "selection_scope": "development_only_not_physical_admission"
+      },
+      "sealed_final_test": false,
+      "seed": 72041,
+      "seeds": {
+        "acceptance": [
+          82041,
+          82042,
+          82043,
+          82044,
+          82045,
+          82046
+        ],
+        "composition": [
+          [
+            102041,
+            112041
+          ],
+          [
+            102042,
+            112042
+          ]
+        ],
+        "retention": [
+          92041,
+          92042,
+          92043,
+          92044,
+          92045,
+          92046
+        ]
+      }
+    },
+    "skill_cycle_source_sha256": "b0776fa90b734d703df0841eb7c0919986bf88da301f28e2fca67aee49d6dd64",
+    "source_files_sha256": {
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/after.json": "2786de1dadf39c1da7262c3b6abbdddb5a98cfa077d0f9551fe3b10ade9990d7",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/before.json": "53e9d9f60f77fac823e9837bedbd872b5b46ecf6016945f4bec7a8aaf8417a0a",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/collection.json": "bc0cbf9c5baf30f3c23171c87b8d4ba94d97e1e98a57b3e0739bc7a875d0911b",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/corrections/episode_0000.npz": "beb2a3079820705cd2ecd9ff9adca5b521b9578bd5e1601da40a0d449b5d4a84",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/corrections/episode_0001.npz": "0cbfd5ed414cd871ff31f649ef715a0c49a016fc71d7a5e20f448ba19e6d6bcb",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/corrections/episode_0002.npz": "f07909b1ede090d0ea4ac0c2dfbba52f2b1aaadc42d37b2a6871e2c6c022fa4e",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/corrections/episode_0003.npz": "8a532a290eb7fb7babbf4079c9d408cb43426d8df4ed01aadb52a173e9bc94a5",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/corrections/manifest.json": "eb6cd231be33bec81613c9ab1409f7b3fe2a02735d699ad9c1ea3042bf23e826",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/development_after/episode_0000.npz": "028e4694fc8d59076a2c50534e746effb186fe50762adf15b1cb52148aa02988",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/development_after/episode_0001.npz": "aa1f2c4716f6a0d723e8296801385ee89a94ad4c5a3f1a81f9294b030ab7d934",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/development_after/episode_0002.npz": "e569a63fa7ab9c341b4409ebfd44b406f78b75838c06f53b23f9e0ed5a35fd8b",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/development_after/episode_0003.npz": "2c212d3629295c5ab31cbc5dcbcd7066c659e4cad60a6657f3770e0301cd1903",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/development_after/episode_0004.npz": "a60364a68b08d48b3850f5cc6c15d65dbba02fdd3f2058670f0b90b747534fc5",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/development_after/episode_0005.npz": "2267b22369e0fd4bd8792ee7910ca0ff03f64f69109a13dfa8bec47f514b5ac5",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/development_after/manifest.json": "f77fd070446d4744f002c85637bfcbd792b7316f81102a261a0e1cc57292ffca",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/development_before/episode_0000.npz": "31d534643f1c5414b31297369609d1375be53a9f221dca29b05cc4ddccc2196e",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/development_before/episode_0001.npz": "d151331f2ef5770daed49d637f3638e5472c0976f120ac420a5b7b112e6ac88f",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/development_before/episode_0002.npz": "488cb8f04f4ce6f931bc5a232e4b9724dad86f6687cf164320a10c5c59797fae",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/development_before/episode_0003.npz": "990d4a420ddfecfea4c705d53bcb094ce1c49ad1d918e6b3c721c7977d3a9cb0",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/development_before/episode_0004.npz": "aecc7e6f1dd823f8f1f9c1b4c34489d1a11addd771944cb1e24d79b86f2cce82",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/development_before/episode_0005.npz": "748ade22e3862e883c4984b8242377434376b7e8fe3168a3054972781ce3505a",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/development_before/manifest.json": "9c7e176ec5389de39127ef0fd0f0b4b1caa53ed843677e5c7661059455fab489",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/frame.jpg": "bceaebcb4a0c68312213e1887d00438bec5bb2cb00951c893d7e57cfe9acaa2c",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/frame.json": "99b2efd7c9f1aa9a2e12c15bedaf4240b8b5f0394796c83297b9468bf5f6b65b",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/model.xml": "476c2c19aec7243f62b90390c523afbc6609e8ea6f88571f2918f19583072df7",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/provenance.json": "0869566c187385ab943cabd01f8f989696d63e2570a0eee7db31f559667cf5f7",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/result.json": "81fe25dd1588ce70e12eb5432a8337a3bd288975dcc54b24720b5c4aa5865faf",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/round0_expert/act_optimizer.pt": "ebc0c779902eb0111ae9e1da4e5fcfd984493d4d3f5c3ee86fcf0b27f6aafafa",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/round0_expert/act_training.json": "c0d08a7c1a4e476b4dfcc5107a3b140ada6d9fd1b03ae4b851d7dd49fe4a33ab",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/round0_expert/student_act/config.json": "5a1056188f424b8ec15c63516f8a77362efdcce99edb84e7b6286d67c7da1219",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/round0_expert/student_act/explorer_preprocessing.json": "a05990724159b83148b6a547a6fef90d1883e2f53523526616f021403cd01bc8",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/round0_expert/student_act/model.safetensors": "213af6b3bc60c7f55f6c88939d96d5956a46d444213948bf4bcf71cd7b4c3efc",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/round0_expert/training_result.json": "19228ed839ea23f73a6165eb276678d6a23c77a7d4b9711a15868e8a595618b7",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/round1_aggregated/act_optimizer.pt": "1cf09410d69960fe5a77fed10ab870dfdc13423a1d915e00543a9d231dc79092",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/round1_aggregated/act_training.json": "67a94bc1938c5b1d2a08d55d79cac6c54a285d2e7b9804dd82b2c4d60877c87a",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/round1_aggregated/student_act/config.json": "51e7850bcd8af61fdb4c7e32eef24fd7f98cfab82287da8f54ad53da09a2d843",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/round1_aggregated/student_act/explorer_preprocessing.json": "269ab8e574eb2246a3dfcf318be281cc8b2491934288324c761c62613b345515",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/round1_aggregated/student_act/model.safetensors": "286996ee06d40900680b5753b839eee3307d7d03a0f7a2768e746f1640d5118c",
+      "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/round1_aggregated/training_result.json": "7e6b8f6132fc91148f453aec89b764c97a196f1892100363197dc806487570bf",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0000.npz": "1f4f5ca3e1a3202012f1b7fec72b1c06631ecc211f6341d61a803ff1c18e75bf",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0001.npz": "b927c4d450b1392f4b97eab30bf6e04e86b9cb34987cc5fd259308cf36616054",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0002.npz": "623eda9d67d0103e2dc3bdbe0656915f09864e1e32eb6c93f53d21739019ba99",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0003.npz": "a85f25a3653c03521163bc00d00a7480b5e5df56d0cf34488c21be75efd75bbb",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0004.npz": "a2fbcb51fab85160c6fea556c9a392a71c6c7559aadb5a2c3963d226c9cd9322",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0005.npz": "ebd4f0f92515864c091fbf94e759046a9f401fa1388acfb238cdfb6e213c6c61",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0006.npz": "6e29e673004ea7c1a804b8f29aeea291178738b5e3ba62e5442badb3a62463a0",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0007.npz": "04db9d8026a505952b666f52cb3c9a9f064eb489969deb7b886670ea83d6f3bf",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0008.npz": "22f7f5e043880de7d2c115785f99d5ba81b634062352c829c882f595c4805b1a",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0009.npz": "d07a33e44d06d2fd691e9c72c119c8a49e7f84bd769bb95b76a75b5a2c3f1276",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0010.npz": "f72e1d80f1193c8f6f8e62e8343a1c8dddb7fc8bfa4beade9d63a7843bbcbdfb",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/episode_0011.npz": "d66a932abd7f6a612d62d47a8d258fc52c6b8193503d343a8c2cf9c3f8d55930",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/dataset/manifest.json": "c8e7ed44c870b2d201c258fdb06371f89669e1e0ebfe6659fcac60411ec9efc7",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/model.xml": "476c2c19aec7243f62b90390c523afbc6609e8ea6f88571f2918f19583072df7",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/provenance.json": "248c1276b9bd8de0900c6a9a76d734e488dac9500a33b74064e3b705187a9177",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/result.json": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60",
+      "/private/tmp/explorer-sim-validation/jobs/default-pilot-v1/teacher_ppo.zip": "4dd8bb7fa192424dd9389d12926d47f3d92111ea3b02954235d071c28846ebea"
+    },
+    "source_result_sha256": "81fe25dd1588ce70e12eb5432a8337a3bd288975dcc54b24720b5c4aa5865faf",
+    "student_source_sha256": "7e44e95c171c9056983927035dbe6358ec7526ec5eb66c6c6948abc5f35204f9"
+  },
+  "method_ids": [
+    "SKILL_CYCLE_SIM_VALIDATION",
+    "DAGGER_ROSS_2011",
+    "ACT_LEROBOT_0_6_1",
+    "EXPLORER_CAD_MUJOCO",
+    "ENGINEERING_GLUE"
+  ],
+  "physical_io": false,
+  "sealed_final_test": false,
+  "selected_skill_id": "sim-reach-81fe25dd1588ce70-after",
+  "adaptation": {
+    "actor_samples": 287,
+    "checkpoint_dir": "/private/tmp/explorer-skill-cycle-validation-v3/jobs/1a23e3f18f7d43108a114e22a7127857/attempts/a520f79fc728496e84f4eafd67a807b9/adaptation/student_act",
+    "checkpoint_sha256": {
+      "config.json": "51e7850bcd8af61fdb4c7e32eef24fd7f98cfab82287da8f54ad53da09a2d843",
+      "explorer_preprocessing.json": "269ab8e574eb2246a3dfcf318be281cc8b2491934288324c761c62613b345515",
+      "model.safetensors": "487580c1ada64a0864970eb6d87e6928f43fe0fc177ddadef6dfcf60e816452f"
+    },
+    "elapsed_s": 3.4711671250115614,
+    "losses_first_last": [
+      0.024291452020406723,
+      0.02649042196571827
+    ],
+    "optimizer_steps": 64,
+    "reload_max_abs_error": 0.0,
+    "save_reload_passed": true,
+    "weights_after_sha256": "73c1ba7619e19a867d953d84d976d19838840331fbcef2dd042a36d14acdafcf",
+    "weights_before_sha256": "6fd4fe6b44d4eaa2010a73c2c41bc0772310af6b3cc5a5a405bd330e7a1815e8",
+    "weights_changed": true
+  },
+  "incumbent_acceptance": {
+    "episodes": [
+      {
+        "command9": [
+          95.65849304199219,
+          86.6731185913086,
+          87.14110565185547,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.08051968248408073,
+        "goal_xyz": [
+          -0.01802664667554338,
+          -0.004045657941869986,
+          0.5427060441172964
+        ],
+        "grasp_center_xyz": [
+          0.06238731110329607,
+          -0.0030963141014569723,
+          0.5467201950801868
+        ],
+        "initial_distance_m": 0.04811846153615616,
+        "physical_run": false,
+        "return": -99.83941781420044,
+        "seed": 82041,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          95.65849304199219,
+          86.6731185913086,
+          87.1410903930664,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.1273233702152267,
+        "goal_xyz": [
+          -0.06062553405802723,
+          0.026505886688095913,
+          0.5324803355182723
+        ],
+        "grasp_center_xyz": [
+          0.06238737797024541,
+          -0.0030963208304998647,
+          0.546720187600163
+        ],
+        "initial_distance_m": 0.0954135076296471,
+        "physical_run": false,
+        "return": -155.94626751307618,
+        "seed": 82042,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          95.65849304199219,
+          86.6731185913086,
+          87.1410903930664,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.09068661382209091,
+        "goal_xyz": [
+          -0.026808766075556524,
+          -0.018938776473823773,
+          0.5425817276789516
+        ],
+        "grasp_center_xyz": [
+          0.06238737540836417,
+          -0.0030963203967369216,
+          0.5467201883037524
+        ],
+        "initial_distance_m": 0.059732767597323266,
+        "physical_run": false,
+        "return": -111.90343758193096,
+        "seed": 82043,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          95.65847778320312,
+          86.6731185913086,
+          87.14105987548828,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.07456273601797699,
+        "goal_xyz": [
+          -0.010396248066231736,
+          0.013036737877020817,
+          0.5453598867237909
+        ],
+        "grasp_center_xyz": [
+          0.06238751025648104,
+          -0.003096325908453139,
+          0.5467201733852302
+        ],
+        "initial_distance_m": 0.042226334059594355,
+        "physical_run": false,
+        "return": -92.6759401983276,
+        "seed": 82044,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          95.65849304199219,
+          86.67312622070312,
+          87.14110565185547,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.0741740530281991,
+        "goal_xyz": [
+          -0.011036802363982228,
+          -0.013539378968241355,
+          0.5454399175283098
+        ],
+        "grasp_center_xyz": [
+          0.0623872625955408,
+          -0.0030963092802063783,
+          0.5467201998958678
+        ],
+        "initial_distance_m": 0.042883377805722954,
+        "physical_run": false,
+        "return": -92.1202192241007,
+        "seed": 82045,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          95.65848541259766,
+          86.67308044433594,
+          87.14099884033203,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.06404203248234473,
+        "goal_xyz": [
+          0.1180607664825926,
+          0.025758946202136604,
+          0.5337087418754632
+        ],
+        "grasp_center_xyz": [
+          0.06238800731228086,
+          -0.0030963793909716173,
+          0.546720121346906
+        ],
+        "initial_distance_m": 0.09332818569697442,
+        "physical_run": false,
+        "return": -74.00737910134448,
+        "seed": 82046,
+        "steps": 60,
+        "success": false
+      }
+    ],
+    "evaluation_domain": "simulation",
+    "independent_from_training_episodes": true,
+    "mean_final_distance_m": 0.08521808134165319,
+    "n": 6,
+    "physical_run_ids": [],
+    "sealed_final_test": false,
+    "split_role": "engineering_development_evaluation",
+    "success_rate": 0.0,
+    "successes": 0
+  },
+  "candidate_acceptance": {
+    "episodes": [
+      {
+        "command9": [
+          96.28372955322266,
+          86.99115753173828,
+          88.37177276611328,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.07323907000413564,
+        "goal_xyz": [
+          -0.01802664667554338,
+          -0.004045657941869986,
+          0.5427060441172964
+        ],
+        "grasp_center_xyz": [
+          0.05504771940772853,
+          -0.002612561573667451,
+          0.5474012151895882
+        ],
+        "initial_distance_m": 0.04811846153615616,
+        "physical_run": false,
+        "return": -90.42721873839558,
+        "seed": 82041,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          96.28372955322266,
+          86.99115753173828,
+          88.37176513671875,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.12021158975626844,
+        "goal_xyz": [
+          -0.06062553405802723,
+          0.026505886688095913,
+          0.5324803355182723
+        ],
+        "grasp_center_xyz": [
+          0.05504775365504728,
+          -0.0026125656811202924,
+          0.5474012119335289
+        ],
+        "initial_distance_m": 0.0954135076296471,
+        "physical_run": false,
+        "return": -146.7514437546795,
+        "seed": 82042,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          96.28373718261719,
+          86.99114990234375,
+          88.37175750732422,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.08360786091195108,
+        "goal_xyz": [
+          -0.026808766075556524,
+          -0.018938776473823773,
+          0.5425817276789516
+        ],
+        "grasp_center_xyz": [
+          0.05504782950746204,
+          -0.0026125768918890224,
+          0.5474012061819784
+        ],
+        "initial_distance_m": 0.059732767597323266,
+        "physical_run": false,
+        "return": -102.75267976005499,
+        "seed": 82043,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          96.28372955322266,
+          86.99114990234375,
+          88.37176513671875,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.06732006063965491,
+        "goal_xyz": [
+          -0.010396248066231736,
+          0.013036737877020817,
+          0.5453598867237909
+        ],
+        "grasp_center_xyz": [
+          0.05504779469109352,
+          -0.002612569914724307,
+          0.5474012092714117
+        ],
+        "initial_distance_m": 0.042226334059594355,
+        "physical_run": false,
+        "return": -83.31176853586324,
+        "seed": 82044,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          96.28372955322266,
+          86.99115753173828,
+          88.37177276611328,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.06701048589412346,
+        "goal_xyz": [
+          -0.011036802363982228,
+          -0.013539378968241355,
+          0.5454399175283098
+        ],
+        "grasp_center_xyz": [
+          0.05504771299928178,
+          -0.0026125607189277523,
+          0.5474012160562014
+        ],
+        "initial_distance_m": 0.042883377805722954,
+        "physical_run": false,
+        "return": -82.85977963464475,
+        "seed": 82045,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          96.28375244140625,
+          86.99115753173828,
+          88.37175750732422,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.07044900735523978,
+        "goal_xyz": [
+          0.1180607664825926,
+          0.025758946202136604,
+          0.5337087418754632
+        ],
+        "grasp_center_xyz": [
+          0.05504778705596274,
+          -0.00261257810897237,
+          0.547401209490247
+        ],
+        "initial_distance_m": 0.09332818569697442,
+        "physical_run": false,
+        "return": -82.281523801474,
+        "seed": 82046,
+        "steps": 60,
+        "success": false
+      }
+    ],
+    "evaluation_domain": "simulation",
+    "independent_from_training_episodes": true,
+    "mean_final_distance_m": 0.08030634576022888,
+    "n": 6,
+    "physical_run_ids": [],
+    "sealed_final_test": false,
+    "split_role": "engineering_development_evaluation",
+    "success_rate": 0.0,
+    "successes": 0
+  },
+  "retention_before": {
+    "episodes": [
+      {
+        "command9": [
+          95.65849304199219,
+          86.6731185913086,
+          87.1410903930664,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.11951080732538372,
+        "goal_xyz": [
+          -0.05346648016753625,
+          0.023906658395986508,
+          0.5352504616085966
+        ],
+        "grasp_center_xyz": [
+          0.06238738274694218,
+          -0.0030963214398075254,
+          0.5467201867729555
+        ],
+        "initial_distance_m": 0.08747039383556844,
+        "physical_run": false,
+        "return": -146.58421770952165,
+        "seed": 92041,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          95.65848541259766,
+          86.67308044433594,
+          87.1410140991211,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.027640306408987344,
+        "goal_xyz": [
+          0.08668946654476165,
+          -0.0157792357309569,
+          0.5431751334052317
+        ],
+        "grasp_center_xyz": [
+          0.062387933456397905,
+          -0.0030963721401387947,
+          0.5467201297486106
+        ],
+        "initial_distance_m": 0.05940663024451107,
+        "physical_run": false,
+        "return": -30.11436179448923,
+        "seed": 92042,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          95.65849304199219,
+          86.6731185913086,
+          87.14108276367188,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.13214455641621065,
+        "goal_xyz": [
+          -0.06431366119858173,
+          0.03139852498538417,
+          0.531917219158332
+        ],
+        "grasp_center_xyz": [
+          0.06238740987100906,
+          -0.0030963239521488075,
+          0.5467201843015851
+        ],
+        "initial_distance_m": 0.1004288574629729,
+        "physical_run": false,
+        "return": -161.7115156954555,
+        "seed": 92043,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          95.65849304199219,
+          86.6730728149414,
+          87.1410140991211,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.01255668561482089,
+        "goal_xyz": [
+          0.0718558767316895,
+          0.0049937289124062706,
+          0.5455201250715224
+        ],
+        "grasp_center_xyz": [
+          0.062357987446749426,
+          -0.0031434915885538463,
+          0.5466364114502016
+        ],
+        "initial_distance_m": 0.042657448745249064,
+        "physical_run": false,
+        "return": 7.17497431032563,
+        "seed": 92044,
+        "steps": 3,
+        "success": true
+      },
+      {
+        "command9": [
+          95.65848541259766,
+          86.67306518554688,
+          87.1410140991211,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.028652226161877417,
+        "goal_xyz": [
+          0.08980663992884799,
+          0.004294113927775697,
+          0.5429056230225734
+        ],
+        "grasp_center_xyz": [
+          0.062388028490599504,
+          -0.0030963815314398076,
+          0.5467201200663574
+        ],
+        "initial_distance_m": 0.06060999897175101,
+        "physical_run": false,
+        "return": -31.28683204381285,
+        "seed": 92045,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          95.65847778320312,
+          86.6730728149414,
+          87.14098358154297,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.1033050726855408,
+        "goal_xyz": [
+          0.15441528779560487,
+          0.03573241132161923,
+          0.5203522937145992
+        ],
+        "grasp_center_xyz": [
+          0.06238811361965448,
+          -0.003096385919817135,
+          0.5467201104717292
+        ],
+        "initial_distance_m": 0.13284878062107477,
+        "physical_run": false,
+        "return": -121.10049724363013,
+        "seed": 92046,
+        "steps": 60,
+        "success": false
+      }
+    ],
+    "evaluation_domain": "simulation",
+    "independent_from_training_episodes": true,
+    "mean_final_distance_m": 0.07063494243547012,
+    "n": 6,
+    "physical_run_ids": [],
+    "sealed_final_test": false,
+    "split_role": "engineering_development_evaluation",
+    "success_rate": 0.16666666666666666,
+    "successes": 1
+  },
+  "retention_after": {
+    "episodes": [
+      {
+        "command9": [
+          95.65849304199219,
+          86.6731185913086,
+          87.1410903930664,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.11951080732538372,
+        "goal_xyz": [
+          -0.05346648016753625,
+          0.023906658395986508,
+          0.5352504616085966
+        ],
+        "grasp_center_xyz": [
+          0.06238738274694218,
+          -0.0030963214398075254,
+          0.5467201867729555
+        ],
+        "initial_distance_m": 0.08747039383556844,
+        "physical_run": false,
+        "return": -146.58421770952165,
+        "seed": 92041,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          95.65848541259766,
+          86.67308044433594,
+          87.1410140991211,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.027640306408987344,
+        "goal_xyz": [
+          0.08668946654476165,
+          -0.0157792357309569,
+          0.5431751334052317
+        ],
+        "grasp_center_xyz": [
+          0.062387933456397905,
+          -0.0030963721401387947,
+          0.5467201297486106
+        ],
+        "initial_distance_m": 0.05940663024451107,
+        "physical_run": false,
+        "return": -30.11436179448923,
+        "seed": 92042,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          95.65849304199219,
+          86.6731185913086,
+          87.14108276367188,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.13214455641621065,
+        "goal_xyz": [
+          -0.06431366119858173,
+          0.03139852498538417,
+          0.531917219158332
+        ],
+        "grasp_center_xyz": [
+          0.06238740987100906,
+          -0.0030963239521488075,
+          0.5467201843015851
+        ],
+        "initial_distance_m": 0.1004288574629729,
+        "physical_run": false,
+        "return": -161.7115156954555,
+        "seed": 92043,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          95.65849304199219,
+          86.6730728149414,
+          87.1410140991211,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.01255668561482089,
+        "goal_xyz": [
+          0.0718558767316895,
+          0.0049937289124062706,
+          0.5455201250715224
+        ],
+        "grasp_center_xyz": [
+          0.062357987446749426,
+          -0.0031434915885538463,
+          0.5466364114502016
+        ],
+        "initial_distance_m": 0.042657448745249064,
+        "physical_run": false,
+        "return": 7.17497431032563,
+        "seed": 92044,
+        "steps": 3,
+        "success": true
+      },
+      {
+        "command9": [
+          95.65848541259766,
+          86.67306518554688,
+          87.1410140991211,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.028652226161877417,
+        "goal_xyz": [
+          0.08980663992884799,
+          0.004294113927775697,
+          0.5429056230225734
+        ],
+        "grasp_center_xyz": [
+          0.062388028490599504,
+          -0.0030963815314398076,
+          0.5467201200663574
+        ],
+        "initial_distance_m": 0.06060999897175101,
+        "physical_run": false,
+        "return": -31.28683204381285,
+        "seed": 92045,
+        "steps": 60,
+        "success": false
+      },
+      {
+        "command9": [
+          95.65847778320312,
+          86.6730728149414,
+          87.14098358154297,
+          90.0,
+          90.0,
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_m": 0.1033050726855408,
+        "goal_xyz": [
+          0.15441528779560487,
+          0.03573241132161923,
+          0.5203522937145992
+        ],
+        "grasp_center_xyz": [
+          0.06238811361965448,
+          -0.003096385919817135,
+          0.5467201104717292
+        ],
+        "initial_distance_m": 0.13284878062107477,
+        "physical_run": false,
+        "return": -121.10049724363013,
+        "seed": 92046,
+        "steps": 60,
+        "success": false
+      }
+    ],
+    "evaluation_domain": "simulation",
+    "independent_from_training_episodes": true,
+    "mean_final_distance_m": 0.07063494243547012,
+    "n": 6,
+    "physical_run_ids": [],
+    "sealed_final_test": false,
+    "split_role": "engineering_development_evaluation",
+    "success_rate": 0.16666666666666666,
+    "successes": 1
+  },
+  "composition": {
+    "episodes": [
+      {
+        "active_physics_resets": 1,
+        "goal_seeds": [
+          102041,
+          112041
+        ],
+        "independent_from_training_episodes": true,
+        "saved_trace_boundary_causality_verified": true,
+        "stage_boundary_time_s": 4.91999999999968,
+        "stages": [
+          {
+            "actor_privileged_inputs": false,
+            "actual_inference_steps": 60,
+            "command9": [
+              92.90258026123047,
+              88.25299072265625,
+              88.67657470703125,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.09290995440863949,
+            "goal_xyz": [
+              -0.04604491235459053,
+              0.0039854536328615,
+              0.5391324615798262
+            ],
+            "grasp_center_xyz": [
+              0.04632530092918083,
+              -0.0007369617850000658,
+              0.5479473421092038
+            ],
+            "initial_distance_m": 0.07631875061731783,
+            "physical_run": false,
+            "return": -113.19394700328684,
+            "steps": 60,
+            "success": false,
+            "trace_file": "episode_000_stage0.npz",
+            "trace_sha256": "01ef9f89ede7bcf28e9e32b6efd99089cbfad41b1f96b63224cd925cda1de0f0"
+          },
+          {
+            "actor_privileged_inputs": false,
+            "actual_inference_steps": 60,
+            "command9": [
+              96.28373718261719,
+              86.99116516113281,
+              88.37177276611328,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.14400732005539107,
+            "goal_xyz": [
+              -0.0872294764810779,
+              -0.0067862702166660155,
+              0.5255402561562438
+            ],
+            "grasp_center_xyz": [
+              0.055047670992667865,
+              -0.002612559229041554,
+              0.5474012184603517
+            ],
+            "initial_distance_m": 0.13555917733022596,
+            "physical_run": false,
+            "return": -173.68362255689112,
+            "steps": 60,
+            "success": false,
+            "trace_file": "episode_000_stage1.npz",
+            "trace_sha256": "51a92115a8c863731209f972c750728a7d7ddc9fd3896edd8b41e5a854cf58c1"
+          }
+        ],
+        "success": false,
+        "transition": {
+          "command_unchanged": true,
+          "goal_seed": 112041,
+          "goal_xyz": [
+            -0.0872294764810779,
+            -0.0067862702166660155,
+            0.5255402561562438
+          ],
+          "integration_state_unchanged": true,
+          "physics_reset": false,
+          "simulator_time_s": 4.91999999999968,
+          "state_after_sha256": "59f0898549779feac50c3db26e5b177bfc8f7cc04b8160cb38268123f9360483",
+          "state_before_sha256": "59f0898549779feac50c3db26e5b177bfc8f7cc04b8160cb38268123f9360483"
+        }
+      },
+      {
+        "active_physics_resets": 1,
+        "goal_seeds": [
+          102042,
+          112042
+        ],
+        "independent_from_training_episodes": true,
+        "saved_trace_boundary_causality_verified": true,
+        "stage_boundary_time_s": 4.91999999999968,
+        "stages": [
+          {
+            "actor_privileged_inputs": false,
+            "actual_inference_steps": 60,
+            "command9": [
+              92.90321350097656,
+              88.25234985351562,
+              88.67595672607422,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.0767095933240898,
+            "goal_xyz": [
+              -0.02924363238223205,
+              0.011272008829529378,
+              0.5426082163504613
+            ],
+            "grasp_center_xyz": [
+              0.046331739267797364,
+              -0.0007372367525124484,
+              0.547947029744595
+            ],
+            "initial_distance_m": 0.06022067548459554,
+            "physical_run": false,
+            "return": -93.74344282024879,
+            "steps": 60,
+            "success": false,
+            "trace_file": "episode_001_stage0.npz",
+            "trace_sha256": "1aed0a63fb732e660e17e234b5a478f835cfafbb807b226f22638b5f1caefe24"
+          },
+          {
+            "actor_privileged_inputs": false,
+            "actual_inference_steps": 60,
+            "command9": [
+              96.28375244140625,
+              86.99115753173828,
+              88.37175750732422,
+              90.0,
+              90.0,
+              30.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "distance_m": 0.09103282315604184,
+            "goal_xyz": [
+              0.14251768328597827,
+              -0.01875043370848236,
+              0.5280218408431389
+            ],
+            "grasp_center_xyz": [
+              0.05504777699535916,
+              -0.0026125769717896016,
+              0.5474012104204878
+            ],
+            "initial_distance_m": 0.09987810940280584,
+            "physical_run": false,
+            "return": -108.35362385783671,
+            "steps": 60,
+            "success": false,
+            "trace_file": "episode_001_stage1.npz",
+            "trace_sha256": "c7732daf8ee5a907c76780c6261a549c022553b8a4a83387cb328d02d5a8a04b"
+          }
+        ],
+        "success": false,
+        "transition": {
+          "command_unchanged": true,
+          "goal_seed": 112042,
+          "goal_xyz": [
+            0.14251768328597827,
+            -0.01875043370848236,
+            0.5280218408431389
+          ],
+          "integration_state_unchanged": true,
+          "physics_reset": false,
+          "simulator_time_s": 4.91999999999968,
+          "state_after_sha256": "993ae367456b9d96cf003c3e46022b772e9e91ec470cdd10b8d4529b7613d56a",
+          "state_before_sha256": "993ae367456b9d96cf003c3e46022b772e9e91ec470cdd10b8d4529b7613d56a"
+        }
+      }
+    ],
+    "evaluation_domain": "simulation",
+    "n": 2,
+    "physical_run_ids": [],
+    "sealed_final_test": false,
+    "semantic_scope": "two_visible_reaches_not_grasp_or_cloth",
+    "split_role": "engineering_development_composition",
+    "stage_continuation_on_failure": true,
+    "success_rate": 0.0,
+    "successes": 0
+  },
+  "acceptance": {
+    "accepted": false,
+    "conditions": {
+      "candidate_min_successes": false,
+      "candidate_no_regression": true,
+      "composition_min_successes": false,
+      "incumbent_retention": true
+    },
+    "gate": {
+      "declared_before_trials": true,
+      "max_retention_success_drop": 0,
+      "min_candidate_successes": 4,
+      "min_composition_successes": 2,
+      "require_no_success_regression_against_retrieved": true,
+      "selection_scope": "development_only_not_physical_admission"
+    },
+    "physical_ready": false,
+    "retention_scope": "immutable_incumbent_checkpoint_reexecuted_after_candidate_adaptation_not_single_network_forgetting",
+    "sealed_final_test": false
+  },
+  "source_originals_unchanged": true,
+  "storage_retrieval_backend": "actual_Store_SQLite_skills_table",
+  "adaptation_training_roles": [
+    "successful_original_expert",
+    "source_dagger_counterfactual_teacher_queries"
+  ],
+  "teacher_query_recovery_executed": false,
+  "elapsed_s": 32.97765258399886,
+  "limitations": [
+    "Development-only engineering route; no H5, sealed, grasp, cloth or physical qualification",
+    "Retrieval is metadata filtering/ranking, not learned semantic retrieval",
+    "Retention tests stored incumbent version; not a test of forgetting inside one overwritten network",
+    "Composition continues stage2 after stage1 failure to measure both stages; overall success requires both"
+  ],
+  "framework_versions": {
+    "torch": "2.14.1",
+    "torchvision": "0.29.1"
+  },
+  "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds",
+  "artifact_sha256": {
+    "attempts/a520f79fc728496e84f4eafd67a807b9/adaptation/act_optimizer.pt": "1a3d417193fea225c3d05eefbef5c2411cf528b82a3254e5994f1328aee97db5",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/adaptation/act_training.json": "83111cceafbc2248a19f65605e62b742b946c475e522f6e2647844b72c987350",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/adaptation/student_act/config.json": "51e7850bcd8af61fdb4c7e32eef24fd7f98cfab82287da8f54ad53da09a2d843",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/adaptation/student_act/explorer_preprocessing.json": "269ab8e574eb2246a3dfcf318be281cc8b2491934288324c761c62613b345515",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/adaptation/student_act/model.safetensors": "487580c1ada64a0864970eb6d87e6928f43fe0fc177ddadef6dfcf60e816452f",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/adaptation/training_result.json": "35b90464cdbebe198868643b7d1ff315c2a551c94548f3cc4f9515449ed6fe01",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/candidate_acceptance/episode_0000.npz": "a2e0d82d6a603c9aa65edebb14358bebc0eda50736d01366922d51c45a7c8736",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/candidate_acceptance/episode_0001.npz": "83c1efa4c85a90592c5f5c5921cd376aa084daae5e41a074e4fa7cb86b1dde51",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/candidate_acceptance/episode_0002.npz": "509a6a90490ff53c19a236afc9cb18ec65af528adb848c99ebf0ae104dd721aa",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/candidate_acceptance/episode_0003.npz": "21b3c68f5cc0ac1501fcd09f85c40fd4041159114f692570615829709be550c8",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/candidate_acceptance/episode_0004.npz": "f4721690240ecd86480a89ceffdbb35ad6e6b0078eb61f9e9475a9f5f89d04a2",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/candidate_acceptance/episode_0005.npz": "186023cd7708190fdc2a6f5da1eb9e89dcc109a58c80ac6c86423fd2120c0bb8",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/candidate_acceptance/manifest.json": "22d591b195554d810a312011f329628714dec0e461969225a031df5c9461ef80",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/composition/episode_000_stage0.npz": "01ef9f89ede7bcf28e9e32b6efd99089cbfad41b1f96b63224cd925cda1de0f0",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/composition/episode_000_stage1.npz": "51a92115a8c863731209f972c750728a7d7ddc9fd3896edd8b41e5a854cf58c1",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/composition/episode_001_stage0.npz": "1aed0a63fb732e660e17e234b5a478f835cfafbb807b226f22638b5f1caefe24",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/composition/episode_001_stage1.npz": "c7732daf8ee5a907c76780c6261a549c022553b8a4a83387cb328d02d5a8a04b",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/composition/summary.json": "44ac5749f9e3234ae9e8eb3054d8bf3a99ab2ca19d3eeee0b1c77f78f7a42443",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/frame.jpg": "a0bff7ff8b2d57e57464b06f79d0e5d3b42f49cdcff0da43be7c5d31af1fcf1d",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/frame.json": "6706a60502dc9750a028a64b889da6ed7228faf687baecc528137e1c79126c50",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/incumbent_acceptance/episode_0000.npz": "0e954ccad6e98902b0a17ab6f69b7ea323a4356ba94d38914d42e6eca452cca9",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/incumbent_acceptance/episode_0001.npz": "4750b02cc8d38ae7baea55b6adb9eb912de0a8a577ec81c87a05365bb59040a6",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/incumbent_acceptance/episode_0002.npz": "2844ade87db84437d516bcff018c038806baa45d4d43b530bf9f020c6f05698a",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/incumbent_acceptance/episode_0003.npz": "c06a8e3761bced18441bb84e0d6b0125383c9286e2692b08ffb90930eadc4902",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/incumbent_acceptance/episode_0004.npz": "4e4d2497167033ea3d4029a45bbfda2275a9592db5f37eb9774db87277b0f020",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/incumbent_acceptance/episode_0005.npz": "307a91a8a29817f4ef658e63dfdee7b9c09991030fcc27835fb20facebea39a1",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/incumbent_acceptance/manifest.json": "aa7ca4a18fd7d20230392638d0efe9277371527fd3826d4b78fd5cfb8d8c0bef",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/outcomes.json": "314cb35eef765d4be4f4d9f7eae8e2eae70b40d4fa79ec30a591403515d31723",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/provenance.json": "27559345b38e2d9f935f2648ecd66b67c3292f0a4d2882c8c51f8a4c9043e631",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retention_after/episode_0000.npz": "039943d31ff069c43e7ef3c6d416b68b7d6fc59574a4d7e0ba4c00b525f561c9",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retention_after/episode_0001.npz": "f20cd1582d24122837fb2922f8e95b19795873264d0e7ef960e782981995bf6f",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retention_after/episode_0002.npz": "ff3fced4cba982cdd9f20347e16adc0941b473ffbbe4a97aae5313ffc08f61e0",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retention_after/episode_0003.npz": "0ee9845eb82a188a5292cea5cba27e181ca1203c9dab20fe60d4a09890e35c27",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retention_after/episode_0004.npz": "b2d6dda3e08b19247f676cbaedf520906a35881f21a79785af79e7699f64c8ef",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retention_after/episode_0005.npz": "9d8b9adf71b3058af0fc4df5609e89bc7394a01b2a8e6a26636197c94c738ac3",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retention_after/manifest.json": "de72aa2c70dc9e5e4bf4eba649080ccc935b2fdddbd1436f5cea04fc3ce49545",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retention_reference/episode_0000.npz": "039943d31ff069c43e7ef3c6d416b68b7d6fc59574a4d7e0ba4c00b525f561c9",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retention_reference/episode_0001.npz": "f20cd1582d24122837fb2922f8e95b19795873264d0e7ef960e782981995bf6f",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retention_reference/episode_0002.npz": "ff3fced4cba982cdd9f20347e16adc0941b473ffbbe4a97aae5313ffc08f61e0",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retention_reference/episode_0003.npz": "0ee9845eb82a188a5292cea5cba27e181ca1203c9dab20fe60d4a09890e35c27",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retention_reference/episode_0004.npz": "b2d6dda3e08b19247f676cbaedf520906a35881f21a79785af79e7699f64c8ef",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retention_reference/episode_0005.npz": "9d8b9adf71b3058af0fc4df5609e89bc7394a01b2a8e6a26636197c94c738ac3",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retention_reference/manifest.json": "de72aa2c70dc9e5e4bf4eba649080ccc935b2fdddbd1436f5cea04fc3ce49545",
+    "attempts/a520f79fc728496e84f4eafd67a807b9/retrieval.json": "30279cc23b9fb0baa7c0100cd453d25eec71f9296a333f4a40195259a9d36d37",
+    "frame.jpg": "a0bff7ff8b2d57e57464b06f79d0e5d3b42f49cdcff0da43be7c5d31af1fcf1d",
+    "frame.json": "71a991d43646e8d0a8d9ed74e7b21a15f17f70e065f9112e2881cd44395b3d2a"
+  },
+  "stored_card_summaries": [
+    {
+      "id": "sim-reach-81fe25dd1588ce70-before",
+      "task": "fixed_base_visible_target_reach",
+      "source_type": "sim_dagger_act",
+      "status": "simulation_source_evaluated",
+      "action_contract": {
+        "action_basis": "absolute_command_endpoint",
+        "active_indices": [
+          0,
+          1,
+          2
+        ],
+        "arm_unit": "degrees",
+        "base_units": [
+          "m/s",
+          "m/s",
+          "rad/s"
+        ],
+        "cad_mesh_sha256": {
+          "Camera.STL": "12d7158cdf2fab1072f2bd3989726e854a20d1fe717206cb7edc114afe59fdbe",
+          "DCW2.STL": "085efb1ffed33d9440071886bf1c2ce769facda5e45fd7e1ab24d4d55298d1a1",
+          "Gripping.STL": "e35ed860419dad49687084f9c8493f43c81cfece5b421d7e63944d27d22d63f7",
+          "arm1.STL": "d12f701abb74171df8ed3179b3885d10c6af2863f29d13e52bcce2d0d8933643",
+          "arm2.STL": "6ec3d8c7b02106560f61035e03a034637b988d153319d87bb50994e96728271e",
+          "arm3.STL": "74e309203df8ed80e57962a5ccc871909163cb07c1b1f6db0628233684360a98",
+          "arm4.STL": "8f74b107bdaba930ea482c95e6685d5cf5dccb3923a1e6d8b9280b7986811cda",
+          "arm5.STL": "1a52a732e4664ac3b703968416446b76d67067a78632b520d33858a80a26a281",
+          "arm_base_Link.STL": "bbd67c0a59cdbb8fd02c567e8ddff62bde72d3cae753ee63da7681f98f29871c",
+          "base_link.STL": "82897ec12100b78d8f33800edd7be19f86de3ffbc3574ed446f1d2bf04079f4a",
+          "llink1.STL": "0acf2b0ea73e9eb63e3ef9fec5637f0a151dae108ac3eed58ffd98f0062a6c9d",
+          "llink2.STL": "e356dfad82f1468a6c80e20fe127df4b7b40c395398cf5cb85a1522d9691b31c",
+          "llink3.STL": "81f1c9f5ab75d86362d7e227fda6018c87488db713bd9621f6eb761bbec3109d",
+          "lwheel1.STL": "e629352d69aaef698c948505f046fb241b1d9a7e734f0417a06dfe2d383eacfd",
+          "lwheel2.STL": "f07f85985d6c189b71d839a0d44bf3e893eacfd76dccc4f954b63d247a78ae1b",
+          "rlink1.STL": "9e3bb9c0d08d3d177e01a532d275f108f514eb4be13e857c0a596c61c32891a6",
+          "rlink2.STL": "ff22b15d51ff0d96cddcaa74b6056c9e5f88e1abe6886023a2a90ca80ec3230d",
+          "rlink3.STL": "bcf76ccbadf426c3e7ec6135f0fd09c0669b54735e7de91bbee92276b5404b25",
+          "rwheel1.STL": "7218e9bea1d0862cacd44b0a8a72e207085d367a022843bfd4e6be23f6786fff",
+          "rwheel2.STL": "f8daf44a79b1b3d5bdec95ef3885e8151f3a39f21f93c2bf2e8fcbf09d57c323"
+        },
+        "embodiment": "rosmaster_m3_pro_cad_fixed_base",
+        "high": [
+          180.0,
+          180.0,
+          180.0,
+          180.0,
+          270.0,
+          170.0,
+          0.20000000298023224,
+          0.20000000298023224,
+          0.6000000238418579
+        ],
+        "low": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          30.0,
+          -0.20000000298023224,
+          -0.20000000298023224,
+          -0.6000000238418579
+        ],
+        "names": [
+          "base",
+          "shoulder",
+          "elbow",
+          "wrist_pitch",
+          "wrist_roll",
+          "gripper",
+          "vx",
+          "vy",
+          "wz"
+        ],
+        "physical_ready": false,
+        "state_basis": "command_estimate",
+        "task": "fixed_base_visible_target_reach"
+      },
+      "lineage": {
+        "checkpoint_dir": "/tmp/explorer-skill-cycle-validation-v3/artifacts/skill_library/0ce9699ca171e4420e08eaf93e1aacdb329e9d0018828a0c6309782a09325171",
+        "checkpoint_sha256": {
+          "config.json": "5a1056188f424b8ec15c63516f8a77362efdcce99edb84e7b6286d67c7da1219",
+          "explorer_preprocessing.json": "a05990724159b83148b6a547a6fef90d1883e2f53523526616f021403cd01bc8",
+          "model.safetensors": "213af6b3bc60c7f55f6c88939d96d5956a46d444213948bf4bcf71cd7b4c3efc"
+        },
+        "method_ids": [
+          "SKILL_CYCLE_SIM_VALIDATION",
+          "DAGGER_ROSS_2011",
+          "ACT_LEROBOT_0_6_1",
+          "EXPLORER_CAD_MUJOCO",
+          "ENGINEERING_GLUE"
+        ],
+        "source_result": "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/result.json",
+        "source_result_sha256": "81fe25dd1588ce70e12eb5432a8337a3bd288975dcc54b24720b5c4aa5865faf",
+        "weights_sha256": "786e67ac41ca62074dda1f813052a84b29440aefb4766361d8e3ea6105d8823c"
+      }
+    },
+    {
+      "id": "sim-reach-81fe25dd1588ce70-after",
+      "task": "fixed_base_visible_target_reach",
+      "source_type": "sim_dagger_act",
+      "status": "simulation_source_evaluated",
+      "action_contract": {
+        "action_basis": "absolute_command_endpoint",
+        "active_indices": [
+          0,
+          1,
+          2
+        ],
+        "arm_unit": "degrees",
+        "base_units": [
+          "m/s",
+          "m/s",
+          "rad/s"
+        ],
+        "cad_mesh_sha256": {
+          "Camera.STL": "12d7158cdf2fab1072f2bd3989726e854a20d1fe717206cb7edc114afe59fdbe",
+          "DCW2.STL": "085efb1ffed33d9440071886bf1c2ce769facda5e45fd7e1ab24d4d55298d1a1",
+          "Gripping.STL": "e35ed860419dad49687084f9c8493f43c81cfece5b421d7e63944d27d22d63f7",
+          "arm1.STL": "d12f701abb74171df8ed3179b3885d10c6af2863f29d13e52bcce2d0d8933643",
+          "arm2.STL": "6ec3d8c7b02106560f61035e03a034637b988d153319d87bb50994e96728271e",
+          "arm3.STL": "74e309203df8ed80e57962a5ccc871909163cb07c1b1f6db0628233684360a98",
+          "arm4.STL": "8f74b107bdaba930ea482c95e6685d5cf5dccb3923a1e6d8b9280b7986811cda",
+          "arm5.STL": "1a52a732e4664ac3b703968416446b76d67067a78632b520d33858a80a26a281",
+          "arm_base_Link.STL": "bbd67c0a59cdbb8fd02c567e8ddff62bde72d3cae753ee63da7681f98f29871c",
+          "base_link.STL": "82897ec12100b78d8f33800edd7be19f86de3ffbc3574ed446f1d2bf04079f4a",
+          "llink1.STL": "0acf2b0ea73e9eb63e3ef9fec5637f0a151dae108ac3eed58ffd98f0062a6c9d",
+          "llink2.STL": "e356dfad82f1468a6c80e20fe127df4b7b40c395398cf5cb85a1522d9691b31c",
+          "llink3.STL": "81f1c9f5ab75d86362d7e227fda6018c87488db713bd9621f6eb761bbec3109d",
+          "lwheel1.STL": "e629352d69aaef698c948505f046fb241b1d9a7e734f0417a06dfe2d383eacfd",
+          "lwheel2.STL": "f07f85985d6c189b71d839a0d44bf3e893eacfd76dccc4f954b63d247a78ae1b",
+          "rlink1.STL": "9e3bb9c0d08d3d177e01a532d275f108f514eb4be13e857c0a596c61c32891a6",
+          "rlink2.STL": "ff22b15d51ff0d96cddcaa74b6056c9e5f88e1abe6886023a2a90ca80ec3230d",
+          "rlink3.STL": "bcf76ccbadf426c3e7ec6135f0fd09c0669b54735e7de91bbee92276b5404b25",
+          "rwheel1.STL": "7218e9bea1d0862cacd44b0a8a72e207085d367a022843bfd4e6be23f6786fff",
+          "rwheel2.STL": "f8daf44a79b1b3d5bdec95ef3885e8151f3a39f21f93c2bf2e8fcbf09d57c323"
+        },
+        "embodiment": "rosmaster_m3_pro_cad_fixed_base",
+        "high": [
+          180.0,
+          180.0,
+          180.0,
+          180.0,
+          270.0,
+          170.0,
+          0.20000000298023224,
+          0.20000000298023224,
+          0.6000000238418579
+        ],
+        "low": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          30.0,
+          -0.20000000298023224,
+          -0.20000000298023224,
+          -0.6000000238418579
+        ],
+        "names": [
+          "base",
+          "shoulder",
+          "elbow",
+          "wrist_pitch",
+          "wrist_roll",
+          "gripper",
+          "vx",
+          "vy",
+          "wz"
+        ],
+        "physical_ready": false,
+        "state_basis": "command_estimate",
+        "task": "fixed_base_visible_target_reach"
+      },
+      "lineage": {
+        "checkpoint_dir": "/tmp/explorer-skill-cycle-validation-v3/artifacts/skill_library/88e0e8b89ed73a4cd5a17302cc4e35e2c042a9c91ba1fd1abf95a36fb956ae63",
+        "checkpoint_sha256": {
+          "config.json": "51e7850bcd8af61fdb4c7e32eef24fd7f98cfab82287da8f54ad53da09a2d843",
+          "explorer_preprocessing.json": "269ab8e574eb2246a3dfcf318be281cc8b2491934288324c761c62613b345515",
+          "model.safetensors": "286996ee06d40900680b5753b839eee3307d7d03a0f7a2768e746f1640d5118c"
+        },
+        "method_ids": [
+          "SKILL_CYCLE_SIM_VALIDATION",
+          "DAGGER_ROSS_2011",
+          "ACT_LEROBOT_0_6_1",
+          "EXPLORER_CAD_MUJOCO",
+          "ENGINEERING_GLUE"
+        ],
+        "source_result": "/private/tmp/explorer-dagger-validation/jobs/dagger-cpu-development-tuning480-v1/result.json",
+        "source_result_sha256": "81fe25dd1588ce70e12eb5432a8337a3bd288975dcc54b24720b5c4aa5865faf",
+        "weights_sha256": "6fd4fe6b44d4eaa2010a73c2c41bc0772310af6b3cc5a5a405bd330e7a1815e8"
+      }
+    },
+    {
+      "id": "sim-cycle-1a23e3f18f7d43108a114e22a7127857-a520f79fc728496e84f4eafd67a807b9-pending",
+      "task": "fixed_base_visible_target_reach",
+      "source_type": "sim_adapted_act",
+      "status": "simulation_candidate_pending",
+      "action_contract": {
+        "action_basis": "absolute_command_endpoint",
+        "active_indices": [
+          0,
+          1,
+          2
+        ],
+        "arm_unit": "degrees",
+        "base_units": [
+          "m/s",
+          "m/s",
+          "rad/s"
+        ],
+        "cad_mesh_sha256": {
+          "Camera.STL": "12d7158cdf2fab1072f2bd3989726e854a20d1fe717206cb7edc114afe59fdbe",
+          "DCW2.STL": "085efb1ffed33d9440071886bf1c2ce769facda5e45fd7e1ab24d4d55298d1a1",
+          "Gripping.STL": "e35ed860419dad49687084f9c8493f43c81cfece5b421d7e63944d27d22d63f7",
+          "arm1.STL": "d12f701abb74171df8ed3179b3885d10c6af2863f29d13e52bcce2d0d8933643",
+          "arm2.STL": "6ec3d8c7b02106560f61035e03a034637b988d153319d87bb50994e96728271e",
+          "arm3.STL": "74e309203df8ed80e57962a5ccc871909163cb07c1b1f6db0628233684360a98",
+          "arm4.STL": "8f74b107bdaba930ea482c95e6685d5cf5dccb3923a1e6d8b9280b7986811cda",
+          "arm5.STL": "1a52a732e4664ac3b703968416446b76d67067a78632b520d33858a80a26a281",
+          "arm_base_Link.STL": "bbd67c0a59cdbb8fd02c567e8ddff62bde72d3cae753ee63da7681f98f29871c",
+          "base_link.STL": "82897ec12100b78d8f33800edd7be19f86de3ffbc3574ed446f1d2bf04079f4a",
+          "llink1.STL": "0acf2b0ea73e9eb63e3ef9fec5637f0a151dae108ac3eed58ffd98f0062a6c9d",
+          "llink2.STL": "e356dfad82f1468a6c80e20fe127df4b7b40c395398cf5cb85a1522d9691b31c",
+          "llink3.STL": "81f1c9f5ab75d86362d7e227fda6018c87488db713bd9621f6eb761bbec3109d",
+          "lwheel1.STL": "e629352d69aaef698c948505f046fb241b1d9a7e734f0417a06dfe2d383eacfd",
+          "lwheel2.STL": "f07f85985d6c189b71d839a0d44bf3e893eacfd76dccc4f954b63d247a78ae1b",
+          "rlink1.STL": "9e3bb9c0d08d3d177e01a532d275f108f514eb4be13e857c0a596c61c32891a6",
+          "rlink2.STL": "ff22b15d51ff0d96cddcaa74b6056c9e5f88e1abe6886023a2a90ca80ec3230d",
+          "rlink3.STL": "bcf76ccbadf426c3e7ec6135f0fd09c0669b54735e7de91bbee92276b5404b25",
+          "rwheel1.STL": "7218e9bea1d0862cacd44b0a8a72e207085d367a022843bfd4e6be23f6786fff",
+          "rwheel2.STL": "f8daf44a79b1b3d5bdec95ef3885e8151f3a39f21f93c2bf2e8fcbf09d57c323"
+        },
+        "embodiment": "rosmaster_m3_pro_cad_fixed_base",
+        "high": [
+          180.0,
+          180.0,
+          180.0,
+          180.0,
+          270.0,
+          170.0,
+          0.20000000298023224,
+          0.20000000298023224,
+          0.6000000238418579
+        ],
+        "low": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          30.0,
+          -0.20000000298023224,
+          -0.20000000298023224,
+          -0.6000000238418579
+        ],
+        "names": [
+          "base",
+          "shoulder",
+          "elbow",
+          "wrist_pitch",
+          "wrist_roll",
+          "gripper",
+          "vx",
+          "vy",
+          "wz"
+        ],
+        "physical_ready": false,
+        "state_basis": "command_estimate",
+        "task": "fixed_base_visible_target_reach"
+      },
+      "lineage": {
+        "actual_optimizer_steps": 64,
+        "checkpoint_dir": "/private/tmp/explorer-skill-cycle-validation-v3/jobs/1a23e3f18f7d43108a114e22a7127857/attempts/a520f79fc728496e84f4eafd67a807b9/adaptation/student_act",
+        "checkpoint_sha256": {
+          "config.json": "51e7850bcd8af61fdb4c7e32eef24fd7f98cfab82287da8f54ad53da09a2d843",
+          "explorer_preprocessing.json": "269ab8e574eb2246a3dfcf318be281cc8b2491934288324c761c62613b345515",
+          "model.safetensors": "487580c1ada64a0864970eb6d87e6928f43fe0fc177ddadef6dfcf60e816452f"
+        },
+        "method_ids": [
+          "SKILL_CYCLE_SIM_VALIDATION",
+          "DAGGER_ROSS_2011",
+          "ACT_LEROBOT_0_6_1",
+          "EXPLORER_CAD_MUJOCO",
+          "ENGINEERING_GLUE"
+        ],
+        "parent_skill_id": "sim-reach-81fe25dd1588ce70-after",
+        "source_result_sha256": "81fe25dd1588ce70e12eb5432a8337a3bd288975dcc54b24720b5c4aa5865faf",
+        "weights_sha256": "73c1ba7619e19a867d953d84d976d19838840331fbcef2dd042a36d14acdafcf"
+      }
+    },
+    {
+      "id": "sim-cycle-1a23e3f18f7d43108a114e22a7127857-a520f79fc728496e84f4eafd67a807b9-evaluated",
+      "task": "fixed_base_visible_target_reach",
+      "source_type": "sim_adapted_act",
+      "status": "simulation_candidate_rejected",
+      "action_contract": {
+        "action_basis": "absolute_command_endpoint",
+        "active_indices": [
+          0,
+          1,
+          2
+        ],
+        "arm_unit": "degrees",
+        "base_units": [
+          "m/s",
+          "m/s",
+          "rad/s"
+        ],
+        "cad_mesh_sha256": {
+          "Camera.STL": "12d7158cdf2fab1072f2bd3989726e854a20d1fe717206cb7edc114afe59fdbe",
+          "DCW2.STL": "085efb1ffed33d9440071886bf1c2ce769facda5e45fd7e1ab24d4d55298d1a1",
+          "Gripping.STL": "e35ed860419dad49687084f9c8493f43c81cfece5b421d7e63944d27d22d63f7",
+          "arm1.STL": "d12f701abb74171df8ed3179b3885d10c6af2863f29d13e52bcce2d0d8933643",
+          "arm2.STL": "6ec3d8c7b02106560f61035e03a034637b988d153319d87bb50994e96728271e",
+          "arm3.STL": "74e309203df8ed80e57962a5ccc871909163cb07c1b1f6db0628233684360a98",
+          "arm4.STL": "8f74b107bdaba930ea482c95e6685d5cf5dccb3923a1e6d8b9280b7986811cda",
+          "arm5.STL": "1a52a732e4664ac3b703968416446b76d67067a78632b520d33858a80a26a281",
+          "arm_base_Link.STL": "bbd67c0a59cdbb8fd02c567e8ddff62bde72d3cae753ee63da7681f98f29871c",
+          "base_link.STL": "82897ec12100b78d8f33800edd7be19f86de3ffbc3574ed446f1d2bf04079f4a",
+          "llink1.STL": "0acf2b0ea73e9eb63e3ef9fec5637f0a151dae108ac3eed58ffd98f0062a6c9d",
+          "llink2.STL": "e356dfad82f1468a6c80e20fe127df4b7b40c395398cf5cb85a1522d9691b31c",
+          "llink3.STL": "81f1c9f5ab75d86362d7e227fda6018c87488db713bd9621f6eb761bbec3109d",
+          "lwheel1.STL": "e629352d69aaef698c948505f046fb241b1d9a7e734f0417a06dfe2d383eacfd",
+          "lwheel2.STL": "f07f85985d6c189b71d839a0d44bf3e893eacfd76dccc4f954b63d247a78ae1b",
+          "rlink1.STL": "9e3bb9c0d08d3d177e01a532d275f108f514eb4be13e857c0a596c61c32891a6",
+          "rlink2.STL": "ff22b15d51ff0d96cddcaa74b6056c9e5f88e1abe6886023a2a90ca80ec3230d",
+          "rlink3.STL": "bcf76ccbadf426c3e7ec6135f0fd09c0669b54735e7de91bbee92276b5404b25",
+          "rwheel1.STL": "7218e9bea1d0862cacd44b0a8a72e207085d367a022843bfd4e6be23f6786fff",
+          "rwheel2.STL": "f8daf44a79b1b3d5bdec95ef3885e8151f3a39f21f93c2bf2e8fcbf09d57c323"
+        },
+        "embodiment": "rosmaster_m3_pro_cad_fixed_base",
+        "high": [
+          180.0,
+          180.0,
+          180.0,
+          180.0,
+          270.0,
+          170.0,
+          0.20000000298023224,
+          0.20000000298023224,
+          0.6000000238418579
+        ],
+        "low": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          30.0,
+          -0.20000000298023224,
+          -0.20000000298023224,
+          -0.6000000238418579
+        ],
+        "names": [
+          "base",
+          "shoulder",
+          "elbow",
+          "wrist_pitch",
+          "wrist_roll",
+          "gripper",
+          "vx",
+          "vy",
+          "wz"
+        ],
+        "physical_ready": false,
+        "state_basis": "command_estimate",
+        "task": "fixed_base_visible_target_reach"
+      },
+      "lineage": {
+        "acceptance": {
+          "accepted": false,
+          "conditions": {
+            "candidate_min_successes": false,
+            "candidate_no_regression": true,
+            "composition_min_successes": false,
+            "incumbent_retention": true
+          },
+          "gate": {
+            "declared_before_trials": true,
+            "max_retention_success_drop": 0,
+            "min_candidate_successes": 4,
+            "min_composition_successes": 2,
+            "require_no_success_regression_against_retrieved": true,
+            "selection_scope": "development_only_not_physical_admission"
+          },
+          "physical_ready": false,
+          "retention_scope": "immutable_incumbent_checkpoint_reexecuted_after_candidate_adaptation_not_single_network_forgetting",
+          "sealed_final_test": false
+        },
+        "actual_optimizer_steps": 64,
+        "checkpoint_dir": "/private/tmp/explorer-skill-cycle-validation-v3/jobs/1a23e3f18f7d43108a114e22a7127857/attempts/a520f79fc728496e84f4eafd67a807b9/adaptation/student_act",
+        "checkpoint_sha256": {
+          "config.json": "51e7850bcd8af61fdb4c7e32eef24fd7f98cfab82287da8f54ad53da09a2d843",
+          "explorer_preprocessing.json": "269ab8e574eb2246a3dfcf318be281cc8b2491934288324c761c62613b345515",
+          "model.safetensors": "487580c1ada64a0864970eb6d87e6928f43fe0fc177ddadef6dfcf60e816452f"
+        },
+        "method_ids": [
+          "SKILL_CYCLE_SIM_VALIDATION",
+          "DAGGER_ROSS_2011",
+          "ACT_LEROBOT_0_6_1",
+          "EXPLORER_CAD_MUJOCO",
+          "ENGINEERING_GLUE"
+        ],
+        "parent_skill_id": "sim-reach-81fe25dd1588ce70-after",
+        "pending_card_id": "sim-cycle-1a23e3f18f7d43108a114e22a7127857-a520f79fc728496e84f4eafd67a807b9-pending",
+        "source_result_sha256": "81fe25dd1588ce70e12eb5432a8337a3bd288975dcc54b24720b5c4aa5865faf",
+        "weights_sha256": "73c1ba7619e19a867d953d84d976d19838840331fbcef2dd042a36d14acdafcf"
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "method_id": "SKILL_CYCLE_SIM_VALIDATION",
+  "implementation_id": "IMPL-SIM-SKILL-CYCLE-001",
+  "function_or_module": "01-autonomous-learning/src/explorer_sim/skill_cycle.py",
+  "implementation_type": "ENGINEERING_GLUE",
+  "paper_ids": [],
+  "sources": [
+    {
+      "url": "project-file:01-autonomous-learning/src/explorer_sim/dagger.py",
+      "role": "Typed expert/query Dataset and maintained ACT training helpers; prior DAgger adaptation is separately attributed to Ross2011"
+    },
+    {
+      "url": "https://github.com/huggingface/lerobot/tree/7e241bd630a3719a56157a497ce5d08f244784f1/src/lerobot/policies/act",
+      "role": "Official ACT public inference/save/load and optimizer parameter API, Apache2.0"
+    },
+    {
+      "url": "https://github.com/google-deepmind/mujoco/tree/800a109a4bdd02cb60404d565db4ae16fb04a53b",
+      "role": "Actual simulation integration state, FK, rendering and stepping API; no upstream code copied"
+    }
+  ],
+  "upstream_repo": "NOT_APPLICABLE_OWN_ORCHESTRATION_NO_UPSTREAM_SKILL_CYCLE_CODE_COPIED",
+  "upstream_commit": "NOT_APPLICABLE",
+  "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+  "model_license": "PRIVATE_LOCAL_TRAINED_ARTIFACT_NO_SEPARATE_LICENSE_SELECTED",
+  "data_license": "PRIVATE_LOCAL_SIMULATED_EVIDENCE_CAD_RIGHTS_NOT_EXPANDED",
+  "dependency_methods": [
+    "ACT_LEROBOT_0_6_1",
+    "DAGGER_ROSS_2011",
+    "EXPLORER_CAD_MUJOCO"
+  ],
+  "changes_and_reason": "Execute a bounded complete engineering route: SHA-verified standalone checkpoint bytes in local library, actual SQLite versioned cards, compatible metadata retrieval,64 real ACT optimizer updates after retrieval, independent fresh development acceptance, two real reach stages with bitwise unchanged MuJoCo integration state at boundary, actual incumbent retention rerun. Poor candidate remains rejected. No learned semantic retrieval, general compositional skill, cloth/grasp, H5 or physical claim.",
+  "source_sha256": {
+    "skill_cycle.py": "b0776fa90b734d703df0841eb7c0919986bf88da301f28e2fca67aee49d6dd64"
+  },
+  "verification": {
+    "paper_read": false,
+    "code_inspected": true,
+    "installed": true,
+    "software_tested": true,
+    "hardware_tested": false
+  },
+  "test_evidence": [
+    {
+      "command": "EXPLORER_SIM_MESH_DIR=<verified CAD> /tmp/explorer-sim-env/bin/python -m pytest -q 01-autonomous-learning/tests/test_skill_cycle.py 01-autonomous-learning/tests/test_dagger.py 01-autonomous-learning/tests/test_reach_pilot.py",
+      "result": "29 passed,1 skipped (existing explicit pilot integration test); actual skill cycle separately executed",
+      "date": "2026-10-26",
+      "scope": "Temporary SQLite/card/byte-copy invariants, preprocessing and rejection gates, actual native CAD integration-state continuity"
+    },
+    {
+      "command": "run_skill_cycle with real DAgger480 source,64 real continuation updates,6 acceptance/6retention/2composition episodes",
+      "run_id": "1a23e3f18f7d43108a114e22a7127857",
+      "result": "incumbent0/6,candidate0/6,composition0/2,retention1/6→1/6,candidate rejected;4SQLitecards;64realupdates,weightschanged,reloaderror0,source+idempotence+stored-byte checks pass",
+      "result_sha256": "04537958eee149be26afff146eea40cab1f50c090be8d197770d956388f39ebe"
+    }
+  ],
+  "validation_receipt": "01-autonomous-learning/docs/SKILL_CYCLE_VALIDATION.json",
+  "hardware_run_ids": [],
+  "activation_status": "STANDALONE_RECORD_READY_FOR_ROOT_SHARED_REGISTRY_INTEGRATION",
+  "qualification_scope": "Executed development engineering route with rejected candidate; no sealed final test, reliable task success, H5 or physical qualification",
+  "dependency_exception": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds"
+}
