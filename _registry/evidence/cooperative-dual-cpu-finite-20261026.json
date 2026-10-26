@@ -1,0 +1,138 @@
+{
+  "schema": "explorer_cooperative_cpu_pair_finite_evidence_v1",
+  "source_kind": "SIMULATION",
+  "finite_pair_passed": true,
+  "scope": "actual_dual_Torch_CPU_load_and_original_offline_inference_not_live_queue_or_handover",
+  "raw_receipt_sha256": "9c776df0c32f1e091e2c38133228c05dfdc97fcfd9a1f224fd8aca9577633a3e",
+  "actual_native_profiles": {
+    "giver": {
+      "action_dimension": 9,
+      "state_dimension": 106
+    },
+    "receiver": {
+      "action_dimension": 6,
+      "state_dimension": 6
+    }
+  },
+  "exact_model_configs": {
+    "giver": {
+      "config_sha256": "98709dd1d8a9a7b8042b516c8da05c6e7bd850052d110e9bdb4ae2db6ce03d9b",
+      "input_features": {
+        "observation.images.overview": {
+          "type": "VISUAL",
+          "shape": [
+            3,
+            32,
+            32
+          ]
+        },
+        "observation.state": {
+          "type": "STATE",
+          "shape": [
+            106
+          ]
+        }
+      },
+      "output_features": {
+        "action": {
+          "type": "ACTION",
+          "shape": [
+            9
+          ]
+        }
+      },
+      "n_action_steps": 1,
+      "chunk_size": 2,
+      "device": "cpu"
+    },
+    "receiver": {
+      "config_sha256": "fd5e1c9640e2512615c3ebc5e95f93feba8bc0855d7aa646f7237c40486f2e0c",
+      "input_features": {
+        "observation.images.overview": {
+          "type": "VISUAL",
+          "shape": [
+            3,
+            32,
+            32
+          ]
+        },
+        "observation.state": {
+          "type": "STATE",
+          "shape": [
+            6
+          ]
+        }
+      },
+      "output_features": {
+        "action": {
+          "type": "ACTION",
+          "shape": [
+            6
+          ]
+        }
+      },
+      "n_action_steps": 1,
+      "chunk_size": 4,
+      "device": "cpu"
+    }
+  },
+  "exact_checkpoint_inventory_sha256": {
+    "giver": "80eb1d88522506fec23f3b20158dd61d76349bc85f65ba9a725793eb7bfa9e7b",
+    "receiver": "9c221ba7ec4842178db93a415f435f5a3f0ae723b2956bf1b83f607953826e50"
+  },
+  "framework_versions": {
+    "lerobot": "0.6.1",
+    "torch": "2.11.0",
+    "torchvision": "0.26.0"
+  },
+  "implementation_sha256": {
+    "00-control-center/src/explorer/cooperative_policy_job.py": "d907198fc1cd8f1de15f1392d21793de2c0b9f5fa2c4ea7a4d4914145ee7b24b",
+    "00-control-center/src/explorer/cooperative_warm_service.py": "2db3cb6e87342aecb47f2d91fa93ce9f3e878d70bc3ba0affa060dfd938de267",
+    "scripts/qualify_cooperative_cpu_pair.py": "d2bcdb2b20ff835d873fd5c1824af8004dfa886d006cc3a9c92d1a8a0e853e91",
+    "shared/explorer_shared/cooperative_policy_actor.py": "92990013597782b9081c277a3c7eea81cba04c94eb84dce2fc6176be3c0ad28c",
+    "shared/explorer_shared/learning/act_backend.py": "4f2e04f78e30938e3268fdfe026c0e39619fbb64e8ec233aa27de50fca794e47",
+    "shared/explorer_shared/learning/act_policy.py": "2b6e22341f0acd76846d72b9c8ea9f6f03564c0fc95d41d9c44376b3eef49d95",
+    "shared/explorer_shared/learning/rosmaster_skill_features.py": "2ad274e56c0ec7bd3dff98461c21f0bcad3640ccc846cc8e5c5a4acb39b0d8e8",
+    "shared/explorer_shared/learning/rosmaster_skill_pipeline.py": "c235f9cb868beae4d9605c4f5604d0bc4634c8a543eb402205d4eada7aa6ed29"
+  },
+  "cpu_threads": 2,
+  "rss_bytes": {
+    "before_load": 475672576,
+    "both_loaded": 846938112,
+    "giver_loaded": 783945728,
+    "peak": 895504384
+  },
+  "load_ms": {
+    "giver": 4784.7427950036945,
+    "receiver_with_source_admission": 678.2450179889565
+  },
+  "prediction_ms": [
+    {
+      "giver": 55.91176400776021,
+      "receiver": 34.22128199599683
+    },
+    {
+      "giver": 71.18617100059055,
+      "receiver": 33.58676600328181
+    }
+  ],
+  "predictions_per_head": 2,
+  "elapsed_s": 6.072637909994228,
+  "within4GiB": true,
+  "systemd_scope_invocation_id": "f1df10a6f13748f4a9f14db356d916b4",
+  "host_limits_requested": {
+    "memory_bytes": 4294967296,
+    "swap_bytes": 0,
+    "cpu_quota_percent": 200
+  },
+  "arbitrary_future_model_pairs_qualified": false,
+  "live_source_or_queue_qualified_by_this_receipt": false,
+  "physical_commands": 0,
+  "physical_execution_authorized": false,
+  "independent_full_task_success": false,
+  "originals_modified": false,
+  "production_simulation_admission_enabled": false,
+  "network_or_process_attempts": [
+    "socket.bind"
+  ]
+}
