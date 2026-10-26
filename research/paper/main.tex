@@ -3,6 +3,8 @@
 \usepackage[T1]{fontenc}
 \usepackage[numbers]{natbib}
 \usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{balance}
 \usepackage[bookmarks=true,hidelinks]{hyperref}
 \hypersetup{pdfauthor={},pdftitle={Testing Evidence-Constrained Skill Updates on Low-Cost Robots},pdfsubject={},pdfkeywords={}}
 \begin{document}
@@ -41,6 +43,13 @@ A skill graph stores declared preconditions and effects. Symbolic composition re
 
 A handover protocol further separates receiver readiness, object-hold evidence and giver release. A closed-gripper command or elapsed timer does not establish receiver ownership. Current protocol fixtures exercise software transitions and have no actuator interface.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/engineering_checks.pdf}
+\caption{Engineering checks on the integrated platform. (a) Six matched development seeds per policy, disjoint from training and imitation episodes, from one training configuration. The teacher has privileged simulator state and the student has RGB plus command estimates. (b) Synthetic six-axis ACT CPU/GPU numerical comparison: the first strict check failed; a retake records TF32 disabled and passes. These different checks do not measure a common task or a CPU/GPU speedup. H1--H5 and independent physical task success remain untested.}
+\label{fig:engineering}
+\end{figure*}
+
 \section{Evaluation design}
 The central comparison holds demonstrations, permitted interactions, policy family, compute and evaluation sessions fixed. The control accepts updates using a predefined outcome threshold. The treatment adds evidence-contract checks. Both retain all attempted updates, refusals, interventions and unknown outcomes in the record. The principal outcomes are verified completion, unsupported promotions, interaction cost and retained prior-task performance.
 
@@ -55,22 +64,17 @@ Planned controls include no motion, fixed-data behavioral cloning, sequential fi
 \section{Preliminary engineering evidence}
 An executed fixed-base reaching pilot uses twenty checksum-verified CAD meshes with MuJoCo 3.17. Only three simulated arm joints are active. Success requires the grasp-center site to remain within $25\,\mathrm{mm}$ of its target for three consecutive decision steps, within a 60-step episode. The PPO teacher uses privileged simulator state. The official LeRobot 0.6.1 ACT student uses rendered overview RGB and a command estimate, with a compact ResNet-18 configuration.
 
-PPO performs 4096 environment steps; ACT performs 120 optimizer updates from 12 outcome-labelled teacher rollouts, ten successful. Changed weights and checkpoint save/reload were verified. Six common evaluation seeds are disjoint from training and imitation episodes. They are development seeds, already inspected while implementing the system.
-\begin{table}[t]
-\centering
-\caption{Recorded simulation development rollouts. These counts exercise the training path and do not test the central hypothesis.}
-\begin{tabular}{lrr}
-\hline
-Policy & Confirmed successes & Attempts\\
-\hline
-No motion & 0 & 6\\
-PPO privileged-state teacher & 6 & 6\\
-Official ACT RGB student & 2 & 6\\
-\hline
-\end{tabular}
-\end{table}
-The teacher and student have different observations and training objectives, so their rates do not isolate an algorithmic advantage. The small sample, single development training seed and simple reach predicate cannot establish manipulation competence, contact safety or sample efficiency. This desktop-CPU run does not qualify Jetson GPU execution. A tested dependency-version exception also remains outside full framework qualification.
+The historical Jetson NX CPU run performs 4096 PPO environment steps and 120 ACT optimizer updates from a collection of 12 outcome-labelled teacher rollouts, ten successful. Changed weights and checkpoint save/reload were verified. Official LeRobotDataset v3 export reads back all 12 episodes and 167 image/state/action frames successfully. Its BC targets included all 12 teacher episodes, including two failures, so it does not validate the corrected success-only selection path. The reported pilot elapsed time is 127.9 seconds; it is a diagnostic run, not a throughput benchmark.
 
+Six common evaluation seeds are disjoint from training and imitation episodes, but are development seeds already inspected during implementation. Figure~\ref{fig:engineering}(a) reports no motion 0/6, privileged-state PPO 6/6 and RGB ACT 2/6. Their different observations/objectives and the small sample do not isolate an algorithmic advantage or establish physical manipulation, contact safety or sample efficiency.
+
+A separate technical station record contains 57 frames during an approximately 5.7-second observation window. The last status snapshot reports a 29.93\,Hz local loop and 33.42\,ms period p95; the reported maximum normalized motor-position deviation is zero, with no configuration writes. This resolution-limited motor observation does not bound world-pose error or grip force. Its success label belongs to the technical hold/record check, not an object task. Six-axis ACT fits that stationary recorded source for 120 CPU updates in 59.0 seconds, with changed weights and zero save/reload difference. No independent development episodes or physical task-success evaluation were supplied. A separate 480-update GPU fit of the same source takes 66.8 seconds, with changed weights and zero reload difference; these different workloads do not constitute a CPU/GPU speed comparison.
+
+A synthetic six-axis ACT GPU check executes two finite optimizer updates and checkpoint reload. The initial CPU/GPU maximum difference is $1.002848\!\times\!10^{-4}$ and misses the integrator's strict $10^{-4}$ criterion. A retake with TF32 disabled records $9.54\!\times\!10^{-7}$ and passes, with zero save/reload difference (Figure~\ref{fig:engineering}(b)). The retake takes 2.15 seconds for its different, two-update workload; this is not a matched CPU/GPU speed comparison or a causal TF32 ablation. The tested GPU environment uses Torch 2.12/CUDA 13.2 and torchvision 0.27 outside LeRobot's declared upper bounds; its architecture metadata omits the device's $sm\_87$. This observed compact execution path does not qualify all operations or larger models.
+
+Two live CPU shadow runs read 22 and 21 station observations over about 3.13 seconds, using the CPU-trained and GPU-trained checkpoints respectively. Reported maximum predicted deviations are 5.376 and 3.759 in the station's normalized motor coordinates. These are different runs, not geometric accuracy or an improvement attributable to GPU. Both outcomes remain unknown and neither sends learned-policy actuator commands; a GPU-trained checkpoint does not imply GPU inference.
+
+\balance
 \section{Limitations and falsification criteria}
 No physical task-success or physical-transfer result is reported here. The overview camera cannot certify grip force, and imported kinematics do not establish calibrated dynamics. A successful IK solve does not check collision or orientation unless those constraints were included. Failures to observe a task effect must remain visible rather than being converted to positive labels.
 

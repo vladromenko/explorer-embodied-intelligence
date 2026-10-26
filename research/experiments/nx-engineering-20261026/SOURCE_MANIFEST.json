@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-26",
+  "scope": "Preserved engineering evidence; source records are read-only and copied byte-for-byte. No scientific, autonomous physical-task or sealed-final evaluation claim.",
+  "records": [
+    {
+      "path": "research/experiments/nx-engineering-20261026/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
+      "source_path": "_registry/evidence/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
+      "sha256": "4dcf3033b363723ffe7b02417c0c81eff89b921509dba01cc83ffcb01ed3aca6",
+      "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/train_act-447f40e9e1fd45c1ba4f8cda473abaf5.json",
+      "source_path": "_registry/evidence/train_act-447f40e9e1fd45c1ba4f8cda473abaf5.json",
+      "sha256": "6679b6b1fae72c0377f3485ed77975c5935ed073119808ae58b7b2a044056252",
+      "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/so101-hold-20261026.json",
+      "source_path": "_registry/evidence/so101-hold-20261026.json",
+      "sha256": "f7c16e83f4b279f27cc1e53bd0df2d52b2bec6f790a4dc6e93b2510795a6a07f",
+      "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/act-cu132-fp32-20261026.json",
+      "source_path": "_registry/evidence/act-cu132-fp32-20261026.json",
+      "sha256": "9665b3b2e4ea78d3c4bf8469bd3b21dbe02c0ef61733a9358dfe7d901119016a",
+      "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/act-cu132-20261026.json",
+      "source_path": "_registry/evidence/act-cu132-20261026.json",
+      "sha256": "dfedf58786ea88da13016cc9b3ba14c6e8dec18d52c3374ff424d6bc2b94ef49",
+      "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/station-gpu-training-job.json",
+      "source_path": "_registry/evidence/station-gpu-training-job.json",
+      "sha256": "f09fa28d2b117dce85e70b0693e790343a4087dd081e4596d8e7c3a0091a4176",
+      "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/station-shadow-job.json",
+      "source_path": "_registry/evidence/station-shadow-job.json",
+      "sha256": "9ab98e6dc17ef30828be36e945336bc1fb9bfeaab35a60052f1d16ba01c2615b",
+      "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/station-shadow-gpu-model.json",
+      "source_path": "_registry/evidence/station-shadow-gpu-model.json",
+      "sha256": "c510fb7beacf2eb1fb35ebdd20a2424b35f0028a3bd07c02394a09f8f834d280",
+      "copied_without_modification": true
+    }
+  ]
+}

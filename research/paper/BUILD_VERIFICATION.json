@@ -1,16 +1,19 @@
 {
   "compiled": true,
-  "compiler": "desktop editor plus independent pdflatex/BibTeX",
-  "pages": 2,
+  "compiler": "pdflatex/BibTeX",
+  "pages": 3,
   "author_metadata": "",
   "all_fonts_type1_embedded": true,
-  "render_cache": "venues/rss2027/render/page-1.png,page-2.png",
+  "font_audit_includes_figure_xobjects": true,
   "source_sha256": {
-    "main.tex": "77155d8e3f6c0c3a755ca3ff2e125ed2b424e467fdddb23912ae6b25bc11767a",
+    "main.tex": "36eba94ac21c6e44e1f3934c4f984cfc01e6b6ed19a0cbe5cad6e87831f613dd",
     "references.bib": "f93bffe5d75880c998621af3011cba6de9c2b3d6c543dcc0012ecb80011631bb",
-    "IEEEtran.cls": "d63d4bf27f29603a733d06e27ba5fbb40488acf9d1d696354a88b886758f70a7"
+    "IEEEtran.cls": "d63d4bf27f29603a733d06e27ba5fbb40488acf9d1d696354a88b886758f70a7",
+    "figures/engineering_checks.pdf": "3854c76d79b1bc727e18d1f63eb7435f3323ffbcfaa07cd446cc06678b6259eb"
   },
-  "pdf_sha256": "e64cc3d519b2d6fe57704b1a350a177df24a45abca542477819fef0cb02bf7bc",
+  "pdf_sha256": "6c8420825b2e658ebaa9e13e225dace7c46bdf814649f1d3ebc0c04949c70b6f",
+  "render_cache": "venues/rss2027/render/page-1.png,page-2.png,page-3.png",
   "render_reviewed": true,
-  "submission_ready": false
+  "submission_ready": false,
+  "scope": "Engineering evidence only; historical data-selection caveat retained. No H1-H5/independent physical-task claim."
 }

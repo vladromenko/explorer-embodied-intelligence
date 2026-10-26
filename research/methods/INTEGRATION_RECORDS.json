@@ -39,7 +39,9 @@
         "code_inspected": true,
         "installed": true,
         "software_tested": true,
-        "hardware_tested": false
+        "hardware_tested": false,
+        "edge_cpu_execution_tested": true,
+        "physical_task_validated": false
       },
       "test_evidence": [
         {
@@ -47,6 +49,13 @@
           "path": "research/experiments/default-pilot-v1/result.json",
           "scope": "Mac CPU development reach test; six evaluation seeds disjoint from training/imitation; not sealed final evaluation or physical evidence",
           "result_sha256": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60"
+        },
+        {
+          "run_id": "sim_pilot-7e21260f8ffb4bfa93b6d3b384123318",
+          "path": "research/experiments/nx-engineering-20261026/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
+          "canonical_source_path": "_registry/evidence/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
+          "source_json_sha256": "4dcf3033b363723ffe7b02417c0c81eff89b921509dba01cc83ffcb01ed3aca6",
+          "scope": "Historical NX CPU development run:4096PPOsteps,120ACTupdates,no-motion0/6,PPO6/6,ACT2/6; all12BCepisodes included2failed. This does not validate the corrected success-only selector. No physical I/O or sealed evaluation."
         }
       ],
       "hardware_run_ids": [],
@@ -81,7 +90,11 @@
         "code_inspected": true,
         "installed": true,
         "software_tested": true,
-        "hardware_tested": false
+        "hardware_tested": false,
+        "edge_cpu_execution_tested": true,
+        "physical_task_validated": false,
+        "edge_gpu_numerical_execution_tested": true,
+        "recorded_gpu_fit_executed": true
       },
       "test_evidence": [
         {
@@ -89,6 +102,34 @@
           "path": "research/experiments/default-pilot-v1/result.json",
           "scope": "Mac CPU development reach test; six evaluation seeds disjoint from training/imitation; not sealed final evaluation or physical evidence",
           "result_sha256": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60"
+        },
+        {
+          "run_id": "sim_pilot-7e21260f8ffb4bfa93b6d3b384123318",
+          "path": "research/experiments/nx-engineering-20261026/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
+          "canonical_source_path": "_registry/evidence/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
+          "source_json_sha256": "4dcf3033b363723ffe7b02417c0c81eff89b921509dba01cc83ffcb01ed3aca6",
+          "scope": "Historical NX CPU development run:4096PPOsteps,120ACTupdates,no-motion0/6,PPO6/6,ACT2/6; all12BCepisodes included2failed. This does not validate the corrected success-only selector. No physical I/O or sealed evaluation."
+        },
+        {
+          "run_id": "act-cu132-20261026",
+          "path": "research/experiments/nx-engineering-20261026/act-cu132-20261026.json",
+          "canonical_source_path": "_registry/evidence/act-cu132-20261026.json",
+          "source_json_sha256": "dfedf58786ea88da13016cc9b3ba14c6e8dec18d52c3374ff424d6bc2b94ef49",
+          "scope": "Initial synthetic6-axis official ACT GPU2updates finite and reload0, but strictCPU/GPUparitycheckFAILED at1.0028481483459473e-4; preserved."
+        },
+        {
+          "run_id": "act-cu132-fp32-20261026",
+          "path": "research/experiments/nx-engineering-20261026/act-cu132-fp32-20261026.json",
+          "canonical_source_path": "_registry/evidence/act-cu132-fp32-20261026.json",
+          "source_json_sha256": "9665b3b2e4ea78d3c4bf8469bd3b21dbe02c0ef61733a9358dfe7d901119016a",
+          "scope": "Retake synthetic6-axis official ACT GPU2updates finite/changedweights,reload0,CPU/GPUdifference9.5367431640625e-7,TF32disabled;2.1546s. Outside declared Torch/vision bounds; not a matched speed or causal TF32 study."
+        },
+        {
+          "run_id": "station-gpu-training-job",
+          "path": "research/experiments/nx-engineering-20261026/station-gpu-training-job.json",
+          "canonical_source_path": "_registry/evidence/station-gpu-training-job.json",
+          "source_json_sha256": "f09fa28d2b117dce85e70b0693e790343a4087dd081e4596d8e7c3a0091a4176",
+          "scope": "Actual recorded stationary source480GPUupdates,66.8059s,changedweights,reload0,same source-manifest hash as CPUfit. No independent episodes/task evaluation. Different workload and out-of-bounds Torch2.12cu132/vision0.27; no matched speedup."
         }
       ],
       "hardware_run_ids": [],
@@ -97,7 +138,7 @@
         "modeling_act.py": "a6c1a49c5daafa513b9abee9b986205d327e25c70ed13623ab2e6c0ab6b1f577",
         "configuration_act.py": "35a60c0dd3c811b137b5eb035bdbd40d40e2c24ba0cda61756052e6e1c829282"
       },
-      "dependency_exception": "Torch2.14.1/torchvision0.29.1 outside LeRobot declared bounds; execution tested for this path only, no framework-wide compatibility claim"
+      "dependency_exception": "Historical Mac default-pilot-v1 used Torch2.14.1/vision0.29.1; GPU synthetic retake uses2.12.0+cu132/0.27.0+cu132 outside0.6.1declared upper bounds. The NX CPU artifacts report2.11.0/0.26.0 within declared bounds. No whole-framework/model-size qualification."
     },
     {
       "method_id": "EXPLORER_CAD_MUJOCO",
@@ -122,7 +163,9 @@
         "code_inspected": true,
         "installed": false,
         "software_tested": true,
-        "hardware_tested": false
+        "hardware_tested": false,
+        "edge_cpu_execution_tested": true,
+        "physical_task_validated": false
       },
       "test_evidence": [
         {
@@ -130,6 +173,13 @@
           "path": "research/experiments/default-pilot-v1/result.json",
           "scope": "Mac CPU development reach test; six evaluation seeds disjoint from training/imitation; not sealed final evaluation or physical evidence",
           "result_sha256": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60"
+        },
+        {
+          "run_id": "sim_pilot-7e21260f8ffb4bfa93b6d3b384123318",
+          "path": "research/experiments/nx-engineering-20261026/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
+          "canonical_source_path": "_registry/evidence/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
+          "source_json_sha256": "4dcf3033b363723ffe7b02417c0c81eff89b921509dba01cc83ffcb01ed3aca6",
+          "scope": "Historical NX CPU development run:4096PPOsteps,120ACTupdates,no-motion0/6,PPO6/6,ACT2/6; all12BCepisodes included2failed. This does not validate the corrected success-only selector. No physical I/O or sealed evaluation."
         }
       ],
       "hardware_run_ids": [],
@@ -159,7 +209,9 @@
         "code_inspected": true,
         "installed": false,
         "software_tested": true,
-        "hardware_tested": false
+        "hardware_tested": false,
+        "edge_cpu_execution_tested": true,
+        "physical_task_validated": false
       },
       "test_evidence": [
         {
@@ -167,6 +219,13 @@
           "path": "research/experiments/default-pilot-v1/result.json",
           "scope": "Mac CPU development reach test; six evaluation seeds disjoint from training/imitation; not sealed final evaluation or physical evidence",
           "result_sha256": "93a0505c42f79fbf3c393d9ebf2d5dd1993cb261404eb9dd8caf02187a423c60"
+        },
+        {
+          "run_id": "sim_pilot-7e21260f8ffb4bfa93b6d3b384123318",
+          "path": "research/experiments/nx-engineering-20261026/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
+          "canonical_source_path": "_registry/evidence/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
+          "source_json_sha256": "4dcf3033b363723ffe7b02417c0c81eff89b921509dba01cc83ffcb01ed3aca6",
+          "scope": "Historical NX CPU development run:4096PPOsteps,120ACTupdates,no-motion0/6,PPO6/6,ACT2/6; all12BCepisodes included2failed. This does not validate the corrected success-only selector. No physical I/O or sealed evaluation."
         }
       ],
       "hardware_run_ids": []
@@ -341,13 +400,21 @@
         "code_inspected": true,
         "installed": false,
         "software_tested": true,
-        "hardware_tested": false
+        "hardware_tested": false,
+        "official_dataset_readback_tested": true
       },
       "test_evidence": [
         {
           "commit": "9a54fe4",
           "result": "17 simulation/recorded-path tests passed, reported by execution agent; root integration revalidation remains necessary",
           "scope": "Official v3 export12episodes/167frames read back;6Dstation fixture ACT2updates and checkpoint reload; no physical action"
+        },
+        {
+          "run_id": "sim_pilot-7e21260f8ffb4bfa93b6d3b384123318",
+          "path": "research/experiments/nx-engineering-20261026/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
+          "canonical_source_path": "_registry/evidence/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
+          "source_json_sha256": "4dcf3033b363723ffe7b02417c0c81eff89b921509dba01cc83ffcb01ed3aca6",
+          "scope": "OfficialLeRobotDatasetv3readback12episodes/167frames; allimage/state/action checks passed,sourceNPZimmutable/splitspreserved. Simulated export does not preserve native monotonic timestamps and is not physical clock qualification."
         }
       ],
       "hardware_run_ids": [],
@@ -376,13 +443,30 @@
         "code_inspected": true,
         "installed": false,
         "software_tested": true,
-        "hardware_tested": false
+        "hardware_tested": false,
+        "recorded_cpu_fit_executed": true,
+        "physical_task_validated": false,
+        "recorded_gpu_fit_executed": true
       },
       "test_evidence": [
         {
           "commit": "9a54fe4",
           "result": "17 simulation/recorded-path tests passed, reported by execution agent; root integration revalidation remains necessary",
           "scope": "Official v3 export12episodes/167frames read back;6Dstation fixture ACT2updates and checkpoint reload; no physical action"
+        },
+        {
+          "run_id": "train_act-447f40e9e1fd45c1ba4f8cda473abaf5",
+          "path": "research/experiments/nx-engineering-20261026/train_act-447f40e9e1fd45c1ba4f8cda473abaf5.json",
+          "canonical_source_path": "_registry/evidence/train_act-447f40e9e1fd45c1ba4f8cda473abaf5.json",
+          "source_json_sha256": "6679b6b1fae72c0377f3485ed77975c5935ed073119808ae58b7b2a044056252",
+          "scope": "NX CPU actual recorded stationary source:57frames,6axes,120ACTupdates,changedweights,reload0,58.978s; no simulator executed and no independent evaluation episodes. Technical pose fit is not a learned object-task validation."
+        },
+        {
+          "run_id": "station-gpu-training-job",
+          "path": "research/experiments/nx-engineering-20261026/station-gpu-training-job.json",
+          "canonical_source_path": "_registry/evidence/station-gpu-training-job.json",
+          "source_json_sha256": "f09fa28d2b117dce85e70b0693e790343a4087dd081e4596d8e7c3a0091a4176",
+          "scope": "Actual recorded stationary source480GPUupdates,66.8059s,changedweights,reload0,same source-manifest hash as CPUfit. No independent episodes/task evaluation. Different workload and out-of-bounds Torch2.12cu132/vision0.27; no matched speedup."
         }
       ],
       "hardware_run_ids": [],
@@ -411,13 +495,22 @@
         "code_inspected": true,
         "installed": false,
         "software_tested": true,
-        "hardware_tested": false
+        "hardware_tested": false,
+        "recorded_cpu_fit_executed": true,
+        "physical_task_validated": false
       },
       "test_evidence": [
         {
           "commit": "9a54fe4",
           "result": "17 simulation/recorded-path tests passed, reported by execution agent; root integration revalidation remains necessary",
           "scope": "Official v3 export12episodes/167frames read back;6Dstation fixture ACT2updates and checkpoint reload; no physical action"
+        },
+        {
+          "run_id": "train_act-447f40e9e1fd45c1ba4f8cda473abaf5",
+          "path": "research/experiments/nx-engineering-20261026/train_act-447f40e9e1fd45c1ba4f8cda473abaf5.json",
+          "canonical_source_path": "_registry/evidence/train_act-447f40e9e1fd45c1ba4f8cda473abaf5.json",
+          "source_json_sha256": "6679b6b1fae72c0377f3485ed77975c5935ed073119808ae58b7b2a044056252",
+          "scope": "NX CPU actual recorded stationary source:57frames,6axes,120ACTupdates,changedweights,reload0,58.978s; no simulator executed and no independent evaluation episodes. Technical pose fit is not a learned object-task validation."
         }
       ],
       "hardware_run_ids": [],

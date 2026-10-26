@@ -1,0 +1,33 @@
+{
+  "id": "e82460a8cc4447edbf4db65585bbfe7c",
+  "kind": "station_shadow",
+  "project_id": "personal",
+  "status": "completed",
+  "created": 1792971424.855543,
+  "updated": 1792971436.2585258,
+  "config": {
+    "skill_id": "act-offline-447f40e9e1fd45c1ba4f8cda473abaf5",
+    "duration_s": 3,
+    "shadow": true
+  },
+  "result": {
+    "skill_id": "act-offline-447f40e9e1fd45c1ba4f8cda473abaf5",
+    "mode": "shadow",
+    "physical_io": false,
+    "physical_success_inferred": false,
+    "outcome": "unknown",
+    "observations": 22,
+    "elapsed_s": 3.1314133229998333,
+    "max_predicted_displacement_from_measured": 5.376426696777344,
+    "observation_log": "/home/jetsonnx/.local/share/explorer/state/jobs/e82460a8cc4447edbf4db65585bbfe7c/policy-observations.json",
+    "checkpoint": "/home/jetsonnx/.local/share/explorer/state/jobs/447f40e9e1fd45c1ba4f8cda473abaf5/student_act",
+    "framework_versions": {
+      "torch": "2.11.0",
+      "torchvision": "0.26.0"
+    },
+    "framework_compatibility_note": "Torch/torchvision versions lie within LeRobot 0.6.1 declared bounds"
+  },
+  "progress": 1.0,
+  "error": null,
+  "frame_available": true
+}

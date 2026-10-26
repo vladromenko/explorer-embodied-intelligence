@@ -1,0 +1,299 @@
+{
+  "engineering_only": true,
+  "hypothesis_status": {
+    "H1": "UNTESTED",
+    "H2": "UNTESTED",
+    "H3": "UNTESTED",
+    "H4": "UNTESTED",
+    "H5": "UNTESTED"
+  },
+  "sources": [
+    {
+      "path": "research/experiments/nx-engineering-20261026/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
+      "source_path": "_registry/evidence/sim_pilot-7e21260f8ffb4bfa93b6d3b384123318.json",
+      "sha256": "4dcf3033b363723ffe7b02417c0c81eff89b921509dba01cc83ffcb01ed3aca6",
+      "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/train_act-447f40e9e1fd45c1ba4f8cda473abaf5.json",
+      "source_path": "_registry/evidence/train_act-447f40e9e1fd45c1ba4f8cda473abaf5.json",
+      "sha256": "6679b6b1fae72c0377f3485ed77975c5935ed073119808ae58b7b2a044056252",
+      "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/so101-hold-20261026.json",
+      "source_path": "_registry/evidence/so101-hold-20261026.json",
+      "sha256": "f7c16e83f4b279f27cc1e53bd0df2d52b2bec6f790a4dc6e93b2510795a6a07f",
+      "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/act-cu132-fp32-20261026.json",
+      "source_path": "_registry/evidence/act-cu132-fp32-20261026.json",
+      "sha256": "9665b3b2e4ea78d3c4bf8469bd3b21dbe02c0ef61733a9358dfe7d901119016a",
+      "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/act-cu132-20261026.json",
+      "source_path": "_registry/evidence/act-cu132-20261026.json",
+      "sha256": "dfedf58786ea88da13016cc9b3ba14c6e8dec18d52c3374ff424d6bc2b94ef49",
+      "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/station-gpu-training-job.json",
+      "source_path": "_registry/evidence/station-gpu-training-job.json",
+      "sha256": "f09fa28d2b117dce85e70b0693e790343a4087dd081e4596d8e7c3a0091a4176",
+      "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/station-shadow-job.json",
+      "source_path": "_registry/evidence/station-shadow-job.json",
+      "sha256": "9ab98e6dc17ef30828be36e945336bc1fb9bfeaab35a60052f1d16ba01c2615b",
+      "copied_without_modification": true
+    },
+    {
+      "path": "research/experiments/nx-engineering-20261026/station-shadow-gpu-model.json",
+      "source_path": "_registry/evidence/station-shadow-gpu-model.json",
+      "sha256": "c510fb7beacf2eb1fb35ebdd20a2424b35f0028a3bd07c02394a09f8f834d280",
+      "copied_without_modification": true
+    }
+  ],
+  "simulation": {
+    "run_id": "7e21260f8ffb4bfa93b6d3b384123318",
+    "evaluation_role": "DEVELOPMENT_NOT_SEALED_FINAL",
+    "physical_io": false,
+    "teacher_environment_steps": 4096,
+    "teacher_optimizer_updates": 160,
+    "act_optimizer_steps": 120,
+    "reported_elapsed_s": 127.9052170219993,
+    "framework_versions": {
+      "torch": "2.11.0",
+      "torchvision": "0.26.0"
+    },
+    "matched_evaluation_seeds": [
+      10041,
+      10042,
+      10043,
+      10044,
+      10045,
+      10046
+    ],
+    "outcomes": {
+      "no_motion": {
+        "successes": 0,
+        "attempts": 6
+      },
+      "ppo_privileged_state": {
+        "successes": 6,
+        "attempts": 6
+      },
+      "act_rgb_command_estimate": {
+        "successes": 2,
+        "attempts": 6
+      }
+    },
+    "official_dataset_export": {
+      "format": "LeRobotDataset v3.0",
+      "directory": "/home/jetsonnx/.local/share/explorer/state/jobs/7e21260f8ffb4bfa93b6d3b384123318/lerobot_v3",
+      "repo_id": "local-explorer/cad-reach-7e21260f8ffb4bfa93b6d3b384123318",
+      "episodes": 12,
+      "frames": 167,
+      "fps": 12.5,
+      "image_only": true,
+      "finalize_called": true,
+      "official_readback_passed": true,
+      "all_frame_state_action_image_checks_passed": true,
+      "causal_alignment_checked": true,
+      "source_splits_preserved": true,
+      "source_npz_immutable": true,
+      "native_monotonic_timestamps_preserved": false,
+      "source_manifest_sha256": "68205e0fba523c410545aeaeb0c0d86e1ea28afcbc37b7f1120afc47e0675f39",
+      "provenance_sha256": "ef24bf80683dee4ac18cf977f95b4be27794a6bfb7f918555809f630d291fe4e",
+      "uploaded_to_hub": false
+    },
+    "historical_data_selection_caveat": "This historical run used all12 teacher episodes as BC targets, including2failed. It does not validate the subsequent success-only filter. Integrator correction context; raw source is preserved."
+  },
+  "stationary_recording": {
+    "episode_id": "a7b9d1ba98bc4f0da0fdc52280727211",
+    "recorded_frames": 57,
+    "status_snapshots": 20,
+    "before_to_last_observation_window_s": 5.713329748,
+    "first_to_last_status_window_s": 5.345307852,
+    "reported_max_normalized_position_deviation": 0.0,
+    "configuration_writes": 0,
+    "last_snapshot_loop_hz": 29.932923093399115,
+    "last_snapshot_period_p95_ms": 33.416440000110015,
+    "source_recording_outcome_label": "success",
+    "label_scope": "Technical current-pose hold/record check; no object-task completion claim",
+    "source_actor_context": "automated_engineering_test, communicated by integrator; not a human task demonstration",
+    "resolution_caveat": "Reported normalized motor coordinates; zero does not bound world-pose error, force or between-snapshot motion"
+  },
+  "recorded_training": {
+    "run_id": "447f40e9e1fd45c1ba4f8cda473abaf5",
+    "source_dataset_id": "station-a7b9d1ba98bc4f0da0fdc52280727211",
+    "source_manifest_sha256": "4fb2b7a1ddfea6fbda347e32d798d85baabdc3cef5ef3a838714989a4a45d13b",
+    "source_frames": 57,
+    "action_dimensions": 6,
+    "state_basis": "measured_state",
+    "optimizer_steps": 120,
+    "weights_changed": true,
+    "save_reload_passed": true,
+    "reload_max_abs_error": 0.0,
+    "reported_elapsed_s": 58.978144683999744,
+    "physical_io_during_training": false,
+    "simulator_executed": false,
+    "independent_evaluation_available": false,
+    "evaluation": {
+      "domain": "offline_demonstration_chunks",
+      "independent_episode_split": false,
+      "available": false,
+      "reason": "No development episodes supplied",
+      "physical_run_ids": []
+    },
+    "framework_versions": {
+      "torch": "2.11.0",
+      "torchvision": "0.26.0"
+    },
+    "scope": "Fit of a recorded stationary six-axis pose; no independent task-success measurement"
+  },
+  "gpu": {
+    "scope": "Compact six-axis ACT, synthetic tensors, two optimizer updates per attempt",
+    "strict_parity_criterion": {
+      "value": 0.0001,
+      "source": "Integrator-stated engineering criterion; not embedded in raw snapshots"
+    },
+    "attempts": [
+      {
+        "id": "gpu_initial",
+        "passed": false,
+        "optimizer_steps": 2,
+        "finite": true,
+        "weights_changed": true,
+        "save_reload_max_abs_error": 0.0,
+        "cpu_gpu_max_abs_error": 0.00010028481483459473,
+        "reported_elapsed_s": 2.319318439000199,
+        "tf32_enabled": "NOT_RECORDED",
+        "framework_versions": {
+          "torch": "2.12.0+cu132",
+          "torchvision": "0.27.0+cu132"
+        },
+        "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds",
+        "compute_capability": [
+          8,
+          7
+        ],
+        "compiled_architectures": [
+          "sm_80",
+          "sm_90",
+          "sm_100",
+          "sm_110",
+          "sm_120"
+        ]
+      },
+      {
+        "id": "gpu_retake",
+        "passed": true,
+        "optimizer_steps": 2,
+        "finite": true,
+        "weights_changed": true,
+        "save_reload_max_abs_error": 0.0,
+        "cpu_gpu_max_abs_error": 9.5367431640625e-07,
+        "reported_elapsed_s": 2.154555260000052,
+        "tf32_enabled": false,
+        "framework_versions": {
+          "torch": "2.12.0+cu132",
+          "torchvision": "0.27.0+cu132"
+        },
+        "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds",
+        "compute_capability": [
+          8,
+          7
+        ],
+        "compiled_architectures": [
+          "sm_80",
+          "sm_90",
+          "sm_100",
+          "sm_110",
+          "sm_120"
+        ]
+      }
+    ],
+    "limits": "Runtime-specific dependency exception; compiled architecture metadata omits sm_87. Two successful updates do not qualify every operation, model size or deployed station inference. Retake is not a controlled causal TF32 experiment."
+  },
+  "recorded_gpu_training": {
+    "run_id": "4a59cad16a8c4d66aa50236a45e7d83d",
+    "source_manifest_sha256": "4fb2b7a1ddfea6fbda347e32d798d85baabdc3cef5ef3a838714989a4a45d13b",
+    "requested_device": "cuda",
+    "execution_context": "Integrator reports actual GPU execution; not a matched CPU/GPU speed benchmark",
+    "optimizer_steps": 480,
+    "weights_changed": true,
+    "reload_max_abs_error": 0.0,
+    "reported_elapsed_s": 66.80589695700019,
+    "framework_versions": {
+      "torch": "2.12.0+cu132",
+      "torchvision": "0.27.0+cu132"
+    },
+    "framework_compatibility_note": "Runtime tested outside LeRobot declared Torch/torchvision upper bounds",
+    "evaluation": {
+      "domain": "offline_demonstration_chunks",
+      "independent_episode_split": false,
+      "available": false,
+      "reason": "No development episodes supplied",
+      "physical_run_ids": []
+    },
+    "checkpoint_sha256": {
+      "config.json": "5f6cec6de8606b3417a33dbbe2943d9ed137dfb05b18afd5a4d5a833871ebf20",
+      "explorer_preprocessing.json": "078d8acbe21dbf0a19e90210fb303adcc4dd5f1cfa4d71ea5f26101deef81724",
+      "model.safetensors": "63ee21e1c3e3998cf8b01fd6dedc53405df3bc81af5e87f66905764ad528dbd6"
+    },
+    "physical_io_during_training": false,
+    "simulator_executed": false
+  },
+  "live_shadow": [
+    {
+      "run_id": "e82460a8cc4447edbf4db65585bbfe7c",
+      "checkpoint_origin": "120-update CPU fit",
+      "checkpoint_path": "/home/jetsonnx/.local/share/explorer/state/jobs/447f40e9e1fd45c1ba4f8cda473abaf5/student_act",
+      "observations": 22,
+      "reported_elapsed_s": 3.1314133229998333,
+      "max_predicted_displacement_normalized_motor_units": 5.376426696777344,
+      "outcome": "unknown",
+      "physical_actuation": false,
+      "physical_success_inferred": false,
+      "runtime_framework_versions": {
+        "torch": "2.11.0",
+        "torchvision": "0.26.0"
+      },
+      "inference_device_scope": "Existing runtime uses CPU; GPU-trained checkpoint does not imply GPU inference",
+      "observation_log_reported_path": "/home/jetsonnx/.local/share/explorer/state/jobs/e82460a8cc4447edbf4db65585bbfe7c/policy-observations.json",
+      "log_image_hash_audit_scope": "Raw remote observation logs/images not independently checked in this research update"
+    },
+    {
+      "run_id": "9b4acb8eed864d6b96fc4b1cdfb63778",
+      "checkpoint_origin": "480-update GPU fit",
+      "checkpoint_path": "/home/jetsonnx/.local/share/explorer/state/jobs/4a59cad16a8c4d66aa50236a45e7d83d/student_act",
+      "observations": 21,
+      "reported_elapsed_s": 3.130845756000781,
+      "max_predicted_displacement_normalized_motor_units": 3.759376272559166,
+      "outcome": "unknown",
+      "physical_actuation": false,
+      "physical_success_inferred": false,
+      "runtime_framework_versions": {
+        "torch": "2.11.0",
+        "torchvision": "0.26.0"
+      },
+      "inference_device_scope": "Existing runtime uses CPU; GPU-trained checkpoint does not imply GPU inference",
+      "observation_log_reported_path": "/home/jetsonnx/.local/share/explorer/state/jobs/9b4acb8eed864d6b96fc4b1cdfb63778/policy-observations.json",
+      "log_image_hash_audit_scope": "Raw remote observation logs/images not independently checked in this research update"
+    }
+  ],
+  "not_measured": [
+    "independent physical task success",
+    "sealed final evaluation",
+    "matched CPU/GPU speedup",
+    "physical transfer or handover success",
+    "H1-H5 effects"
+  ],
+  "plot_runtime": {
+    "matplotlib": "3.11.2"
+  }
+}
