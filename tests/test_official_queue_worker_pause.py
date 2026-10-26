@@ -37,7 +37,8 @@ def pump(supervisor,predicate,timeout=80):
 
 
 @pytest.mark.skipif(os.environ.get('EXPLORER_RUN_OFFICIAL_QUEUE_PAUSE')!='1',reason='Explicit private Store/official ACT8 workers, not repeated broad-suite work')
-def test_actual_official_native6_supervisor_bootstrap_pause_process_exit_restart_and_full_equality(tmp_path,monkeypatch):
+@pytest.mark.parametrize('backend', ['act', 'diffusion'])
+def test_actual_official_native6_supervisor_bootstrap_pause_process_exit_restart_and_full_equality(tmp_path,monkeypatch,backend):
     from test_lab_skill_workflow import full_cohort
     store,chosen,sources=full_cohort(tmp_path);spec=chosen['spec'];identity=spec['skill_id']
     aggregate=flow.build_aggregate(store,identity,1)
@@ -50,7 +51,11 @@ def test_actual_official_native6_supervisor_bootstrap_pause_process_exit_restart
     private_config=tmp_path/'private-config.json';private_config.write_text(json.dumps(dict(data_dir=str(store.root),nodes=[])))
     monkeypatch.setenv('EXPLORER_CONFIG',str(private_config));monkeypatch.setenv('HF_HUB_OFFLINE','1')
     supervisor=Supervisor(dict(root=str(release)),store,quantum_s=3600)
-    body=dict(act_steps=8,batch_size=2,image_size=32,chunk_size=4,device='cpu')
+    body=dict(act_steps=8,batch_size=2,image_size=32,chunk_size=4,device='cpu',backend=backend)
+    if backend == 'diffusion':
+        from explorer_shared.learning.diffusion_backend import PROFILE_ID
+        body.update(profile_id=PROFILE_ID,image_size=64)
+        body.pop('chunk_size')
     reference=flow.enqueue_training(store,identity,1,dict(body,request_id='isolated-reference'))
     worker=None
     try:
@@ -69,7 +74,8 @@ def test_actual_official_native6_supervisor_bootstrap_pause_process_exit_restart
         paused=store.schedule_status(target['id'])['runtime'];step=paused['checkpoint_pause_receipt']['completed_steps']
         assert 1<=step<8 and paused['phase']=='paused_checkpoint_process_exited' and paused['exact_optimizer_resume']
         assert not paused['memory_retained'] and not psutil.pid_exists(old_pid) and resident>0
-        pause_directory=folder/'act_resume';pause_pointer=json.loads((pause_directory/'latest.json').read_text())
+        resume_directory='act_resume' if backend == 'act' else 'diffusion_resume'
+        pause_directory=folder/resume_directory;pause_pointer=json.loads((pause_directory/'latest.json').read_text())
         pause_payload=torch.load(pause_directory/pause_pointer['checkpoint'],weights_only=True,map_location='cpu')
         store.request_job_operation(target['id'],'resume')
         pump(supervisor,lambda:store.job(target['id'])['status'] in ('completed','failed') and target['id'] not in supervisor.processes)
@@ -80,7 +86,7 @@ def test_actual_official_native6_supervisor_bootstrap_pause_process_exit_restart
         assert actual['result']['optimizer_steps']==8 and actual['result']['save_reload_passed']
         assert actual['result']['checkpoint_sha256']['model.safetensors']==expected['result']['checkpoint_sha256']['model.safetensors']
         def payload(job):
-            directory=store.root/'jobs'/job['id']/'act_resume';pointer=json.loads((directory/'latest.json').read_text())
+            directory=store.root/'jobs'/job['id']/resume_directory;pointer=json.loads((directory/'latest.json').read_text())
             assert hashlib.sha256((directory/pointer['checkpoint']).read_bytes()).hexdigest()==pointer['sha256']
             return torch.load(directory/pointer['checkpoint'],weights_only=True,map_location='cpu')
         ref_payload,actual_payload=payload(reference),payload(target)
@@ -90,13 +96,13 @@ def test_actual_official_native6_supervisor_bootstrap_pause_process_exit_restart
         # continuation must restore this paused job's own exact states.
         for key in ('python','numpy'):same(pause_payload['rng'][key],actual_payload['rng'][key])
         assert all(hashlib.sha256(Path(path).read_bytes()).hexdigest()==expected_sha for path,expected_sha in original_bytes.items())
-        result=dict(schema='explorer_official_native6_queue_pause_qualification_v1',source_commit=commit,source_kind='SIMULATION',
+        result=dict(schema='explorer_official_native6_queue_pause_qualification_v1',source_commit=commit,source_kind='SIMULATION',backend=backend,
             reference_job_id=reference['id'],resumed_job_id=target['id'],paused_pid=old_pid,paused_at_completed_step=step,
             old_process_gone=True,old_resident_bytes=resident,completed_updates=8,updates_in_resumed_process=8-step,
-            official_ACT_used=True,actual_supervisor_bootstrap_job_runner_used=True,model_optimizer_losses_Torch_RNG_sampler_exactly_equal=True,
+            official_ACT_used=backend=='act',official_Diffusion_used=backend=='diffusion',actual_supervisor_bootstrap_job_runner_used=True,model_optimizer_losses_Torch_RNG_sampler_exactly_equal=True,
             own_Python_NumPy_RNG_checkpoint_continuation_verified=True,
             immutable_source_bytes_preserved=True,aggregate_manifest_sha256=aggregate['aggregate_manifest_sha256'],
-            model_weights_sha256=actual['result']['checkpoint_sha256']['model.safetensors'],saved_official_processors_executed=actual['result']['official_saved_processors_executed'],
+            model_weights_sha256=actual['result']['checkpoint_sha256']['model.safetensors'],saved_official_processors_executed=actual['result'].get('official_saved_processors_executed',False),
             checkpoint_pause_receipt=paused['checkpoint_pause_receipt'],physical_io=False,production_state_writes=False,task_success_claimed=False)
         (tmp_path/'qualification.json').write_text(json.dumps(result,indent=2))
     finally:
