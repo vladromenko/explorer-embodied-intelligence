@@ -120,13 +120,17 @@ def test_throttling_and_nonfinite_raw_fields_are_explicit_not_fabricated(tmp_pat
 
 def camera_files(tmp_path,clock):
     camera=tmp_path/'camera';camera.mkdir();frame=NS(frame_id='own-wrapper-frame',width=3,height=2,jpeg=b'EXACT-SOFTWARE-JPEG')
-    meta=dict(native_boot_id='boot',native_clock_domain='nano:boot',received_monotonic_ns=clock.value,jpeg_sha256=sha(frame.jpeg),frame_id='native-original-frame',frame='camera_color_optical_frame',intrinsic_k=[500.,0,1.,0,500.,1.,0,0,1.],distortion_d=[0.]*5,camera_info_version='c'*64)
+    meta=dict(native_boot_id='boot',native_clock_domain='nano:boot',received_monotonic_ns=clock.value,camera_info_received_monotonic_ns=clock.value-10,camera_info_completed_monotonic_ns=clock.value-5,jpeg_sha256=sha(frame.jpeg),frame_id='native-original-frame',frame='camera_color_optical_frame',intrinsic_k=[500.,0,1.,0,500.,1.,0,0,1.],distortion_d=[0.]*5,camera_info_version='c'*64)
     (camera/'camera-frame.json').write_bytes(encoded(meta))
     buffer=io.BytesIO();np.savez(buffer,depth=np.asarray([[1.,0.,1.],[1.,1.,1.]],np.float32),rgb=np.zeros((2,3,3),np.uint8),stamp=100.,depth_stamp=100.01,frame='camera_color_optical_frame')
     payload=buffer.getvalue();(camera/'rgbd-snapshot.npz').write_bytes(payload)
     pair=dict(native_boot_id='boot',native_clock_domain='nano:boot',color_received_monotonic_ns=clock.value,depth_received_monotonic_ns=clock.value,file_complete_monotonic_ns=clock.value,
         color_jpeg_sha256=sha(frame.jpeg),color_frame_id='native-original-frame',snapshot_sha256=sha(payload),image_stamp=100.,depth_stamp=100.01,color_ros_header=header('camera_color_optical_frame'),depth_ros_header=header('camera_color_optical_frame'))
-    (camera/'rgbd-cache-metadata.json').write_bytes(encoded(pair));return camera,frame,meta,pair
+    (camera/'rgbd-cache-metadata.json').write_bytes(encoded(pair))
+    publication=dict(schema='explorer_CPU_cache_publication_v1',native_boot_id='boot',native_clock_domain='nano:boot',metadata_sha256=sha(encoded(meta)),payload_sha256=meta['jpeg_sha256'],metadata_complete_monotonic_ns=clock.value)
+    (camera/'camera-cache-publication.json').write_bytes(encoded(publication))
+    publication.update(metadata_sha256=sha(encoded(pair)),payload_sha256=pair['snapshot_sha256']);(camera/'rgbd-cache-publication.json').write_bytes(encoded(publication))
+    return camera,frame,meta,pair
 
 
 def test_depth_and_partial_calibration_require_exact_selected_JPEG_and_no_fake_extrinsics(tmp_path):
@@ -171,3 +175,29 @@ def test_bad_RGBD_container_cannot_discard_other_valid_sensor_channels(tmp_path)
     output=reader.observation_provider(receipt(clock),frame)
     assert output['channels']['base_velocity']['available'] and output['channels']['camera_calibration']['available']
     assert output['channels']['camera_depth']['available'] is False and output['diagnostics']['camera']['missing_reason']
+
+
+@pytest.mark.parametrize('fault',['metadata_completed_late','info_completed_late','depth_metadata_completed_late'])
+def test_camera_metadata_and_K_cannot_be_introduced_after_native_cutoff(tmp_path,fault):
+    sink,reader,clock=rig(tmp_path);camera,frame,meta,pair=camera_files(tmp_path,clock);reader.camera_root=camera
+    if fault=='info_completed_late':
+        meta['camera_info_completed_monotonic_ns']=clock.value+1;(camera/'camera-frame.json').write_bytes(encoded(meta))
+        publication=json.loads((camera/'camera-cache-publication.json').read_bytes());publication['metadata_sha256']=sha(encoded(meta));(camera/'camera-cache-publication.json').write_bytes(encoded(publication))
+    else:
+        filename='camera-cache-publication.json' if fault=='metadata_completed_late' else 'rgbd-cache-publication.json'
+        publication=json.loads((camera/filename).read_bytes());publication['metadata_complete_monotonic_ns']=clock.value+1;(camera/filename).write_bytes(encoded(publication))
+    output=reader.observation_provider(receipt(clock),frame)
+    if fault=='depth_metadata_completed_late':assert output['channels']['camera_calibration']['available'] and output['channels']['camera_depth']['available'] is False
+    else:assert output['channels']['camera_calibration']['available'] is False
+
+
+def test_root_pinned_exact_frame_metadata_keeps_its_read_completion_authority(tmp_path):
+    sink,reader,clock=rig(tmp_path);camera,frame,meta,pair=camera_files(tmp_path,clock);reader.camera_root=camera
+    frame.native_metadata_bytes=encoded(meta);frame.monotonic_ns=clock.value;frame.timestamp_basis='node_cache_read_completed_not_exposure'
+    (camera/'camera-frame.json').write_bytes(encoded(dict(meta,intrinsic_k=[900.]*9)))
+    (camera/'camera-cache-publication.json').unlink()
+    result=reader.observation_provider(receipt(clock),frame)
+    assert result['channels']['camera_calibration']['available']
+    assert result['channels']['camera_calibration']['value']['intrinsics']==meta['intrinsic_k']
+    frame.monotonic_ns=clock.value+1
+    assert reader.observation_provider(receipt(clock),frame)['channels']['camera_calibration']['available'] is False

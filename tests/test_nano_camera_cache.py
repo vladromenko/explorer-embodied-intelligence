@@ -211,3 +211,14 @@ def test_exact_cached_JPEG_RGBD_binding_and_native_callback_clock_are_retained(l
     newer=json.loads((legacy/'data/rgbd-cache-metadata.json').read_bytes())
     assert newer['color_frame_id'] is None and newer['color_jpeg_sha256'] is None
     assert json.loads((legacy/'data/camera-frame.json').read_bytes())['frame_id']==camera['frame_id']
+
+
+def test_cache_publication_receipts_are_written_after_exact_metadata_and_info_callbacks(legacy):
+    cache=sink(legacy);cache.set_info(info());cache.depth(image('16UC1',stamp=999.81));cache.color(image());cache.flush_registered()
+    camera_raw=(legacy/'data/camera-frame.json').read_bytes();camera=json.loads(camera_raw);color_publication=json.loads((legacy/'data/camera-cache-publication.json').read_bytes())
+    assert color_publication['metadata_sha256']==hashlib.sha256(camera_raw).hexdigest()
+    assert color_publication['payload_sha256']==camera['jpeg_sha256']
+    assert camera['camera_info_received_monotonic_ns']<=camera['camera_info_completed_monotonic_ns']<=camera['received_monotonic_ns']<=color_publication['metadata_complete_monotonic_ns']
+    pair_raw=(legacy/'data/rgbd-cache-metadata.json').read_bytes();pair=json.loads(pair_raw);publication=json.loads((legacy/'data/rgbd-cache-publication.json').read_bytes())
+    assert publication['metadata_sha256']==hashlib.sha256(pair_raw).hexdigest()
+    assert publication['metadata_complete_monotonic_ns']>=pair['file_complete_monotonic_ns']

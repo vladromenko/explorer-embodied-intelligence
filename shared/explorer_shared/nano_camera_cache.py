@@ -159,13 +159,17 @@ class CacheSink:
         self.rgbs, self.depths = deque(maxlen=8), deque(maxlen=8)
         self.color_headers, self.depth_headers = {}, {}
         self.info, self.info_calibration = None, None
+        self.info_received_monotonic_ns,self.info_completed_monotonic_ns=None,None
         self.last_raw, self.previous_pair = None, 0
         self.raw_written, self.rgbd_written, self.last_error = 0, 0, None
         self.last_raw_wall, self.last_rgbd_wall, self.errors = None, None, {}
 
     def set_info(self, message):
+        received=time.monotonic_ns()
         result = calibration(message)
         self.info, self.info_calibration = (message, result) if result else (None, None)
+        self.info_received_monotonic_ns=received if result else None
+        self.info_completed_monotonic_ns=time.monotonic_ns() if result else None
 
     def color(self, message):
         received_wall, received_monotonic_ns = self.wall(), time.monotonic_ns()
@@ -190,6 +194,8 @@ class CacheSink:
         metadata = dict(native_boot_id=self.boot_id,native_clock_domain=self.clock_domain,at=now, image_stamp=stamp, frame=native_header['frame_id'], width=message.width, height=message.height,
             source=SOURCE, camera_id='onboard_rgbd', frame_id=uuid.uuid4().hex,
             camera_info_version=current[1] if matching else None,
+            camera_info_received_monotonic_ns=self.info_received_monotonic_ns if matching else None,
+            camera_info_completed_monotonic_ns=self.info_completed_monotonic_ns if matching else None,
             intrinsic_k=current[0]['k'] if matching else None, distortion_d=current[0]['d'] if matching else None,
             ros_header=native_header, exposure_time_source='ROS_image_header_timestamp',
             sensor_exposure_time_verified=False, clock_alignment_verified=False,
@@ -198,6 +204,9 @@ class CacheSink:
         payload = json_bytes(metadata)
         atomic_bytes(self.data / 'frame-raw.jpg', jpeg)
         atomic_bytes(self.data / 'camera-frame.json', payload)
+        publication=dict(schema='explorer_CPU_cache_publication_v1',native_boot_id=self.boot_id,native_clock_domain=self.clock_domain,
+            metadata_file='camera-frame.json',metadata_sha256=hashlib.sha256(payload).hexdigest(),payload_sha256=metadata['jpeg_sha256'],metadata_complete_monotonic_ns=time.monotonic_ns())
+        atomic_bytes(self.data/'camera-cache-publication.json',json_bytes(publication))
         self.color_bindings[stamp]=dict(frame_id=metadata['frame_id'],jpeg_sha256=metadata['jpeg_sha256'])
         self.last_raw, self.raw_written, self.last_raw_wall = mono, self.raw_written + 1, now
 
@@ -239,7 +248,11 @@ class CacheSink:
                 registration_basis='Existing camera producer owns registration; audited helper checks frame, shape and skew',
                 exposure_time_source='ROS_image_header_timestamp', sensor_exposure_time_verified=False,
                 clock_alignment_verified=False)
-            atomic_bytes(self.data / 'rgbd-cache-metadata.json', json_bytes(metadata))
+            raw_metadata=json_bytes(metadata)
+            atomic_bytes(self.data / 'rgbd-cache-metadata.json',raw_metadata)
+            publication=dict(schema='explorer_CPU_cache_publication_v1',native_boot_id=self.boot_id,native_clock_domain=self.clock_domain,
+                metadata_file='rgbd-cache-metadata.json',metadata_sha256=hashlib.sha256(raw_metadata).hexdigest(),payload_sha256=metadata['snapshot_sha256'],metadata_complete_monotonic_ns=time.monotonic_ns())
+            atomic_bytes(self.data/'rgbd-cache-publication.json',json_bytes(publication))
             self.previous_pair, self.rgbd_written = stamp, self.rgbd_written + 1
             self.last_rgbd_wall = self.wall()
 

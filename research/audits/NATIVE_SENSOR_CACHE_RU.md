@@ -103,3 +103,21 @@ publish/control POST/изменений файлов Nano/сервисов/пр�
 реальную callback receipt mono, не переопределяя оригинальный controller gate.
 За6с не получен `/camera/depth_to_color`; наличие имени topic само по себе не
 даёт матрицу. Ни camera→base extrinsics, ни timing alignment не выдумываются.
+
+### Дополнение: завершение метаданных и K (после ревью)
+
+Нельзя выдавать callback receive за завершение вычисления/файла метаданных.
+OWN writer теперь пишет `camera-cache-publication.json` и
+`rgbd-cache-publication.json` **после** atomic replace соответствующих metadata.
+Отдельный receipt содержит точный metadata SHA, payload SHA, native boot/domain
+и время завершения. Raw-file reader требует этот receipt до native call cutoff;
+содержимое metadata не объявляет само себя уже завершённым файлом.
+CameraInfo callback и окончание проверки K также имеют отдельные реальные
+monotonic stamps; K с отсутствующей/будущей временной привязкой остаётся
+неподтверждённым до обновления OWN writer.
+
+Root `Frame.native_metadata_bytes` имеет более сильную привязку к точному
+завершённому чтению NodeAgent (`node_cache_read_completed_not_exposure`). Такой
+пакет используется со своим `Frame.monotonic_ns` вместо позднего файла, даже если
+последний перезаписан или companion уже вытеснен новым кадром. Будущий момент
+завершения чтения отклоняется. Это не утверждение времени экспозиции.

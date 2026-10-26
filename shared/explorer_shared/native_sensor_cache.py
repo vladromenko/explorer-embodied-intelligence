@@ -229,6 +229,14 @@ class NativeSensorCache:
         channels.update(camera['channels']);snapshot['source_payloads'].update(camera['source_payloads']);diagnostics['camera']=camera['diagnostics']
         return dict(channels=channels,source_payloads=snapshot['source_payloads'],diagnostics=diagnostics)
 
+    def _camera_publication(self,filename,metadata_raw,payload_sha,cutoff,output):
+        path=self.camera_root/filename
+        if path.stat().st_size>65536:raise ValueError('Cache publication receipt exceeds bound')
+        raw=path.read_bytes();receipt=json.loads(raw);completed=receipt.get('metadata_complete_monotonic_ns')
+        if receipt.get('schema')!='explorer_CPU_cache_publication_v1' or receipt.get('native_boot_id')!=self.boot or receipt.get('native_clock_domain')!=self.domain or receipt.get('metadata_sha256')!=sha(metadata_raw) or receipt.get('payload_sha256')!=payload_sha or type(completed) is not int or not 0<=cutoff-completed<=self.max_age:raise ValueError('Exact cache metadata not completed before native call')
+        name='sources/sensor-cache/publication-'+sha(raw)+'.json';output['source_payloads'][name]=raw
+        return completed
+
     def _camera_snapshot(self,cutoff,frame,snapshot):
         stamp=dict(clock_domain=self.domain,boot_id=self.boot,monotonic_ns=cutoff)
         output=dict(channels={name:record(None,stamp,'existing_CPU_ROS_camera_cache',available=False,reason='SOURCE_BOUND_CAMERA_METADATA_NOT_AVAILABLE') for name in ('camera_depth','camera_calibration')},source_payloads={},diagnostics=dict(exposure_alignment_verified=False,camera_to_base_extrinsics_verified=False))
@@ -243,17 +251,27 @@ class NativeSensorCache:
             metadata=json.loads(raw);jpeg_sha=sha(frame.jpeg)
             received=metadata.get('received_monotonic_ns')
             if metadata.get('jpeg_sha256')!=jpeg_sha or metadata.get('native_boot_id')!=self.boot or metadata.get('native_clock_domain')!=self.domain or type(received) is not int or not 0<=cutoff-received<=self.max_age:raise ValueError('Exact JPEG/native boot/causal callback metadata missing')
-            stamp=dict(clock_domain=self.domain,boot_id=self.boot,monotonic_ns=received)
+            # A root-pinned Frame records when these exact metadata bytes were
+            # read completely. Raw-file fallback needs its own after-write receipt.
+            pinned=getattr(frame,'native_metadata_bytes',None) is not None and getattr(frame,'timestamp_basis',None)=='node_cache_read_completed_not_exposure'
+            if pinned:
+                completed=getattr(frame,'monotonic_ns',None)
+                if type(completed) is not int or not received<=completed<=cutoff:raise ValueError('Pinned metadata read completion is future/unknown')
+            else:completed=self._camera_publication('camera-cache-publication.json',raw,jpeg_sha,cutoff,output)
+            stamp=dict(clock_domain=self.domain,boot_id=self.boot,monotonic_ns=max(received,completed))
             name='sources/sensor-cache/camera-'+sha(raw)+'.json';output['source_payloads'][name]=raw
             K,D=metadata.get('intrinsic_k'),metadata.get('distortion_d');valid=vector(K,9) and K[0]>0 and K[4]>0 and isinstance(D,list) and all(finite(value) for value in D) and bool(metadata.get('camera_info_version'))
-            if valid:
+            info_received,info_complete=metadata.get('camera_info_received_monotonic_ns'),metadata.get('camera_info_completed_monotonic_ns')
+            info_timing=type(info_received) is int and type(info_complete) is int and 0<=info_received<=info_complete<=received
+            if not info_timing:output['diagnostics']['camera_info_timing_reason']='SOURCE_CAMERA_INFO_RECEIPT_COMPLETION_NOT_BOUND_BEFORE_RGB_CALLBACK'
+            if valid and info_timing:
                 depth_info=(snapshot['sources'].get('/camera/depth/camera_info') or {}).get('record',{}).get('ros_message',{})
                 depth_K,depth_D=depth_info.get('k'),depth_info.get('d')
                 depth_known=vector(depth_K,9) and isinstance(depth_D,list) and all(finite(item) for item in depth_D) and depth_info.get('width')==frame.width and depth_info.get('height')==frame.height
                 value=dict(calibration_id=metadata['camera_info_version'],camera_id=getattr(frame,'camera_id','nano-rgbd'),intrinsics=K,distortion=D,
                     frame_id=metadata.get('frame'),extrinsics=None,uncertainty=None,depth_camera_id='onboard_rgbd_depth' if depth_known else None,depth_intrinsics=depth_K if depth_known else None,depth_distortion=depth_D if depth_known else None,depth_to_rgb_extrinsics=None,
                     units='m',valid_from_ns=received,valid_until_ns=received+self.max_age,validity_basis='cache_freshness_not_extrinsic_or_physical_calibration',
-                    original_native_frame_id=metadata.get('frame_id'),selected_wrapper_frame_id=frame.frame_id,selected_JPEG_sha256=jpeg_sha)
+                    original_native_frame_id=metadata.get('frame_id'),selected_wrapper_frame_id=frame.frame_id,selected_JPEG_sha256=jpeg_sha,camera_info_received_monotonic_ns=info_received,camera_info_completed_monotonic_ns=info_complete,metadata_available_monotonic_ns=completed)
                 output['channels']['camera_calibration']=record(value,stamp,'existing_CPU_ROS_camera_info',mask={key:value[key] is not None for key in ('intrinsics','distortion','extrinsics','uncertainty','depth_intrinsics','depth_to_rgb_extrinsics')})
                 output['channels']['camera_calibration']['source_record_origin']=dict(source_file=name,sha256=sha(raw),scope='original_camera_info_fields_only_no_extrinsics')
             pairpath=self.camera_root/'rgbd-cache-metadata.json'
@@ -263,6 +281,8 @@ class NativeSensorCache:
             if pair.get('native_boot_id')!=self.boot or pair.get('native_clock_domain')!=self.domain or pair.get('color_jpeg_sha256')!=jpeg_sha or any(type(tick) is not int or not 0<=cutoff-tick<=self.max_age for tick in ticks):raise ValueError('RGBD pair not bound to exact selected JPEG before native call')
             blob=self.camera_root/'rgbd-snapshot.npz'
             if blob.stat().st_size>8*1024**2:raise ValueError('RGBD payload exceeds bound')
+            pair_completed=self._camera_publication('rgbd-cache-publication.json',pairraw,pair.get('snapshot_sha256'),cutoff,output)
+            ticks.append(pair_completed)
             payload=blob.read_bytes()
             if sha(payload)!=pair.get('snapshot_sha256') or pairpath.read_bytes()!=pairraw:raise ValueError('RGBD pair changed while reading')
             import numpy as np

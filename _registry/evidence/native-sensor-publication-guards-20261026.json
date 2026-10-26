@@ -1,0 +1,21 @@
+{
+  "schema": "explorer_native_sensor_publication_guard_qualification_v1",
+  "source_impl_sha256": {
+    "shared/explorer_shared/nano_camera_cache.py": "bbffe4d6de396656f6444e613bf56e6b6ba912c243f9e47646eb2afd6de883c3",
+    "shared/explorer_shared/native_sensor_cache.py": "12c30555e253011262bd4851a3bb08f1efb46505d234722593c31f5087fc92b3"
+  },
+  "same_passive_CDR_sha256": "c3af656ed1ed9dd0ce04fa152e33be98eb3034d18bfa2ce14aeb36ab60f8afd6",
+  "new_local_replay_receipt_sha256": "80ca25c4c8e5585888b4ca2503b1c34dbf062882a87249f1bc8b154afb64b658",
+  "retained_prior_qualification_sha256": "d89cf23a3fb32d778f57c71f65c8a70e689fae02db2dfe6271103c770a4a2265",
+  "base_exact_frame_dependency": "58daf39",
+  "tests": "38 passed in0.56s",
+  "metadata_completion_receipt_verified": true,
+  "CameraInfo_callback_completion_guard": true,
+  "root_exact_Frame_metadata_preserved": true,
+  "raw_fallback_future_metadata_rejected": true,
+  "physical_io": false,
+  "remote_files_written": false,
+  "remote_service_changes": false,
+  "capture_pipeline_deployed": false,
+  "skill_success_claimed": false
+}
