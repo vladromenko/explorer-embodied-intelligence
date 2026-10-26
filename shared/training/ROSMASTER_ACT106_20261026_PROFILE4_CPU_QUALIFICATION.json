@@ -1,0 +1,115 @@
+{
+  "GPU_qualified": false,
+  "action_dimension": 9,
+  "checkpoint_sha256": {
+    "config.json": "98709dd1d8a9a7b8042b516c8da05c6e7bd850052d110e9bdb4ae2db6ce03d9b",
+    "explorer_preprocessing.json": "b486d3eebb09dc370b50ea10fe5efaf6853356a4d71a918caef9354cc262927e",
+    "model.safetensors": "dc58119198b0dfa94bd3b3f787ebdbcb2ef9deaa3bce4d55c6fb2a38938d55c2"
+  },
+  "device": "cpu",
+  "feature_dimension": 106,
+  "independent_development_samples": 10,
+  "learned_policy_rollout_executed": false,
+  "losses": [
+    {
+      "gradient_norm": 83.20366668701172,
+      "kld_loss": 6.213521957397461,
+      "l1_loss": 0.3691481053829193,
+      "loss": 0.9905003309249878,
+      "step": 1
+    },
+    {
+      "gradient_norm": 88.01542663574219,
+      "kld_loss": 3.5938448905944824,
+      "l1_loss": 0.5965258479118347,
+      "loss": 0.955910325050354,
+      "step": 2
+    },
+    {
+      "gradient_norm": 78.93215942382812,
+      "kld_loss": 1.7967445850372314,
+      "l1_loss": 0.5008187890052795,
+      "loss": 0.6804932355880737,
+      "step": 3
+    },
+    {
+      "gradient_norm": 43.84200668334961,
+      "kld_loss": 1.2131108045578003,
+      "l1_loss": 0.3838534951210022,
+      "loss": 0.5051645636558533,
+      "step": 4
+    },
+    {
+      "gradient_norm": 51.01350784301758,
+      "kld_loss": 0.748781681060791,
+      "l1_loss": 0.31687265634536743,
+      "loss": 0.3917508125305176,
+      "step": 5
+    },
+    {
+      "gradient_norm": 41.763587951660156,
+      "kld_loss": 0.8579022884368896,
+      "l1_loss": 0.23015576601028442,
+      "loss": 0.31594598293304443,
+      "step": 6
+    },
+    {
+      "gradient_norm": 42.58460235595703,
+      "kld_loss": 0.7314578294754028,
+      "l1_loss": 0.31000614166259766,
+      "loss": 0.38315191864967346,
+      "step": 7
+    },
+    {
+      "gradient_norm": 41.815486907958984,
+      "kld_loss": 0.735678493976593,
+      "l1_loss": 0.29638099670410156,
+      "loss": 0.3699488639831543,
+      "step": 8
+    }
+  ],
+  "optimizer_steps": 8,
+  "physical_io": false,
+  "production_worker_integration_qualified": false,
+  "raw_result_path": "/mnt/explorer-data/explorer-work/qualification-shared-106-cpu-profile4r2-20261026/pytest/test_actual_eight_official_ACTcurrent/state/jobs/da72a1ad9a1a4415a0b5b1606f0235c9/result.json",
+  "raw_result_sha256": "3c2efa31d1d1371080d5f110c77b34d3d3f9fdc9ecd56edff4187a9c4a93f102",
+  "reload_max_abs_error": 0.0,
+  "runtime": {
+    "hardware_io": false,
+    "process_peak_RSS_bytes": 1150001152,
+    "production_state_writes": false,
+    "pytest_exit_code": 0,
+    "scope": "Actual official CPU ACT106-state/9-action eightupdate offlinefixture qualification; notCUDA/notphysicalskill",
+    "source_sha256": {
+      "shared/explorer_shared/learning/act_backend.py": "4bad89f03289705570aa7e4a2c2eeea571a319e2e7dcc7a8f4bd6df96b049137",
+      "shared/explorer_shared/learning/artifacts.py": "c218abfc061878c85fdc7651df1de95beb2727d2afc4de193ba4b6d284d8d626",
+      "shared/explorer_shared/learning/checkpoint_control.py": "4f62174e05516718299024be500677fb17948591830153fcc811f40d77959380",
+      "shared/explorer_shared/learning/rosmaster_skill_features.py": "2ad274e56c0ec7bd3dff98461c21f0bcad3640ccc846cc8e5c5a4acb39b0d8e8",
+      "shared/explorer_shared/learning/rosmaster_skill_hybrid.py": "d5a103865a24ac70981a5e0e648c1aafe484551a3798f0201601f40682230274",
+      "shared/explorer_shared/learning/rosmaster_skill_pipeline.py": "c235f9cb868beae4d9605c4f5604d0bc4634c8a543eb402205d4eada7aa6ed29",
+      "shared/explorer_shared/learning/runtime_profiles.py": "9cf18d5a9855cb7ea6d47acc3bd93f85cf1a2f0b7f32d4c3c3c0572cd17a7fa9"
+    }
+  },
+  "schema": "explorer_shared_act106_profile4_CPU_qualification_v1",
+  "sealed_test_used": false,
+  "training_resume": {
+    "active_optimizer_elapsed_s": 3.7407944180013146,
+    "checkpoint_interval": 8,
+    "checkpoint_loaded": false,
+    "completed_steps": 8,
+    "non_durable_updates_may_be_replayed": true,
+    "optimizer_steps_executed_this_process": 8,
+    "resumed_from_step": 0,
+    "retained_history_is_not_total_compute_across_failed_attempts": true,
+    "rng_sources": [
+      "python",
+      "numpy_global",
+      "torch_cpu",
+      "all_initialized_cuda",
+      "explicit_batch_sampler"
+    ],
+    "signature": "5260ec25cbc4b1a73ccf21a80cbfd63d4d3162aa30f719905a52afd1a22a116e",
+    "supported": true
+  },
+  "whole_task_success": "NOT_EVALUATED"
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "explorer_source04_profile4_characterization_v1",
+  "actual_source_commit": "d424f26de8817d2aee43775aaa44ed399803bd8f",
+  "ACT_qualification_sha256": "d49461fcd5f6cb02ea17e6ee20156aecf749d5fd49ca83c1a237eb12e9f846ba",
+  "DP_qualification_sha256": "a9776fd89172bd7dd0a237d0a94ac2845497a7847d79702dd6d01c7a5e3967b2",
+  "ACT_model_weights_sha256": "4305ead320fe9c301a960317b1f4ec852150b61125d8607a2ebbf5dd9ea6c5b1",
+  "DP_model_weights_sha256": "149e662f58be6c77a2043c26eb0e41b45eabe61334993569ade0a271d41c87e5",
+  "weights_equal_prior_qualification": true,
+  "new_runtime_profile_helper_in_source": true,
+  "CPU_flags_unchanged": true,
+  "physical_io": false,
+  "production_worker_integration_qualified": false,
+  "task_success_claimed": false
+}

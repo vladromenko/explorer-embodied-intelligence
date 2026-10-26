@@ -1,0 +1,235 @@
+{
+  "trained": true,
+  "framework": "LeRobot",
+  "framework_version": "0.6.1",
+  "algorithm": "official ACT6 RGB+measured_follower6\u2192issued_native_follower6",
+  "skill_id": "24a662c5-4795-48e5-9316-cda9b5da0276",
+  "skill_version": 1,
+  "spec_sha256": "bd08e3ba2c50539f73489a4647e26cc9c633ff5339ffb13ad2ecf3fd27e7c09e",
+  "action_contract_id": "so101_follower_calibrated_position6_v1",
+  "source_kind": "SIMULATION",
+  "source_type": "SIMULATION",
+  "status": "trained_offline_only",
+  "project_id": "04",
+  "experiment_slug": "so101_source_learning",
+  "experiment_numbering_version": 2,
+  "aggregate_manifest_sha256": "d8d7d9271555c382fa6913bb93bf1deee9ea349b0aa5d27d7cd9451b0a556bb4",
+  "source_manifest_path": "/mnt/explorer-data/explorer-work/qualification-source04-profile4r2-20261026/act/pytest/test_real_official_ACT6_eight_0/state/datasets/lab-skills/24a662c5-4795-48e5-9316-cda9b5da0276/v0001/caf7d48e370073cb882f004198899e28f27404567f0e000a4b4c966da480e6f6/skill-manifest.json",
+  "source_manifest_sha256": "d8d7d9271555c382fa6913bb93bf1deee9ea349b0aa5d27d7cd9451b0a556bb4",
+  "internal_view_manifest_sha256": "591521a47291b49ce131d81408b1debf30aa383f4f8dd89cf63f8869e71961c6",
+  "official_dataset_readback": {
+    "format": "LeRobotDataset v3.0",
+    "directory": "/mnt/explorer-data/explorer-work/qualification-source04-profile4r2-20261026/act/pytest/test_real_official_ACT6_eight_0/state/datasets/lab-skills/24a662c5-4795-48e5-9316-cda9b5da0276/v0001/caf7d48e370073cb882f004198899e28f27404567f0e000a4b4c966da480e6f6/native-data/lerobot_v3",
+    "repo_id": "local-explorer/so101-dda718047b38ec1b944fc704",
+    "episodes": 4,
+    "frames": 32,
+    "fps": 10,
+    "image_only": true,
+    "finalize_called": true,
+    "official_readback_passed": true,
+    "all_frame_state_action_image_checks_passed": true,
+    "causal_alignment_checked": true,
+    "source_splits_preserved": true,
+    "source_npz_immutable": true,
+    "native_monotonic_timestamps_preserved": true,
+    "native_wall_timestamps_preserved": false,
+    "conversion_grid_preserved": true,
+    "source_manifest_sha256": "591521a47291b49ce131d81408b1debf30aa383f4f8dd89cf63f8869e71961c6",
+    "provenance_sha256": "97d8d5a1fb98fbfd90d917e3d7126c6ba8df554a766d77a3d1bcc1c80c774fee",
+    "uploaded_to_hub": false
+  },
+  "optimizer_steps": 8,
+  "loss_first": 1.1078200340270996,
+  "loss_last": 0.29328295588493347,
+  "weights_changed": true,
+  "training_resume": {
+    "supported": true,
+    "checkpoint_loaded": false,
+    "resumed_from_step": 0,
+    "completed_steps": 8,
+    "optimizer_steps_executed_this_process": 8,
+    "checkpoint_interval": 8,
+    "signature": "d58c0af58a6f9fa27ef0b414c798de5f5d811f28beb55f466f1b5bee637b0f53",
+    "active_optimizer_elapsed_s": 3.092535969990422,
+    "non_durable_updates_may_be_replayed": true,
+    "retained_history_is_not_total_compute_across_failed_attempts": true,
+    "rng_sources": [
+      "python",
+      "numpy_global",
+      "torch_cpu",
+      "all_initialized_cuda",
+      "explicit_batch_sampler"
+    ]
+  },
+  "save_reload_passed": true,
+  "reload_max_abs_error": 0.0,
+  "official_saved_processors_executed": true,
+  "saved_processor_reload_max_abs_error": 0.0,
+  "checkpoint_dir": "/mnt/explorer-data/explorer-work/qualification-source04-profile4r2-20261026/act/pytest/test_real_official_ACT6_eight_0/state/jobs/5847aa1d0a6d4ee296249581ea8fa6cd/student_act",
+  "checkpoint_sha256": {
+    "model.safetensors": "4305ead320fe9c301a960317b1f4ec852150b61125d8607a2ebbf5dd9ea6c5b1",
+    "policy_postprocessor.json": "327b0b67710cf503fc04785bd7d633e5f8654742ff1fd666b070427b564edc47",
+    "explorer_preprocessing.json": "9c1e73db3c0ff4c9482a09bb844340383533eb64f2c6e91b36881a6d1aac3e76",
+    "policy_preprocessor.json": "074d23879951914851bce2db401607ca243e304409fdaccf0c8b3e6c84b8f31a",
+    "config.json": "fd5e1c9640e2512615c3ebc5e95f93feba8bc0855d7aa646f7237c40486f2e0c"
+  },
+  "checkpoint_content_sha256": "903f2e167505c55d8d66dab9724068e197e95639a483c5725f50b0953a1e4b62",
+  "evaluation": {
+    "domain": "offline_demonstration_chunks",
+    "independent_episode_split": true,
+    "available": true,
+    "valid_chunk_actions": 26,
+    "batches": 1,
+    "mean_absolute_error_normalized": 0.1612969254836058,
+    "action_mae": {
+      "shoulder_pan": {
+        "value": 26.287506176875187,
+        "unit": "calibrated_normalized_-100_100"
+      },
+      "shoulder_lift": {
+        "value": 12.290864724379318,
+        "unit": "calibrated_normalized_-100_100"
+      },
+      "elbow_flex": {
+        "value": 7.253054930613591,
+        "unit": "calibrated_normalized_-100_100"
+      },
+      "wrist_flex": {
+        "value": 39.518858836247375,
+        "unit": "calibrated_normalized_-100_100"
+      },
+      "wrist_roll": {
+        "value": 1.7768460970658522,
+        "unit": "calibrated_normalized_-100_100"
+      },
+      "gripper": {
+        "value": 4.825512262491079,
+        "unit": "normalized_0_100"
+      }
+    },
+    "physical_run_ids": [],
+    "rollout_success_claimed": false,
+    "sealed_test_used": false
+  },
+  "training_original_episode_ids": [
+    "0c0747178c304955823e203d2a144da2",
+    "eafc42f192db4fa98756aa240f858c53",
+    "35df2d07e0b347e78a0be1dcc029a752"
+  ],
+  "development_original_episode_ids": [
+    "489de722e6ed47218ae12bbbcc64a1db"
+  ],
+  "sealed_original_episode_ids": [
+    "ca6e015f5f3841f6b39f3c648c36b83d"
+  ],
+  "sealed_payload_used": false,
+  "physical_io": false,
+  "simulator_executed": false,
+  "physical_success_inferred": false,
+  "rollout_success_claimed": false,
+  "elapsed_s": 3.8894459279981675,
+  "framework_versions": {
+    "torch": "2.11.0",
+    "torchvision": "0.26.0"
+  },
+  "framework_compatibility_note": "Torch/torchvision versions lie within LeRobot 0.6.1 declared bounds",
+  "skill_card": {
+    "id": "so101-act-5847aa1d0a6d4ee296249581ea8fa6cd",
+    "task": "\u0412\u0437\u044f\u0442\u044c \u043f\u0440\u0435\u0434\u043c\u0435\u0442 \u0438 \u043f\u043e\u043b\u043e\u0436\u0438\u0442\u044c \u0432 \u043a\u043e\u043d\u0442\u0435\u0439\u043d\u0435\u0440",
+    "source_type": "SIMULATION",
+    "source_kind": "SIMULATION",
+    "status": "trained_offline_only",
+    "action_contract": {
+      "id": "so101_follower_calibrated_position6_v1",
+      "names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "state_basis": "measured_state",
+      "official_robot_use_degrees": false
+    },
+    "lineage": {
+      "job_id": "5847aa1d0a6d4ee296249581ea8fa6cd",
+      "skill_id": "24a662c5-4795-48e5-9316-cda9b5da0276",
+      "skill_version": 1,
+      "spec_sha256": "bd08e3ba2c50539f73489a4647e26cc9c633ff5339ffb13ad2ecf3fd27e7c09e",
+      "project_id": "04",
+      "experiment_slug": "so101_source_learning",
+      "experiment_numbering_version": 2,
+      "dataset_manifest_sha256": "d8d7d9271555c382fa6913bb93bf1deee9ea349b0aa5d27d7cd9451b0a556bb4",
+      "checkpoint_sha256": "903f2e167505c55d8d66dab9724068e197e95639a483c5725f50b0953a1e4b62",
+      "training_original_episode_ids": [
+        "0c0747178c304955823e203d2a144da2",
+        "eafc42f192db4fa98756aa240f858c53",
+        "35df2d07e0b347e78a0be1dcc029a752"
+      ],
+      "development_original_episode_ids": [
+        "489de722e6ed47218ae12bbbcc64a1db"
+      ],
+      "sealed_original_episode_ids": [
+        "ca6e015f5f3841f6b39f3c648c36b83d"
+      ],
+      "methods": [
+        "ACT_LEROBOT_0_6_1",
+        "ENGINEERING_GLUE"
+      ]
+    },
+    "evaluation": {
+      "domain": "offline_demonstration_chunks",
+      "independent_episode_split": true,
+      "available": true,
+      "valid_chunk_actions": 26,
+      "batches": 1,
+      "mean_absolute_error_normalized": 0.1612969254836058,
+      "action_mae": {
+        "shoulder_pan": {
+          "value": 26.287506176875187,
+          "unit": "calibrated_normalized_-100_100"
+        },
+        "shoulder_lift": {
+          "value": 12.290864724379318,
+          "unit": "calibrated_normalized_-100_100"
+        },
+        "elbow_flex": {
+          "value": 7.253054930613591,
+          "unit": "calibrated_normalized_-100_100"
+        },
+        "wrist_flex": {
+          "value": 39.518858836247375,
+          "unit": "calibrated_normalized_-100_100"
+        },
+        "wrist_roll": {
+          "value": 1.7768460970658522,
+          "unit": "calibrated_normalized_-100_100"
+        },
+        "gripper": {
+          "value": 4.825512262491079,
+          "unit": "normalized_0_100"
+        }
+      },
+      "physical_run_ids": [],
+      "rollout_success_claimed": false,
+      "sealed_test_used": false
+    },
+    "deployment_scope": "SIMULATION_ONLY",
+    "limitations": [
+      "Offline development chunk MAE is not full-task rollout success",
+      "Source operator labels are BC targets, not learned-policy physical validation",
+      "No physical commands, robot connection or controller changes",
+      "Sealed source payload excluded",
+      "Task text is metadata; ACT has no language input"
+    ]
+  }
+}

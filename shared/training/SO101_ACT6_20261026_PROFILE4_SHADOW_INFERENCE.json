@@ -1,0 +1,71 @@
+{
+  "schema": "explorer_so101_shadow_inference_v1",
+  "lineage": {
+    "model_job_id": "5847aa1d0a6d4ee296249581ea8fa6cd",
+    "skill_id": "24a662c5-4795-48e5-9316-cda9b5da0276",
+    "skill_version": 1,
+    "spec_sha256": "bd08e3ba2c50539f73489a4647e26cc9c633ff5339ffb13ad2ecf3fd27e7c09e",
+    "aggregate_manifest_sha256": "d8d7d9271555c382fa6913bb93bf1deee9ea349b0aa5d27d7cd9451b0a556bb4",
+    "checkpoint_sha256": "903f2e167505c55d8d66dab9724068e197e95639a483c5725f50b0953a1e4b62",
+    "source_kind": "SIMULATION",
+    "software_fixture_mode": true,
+    "physical_execution_authorized": false
+  },
+  "observation_receipt": {
+    "schema": "explorer_native6_shadow_prediction_v1",
+    "frame_id": "489de722e6ed47218ae12bbbcc64a1db:0",
+    "frame_sha256": "ea93143a0d7ed7618615b6d3802d1bbf317a6e9cac8503b556c9ca6bebb99f62",
+    "decoded_rgb_sha256": "3a2091dd50d0dcecc7b77ba3a55ebedfc7cd78e5bceee1d97084ef836256c570",
+    "source_cutoff_basis": "original_native_dispatch_time_for_offline_evaluation",
+    "state_basis": "measured_state",
+    "follower_calibration_sha256": "074cdde4132a64f0abe703cfd21858a21d525ae944a8c11ad975fada0ae5a7ff",
+    "camera_id": "software-camera-not-physical",
+    "normalized_output": [
+      0.37555286288261414,
+      0.2359084188938141,
+      0.03995019569993019,
+      0.44612744450569153,
+      0.12608276307582855,
+      -0.6447550058364868
+    ],
+    "native_output_range_projection": false,
+    "official_saved_processors_executed": true,
+    "history_steps": 1,
+    "hardware_commands_dispatched": false,
+    "physical_execution_authorized": false,
+    "transport_freshness_verified_by_this_pure_adapter": false,
+    "encoded_JPEG_sha256_verified_by_this_pure_adapter": false,
+    "decoded_RGB_argument_sha256_verified": true,
+    "contact_or_attainment_inferred": false
+  },
+  "action_names": [
+    "shoulder_pan",
+    "shoulder_lift",
+    "elbow_flex",
+    "wrist_flex",
+    "wrist_roll",
+    "gripper"
+  ],
+  "action_units": [
+    "calibrated_normalized_-100_100",
+    "calibrated_normalized_-100_100",
+    "calibrated_normalized_-100_100",
+    "calibrated_normalized_-100_100",
+    "calibrated_normalized_-100_100",
+    "normalized_0_100"
+  ],
+  "predicted_native6": [
+    37.55528259277344,
+    23.590835571289062,
+    3.995025634765625,
+    44.61274719238281,
+    12.6082763671875,
+    17.762248992919922
+  ],
+  "execution_kind": "offline_original_observation_policy_inference",
+  "official_saved_processors_executed": true,
+  "hardware_commands_dispatched": false,
+  "physical_execution_authorized": false,
+  "independent_full_task_success": false,
+  "transport_freshness_verified_by_this_pure_adapter": false
+}

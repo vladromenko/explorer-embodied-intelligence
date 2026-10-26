@@ -1,0 +1,48 @@
+{
+  "actual_optimizer_tests_passed": 13,
+  "actual_process_resume_tests_passed": 1,
+  "archives": {
+    "ACT9_PROFILE4_CUDA_20261026_BINDING.json": "f57b8c17858b45e3b2af002338b6184cf0af3d1028846fdcaff2d6bebb3ace8c",
+    "ACT9_PROFILE4_CUDA_20261026_PREFLIGHT.json": "b620f00709cf219117fe62bea890e9756276f147b0a29701d0035cf3141073a0",
+    "ACT9_PROFILE4_CUDA_20261026_QUALIFICATION.json": "8e71a1d07471c26a12ced0f830ad085eeb35cbcad9b334db2c062f74630acf71",
+    "ACT9_PROFILE4_CUDA_20261026_RESULT.json": "f541a4262b4533f31617939eaa5a40067315f971c5dbef1e9dc6b2624e268c72",
+    "ACT9_PROFILE4_CUDA_20261026_RESUME_PREFLIGHT.json": "b37eea91d14e59c1b30d407225cc6bc445b27f96e374876978524456b264d023",
+    "ACT9_PROFILE4_CUDA_20261026_RESUME_QUALIFICATION.json": "9d456257fb9e230507dcc8c1cb998415428616359ae52559b38f8fe55d07bdad",
+    "ACT9_PROFILE4_CUDA_20261026_RESUME_RUNTIME.json": "98bb7ee9f258aaa7ecf264ae62bc27612402d0b7f05b960333081d327e75b089"
+  },
+  "exact_model_optimizer_losses_all_RNG_sampler_equal": true,
+  "independent_development_successes": 0,
+  "independent_development_trials": 1,
+  "optimizer_updates": 8,
+  "physical_skill_qualified": false,
+  "pipeline_graph_version": 4,
+  "production_binding_published": false,
+  "production_profile_source_qualified": true,
+  "qualified_tensor_profile": {
+    "action_dimension": 9,
+    "batch_size": 2,
+    "chunk_size": 4,
+    "cuda_execution_profile": "act9_cuda64_b2_c4_fp32_deterministic_v1",
+    "device": "cuda",
+    "image_size": 64,
+    "precision": "float32",
+    "runtime_constraints": {
+      "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+      "NVIDIA_TF32_OVERRIDE": "0",
+      "TORCH_ALLOW_TF32_CUBLAS_OVERRIDE": "0",
+      "cuda_matmul_tf32": false,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": true,
+      "cudnn_tf32": false,
+      "deterministic_algorithms": true,
+      "deterministic_warn_only": false,
+      "matmul_precision": "highest"
+    },
+    "state_dimension": 9
+  },
+  "resumed_from_step": 4,
+  "schema": "explorer_profile4_cuda_actual_evidence_index_v1",
+  "scope": "Explicit native9 CUDA64/b2/c4FP32 current implementation only; not other sensor/state profiles or physical success",
+  "source_commit": "daffd9e5617b595c79de0a587b61a579fd25a400",
+  "updates_in_new_process": 4
+}
