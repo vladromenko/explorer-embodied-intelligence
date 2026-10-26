@@ -105,6 +105,18 @@ def _without_recording_identity_metadata(method):
     original AST digest below.
     """
     method=deepcopy(method)
+    if method.name=='_work':
+        targets=[node for node in ast.walk(method) if isinstance(node,ast.If) and ast.dump(node.test)==ast.dump(ast.parse('target is not None',mode='eval').body)]
+        assert len(targets)==1
+        target=targets[0];assert len(target.body)==2
+        assert ast.dump(target.body[0])==ast.dump(ast.parse("publication_gate=getattr(self,'publication_gate',None)").body[0])
+        gate=target.body[1];assert isinstance(gate,ast.If)
+        assert ast.dump(gate.test)==ast.dump(ast.parse('publication_gate is not None and publication_gate(self.control_epoch,self.mode,target) is not True',mode='eval').body)
+        denied=ast.parse('self._end_session()\nself._write(follower)\npublication_gate.measured_hold_returned(self.control_epoch,follower,measured_at,time.monotonic_ns())').body
+        assert [ast.dump(node) for node in gate.body]==[ast.dump(node) for node in denied]
+        # Only this exact publication-permission wrapper is removed; the whole
+        # original accepted/write/receipt/sample body still matches its old SHA.
+        target.body=gate.orelse
     if method.name=='status':
         fields=[(call,keyword) for call in ast.walk(method) if isinstance(call,ast.Call)
                 for keyword in call.keywords if keyword.arg=='recording_identity_fence']

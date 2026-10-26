@@ -231,6 +231,7 @@ class SO101Station:
                         if publication_gate is not None and publication_gate(self.control_epoch,self.mode,target) is not True:
                             self._end_session()
                             self._write(follower)
+                            publication_gate.measured_hold_returned(self.control_epoch,follower,measured_at,time.monotonic_ns())
                         else:
                             accepted = [min(HIGH[i],max(LOW[i],float(value))) for i,value in enumerate(target)]
                             self._write(accepted)
