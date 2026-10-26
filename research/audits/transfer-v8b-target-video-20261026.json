@@ -1,0 +1,75 @@
+{
+  "PyAV_version": "15.1.0",
+  "codec": "libx264",
+  "driver_sha256": "145ed962dbc7fee1cfbc28f9f8418e1aa249d4b283149ec2aa8b50723afbeebb",
+  "duration_seconds": 21.95,
+  "elapsed_seconds": 2.5199121899931924,
+  "encoder_threads": 1,
+  "fps": 20,
+  "frames": 439,
+  "height": 240,
+  "last_decoded_time_seconds": 21.9,
+  "last_image_is_terminal_after_dispatch": false,
+  "learned_policy_executed": false,
+  "library_versions": {
+    "libavcodec": [
+      61,
+      19,
+      101
+    ],
+    "libavdevice": [
+      61,
+      3,
+      100
+    ],
+    "libavfilter": [
+      10,
+      4,
+      100
+    ],
+    "libavformat": [
+      61,
+      7,
+      100
+    ],
+    "libavutil": [
+      59,
+      39,
+      100
+    ],
+    "libswresample": [
+      5,
+      3,
+      100
+    ],
+    "libswscale": [
+      8,
+      3,
+      100
+    ]
+  },
+  "lossy_viewing_derivative": true,
+  "original_PNGs_retained": true,
+  "original_files_modified": false,
+  "physical_io": false,
+  "physical_success_claimed": false,
+  "pixel_format": "yuv420p",
+  "qualification_receipt_sha256": "40f69937f14426ca093e749147a2599d2318a4970f052ff374147b5ec6df5966",
+  "schema": "explorer_target_video_qualification_v1",
+  "single_nominal_scenario_only": true,
+  "source_RGB_reused": false,
+  "source_frame_hashes_rechecked_after_encode": true,
+  "source_frame_manifest_sha256": "6faed7886c24eb0ab711184262785099311df1e0a447d07cb42612b5d1554fcf",
+  "source_image_timestamp_basis": "pre_action_target_MuJoCo_render",
+  "source_input_period_ns": 50000000,
+  "source_kind": "simulation",
+  "source_method": "SCRIPTED_SIM",
+  "target_RGB_from_actual_ROSMASTER_physics": true,
+  "target_trace_sha256": "b2040889a35c0572f5f12bb4c1a83a9c1c61d214eb47c2160d05610a1d21df52",
+  "terminal_contact_score_is_separate_result": true,
+  "video_bytes": 96962,
+  "video_file": "target-ROSMASTER-SCRIPTED_SIM-hover-release.mp4",
+  "video_path": "/mnt/explorer-data/explorer-work/transfer-hover-v8b-video-20261026/target-ROSMASTER-SCRIPTED_SIM-hover-release.mp4",
+  "video_sha256": "03971e6a186d69d1a80eaaecd361e063a67ec1de909b887fe87ec05665dcce1a",
+  "width": 320
+}
