@@ -249,3 +249,28 @@ def test_local_follower_control_cannot_start_while_direct_rosmaster_route_owns_s
     with pytest.raises(HTTPError) as rejected:
         request(pi_url,'/station/policy/start',{'observing':True})
     assert rejected.value.code==409 and station.mode=='idle'
+
+
+def test_pi_explicit_stop_recovers_uncertain_native_stop_without_motion_retry(http_nodes):
+    pi_url,nano_url,pi,nano,station,original=http_nodes
+    started=begin(pi_url)
+    fail_stop=True
+    def uncertain_stop(operation,body=None):
+        result=original.request(operation,body)
+        if operation=='arm/trajectory/stop' and fail_stop:
+            raise TimeoutError('native STOP reply lost after delivery')
+        return result
+    nano.arm_retarget.legacy_request=uncertain_stop
+    with pytest.raises(HTTPError) as lost:
+        request(pi_url,'/arm-retarget/stop',{'expected_control_epoch':started['control_epoch']})
+    assert lost.value.code==503
+    assert request(pi_url,'/arm-retarget/status')['stop_delivery_uncertain']
+    assert request(nano_url,'/arm-retarget/status')['stop_delivery_uncertain']
+    with pytest.raises(HTTPError):begin(pi_url)
+    fail_stop=False
+    recovered=request(pi_url,'/arm-retarget/stop',{})
+    assert recovered['state']=='STOPPED' and not recovered['stop_delivery_uncertain']
+    assert not request(nano_url,'/arm-retarget/status')['stop_delivery_uncertain']
+    station.update()
+    assert begin(pi_url)['state']=='ACTIVE'
+    assert not any(op.endswith(('plan','start')) for op,_ in original.calls)
