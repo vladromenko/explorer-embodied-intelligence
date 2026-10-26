@@ -329,6 +329,7 @@ def bind_episode(store,skill_id,version,variant_id,body,*,inspector=None):
         if not isinstance(phases,list) or any(not isinstance(item,str) for item in phases) or len(set(phases))!=len(phases) or set(phases)-set(expected):raise ValueError('Review only distinct declared full-task stages')
         targets=body.get('target_phase_ids',expected)
         if not isinstance(targets,list) or not targets or any(not isinstance(item,str) for item in targets) or len(set(targets))!=len(targets) or set(targets)-set(expected):raise ValueError('Targeted/recovery phases must belong to the common full SkillSpec')
+        if episode_scope=='whole_episode' and set(targets)!=set(expected):raise ValueError('Whole episodes must retain every full-task target phase')
         outcomes=body.get('phase_outcomes',{name:'success' if name in phases else 'unknown' for name in expected})
         if not isinstance(outcomes,dict) or set(outcomes)-set(expected) or any(value not in ('success','failure','unknown') for value in outcomes.values()):raise ValueError('Explicit per-phase success/failure/unknown outcomes required')
         payload=dict(original_episode_id=original,import_job_id=job['id'],skill_id=spec['skill_id'],version=version,spec_sha256=selected['spec_sha256'],
@@ -372,7 +373,8 @@ def bind_episode(store,skill_id,version,variant_id,body,*,inspector=None):
 def _source_fingerprint(job,report,original):
     return digest(dict(job_id=job['id'],original_episode_id=original,manifest_sha256=report.get('manifest_sha256'),
         source_archive_sha256=(job.get('result') or {}).get('source_archive_sha256'),episode_sha256=[item.get('sha256') for item in report.get('episodes',[])],
-        embodied_report_sha256=digest(report.get('mobile_embodied') or {}),embodied_source_files=report.get('embodied_source_files') or {item.get('relative_name'):item.get('sha256') for item in report.get('source_artifacts',[])}))
+        embodied_report_sha256=digest(report.get('mobile_embodied') or {}),embodied_source_files=report.get('embodied_source_files') or {item.get('relative_name'):item.get('sha256') for item in report.get('source_artifacts',[])},
+        legacy_RGB9D_view_sha256=(report.get('legacy_RGB9D_view') or {}).get('manifest_sha256')))
 
 
 def _local(root,value):
@@ -420,7 +422,14 @@ def _admission(store,spec,binding,inspector=None):
     if binding['training_camera']!=spec['training_camera']:reasons.append('training_camera_differs')
     # The canonical source may have no preceding-command9 view at all. Never
     # manufacture one by concatenating joint6 and measured odometry velocity.
-    manifest=report.get('manifest') if isinstance(report.get('manifest'),dict) else None
+    legacy=report.get('legacy_RGB9D_view') or {}
+    manifest=legacy.get('manifest') if isinstance(legacy.get('manifest'),dict) else None
+    legacy_path=legacy.get('manifest_path');legacy_sha=legacy.get('manifest_sha256')
+    # Older diagnostics can expose the converted view at top level, but a
+    # canonical envelope is never a converted NPZ manifest.
+    if manifest is None and isinstance(report.get('manifest'),dict) and report['manifest'].get('format')=='explorer_robot_episode_v1':
+        manifest=report['manifest'];legacy_path=report.get('manifest_path');legacy_sha=report.get('manifest_sha256')
+    if manifest is not None and manifest.get('format')!='explorer_robot_episode_v1':manifest=None
     artifacts=list(embodied.get('source_artifacts') or report.get('source_artifacts') or [])
     envelope_binding=embodied.get('envelope_binding') or {}
     if envelope_binding.get('path'):
@@ -438,7 +447,7 @@ def _admission(store,spec,binding,inspector=None):
     except (OSError,ValueError,KeyError,TypeError) as error:reasons.append('embodied_source_artifact_invalid:'+str(error))
     return dict(binding=binding,accepted=not reasons,reasons=list(dict.fromkeys(reasons)),evidence=report,manifest=manifest,
         original_episode_id=binding['original_episode_id'],embodied_source_artifacts=retained,
-        legacy_RGB9D_view_available=report.get('legacy_RGB9D_contract_admitted') is True,
+        legacy_RGB9D_view_available=report.get('legacy_RGB9D_contract_admitted') is True and bool(manifest and legacy_path and legacy_sha),legacy_manifest_path=legacy_path,legacy_manifest_sha256=legacy_sha,
         semantic_task_verified_by='operator_only',physical_success_inferred=False)
 
 
@@ -462,6 +471,7 @@ def workflow(store,skill_id,version=None,*,inspector=None):
                 image=((sample.get('channels') or {}).get('camera_rgb') or {}).get('value') or {}
                 if image.get('camera_id') and image.get('frame_id'):
                     groups.setdefault(('original_camera_frame',(image['camera_id'],image['frame_id'])),set()).add(binding['split'])
+                if image.get('sha256'):groups.setdefault(('original_RGB_payload',image['sha256']),set()).add(binding['split'])
             for descriptor in (row.get('manifest') or {}).get('episodes',[]):
                 previous=source_hashes.get(descriptor['sha256'])
                 identity=(binding['original_episode_id'],binding['split'])
@@ -473,7 +483,8 @@ def workflow(store,skill_id,version=None,*,inspector=None):
         for sample in ((row.get('evidence',{}).get('mobile_embodied') or {}).get('envelope') or {}).get('samples',[]):
             image=((sample.get('channels') or {}).get('camera_rgb') or {}).get('value') or {}
             if len(groups.get(('original_camera_frame',(image.get('camera_id'),image.get('frame_id'))),set()))>1:leakage=True
-        if leakage:row['accepted']=False;row['reasons'].append('original_or_teaching_session_overlaps_splits')
+            if len(groups.get(('original_RGB_payload',image.get('sha256')),set()))>1:leakage=True
+        if leakage:row['accepted']=False;row['reasons'].append('original_scene_session_object_or_RGB_payload_overlaps_splits')
         if binding['original_episode_id'] in duplicates:row['accepted']=False;row['reasons'].append('same_source_payload_reused_as_another_original')
     variants=[]
     for variant in spec['coverage_plan']['variants']:
@@ -577,11 +588,11 @@ def build_aggregate(store,skill_id,version,*,inspector=None):
             original_session_id=binding['source_session_id'],source_split_groups=binding.get('source_split_groups'),canonical_source_artifact_map=mapping)
         # An unchanged optional legacy RGB/prior-command9 view may be retained
         # for an internal ACT component; it never becomes the full dataset.
-        if manifest and report.get('manifest_path'):
-            source_path=_local(store.root,report['manifest_path']);source_bytes=source_path.read_bytes()
-            if hashlib.sha256(source_bytes).hexdigest()!=report.get('manifest_sha256'):raise ValueError('Original converted manifest changed')
-            snapshot=namespace+'/original-converted-manifest.json';files[snapshot]=(source_path,report['manifest_sha256'])
-            source_record.update(manifest_sha256=report['manifest_sha256'],saved_manifest=snapshot)
+        if manifest and row.get('legacy_manifest_path'):
+            source_path=_local(store.root,row['legacy_manifest_path']);source_bytes=source_path.read_bytes()
+            if hashlib.sha256(source_bytes).hexdigest()!=row.get('legacy_manifest_sha256'):raise ValueError('Original converted manifest changed')
+            snapshot=namespace+'/original-converted-manifest.json';files[snapshot]=(source_path,row['legacy_manifest_sha256'])
+            source_record.update(manifest_sha256=row['legacy_manifest_sha256'],saved_manifest=snapshot)
         can_component=bool(manifest and row['legacy_RGB9D_view_available'])
         if can_component:
             signature={key:manifest.get(key) for key in ('action_names','action_units','action_normalization','state_basis','action_basis','fps','source_camera_feature')}
@@ -616,6 +627,8 @@ def build_aggregate(store,skill_id,version,*,inspector=None):
             resampling=dict(method=first.get('resampling',{}).get('method')) if first.get('resampling',{}).get('method') else {},episodes=component_descriptors,
             contains_physical_recordings=any(row['evidence']['mobile_embodied'].get('source_kind')=='physical' for row in included),training_admission=dict(source_quality_usable=True,operator_success_label=True,physical_validation_inferred=False),
             physical_success_inferred=False,action_contract_id=UNIFIED_ACTION_CONTRACT,neutral_channels_retained=True)
+        component.update(cross_view_sample_correspondence_verified=False,eligible_as_full_hierarchy_training_dataset=False,
+            correspondence_limitation='Separate valid views and an original episode ID do not prove shared per-sample RGB/action/clock linkage; no fusion or full-sensor ACT claim')
         data=canonical(component);files[component_name]=(data,hashlib.sha256(data).hexdigest())
     core=dict(schema='explorer_unified_embodied_skill_dataset_v1',format='explorer_unified_embodied_skill_dataset_v1',
         embodiment='rosmaster_unified_mobile_manipulator',skill_id=spec['skill_id'],skill_version=version,skill_spec_sha256=state['spec_sha256'],skill_spec=spec,
@@ -716,6 +729,7 @@ def begin_capture(store,skill_id,version,variant_id,session_id,*,request_id=None
         if episode_scope not in ('whole_episode','targeted_subskill','recovery'):raise ValueError('Unknown episode coverage scope; action contract always remains full 9D')
         targets=target_phase_ids if target_phase_ids is not None else [item['id'] for item in spec['stages']]
         if not isinstance(targets,list) or not targets or any(not isinstance(item,str) for item in targets) or len(set(targets))!=len(targets) or set(targets)-{item['id'] for item in spec['stages']}:raise ValueError('Explicit valid target phases required')
+        if episode_scope=='whole_episode' and set(targets)!={item['id'] for item in spec['stages']}:raise ValueError('Whole episodes must retain every full-task target phase')
         if session['skill_id']!=spec['skill_id'] or session['version']!=version or session['split']!=variant['split']:raise ValueError('Recording context belongs to a different skill/version/split')
         payload=dict(capture_id=capture_id,skill_id=spec['skill_id'],version=version,spec_sha256=selected['spec_sha256'],variant_id=variant_id,session_id=session['session_id'],split=variant['split'],
             native_payload_additions={},automatic_motion=False,episode_scope=episode_scope,target_phase_ids=targets,stationary_chassis_confirmed=True,

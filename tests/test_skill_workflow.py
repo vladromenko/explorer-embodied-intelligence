@@ -34,10 +34,12 @@ def skill(store,preset='sock_to_basket'):
 
 
 def imported(store,selected,name,*,outcome='success',quality=True,split='train',observation_only=False,
-             source_session=None,source_scene=None,source_object=None,scope='whole_episode',phases=None,legacy_view=False,frame_prefix=None):
+             source_session=None,source_scene=None,source_object=None,scope='whole_episode',phases=None,legacy_view=False,frame_prefix=None,rgb_content_key=None):
     """Actual canonical parser receives an entirely synthetic source-bound record."""
     directory=store.root/'datasets'/name;directory.mkdir(parents=True)
     facts,images=source_facts();phases=list(phases or MANIPULATION_STAGES)
+    images['rgb.bin']+=(rgb_content_key or name).encode()
+    facts['samples'][0]['channels']['camera_rgb']['value']['sha256']=hashlib.sha256(images['rgb.bin']).hexdigest()
     facts.update(episode_id=name,run_id='fixture-run-'+name,episode_scope=scope)
     facts['skill']=dict(id=selected['spec']['skill_id'],version=selected['spec']['version'],variant_id='declared-source-variant',session_id=source_session or 'source-session-'+name)
     facts['recording'].update(operator_outcome=outcome,source_quality_usable=quality)
@@ -91,7 +93,8 @@ def component_inspector(job,*,managed_root=None,include_manifest=False,**unused)
         path=Path(candidate);manifest=json.loads(path.read_text())
         assert path.resolve().is_relative_to(Path(managed_root).resolve())
         for entry in manifest['episodes']:assert sha(path.parent/entry['file'])==entry['sha256']
-        report.update(manifest=manifest,manifest_path=str(path),manifest_sha256=sha(path),episodes=manifest['episodes'],legacy_RGB9D_contract_admitted=True)
+        report.update(episodes=manifest['episodes'],legacy_RGB9D_contract_admitted=True)
+        report['legacy_RGB9D_view'].update(manifest=manifest,manifest_path=str(path),manifest_sha256=sha(path),legacy_RGB9D_contract_admitted=True)
     return report
 
 
@@ -158,6 +161,7 @@ def test_review_cannot_invent_missing_source_phases_or_upgrade_targeted_to_whole
     store=Store(tmp_path);selected=skill(store);identity=selected['spec']['skill_id']
     session=create_session(store,identity,1,dict(split='train',scene='fixture scene'))
     job,_=imported(store,selected,'partial-source',scope='targeted_subskill',phases=['grasp_confirm'])
+    with pytest.raises(ValueError,match='every full-task target phase'):assign(store,selected,job,'variant-001',session,target_phase_ids=['grasp_confirm'])
     bound=assign(store,selected,job,'variant-001',session)
     state=workflow(store,identity,1)
     assert not state['assignments'][0]['accepted']
@@ -255,15 +259,17 @@ def test_source_tamper_duplicate_original_and_frame_reuse_do_not_inflate_coverag
     with pytest.raises(WorkflowBlocked):build_aggregate(store,identity,1)
 
 
-def test_original_rgb_frame_reuse_cannot_hide_behind_new_scene_session_or_episode_ids(tmp_path):
+@pytest.mark.parametrize('shared',['frame_identity','RGB_bytes'])
+def test_original_rgb_frame_reuse_cannot_hide_behind_new_scene_session_or_episode_ids(tmp_path,shared):
     store=Store(tmp_path);selected=skill(store);identity=selected['spec']['skill_id']
     train=create_session(store,identity,1,dict(split='train',scene='one'));dev=create_session(store,identity,1,dict(split='development',scene='two'))
-    first,_=imported(store,selected,'train-frame',frame_prefix='reused-camera-frame')
-    second,_=imported(store,selected,'dev-frame',split='development',frame_prefix='reused-camera-frame')
+    common=dict(frame_prefix='reused-camera-frame') if shared=='frame_identity' else dict(rgb_content_key='reused-RGB-bytes')
+    first,_=imported(store,selected,'train-frame',**common)
+    second,_=imported(store,selected,'dev-frame',split='development',**common)
     assign(store,selected,first,'variant-001',train);assign(store,selected,second,'variant-004',dev)
     state=workflow(store,identity,1)
     assert state['counts']['accepted_originals']==0
-    assert all('original_or_teaching_session_overlaps_splits' in row['reasons'] for row in state['assignments'])
+    assert all('original_scene_session_object_or_RGB_payload_overlaps_splits' in row['reasons'] for row in state['assignments'])
 
 
 def test_no_implicit_skill_version_pool_and_model_lineage_does_not_promote_legacy_model(tmp_path):
