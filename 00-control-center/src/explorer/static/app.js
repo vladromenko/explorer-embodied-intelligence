@@ -74,6 +74,7 @@ function reasonText(value) {
 
 const model = { state: null, jobs: [], skills: [], research: {}, recordings: [], actions: [], lastUpdate: null, lastExtras: 0, error: null, refreshing: false, simDraft: { task: "reach", updates: 256, seed: 0 }, robot: { teleop: null, controls: null, teaching: null, error: null, episodeName: "Первый показ" } };
 const keyboard = { active: false, paused: false, keys: new Set(), mode: "cartesian", busy: false, lastKeys: "", error: null };
+const mobileLearning = { manifest: "", busy: false, importJob: "" };
 let episodeLeaseBusy = false;
 const main = document.querySelector("#main");
 const dialog = document.querySelector("#record-dialog");
@@ -219,7 +220,7 @@ function experimentsGrid() {
   return `<div class="experiment-grid">${PROJECTS.map((project) => { const state = experimentState(project.id); return `<a class="experiment-card" href="/experiments/${project.id}" data-link><div class="experiment-top"><span class="experiment-index">ОПЫТ ${project.id}</span>${icon(Number(project.id) === 1 ? "chip" : "robot", "nav-icon")}</div><h3>${esc(project.title)}</h3><p>${esc(project.brief)}</p><div class="experiment-bottom">${badge(state.status, "Ожидаем состояние")}<span class="experiment-arrow" aria-hidden="true">↗</span></div></a>`; }).join("")}</div>`;
 }
 const TERMINAL_JOBS = ["completed", "complete", "succeeded", "success", "failed", "error", "cancelled", "canceled"];
-function jobTitle(job) { return text(job.title, text(job.name, { sim_pilot: "Обучение в симуляции", camera_recording: "Запись наблюдения", recording: "Запись наблюдения", train: "Обучение модели", train_act: "Обучение ACT по показу", station_import: "Перенос показа SO-101", station_rollout: "Попытка модели SO-101", station_shadow: "Проверка предсказаний без движения", virtual_transfer: "Проверка геометрического переноса", handover_test: "Проверка протокола передачи", evaluation: "Оценка навыка" }[job.kind] || job.kind || "Исследовательская задача")); }
+function jobTitle(job) { return text(job.title, text(job.name, { sim_pilot: "Обучение в симуляции", camera_recording: "Запись наблюдения", recording: "Запись наблюдения", train: "Обучение модели", train_act: "Обучение ACT по показу", mobile_import: "Перенос показа ROSMASTER", station_import: "Перенос показа SO-101", station_rollout: "Попытка модели SO-101", station_shadow: "Проверка предсказаний без движения", virtual_transfer: "Проверка геометрического переноса", handover_test: "Проверка протокола передачи", evaluation: "Оценка навыка" }[job.kind] || job.kind || "Исследовательская задача")); }
 function jobMetrics(job) {
   const metrics = job.metrics || job.result?.metrics || {};
   const list = [];
@@ -271,6 +272,7 @@ function experimentPage(project) {
   } else {
     content += notice(project.id === "02" ? "Два разных материала" : "Запись наблюдения с камеры", project.id === "02" ? "Полный показ записывается через штатный ROSMASTER вместе с его командами и наблюдениями. Отдельная кнопка «Записать наблюдение» сохраняет только видео камеры." : "Сейчас мастер сохраняет видео сцены. Такой материал отмечается как наблюдение и не выдаётся за синхронизированный обучающий эпизод.");
     content += `<div class="overview-grid"><div><div id="camera-slot"></div>${project.id === "02" ? `<div class="spaced-section">${keyboardPanel()}</div><div class="spaced-section">${episodePanel()}</div>` : ""}</div><div class="side-stack">${readinessCard(project)}${flow(project)}</div></div>`;
+    if (project.id === "02") content += `<div class="spaced-section">${mobileTrainingPanel()}</div>`;
   }
   content += `<div class="spaced-section">${jobsPanel(jobs, "Запуски этого опыта")}</div>`;
   if (project.id !== "01") content += `<div class="spaced-section">${recordingsPanel(project.id)}</div>`;
@@ -286,6 +288,60 @@ function episodePanel() {
   const teaching = model.robot.teaching || {}; const active = teaching.active; const last = teaching.last;
   return `<section class="panel"><div class="panel-heading"><div><h2>Полноценный показ ROSMASTER</h2><p>Команды, одометрия, камера и этапы штатной записи</p></div>${badge(active ? "running" : "not_started")}</div><div class="panel-body">${active ? `<p class="form-description">Идёт запись: ${esc(text(active.name, active.id || "показ"))}. Завершите показ и отметьте наблюдавшийся результат.</p><div class="episode-outcomes"><button class="button primary" data-episode-outcome="success" type="button">Задача выполнена</button><button class="button secondary" data-episode-outcome="failure" type="button">Не получилось</button><button class="button secondary" data-episode-outcome="unknown" type="button">Результат неясен</button></div><p class="form-hint">Оценка оператора сохраняется отдельно от независимой проверки навыка.</p>` : `<form id="episode-form"><div class="form-field"><label for="episode-name">Название задачи</label><input id="episode-name" name="name" value="${esc(model.robot.episodeName)}" maxlength="80" required placeholder="Например: подвести захват к предмету"></div><button type="submit" class="button primary" style="margin-top:16px">${icon("record")}Начать полный показ</button><p class="form-hint">Запись использует существующий формат робота. Она не запускает автоматическое воспроизведение.</p></form>`}${last ? `<div class="episode-last"><span class="status-dot good"></span>Последний показ сохранён${last.outcome ? ` · ${esc({ success: "отмечен успех", failure: "отмечена неудача", unknown: "результат неясен" }[last.outcome] || last.outcome)}` : ""}</div>` : ""}${array(teaching.record_errors).length ? `<p class="form-error">${esc(teaching.record_errors.map(reasonText).join(". "))}</p>` : ""}</div></section>`;
 }
+
+// ENGINEERING_GLUE: offline ROSMASTER demonstration selection and result presentation.
+function mobileImportJobs() {
+  return model.jobs.filter((job) => job.kind === "mobile_import" && projectId(job.project_id) === "02");
+}
+function mobileImportReason(job) {
+  if (!job || job.kind !== "mobile_import" || projectId(job.project_id) !== "02") return "Выберите перенесённый показ ROSMASTER.";
+  if (job.status !== "completed") return TERMINAL_JOBS.includes(job.status) ? "Перенос не завершён успешно. Запись остаётся доступна для разбора." : "Перенос и проверка записи ещё выполняются.";
+  const result = job.result || {}; const admission = result.training_admission || {};
+  if (typeof result.dataset_manifest !== "string" || !result.dataset_manifest.trim()) return "Подготовленный набор данных ещё не получен.";
+  if (admission.source_quality_usable !== true) return admission.source_quality_usable === false ? "Данные не прошли проверку качества; запись сохранена для разбора." : "Пригодность записи для обучения ещё не подтверждена.";
+  if (admission.operator_success_label !== true) return "Нет подтверждённой отметки оператора об успешном показе. Запись сохранена для разбора.";
+  if (array(result.action_names).length !== 9 || result.state_basis !== "command_estimate") return "Формат девяти команд и командной оценки состояния ещё не подтверждён.";
+  return "";
+}
+function mobileTrainingJobs() {
+  return model.jobs.filter((job) => job.kind === "train_act" && projectId(job.project_id) === "02");
+}
+function mobileTrainingRequest() {
+  const selected = mobileImportJobs().find((job) => job.result?.dataset_manifest === mobileLearning.manifest);
+  const reason = mobileImportReason(selected);
+  if (reason) throw new Error(reason);
+  if (mobileTrainingJobs().some((job) => !TERMINAL_JOBS.includes(job.status))) throw new Error("Обучение этого опыта уже в очереди или выполняется.");
+  return { kind: "train_act", project_id: "02", config: { dataset_manifest: selected.result.dataset_manifest, act_steps: 120, device: "cpu" } };
+}
+function mobileEpisodeLabel(job) {
+  const episode = job.result?.episode_id || job.config?.episode_id;
+  const last = model.robot.teaching?.last;
+  return last && (last.id || last.episode_id) === episode && last.name ? last.name : `Показ ROSMASTER${episode ? ` · ${episode}` : ""}`;
+}
+function mobileTrainingResults(training) {
+  const completed = training.filter((job) => job.status === "completed");
+  if (!completed.length) return "";
+  return completed.slice(0, 5).map((job) => {
+    const result = job.result || {}; const evaluation = result.evaluation || {};
+    const independent = evaluation.available === true && evaluation.independent_episode_split === true;
+    const hashes = Object.entries(result.checkpoint_sha256 || {}).filter(([, hash]) => typeof hash === "string" && /^[a-f0-9]{64}$/.test(hash));
+    const confirmed = (value) => value === true ? "Подтверждено" : value === false ? "Не подтверждено" : "Нет данных";
+    const reload = number(result.reload_max_abs_error);
+    const mae = number(evaluation.mean_absolute_error_normalized);
+    return `<article class="panel spaced-section"><div class="panel-heading"><div><h3>Результат обучения по записи</h3><p>${esc(dateTime(job.updated || job.created))}</p></div>${badge(result.trained === true ? "trained_offline_only" : "awaiting_evidence")}</div><div class="panel-body"><dl class="skill-metadata">${kv("Шаги оптимизатора", count(result.optimizer_steps))}${kv("Изменение весов", confirmed(result.weights_changed))}${kv("Сохранение и повторная загрузка", confirmed(result.save_reload_passed))}${kv("Ошибка повторной загрузки", reload === null ? "Нет данных" : reload.toExponential(2))}${kv("Файлы модели с SHA256", hashes.length ? count(hashes.length) : "Не получены")}${kv("Отдельные проверочные эпизоды", independent ? "Есть" : "Не подтверждены")}${independent && mae !== null ? kv("Нормированная ошибка на проверке", mae.toPrecision(4)) + kv("Действий в проверочных фрагментах", count(evaluation.valid_chunk_actions)) : ""}${kv("Успех физической задачи", "По этому обучению не подтверждён")}</dl>${hashes.length ? `<details><summary>Контрольные суммы файлов модели</summary><dl>${hashes.map(([name, hash]) => `<div class="key-value"><dt>${esc(name)}</dt><dd><code title="${esc(hash)}">${esc(hash.slice(0, 16))}…</code></dd></div>`).join("")}</dl></details>` : ""}<p class="form-hint">${result.state_basis === "command_estimate" ? "Состояние записано как командная оценка; фактические углы суставов этими данными не подтверждены. " : ""}Обучение и ошибки на записи оцениваются отдельно от выполнения задачи роботом.</p></div></article>`;
+  }).join("");
+}
+function mobileTrainingPanel() {
+  const imports = mobileImportJobs(); const eligible = imports.filter((job) => !mobileImportReason(job));
+  if (!eligible.some((job) => job.result.dataset_manifest === mobileLearning.manifest)) mobileLearning.manifest = "";
+  const training = mobileTrainingJobs(); const active = training.some((job) => !TERMINAL_JOBS.includes(job.status));
+  const waiting = imports.some((job) => !TERMINAL_JOBS.includes(job.status));
+  const reason = mobileLearning.busy ? "Ставим обучение в очередь." : active ? "Обучение этого опыта уже в очереди или выполняется." : !eligible.length ? (waiting ? "Дождитесь переноса и проверки завершённого показа." : imports.length ? mobileImportReason(imports[0]) : "Завершите полный показ, чтобы его перенос начался автоматически.") : !mobileLearning.manifest ? "Выберите готовый успешный показ из списка." : "120 обновлений ACT на CPU Homebrain. Выполнение роботом не запускается.";
+  const enabled = Boolean(mobileLearning.manifest && !active && !mobileLearning.busy);
+  const progress = [...imports.filter((job) => !TERMINAL_JOBS.includes(job.status)), ...training.filter((job) => !TERMINAL_JOBS.includes(job.status))];
+  return `<section class="panel"><div class="panel-heading"><div><p class="eyebrow">02 / Обучение по показу ROSMASTER</p><h2>Сохранить показ в модели</h2></div>${badge(active || waiting ? "running" : eligible.length ? "ready" : "awaiting_evidence")}</div><div class="panel-body"><p class="form-description">После завершения показ переносится на Homebrain и проходит проверку. Обучение использует кадры, девять команд и сохранённую командную оценку состояния.</p>${eligible.length ? `<div class="form-field"><label for="mobile-dataset">Готовый успешный показ</label><select id="mobile-dataset"><option value="" ${!mobileLearning.manifest ? "selected" : ""}>Выберите запись для обучения</option>${eligible.map((job) => `<option value="${esc(job.result.dataset_manifest)}" ${job.result.dataset_manifest === mobileLearning.manifest ? "selected" : ""}>${esc(mobileEpisodeLabel(job))} · ${esc(dateTime(job.created))}</option>`).join("")}</select></div>` : notice("Готовой записи для обучения пока нет", reason)}<button class="button primary full" data-action="mobile-train" type="button" ${enabled ? "" : "disabled"} title="${esc(reason)}">${icon("chip")}Обучить ACT · 120 шагов на CPU</button><p class="form-hint" role="status">${esc(reason)}</p>${progress.length ? jobRows(progress, "Ожидаем состояния переноса и обучения.") : ""}${imports.length ? `<details ${!eligible.length ? "open" : ""}><summary>Перенесённые показы и разбор · ${count(imports.length)}</summary><div class="recording-list">${imports.map((job) => `<article class="recording-row"><div><h3>${esc(mobileEpisodeLabel(job))}</h3><p>${esc(dateTime(job.created))} · ${count(job.result?.frames)} кадров</p><div class="recording-label">${esc(mobileImportReason(job) || "Данные пригодны · оператор отметил успех · 9 команд")}</div><p class="form-hint">Исходник на роботе: ${job.result?.source_original_retained === true ? "сохранён" : "сохранение ещё не подтверждено"}</p>${job.error ? `<p class="form-error">${esc(text(job.error))}</p>` : ""}</div>${badge(job.status)}</article>`).join("")}</div></details>` : ""}</div></section>${mobileTrainingResults(training)}`;
+}
+// END ROSMASTER offline demonstration UI.
 
 async function loadRobot() {
   const results = await Promise.allSettled([api("/api/robot/teleop"), api("/api/robot/teleop/controls"), api("/api/robot/teaching/mobile")]);
@@ -506,6 +562,18 @@ document.addEventListener("click", async (event) => {
   if (action === "record") { openRecord(button.dataset.project); return; }
   if (action === "choose-skill") { model.forceRender = true; navigate("/skills"); return; }
   if (action === "refresh") { await refresh(true); return; }
+  if (action === "mobile-train") {
+    if (mobileLearning.busy) return;
+    try {
+      const request = mobileTrainingRequest(); mobileLearning.busy = true; button.disabled = true;
+      const job = await post("/api/jobs", request);
+      model.jobs = [job, ...model.jobs.filter((entry) => entry.id !== job.id)];
+      toast("Обучение ACT по выбранной записи поставлено в очередь на Homebrain.");
+      await refresh(true);
+    } catch (error) { toast(error.message, true); }
+    finally { mobileLearning.busy = false; model.forceRender = true; render(); }
+    return;
+  }
   if (action === "keyboard-toggle") {
     button.disabled = true;
     try { if (keyboard.active) await stopKeyboard(true); else await startKeyboard(); }
@@ -517,7 +585,11 @@ document.addEventListener("click", async (event) => {
   if (button.dataset.episodeOutcome) {
     button.disabled = true;
     try {
-      await post("/api/robot/teaching/mobile/finish", { outcome: button.dataset.episodeOutcome });
+      const finished = await post("/api/robot/teaching/mobile/finish", { outcome: button.dataset.episodeOutcome });
+      if (finished.import_job?.id) {
+        mobileLearning.importJob = finished.import_job.id;
+        model.jobs = [finished.import_job, ...model.jobs.filter((job) => job.id !== finished.import_job.id)];
+      }
       toast("Показ завершён. Оценка оператора сохранена отдельно от проверки навыка.");
       await loadRobot(); model.forceRender = true; render();
     } catch (error) { toast(error.message, true); button.disabled = false; }
@@ -533,6 +605,9 @@ document.addEventListener("input", (event) => {
   if (event.target.id === "sim-updates") model.simDraft.updates = Number(event.target.value);
   if (event.target.id === "sim-seed") model.simDraft.seed = Number(event.target.value);
   if (event.target.id === "episode-name") model.robot.episodeName = event.target.value;
+});
+document.addEventListener("change", (event) => {
+  if (event.target.id === "mobile-dataset") { mobileLearning.manifest = event.target.value; model.forceRender = true; render(); }
 });
 document.addEventListener("submit", async (event) => {
   if (event.target.id === "episode-form") {
