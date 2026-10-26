@@ -36,6 +36,10 @@ def install_skill_workflow_routes(app, store_provider):
     async def proposal(body: dict):
         return await call(service.create_skill, body)
 
+    @router.get('/capture-context')
+    async def capture_context(episode_id: str):
+        return dict(capture=await call(service.capture_for_episode, episode_id))
+
     @router.get('/{skill_id}')
     async def workflow(skill_id: str, version: int | None = None):
         return await call(service.workflow, skill_id, version)
@@ -62,11 +66,7 @@ def install_skill_workflow_routes(app, store_provider):
 
     @router.post('/{skill_id}/train')
     async def train(skill_id: str, body: dict):
-        request = await call(service.training_request, skill_id, version(body), body.get('settings'))
-        store = store_provider()
-        # Only server-derived aggregate requests reach the durable queue.
-        job = store.create_job(request['kind'], request['project_id'], request['config'])
-        await call(service.register_training_job, job)
-        return job
+        # Admission, aggregate reservation, queue entry and lineage commit together.
+        return await call(service.enqueue_training, skill_id, version(body), body.get('settings'))
 
     app.include_router(router)

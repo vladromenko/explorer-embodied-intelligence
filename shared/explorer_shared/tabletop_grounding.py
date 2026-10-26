@@ -1,4 +1,4 @@
-"""Experiment06 calibrated geometry and deterministic grasp PREVIEW only.
+"""ENGINEERING_GLUE: Experiment06 calibrated geometry and deterministic grasp PREVIEW only.
 
 No camera/device/network/servo owner lives here. Inputs are immutable source
 artifacts and cached-frame evidence. RGB/VLM semantics never supply depth.

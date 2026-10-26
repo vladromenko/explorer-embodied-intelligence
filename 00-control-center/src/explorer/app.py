@@ -20,6 +20,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import ROOT, load
 from .store import Store
+from .skill_workflow import WorkflowBlocked as SkillWorkflowBlocked
 
 CONFIG = load()
 STORE = Store(CONFIG['data_dir'])
@@ -52,6 +53,14 @@ async def poll_nodes():
             pass
     while True:
         await asyncio.gather(*(poll(node) for node in CONFIG['nodes']))
+        from .skill_workflow import bind_import_from_capture
+        for job in STORE.jobs(10000):
+            if job['kind']=='mobile_import' and job['status']=='completed':
+                try:
+                    await asyncio.to_thread(bind_import_from_capture,STORE,job)
+                except (ValueError,KeyError,OSError):
+                    # The retained import remains available for explicit review.
+                    pass
         await asyncio.sleep(5)
 
 
@@ -193,12 +202,12 @@ def actions_required():
          'detail':'Роли подтверждены по исходным калибровкам и регистрам подключённых двигателей.' if calibrated else 'Станция проверяет подключённые руки.'},
         {'id':'demonstrations', 'title':'Записать полные показы выбранной задачи', 'status':'NEEDS_DEMONSTRATIONS',
          'detail':'Видео без действий не считается экспертной демонстрацией. Мастер начинает с 3–5 технических эпизодов.'},
-        {'id':'geometry', 'title':'Измерить регистрацию SO-101 и ROSMASTER', 'status':'NEEDS_PHYSICAL_MEASUREMENTS',
-         'detail':'Нужны нули и направления суставов относительно URDF, общие оси и отдельная кривая раскрытия. До измерений прямой teaching/transfer остаётся UNREGISTERED.'},
+        {'id':'geometry', 'title':'Проверить межроботную регистрацию и текущий command reference', 'status':'NEEDS_PHYSICAL_MEASUREMENTS',
+         'detail':'Калибровка leader уже известна. Сохраняются штатный 90° reference, command-estimate и Ruckig без servo readback. Проверяются только cross-map/FK/IK/захват, текущий boot/reference и streaming integration; firmware и feedback не меняются.'},
         {'id':'handover_scene', 'title':'Подготовить видимую общую зону двух роботов', 'status':'NEEDS_PHYSICAL_SCENE',
          'detail':'На текущем Pi-ракурсе нет ROSMASTER и общей зоны передачи. Нужны видимость обеих рук, лёгкий предмет и отдельная проверка удержания. Шасси не двигать.'},
-        {'id':'fleet_access', 'title':'Восстановить служебный SSH-доступ для новых релизов', 'status':'NEEDS_ACCESS',
-         'detail':'Наблюдения Pi/Nano работают. Новый публичный ключ Homebrain ещё не принят Pi; удалённый новый backend не объявляется развёрнутым.'},
+        {'id':'fleet_access', 'title':'Восстановить служебный SSH-доступ для новых релизов', 'status':'COMPLETED',
+         'detail':'Вход по отдельному ключу Homebrain проверен на Pi и Nano 2026-10-26. Готовность ключа не означает, что новый backend уже развёрнут.'},
         {'id':'venue', 'title':'Определить конференцию и официальный срок статьи', 'status':'UNCONFIRMED',
          'detail':'Название конференции и CFP не подтверждены. Начало декабря — ориентир пользователя, а не проверенный deadline.'},
         {'id':'disk', 'title':'Samsung T5: перенос рабочего состояния проверен', 'status':'COMPLETED',
@@ -320,8 +329,10 @@ async def create_job(request: Request):
         raise HTTPException(400, 'Job configuration must be an object')
     if '_execution_commit' in config or '_gpu_binding_sha256' in config:
         raise HTTPException(400,'Execution provenance is assigned by the worker')
-    if body['project_id']=='02' and body['kind']=='train_act':
-        raise HTTPException(409,'Experiment 02 trains the unified ROSMASTER skill through its admitted immutable aggregate; a single clip or partial embodiment contract is not accepted')
+    if body['project_id']=='02':
+        from .skill_workflow import validate_02_training_request
+        try:validate_02_training_request(STORE,body)
+        except SkillWorkflowBlocked as error:raise HTTPException(409,str(error)) from error
     if body['kind'] in ('world_model','dagger','skill_cycle','manipulation','manipulation_benchmark','manipulation_curriculum','mobile_manipulation','manipulation_selective_repair','policy_transfer','fault_repair') and config.get('device','cpu')!='cpu':
         raise HTTPException(400,'This engineering benchmark currently uses the verified CPU path')
     if body['kind']=='manipulation_student' and config.get('device','cpu') not in ('cpu','cuda'):
@@ -543,6 +554,26 @@ async def robot_proxy(path: str, request: Request):
     try:
         finishing_id=None
         body=await request.json() if request.method=='POST' else None
+        capture_id=None
+        capture_intent=None
+        review={}
+        if body is not None:
+            if not isinstance(body,dict):raise HTTPException(400,'Native request must be an object')
+            context=body.pop('skill_context',None)
+            capture_id=body.pop('skill_capture_id',None)
+            review=body.pop('skill_review',{})
+            if path=='teaching/mobile/start':
+                from . import skill_workflow as workflow_service
+                if not isinstance(context,dict) or type(context.get('version')) is not int:
+                    raise HTTPException(400,'Select and confirm a versioned ROSMASTER skill before recording')
+                selected=await asyncio.to_thread(workflow_service.workflow,STORE,context.get('skill_id'),context['version'])
+                if selected['spec_sha256']!=context.get('spec_sha256'):
+                    raise HTTPException(409,'Skill definition changed; refresh before recording')
+                capture_intent=await asyncio.to_thread(workflow_service.begin_capture,STORE,
+                    context['skill_id'],context['version'],context.get('variant_id'),context.get('session_id'),
+                    request_id=context.get('request_id'),episode_scope=context.get('episode_scope','whole_episode'),
+                    target_phase_ids=context.get('target_phase_ids'),stationary_chassis_confirmed=context.get('stationary_chassis_confirmed') is True)
+                capture_id=capture_intent['capture_id']
         if request.method=='POST' and path in ('teaching/mobile/finish','teaching/mobile/stage'):
             before=await CLIENT.get('http://'+node['host']+':'+str(node['port'])+'/legacy/teaching/mobile',headers={'Authorization':'Bearer '+node['token']})
             before.raise_for_status()
@@ -553,16 +584,46 @@ async def robot_proxy(path: str, request: Request):
                 return JSONResponse({'detail':'Recording session changed; no labels applied'},409)
             expected=expected or active or (current.get('last') or {}).get('id')
             body['expected_id']=expected
+            if capture_id:
+                from .skill_workflow import verify_capture_episode,capture_for_episode
+                await asyncio.to_thread(verify_capture_episode,STORE,capture_id,expected)
+                if path=='teaching/mobile/stage':
+                    captured=await asyncio.to_thread(capture_for_episode,STORE,expected)
+                    if not captured or body.get('stage') not in {phase['id'] for phase in captured['spec']['stages']}:
+                        raise HTTPException(400,'Phase differs from the captured skill version')
             if path=='teaching/mobile/finish':finishing_id=expected
         response = await CLIENT.request(request.method, url, headers={'Authorization':'Bearer ' + node['token']},
             **({'json':body} if request.method == 'POST' else {}),
             timeout=30 if path=='teaching/mobile/finish' else 4)
         result=response.json()
+        if response.is_success and capture_intent:
+            from .skill_workflow import capture_started
+            native_id=(result.get('active') or {}).get('id')
+            if native_id:
+                await asyncio.to_thread(capture_started,STORE,capture_id,native_id)
+                result['skill_capture']=dict(capture_intent,original_episode_id=native_id)
+            else:
+                result['skill_workflow_error']='Native start returned no episode identity; retained recording requires explicit review'
+        if response.is_success and capture_id and path=='teaching/mobile/stage':
+            from .skill_workflow import capture_stage
+            await asyncio.to_thread(capture_stage,STORE,capture_id,body.get('stage'))
         if response.is_success and finishing_id and (result.get('last') or {}).get('id')==finishing_id:
             result['import_job']=STORE.create_import_job('mobile_import','02',finishing_id)
+            if capture_id:
+                from .skill_workflow import capture_finished,bind_import_from_capture
+                try:
+                    if not isinstance(review,dict):raise ValueError('Recording review must be an object')
+                    result['skill_review']=await asyncio.to_thread(capture_finished,STORE,capture_id,finishing_id,dict(review,outcome=body.get('outcome','unknown')))
+                    await asyncio.to_thread(bind_import_from_capture,STORE,result['import_job'])
+                except (ValueError,KeyError,OSError) as error:
+                    result['skill_workflow_error']=str(error)
         return JSONResponse(result, response.status_code)
     except httpx.HTTPError:
         raise HTTPException(503, 'Onboard control interface is unavailable')
+    except SkillWorkflowBlocked as error:
+        return JSONResponse({'detail':str(error),'reasons':error.reasons},409)
+    except (ValueError,KeyError,TypeError) as error:
+        raise HTTPException(400,str(error)) from error
 
 
 @app.api_route('/api/station/{path:path}', methods=['GET','POST'])
@@ -582,6 +643,10 @@ async def station_proxy(path: str, request: Request):
         return JSONResponse(result,response.status_code)
     except httpx.HTTPError:
         raise HTTPException(503,'SO-101 station interface is unavailable')
+
+
+from .skill_workflow_api import install_skill_workflow_routes
+install_skill_workflow_routes(app,lambda:STORE)
 
 
 @app.get('/learning/so101')

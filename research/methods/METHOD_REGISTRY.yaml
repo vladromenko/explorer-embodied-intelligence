@@ -2363,6 +2363,156 @@
         }
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-UNIFIED-SKILL-WORKFLOW-001",
+      "function_or_module": "00-control-center/src/explorer/skill_workflow.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:00-control-center/docs/SKILL_WORKFLOW_RU.md",
+          "role": "Explicit source contract and pinned primary references"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Source-bound skill/admission or non-actuating calibrated preview and event-driven semantic ownership. No physical skill success inferred.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "19 workflow tests plus inspector/contract integrated source suite",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-TABLETOP06-GEOMETRY-001",
+      "function_or_module": "shared/explorer_shared/tabletop_grounding.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/perception/TABLETOP06.md",
+          "role": "Explicit source contract and pinned primary references"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Source-bound skill/admission or non-actuating calibrated preview and event-driven semantic ownership. No physical skill success inferred.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "14 pure geometry/actual URDF IK tests; no physical calibration",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-TABLETOP06-SEMANTIC-EVENTS-001",
+      "function_or_module": "shared/explorer_shared/lab_semantics.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/perception/TABLETOP06.md",
+          "role": "Explicit source contract and pinned primary references"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Source-bound skill/admission or non-actuating calibrated preview and event-driven semantic ownership. No physical skill success inferred.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "7 semantic owner/lifecycle mocks; actual HEF staged, inference not yet executed",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SO101-OFFICIAL-DATASET-001",
+      "function_or_module": "01-autonomous-learning/src/explorer_sim/so101_dataset_qualification.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:learning/so101-personal-lab/docs/DATASET_REPLAY_QUALIFICATION_RU.md",
+          "role": "Actual local component qualification and explicit limitations"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Preserve source bytes, normalize explicit embodiment contracts and distinguish template/dataset/training/shadow/physical evidence; no hardware configuration or CLI default reuse.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "10 tests; actual official LeRobot0.6.1 local Dataset create/finalize/readback; no hardware CLI",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SKILL-CATALOGUE-06-05-001",
+      "function_or_module": "00-control-center/src/explorer/skill_catalogue.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:00-control-center/docs/SKILL_CATALOGUE06_RU.md",
+          "role": "Actual local component qualification and explicit limitations"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Preserve source bytes, normalize explicit embodiment contracts and distinguish template/dataset/training/shadow/physical evidence; no hardware configuration or CLI default reuse.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "result": "9 proposal/routing/versioned-subskill/readiness tests; no physical readiness inferred",
+          "scope": "SOFTWARE_ONLY"
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

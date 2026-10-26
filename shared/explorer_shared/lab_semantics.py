@@ -1,4 +1,4 @@
-"""Event-driven Experiment06 semantics from frozen single-owner camera cache.
+"""ENGINEERING_GLUE: Event-driven Experiment06 semantics from frozen single-owner camera cache.
 
 Importing this module opens no hardware. A started worker explicitly leases CV's
 released accelerator slot; it has no actuator transport or geometry output API.

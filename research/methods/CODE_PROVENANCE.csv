@@ -56,3 +56,8 @@ shared/explorer_shared/retarget_recording.py,ENGINEERING_GLUE,IMPL-DIRECT-RETARG
 00-control-center/src/explorer/mobile_dataset_evidence.py,ENGINEERING_GLUE,IMPL-MOBILE-DATASET-EVIDENCE-001,ENGINEERING_GLUE,retained native mobile sources,NOT_APPLICABLE,SOFTWARE_ONLY
 shared/explorer_shared/embodied_episode.py,ENGINEERING_GLUE,IMPL-UNIFIED-MOBILE-EPISODE-001,ENGINEERING_GLUE,project-file:02-demonstration-learning/docs/EMBODIED_EPISODE_CONTRACT_RU.md,NOT_APPLICABLE,SOFTWARE_ONLY
 00-control-center/src/explorer/skill_workflow_api.py,ENGINEERING_GLUE,IMPL-SKILL-WORKFLOW-HTTP-001,ENGINEERING_GLUE,project-file:00-control-center/src/explorer/skill_workflow_api.py,NOT_APPLICABLE,SOFTWARE_ONLY
+00-control-center/src/explorer/skill_workflow.py,ENGINEERING_GLUE,IMPL-UNIFIED-SKILL-WORKFLOW-001,ENGINEERING_GLUE,project-file:00-control-center/docs/SKILL_WORKFLOW_RU.md,NOT_APPLICABLE,SOFTWARE_ONLY
+shared/explorer_shared/tabletop_grounding.py,ENGINEERING_GLUE,IMPL-TABLETOP06-GEOMETRY-001,ENGINEERING_GLUE,project-file:shared/perception/TABLETOP06.md,NOT_APPLICABLE,SOFTWARE_ONLY
+shared/explorer_shared/lab_semantics.py,ENGINEERING_GLUE,IMPL-TABLETOP06-SEMANTIC-EVENTS-001,ENGINEERING_GLUE,project-file:shared/perception/TABLETOP06.md,NOT_APPLICABLE,SOFTWARE_ONLY
+01-autonomous-learning/src/explorer_sim/so101_dataset_qualification.py,ENGINEERING_GLUE,IMPL-SO101-OFFICIAL-DATASET-001,ENGINEERING_GLUE,project-file:learning/so101-personal-lab/docs/DATASET_REPLAY_QUALIFICATION_RU.md,NOT_APPLICABLE,SOFTWARE_ONLY
+00-control-center/src/explorer/skill_catalogue.py,ENGINEERING_GLUE,IMPL-SKILL-CATALOGUE-06-05-001,ENGINEERING_GLUE,project-file:00-control-center/docs/SKILL_CATALOGUE06_RU.md,NOT_APPLICABLE,SOFTWARE_ONLY
