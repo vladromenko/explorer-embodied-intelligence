@@ -4894,6 +4894,60 @@
         "_registry/evidence/study-v9-recorded-portability-20261027.json"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-COOPERATIVE-OBSERVED-INTENT-20261027",
+      "function_or_module": "00-control-center/src/explorer/cooperative_observed_service.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Typed repository adapters and evidence scopes"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Server-bound metadata intent and both exact displayed-frame native USER grants, scoped revoke/CAS and explicit binding; no implicit native begin/resume/action/lease or authority from model warmup.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_cooperative_observed_service.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-REGISTERED-STUDY-API-20261027",
+      "function_or_module": "00-control-center/src/explorer/study_api.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Typed repository adapters and evidence scopes"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Bounded typed SQL listing and ID-only server preparation/fixed hash-verified download of all recorded scientific attempts; missing original runtime/RNG remains PARTIAL.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_study_api.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

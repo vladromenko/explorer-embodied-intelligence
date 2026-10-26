@@ -9,6 +9,9 @@ import hashlib
 import json
 from pathlib import Path
 import re
+from collections import OrderedDict
+import threading
+import time
 import httpx
 
 from fastapi import HTTPException,Request
@@ -67,6 +70,15 @@ def checked_jpeg(raw,headers):
 
 def install_router(app,get_store,get_config,get_actor):
     base='/api/lab/source-evaluations'
+    displays=OrderedDict();display_lock=threading.RLock()
+    def displayed(kind,job_id,identity,actor,checksum):
+        with display_lock:
+            displays[(kind,job_id,identity,actor)]=(checksum,time.monotonic())
+            while len(displays)>256:displays.popitem(last=False)
+    def consume_display(kind,job_id,identity,actor,checksum):
+        with display_lock:receipt=displays.pop((kind,job_id,identity,actor),None)
+        if receipt is None or receipt[0]!=checksum or not 0<=time.monotonic()-receipt[1]<2:
+            raise ValueError('This exact source JPEG must first be delivered to this authenticated observer for this attempt; display receipt expired or consumed')
 
     async def safe(call):
         try:return await asyncio.to_thread(call)
@@ -113,7 +125,10 @@ def install_router(app,get_store,get_config,get_actor):
         if request.query_params:raise HTTPException(400,'Pinned display frame takes no query')
         def read():
             job=typed_job(get_store(),job_id,active=True)
-            with pi_connection(get_config(),job['config']['binding']) as (station,_):return checked_jpeg(*station.challenge_frame(challenge_id))
+            with pi_connection(get_config(),job['config']['binding']) as (station,_):
+                raw,headers=station.challenge_frame(challenge_id);response=checked_jpeg(raw,headers)
+            displayed('challenge',job_id,challenge_id,get_actor(request),headers['x-jpeg-sha256'])
+            return response
         return await safe(read)
 
     @app.get(base+'/{job_id}/observation')
@@ -132,7 +147,10 @@ def install_router(app,get_store,get_config,get_actor):
         if request.query_params:raise HTTPException(400,'Pinned observation frame takes no query')
         def read():
             job=typed_job(get_store(),job_id,active=True)
-            with pi_connection(get_config(),job['config']['binding']) as (station,_):return checked_jpeg(*station.frame(observation_id))
+            with pi_connection(get_config(),job['config']['binding']) as (station,_):
+                raw,headers=station.frame(observation_id);response=checked_jpeg(raw,headers)
+            displayed('observe',job_id,headers['x-frame-id'],get_actor(request),headers['x-jpeg-sha256'])
+            return response
         return await safe(read)
 
     @app.get(base+'/{job_id}/frames/{observation_id}')
@@ -164,6 +182,7 @@ def install_router(app,get_store,get_config,get_actor):
                     if set(body)!=allowed:raise ValueError('Exact displayed frame and explicit USER test confirmations required')
                     current=job.get('result') or {}
                     if current.get('phase')!='awaiting_source_observed_grant' or not current.get('source_owner_session_id'):raise ValueError('Current prepared source worker required')
+                    consume_display('challenge',job_id,body['challenge_id'],actor,body['displayed_jpeg_sha256'])
                     grant=permission.authorize(body,authenticated_actor=actor)
                     try:
                         evaluation.attach_permission(store,job_id,grant['grant_id'],grant['control_epoch'],current['source_owner_session_id'],permission=permission)
@@ -172,6 +191,7 @@ def install_router(app,get_store,get_config,get_actor):
                         raise
                     return grant
                 if set(body)!={'grant_id','frame_id','displayed_jpeg_sha256','expected_control_epoch','observing'}:raise ValueError('Exact displayed current observer frame required')
+                consume_display('observe',job_id,body['frame_id'],actor,body['displayed_jpeg_sha256'])
                 return permission.observe(body['grant_id'],{key:value for key,value in body.items() if key!='grant_id'},authenticated_actor=actor)
         return await safe(perform)
 

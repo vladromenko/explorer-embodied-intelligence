@@ -930,6 +930,8 @@ from .lab_skill_api import install_router as install_lab_skill_routes
 install_lab_skill_routes(app,lambda:STORE)
 from .research_export_api import install_router as install_research_export_routes
 install_research_export_routes(app,lambda:STORE)
+from .study_api import install_router as install_study_routes
+install_study_routes(app,lambda:STORE)
 from .source_evaluation_api import install_router as install_source_evaluation_routes
 install_source_evaluation_routes(app,lambda:STORE,lambda:CONFIG,session_actor)
 

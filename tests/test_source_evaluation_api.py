@@ -55,6 +55,12 @@ def test_actual_central_auth_user_display_attach_and_cancel_through_common_nativ
         assert image.status_code==200 and hashlib.sha256(image.content).hexdigest()==challenge['frame']['jpeg_sha256']
         authority=dict(challenge_id=challenge['challenge_id'],displayed_jpeg_sha256=challenge['frame']['jpeg_sha256'],
             expected_control_epoch=challenge['control_epoch'],observing=True,robot_workspace_checked=True,user_observed_test_confirmed=True)
+        second_client=TestClient(module.app)
+        try:
+            second_client.post('/api/login',json={'password':'fixture'})
+            stolen=second_client.post(route+'/authorize',json=authority,headers={'X-Explorer-CSRF':second_client.cookies['explorer_csrf']})
+            assert stolen.status_code==409 and not provider.status()['execution_permission']
+        finally:second_client.close()
         assert client.post(route+'/authorize',json=dict(authority,actor_id='forged'),headers=csrf).status_code==409
         grant=client.post(route+'/authorize',json=authority,headers=csrf);assert grant.status_code==200,grant.text
         grant=grant.json();assert grant['actor_id'].startswith('authenticated-session:') and station.calls==[]

@@ -85,6 +85,8 @@ const sharedQueue = createSharedQueueClient({get:api,post:(...args) => post(...a
 let sharedQueueUnbind = () => {}, sharedQueueLoadedAt = 0;
 const researchExport = createResearchExportClient({get:api,post:(...args) => post(...args),onChange:() => { if (path() === "/research") {model.forceRender = true;render();} }});
 let researchExportUnbind = () => {}, researchExportLoadedAt = 0;
+const studyExport = createStudyExportClient({get:api,post:(...args) => post(...args),onChange:() => { if (path() === "/research") {model.forceRender = true;render();} }});
+let studyExportUnbind = () => {}, studyExportLoadedAt = 0;
 const labSkills = createLabSkillsClient({api,onChange: () => { model.forceRender = true; render(); },onCaptureContext: context => { stationLab.skillContext = context.record_start_body; toast("Контекст навыка выбран. Запись запускается отдельно при наблюдении за руками."); }});
 let labSkillsLoadedAt = 0;
 const keyboard = new ManualKeyboard();
@@ -641,7 +643,7 @@ function render() {
   navigation();
   let title = "Обзор"; let markup;
   if (project) { title = `Опыт ${project.id}`; markup = experimentPage(project); }
-  else if (route === "/research") { title = "Исследования"; markup = researchPage() + researchExportPanel(researchExport.snapshot()); }
+  else if (route === "/research") { title = "Исследования"; markup = researchPage() + studyExportPanel(studyExport.snapshot()) + researchExportPanel(researchExport.snapshot()); }
   else if (route === "/skills") { title = "Библиотека навыков"; markup = skillsPage(); }
   else if (route === "/infrastructure") { title = "Оборудование"; markup = infrastructurePage(); }
   else if (route === "/queue") { title = "Общая очередь"; markup = heading("Очередь обучения и проверок","Все опыты используют общий бюджет Homebrain. Здесь можно изменить порядок и параметры ожидания.") + sharedQueuePanel(sharedQueue.snapshot(),model.jobs); }
@@ -654,10 +656,12 @@ function render() {
   cooperativeUnbind(); cooperativeUnbind = () => {};
   sharedQueueUnbind(); sharedQueueUnbind = () => {};
   researchExportUnbind(); researchExportUnbind = () => {};
+  studyExportUnbind(); studyExportUnbind = () => {};
   main.innerHTML = markup;
   if (project?.id === "05") cooperativeUnbind = bindCooperativeWorkbench(main,cooperativeWorkbench,error => toast(error.message,true));
   if (route === "/queue") sharedQueueUnbind = bindSharedQueue(main,sharedQueue,error => toast(error.message,true));
   if (route === "/research") researchExportUnbind = bindResearchExport(main,researchExport,error => toast(error.message,true));
+  if (route === "/research") studyExportUnbind = bindStudyExport(main,studyExport,error => toast(error.message,true));
   if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(route)) {
     bindLabVision(main,labVision);
     bindTabletopCalibration(main,tabletopCalibration,error => toast(error.message));
@@ -713,6 +717,7 @@ async function refresh(forceExtras = false) {
     if (activeProject()?.id === "05" && (forceExtras || Date.now()-cooperativeLoadedAt>3000)) { cooperativeLoadedAt=Date.now(); await cooperativeWorkbench.refresh(); }
     if (path() === "/queue" && (forceExtras || Date.now()-sharedQueueLoadedAt>3000)) { sharedQueueLoadedAt=Date.now(); await sharedQueue.refresh(); }
     if (path() === "/research" && (forceExtras || Date.now()-researchExportLoadedAt>5000)) { researchExportLoadedAt=Date.now(); await researchExport.refresh(); }
+    if (path() === "/research" && (forceExtras || Date.now()-studyExportLoadedAt>5000)) { studyExportLoadedAt=Date.now(); await studyExport.refresh(); }
     if (activeProject()?.id === TRANSFER_PROJECT && workflow.currentSources === null && !workflow.loading) await loadTransferSources();
     if (stationRoute()) await pollStation(forceExtras);
     if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path())) await Promise.all([labVision.refresh(forceExtras),tabletopCalibration.refresh(forceExtras)]);

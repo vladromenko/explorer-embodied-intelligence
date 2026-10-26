@@ -67,6 +67,9 @@ def test_metadata_authorization_is_exact_displayed_frame_and_never_native_comman
     assert grant['control_epoch']==station.control_epoch and grant['binding']==selected
     assert provider.check(grant['grant_id'],selected)['execution_permission'] and station.calls==[]
     assert provider.status()['permission_is_not_grasp_stationarity_or_physical_success']
+    with pytest.raises(ValueError,match='binding'):
+        provider.check(grant['grant_id'],dict(selected,evaluation_id=uuid.uuid4().hex))
+    assert station.calls==[] and provider.status()['grant']['grant_id']==grant['grant_id']
 
 
 def test_native_start_rotates_grant_epoch_and_old_stop_or_revoke_never_clears_current_epoch():
