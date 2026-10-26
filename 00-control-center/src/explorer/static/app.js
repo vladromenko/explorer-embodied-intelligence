@@ -81,6 +81,10 @@ const labVision = createLabVisionClient({get: api,post: (...args) => post(...arg
 const tabletopCalibration = createTabletopCalibrationClient({get:api,post:(...args) => post(...args),onChange:() => { model.forceRender = true; render(); }});
 const cooperativeWorkbench = createCooperativeWorkbenchClient({get:api,post:(...args) => post(...args),onChange:() => { model.forceRender = true; render(); }});
 let cooperativeUnbind = () => {}, cooperativeLoadedAt = 0;
+const cooperativeObserved = createCooperativeObservedClient({view:()=>cooperativeWorkbench.snapshot(),invoke:(...args)=>cooperativeWorkbench.observedOperation(...args),
+  visible:path()==="/experiments/05" && !document.hidden,
+  onChange:()=>{if(path()==="/experiments/05"){model.forceRender=true;render();}}});
+let cooperativeObservedUnbind = () => {};
 const sharedQueue = createSharedQueueClient({get:api,post:(...args) => post(...args),onChange:() => { model.forceRender = true; render(); }});
 let sharedQueueUnbind = () => {}, sharedQueueLoadedAt = 0;
 const researchExport = createResearchExportClient({get:api,post:(...args) => post(...args),onChange:() => { if (path() === "/research") {model.forceRender = true;render();} }});
@@ -152,7 +156,7 @@ function toast(message, error = false) {
 }
 function path() { return window.location.pathname.replace(/\/$/, "") || "/"; }
 function activeProject() { return PROJECTS.find((project) => path() === `/experiments/${project.id}`); }
-function navigate(url) { if(path()!==url)sourceEvaluation.interrupt("Наблюдение выключено при переходе в другой раздел"); if (path() !== url && (stationLab.owned || stationLab.present)) stopStation(true); if ((keyboard.active || keyboard.starting) && url !== "/experiments/02") stopKeyboard(true); if (path() !== url) history.pushState({}, "", url); sourceEvaluation.setVisible(sourceEvaluationRoute() && !document.hidden); render(); main.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); if (url === "/experiments/01") refreshWorldDatasets(); }
+function navigate(url) { if(path()!==url)sourceEvaluation.interrupt("Наблюдение выключено при переходе в другой раздел"); if(path()!==url)cooperativeObserved.interrupt("Переход выключил наблюдение кооперации"); if (path() !== url && (stationLab.owned || stationLab.present)) stopStation(true); if ((keyboard.active || keyboard.starting) && url !== "/experiments/02") stopKeyboard(true); if (path() !== url) history.pushState({}, "", url); sourceEvaluation.setVisible(sourceEvaluationRoute() && !document.hidden); cooperativeObserved.setVisible(path()==="/experiments/05" && !document.hidden); render(); main.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); if (url === "/experiments/01") refreshWorldDatasets(); }
 
 function navigation() {
   const item = (href, label, symbol, ordinal) => `<a href="${href}" data-link class="nav-item ${path() === href ? "active" : ""}" ${path() === href ? 'aria-current="page"' : ""}>${ordinal ? `<span class="nav-number">${ordinal}</span>` : icon(symbol, "nav-icon")}<span>${label}</span></a>`;
@@ -401,7 +405,7 @@ function experimentPage(project) {
   if (["02", "03"].includes(project.id)) return experiment02Page(project);
   const state = experimentState(project.id);
   const jobs = model.jobs.filter((job) => projectId(job.project_id) === project.id);
-  if (project.id === "05") return heading("Совместная передача ROSMASTER → SO101","Выберите два исходных навыка, закрепите общую задачу и сохраните настоящие записи каждого робота.","Исследовательский опыт / 05") + cooperativeWorkbenchPanel(cooperativeWorkbench.snapshot()) + `<details class="spaced-section"><summary>Программные проверки протокола и обрывов</summary>${handoverRuntimePanel()}</details><div class="spaced-section">${jobsPanel(jobs,"Запуски кооперации")}</div>`;
+  if (project.id === "05") return heading("Совместная передача ROSMASTER → SO101","Выберите два исходных навыка, закрепите общую задачу и сохраните настоящие записи каждого робота.","Исследовательский опыт / 05") + cooperativeWorkbenchPanel(cooperativeWorkbench.snapshot()) + cooperativeObservedPanel(cooperativeObserved.snapshot()) + `<details class="spaced-section"><summary>Программные проверки протокола и обрывов</summary>${handoverRuntimePanel()}</details><div class="spaced-section">${jobsPanel(jobs,"Запуски кооперации")}</div>`;
   const action = project.id === "01" ? '<a href="#simulation-form" class="button primary">' + icon("play") + 'Новый запуск</a>' : '<button type="button" class="button primary" data-action="record" data-project="' + project.id + '">' + icon("record") + 'Записать наблюдение</button>';
   let content = heading(project.title, project.subtitle, `Исследовательский опыт / ${project.id}`, action);
   if (state.summary) content += notice("Текущее состояние опыта", text(state.summary));
@@ -661,12 +665,14 @@ function render() {
   const cameraWasVisible = document.contains(cameraCard); const slotNeeded = markup.includes('id="camera-slot"');
   if (cameraWasVisible) cameraCard.remove();
   cooperativeUnbind(); cooperativeUnbind = () => {};
+  cooperativeObservedUnbind(); cooperativeObservedUnbind = () => {};
   sharedQueueUnbind(); sharedQueueUnbind = () => {};
   researchExportUnbind(); researchExportUnbind = () => {};
   studyExportUnbind(); studyExportUnbind = () => {};
   sourceEvaluationUnbind(); sourceEvaluationUnbind = () => {};
   main.innerHTML = markup;
   if (project?.id === "05") cooperativeUnbind = bindCooperativeWorkbench(main,cooperativeWorkbench,error => toast(error.message,true));
+  if (project?.id === "05") cooperativeObservedUnbind = bindCooperativeObserved(main,cooperativeObserved,error=>toast(error.message,true));
   if (route === "/queue") sharedQueueUnbind = bindSharedQueue(main,sharedQueue,error => toast(error.message,true));
   if (route === "/research") researchExportUnbind = bindResearchExport(main,researchExport,error => toast(error.message,true));
   if (route === "/research") studyExportUnbind = bindStudyExport(main,studyExport,error => toast(error.message,true));
@@ -898,6 +904,7 @@ document.addEventListener("submit", async (event) => {
   } catch (error) { errorNode.textContent = error.message; errorNode.hidden = false; button.disabled = false; }
 });
 document.querySelector("#stop-button").addEventListener("click", async () => {
+  cooperativeObserved.interrupt("Общий STOP выключил наблюдение кооперации");
   sourceEvaluation.interrupt("Общий STOP: наблюдение этой попытки выключено");
   const button = document.querySelector("#stop-button"); button.disabled = true;
   manualInputFreezeCount += 1;
@@ -910,6 +917,7 @@ document.querySelector("#stop-button").addEventListener("click", async () => {
   finally { manualInputFreezeCount -= 1; button.disabled = false; }
 });
 document.querySelector("#logout-button").addEventListener("click", async () => {
+  cooperativeObserved.interrupt("Выход выключил наблюдение кооперации");
   const sourceView=sourceEvaluation.snapshot(),sourceAttempt=sourceView.data?.attempts?.find(row=>row.id===sourceView.selected);
   const sourceCancellation=sourceAttempt && !["completed","failed","cancelled"].includes(sourceAttempt.status) ? sourceEvaluation.cancel() : Promise.resolve();
   sourceEvaluation.interrupt("Выход из панели: наблюдение выключено");
@@ -933,7 +941,7 @@ document.querySelector("#logout-button").addEventListener("click", async () => {
   finally { manualInputFreezeCount -= 1; }
 });
 window.addEventListener("popstate", () => { if ((keyboard.active || keyboard.starting) && path() !== "/experiments/02") stopKeyboard(true); model.forceRender = true; render(); });
-window.addEventListener("popstate",()=>{sourceEvaluation.interrupt("Навигация выключила наблюдение текущей попытки");sourceEvaluation.setVisible(sourceEvaluationRoute() && !document.hidden);});
+window.addEventListener("popstate",()=>{sourceEvaluation.interrupt("Навигация выключила наблюдение текущей попытки");cooperativeObserved.interrupt("Навигация выключила наблюдение кооперации");cooperativeObserved.setVisible(path()==="/experiments/05" && !document.hidden);sourceEvaluation.setVisible(sourceEvaluationRoute() && !document.hidden);});
 window.addEventListener("blur", () => { if (keyboard.active || keyboard.starting) stopKeyboard(true); });
 window.addEventListener("blur", () => {const owned=observedNative.snapshot().activation?.execution_permission;observedNative.cancelPending();if(owned)void observedNative.revoke().catch(error=>toast(error.message,true));});
 window.addEventListener("pagehide", () => {if(observedNative.snapshot().activation?.execution_permission)void observedNative.revoke().catch(()=>{});else observedNative.cancelPending();});

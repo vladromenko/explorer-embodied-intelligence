@@ -181,3 +181,11 @@ test("one real policy head can warm without a model for the manual role; both-ma
   state.required_policy_roles=[];state.workbench.sessions[0].giver_input_mode="keyboard";await client.refresh();
   assert.throws(()=>client.warmModels(),/ручной ввод модели не требует/);assert.equal(calls.length,1);
 });
+
+test("observed wrapper pins current session and epoch and rejects unknown native operations or browser overrides",async()=>{
+  const {client,calls}=await rig();await client.observedOperation("observed_refresh",{});
+  assert.deepEqual(calls.at(-1),["POST","/api/cooperative/observed_refresh",{session_id:"server-session",expected_epoch:"epoch-one"}]);
+  assert.throws(()=>client.observedOperation("observed_refresh",{session_id:"foreign"}),/без подмены/);
+  assert.throws(()=>client.observedOperation("native_begin",{role:"giver"}),/typed операция/);
+  await client.stop();assert.throws(()=>client.observedOperation("observed_refresh",{}),/После STOP/);
+});

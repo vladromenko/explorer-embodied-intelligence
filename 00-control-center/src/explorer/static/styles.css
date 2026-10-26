@@ -98,3 +98,11 @@ label.form-field { display:flex; flex-direction:column; gap:8px; min-width:0; co
 .source-evaluation-workbench fieldset { min-width:0; border:1px solid var(--line); border-radius:9px; padding:14px; }
 .source-evaluation-workbench .panel-heading { flex-wrap:wrap; }
 @media(max-width:700px) { .source-evaluation-workbench .form-grid { grid-template-columns:minmax(0,1fr); } }
+.cooperative-observed-workbench { margin-top:24px; overflow-wrap:anywhere; }
+.cooperative-observed-workbench .panel-body { display:grid; gap:18px; }
+.cooperative-observed-workbench .panel-heading { flex-wrap:wrap; }
+.cooperative-observed-workbench figure { margin:14px 0; min-width:0; }
+.cooperative-observed-workbench .camera-preview { display:block; width:100%; max-width:640px; height:auto; border-radius:9px; }
+.cooperative-observed-workbench figcaption { margin-top:8px; font-size:11px; line-height:1.6; }
+.cooperative-observed-workbench fieldset { min-width:0; padding:14px; border:1px solid var(--line); border-radius:9px; }
+@media(max-width:700px) { .cooperative-observed-workbench .form-grid { grid-template-columns:minmax(0,1fr); } }
