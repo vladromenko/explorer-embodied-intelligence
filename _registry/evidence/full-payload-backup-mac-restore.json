@@ -1,0 +1,32 @@
+{
+  "verified": true,
+  "mode": "isolated_rehearsal",
+  "live_data_changed": false,
+  "payload_file_count": 287,
+  "payload_bytes": 1125410902,
+  "test_restore_passed": true,
+  "references": {
+    "known_dataset_manifests_checked": 4,
+    "local_hashed_references_checked": 78,
+    "unparsed_or_large_json_files": 0,
+    "original_absolute_provenance_paths_retained": 0,
+    "arbitrary_model_deserialization_executed": false
+  },
+  "store": {
+    "store_opened": true,
+    "integrity": "ok",
+    "counts": {
+      "events": 1467,
+      "nodes": 2,
+      "jobs": 14,
+      "skills": 5,
+      "sessions": 23,
+      "tickets": 0
+    }
+  },
+  "destination": "/private/tmp/explorer-full-restore-20261026-0510",
+  "all_restored_file_sha256_verified": true,
+  "copied_from": "homebrain",
+  "copied_manifest_matches_NX": true,
+  "mac_backup": "/Users/vladromenko/Desktop/Explorer/_registry/private/backups/full-20261026-0510"
+}

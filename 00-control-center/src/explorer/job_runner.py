@@ -101,6 +101,14 @@ def station_import(store, job, config):
             import shutil
             shutil.rmtree(destination)
         stage.replace(destination)
+    if mobile:
+        descriptor=json.loads((destination/'episode.json').read_text())
+        if descriptor.get('format')=='explorer_mobile_observation_episode_v1':
+            return dict(episode_id=episode_id,observation_only=True,observation_manifest=str(destination/'episode.json'),
+                source_archive_sha256=digest,source_original_retained=True,physical_success_inferred=False,
+                frames=descriptor.get('frames',0),telemetry_rows=descriptor.get('samples',0),
+                state_basis='unknown_axes_preserved',training_admission=descriptor['training_admission'],
+                result_scope='Actual camera and raw telemetry; unverified arm/action contract, analysis only')
     sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
     from explorer_sim.station_adapter import convert_station_episode
     from explorer_sim.dataset_export import export_lerobot_v3

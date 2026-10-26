@@ -14,6 +14,31 @@ sys.path.insert(0, str(ROOT / "shared"))
 from explorer_shared.mobile_capture import FORMAT, ROW_SCHEMA, MobileCaptureRecorder, projection, save
 
 
+def test_node_routes_power_refusal_to_observation_without_motor_requests(tmp_path):
+    from explorer_shared.node_agent import NodeAgent
+    source=fixture(tmp_path)[0]
+    calls=[]
+    class Native:
+        def request(self,path,payload=None):
+            calls.append(path)
+            return (409,{'detail':'Запись остановлена из-за питания'}) if path.endswith('/start') else (200,{'active':None,'last':None})
+    recorder=MobileCaptureRecorder(source,tmp_path/'node')
+    node=NodeAgent.__new__(NodeAgent)
+    node.mobile_capture=recorder;node.legacy_bridge=Native()
+    try:
+        code,started=node.teaching_command('start',{'name':'Data capture at low power','observing':False})
+        assert code==200 and started['active']['format']==FORMAT
+        assert node.teaching_status()[1]['active']['id']==started['active']['id']
+        assert node.teaching_command('start',{'name':'duplicate'})[0]==409
+        assert node.teaching_command('stage',{'stage':'stationary_observation'})[0]==200
+        code,finished=node.teaching_command('finish',{'outcome':'unknown'})
+        assert code==200 and finished['last']['motion_commands']==0
+        assert node.mobile_archive(finished['last']['id']).is_file()
+        assert calls==['teaching/mobile/start']
+    finally:
+        recorder.close()
+
+
 def fixture(tmp_path):
     source = tmp_path / "legacy-data"
     source.mkdir()

@@ -34,7 +34,12 @@ async def poll_nodes():
             response = await CLIENT.get('http://' + node['host'] + ':' + str(node['port']) + '/inventory',
                 headers={'Authorization': 'Bearer ' + node['token']})
             response.raise_for_status()
-            STORE.update_node(node['id'], response.json())
+            payload=response.json()
+            STORE.update_node(node['id'],payload)
+            capture=payload.get('mobile_observation') or {}
+            completed=capture.get('last') or {}
+            if capture.get('archive_ready') and completed.get('state') in ('complete','interrupted'):
+                STORE.create_import_job('mobile_import','02',completed['id'])
         except Exception:
             pass
     while True:
@@ -406,7 +411,8 @@ async def robot_proxy(path: str, request: Request):
             before.raise_for_status()
             finishing_id=(before.json().get('active') or {}).get('id')
         response = await CLIENT.request(request.method, url, headers={'Authorization':'Bearer ' + node['token']},
-            **({'json':await request.json()} if request.method == 'POST' else {}))
+            **({'json':await request.json()} if request.method == 'POST' else {}),
+            timeout=30 if path=='teaching/mobile/finish' else 4)
         result=response.json()
         if response.is_success and finishing_id and (result.get('last') or {}).get('id')==finishing_id:
             result['import_job']=STORE.create_import_job('mobile_import','02',finishing_id)

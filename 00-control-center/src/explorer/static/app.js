@@ -373,6 +373,7 @@ function mobileImportReason(job) {
   if (!job || job.kind !== "mobile_import" || projectId(job.project_id) !== "02") return "Выберите перенесённый показ ROSMASTER.";
   if (job.status !== "completed") return TERMINAL_JOBS.includes(job.status) ? "Перенос не завершён успешно. Запись остаётся доступна для разбора." : "Перенос и проверка записи ещё выполняются.";
   const result = job.result || {}; const admission = result.training_admission || {};
+  if (result.observation_only === true) return "Камера и датчики сохранены. Положения руки и девять команд пока не подтверждены; запись доступна для разбора.";
   if (typeof result.dataset_manifest !== "string" || !result.dataset_manifest.trim()) return "Подготовленный набор данных ещё не получен.";
   if (admission.source_quality_usable !== true) return admission.source_quality_usable === false ? "Данные не прошли проверку качества; запись сохранена для разбора." : "Пригодность записи для обучения ещё не подтверждена.";
   if (admission.operator_success_label !== true) return "Нет подтверждённой отметки оператора об успешном показе. Запись сохранена для разбора.";

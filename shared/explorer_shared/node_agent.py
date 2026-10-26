@@ -465,9 +465,12 @@ class NodeAgent:
         self.calibration_dirs = calibration_dirs or ([Path.home()/'.cache/huggingface/lerobot/calibration'] if mode=='pi' else [])
         self.recordings = RecordingManager(self.state_dir / "recordings", self.sources, self.delivery.emit)
         self.mobile_records=None
+        self.mobile_capture=None
         if mode=='nano':
             from .mobile_records import MobileRecords
+            from .mobile_capture import MobileCaptureRecorder
             self.mobile_records=MobileRecords(Path(legacy_dir)/'mobile-demonstrations',self.state_dir/'mobile-archives')
+            self.mobile_capture=MobileCaptureRecorder(legacy_dir,self.state_dir)
         self.stream_slots = threading.BoundedSemaphore(3)
         self.observer = None
         self.station = None
@@ -489,6 +492,8 @@ class NodeAgent:
             self.station.start()
 
     def close(self):
+        if self.mobile_capture:
+            self.mobile_capture.close()
         if self.station:
             self.station.close()
         self.recordings.close()
@@ -497,6 +502,49 @@ class NodeAgent:
         for source in self.sources.values():
             source.close()
         self.delivery.close()
+
+    def teaching_status(self):
+        observed=self.mobile_capture.status() if self.mobile_capture else {}
+        if observed.get('active'):
+            return 200,observed
+        code,native=self.legacy_bridge.request('teaching/mobile')
+        if native.get('active'):
+            return code,native
+        latest=observed.get('last') or {}
+        original=native.get('last') or {}
+        if latest and (not original or latest.get('started_at',0)>=original.get('started',0)):
+            return 200,observed
+        return code,native
+
+    def teaching_command(self,operation,payload):
+        active=self.mobile_capture.status().get('active') if self.mobile_capture else None
+        if active and operation=='start':
+            return 409,{'detail':'Запись данных уже выполняется'}
+        if active and operation!='start':
+            methods={'lease':lambda:self.mobile_capture.heartbeat(payload['session'],payload.get('observing',False)),
+                     'stage':lambda:self.mobile_capture.stage(payload['stage']),
+                     'finish':lambda:self.mobile_capture.finish(payload.get('outcome','unknown'),active['id'])}
+            if operation not in methods:
+                raise ValueError('Unknown data recording operation')
+            methods[operation]()
+            return 200,self.mobile_capture.status()
+        code,result=self.legacy_bridge.request('teaching/mobile/'+operation,payload)
+        detail=str(result.get('detail',result.get('error','')))
+        unavailable=code>=500 or any(text in detail for text in ('из-за питания','истории команд руки','свежего состояния','свежего кадра'))
+        if operation=='start' and code>=400 and unavailable and self.mobile_capture:
+            self.mobile_capture.start(**payload)
+            return 200,self.mobile_capture.status()
+        return code,result
+
+    def mobile_archive(self,ident):
+        if self.mobile_capture:
+            try:
+                self.mobile_capture.get(ident)
+            except FileNotFoundError:
+                pass
+            else:
+                return self.mobile_capture.archive(ident)
+        return self.mobile_records.archive(ident)
 
     def cameras(self):
         cameras = [source.metadata() for source in self.sources.values()]
@@ -509,6 +557,11 @@ class NodeAgent:
         serial = discover_serial()
         calibrations = discover_calibrations(self.calibration_dirs)
         station = self.station.status() if self.station else None
+        mobile=self.mobile_capture.status() if self.mobile_capture else None
+        if mobile:
+            last=mobile.get('last') or {}
+            mobile={key:mobile[key] for key in ('active','last','format','capture_power_gate','actuator_commands')}
+            mobile['archive_ready']=bool(last and (self.mobile_capture.root/(last['id']+'.archive.json')).is_file())
         if station:
             for item in serial:
                 for role,profile in station['roles'].items():
@@ -523,12 +576,13 @@ class NodeAgent:
                 "wall_utc": wall_utc(), "monotonic_ns": time.monotonic_ns(), "clock_domain": self.delivery.clock_domain,
                 "hardware": {"architecture": os.uname().machine, "hailo_device_present": Path("/dev/hailo0").exists()},
                 "cameras": cameras, "serial_devices": serial, "calibrations": calibrations,
-                "perception": observer, "station": station,
+                "perception": observer, "station": station,"mobile_observation":mobile,
                 "capabilities": {"physical_motion": bool(station and station['available']) or self.mode=='nano', "servo_bus_access": bool(station and station['available']),
                                  "serial_discovery": True, "joint_measurements": bool(station and station['measurements']),
                                  "calibration_verified": bool(station and len(station['roles'])==2), "arm_roles_assigned": bool(station and len(station['roles'])==2),
                                  "camera_preview": any(camera["available"] for camera in cameras),
                                  "camera_only_recording": True, "hailo_detection": observer["available"],
+                                 "power_independent_observation_capture": bool(self.mobile_capture),
                                  "durable_event_outbox": True, "vlm": False},
                 "errors": (["so101_roles_unassigned", "so101_calibration_unverified"] if self.mode == "pi" else [])
                           + ([self.delivery.error] if self.delivery.error else [])}
@@ -578,9 +632,12 @@ def make_handler(agent):
         def _get(self, path):
             parts = path.strip("/").split("/")
             if agent.mobile_records is not None and path=='/mobile/recordings':
-                self._json(200,{'recordings':agent.mobile_records.recordings()})
+                self._json(200,{'recordings':agent.mobile_records.recordings()+(agent.mobile_capture.recordings() if agent.mobile_capture else [])})
             elif agent.mobile_records is not None and len(parts)==4 and parts[:2]==['mobile','recordings'] and parts[3]=='download':
-                self._download(agent.mobile_records.archive(parts[2]),parts[2])
+                self._download(agent.mobile_archive(parts[2]),parts[2])
+            elif path=='/legacy/teaching/mobile' and agent.mobile_capture is not None:
+                code,payload=agent.teaching_status()
+                self._json(code,payload)
             elif path.startswith('/station/') and agent.station is not None:
                 if path=='/station/status':
                     self._json(200,agent.station.status())
@@ -700,7 +757,10 @@ def make_handler(agent):
                 if station:
                     self._json(200,agent.station.command(path.removeprefix('/station/'),payload))
                 elif legacy:
-                    code, result = agent.legacy_bridge.request(path.removeprefix("/legacy/"), payload)
+                    if path.startswith('/legacy/teaching/mobile/') and agent.mobile_capture is not None:
+                        code,result=agent.teaching_command(path.rsplit('/',1)[1],payload)
+                    else:
+                        code, result = agent.legacy_bridge.request(path.removeprefix("/legacy/"), payload)
                     self._json(code, result)
                 else:
                     manifest = agent.recordings.start(payload.get("camera_id"), payload.get("duration_s"),

@@ -1,0 +1,30 @@
+{
+  "id": "d4600287744b487b9a46f3998b10e712",
+  "kind": "camera_recording",
+  "project_id": "02",
+  "status": "completed",
+  "created": 1792980492.6801407,
+  "updated": 1792980496.4106977,
+  "config": {
+    "camera_id": "nano-rgbd",
+    "duration_s": 3.0,
+    "_execution_commit": "2a0820b330718043406c10db3e752e0106a475af"
+  },
+  "result": {
+    "recording_id": "d4600287744b487b9a46f3998b10e712",
+    "camera_id": "nano-rgbd",
+    "source_type": "physical_camera_observation",
+    "camera_only": true,
+    "supervised_actions_available": false,
+    "state": "completed",
+    "frame_count": 15,
+    "archive_sha256": "1444b5c64e9114da2ce15a185b532f51819ccb4ae9a498a1059a8cf9b1a43ba8",
+    "artifact": "/home/jetsonnx/.local/share/explorer/state/artifacts/14/1444b5c64e9114da2ce15a185b532f51819ccb4ae9a498a1059a8cf9b1a43ba8.tar",
+    "local_original_retained": true,
+    "result_scope": "Observation recording; not a trained physical skill",
+    "execution_commit": "2a0820b330718043406c10db3e752e0106a475af"
+  },
+  "progress": 1.0,
+  "error": null,
+  "frame_available": false
+}

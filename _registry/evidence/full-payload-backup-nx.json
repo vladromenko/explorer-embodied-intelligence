@@ -1,0 +1,34 @@
+{
+  "all_restored_file_sha256_verified": true,
+  "artifact_payloads_included": true,
+  "backup_directory": "/home/jetsonnx/.local/state/explorer/full-backups/full-20261026-0510",
+  "completed": true,
+  "manifest_sha256": "05bb120709953cfe6ba3b0fe858c5ae71d4029ad84cd61b179aa4e07831dfe0d",
+  "payload_bytes": 1125410902,
+  "payload_file_count": 287,
+  "references": {
+    "arbitrary_model_deserialization_executed": false,
+    "known_dataset_manifests_checked": 4,
+    "local_hashed_references_checked": 78,
+    "original_absolute_provenance_paths_retained": 0,
+    "unparsed_or_large_json_files": 0
+  },
+  "schema": "explorer_full_payload_backup_v1",
+  "source_writes_performed": false,
+  "stage": "completed",
+  "store": {
+    "counts": {
+      "events": 1467,
+      "jobs": 14,
+      "nodes": 2,
+      "sessions": 23,
+      "skills": 5,
+      "tickets": 0
+    },
+    "integrity": "ok",
+    "store_opened": true
+  },
+  "test_restore_passed": true,
+  "total_bytes": 1128615060,
+  "total_regular_files": 296
+}

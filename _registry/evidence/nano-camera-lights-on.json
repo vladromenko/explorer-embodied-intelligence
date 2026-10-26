@@ -1,0 +1,51 @@
+{
+  "sampled_unix": 1792981203.8263946,
+  "rgb_mean": 145.09026909722223,
+  "rgb_max": 255,
+  "camera_frame": {
+    "at": 1792981203.7164092,
+    "image_stamp": 1792981203.705771,
+    "frame": "camera_color_optical_frame",
+    "width": 640,
+    "height": 480,
+    "source": "onboard_ros_cpu_cache_v1",
+    "camera_id": "onboard_rgbd",
+    "frame_id": "3a7cf04b525046bcb4cd53c33982bea7",
+    "camera_info_version": "f9623bebe94601dbade469588cd82025864d7c6d0f5752c2fc0c153041a13754",
+    "intrinsic_k": [
+      480.7078552246094,
+      0.0,
+      322.29058837890625,
+      0.0,
+      480.7112731933594,
+      245.64146423339844,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "distortion_d": [
+      -0.01774778589606285,
+      0.0024330997839570045,
+      0.00028392899548634887,
+      -0.000394188187783584,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ros_header": {
+      "sec": 1792981203,
+      "nanosec": 705771008,
+      "frame_id": "camera_color_optical_frame"
+    },
+    "exposure_time_source": "ROS_image_header_timestamp",
+    "sensor_exposure_time_verified": false,
+    "clock_alignment_verified": false,
+    "received_monotonic_ns": 8051646040823,
+    "received_wall_unix": 1792981203.71347,
+    "receive_time_basis": "host_callback_receive_estimate_not_exposure",
+    "jpeg_sha256": "357abd8836b592e44272d9560597227d38a05dcd56d4bef3286889c35a23d270",
+    "jpeg": "frame-raw.jpg",
+    "same_frame_hash_verified": true
+  }
+}
