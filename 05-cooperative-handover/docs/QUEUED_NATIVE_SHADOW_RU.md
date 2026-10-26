@@ -35,3 +35,23 @@ JPEG/JSON hashes и CPU predictor fixture. Они проверяют пропу�
 иной boot, исходные нулевые base-команды, channel/outer-context tamper,
 legacy9 rejection, warmup-before-source и cancel-before-I/O. Это проверка ПО,
 не обучение модели106D и не физическое испытание.
+
+`CooperativeService.command('shadow', {session_id, expected_epoch, request_id},
+authenticated_actor=...)` теперь создаёт две отдельные native jobs через
+`QueuedNativeShadows`. До первой вставки проверяются **оба** source SkillSpec,
+model/checkpoint и original cohort SHA. Сеть/модели в Control Center при этом
+не вызываются. `request_id` — bounded idempotency key: UI создаёт новый UUID
+на явный новый запрос, а при повторе HTTP использует прежний. Без ID действует
+одна reservation на закреплённые session/epoch/models. Committed SQL insert с
+потерянным return восстанавливается при явном retry; missing half не стартует
+автоматически при перезапуске.
+
+GET snapshot для выбранной session добавляет `queued_native_shadows`. Каждый
+элемент имеет `jobs.{giver,receiver}.job_id`, `native_heads` с actual status,
+scheduler metadata и отдельными native contracts9/6. После completed ещё раз
+проверяются исходные packet/JPEG/prediction assets, их hashes, модель и finite
+native output. `both_native_inferences_verified` относится только ко времени
+worker inference. Кадры разных роботов не объявляются синхронными; STOP меняет
+epoch, старые результаты остаются историей. `persistent_warm_actor_ready` и
+`reusable_for_native_dispatch` всегда false: ни completed job, ни старое shadow
+не становятся свежим действием в коротком receiver-hold окне.

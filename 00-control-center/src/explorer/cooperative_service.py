@@ -26,6 +26,7 @@ from explorer_shared.handover_adapters import OperatorEvidenceInbox
 from . import skill_workflow as mobile
 from . import lab_skill_workflow as lab
 from .mobile_dataset_evidence import inspect_mobile_import
+from .cooperative_policy_adapters import QueuedNativeShadows
 
 
 def _boot():return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
@@ -57,6 +58,7 @@ class CooperativeService:
         self.recorder=CooperativeRecorder(self.root/'recordings',sources,clock_domain=self.domain,clock=clock) if len(sources)==2 else None
         self.workflow=CooperativeWorkflow(self.root/'workflow',self.registry,self.recorder,self.inbox,
             clock_domain=self.domain,clock=clock,authority=self._authority,managed_root=store.root)
+        self.queued_shadows=QueuedNativeShadows(store,self.root/'queued-shadows',current_session=self.workflow.snapshot)
     @staticmethod
     def _origin(node):
         host=node.get('host');port=node.get('port')
@@ -315,6 +317,8 @@ bound first; default construction cannot turn on policy execution.
             'selected_session':selected,'native_episode_choices':self._episode_choices(selected) if selected else {'giver':[],'receiver':[]},
             'missing_native_providers':['cross_embodiment_transfer'],'physical_execution_default':False,
             'model_source_errors':model_errors,
+            'queued_native_shadows':self.queued_shadows.snapshots(selected) if selected else [],
+            'persistent_warm_model_actor_ready':False,
             'model_adapters_bound':{role:callable(self.models.get(role)) for role in ('giver','receiver')}}
     def artifact(self,kind,identity,role=None):
         if not isinstance(identity,str) or not re.fullmatch('[0-9a-f]{32}',identity):raise ValueError('Server-issued source artifact ID required')
@@ -417,7 +421,10 @@ idempotent; process restart never queues its missing half automatically.
         elif operation=='stop':result=self.workflow.cancel_session(session)
         elif operation=='confirm_evidence':result=self.inbox.confirm(body.get('challenge_id'),
             {key:body[key] for key in ('affirmed','observing','note') if key in body},authenticated_actor=authenticated_actor)
-        elif operation=='shadow':result=self.workflow.shadow(session)
+        elif operation=='shadow':
+            row=self.workflow.snapshot(session);selected=self.workflow.skill(row['skill_id'],row['skill_version'])
+            if not selected['confirmed']:raise ValueError('Confirm exact cooperative native model references first')
+            result=self.queued_shadows.enqueue(row,selected['spec'],request_id=body.get('request_id'))
         elif operation=='attach_native_giver':result=self.attach_native_giver(session,body,authenticated_actor=authenticated_actor)
         elif operation=='review_recording':
             available=self._episode_choices(self.workflow.snapshot(session));references={}
