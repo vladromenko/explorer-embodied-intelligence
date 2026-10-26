@@ -1,0 +1,97 @@
+{
+  "arm_modes": [
+    "cartesian",
+    "joint"
+  ],
+  "default_arm_mode": "cartesian",
+  "frames": {
+    "cartesian": "base_footprint",
+    "x": "вперёд",
+    "y": "влево",
+    "z": "вверх"
+  },
+  "gamepad": {
+    "cartesian": {
+      "right_stick_x": "Y",
+      "right_stick_y": "X",
+      "y_a": "Z"
+    },
+    "common": {
+      "b": "STOP",
+      "l1": "поворот шасси влево",
+      "l2": "открывать захват",
+      "left_stick": "шасси: ход и mecanum-смещение",
+      "r1": "поворот шасси вправо",
+      "r2": "закрывать захват",
+      "right_stick_click": "переключить скорость руки обычная/быстрая",
+      "select": "сменить режим руки",
+      "start": "возобновить",
+      "x": "точный режим"
+    },
+    "joint": {
+      "dpad_x": "J5",
+      "dpad_y": "J4",
+      "right_stick_x": "J1",
+      "right_stick_y": "J2",
+      "y_a": "J3"
+    }
+  },
+  "help": {
+    "gamepad_cartesian": "Правый стик — X/Y; Y/A — Z вверх/вниз; крестовина не двигает руку.",
+    "gamepad_common": "Левый стик — ход и mecanum; L1/R1 — поворот; L2/R2 — открыть/закрыть захват; нажатие правого стика — скорость руки.",
+    "gamepad_joint": "Правый стик — J1/J2; Y/A — J3+/−; крестовина ↑/↓ — J4+/−, ←/→ — J5−/+.",
+    "keyboard_cartesian": "I/K — X вперёд/назад; J/L — Y влево/вправо; U/O — Z вверх/вниз.",
+    "keyboard_common": "W/S — вперёд/назад; A/D — mecanum влево/вправо; Q/E — поворот; N/M — открыть/закрыть захват; −/+ — обычная/быстрая скорость руки.",
+    "keyboard_joint": "J/L — J1−/+; I/K — J2+/−; U/O — J3+/−; Y/H — J4+/−; ,/. — J5−/+."
+  },
+  "id": "explorer-manual-v2",
+  "keyboard": {
+    "arm_speed": {
+      "faster": "Equal",
+      "slower": "Minus"
+    },
+    "cartesian": {
+      "KeyI": "arm_x_forward",
+      "KeyJ": "arm_y_left",
+      "KeyK": "arm_x_back",
+      "KeyL": "arm_y_right",
+      "KeyO": "arm_z_down",
+      "KeyU": "arm_z_up"
+    },
+    "common": {
+      "KeyA": "left",
+      "KeyD": "right",
+      "KeyE": "turn_right",
+      "KeyM": "grip_close",
+      "KeyN": "grip_open",
+      "KeyQ": "turn_left",
+      "KeyS": "backward",
+      "KeyW": "forward"
+    },
+    "joint": {
+      "Comma": "wrist_left",
+      "KeyH": "pitch_down",
+      "KeyI": "joint2_increase",
+      "KeyJ": "joint1_decrease",
+      "KeyK": "joint2_decrease",
+      "KeyL": "joint1_increase",
+      "KeyO": "joint3_decrease",
+      "KeyU": "joint3_increase",
+      "KeyY": "pitch_up",
+      "Period": "wrist_right"
+    },
+    "mode": {
+      "Digit1": "cartesian",
+      "Digit2": "joint"
+    },
+    "precision": [
+      "ShiftLeft",
+      "ShiftRight"
+    ],
+    "resume": "Enter",
+    "stop": [
+      "Space",
+      "Escape"
+    ]
+  }
+}

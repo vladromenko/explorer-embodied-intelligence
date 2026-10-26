@@ -1,0 +1,24 @@
+{
+  "scope": "GET_ONLY_REAL_NATIVE_CONTROL_SCHEME_NO_HARDWARE_POSTS",
+  "captured_unix_s": 1793010961.5964983,
+  "control_scheme": "explorer-manual-v2",
+  "GET_responses": [
+    {
+      "path": "/legacy/teleop/controls",
+      "status": 200,
+      "response_sha256": "bc3a62c851625f11b707e48dc45d58c905933c2d7edad22461f6c28098e4989d"
+    },
+    {
+      "path": "/legacy/teleop",
+      "status": 200,
+      "response_sha256": "d24a0cd026df61d6ad91ac311bb3f3c8c1358d2574052debefca9981bf3ca226"
+    }
+  ],
+  "private_source_path": "/home/jetsonnx/.local/state/explorer-work/gamepad-controls/readonly-controls.json",
+  "private_source_sha256": "9db381ba1cbf336f892993a83195fdeac5f1edd39cdd5477dae9f7a588016ae7",
+  "native_public_HTML_sha256": "8de12bd344bd2125bd41c633c4744772eac0404b4db381a7ed1e5c634bb2f6e6",
+  "selected_wire": "audited source=keyboard keys[] bridge; raw gamepad axes payload not assumed",
+  "actual_hardware_POSTs": 0,
+  "actual_chassis_motion": 0,
+  "physical_gamepad_qualification": "NOT_VALIDATED"
+}
