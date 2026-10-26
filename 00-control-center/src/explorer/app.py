@@ -405,10 +405,19 @@ async def create_job(request: Request):
 
 
 @app.post('/api/jobs/{job_id}/{operation}')
-async def job_operation(job_id: str, operation: str):
+async def job_operation(job_id: str, operation: str, request: Request):
     job = STORE.job(job_id)
     if not job:
         raise HTTPException(404)
+    if operation=='schedule':
+        try:
+            body=await request.json()
+            if (not isinstance(body,dict) or set(body)!={'options','expected_revision'} or
+                    not isinstance(body['options'],dict) or not re.fullmatch('[0-9a-f]{64}',str(body['expected_revision']))):
+                raise HTTPException(400,'Scheduling requires options and the displayed revision')
+            if STORE.schedule_status(job_id)['revision']!=body['expected_revision']:raise HTTPException(409,'Scheduling metadata changed; refresh before editing')
+            return STORE.schedule_job(job_id,body['options'],expected_revision=body['expected_revision'])
+        except (ValueError,KeyError,TypeError) as error:raise HTTPException(409,str(error)) from error
     if operation=='retry':
         try:return public_job(STORE.retry_import_job(job_id))
         except ValueError as error:raise HTTPException(409,str(error)) from error
@@ -417,7 +426,8 @@ async def job_operation(job_id: str, operation: str):
         raise HTTPException(409, 'Operation is not valid for this job')
     if operation in ('pause','resume') and job['kind'] not in ('sim_pilot','train_act','rosmaster_skill_train','so101_skill_train','world_model','dagger','skill_cycle','manipulation','manipulation_student','manipulation_benchmark','manipulation_curriculum','mobile_manipulation','manipulation_selective_repair','policy_transfer','fault_repair'):
         raise HTTPException(409,'Pause and resume apply to training. Stop an interactive attempt and start a fresh one.')
-    STORE.update_job(job_id, status=desired[operation])
+    try:STORE.request_job_operation(job_id,operation)
+    except ValueError as error:raise HTTPException(409,str(error)) from error
     if operation=='cancel' and job['kind']=='station_rollout' and (job.get('result') or {}).get('control_epoch'):
         node=next(node for node in CONFIG['nodes'] if node['id']=='pi')
         try:
@@ -426,6 +436,12 @@ async def job_operation(job_id: str, operation: str):
         except httpx.HTTPError:
             pass
     return public_job(STORE.job(job_id))
+
+
+@app.get('/api/queue')
+async def shared_queue_status():
+    from .scheduler import queue_status
+    return await asyncio.to_thread(queue_status,STORE)
 
 
 @app.get('/api/transfer/sources')
