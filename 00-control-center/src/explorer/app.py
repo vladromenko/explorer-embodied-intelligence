@@ -348,6 +348,8 @@ def demonstration_plan(project_id: str,task_id: str='pick_and_place'):
 async def demonstration_review(request: Request):
     from .demonstration_wizard import annotate
     body=await request.json()
+    if not isinstance(body,dict):
+        raise HTTPException(400,'Review must be an object')
     try:
         return await asyncio.to_thread(annotate,STORE,body.get('project_id'),body.get('task_id'),body)
     except (ValueError,TypeError) as error:

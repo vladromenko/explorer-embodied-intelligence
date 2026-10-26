@@ -1927,6 +1927,68 @@
         }
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-ADAPTIVE-DEMONSTRATION-WIZARD-001",
+      "function_or_module": "00-control-center/src/explorer/demonstration_wizard.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:00-control-center/docs/DEMONSTRATION_WIZARD_RU.md",
+          "role": "Existing owned contracts and software qualification"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Source-verified immutable episode review and outcome-driven next batch; operator labels do not promote physical task success or change source training admission.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest tests/test_demonstration_wizard.py -q",
+          "result": "14 passed",
+          "scope": "SOFTWARE_ONLY_localhost_HTTP_and_retained_source_fixture_tests"
+        }
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-DIRECT-RETARGET-NODE-BINDING-001",
+      "function_or_module": "shared/explorer_shared/retarget_service.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/DIRECT_PI_NANO_RU.md",
+          "role": "Existing owned contracts and software qualification"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "One existing measured SO101 cache and authenticated Pi to Nano transport; explicit held events only, original lease unchanged, no physical registration inferred.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest tests/test_direct03_nodes.py tests/test_pi_nano_route.py -q",
+          "result": "32 passed (part of46 targeted suite)",
+          "scope": "SOFTWARE_ONLY_localhost_HTTP_and_retained_source_fixture_tests"
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
