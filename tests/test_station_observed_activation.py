@@ -45,7 +45,7 @@ def rig():
     provider=StationObservedPermission(station,camera,clock=lambda:tick[0])
     assert camera.reads==station.status_calls==0  # constructor has no source IO.
     camera.publish()
-    selected={'purpose':'source04_eval','model_job_id':'b'*32,'skill_id':str(uuid.uuid4()),'skill_version':1,
+    selected={'purpose':'source04_eval','evaluation_id':uuid.uuid4().hex,'model_job_id':'b'*32,'skill_id':str(uuid.uuid4()),'skill_version':1,
         'spec_sha256':'c'*64,'checkpoint_content_sha256':'d'*64,'action_contract_id':CONTRACT,'source_domain':'PHYSICAL'}
     return provider,station,camera,tick,selected
 

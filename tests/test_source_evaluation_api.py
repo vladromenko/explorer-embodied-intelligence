@@ -62,6 +62,15 @@ def test_actual_central_auth_user_display_attach_and_cancel_through_common_nativ
         attachment=current_permission(store,identity,worker)
         assert attachment['grant_id']==grant['grant_id'] and attachment['binding']==job['config']['binding']
         assert client.get(route+'/permission').json()['execution_permission']
+        # Another attempt of the SAME model cannot reuse this native grant or
+        # its pinned display, even while the original user grant is still live.
+        second=client.post(base,json=body,headers=csrf).json()['id']
+        assert store.job(second)['config']['binding']['evaluation_id']!=job['config']['binding']['evaluation_id']
+        store.update_job(second,status='running',result=dict(phase='awaiting_source_observed_grant',model_ready=True,source_owner_session_id=uuid.uuid4().hex))
+        reused=client.post(base+'/'+second+'/observe',json=dict(grant_id=grant['grant_id'],frame_id=challenge['frame']['frame_id'],
+            displayed_jpeg_sha256=challenge['frame']['jpeg_sha256'],expected_control_epoch=grant['control_epoch'],observing=True),headers=csrf)
+        assert reused.status_code==409 and station.calls==[]
+        assert provider.status()['grant']['grant_id']==grant['grant_id']
         # Metadata cancellation revokes only this exact attached grant; no
         # native start/action/STOP is needed while the fake owner is still idle.
         cancelled=client.post('/api/jobs/'+identity+'/cancel',json={},headers=csrf)

@@ -39,6 +39,8 @@ def binding(value):
             raise ValueError('Bounded explicit source/run identity required')
     if result['purpose']=='cooperative05' and not all(result.get(key) for key in ('cooperative_session_id','coordinator_epoch','object_id')):
         raise ValueError('Exact cooperative session/epoch/object required')
+    if result['purpose']=='source04_eval' and not re.fullmatch('[0-9a-f]{32}',str(result.get('evaluation_id'))):
+        raise ValueError('Exact server-issued source04 attempt identity required; another attempt cannot borrow this grant')
     return result
 
 

@@ -115,7 +115,7 @@ class SourceOutcomeInbox:
         return consumed
 
 
-def request_settings(store,model_job_id,body=None,*,admission_verifier=None):
+def request_settings(store,model_job_id,body=None,*,admission_verifier=None,evaluation_id=None):
     body=body or {}
     if set(body)-{'duration_s','object_instance_id','scene_id','goal_instance_id','review_timeout_s'}:
         raise EvaluationBlocked('Source evaluation form accepts task context and finite duration only')
@@ -133,7 +133,9 @@ def request_settings(store,model_job_id,body=None,*,admission_verifier=None):
         if not isinstance(value,str) or not 0<len(value)<=160 or not re.fullmatch('[A-Za-zА-Яа-яЁё0-9_.: -]+',value):
             raise EvaluationBlocked('Plain bounded object/scene/goal descriptions required')
         context[key]=value
-    binding=dict(purpose='source04_eval',model_job_id=model_job_id,skill_id=model['manifest']['skill_id'],
+    attempt=evaluation_id if evaluation_id is not None else uuid.uuid4().hex
+    if not isinstance(attempt,str) or not ID.fullmatch(attempt):raise EvaluationBlocked('Server-owned exact source attempt identity required')
+    binding=dict(purpose='source04_eval',evaluation_id=attempt,model_job_id=model_job_id,skill_id=model['manifest']['skill_id'],
         skill_version=model['manifest']['skill_version'],spec_sha256=model['manifest']['spec_sha256'],
         checkpoint_content_sha256=model['checkpoint_content_sha256'],action_contract_id=CONTRACT,source_domain=model['source_domain'])
     return dict(schema=REQUEST_SCHEMA,source_model_job_id=model_job_id,binding=binding,
@@ -293,7 +295,8 @@ def run_so101_skill_eval(store,job,config=None,*,station=None,permission=None,ph
     if station is None or permission is None or phase_provider is None:
         raise EvaluationBlocked('A_BOUND_COMMON_STATION_OBSERVED_OWNER_REQUIRED')
     model=_metadata(store,store.job(requested['source_model_job_id']),admission_verifier=admission_verifier)
-    expected=request_settings(store,requested['source_model_job_id'],dict(requested['context'],duration_s=requested['duration_s'],review_timeout_s=requested['review_timeout_s']),admission_verifier=admission_verifier)
+    expected=request_settings(store,requested['source_model_job_id'],dict(requested['context'],duration_s=requested['duration_s'],review_timeout_s=requested['review_timeout_s']),admission_verifier=admission_verifier,
+        evaluation_id=requested['binding'].get('evaluation_id'))
     if any(requested.get(key)!=value for key,value in expected.items()):raise EvaluationBlocked('Queued source request/model/Spec changed')
     if getattr(station,'execution_domain',None)!=model['source_domain']:raise EvaluationBlocked('SIM source cannot execute on physical Station or change its domain')
     grant_id=requested.get('grant_id');initial_epoch=requested.get('expected_control_epoch')
