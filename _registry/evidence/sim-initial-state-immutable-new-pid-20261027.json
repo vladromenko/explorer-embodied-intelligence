@@ -1,0 +1,150 @@
+{
+  "schema": "explorer_immutable_SIM_initial_actual_reexecution_v1",
+  "frozen_source_commit": "b65d134885fe8621f9da074e5e9dca6173824f2d",
+  "actual_qualification": {
+    "RNG_draws_equal": true,
+    "actual_CAD_model": true,
+    "capture_did_not_advance_native_or_env_RNG": true,
+    "commands_reexecuted": 12,
+    "compiled_MJB_bytes": 153859356,
+    "coordinator_pid": 2060740,
+    "elapsed_s": 13.295900148004876,
+    "independent_reports_equal": true,
+    "initial_RGB_render_reexecution": "UNQUALIFIED",
+    "learned_policy_executed": false,
+    "maximum_native_error": 0.0,
+    "native_dtype": "<f8",
+    "native_shape": [
+      13,
+      769
+    ],
+    "native_states_bitwise_equal": true,
+    "no_retrospective_V9_amendment": true,
+    "original_runtime_OS_closure": "PARTIAL",
+    "passed": true,
+    "physical_io": false,
+    "producer": {
+      "exit_code": 0,
+      "pid": 2060741,
+      "process_reaped": true
+    },
+    "producer_exited_before_verifier_started": true,
+    "renderer_created": false,
+    "resealed_malformed_mutable_profiles": [
+      {
+        "case": "warning_overflow",
+        "native_and_RNG_unchanged": true,
+        "rejected_before_native_state_set": true,
+        "valid_resealed_manifest_sha256": "29a9b2bacf9c6f5f4a0232c57e5c2319921cec085406fbdc02ac0d3af9e3361b"
+      },
+      {
+        "case": "command_shape",
+        "native_and_RNG_unchanged": true,
+        "rejected_before_native_state_set": true,
+        "valid_resealed_manifest_sha256": "dcdf664f2e241a3d977714d43c7b31c6eca948a6a0e1cd9af2401f3d25cea5f4"
+      },
+      {
+        "case": "seed_shape",
+        "native_and_RNG_unchanged": true,
+        "rejected_before_native_state_set": true,
+        "valid_resealed_manifest_sha256": "7109ab1fc515d1a82b7fbdf966136cf176680210124b243d37098037831b31ad"
+      },
+      {
+        "case": "provider_field",
+        "native_and_RNG_unchanged": true,
+        "rejected_before_native_state_set": true,
+        "valid_resealed_manifest_sha256": "a9d4572090f081f6e174f4ffbaac4f51a0dca0d32b2efbc9e871f88616a2eb35"
+      }
+    ],
+    "schema": "explorer_stationary_sim_initial_new_pid_qualification_v1",
+    "snapshot_sha256": "ba8c8655a91cc3a66d9516aa8ec90828401717f6300d4f7b8de9635b317175aa",
+    "source_driver_sha256": "aa9ab263e2e206c69cb04d8a86f1e94f1c92fc4a53af092709c4d967e6872f0f",
+    "source_helper_sha256": "e01b78cd5fb9e5fa878f97d3f19702cbf88e5906b620c7ff532da581feac6a12",
+    "total_snapshot_payload_bytes": 196704747,
+    "unknown_profile_rejected_before_mutation": true,
+    "verifier": {
+      "exit_code": 0,
+      "pid": 2060758,
+      "process_reaped": true
+    }
+  },
+  "original_qualification_sha256": "6d0798252e42ae9773f3981bac97b7c2a6ed80fc8a9f4484259e66198351c99a",
+  "resources": {
+    "coordinate-resources-final": {
+      "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-sim-initial-immutable-v7b-root-20261027.service",
+      "limits": {
+        "cpu.max": "100000 100000",
+        "memory.current": "214110208",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+        "memory.max": "2147483648",
+        "memory.peak": "1843105792",
+        "memory.swap.max": "0",
+        "memory.swap.peak": "0"
+      },
+      "pid": 2060740,
+      "process_status": [
+        "VmHWM:\t   30968 kB",
+        "VmRSS:\t   30248 kB"
+      ]
+    },
+    "produce-resources-final": {
+      "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-sim-initial-immutable-v7b-root-20261027.service",
+      "limits": {
+        "cpu.max": "100000 100000",
+        "memory.current": "1232789504",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+        "memory.max": "2147483648",
+        "memory.peak": "1433387008",
+        "memory.swap.max": "0",
+        "memory.swap.peak": "0"
+      },
+      "pid": 2060741,
+      "process_status": [
+        "VmHWM:\t 1418604 kB",
+        "VmRSS:\t 1011468 kB"
+      ]
+    },
+    "verify-resources-final": {
+      "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-sim-initial-immutable-v7b-root-20261027.service",
+      "limits": {
+        "cpu.max": "100000 100000",
+        "memory.current": "1227943936",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+        "memory.max": "2147483648",
+        "memory.peak": "1843105792",
+        "memory.swap.max": "0",
+        "memory.swap.peak": "0"
+      },
+      "pid": 2060758,
+      "process_status": [
+        "VmHWM:\t 1630708 kB",
+        "VmRSS:\t 1031540 kB"
+      ]
+    }
+  },
+  "CAD_assets_recovered_from_prior_portable_bundle": {
+    "manifest_sha256": "dcfe626acd2e0dbb7dfd53685980534ccd887506472913edcd9f6f3c993a7a68",
+    "all20_asset_bytes_and_SHA_verified": true,
+    "originals_modified": false
+  },
+  "retained_setup_negative": {
+    "unit": "explorer-sim-initial-immutable-v7-root-20261027",
+    "qualification_executed": false,
+    "CAD_model_constructed": false,
+    "reason": "Coordinator supplied a nonexistent mesh directory; failed resolve_mesh_dir before environment allocation.",
+    "failure": {
+      "detail": "produce process failed; exact source/failure retained",
+      "error_type": "RuntimeError",
+      "physical_io": false
+    },
+    "original_failure_sha256": "332ed10a459b81123289f1ef097a220ff01e7cb34530d023616e2cb12cac3d21"
+  },
+  "scope": {
+    "immutable_bundle_regressions": 30,
+    "future_record_target_trial_capture_hook_actually_executed": false,
+    "physical_commands": 0,
+    "renderer_created": false,
+    "learned_task_qualification": false,
+    "OS_closure": "PARTIAL"
+  }
+}

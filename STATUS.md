@@ -37,13 +37,26 @@ PID restore выполнен:7640 files,150620160 bytes TAR, все4 исход�
 13×769 native float64 состояний после12 команд, RNG и отчёты нового PID;
 4 resealed malformed profiles отклонены до native setter.
 [Точная область](_registry/evidence/sim-initial-state-preflight-new-pid-20261027.json).
-Позднее ревью выявило mutable-bundle TOCTOU; исправление готовится отдельно.
+Позднее ревью выявило mutable-bundle TOCTOU; он исправлен,30 регрессий прошли.
+Новый producer→exit→новый PID прогон исправленного helper прошёл13.30s,
+native/RNG/report побитно равны;20 CAD assets восстановлены из прежнего
+portable bundle с проверкой каждого SHA. Первый ошибочный путь assets сохранён
+как setup failure до построения сцены.
+[Новый receipt](_registry/evidence/sim-initial-state-immutable-new-pid-20261027.json).
+Будущий record_target_trial теперь может явно сохранить snapshot сразу после
+reset;53 focused tests прошли. Этот hook ещё не выдаётся за реально пройденный
+полный CAD/RGB trial.
 RGB, полная OS closure и learned outcome этим не квалифицированы.
 
 Настоящие ACT6/DP6/106 CPU и ограниченный ACT9 CUDA profile4 уже проверялись;
 original negative GPU resume и все неудачные object trials сохранены.
 Последняя правка Station меняет один из18 DP source hashes, поэтому для новой
-версии требуется новая CPU квалификация; агент готовит её с2 CPU/4GiB/swap0.
+версии выполнены новые настоящие ACT6/DP6/106 CPU обновления и reload;
+все веса точно равны R2. Новая DP18 binding проверена реальным selector и
+отказом при изменении Station. Ошибки поиска pytest artifacts сохранены
+отдельно и исправлены без повторного optimizer или подмены math result.
+Новая Supervisor/new-PID process qualification готовится с2 CPU/4GiB/swap0.
+[Точная область](shared/training/STATION_CPU_20261027_STATION_R3B_RU.md).
 Предыдущие веса/доказательства не заменяются результатами новой версии.
 [Профили](shared/training/PROFILE4_ACTUAL_20261026_RU.md).
 Проверка original Nano factory/startup:6 tests, fake ROS/драйверы,
