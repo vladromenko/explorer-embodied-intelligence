@@ -196,3 +196,18 @@ def test_unit_serializes_cache_handoff_without_camera_lifecycle_dependency():
     assert 'Requires' not in unit['Unit'] and 'Wants' not in unit['Unit']
     assert unit['Service']['ExecStart'].endswith('/scripts/run_nano_camera_cache.sh --run')
     assert unit['Service']['UMask'] == '0077'
+
+
+def test_exact_cached_JPEG_RGBD_binding_and_native_callback_clock_are_retained(legacy):
+    cache=sink(legacy);cache.set_info(info());cache.depth(image('16UC1',stamp=999.81));cache.color(image());cache.flush_registered()
+    camera=json.loads((legacy/'data/camera-frame.json').read_bytes());pair=json.loads((legacy/'data/rgbd-cache-metadata.json').read_bytes())
+    assert pair['native_boot_id']==camera['native_boot_id'] and pair['native_clock_domain']==camera['native_clock_domain']
+    assert pair['color_frame_id']==camera['frame_id'] and pair['color_jpeg_sha256']==camera['jpeg_sha256']
+    assert pair['snapshot_sha256']==hashlib.sha256((legacy/'data/rgbd-snapshot.npz').read_bytes()).hexdigest()
+    assert pair['file_complete_monotonic_ns']>=max(pair['color_received_monotonic_ns'],pair['depth_received_monotonic_ns'])
+    # A paired color callback whose JPEG was throttled must never pretend to be
+    # the previously displayed JPEG, even though a new RGBD array is available.
+    cache.depth(image('16UC1',stamp=999.84));cache.color(image(stamp=999.83));cache.flush_registered()
+    newer=json.loads((legacy/'data/rgbd-cache-metadata.json').read_bytes())
+    assert newer['color_frame_id'] is None and newer['color_jpeg_sha256'] is None
+    assert json.loads((legacy/'data/camera-frame.json').read_bytes())['frame_id']==camera['frame_id']

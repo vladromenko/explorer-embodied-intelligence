@@ -147,11 +147,14 @@ manual launches of legacy perception outside its systemd unit.
 
 
 class CacheSink:
-    def __init__(self, data_dir, helper, guard, wall=time.time, monotonic=time.monotonic):
+    def __init__(self, data_dir, helper, guard, wall=time.time, monotonic=time.monotonic, *, boot_id=None, clock_domain=None):
         self.data = Path(data_dir)
         if not self.data.is_dir() or self.data.is_symlink():
             raise ValueError('Existing non-symlink legacy data directory is required')
         self.helper, self.guard = helper, guard
+        self.boot_id=boot_id or Path('/proc/sys/kernel/random/boot_id').read_text().strip()
+        self.clock_domain=clock_domain or 'nano:'+self.boot_id
+        self.color_receipts,self.depth_receipts,self.color_bindings={},{},{}
         self.wall, self.monotonic = wall, monotonic
         self.rgbs, self.depths = deque(maxlen=8), deque(maxlen=8)
         self.color_headers, self.depth_headers = {}, {}
@@ -174,6 +177,8 @@ class CacheSink:
         self.rgbs.append((array, stamp, native_header['frame_id']))
         self.color_headers = {key: value for key, value in self.color_headers.items() if key in {row[1] for row in self.rgbs}}
         self.color_headers[stamp] = native_header
+        live={row[1] for row in self.rgbs};self.color_receipts={key:value for key,value in self.color_receipts.items() if key in live};self.color_bindings={key:value for key,value in self.color_bindings.items() if key in live}
+        self.color_receipts[stamp]=received_monotonic_ns
         now, mono = self.wall(), self.monotonic()
         if not self.guard.allowed() or not 0 <= now - stamp < 2 or (self.last_raw is not None and mono - self.last_raw < .12):
             return
@@ -182,7 +187,7 @@ class CacheSink:
         jpeg = encoded.getvalue()
         current = self.info_calibration
         matching = current and current[0]['width'] == message.width and current[0]['height'] == message.height and current[0]['frame'] == native_header['frame_id']
-        metadata = dict(at=now, image_stamp=stamp, frame=native_header['frame_id'], width=message.width, height=message.height,
+        metadata = dict(native_boot_id=self.boot_id,native_clock_domain=self.clock_domain,at=now, image_stamp=stamp, frame=native_header['frame_id'], width=message.width, height=message.height,
             source=SOURCE, camera_id='onboard_rgbd', frame_id=uuid.uuid4().hex,
             camera_info_version=current[1] if matching else None,
             intrinsic_k=current[0]['k'] if matching else None, distortion_d=current[0]['d'] if matching else None,
@@ -193,9 +198,11 @@ class CacheSink:
         payload = json_bytes(metadata)
         atomic_bytes(self.data / 'frame-raw.jpg', jpeg)
         atomic_bytes(self.data / 'camera-frame.json', payload)
+        self.color_bindings[stamp]=dict(frame_id=metadata['frame_id'],jpeg_sha256=metadata['jpeg_sha256'])
         self.last_raw, self.raw_written, self.last_raw_wall = mono, self.raw_written + 1, now
 
     def depth(self, message):
+        received_monotonic_ns=time.monotonic_ns()
         native_header = header(message)
         stamp = native_header['sec'] + native_header['nanosec'] / 1e9
         array, scale = decode_image(message)
@@ -204,6 +211,7 @@ class CacheSink:
         self.depths.append((array, stamp, native_header['frame_id'], scale))
         self.depth_headers = {key: value for key, value in self.depth_headers.items() if key in {row[1] for row in self.depths}}
         self.depth_headers[stamp] = native_header
+        live={row[1] for row in self.depths};self.depth_receipts={key:value for key,value in self.depth_receipts.items() if key in live};self.depth_receipts[stamp]=received_monotonic_ns
 
     def flush_registered(self):
         if not self.guard.allowed():
@@ -221,7 +229,11 @@ class CacheSink:
                 staged.unlink(missing_ok=True)
                 staged.with_suffix('.tmp').unlink(missing_ok=True)
             rgb, depth, _ = pair
-            metadata = dict(source=SOURCE, image_stamp=stamp, depth_stamp=depth[1],
+            binding=self.color_bindings.get(rgb[1],{})
+            metadata = dict(source=SOURCE,native_boot_id=self.boot_id,native_clock_domain=self.clock_domain,
+                snapshot_sha256=hashlib.sha256((self.data/'rgbd-snapshot.npz').read_bytes()).hexdigest(),file_complete_monotonic_ns=time.monotonic_ns(),
+                color_received_monotonic_ns=self.color_receipts.get(rgb[1]),depth_received_monotonic_ns=self.depth_receipts.get(depth[1]),
+                color_frame_id=binding.get('frame_id'),color_jpeg_sha256=binding.get('jpeg_sha256'),image_stamp=stamp, depth_stamp=depth[1],
                 color_ros_header=self.color_headers[rgb[1]], depth_ros_header=self.depth_headers[depth[1]],
                 camera_info_version=self.info_calibration[1], same_optical_frame_verified=True,
                 registration_basis='Existing camera producer owns registration; audited helper checks frame, shape and skew',
@@ -249,8 +261,9 @@ def validate_runtime_paths(legacy_root, state_dir):
     return root, state
 
 
-def run(legacy_root, state_dir):
+def run(legacy_root, state_dir, *, node_id='nano'):
     root, state = validate_runtime_paths(legacy_root, state_dir)
+    if not isinstance(node_id,str) or not node_id or ':' in node_id:raise ValueError('Actual native observer node ID required')
     helper = load_helper(root)
     state.mkdir(parents=True, exist_ok=True, mode=0o700)
     with (state / 'writer.lock').open('a') as owner:
@@ -258,8 +271,14 @@ def run(legacy_root, state_dir):
         import rclpy
         from rclpy.node import Node
         from rclpy.qos import qos_profile_sensor_data
-        from sensor_msgs.msg import Image as RosImage, CameraInfo
-        sink = CacheSink(root / 'data', helper, NativeGuard(root / 'data'))
+        from sensor_msgs.msg import Image as RosImage, CameraInfo, Imu, LaserScan
+        from nav_msgs.msg import Odometry
+        from std_msgs.msg import Float32
+        from rclpy.serialization import serialize_message
+        from .native_sensor_cache import SensorCacheSink
+        boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip()
+        sensors=SensorCacheSink(state/'sensors',clock_domain=node_id+':'+boot_id,boot_id=boot_id)
+        sink = CacheSink(root / 'data', helper, NativeGuard(root / 'data'),boot_id=boot_id,clock_domain=node_id+':'+boot_id)
         rclpy.init()
         node = Node('explorer_cpu_camera_cache', enable_rosout=False, start_parameter_services=False)
         def guarded(callback):
@@ -277,13 +296,27 @@ def run(legacy_root, state_dir):
         node.create_subscription(RosImage, '/camera/depth/image_raw', guarded(sink.depth), qos_profile_sensor_data)
         node.create_subscription(CameraInfo, '/camera/color/camera_info', guarded(sink.set_info), qos_profile_sensor_data)
         node.create_timer(.05, guarded(sink.flush_registered))
+        def sensor_receiver(topic):
+            def receive(message):
+                received=time.monotonic_ns()
+                try:
+                    sensors.ingest(topic,message,bytes(serialize_message(message)),received_monotonic_ns=received)
+                    sensors.errors.pop(topic,None)
+                except (OSError,ValueError,TypeError) as error:
+                    sensors.errors[topic]=type(error).__name__+': '+str(error)
+                    raise
+            receive.__name__='sensor_'+topic.strip('/').replace('/','_')
+            return receive
+        for topic,kind in (('/odom_raw',Odometry),('/imu/data_raw',Imu),('/scan0',LaserScan),('/scan1',LaserScan),('/battery',Float32),('/camera/depth/camera_info',CameraInfo)):
+            node.create_subscription(kind,topic,guarded(sensor_receiver(topic)),qos_profile_sensor_data)
+        node.create_timer(.1,guarded(sensors.flush))
         def status():
             allowed = sink.guard.allowed()
             fresh = sink.last_raw_wall is not None and 0 <= time.time() - sink.last_raw_wall < 2
             rgbd_age = None if sink.last_rgbd_wall is None else time.time() - sink.last_rgbd_wall
             atomic_bytes(state / 'status.json', json_bytes(dict(at=time.time(), source=SOURCE,
                 mode=('publishing' if fresh else 'waiting_for_fresh_frames') if allowed else 'standby', reason=sink.guard.reason,
-                raw_frames_written=sink.raw_written, registered_pairs_written=sink.rgbd_written,
+                sensor_cache=sensors.status(),raw_frames_written=sink.raw_written, registered_pairs_written=sink.rgbd_written,
                 rgbd_ready=allowed and rgbd_age is not None and 0 <= rgbd_age < 2,
                 registered_pair_write_age_s=rgbd_age, last_registered_color_ros_stamp=sink.previous_pair or None,
                 last_error=sink.last_error, errors=dict(sink.errors), helper_sha256=HELPER_SHA256, controller_writes=0, gpu_used=False)))
@@ -300,13 +333,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--legacy-root', type=Path, default=Path('/home/vlad/Explorer'))
     parser.add_argument('--state-dir', type=Path, default=Path.home() / '.local/share/explorer/node-state/nano-camera-cache')
+    parser.add_argument('--node-id',default='nano',help='Same actual observer/native tap ID; does not configure a controller')
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--check', action='store_true', help='Read-only default; no ROS node or cache writes')
     mode.add_argument('--run', action='store_true', help='Subscribe only; use the documented ordered single-writer handoff unit')
     args = parser.parse_args()
     validate_runtime_paths(args.legacy_root, args.state_dir)
     if args.run:
-        run(args.legacy_root, args.state_dir)
+        run(args.legacy_root, args.state_dir,node_id=args.node_id)
     else:
         value = readonly_check(args.legacy_root)
         print(json.dumps(value, sort_keys=True))

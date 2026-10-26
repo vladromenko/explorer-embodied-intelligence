@@ -1,0 +1,77 @@
+{
+  "schema": "explorer_native_sensor_readonly_qualification_summary_v1",
+  "source_impl_sha256": {
+    "shared/explorer_shared/nano_camera_cache.py": "984afac3e1bad03de6bc2886876f878acb8920c6bea1718d2901eaf6ce003c98",
+    "shared/explorer_shared/native_sensor_cache.py": "cb8a8ef557b6b47dde2bafa8170f21699ffebf6154a1e0f96af9092bd41447c7"
+  },
+  "evidence_sha256": {
+    "passive-topics.json": "9f2b611804b5dad757d4a2c7c958c03f61a41e609285069c3e0e7ff4ea91d906",
+    "passive-cdr.json": "c3af656ed1ed9dd0ce04fa152e33be98eb3034d18bfa2ce14aeb36ab60f8afd6",
+    "qualification.json": "d89cf23a3fb32d778f57c71f65c8a70e689fae02db2dfe6271103c770a4a2265",
+    "replay_qualification.py": "110ec98f36e114709ff2fdc65d723184281f76d618e04aec7df863ad5292e9e3"
+  },
+  "scope": "actual_passive_ROS_data_then_local_source_replay_only",
+  "topics": [
+    "/battery",
+    "/camera/depth/camera_info",
+    "/imu/data_raw",
+    "/odom_raw",
+    "/scan0",
+    "/scan1"
+  ],
+  "actual_scan_shapes": {
+    "/scan0": {
+      "source_ray_count": 500,
+      "range_min_m": 0.05000000074505806,
+      "range_max_m": 12.0,
+      "valid_rays": 470,
+      "ray_order_preserved": true,
+      "whole_published_array_not_360_degree_claim": true
+    },
+    "/scan1": {
+      "source_ray_count": 500,
+      "range_min_m": 0.05000000074505806,
+      "range_max_m": 12.0,
+      "valid_rays": 463,
+      "ray_order_preserved": true,
+      "whole_published_array_not_360_degree_claim": true
+    }
+  },
+  "actual_source_channels_replayed": {
+    "base_velocity": true,
+    "camera_calibration": false,
+    "camera_depth": false,
+    "imu": true,
+    "lidar": true,
+    "odometry_pose": true,
+    "power_context": true
+  },
+  "lidar_partial_mask_preserved": {
+    "frame_id": true,
+    "range_valid_mask": true,
+    "ranges": false,
+    "raw_ranges": true
+  },
+  "source_clock_alignment_verified": false,
+  "exposure_alignment_verified": false,
+  "extrinsics_verified": false,
+  "old_status_odom_stale": true,
+  "physical_io": false,
+  "remote_files_written": false,
+  "remote_service_changes": false,
+  "original_controller_settings_changed": false,
+  "firmware_feedback_enabled": false,
+  "learned_policy_executed": false,
+  "skill_success_claimed": false,
+  "capture_pipeline_deployed": false,
+  "tests": {
+    "final_focused": "33 passed",
+    "previous_combined_vision_sensor": "86 passed"
+  },
+  "limitations": [
+    "Actual passive data then LOCAL replay; no cross-host mapping or live recorder qualification",
+    "Original500-ray source arrays retained; invalid raw0/NaN/Inf never interpreted as free space",
+    "Partial lidar/calibration declarations remain separate from model-admitted features",
+    "No depth/extrinsics inferred from old cache metadata"
+  ]
+}
