@@ -32,9 +32,20 @@ symlink допускается через проверенный resolved root. 
 за managed roots не читается как допустимый artifact.
 
 JSON/JSONL и доступный text проходят shared secret guard. TAR originals
-проверяются streaming без extraction: безопасные names, никаких symlink/hardlink/
-FIFO/device members, expanded/count bounds, inspected JSON/text и запрет SQLite
-header. Неизвестные opaque arrays/weights не становятся qualified dataset от
+проверяются без extraction/decompression: сначала собственная проверка сырых
+512-byte headers, затем TAR parser на том же `O_NOFOLLOW` descriptor. Для
+PAX/GNU metadata действует лимит64KiB на header,16MiB суммарно и8 последовательных
+extension headers; известные timestamps/path/size/account names проверяются,
+sparse/xattr/auth/неизвестные metadata отвергаются. Обычные дробные PAX `mtime`
+и GNU longname сохраняются вместе со всеми исходными байтами. Никаких
+symlink/hardlink/FIFO/device members, повторяющихся/небезопасных names,
+неполного terminator, скрытых непустых padding bytes; действуют expanded/count
+bounds, inspected JSON/text и запрет SQLite header. Сам parser получает только
+bounded read/seek wrapper: запрос чтения свыше64KiB отклоняется **до allocation**,
+даже если исходный файл изменили после preflight. SHA и inode/size/mtime/ctime
+сверяются до и после чтения; подмена пути не меняет открытый descriptor.
+Compressed/неподдержанный TAR остаётся withheld dependency с `PARTIAL`.
+Неизвестные opaque arrays/weights не становятся qualified dataset от
 расширения файла: server source producer и его admission отвечают за исходный
 формат. Это не универсальный anonymizer/детектор зашифрованного секрета в binary.
 Все unknown source/runtime dependencies сохраняются; generic worker сейчас

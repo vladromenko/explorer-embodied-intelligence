@@ -113,10 +113,188 @@ def _fingerprint(rows):
     return {ident: sha(canonical(body)) for ident, body in rows.items()}
 
 
-def _inspect_tar(path):
-    """Read-only streaming member policy; never extract supplied archives."""
+TAR_BLOCK = 512
+TAR_METADATA_BYTES = 64 * 1024
+TAR_METADATA_TOTAL_BYTES = 16 * 1024**2
+
+
+def _tar_number(raw):
+    if raw[0] == 0x80:  # GNU positive base-256, never a negative/sparse sentinel.
+        return int.from_bytes(raw[1:], 'big')
+    value = raw.rstrip(b'\x00 ').lstrip(b' ')
+    if not value or not re.fullmatch(b'[0-7]+', value):
+        raise ExportRejected('Raw TAR malformed numeric header')
+    return int(value, 8)
+
+
+def _tar_string(raw):
+    head, _, tail = raw.partition(b'\x00')
+    if tail.strip(b'\x00'):
+        raise ExportRejected('Raw TAR hidden bytes after header string')
+    try:
+        return head.decode('utf-8')
+    except UnicodeError as error:
+        raise ExportRejected('Raw TAR non-UTF8 metadata is not qualified') from error
+
+
+def _tar_path(name):
+    if len(name.encode('utf-8')) > 4096 or any(ord(char) < 32 or ord(char) == 127 for char in name):
+        raise ExportRejected('Raw TAR path length/control characters are forbidden')
+    assert_secret_free(name)
+    return _relative(name.rstrip('/'))
+
+
+def _tar_owner(value):
+    assert_secret_free(value)
+    if not re.fullmatch(r'[A-Za-z0-9_.@-]{0,64}', value):
+        raise ExportRejected('Raw TAR owner metadata is not a bounded account name')
+
+
+def _tar_pax(raw):
+    """Parse at most64KiB ourselves; tarfile must not allocate an untrusted PAX."""
+    values, offset = {}, 0
+    allowed = {'path', 'size', 'mtime', 'atime', 'ctime', 'uid', 'gid', 'uname', 'gname'}
+    while offset < len(raw):
+        separator = raw.find(b' ', offset, offset + 12)
+        length_bytes = raw[offset:separator] if separator != -1 else b''
+        if not re.fullmatch(b'[1-9][0-9]{0,8}', length_bytes):
+            raise ExportRejected('Raw TAR malformed PAX record length')
+        end = offset + int(length_bytes)
+        if end > len(raw) or end <= separator + 2 or raw[end - 1:end] != b'\n':
+            raise ExportRejected('Raw TAR truncated PAX record')
+        text = raw[separator + 1:end - 1].decode('utf-8', errors='strict')
+        key, equals, value = text.partition('=')
+        if not equals or key not in allowed or key in values or '\x00' in value or '\n' in value:
+            raise ExportRejected('Raw TAR unsupported/sparse/auth PAX metadata')
+        assert_secret_free({key: value})
+        if key == 'path':
+            _tar_path(value)
+        elif key in {'size', 'uid', 'gid'}:
+            if not re.fullmatch('[0-9]{1,20}', value) or int(value) > LIMITS['max_file_bytes']:
+                raise ExportRejected('Raw TAR PAX numeric bound')
+        elif key in {'mtime', 'atime', 'ctime'}:
+            if not re.fullmatch(r'-?[0-9]{1,20}(?:\.[0-9]{1,20})?', value):
+                raise ExportRejected('Raw TAR malformed PAX timestamp')
+        elif key in {'uname', 'gname'}:
+            _tar_owner(value)
+        values[key] = value
+        offset = end
+    return values
+
+
+def _tar_zero_padding(stream, length):
+    while length:
+        part = stream.read(min(length, TAR_METADATA_BYTES))
+        if not part or part.strip(b'\x00'):
+            raise ExportRejected('Raw TAR truncated/nonzero padding')
+        length -= len(part)
+
+
+def _preflight_tar(stream, file_size):
+    """Check raw512-byte headers before any tarfile extension-header parser."""
+    count, expanded, metadata_bytes = 0, 0, 0
+    global_pax, local_pax, longname, names = {}, {}, None, set()
+    extension_chain, local_pending = 0, False
+    while stream.tell() < file_size:
+        header = stream.read(TAR_BLOCK)
+        if len(header) != TAR_BLOCK:
+            raise ExportRejected('Raw TAR truncated header')
+        if header == bytes(TAR_BLOCK):
+            if stream.read(TAR_BLOCK) != bytes(TAR_BLOCK) or local_pending or longname is not None:
+                raise ExportRejected('Raw TAR incomplete terminator or orphan metadata')
+            _tar_zero_padding(stream, file_size - stream.tell())
+            return
+        count += 1
+        if count > LIMITS['max_files']:
+            raise ExportRejected('Raw TAR header count exceeds bound')
+        checksum = _tar_number(header[148:156])
+        if checksum != sum(header[:148]) + 8 * 32 + sum(header[156:]):
+            raise ExportRejected('Raw TAR header checksum is malformed')
+        if header[257:265] not in (b'ustar\x0000', b'ustar  \x00', bytes(8)):
+            raise ExportRejected('Raw TAR unsupported header format')
+        kind, size = header[156:157], _tar_number(header[124:136])
+        if kind not in (b'0', b'\x00', b'5', b'x', b'g', b'L'):
+            raise ExportRejected('Raw TAR links/devices/sparse/unknown types are forbidden')
+        if _tar_string(header[157:257]):
+            raise ExportRejected('Raw TAR link metadata is forbidden')
+        for field in (header[265:297], header[297:329]):
+            _tar_owner(_tar_string(field))
+        name = _tar_string(header[:100])
+        prefix = _tar_string(header[345:500]) if header[257:263] == b'ustar\x00' else ''
+        name = prefix + '/' + name if prefix else name
+        if kind in (b'x', b'g', b'L'):
+            extension_chain += 1
+            if extension_chain > 8:
+                raise ExportRejected('Raw TAR recursive extension chain exceeds bound')
+            if name not in ('././@PaxHeader', '././@LongLink'):
+                _tar_path(name)
+            metadata_bytes += size
+            if size > TAR_METADATA_BYTES or metadata_bytes > TAR_METADATA_TOTAL_BYTES:
+                raise ExportRejected('Raw TAR extension metadata exceeds64KiB/total bound')
+            if size > file_size - stream.tell():
+                raise ExportRejected('Raw TAR truncated metadata')
+            raw = stream.read(size)
+            if kind == b'L':
+                if longname is not None or local_pending or not raw.endswith(b'\x00'):
+                    raise ExportRejected('Raw TAR ambiguous GNU longname')
+                longname = _tar_string(raw)
+                _tar_path(longname)
+            else:
+                values = _tar_pax(raw)
+                if kind == b'g':
+                    global_pax.update(values)
+                else:
+                    if local_pending or longname is not None:
+                        raise ExportRejected('Raw TAR ambiguous local PAX metadata')
+                    local_pax = values
+                    local_pending = True
+        else:
+            effective = dict(global_pax, **local_pax)
+            name = effective.get('path', longname if longname is not None else name)
+            _tar_path(name)
+            if name.rstrip('/') in names:
+                raise ExportRejected('Raw TAR duplicate member path')
+            names.add(name.rstrip('/'))
+            size = int(effective.get('size', size))
+            if kind == b'5' and size != 0:
+                raise ExportRejected('Raw TAR directory payload is forbidden')
+            if size > LIMITS['max_file_bytes'] or size > file_size - stream.tell():
+                raise ExportRejected('Raw TAR truncated/member size exceeds bound')
+            expanded += size
+            if expanded > LIMITS['max_total_bytes']:
+                raise ExportRejected('Raw TAR expansion bound')
+            if kind != b'5' and Path(name).suffix.lower() not in EXTENSIONS - {'.tar'}:
+                raise ExportRejected('Raw TAR unqualified member format')
+            stream.seek(size, os.SEEK_CUR)
+            local_pax, longname = {}, None
+            extension_chain, local_pending = 0, False
+        _tar_zero_padding(stream, (-size) % TAR_BLOCK)
+    raise ExportRejected('Raw TAR missing complete terminator')
+
+
+class _BoundedTarReader:
+    """Same pinned descriptor; cap reads even if bytes mutate after preflight."""
+    def __init__(self, stream, size):
+        self.stream, self.size = stream, size
+
+    def read(self, size=-1):
+        if type(size) is not int or not 0 <= size <= TAR_METADATA_BYTES:
+            raise ExportRejected('Raw TAR parser read exceeds64KiB allocation bound')
+        return self.stream.read(min(size, self.size - self.tell()))
+
+    def seek(self, offset, whence=os.SEEK_SET):
+        target = offset if whence == os.SEEK_SET else self.tell() + offset if whence == os.SEEK_CUR else self.size + offset if whence == os.SEEK_END else -1
+        if not 0 <= target <= self.size:
+            raise ExportRejected('Raw TAR parser seek outside pinned file')
+        return self.stream.seek(target)
+
+    def tell(self):
+        return self.stream.tell()
+
+
+def _inspect_tar_members(reader):
     count, expanded = 0, 0
-    with tarfile.open(path, mode='r:*') as archive:
+    with tarfile.open(fileobj=reader, mode='r:') as archive:
         for member in archive:
             count += 1
             if count > LIMITS['max_files']:
@@ -137,7 +315,38 @@ def _inspect_tar(path):
                     if Path(member.name).suffix.lower() in {'.json', '.jsonl', '.ndjson', '.py', '.xml', '.urdf'}:
                         if member.size > LIMITS['max_json_bytes']:
                             raise ExportRejected('Raw episode TAR inspected text bound')
-                        _check_text(first + stream.read(), 'source_archive_member', member.name, LIMITS)
+                        parts = [first]
+                        remaining = member.size - len(first)
+                        while remaining:
+                            part = stream.read(min(remaining, TAR_METADATA_BYTES))
+                            if not part:
+                                raise ExportRejected('Raw TAR truncated inspected text')
+                            parts.append(part)
+                            remaining -= len(part)
+                        _check_text(b''.join(parts), 'source_archive_member', member.name, LIMITS)
+
+
+def _inspect_tar(path, *, expected_sha256=None):
+    """No extraction/decompression; preflight and parser share one no-follow FD."""
+    path = Path(path)
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(descriptor, 'rb') as stream:
+        before = os.fstat(stream.fileno())
+        if not stat.S_ISREG(before.st_mode) or before.st_size > LIMITS['max_file_bytes']:
+            raise ExportRejected('Raw TAR source is not a bounded regular file')
+        identity = lambda item: (item.st_dev, item.st_ino, item.st_size, item.st_mtime_ns, item.st_ctime_ns)
+        checksum = hashlib.file_digest(stream, 'sha256').hexdigest()
+        if expected_sha256 is not None and checksum != expected_sha256:
+            raise ExportRejected('Raw TAR source SHA changed before inspection')
+        stream.seek(0)
+        _preflight_tar(stream, before.st_size)
+        stream.seek(0)
+        _inspect_tar_members(_BoundedTarReader(stream, before.st_size))
+        stream.seek(0)
+        final_checksum = hashlib.file_digest(stream, 'sha256').hexdigest()
+        if (final_checksum != checksum or identity(os.fstat(stream.fileno())) != identity(before)
+                or identity(path.stat(follow_symlinks=False)) != identity(before)):
+            raise ExportRejected('Raw TAR source changed during inspection')
 
 
 def _role(path):
@@ -263,7 +472,7 @@ def _inventory(store, registry, source_rows):
                 if size > LIMITS['max_json_bytes'] and resolved.suffix.lower() in ('.json', '.jsonl', '.ndjson'):
                     raise ExportRejected('Scientific JSON inspection bound exceeded')
                 if resolved.suffix.lower() == '.tar':
-                    _inspect_tar(resolved)
+                    _inspect_tar(resolved, expected_sha256=checksum)
                 elif size <= LIMITS['max_json_bytes']:
                     _check_text(resolved.read_bytes(), _role(resolved), resolved.name, LIMITS)
                 if str(resolved) not in accepted:
