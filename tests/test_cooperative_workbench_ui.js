@@ -1,0 +1,129 @@
+"use strict";
+// Pure HTTP/DOM fixtures only. No robot connection, camera owner or physical IO.
+const test = require("node:test"), assert = require("node:assert/strict");
+const {createCooperativeWorkbenchClient,cooperativeWorkbenchPanel,bindCooperativeWorkbench} = require("../00-control-center/src/explorer/static/cooperative-workbench.js");
+const clone = value => JSON.parse(JSON.stringify(value));
+const deferred = () => {let resolve,reject;const promise = new Promise((yes,no) => {resolve=yes;reject=no;});return {promise,resolve,reject};};
+function fixture() {
+  const giver = {choice_id:"server-giver",name:"Предмет в общую зону",confirmed:true,reference:{skill_id:"giver-skill",skill_version:2,spec_sha256:"a".repeat(64),experiment_slug:"rosmaster_leader_learning"},phase_ids:["approach","grasp"],native_variants:[{variant_id:"giver-variant",title:"Сцена1"}],models:[{model_id:"giver-model",status:"shadow_only"}]};
+  const receiver = {choice_id:"server-receiver",name:"Принять и положить",confirmed:true,reference:{skill_id:"receiver-skill",skill_version:3,spec_sha256:"b".repeat(64),experiment_slug:"so101_source_learning"},phase_ids:["receive","place"],native_variants:[{variant_id:"receiver-variant"}],models:[]};
+  const spec = {skill_id:"cooperative-skill",version:1,spec_sha256:"c".repeat(64),name:"Передать конфету",object_description:"Конфета1",receiver_goal_description:"В коробку",outcome_criteria:["Передана без падения"],mode:"both_manual",subskills:{giver:giver.reference,receiver:receiver.reference}};
+  const session = {session_id:"server-session",skill_id:spec.skill_id,skill_version:spec.version,spec_sha256:spec.spec_sha256,epoch:"epoch-one",scene_id:"Стол1",object_instance_id:"Конфета1",split:"development",execution_domain:"observation_only",mode:"both_manual",status:"READY_FOR_OBSERVED_STEPS",protocol_state:"PREPARE",legal_events:["giver_holding"],recording_id:null,last_recording_id:null,readiness:{metadata_and_recording_blockers:[],observed_execution_blockers:["NO_CURRENT_OBSERVED_AUTHORITY"],raw_two_camera_recording_available:true}};
+  return {workbench:{skills:[{spec,confirmed:true}],sessions:[session]},catalogue:{phases:["PREPARE","SO101_FINISH"]},native_choices:{giver:[giver],receiver:[receiver]},pending_evidence:[],cameras:{giver:{preview_url:"/api/cameras/nano-rgbd/snapshot",available:true},receiver:{preview_url:"/api/cameras/pi-overview/snapshot",available:true}},native_episode_choices:{"server-session":{giver:[{choice_id:"original-giver",name:"Исходный ROSMASTER"}],receiver:[{choice_id:"original-receiver",name:"Исходный SO101"}]}}};
+}
+async function rig(overrides = {}) {
+  const calls=[], state=fixture();const client=createCooperativeWorkbenchClient({get:async path => {calls.push(["GET",path]);return clone(state);},post:async (path,body) => {calls.push(["POST",path,body]);return {result:{ready:false,blockers:["ACTUAL_SOURCE_MISSING"]},snapshot:clone(state)};},...overrides});
+  await client.refresh();client.chooseSession("server-session");return {client,calls,state};
+}
+test("construct/render/bind perform no requests; explicit refresh is GET only",async () => {
+  const calls=[];const client=createCooperativeWorkbenchClient({get:async path => {calls.push(path);return fixture();},post:async () => {throw new Error("implicit POST forbidden");}});
+  const handlers=new Map(),root={addEventListener:(id,fn)=>handlers.set(id,fn),removeEventListener:id=>handlers.delete(id),contains:()=>true};
+  const unbind=bindCooperativeWorkbench(root,client);cooperativeWorkbenchPanel(client.snapshot());assert.equal(calls.length,0);unbind();assert.equal(handlers.size,0);
+  await client.refresh();assert.deepEqual(calls,["/api/cooperative"]);
+});
+test("proposals resolve only actual server choices/models/phases and are never auto-confirmed",async () => {
+  const {client,calls}=await rig();client.edit("object_description","Синяя конфета");client.edit("receiver_goal_description","Положить в коробку");client.edit("outcome_criteria","Нет падения\nПредмет в коробке");
+  assert.throws(()=>client.propose(),/обе реальные/);client.edit("giver_choice_id","server-giver");client.edit("receiver_choice_id","server-receiver");client.edit("phase_maps.giver.PREPARE","approach");client.edit("giver_model_id","giver-model");await client.propose();
+  const post=calls.at(-1);assert.equal(post[1],"/api/cooperative/propose_skill");assert.equal(post[2].giver_choice_id,"server-giver");assert.deepEqual(post[2].outcome_criteria,["Нет падения","Предмет в коробке"]);assert.deepEqual(post[2].giver_phase_map,{PREPARE:"approach"});assert.equal(post[2].giver_model_id,"giver-model");assert.ok(!("subskills" in post[2]));assert.ok(!calls.some(row=>row[1].includes("confirm_skill")));
+  client.edit("phase_maps.giver.PREPARE","invented");assert.throws(()=>client.propose(),/реальные исходные фазы/);
+});
+test("confirm pins exact current immutable spec SHA",async () => {
+  const {client,calls}=await rig();await client.confirm();assert.deepEqual(calls.at(-1)[2],{skill_id:"cooperative-skill",version:1,spec_sha256:"c".repeat(64)});
+});
+test("drafts survive refresh; source choice change clears only its own model/phase binding",async () => {
+  const {client}=await rig();client.edit("object_description","Свой сохранённый черновик");client.edit("phase_maps.receiver.PREPARE","receive");client.edit("phase_maps.giver.PREPARE","grasp");client.edit("giver_model_id","giver-model");client.edit("giver_choice_id","server-giver");await client.refresh();
+  const draft=client.snapshot().draft;assert.equal(draft.object_description,"Свой сохранённый черновик");assert.deepEqual(draft.phase_maps.giver,{});assert.equal(draft.giver_model_id,"");assert.equal(draft.phase_maps.receiver.PREPARE,"receive");
+});
+test("session requires actual inputs and stationary confirmation; sealed partition remains sealed",async () => {
+  const {client,calls}=await rig();client.edit("scene","Стол за ширмой");client.edit("object_instance","Зелёный предмет2");assert.throws(()=>client.createSession(),/неподвижность/);client.edit("stationary_chassis_confirmed",true);client.edit("split","sealed_test");await client.createSession();const body=calls.at(-1)[2];assert.equal(body.split,"sealed_test");assert.equal(body.execution_domain,"observation_only");assert.equal(body.stationary_chassis_confirmed,true);
+  client.edit("execution_domain","user_observed_physical_test");assert.throws(()=>client.createSession(),/не разрешён сервером/);client.edit("execution_domain","shadow");client.edit("giver_input_mode","policy");assert.throws(()=>client.createSession(),/подтверждённого навыка/);
+});
+test("FSM buttons and requests use server legal event list and exact current epoch",async () => {
+  const {client,calls}=await rig();assert.throws(()=>client.step("release_requested"),/недоступен/);await client.step("giver_holding");assert.deepEqual(calls.at(-1)[2],{session_id:"server-session",event:"giver_holding",expected_epoch:"epoch-one"});
+  const html=cooperativeWorkbenchPanel(client.snapshot());assert.ok(html.includes('data-coop-event="giver_holding"'));assert.ok(!html.includes('data-coop-event="release_requested"'));
+});
+test("STOP bypasses in-flight step; late step cannot revive old epoch",async () => {
+  const pending=deferred(),state=fixture(),calls=[];
+  const client=createCooperativeWorkbenchClient({get:async()=>clone(state),post:async(path,body)=>{calls.push([path,body]);if(path.endsWith("/step"))return pending.promise;const stopped=clone(state);stopped.workbench.sessions[0].status="STOPPED";stopped.workbench.sessions[0].epoch="epoch-two";return {result:{stopped:true},snapshot:stopped};}});
+  await client.refresh();client.chooseSession("server-session");const step=client.step("giver_holding");assert.equal(client.snapshot().busy,true);await client.stop();pending.resolve({result:{accepted:true},snapshot:clone(state)});assert.deepEqual(await step,{ignored:true});
+  assert.equal(client.snapshot().data.workbench.sessions[0].status,"STOPPED");assert.equal(client.snapshot().stops["server-session"].acknowledged,true);assert.throws(()=>client.step("giver_holding"),/После STOP/);assert.equal(calls.length,2);
+});
+test("late GET and failed STOP cannot restore enabled controls",async () => {
+  const waiting=deferred(),state=fixture();let gets=0;
+  const client=createCooperativeWorkbenchClient({get:async()=>++gets===1?clone(state):waiting.promise,post:async()=>{throw new Error("network unknown");}});
+  await client.refresh();client.chooseSession("server-session");const refresh=client.refresh();await assert.rejects(client.stop(),/network unknown/);waiting.resolve(clone(state));await refresh;
+  assert.ok(client.snapshot().stops["server-session"]);assert.equal(client.snapshot().stops["server-session"].acknowledged,false);assert.throws(()=>client.step("giver_holding"),/После STOP/);assert.match(cooperativeWorkbenchPanel(client.snapshot()),/ожидается подтверждение сервера/);
+});
+test("operator evidence requires current challenge/run and two explicit booleans, actor is never client input",async () => {
+  const state=fixture();state.pending_evidence=[{challenge_id:"challenge",run_id:"server-session",state:"pending",question:"Получатель удерживает предмет?",deadline_ns:1}];const posts=[];
+  const {client}=await rig({get:async()=>clone(state),post:async(path,body)=>{posts.push([path,body]);return {result:{},snapshot:clone(state)};}});
+  assert.throws(()=>client.confirmEvidence("challenge"),/конкретный текущий/);client.edit("evidence.challenge.observing",true);client.edit("evidence.challenge.affirmed",true);await client.confirmEvidence("challenge");assert.deepEqual(posts[0][1],{challenge_id:"challenge",observing:true,affirmed:true,note:""});assert.ok(!("actor" in posts[0][1]));assert.throws(()=>client.confirmEvidence("foreign-challenge"));
+});
+test("recording unknown outcome is retained; success cannot be inferred from FSM or closed gripper",async () => {
+  const state=fixture();state.workbench.sessions[0].recording_id="active-original";state.workbench.sessions[0].protocol_completed=true;const posts=[];
+  const {client}=await rig({get:async()=>clone(state),post:async(path,body)=>{posts.push([path,body]);return {result:{},snapshot:clone(state)};}});
+  await client.recordFinish();assert.equal(posts[0][1].outcome.status,"unknown");assert.equal(posts[0][1].outcome.native_roles.giver.status,"unknown");assert.equal(posts[0][1].outcome.native_roles.receiver.independent_of_action_commands,false);
+  client.edit("finish.status","success");assert.throws(()=>client.recordFinish(),/независимого наблюдения/);
+});
+test("review uses only server choices, explicit per-phase outcomes, and preserves unknown",async () => {
+  const state=fixture();state.workbench.sessions[0].last_recording_id="saved-original";const posts=[];
+  const {client}=await rig({get:async()=>clone(state),post:async(path,body)=>{posts.push([path,body]);return {result:{},snapshot:clone(state)};}});
+  client.edit("review.whole_episode_seen",true);client.edit("review.phase_outcomes.PREPARE","success");client.edit("review.phase_outcomes.SO101_FINISH","unknown");client.edit("review.native_episode_choice_ids.giver","invented-ID");client.edit("review.native_episode_choice_ids.receiver","original-receiver");assert.throws(()=>client.review(),/обе реальные/);client.edit("review.native_episode_choice_ids.giver","original-giver");await client.review();
+  assert.equal(posts[0][1].phase_outcomes.SO101_FINISH,"unknown");assert.equal(posts[0][1].outcome,"unknown");assert.deepEqual(posts[0][1].native_episode_choice_ids,{giver:"original-giver",receiver:"original-receiver"});
+});
+test("aggregate/training plan/shadow are separate explicit calls, without browser RGB/state or dispatch",async () => {
+  const state=fixture();state.model_adapters_bound={giver:true,receiver:true};state.workbench.skills[0].spec.subskills.giver.model_id="giver-model";state.workbench.skills[0].spec.subskills.receiver.model_id="receiver-model";const calls=[];const {client}=await rig({get:async()=>clone(state),post:async(path,body)=>{calls.push(["POST",path,body]);return {result:{ready:false},snapshot:clone(state)};}});await client.aggregate();await client.trainingPlan();await client.shadow();const posts=calls.filter(row=>row[0]==="POST");assert.deepEqual(posts.map(row=>row[1]),["/api/cooperative/aggregate","/api/cooperative/training_plan","/api/cooperative/shadow"]);assert.deepEqual(posts[2][2],{session_id:"server-session",expected_epoch:"epoch-one"});assert.ok(posts.every(row=>!JSON.stringify(row[2]).includes("action9")));
+});
+test("server immutable-version drift cannot silently re-pin confirm",async () => {
+  const state=fixture();const {client}=await rig({get:async()=>clone(state)});state.workbench.skills[0].spec.spec_sha256="d".repeat(64);await client.refresh();assert.throws(()=>client.confirm(),/точную версию/);
+});
+test("renderer escapes user/backend text, blocks external/script image URLs and has no raw ID/JSON editor",async () => {
+  const {client}=await rig();const view=client.snapshot();view.error='<script>move()</script>';view.data.cameras.giver.preview_url="javascript:move()";view.data.workbench.skills[0].spec.name='"><img src=x onerror=move()>';
+  const html=cooperativeWorkbenchPanel(view);assert.ok(!html.includes("<script>"));assert.ok(html.includes("&lt;script&gt;"));assert.ok(!html.includes('src="javascript:'));assert.ok(html.includes("Источник камеры не предоставлен сервером"));assert.ok(!html.includes('name="session_id"'));assert.ok(!html.includes("<pre>"));assert.ok(html.includes("ROSMASTER9D"));assert.ok(html.includes("SO1016D"));assert.ok(html.includes('data-coop-action="stop"'));
+});
+test("DOM teardown and disabled or outside buttons never emit requests",async () => {
+  const {client,calls}=await rig();const listeners={};const root={addEventListener:(name,handler)=>listeners[name]=handler,removeEventListener:name=>delete listeners[name],contains:target=>target.inside===true};let errors=0;
+  const teardown=bindCooperativeWorkbench(root,client,()=>errors++),before=calls.length;
+  listeners.click({target:{closest:()=>({inside:true,disabled:true,dataset:{coopAction:"step",coopEvent:"giver_holding"}})}});listeners.click({target:{closest:()=>({inside:false,dataset:{coopAction:"stop"}})}});assert.equal(calls.length,before);teardown();assert.deepEqual(listeners,{});assert.equal(errors,0);
+});
+test("recording boundaries pin original recording ID, not only session epoch",async () => {
+  const state=fixture();state.workbench.sessions[0].recording_id="recording-before-tab-change";const calls=[];
+  const {client}=await rig({get:async()=>clone(state),post:async(path,body)=>{calls.push([path,body]);return {result:{},snapshot:clone(state)};}});
+  client.edit("record_phase","PREPARE");await client.recordStage();await client.recordFinish();assert.ok(calls.every(([,body])=>body.recording_id==="recording-before-tab-change" && body.expected_epoch==="epoch-one"));
+});
+test("a GET started during STOP cannot overwrite its later acknowledged response",async () => {
+  const stop=deferred(),read=deferred(),state=fixture();let gets=0;
+  const client=createCooperativeWorkbenchClient({get:async()=>++gets===1?clone(state):read.promise,post:async()=>stop.promise});
+  await client.refresh();client.chooseSession("server-session");const stopping=client.stop();const fetching=client.refresh();const stopped=clone(state);stopped.workbench.sessions[0].status="STOPPED";stopped.workbench.sessions[0].epoch="next-epoch";stop.resolve({result:{},snapshot:stopped});await stopping;read.resolve(clone(state));await fetching;assert.equal(client.snapshot().data.workbench.sessions[0].status,"STOPPED");
+});
+test("server-persisted STOPPED sessions stay stopped after client/page recreation",async () => {
+  const state=fixture();state.workbench.sessions[0].status="STOPPED";const {client}=await rig({get:async()=>clone(state)});assert.throws(()=>client.step("giver_holding"),/После STOP/);assert.throws(()=>client.recordStart(),/После STOP/);assert.match(cooperativeWorkbenchPanel(client.snapshot()),/старая сессия не возобновляется/);
+});
+test("page recreation preserves text drafts and failed-STOP latch but never old observation affirmations",async () => {
+  const state=fixture(),values=new Map(),storage={getItem:key=>values.get(key),setItem:(key,value)=>values.set(key,value)};
+  const options={storage,get:async()=>clone(state),post:async()=>{throw new Error("unknown network outcome");}};
+  const first=createCooperativeWorkbenchClient(options);await first.refresh();first.chooseSession("server-session");first.edit("object_description","Сохранённый предмет");first.edit("zone_observing",true);first.edit("finish.observed",true);first.edit("evidence.old.affirmed",true);await assert.rejects(first.stop());
+  const reloaded=createCooperativeWorkbenchClient(options);await reloaded.refresh();const view=reloaded.snapshot();assert.equal(view.draft.object_description,"Сохранённый предмет");assert.equal(view.draft.zone_observing,false);assert.equal(view.draft.finish.observed,false);assert.deepEqual(view.draft.evidence,{});assert.throws(()=>reloaded.step("giver_holding"),/После STOP/);
+});
+test("new recording and source original reset prior success labels rather than count them again",async () => {
+  const state=fixture();state.workbench.sessions[0].recording_id="first-recording";state.workbench.sessions[0].last_recording_id="prior-original";const {client}=await rig({get:async()=>clone(state)});
+  client.edit("finish.status","success");client.edit("finish.observed",true);client.edit("review.status","success");client.edit("review.whole_episode_seen",true);client.edit("review.phase_outcomes.PREPARE","success");
+  await client.refresh();assert.equal(client.snapshot().draft.finish.status,"success");assert.equal(client.snapshot().draft.review.status,"success");
+  state.workbench.sessions[0].recording_id="second-recording";state.workbench.sessions[0].last_recording_id="new-original";await client.refresh();assert.equal(client.snapshot().draft.finish.status,"unknown");assert.equal(client.snapshot().draft.finish.observed,false);assert.equal(client.snapshot().draft.review.status,"unknown");assert.deepEqual(client.snapshot().draft.review.phase_outcomes,{});
+});
+test("native giver success requires explicit exact-source phases and separate visible/full-task review",async () => {
+  const state=fixture();state.workbench.sessions[0].recording_id="native-review-original";const calls=[];const {client}=await rig({get:async()=>clone(state),post:async(path,body)=>{calls.push([path,body]);return {result:{},snapshot:clone(state)};}});
+  client.edit("finish.observed",true);client.edit("finish.giver","success");assert.throws(()=>client.recordFinish(),/исходного навыка/);
+  client.edit("finish.giver_visible",true);client.edit("finish.giver_full_task",true);client.edit("finish.giver_phases.approach",true);client.edit("finish.giver_phases.grasp",true);await client.recordFinish();assert.deepEqual(calls[0][1].outcome.native_roles.giver.review,{completed_stages:["approach","grasp"],object_and_goal_visible:true,full_task_confirmed:true});
+  client.edit("finish.giver","failure");assert.deepEqual(client.snapshot().draft.finish.giver_phases,{});assert.equal(client.snapshot().draft.finish.giver_full_task,false);
+});
+test("missing model or observation provider blocks shadow without inventing browser inputs",async () => {
+  const {client,calls}=await rig();const before=calls.length;assert.throws(()=>client.shadow(),/серверные адаптеры/);assert.equal(calls.length,before);assert.match(cooperativeWorkbenchPanel(client.snapshot()),/Shadow заблокирован/);
+});
+test("malformed optional local draft storage cannot replace typed form structures",async () => {
+  const storage={getItem:()=>JSON.stringify({schema:1,draft:{finish:null,phase_maps:{giver:null,receiver:false},review:{phase_outcomes:null},scene:{evil:true}}}),setItem:()=>{}};const client=createCooperativeWorkbenchClient({storage,get:async()=>fixture(),post:async()=>{throw new Error("no POST");}});await client.refresh();assert.equal(client.snapshot().draft.finish.status,"unknown");assert.deepEqual(client.snapshot().draft.phase_maps.giver,{});assert.equal(client.snapshot().draft.scene,"");assert.doesNotThrow(()=>cooperativeWorkbenchPanel(client.snapshot()));
+});
+test("unreviewed failure stays reported analysis data and still closes native recordings as unknown",async () => {
+  const state=fixture();state.workbench.sessions[0].recording_id="partial-failure";const calls=[];const {client}=await rig({get:async()=>clone(state),post:async(path,body)=>{calls.push(body);return {result:{},snapshot:clone(state)};}});
+  client.edit("finish.status","failure");client.edit("finish.giver","failure");await client.recordFinish();assert.equal(calls[0].outcome.status,"failure");assert.equal(calls[0].outcome.native_roles.giver.operator_reported_status,"failure");assert.equal(calls[0].outcome.native_roles.giver.status,"unknown");assert.equal(calls[0].outcome.native_roles.giver.method,"unknown");
+});
