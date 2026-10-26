@@ -17,7 +17,7 @@ def remote(host, args, data=None):
     return result.stdout
 
 
-INSTALL = '''import io,os,pathlib,sys,tarfile
+INSTALL = '''import io,os,pathlib,re,sys,tarfile
 b=pathlib.Path.home()/'.local/share/explorer'
 release=b/'releases'/sys.argv[1]
 release.parent.mkdir(parents=True,exist_ok=True)
@@ -28,6 +28,12 @@ if not release.exists():
  (stage/'RELEASE_COMMIT').write_text(sys.argv[1]+'\\n')
  stage.rename(release)
 current=b/'current'
+sources=[release]
+if current.is_symlink():sources.append(current.resolve())
+for source in sources:
+ if source.parent==release.parent and re.fullmatch('[0-9a-f]{40}',source.name) and (source/'RELEASE_COMMIT').read_text().strip()==source.name:
+  for entry in [source,*source.rglob('*')]:
+   if not entry.is_symlink():entry.chmod(0o755 if entry.is_dir() or entry.stat().st_mode&0o111 else 0o644)
 if current.is_symlink():(b/'previous-release').write_text(str(current.resolve()))
 temporary=b/'current.next'
 if temporary.is_symlink():temporary.unlink()
