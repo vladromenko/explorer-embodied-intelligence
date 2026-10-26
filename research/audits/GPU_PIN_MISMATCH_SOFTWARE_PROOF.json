@@ -1,0 +1,11 @@
+{
+  "scope": "ISOLATED_SOFTWARE_DISPATCH_FIXTURE_NOT_GPU_EXECUTION",
+  "reviewed_commit": "d8b9561",
+  "scheduler_sha256": "53df90095a2db3e21629cc92cc52605eaf679b4559957bbfbfd797eeb169d46e",
+  "qualification_bound_to_current_implementation": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "worker_source_pinned_to": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "GPU_interpreter_selection_was_admitted": true,
+  "worker_environment_contains_old_source": true,
+  "GPU_or_hardware_processes_started": 0,
+  "finding": "Current-source receipt admitted a distinct unqualified older execution source"
+}

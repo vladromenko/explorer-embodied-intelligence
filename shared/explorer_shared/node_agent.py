@@ -93,7 +93,7 @@ class CameraSource:
     def latest(self):
         with self.lock:
             frame = self.frame
-        return frame if frame and (time.monotonic_ns() - frame.monotonic_ns) / 1e9 <= self.stale_s else None
+        return frame if frame and 0 <= (time.monotonic_ns() - frame.monotonic_ns) / 1e9 <= self.stale_s else None
 
     def publish(self, jpeg, width, height, *, bgr=None, source_wall_utc=None,
                 monotonic_ns=None, timestamp_basis="host_receive_estimate"):

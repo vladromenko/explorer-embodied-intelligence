@@ -72,6 +72,7 @@ class OperatorEvidenceInbox:
             raise ValueError('Attach requires the trusted current worker attempt session ID')
         self.clock, self.clock_domain, self.session_id = clock, clock_domain, session_id or uuid.uuid4().hex
         self.condition = threading.Condition(threading.RLock())
+        (self.folder/'cancelled-runs').mkdir(exist_ok=True,mode=0o700)
 
     @contextmanager
     def _disk_guard(self):
@@ -98,12 +99,24 @@ class OperatorEvidenceInbox:
                 rows.append(self._row(path.stem))
         return rows
 
+    def _cancel_path(self,run_id):
+        key=hashlib.sha256((self.session_id+'\0'+run_id).encode()).hexdigest()
+        return self.folder/'cancelled-runs'/(key+'.json')
+
+    def _cancelled(self,run_id):
+        path=self._cancel_path(run_id)
+        if not path.is_file():return False
+        row=json.loads(path.read_text())
+        if row.get('session_id')!=self.session_id or row.get('run_id')!=run_id or row.get('clock_domain')!=self.clock_domain:
+            raise ValueError('Cancellation identity or host clock differs')
+        return True
+
     def pending(self, run_id=None):
         with self.condition:
             with self._disk_guard():
                 now = self.clock()
                 return [dict(row) for row in self._rows() if row['state']=='pending' and row['session_id']==self.session_id
-                    and now <= row['deadline_ns'] and (run_id is None or row['run_id']==run_id)]
+                    and now < row['deadline_ns'] and not self._cancelled(row['run_id']) and (run_id is None or row['run_id']==run_id)]
 
     def confirm(self, challenge_id, body, *, authenticated_actor):
         _identity(authenticated_actor)
@@ -115,7 +128,7 @@ class OperatorEvidenceInbox:
             with self._disk_guard():
                 row = self._row(challenge_id)
                 now = self.clock()
-                if row['session_id'] != self.session_id or row['state'] != 'pending' or now > row['deadline_ns']:
+                if row['session_id'] != self.session_id or row['state'] != 'pending' or now >= row['deadline_ns'] or self._cancelled(row['run_id']):
                     raise ValueError('Challenge is expired, consumed or belongs to another process session')
                 result = dict(row, state='confirmed', authenticated_actor=authenticated_actor,
                     received_ns=now, note=str(body.get('note',''))[:1000],
@@ -126,8 +139,11 @@ class OperatorEvidenceInbox:
             return dict(result)
 
     def cancel_run(self, run_id):
+        _identity(run_id)
         with self.condition:
             with self._disk_guard():
+                _write(self._cancel_path(run_id),dict(session_id=self.session_id,run_id=run_id,
+                    clock_domain=self.clock_domain,cancelled_ns=self.clock()))
                 for row in self._rows():
                     if row['run_id']==run_id and row['session_id']==self.session_id and row['state'] in ('pending','confirmed'):
                         cancelled=dict(row,state='cancelled',cancelled_ns=self.clock())
@@ -146,21 +162,23 @@ class OperatorEvidenceInbox:
             row=dict(challenge_id=challenge_id,session_id=self.session_id,run_id=run_id,object_id=object_id,
                 role=role,after_command_id=after_command_id,statement=statement,question=QUESTIONS[statement],
                 created_ns=self.clock(),deadline_ns=self.clock()+int(timeout_s*1e9),clock_domain=self.clock_domain,state='pending')
-            with self._disk_guard():_write(self.folder/(challenge_id+'.json'),row)
+            with self._disk_guard():
+                if self._cancelled(run_id):raise RuntimeError('Handover attempt was cancelled; a new attempt session is required')
+                _write(self.folder/(challenge_id+'.json'),row)
             while True:
                 with self._disk_guard():
                     row=self._row(challenge_id)
-                    if row['state']=='confirmed':
-                        consumed=dict(row,state='consumed',consumed_ns=self.clock())
-                        _write(self.folder/(challenge_id+'.json'),consumed)
-                        return consumed
-                    if row['state']=='cancelled':
+                    if self._cancelled(run_id) or row['state']=='cancelled':
                         raise RuntimeError('Handover confirmation was cancelled; no old evidence is reusable')
                     remaining=(row['deadline_ns']-self.clock())/1e9
                     if remaining <= 0:
                         expired=dict(row,state='expired',expired_ns=self.clock())
                         _write(self.folder/(challenge_id+'.json'),expired)
-                        raise TimeoutError('No current operator confirmation; timeout never authorizes release')
+                        raise TimeoutError('Operator confirmation expired before consumption; no release authorized')
+                    if row['state']=='confirmed':
+                        consumed=dict(row,state='consumed',consumed_ns=self.clock())
+                        _write(self.folder/(challenge_id+'.json'),consumed)
+                        return consumed
                 self.condition.wait(min(remaining,.1))
 
     def __call__(self, statement, run_id, object_id, role, after_command_id, timeout_s):
