@@ -1,5 +1,7 @@
 """Canonical numeric routes cannot silently reinterpret historical identities."""
 import pytest
+from pathlib import Path
+import hashlib
 from explorer_shared.experiments import canonical_experiment,experiment_id,experiment_identity,experiment_slug,registry_document
 
 
@@ -23,3 +25,14 @@ def test_registry_is_one_complete_canonical_mapping_and_copies_do_not_mutate_it(
     assert source['id']=='04' and source['directory']=='04-so101-source-learning'
     assert experiment_identity('cross_embodiment_transfer')==dict(project_id='06',experiment_slug='cross_embodiment_transfer',experiment_numbering_version=2)
     source['id']='wrong';assert experiment_id('so101_source_learning')=='04'
+
+
+def test_canonical_directories_and_deprecated_asset_paths_share_one_unchanged_source():
+    root=Path(__file__).resolve().parents[1]
+    assert (root/'04-so101-source-learning').is_dir() and (root/'06-cross-embodiment-transfer').is_dir()
+    assert (root/'04-cross-embodiment-transfer').is_symlink()
+    assert (root/'learning/so101-personal-lab').resolve()==root/'04-so101-source-learning'
+    asset=root/'shared/robotics/so101/so101_new_calib.urdf'
+    for path in (root/'04-so101-source-learning/configs/so101/so101_new_calib.urdf',root/'06-cross-embodiment-transfer/configs/so101/so101_new_calib.urdf',root/'04-cross-embodiment-transfer/configs/so101/so101_new_calib.urdf'):
+        assert path.resolve()==asset
+        assert hashlib.sha256(path.read_bytes()).digest()==hashlib.sha256(asset.read_bytes()).digest()

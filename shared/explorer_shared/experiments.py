@@ -45,6 +45,11 @@ def experiment_identity(slug):
     return dict(project_id=experiment_id(slug),experiment_slug=slug,experiment_numbering_version=EXPERIMENT_NUMBERING_VERSION)
 
 
+def experiment_directory(slug):
+    experiment_id(slug)
+    return _BY_SLUG[slug]['directory']
+
+
 def registry_document():
     projects=[dict(row,route='/experiments/'+row['id'],physical_ready=False,experiment_numbering_version=EXPERIMENT_NUMBERING_VERSION) for row in _EXPERIMENTS]
     return dict(schema='explorer_projects_v2',experiment_numbering_version=EXPERIMENT_NUMBERING_VERSION,projects=deepcopy(projects),

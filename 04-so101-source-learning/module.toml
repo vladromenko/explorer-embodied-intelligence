@@ -1,0 +1,6 @@
+id = "04"
+slug = "so101_source_learning"
+name = "SO101 source learning"
+kind = "experiment_recipe"
+shared_platform = ["explorer_shared.learning", "explorer_shared.so101_station", "explorer.lab_skill_workflow"]
+physical_validation = "NOT_VALIDATED"
