@@ -1,0 +1,101 @@
+{
+  "schema": "explorer_central_profile4_activation_v1",
+  "commit": "36a2d6c72295b8bf0598e1af953ade06cf217752",
+  "elapsed_s": 2.507540954000433,
+  "only_two_own_central_services_restarted": true,
+  "original_nano_services_and_configs_unchanged": true,
+  "private_config_and_units_unchanged": true,
+  "physical_control_API_calls": 0,
+  "controller_settings_written": false,
+  "rolled_back": false,
+  "snapshot_sha256": "f1bc2a7a96feaf38412a1dcc68e0bd9be14c4522026ff3bd22a6a619d5313791",
+  "previous_commit": "c8be649abbf7bc2437ed7aeced755c1558af6a78",
+  "own_observers_commit": "f4cc5c37096698633aba313dbc67b2769a647dd7",
+  "scientific_originals_audit": {
+    "jobs": {
+      "original_rows": 24,
+      "all_original_bytes_and_columns_equal": true,
+      "live_rows": 24
+    },
+    "skills": {
+      "original_rows": 11,
+      "all_original_bytes_and_columns_equal": true,
+      "live_rows": 11
+    },
+    "events": {
+      "original_rows": 10922,
+      "all_original_bytes_and_columns_equal": true,
+      "live_rows": 10939
+    },
+    "integrity_check": "ok",
+    "original_scientific_bytes_unchanged": true,
+    "active_jobs": 0
+  },
+  "authenticated_live_GETs": {
+    "/api/state": {
+      "status": 200,
+      "bytes": 395441,
+      "sha256": "ee7bf8517ad535da785a9c20bf15ac14f711261ad446cf3d017691edc6e76ec3"
+    },
+    "/api/jobs": {
+      "status": 200,
+      "bytes": 245931,
+      "sha256": "74e54870a9d15123a479d2a86687026f352f5a60523774f59be37332c1803828"
+    },
+    "/api/skills": {
+      "status": 200,
+      "bytes": 49990,
+      "sha256": "a5f35aafc8028aecf2fef0d4dcee9cb87616569d2e58149cd459dadf89d92c4f"
+    },
+    "/api/queue": {
+      "status": 200,
+      "bytes": 1647,
+      "sha256": "a072324478b9291f297a34a3a5fc9c8ab86a0fbc3fb68fd8793ad943092c0444"
+    },
+    "/api/cooperative": {
+      "status": 200,
+      "bytes": 4261,
+      "sha256": "e551b00f7ac8da8408a74f947c86f0cf9acf16266e4c1331b9159dbd09a674e2",
+      "persistent_warm_model_actor_ready": false,
+      "physical_execution_default": false
+    },
+    "/api/research/exports": {
+      "status": 200,
+      "bytes": 3323,
+      "sha256": "6bfc687d4dbfe5eaa682faab95e61e7552ba273fa45653908f0cef180dced4d7"
+    },
+    "/api/visual-act/profile": {
+      "status": 200,
+      "bytes": 412,
+      "sha256": "f91fa700e6f773a0d30b55facd11a2956b16b1e01618c24c4e689b5171673afb",
+      "cuda_available": true
+    },
+    "/api/policy-backends": {
+      "status": 200,
+      "bytes": 2830,
+      "sha256": "06e96488382b6fcc7624c7f68025bde65cafa4b67490f2439ba78b736d4ca578"
+    },
+    "/api/transfer/sources": {
+      "status": 200,
+      "bytes": 2755,
+      "sha256": "ee2d13b21fae60f4e9f0037558642dc5f7337d6fac926b633b0260e1451c2315"
+    },
+    "/api/evening": {
+      "status": 200,
+      "bytes": 4590,
+      "sha256": "ffcb163fe4b944c5537b01af77a4c0f4c47fa4f75b6853d720a6164a37059118"
+    },
+    "/api/lab/vision/calibration/status": {
+      "status": 200,
+      "bytes": 4482,
+      "sha256": "40a21e4599f87774c045516ed6f8893627fa107bc93d6a8eb385ae89f747c768"
+    },
+    "/api/cameras/nano-rgbd/snapshot": {
+      "status": 200,
+      "bytes": 19349,
+      "sha256": "78f7a2bc36b1bae1789a15c70382d1626a02f47d7a9aabd3b42522b93c7fc237"
+    }
+  },
+  "scope": "Actual central release cutover and read-only observations. Subsequent main commits require separate deployment. No physical motion, task mastery or whole-master completion claimed.",
+  "pi_station_actual_availability": false
+}

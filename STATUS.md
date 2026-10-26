@@ -4,7 +4,7 @@
 для runtime. Срок4–5часов снят в пользу качества и воспроизводимости.
 H1–H5, полные физические навыки и весь мастер-промпт не подтверждены.
 
-Control Center и worker сейчас работают на `c8be649`. Панель:
+Control Center и worker сейчас работают на `36a2d6c`. Панель:
 https://homebrain.tail4a7de4.ts.net/ через личный Tailscale;
 в домашней сети http://homebrain.local:8088.
 Pi/Nano observer и общий модуль оригинального Nano web действительно обновлены
@@ -29,9 +29,10 @@ BC из-за отсутствующего feedback. Неизвестные из�
 command-estimate и подтверждение host publication не означают измеренное
 достижение/удержание предмета.
 
-Actual GET Pi: station idle, available=true, last_command=null; native6 observation
-и привязанный оригинальный JPEG с совпавшим SHA —200. Перед обновлением была
-сохранена временная ошибка servo sync-read; актуальная проверка снова доступна.
+Перед обновлением GET Pi: station idle, available=true, last_command=null; native6
+observation и привязанный JPEG с совпавшим SHA —200. При центральном cutover
+Pi снова сообщает available=false из-за sync-read; mode idle, last_command=null.
+Проблема чтения не скрывается и не исправляется движением или перекалибровкой.
 Nano native106 packet отвечает503 из-за original-owner409/старого reference;
 подмена позы не выполняется. Native capture200, сенсорный cache ранее проверен:
 384 исходных записи шести топиков,0 errors, original CDR/JSON, полные lidar/IMU/
@@ -61,7 +62,11 @@ coordinate constants. Новые backend/export/repin tests:58passed; полна
 revision CAS, durable source/PID/boot/nonce, cancel-wins и checkpoint pause→exit75→
 проверенный checkpoint→новый process с optimizer/RNG/sampler. SIGSTOP отдельно
 и честно удерживает RAM/GPU lease. UI `/queue` показывает настоящие причины
-ожидания. Новые очередь/05 UI ещё не активированы в центральной службе.
+ожидания. Общая очередь,05 warm/shadow, экспорт и current source04→06 уже активированы в центральной службе.
+Фактический cutover собственных двух служб занял2.51s; настройки и службы Nano
+не менялись. Все24 jobs,11 cards и10922 прежних events проверены побайтно;
+добавились только реальные telemetry events.
+[Развёртывание и GET](_registry/evidence/central-profile4-actual-activation-20261027.json).
 
 Две настоящие CPU проверки Supervisor→bootstrap→job_runner→official ACT6/DP6
 прошли108.89s: pause после2 updates, exit75/старый PID исчез, новый PID довёл
@@ -134,8 +139,17 @@ video bytes, не новая научная попытка и не production jo
 В main добавлен current source04→06 каталог с явными A/C blockers и неизменяемым
 событием выбора source; dimension6, loss и старый hold не означают object skill.
 
-Новая полная регрессия frozen826a430 сейчас выполняется отдельно от
-production-state:5GiB/swap0/CPU250%, EGL и фактические CAD meshes. Последние
-118 Node tests и60 targeted Python tests прошли; после новых source API/SQL
-ограничений отдельно38passed и24 browser-bootstrap checks. Все новые55 Python
-файлов/изменений проверены против5de105e: новых continue operators нет.
+Полная регрессия frozen826a430 завершена отдельно от production-state:
+1161passed,21skipped,1failed за275.17s;5GiB/swap0, EGL, настоящие CAD meshes.
+Единственная ошибка — старое exact-equality ожидание API до additive current
+каталога; fixture исправлен,32 targeted passed. Повтор полного прогона не
+приписывается. После новых source permission/evaluation/Study атомиков83targeted
+passed; реальный центральный API→loopback Node→COMMON fake Station путь30passed
+в общей группе. Ни одного физического теста этими fixtures не выполнено.
+
+В main дополнительно объединены COMMON current-user Pi permission и typed
+source04 evaluation с реальными API/worker transport. До native start проверяются
+камера, calibration, boot и clock модели. Source04 UI ещё подключается; новые
+атомики после36a2d6c пока не объявляются live. Study V9 переносит все4 попытки
+и пересчитывает frozen benchmark2/4 из восстановленной копии; полный исходный
+runtime/RNG closure остаётся PARTIAL. Подробности в отдельных evidence receipts.
