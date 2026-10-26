@@ -58,3 +58,10 @@ def test_profile_requires_exact_server_environment_before_CUDA_startup(monkeypat
     assert torch.enabled and torch.backends.cudnn.deterministic and not torch.backends.cudnn.benchmark
     assert not torch.backends.cuda.matmul.allow_tf32 and not torch.backends.cudnn.allow_tf32
     assert torch.precision=='highest' and act_worker_environment(settings())==ACT9_WORKER_ENVIRONMENT
+    torch.initialized=True
+    rechecked=configure_act_runtime(settings(),9,9,torch)
+    assert not rechecked['CUDA_initialized_before_configuration'] and rechecked['CUDA_initialized_when_rechecked']
+    unowned=Torch(initialized=True);unowned.enabled=True;unowned.precision='highest'
+    unowned.backends.cudnn.deterministic=True;unowned.backends.cudnn.benchmark=False
+    unowned.backends.cuda.matmul.allow_tf32=False;unowned.backends.cudnn.allow_tf32=False
+    with pytest.raises(ValueError,match='before CUDA startup'):configure_act_runtime(settings(),9,9,unowned)

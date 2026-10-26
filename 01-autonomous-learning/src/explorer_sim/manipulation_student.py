@@ -369,6 +369,9 @@ def run_manipulation_student(store, job):
     if not isinstance(identity, str) or Path(identity).name != identity or identity in ('.', '..'):
         raise ValueError('Invalid visual manipulation job ID')
     settings = parameters(job.get('config') or {})
+    # Provenance queries the real CUDA device before constructing the policy.
+    # Establish and privately retain the named process profile before that probe.
+    runtime_profiles.configure_act_runtime(settings,9,9,torch)
     folder = (Path(store.root) / 'jobs' / identity).resolve()
     folder.mkdir(parents=True, exist_ok=True)
     assets = resolve_mesh_dir((job.get('config') or {}).get('mesh_dir'))

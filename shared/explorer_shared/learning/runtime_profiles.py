@@ -14,6 +14,8 @@ ACT9_RUNTIME_CONSTRAINTS = dict(deterministic_algorithms=True, deterministic_war
     NVIDIA_TF32_OVERRIDE='0', TORCH_ALLOW_TF32_CUBLAS_OVERRIDE='0')
 ACT9_WORKER_ENVIRONMENT = {name:ACT9_RUNTIME_CONSTRAINTS[name] for name in
     ('CUBLAS_WORKSPACE_CONFIG','NVIDIA_TF32_OVERRIDE','TORCH_ALLOW_TF32_CUBLAS_OVERRIDE')}
+_PROCESS_PROFILE_OWNER = None
+_PROCESS_PROFILE_RECEIPT = None
 
 
 def act_cuda_profile(settings, state_dimension=None, action_dimension=None):
@@ -39,6 +41,7 @@ def act_worker_environment(settings):
 
 
 def configure_act_runtime(settings, state_dimension, action_dimension, torch):
+    global _PROCESS_PROFILE_OWNER, _PROCESS_PROFILE_RECEIPT
     profile = act_cuda_profile(settings, state_dimension, action_dimension)
     if profile is None:
         return None
@@ -48,7 +51,8 @@ def configure_act_runtime(settings, state_dimension, action_dimension, torch):
     already_configured = (torch.are_deterministic_algorithms_enabled() and not torch.is_deterministic_algorithms_warn_only_enabled() and torch.backends.cudnn.deterministic
         and not torch.backends.cudnn.benchmark and not torch.backends.cuda.matmul.allow_tf32
         and not torch.backends.cudnn.allow_tf32 and torch.get_float32_matmul_precision() == 'highest')
-    if initialized and not already_configured:
+    owned_receipt = _PROCESS_PROFILE_OWNER is torch and _PROCESS_PROFILE_RECEIPT is not None
+    if initialized and not (already_configured and owned_receipt):
         raise ValueError('Named CUDA constraints must be configured before CUDA startup')
     if torch.get_default_dtype() != torch.float32:
         raise ValueError('Named CUDA profile requires the actual FP32 model default')
@@ -58,5 +62,11 @@ def configure_act_runtime(settings, state_dimension, action_dimension, torch):
     torch.backends.cuda.matmul.allow_tf32 = False
     torch.backends.cudnn.allow_tf32 = False
     torch.set_float32_matmul_precision('highest')
-    return dict(profile, CUDA_initialized_before_configuration=initialized,
-        environment_validated_before_configuration=True, scope='explicit_process_local_profile_only')
+    if not owned_receipt:
+        _PROCESS_PROFILE_OWNER = torch
+        _PROCESS_PROFILE_RECEIPT = dict(profile, CUDA_initialized_before_configuration=initialized,
+            environment_validated_before_configuration=True, scope='explicit_process_local_profile_only')
+    return dict(_PROCESS_PROFILE_RECEIPT,
+        tensor_profile=dict(_PROCESS_PROFILE_RECEIPT['tensor_profile']),
+        runtime_constraints=dict(_PROCESS_PROFILE_RECEIPT['runtime_constraints']),
+        CUDA_initialized_when_rechecked=initialized)
