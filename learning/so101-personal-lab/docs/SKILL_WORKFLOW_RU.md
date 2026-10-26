@@ -70,6 +70,19 @@ Root scheduler должен считать `so101_skill_train` тяжёлой CP
 не перетирает старый checkpoint и требует явного нового job. Отмена проверяется
 при progress callbacks; физического executor в этой задаче нет.
 
+Отдельный `static/lab-skills.js` не требует изменений app.js:
+`createLabSkillsClient({api, onChange, onCaptureContext})`,
+`labSkillsPanel(client.snapshot())`,
+`installLabSkillsHandlers(container, client, {onError})`.
+Корневое приложение загружает файл, монтирует разметку, передаёт существующий
+auth/CSRF `api`, затем явно вызывает `client.refresh()`. Клиент автоматически
+делает только GET метаданных. Все POST требуют явного действия формы и имеют
+исключительно префикс `/api/lab/skills`. `onCaptureContext(result)` получает
+`result.record_start_body` для отдельной панели записи; callback не является
+разрешением двигать робот или запускать запись. `dispose()` и функция очистки
+обработчиков нужны при уходе со страницы. Поздние ответы прежнего выбора не
+меняют текущий навык; фазовые интервалы не заполняются вымышленными значениями.
+
 ## Фактическая квалификация 2026-10-26
 
 Временные software-fixture originals: 5 × 8 JPEG, native6, отдельные IDs,
