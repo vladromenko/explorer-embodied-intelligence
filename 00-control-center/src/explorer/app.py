@@ -319,6 +319,26 @@ def policy_backends():
     return policy_backend_status()
 
 
+def visual_act_profile_status():
+    from explorer_shared.learning.runtime_profiles import ACT9_CUDA_DETERMINISTIC_PROFILE,ACT9_TENSOR_PROFILE
+    from .scheduler import executable_for
+    settings={key:ACT9_TENSOR_PROFILE[key] for key in ('device','image_size','batch_size','chunk_size')}
+    settings['cuda_execution_profile']=ACT9_CUDA_DETERMINISTIC_PROFILE
+    result=dict(schema='explorer_visual_act_profile_status_v1',profile_id=ACT9_CUDA_DETERMINISTIC_PROFILE,
+        tensor_profile=dict(ACT9_TENSOR_PROFILE),cpu_available=True,cuda_available=False,
+        qualification_scope='source_bound_native9_optimizer_runtime_not_object_mastery',physical_execution_authorized=False)
+    try:
+        executable_for({'kind':'manipulation_student','config':settings},Path(CONFIG['root']).resolve())
+    except (ValueError,OSError,KeyError) as error:result['reason']=str(error)
+    else:result['cuda_available']=True
+    return result
+
+
+@app.get('/api/visual-act/profile')
+async def visual_act_profile():
+    return await asyncio.to_thread(visual_act_profile_status)
+
+
 @app.get('/api/operator-actions')
 def operator_actions():
     return {'actions':actions_required()}
@@ -401,6 +421,19 @@ async def create_job(request: Request):
         raise HTTPException(400,'This engineering benchmark currently uses the verified CPU path')
     if body['kind']=='manipulation_student' and config.get('device','cpu') not in ('cpu','cuda'):
         raise HTTPException(400,'Unsupported manipulation learner device')
+    if config.get('device')=='cuda':
+        if body['kind']!='manipulation_student':
+            raise HTTPException(400,'Current CUDA profile belongs to the nine-axis visual simulation student. Native6 and sensor106 require their own qualifications.')
+        from explorer_shared.learning.runtime_profiles import ACT9_CUDA_DETERMINISTIC_PROFILE,act_cuda_profile
+        try:
+            config=dict(config)
+            if config.get('cuda_execution_profile',ACT9_CUDA_DETERMINISTIC_PROFILE)!=ACT9_CUDA_DETERMINISTIC_PROFILE:
+                raise ValueError('Choose the current server-provided CUDA profile')
+            config['cuda_execution_profile']=ACT9_CUDA_DETERMINISTIC_PROFILE
+            act_cuda_profile(config,9,9)
+        except ValueError as error:raise HTTPException(400,str(error)) from error
+        available=await asyncio.to_thread(visual_act_profile_status)
+        if available['cuda_available'] is not True:raise HTTPException(409,'CUDA profile is not qualified for this active release: '+available.get('reason',''))
     if body['kind'] in ('manipulation','manipulation_student','manipulation_benchmark','manipulation_curriculum','mobile_manipulation','manipulation_selective_repair','fault_repair'):
         if body['project_id'] != '01':
             raise HTTPException(400,'Manipulation belongs to experiment 01')

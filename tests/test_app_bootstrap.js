@@ -214,3 +214,16 @@ test("blur during actual controls GET rejects late preparation without select or
   assert.ok(!rig.calls.some(call => ["select", "resume"].includes(call.operation)));
   assert.equal(active(rig).gamepad, "disconnected");
 });
+
+test("visual ACT UI keeps CPU default and sends only explicit verified native9 CUDA shape",async () => {
+  const rig=bootstrap("/experiments/01");await flush();
+  assert.equal(rig.run("visualACTRequest().device"),"cpu");
+  rig.run('workflow.visualDevice="cuda";workflow.visualProfile={cuda_available:false};');
+  assert.throws(()=>rig.run("visualACTRequest()"),/не квалифицирован/);
+  rig.run('workflow.visualProfile={cuda_available:true,tensor_profile:{state_dimension:106,action_dimension:9}};');
+  assert.throws(()=>rig.run("visualACTRequest()"),/не квалифицирован/);
+  rig.run('workflow.visualProfile={cuda_available:true,tensor_profile:{state_dimension:9,action_dimension:9}};');
+  const request=JSON.parse(rig.run("JSON.stringify(visualACTRequest())"));
+  assert.equal(request.device,"cuda");assert.equal(request.image_size,64);assert.equal(request.batch_size,2);assert.equal(request.chunk_size,4);
+  assert.ok(!request.cuda_execution_profile);assert.ok(rig.requests.every(item=>item.method==="GET"));
+});

@@ -708,7 +708,7 @@ async function refresh(forceExtras = false) {
         void skillWorkflowRecoverCapture(episode).catch(error => { skillWorkflowUI.error = error.message; });
       }
     }
-    if (activeProject()?.id === "01" && (forceExtras || Date.now() - worldLearning.lastLoad > 20000)) await refreshWorldDatasets();
+    if (activeProject()?.id === "01" && (forceExtras || Date.now() - worldLearning.lastLoad > 20000)) await Promise.all([refreshWorldDatasets(),loadVisualACTProfile()]);
     if(path()==="/evening")model.evening=await api("/api/evening");
     if (activeProject()?.id === "05" && (forceExtras || Date.now()-cooperativeLoadedAt>3000)) { cooperativeLoadedAt=Date.now(); await cooperativeWorkbench.refresh(); }
     if (path() === "/queue" && (forceExtras || Date.now()-sharedQueueLoadedAt>3000)) { sharedQueueLoadedAt=Date.now(); await sharedQueue.refresh(); }
@@ -787,7 +787,7 @@ document.addEventListener("click", async (event) => {
   if (action === "choose-skill") { model.forceRender = true; navigate("/skills"); return; }
   if (action === "refresh") { await refresh(true); return; }
   if (action === "mobile-evidence-refresh") { await mobileEvidence.refresh(); return; }
-  if (action === "world-refresh") { await refreshWorldDatasets(); return; }
+  if (action === "world-refresh") { await Promise.all([refreshWorldDatasets(),loadVisualACTProfile()]); return; }
   if (action === "world-train") {
     if (worldLearning.busy) return;
     try {
