@@ -39,7 +39,14 @@ def check_sample(sample):
 
 
 def event(node_id, project_id, payload, run_id=None):
-    return dict(event_id=uuid.uuid4().hex, node_id=node_id, project_id=project_id,
+    from .experiments import canonical_experiment,experiment_slug,EXPERIMENT_NUMBERING_VERSION
+    identity=dict(project_id=project_id,experiment_numbering_version=EXPERIMENT_NUMBERING_VERSION)
+    if project_id is not None:
+        try:
+            identity.update(project_id=canonical_experiment(project_id,numbering_version=EXPERIMENT_NUMBERING_VERSION),experiment_slug=experiment_slug(project_id,numbering_version=EXPERIMENT_NUMBERING_VERSION))
+            if identity['project_id']!=project_id:identity['legacy_experiment_id']=project_id
+        except ValueError:pass
+    return dict(event_id=uuid.uuid4().hex, node_id=node_id, **identity,
                 run_id=run_id, schema_version=1, wall_utc=time.time(),
                 monotonic_ns=time.monotonic_ns(), clock_domain=node_id + ':' + _boot_id(),
                 payload=payload, sha256=digest(payload))

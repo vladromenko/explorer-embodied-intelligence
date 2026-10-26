@@ -1,5 +1,6 @@
 """ENGINEERING_GLUE: SQLite WAL registry, immutable artifact paths and backup."""
 import json
+import hashlib
 import math
 import re
 import sqlite3
@@ -22,7 +23,10 @@ class Store:
             CREATE TABLE IF NOT EXISTS skills (id TEXT PRIMARY KEY,created REAL NOT NULL,body TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY,expires REAL NOT NULL,csrf TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS tickets (token_hash TEXT PRIMARY KEY,expires REAL NOT NULL);
+            CREATE TABLE IF NOT EXISTS experiment_runtime_identity (entity_kind TEXT NOT NULL,entity_id TEXT NOT NULL,numbering_version INTEGER NOT NULL,experiment_slug TEXT NOT NULL,PRIMARY KEY(entity_kind,entity_id));
             ''')
+        from .experiment_projection import ExperimentProjection
+        self.experiment_projection=ExperimentProjection(self.root)
 
     def connect(self):
         db = sqlite3.connect(self.path, timeout=15)
@@ -40,6 +44,11 @@ class Store:
             raise ValueError('Event schema/hash mismatch')
         if not isinstance(body['payload'], dict):
             raise ValueError('Event payload must be an object')
+        from explorer_shared.experiments import experiment_slug
+        epoch=body.get('experiment_numbering_version',1)
+        if type(epoch) is not int or epoch not in (1,2):raise ValueError('Unsupported event experiment numbering version')
+        if body.get('experiment_slug') is not None:
+            if experiment_slug(body.get('project_id'),numbering_version=epoch)!=body['experiment_slug']:raise ValueError('Event semantic experiment identity conflicts with its numbering version')
         serialized = canonical(body).decode()
         with self.connect() as db:
             old = db.execute('SELECT body FROM events WHERE event_id=?', (body['event_id'],)).fetchone()
@@ -47,6 +56,8 @@ class Store:
                 raise ValueError('Conflicting event identity')
             inserted = db.execute('INSERT OR IGNORE INTO events VALUES (?,?,?,?,?)',
                 (body['event_id'], body['node_id'], time.time(), body['sha256'], serialized)).rowcount
+            from .experiment_projection import record_runtime_identity
+            record_runtime_identity(db,'event',body['event_id'],body.get('project_id'),numbering_version=body.get('experiment_numbering_version',1))
             if body['payload'].get('type') == 'inventory':
                 db.execute('INSERT INTO nodes VALUES (?,?,?) ON CONFLICT(node_id) DO UPDATE SET received=excluded.received,body=excluded.body',
                     (body['node_id'], time.time(), json.dumps(body['payload'].get('inventory', body['payload']))))
@@ -62,14 +73,20 @@ class Store:
             return {row['node_id']: dict(last_seen=row['received'], **json.loads(row['body'])) for row in db.execute('SELECT * FROM nodes')}
 
     def create_job(self, kind, project_id, config):
+        from explorer_shared.experiments import canonical_experiment
+        project_id=canonical_experiment(project_id,numbering_version=2)
         job_id = uuid.uuid4().hex
         now = time.time()
         with self.connect() as db:
             db.execute('INSERT INTO jobs(id,kind,project_id,status,created,updated,config) VALUES (?,?,?,?,?,?,?)',
                 (job_id, kind, project_id, 'queued', now, now, json.dumps(config, allow_nan=False)))
+            from .experiment_projection import record_runtime_identity
+            record_runtime_identity(db,'job',job_id,project_id)
         return self.job(job_id)
 
     def create_import_job(self,kind,project_id,episode_id,source_sha256=None,*,source_format=None):
+        from explorer_shared.experiments import canonical_experiment
+        project_id=canonical_experiment(project_id,numbering_version=2)
         if kind not in ('station_import','mobile_import','retarget_import'):
             raise ValueError('Unknown immutable import kind')
         settings={'episode_id':episode_id}
@@ -93,6 +110,8 @@ class Store:
                 return self.decode_job(previous)
             db.execute('INSERT INTO jobs(id,kind,project_id,status,created,updated,config) VALUES (?,?,?,?,?,?,?)',
                 (job_id,kind,project_id,'queued',now,now,json.dumps(settings)))
+            from .experiment_projection import record_runtime_identity
+            record_runtime_identity(db,'job',job_id,project_id)
         return self.job(job_id)
 
     def retry_import_job(self,job_id):
@@ -109,6 +128,14 @@ class Store:
             ident=uuid.uuid4().hex;now=time.time()
             db.execute('INSERT INTO jobs(id,kind,project_id,status,created,updated,config) VALUES (?,?,?,?,?,?,?)',
                 (ident,old['kind'],old['project_id'],'queued',now,now,json.dumps(settings)))
+            from .experiment_projection import record_runtime_identity
+            projected=self.experiment_projection.identity(db,'job',old['id'],old['project_id'],declared_version=settings.get('experiment_numbering_version'))
+            settings['source_numbering_version']=projected.get('original_numbering_version',1)
+            settings['experiment_numbering_version']=2
+            settings['experiment_slug']=projected.get('experiment_slug')
+            db.execute('UPDATE jobs SET config=? WHERE id=?',(json.dumps(settings),ident))
+            record_runtime_identity(db,'job',ident,projected['project_id'])
+            if projected['project_id']!=old['project_id']:db.execute('UPDATE jobs SET project_id=? WHERE id=?',(projected['project_id'],ident))
         return self.job(ident)
 
     def pin_job_release(self,job_id,commit):
@@ -161,7 +188,8 @@ class Store:
                     raise ValueError('Completed job evidence cannot change')
                 terminal=saved['payload']['status']
             else:
-                body=event('nx',row['project_id'],{'kind':'job.finalized','job_id':job_id,'status':terminal,'result':result},run_id=job_id)
+                projected=self.experiment_projection.identity(db,'job',job_id,row['project_id'],declared_version=json.loads(row['config']).get('experiment_numbering_version'))
+                body=event('nx',projected['project_id'],{'kind':'job.finalized','job_id':job_id,'status':terminal,'result':result},run_id=job_id)
                 body['event_id']=ident
                 db.execute('INSERT INTO events VALUES (?,?,?,?,?)',(ident,'nx',time.time(),body['sha256'],canonical(body).decode()))
             db.execute('UPDATE jobs SET status=?,progress=?,result=?,error=NULL,updated=? WHERE id=?',
@@ -182,6 +210,9 @@ class Store:
         result = dict(row)
         for key in ('config', 'result'):
             result[key] = json.loads(result[key]) if result[key] else None
+        with self.connect() as db:
+            identity=self.experiment_projection.identity(db,'job',result['id'],result['project_id'],declared_version=(result.get('config') or {}).get('experiment_numbering_version'))
+        result.update(identity)
         frame = self.root / 'jobs' / result['id'] / 'frame.jpg'
         result['frame_available'] = frame.is_file()
         metadata = frame.with_name('frame.json')
@@ -223,10 +254,34 @@ class Store:
             raise ValueError('Physical validation requires physical run evidence')
         with self.connect() as db:
             db.execute('INSERT INTO skills VALUES (?,?,?)', (card['id'], time.time(), canonical(card).decode()))
+            from .experiment_projection import record_runtime_identity
+            project=card.get('project_id',card.get('owner_experiment'))
+            parent=card.get('lineage',{}).get('job_id')
+            if project is None and parent:
+                row=db.execute('SELECT project_id,config FROM jobs WHERE id=?',(parent,)).fetchone()
+                if row:
+                    projected=self.experiment_projection.identity(db,'job',parent,row['project_id'],declared_version=json.loads(row['config']).get('experiment_numbering_version'))
+                    project=projected.get('experiment_slug',projected['project_id'])
+            if project is not None:record_runtime_identity(db,'skill',card['id'],project,numbering_version=card.get('experiment_numbering_version',2))
 
     def skills(self):
         with self.connect() as db:
-            return [json.loads(row['body']) for row in db.execute('SELECT body FROM skills ORDER BY created DESC')]
+            result=[]
+            from .experiment_projection import project_document
+            for row in db.execute('SELECT id,body FROM skills ORDER BY created DESC').fetchall():
+                card=json.loads(row['body']);project=card.get('project_id',card.get('owner_experiment'));parent=card.get('lineage',{}).get('job_id')
+                identity=self.experiment_projection.identity(db,'skill',row['id'],project,raw=row['body'].encode(),declared_version=card.get('experiment_numbering_version'))
+                if identity.get('project_id') is None and parent:
+                    source=db.execute('SELECT project_id,config FROM jobs WHERE id=?',(parent,)).fetchone()
+                    if source:
+                        identity=self.experiment_projection.identity(db,'job',parent,source['project_id'],declared_version=json.loads(source['config']).get('experiment_numbering_version'))
+                        identity=dict(identity,numbering_provenance=dict(source='immutable_card_lineage_job_id',job_id=parent,parent_identity=identity))
+                view=project_document(card,numbering_version=card.get('experiment_numbering_version',identity.get('original_numbering_version',1)))
+                if identity.get('project_id') is not None:
+                    view.update(identity)
+                    view['original_artifact_sha256']=hashlib.sha256(row['body'].encode()).hexdigest()
+                result.append(view)
+            return result
 
     def backup(self, destination):
         destination = Path(destination)
