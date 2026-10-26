@@ -170,6 +170,10 @@ def main(job_id):
             sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
             from explorer_sim.dagger import run_dagger
             result=run_dagger(store,job)
+        elif job['kind']=='skill_cycle':
+            sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
+            from explorer_sim.skill_cycle import run_skill_cycle
+            result=run_skill_cycle(store,job)
         elif job['kind'] in ('virtual_transfer', 'handover_test'):
             from .transfer import run_virtual_experiment
             result = run_virtual_experiment(store, job, config)
