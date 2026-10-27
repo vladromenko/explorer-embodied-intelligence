@@ -39,3 +39,9 @@ tests/1.71s. Проверены cached/wrong/stale/foreign contexts, измен�
 во время проверки, повторная проверка перед submit и неизменность raw native
 receipt. Explicit STOP сохраняет authenticated actor; internal STOP использует
 исходного bound actor, не выдавая повторную cleanup команду.
+
+Парные GET дополнительно ограничены исходным native_lease_remaining_s:
+NX request start + literal remaining duration — консервативный deadline,
+без сравнения абсолютных часов Nano и NX.2 tests/10.03s проверили истечение
+lease при чтении партнёра и между последним status и activation reply.
+Свежий на момент первого GET статус не продлевает native lease.

@@ -1,6 +1,7 @@
 """Fresh per-role GET gates over actual fake Source/Node wrappers, no targets."""
 from copy import deepcopy
 import threading
+import time
 
 import pytest
 
@@ -141,4 +142,22 @@ def test_close_requires_both_actual_native_latches_not_only_ready_transport_and_
         # is a different protocol action and must see both actual armed bits.
         assert gate.require(row,sources.spec,'receiver','approach')['dispatch_authority_by_role']['receiver']
         with pytest.raises(ValueError,match='Both original dual-hold'):gate.require(row,sources.spec,'receiver','close')
+    finally:sources.close()
+
+
+def test_last_transport_status_pair_cannot_publish_lease_captured_before_slow_activation_reply(tmp_path,monkeypatch):
+    sources=Sources(tmp_path,monkeypatch);service=sources.service
+    try:
+        row=active(sources,'giver');gate=CooperativeDispatchAuthority(service)
+        transport=service.transports[(row['session_id'],'giver')];request=transport.request;delayed=[]
+        def slow(method,path,body):
+            result=request(method,path,body)
+            if method=='GET' and path.endswith('/activation/status') and not delayed:
+                delayed.append(True);time.sleep(.451);sources.pair.native_tick[0]+=451_000_000
+            return result
+        transport.request=slow;lease=sources.pair.teleop.lease;before=len(sources.pair.calls)
+        with pytest.raises(ValueError,match='lease elapsed during paired source GETs'):
+            gate.require(row,sources.spec,'giver','release')
+        assert delayed and sources.pair.teleop.lease==lease
+        assert all(method=='GET' for _,method,_,_ in sources.pair.calls[before:])
     finally:sources.close()
