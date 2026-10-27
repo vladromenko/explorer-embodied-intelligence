@@ -5642,6 +5642,42 @@
         "tests/test_native_repin_startup_qualification.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-EXACT-NATIVE-INTERPOLATION-ADMISSION-20261027",
+      "function_or_module": "shared/explorer_shared/learning/sim_numeric_admission.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "https://numpy.org/doc/stable/reference/generated/numpy.finfo.html",
+          "role": "IEEE binary64 machine limits; installed values checked at runtime"
+        },
+        {
+          "url": "https://tmary.perso.lip6.fr/doc/surveyMixed.pdf",
+          "role": "Higham/Mary primary standard floating-point arithmetic model and gamma_n; local four-operation bound derived in module docstring"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/learning/sim_temporal_route.py",
+          "role": "Frozen6b25 neural input/decoder remains unchanged; new subclass handles only a source-proven preprocessing rejection"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_NEW_MODEL_OR_TRAINING; ORIGINAL_FROZEN_C_CHECKPOINTS",
+      "data_license": "PRIVATE_EXPLICIT_SIMULATION",
+      "changes_and_reason": "Evidence-only input admission requires actual past native start/request/dispatch/source clocks, exact float64 interpolation reproduction, exact Fraction gamma4 bound and identical raw/boundary normalized float32 tensor bytes. Literal rawprior9 and increment decoding retain actual values; no executor/physics/weights changes, no numerical/model/physical success inferred. OriginalUNKNOWN163 remains preserved.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_sim_numeric_admission.py",
+        "tests/test_sim_numeric_driver.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
