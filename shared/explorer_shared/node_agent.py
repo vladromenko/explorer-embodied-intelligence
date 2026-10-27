@@ -968,6 +968,11 @@ def make_handler(agent):
                 if path=='/station/observed-test/status' and getattr(agent,'station_observed',None) is not None:
                     if urlsplit(self.path).query:raise ValueError('Observed station permission takes no query parameters')
                     self._json(200,agent.station_observed.status())
+                elif path=='/station/observed-test/cooperative/status' and getattr(agent,'station_observed',None) is not None:
+                    if urlsplit(self.path).query:raise ValueError('Fixed cooperative interlock status takes no query parameters')
+                    interlock=getattr(agent.station_observed,'cooperative_interlock',None)
+                    if interlock is None:raise ValueError('Original receiver publication interlock unavailable')
+                    self._json(200,interlock.status())
                 elif len(parts)==5 and parts[:3]==['station','observed-test','challenges'] and parts[4]=='frame' and getattr(agent,'station_observed',None) is not None:
                     if urlsplit(self.path).query:raise ValueError('Pinned observed Pi JPEG takes no query parameters')
                     raw,metadata=agent.station_observed.frame(parts[3]);self.send_response(200)
@@ -1142,7 +1147,12 @@ def make_handler(agent):
                         provider=getattr(agent,'station_observed',None)
                         if provider is None:raise ValueError('Original Pi observed permission provider unavailable')
                         operation=path.removeprefix('/station/observed-test/')
-                        if operation=='challenge':result=provider.challenge(payload.get('binding'))
+                        if operation.startswith('cooperative/'):
+                            interlock=getattr(provider,'cooperative_interlock',None)
+                            if interlock is None:raise ValueError('Original receiver publication interlock unavailable')
+                            fields=dict(payload);actor=fields.pop('actor_id',None)
+                            result=interlock.dispatch(operation.removeprefix('cooperative/'),fields,authenticated_actor=actor)
+                        elif operation=='challenge':result=provider.challenge(payload.get('binding'))
                         elif operation=='authorize':result=provider.authorize(payload)
                         elif operation=='observe':result=provider.observe(payload)
                         elif operation=='check':result=provider.check(payload.get('grant_id'),payload.get('binding'),payload.get('expected_control_epoch'))

@@ -130,3 +130,47 @@ def test_revoke_while_target_waits_for_original_bus_lock_is_seen_at_write_admiss
     assert not worker.is_alive() and station.error is None and station.mode=='idle'
     assert samples==[] and len(bus.writes)==1
     assert list(bus.writes[0][1].values())==[0.,0.,0.,0.,0.,50.]
+
+
+def armed_worker_fixture(tmp_path,monkeypatch):
+    station,provider,selected,start,bus,samples,tick,StopAfter,active=worker_rig(tmp_path,monkeypatch)
+    monkeypatch.setattr('explorer_shared.so101_station.time.monotonic_ns',lambda:tick[0])
+    grant=start();station.stop_event=StopAfter();station._work()
+    interlock=provider.cooperative_interlock;actor=grant['actor_id']
+    body={'grant_id':grant['grant_id'],'expected_control_epoch':grant['control_epoch'],'expected_revision':0}
+    bound=interlock.dispatch('bind',body,authenticated_actor=actor)
+    armed=interlock.dispatch('arm',{**body,'interlock_id':bound['interlock_id'],'expected_revision':bound['revision']},authenticated_actor=actor)
+    assert armed['armed'] and not armed['capability_ready']  # no invented gripper-direction measurement
+    samples.clear();bus.writes.clear()
+    return station,provider,selected,bus,samples,tick,StopAfter,armed
+
+
+def test_actual_worker_arm_interlock_denies_new_relative_target_and_retains_latch_after_original_measured_hold(tmp_path,monkeypatch):
+    station,provider,selected,bus,samples,tick,StopAfter,armed=armed_worker_fixture(tmp_path,monkeypatch)
+    position=station._positions
+    station._positions=lambda role:[20.,0.,0.,0.,0.,50.] if role=='leader' else position(role)
+    station.stop_event=StopAfter();station._work()
+    assert station.error is None and station.mode=='idle' and samples==[]
+    assert len(bus.writes)==1 and list(bus.writes[0][1].values())==[0.,0.,0.,0.,0.,50.]
+    state=provider.publication_gate.status()
+    assert state['last_decision']['cooperative_hold_interlock']['interlock_id']==armed['interlock_id']
+    assert state['last_decision']['reason']=='DUAL_HOLD_REQUIRES_EXACT_FROZEN_RECEIVER_ARM5'
+    assert provider.cooperative_interlock.status()['armed'] is True
+    assert state['last_measured_hold']['original_position_write_returned'] is True
+
+
+@pytest.mark.parametrize('retained_state',['armed','corrupt_WAL'])
+def test_restarted_original_worker_cannot_bypass_retained_interlock_through_unowned_legacy_epoch(tmp_path,monkeypatch,retained_state):
+    station,provider,selected,bus,samples,tick,StopAfter,armed=armed_worker_fixture(tmp_path,monkeypatch)
+    if retained_state=='corrupt_WAL':provider.cooperative_interlock.path.write_bytes(b'{incomplete-write-ahead-record')
+    newer,new_provider,selected,start,new_bus,new_samples,new_tick,NewStopAfter,active=worker_rig(tmp_path,monkeypatch)
+    monkeypatch.setattr('explorer_shared.so101_station.time.monotonic_ns',lambda:new_tick[0])
+    assert new_provider.grant is None and new_provider.cooperative_interlock.status()['armed'] is True
+    newer.command('teleop/start',dict(expected_control_epoch=newer.control_epoch,observing=True))
+    active[0]=True;new_bus.writes.clear();newer.stop_event=NewStopAfter();newer._work()
+    assert newer.error is None and newer.mode=='idle' and new_samples==[]
+    assert len(new_bus.writes)==1 and list(new_bus.writes[0][1].values())==[0.,0.,0.,0.,0.,50.]
+    decision=new_provider.publication_gate.status()['last_decision']
+    assert decision['managed_native_epoch'] is False and decision['grant_id'] is None
+    assert decision['cooperative_hold_interlock']['allowed'] is False
+    assert new_provider.cooperative_interlock.status()['armed'] is True

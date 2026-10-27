@@ -36,3 +36,16 @@ class StationObservedHttp:
         if expected_binding is not None:self._same(expected_binding)
         return self._post('revoke',{'reason':reason,'expected_grant_id':expected_grant_id,'expected_control_epoch':expected_control_epoch,
             'binding':deepcopy(self.binding)})
+
+    def cooperative(self,operation,body=None,*,authenticated_actor=None):
+        """Fixed metadata operation; source-native arrays never come from UI."""
+        if operation=='status':
+            if body not in (None,{}):raise ValueError('Fixed interlock status takes no body')
+            return self.request('GET','/station/observed-test/cooperative/status',None)
+        extra={'bind':{'direction_profile_id'},'arm':set(),'finish/challenge':{'giver_release_receipt'},
+            'finish':{'challenge_id','confirmation'},'reset_safe':{'object_safe_no_dual_hold'},
+            'direction/observe':{'label','frame_id','displayed_jpeg_sha256','observing','empty_gripper_confirmed','user_observed_test_confirmed'}}
+        common={'grant_id','expected_control_epoch','interlock_id','expected_revision'}
+        if operation not in extra or not isinstance(body,dict) or set(body)-common-extra[operation] or not isinstance(authenticated_actor,str) or not authenticated_actor:
+            raise ValueError('Typed fixed interlock USER operation with server actor required')
+        return self._post('cooperative/'+operation,{**deepcopy(body),'actor_id':authenticated_actor})
