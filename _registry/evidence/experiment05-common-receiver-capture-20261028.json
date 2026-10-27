@@ -1,0 +1,57 @@
+{
+  "schema": "explorer05_shared_COMMON_receiver_capture_component_v1",
+  "code_commit": "f807a98e423412c7a29c9739686e9060a522fbb6",
+  "status": "IMPLEMENTED_SOFTWARE_TESTED_NOT_DEPLOYED",
+  "reused": [
+    "original frozen SO101Station/file writer",
+    "StationCaptureService/StationCaptureAdapter",
+    "COMMON permission provider",
+    "NativeMetadataRecorder giver9D/receiver6D",
+    "original CooperativeWorkflow/HandoverFSM"
+  ],
+  "thin_change": "Explicit receiver common profile uses /so101-capture/record/* with exact current cooperative05 actor/session/epoch/object/input/native owner; legacy source04 mutations remain closed",
+  "tests": {
+    "passed": 80,
+    "seconds": 17.34,
+    "raw_log": "/mnt/explorer-data/explorer-work/05-guarded-capture-targeted-20261028-c.log",
+    "raw_log_sha256": "24a0a5ea7689fbb4938a18f96dd2b08a660f39b05ec446905fa287e10769121e",
+    "scope": [
+      "both demo04 and cooperative05 consumers",
+      "leader/policy fake source original file writer",
+      "actual localhost authenticated Node HTTP metadata ABI",
+      "foreign/late/expired/session/epoch/object/actor/binding/mode negatives",
+      "COMMON/sourceDemo/cooperative service/shared lab contracts"
+    ]
+  },
+  "source_sha256": {
+    "00-control-center/src/explorer/cooperative_service.py": "48d8f62e67a937512ffd48f02244b6c1de789f83c31abd6d4d1307508a4ce92c",
+    "04-so101-source-learning/src/explorer_so101/capture_service.py": "e939e71b11410f9fde9d863e29cb3653cea961e6943b2da84a42de031f9d234b",
+    "shared/explorer_shared/cooperative_native05.py": "66da83eb61bb3cc9f9a61badb50ba7898146bd28b71c84e378ba580b5731c35e",
+    "tests/test_cooperative_guarded_capture.py": "33384989eb82a145d4100f31e9a7d120dd37d3d9701cdc3e65f10c4a864554de",
+    "tests/test_cooperative_service.py": "4f25ccba742d7f86487495a55a6cbb9224e71d42ca09ae488ea9bb5b9293f37b"
+  },
+  "initial_failures": {
+    "raw_log": "/mnt/explorer-data/explorer-work/05-guarded-capture-targeted-20261028-a.log",
+    "failed": 2,
+    "passed": 31,
+    "causes": [
+      "minimal Node fixture missing mobile_records attr",
+      "old Root fixture lacked explicit COMMON observed owner"
+    ],
+    "correction": "fixtures now describe explicit fake source owner; no real USER grant issued"
+  },
+  "physical_acceptance": false,
+  "actual_native_commands": 0,
+  "actual_native_grants": 0,
+  "controller_configuration_changes": 0,
+  "live_commits_unchanged": {
+    "HB": "9766bc3ee495a104a16303fef0c4b4d4d215eef0",
+    "Pi_Nano_OWN": "c516de71c156b1d427f367be4a0754fe1b54bb81"
+  },
+  "open": [
+    "known data start-intent/lost-ACK reconciliation and recovery UI",
+    "whole manual/manual opening/hold/release/transfer/finish/park evidence",
+    "two-clock approved data/learning path",
+    "frozen release/deploy/actual UI"
+  ]
+}

@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T01:59:00+03:00`
-Code commit: `9766bc3ee495a104a16303fef0c4b4d4d215eef0`
+Updated: `2026-10-28T02:11:00+03:00`
+Code commit: `f807a98e423412c7a29c9739686e9060a522fbb6`
 Current task: `E05-MANUAL`
 Next tasks: `E05-MANUAL`, `E05-LEARNING`, `E06-PIPELINE`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -157,3 +157,10 @@ capture/COMMON metadata без возврата raw bypass и без новог�
 01 PARKED: current C-v2=0/16, full-task mastery/DAgger/ACT не достигнут;02 real
 experts/models/trials OPEN;05/06 whole operator flows ещё открыты. Research
 originals/negative outcomes/protocols сохранены; весь master не выполнен.
+
+05 component f807a98 implemented/software-tested, NOTdeployed: receiver common
+metadata profile reuses original guarded04 capture with cooperative05 permission;
+80PASS17.34s, both consumers/localhost original writer/ownership/races/raw closed.
+[Component](../05-cooperative-handover/docs/COMMON_RECEIVER_CAPTURE_RU.md).
+Live HB976/Pi+Nano c516 unchanged. Next: durable known start intent +explicit
+DATA lost-ACK reconciliation, then whole manual/manual FSM/data/UI; not05DONE.
