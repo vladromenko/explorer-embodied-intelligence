@@ -26,3 +26,10 @@ approval и archive/review SHA в собственной immutable source invent
 28 targeted import/approval/Range tests прошли; 40 existing workflow/evidence
 tests также прошли. Fixture approvals — только software tests; ни одного
 реального показа или физического успеха из этих результатов не следует.
+
+В промежуточном02A release paused native02 archives сохраняются и проходят
+structural inspection, но не становятся BC experts до runtime capability
+`supports_segment_chunks=True`. Признак берётся из текущего loader, не из
+архива/браузера. Причина `paused_native02_requires_segment_loader_qualification`
+блокирует cohort/train_ready; raw source quality/outcomes не переписываются.
+Неприостановленные и старые03 sources этим временным gate не меняются.

@@ -11,8 +11,16 @@ from test_native_capture_approval import approved
 from test_skill_workflow import skill,imported,assign
 
 
-def native_job(store,selected):
+def native_job(store,selected,*,paused=False):
     job,path=imported(store,selected,'a'*32)
+    if paused:
+        from test_embodied_episode import package,encoded
+        folder=path.parent;facts=json.loads((folder/'facts.json').read_bytes())
+        facts['recording']['capture_intervals']={'started_monotonic_ns':1,'pause_intervals':[{'start_monotonic_ns':40,'end_monotonic_ns':50}]}
+        assets={name:(folder/name).read_bytes() for name in json.loads(path.read_bytes())['source_files_sha256'] if name!='facts.json'}
+        envelope,payloads=package(facts,assets)
+        for name,raw in payloads.items():(folder/name).write_bytes(raw)
+        path.write_bytes(encoded(envelope))
     wrapper=approved();source=path.parent/'source-review.json';source.write_bytes(source_bytes(wrapper))
     job['config'].update(source_format='native_capture_v1',archive_sha256='b'*64,source_review_sha256=wrapper['review_sha256'])
     job['result'].update(schema='explorer_native_capture_import_v1',source_archive_sha256='b'*64,source_approval=wrapper,
@@ -47,3 +55,19 @@ def test_later_reject_revokes_cohort_acceptance_without_rewriting_import_or_outc
     assert not current['assignments'][0]['accepted'] and 'source_approval_rejected_after_import' in current['assignments'][0]['reasons']
     assert store.job(job['id'])['result']==job['result']
     with store.connect() as db:assert flow._records(db,'capture.finished')[0]['payload']==finished
+
+
+def test_paused_native02_is_retained_but_not_bc_expert_until_runtime_segment_capability(tmp_path,monkeypatch):
+    store=Store(tmp_path/'state');selected=skill(store);job,_=native_job(store,selected,paused=True)
+    session=flow.create_session(store,selected['spec']['skill_id'],1,{'split':'train','scene':'explicit-pause-fixture'})
+    before={path:path.read_bytes() for path in (store.root/'datasets'/('a'*32)).glob('*') if path.is_file()}
+    report=inspect_mobile_import(job,managed_root=store.root);assert report['source_quality_usable'] and report['mobile_embodied']['admitted_for_training']
+    assign(store,selected,job,'variant-001',session)
+    result=flow.workflow(store,selected['spec']['skill_id'],1)
+    assert not result['assignments'][0]['accepted'] and 'paused_native02_requires_segment_loader_qualification' in result['assignments'][0]['reasons']
+    assert not result['train_ready'] and all(path.read_bytes()==raw for path,raw in before.items())
+    runtime=flow.runtime_pipeline
+    def qualified():
+        value=runtime();value['capabilities']['supports_segment_chunks']=True;return value
+    monkeypatch.setattr(flow,'runtime_pipeline',qualified)
+    assert flow.workflow(store,selected['spec']['skill_id'],1)['assignments'][0]['accepted']

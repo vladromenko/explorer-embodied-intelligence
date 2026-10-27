@@ -506,6 +506,10 @@ def _admission(store,spec,binding,inspector=None):
     if binding['split']=='train' and embodied.get('optimizer_partition_allowed') is not True:reasons.append('canonical_source_not_optimizer_eligible')
     if _source_fingerprint(job,report,binding['original_episode_id'])!=binding['source_fingerprint']:reasons.append('bound_source_evidence_changed')
     envelope=embodied.get('envelope') or {}
+    pauses=((envelope.get('recording') or {}).get('capture_intervals') or {}).get('pause_intervals') or []
+    if ((report.get('source_approval') or {}).get('required') is True and pauses and
+            (runtime_pipeline().get('capabilities') or {}).get('supports_segment_chunks') is not True):
+        reasons.append('paused_native02_requires_segment_loader_qualification')
     source_skill=envelope.get('skill') or {}
     if source_skill.get('id')!=spec['skill_id'] or source_skill.get('version')!=spec['version']:
         reasons.append('source_bound_skill_identity_differs_legacy_not_silently_upgraded')
