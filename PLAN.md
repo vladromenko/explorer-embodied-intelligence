@@ -19,6 +19,7 @@ Root интегрирует, выпускает и запускает общую
 Сейчас: direct03 — source-held scopes/metadata arm и per-role authority05;
 Root — source-challenge→новые USER facts→parked release coordinator/API/UI.
 Фактический4c5f4f5b release прошёл полный регресс/cutover/Firefox/scientific audit.
-Wizard — frozen C-v2: те же4модели после4×1200CPU updates,16новых serial dev/sealed
-испытаний без tuning. Оригинальный C-v1 UNKNOWN и B0/8 сохранены отдельно;
-незавершённая C-v2 серия не означает learned mastery.
+Wizard — C-v2 завершён:16FAILURE/0UNKNOWN, DEV0/8 иSEALED0/8; все
+исходы сохранены, полного learned навыка нет. Готовится только отдельный frozen
+TRAIN-only forward audit для проверки inference/fit; новых heavy запусков до
+review нет. C-v1 UNKNOWN1/NOT_STARTED15 и B0/8 остаются отдельными оригиналами.

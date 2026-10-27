@@ -29,6 +29,11 @@ Root не выдаёт это за физическую готовность.
   фактический healthy/initialized durable giver proof; metadata receipts и reset
   с source CAS доступны в main. Полный parked phase coordinator ещё открыт.
   [Границы](05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md).
+  Позднейший main (ещё не live): source-owned parked scopes/metadata arm и
+  post-source USER bundle; internal Workflow STOP очищает returned native
+  owners до attach. Root bridge ждёт validated explicit CONTROL,22 адресных
+  tests прошли;53 combined/42 cancellation tests прошли. SourceControl helper,
+  per-role dispatch и полный сквозной coordinator ещё интегрируются.
 - Настоящий future initial capture→authenticated API→Supervisor/bootstrap→worker→
   download→новый PID восстановил все33 исходных файла:153859356B MJB,20CAD,
   один RGB,0target advances. Literal failed diagnostic trial сохранён; export
@@ -50,9 +55,12 @@ Root не выдаёт это за физическую готовность.
   [Результат](research/audits/target-visual-object-v3-results-20261027.json).
   C2×2 clock×absolute/increment:4×1200CPU train завершены/reload0, все4
   модели frozen. C-v1:1UNKNOWN из-за доказанной float64 roundoff границы,
-  остальные15NOT_STARTED. Отдельный preregistered C-v2 проверяет те же модели
-  с доказуемым numeric admission;16новых dev/sealed испытаний идут без tuning.
-  Качество полного навыка по незавершённой серии не заявлено.
+  остальные15NOT_STARTED. Отдельный preregistered C-v2 завершил16новых
+  независимых SIM trials:DEV0/8 иSEALED0/8 полных успехов,16FAILURE/0UNKNOWN,
+  12800actual dispatch; grasp1/16, lift/carry/place0. Numeric admission2 раза
+  исправил только доказанный roundoff. Все исходы и2073pins сохранены;
+  модели не выбраны и не повышены до освоенного навыка.
+  [C-v2](research/audits/TARGET_TEMPORAL_C_V2_RESULTS_RU.md).
 - Frozen4c5f4f5b с20 проверенными CAD/headless EGL:1835passed/15skipped,
   0failed за458.79s; CPU3/5GiB, peak4.20GB, swap/OOM0.215 Node tests прошли.
   Firefox:9desktop/mobile pages,0overflow,0non-GET;12authenticated live GETs.
