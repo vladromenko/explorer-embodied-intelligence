@@ -74,3 +74,20 @@ def test_cancel_before_worker_load_never_opens_client_or_loads_model(tmp_path):
     def forbidden(*args,**kwargs):raise AssertionError('No model/source request aftercancel')
     with pytest.raises(RuntimeError,match='cancelled'):
         run_rosmaster_shadow(store,job,{'nodes':[{'id':'nano','host':'fake','port':1,'token':'unused'}]},client_factory=forbidden,loader=forbidden)
+
+
+def test_actual_reference_blocker_survives_source_http_in_job_error_without_inference_or_control(tmp_path):
+    from explorer_shared.rosmaster_observation import NativeObservationUnavailable
+    from explorer.rosmaster_shadow_job import NativeShadowSourceBlocked
+    store,trained,job,path,model=fixture(tmp_path);calls=[]
+    record=NativeObservationUnavailable(409,b'{"detail":"Original reference invalid after EX_STALE; observed reference required"}','/explorer/native-policy/observation').record()
+    def handler(request):
+        calls.append((request.method,request.url.path));assert request.method=='GET'
+        return httpx.Response(409,json=record)
+    class Model:
+        def predict(self,*args,**kwargs):raise AssertionError('Invalid reference must not become an inferred command state')
+    with pytest.raises(NativeShadowSourceBlocked,match='NATIVE_REFERENCE_UNAVAILABLE.*EX_STALE') as error:
+        run_rosmaster_shadow(store,job,{'nodes':[{'id':'nano','host':'fake','port':1,'token':'unused'}]},
+            loader=lambda path:Model(),client_factory=lambda **kwargs:httpx.Client(**kwargs,transport=httpx.MockTransport(handler)))
+    assert error.value.record==record and error.value.record['joint_feedback_required'] is False
+    assert calls==[('GET','/native-policy/observation')] and not (store.root/'jobs'/job['id']/'prediction.json').exists()

@@ -15,9 +15,36 @@ import httpx
 
 from explorer_shared.contracts import ACTION_NAMES,canonical,digest
 from explorer_shared.embodied_episode import ACTION_CONTRACT_ID,_Evidence
-from .so101_shadow_job import _get
 
 PROFILE='ROSMASTER_ACT9_RGB_AVAILABLE_SENSOR106_V1'
+
+
+class NativeShadowSourceBlocked(ValueError):
+    """Preserve the actual typed Source reference/transport reason for job UI."""
+    def __init__(self,status,raw):
+        try:record=json.loads(raw)
+        except (ValueError,UnicodeError):record={}
+        typed=isinstance(record,dict) and record.get('schema')=='explorer_native_observation_unavailable_v1'
+        self.record=deepcopy(record) if typed else {'code':'NATIVE_SOURCE_HTTP_ERROR','reason':'Source returned HTTP'+str(status)}
+        self.status,self.raw=status,raw
+        super().__init__(str(self.record.get('code'))+': '+str(self.record.get('reason')))
+
+
+def _get(client,path,limit,*,guard=None):
+    # Unlike a generic HTTP status exception, this retains the bounded native
+    # reference blocker without reconstructing state or treating absent q as0.
+    if guard is not None:guard()
+    with client.stream('GET',path) as response:
+        bound=limit if response.is_success else min(limit,32*1024);chunks=[];size=0
+        for chunk in response.iter_bytes(chunk_size=64*1024):
+            if guard is not None:guard()
+            size+=len(chunk)
+            if size>bound:raise ValueError('Native Source observation/error response exceeds its bound')
+            chunks.append(chunk)
+        raw=b''.join(chunks)
+        if guard is not None:guard()
+        if not response.is_success:raise NativeShadowSourceBlocked(response.status_code,raw)
+        return raw,dict(response.headers)
 
 
 def sha(path):
@@ -124,9 +151,9 @@ def run_rosmaster_shadow(store,job,config,*,client_factory=httpx.Client,loader=N
     cancelled();policy=loader(model_path);cancelled()  # load OUTSIDE all source/hold freshness windows
     with client_factory(base_url='http://'+node['host']+':'+str(node['port']),headers={'Authorization':'Bearer '+node['token']},
             timeout=2,trust_env=False,follow_redirects=False) as client:
-        begin=clock();raw,_=_get(client,'/native-policy/observation',16*1024**2);packet=json.loads(raw)
+        begin=clock();raw,_=_get(client,'/native-policy/observation',16*1024**2,guard=cancelled);packet=json.loads(raw)
         observation,payloads,admission=validate_packet(packet);identity=packet['observation_id']
-        image,headers=_get(client,'/native-policy/observations/'+identity+'/frame',2*1024**2)
+        image,headers=_get(client,'/native-policy/observations/'+identity+'/frame',2*1024**2,guard=cancelled)
         rgb=observation['channels']['camera_rgb']['value']
         if (headers.get('x-observation-id')!=identity or headers.get('x-frame-id')!=rgb['frame_id'] or
                 headers.get('x-boot-id')!=observation['boot_id'] or headers.get('x-jpeg-sha256')!=rgb['sha256'] or
