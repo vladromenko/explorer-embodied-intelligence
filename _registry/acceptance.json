@@ -1,6 +1,6 @@
 {
   "schema": "explorer_acceptance_snapshot_v1",
-  "reviewed_on": "2026-10-26",
+  "reviewed_on": "2026-10-27",
   "overall_status": "IN_PROGRESS",
   "software_integrated": false,
   "physical_skill_status": "NOT_VALIDATED",
@@ -16,13 +16,13 @@
       "id": "control_center",
       "title": "Панель и автономный runtime Homebrain",
       "status": "VERIFIED_WITHIN_SCOPE",
-      "evidence": "Authenticated HTTP200 pages01/03/04/05; durable explorer-worker; current release80eae2e; no new graphical browser provider"
+      "evidence": "Actual central release36a2d6c; own observer/original web pinsf4cc5c3. Later main source is not automatically live. See STATUS and central actual activation receipt."
     },
     {
       "id": "observers",
       "title": "Настоящие Pi/Nano наблюдения",
       "status": "VERIFIED_WITHIN_SCOPE",
-      "evidence": "Both actual authenticated observer APIs online; station has leader/follower cache; new remote release not deployed"
+      "evidence": "Actual observer/camera proofs retained; latest Pi station idle/sync-read error with both USB adapters present. Nano execution permission false/STOP. No fresh arm measurement claim."
     },
     {
       "id": "arbitration",
@@ -34,7 +34,7 @@
       "id": "training",
       "title": "Forward/backward, processors, checkpoint/reload/resume",
       "status": "VERIFIED_WITHIN_SCOPE",
-      "evidence": "Official CPU/GPU ACT and durable optimizer resume; completed1000update objectACT: grasp3/3 but lift/carry/full0/3; GPU qualification only within pinned graph"
+      "evidence": "Current R3B real ACT6/DP6/106 updates/reload and actual ACT/DP new-PID resume exact; GPU profile4 only pinned native9 shape. Learned full object skills remain unvalidated."
     },
     {
       "id": "full01",
@@ -58,7 +58,7 @@
       "id": "handover",
       "title": "Координация и подтверждённая передача05",
       "status": "PARTIAL",
-      "evidence": "Durable coordinator, native adapters and operator inbox tested; actual native dispatch/receiverhold/registered common scene missing"
+      "evidence": "Current tested software: receiver/giver publication guards, durable WAL, source opening-correlated fresh transfer proof, explicit native sessions. Receiver metadata UI and phase hold lifecycle remain open; no physical handover claim."
     },
     {
       "id": "skill_memory",
@@ -70,7 +70,7 @@
       "id": "research",
       "title": "100+ первичных текстов, методы и научное сравнение",
       "status": "PARTIAL",
-      "evidence": "102fulltext/35deep, provenance checks; H1–H5 matched scientific campaigns and submission-ready article remain open"
+      "evidence": "102fulltext/35deep. Actual16 matched contact-only V10 probes2/4,3/4,4/4,4/4 with penetration limitations; no learned/physical mastery. Broader H1-H5 comparisons remain open."
     },
     {
       "id": "recovery",
@@ -86,10 +86,11 @@
       "receipt": "_registry/evidence/storage-t5-cutover-20261026.json"
     },
     {
-      "id": "experiment06",
-      "title": "Две руки LeRobot в общем Experiment 06",
+      "id": "source04",
+      "title": "04: две SO101 — исходный навык",
       "status": "IN_PROGRESS",
-      "evidence": "Source project06 enrolment and lossless personal alias/legacy URL redirect under test; prior actual technical hold/train/shadow evidence retained; full skill aggregate/grid/calibration/HailoVLM/click-grasp and physical validation remain open"
+      "evidence": "Canonical numberingv2 source04. Native6 ACT/DP and observed evaluation API/UI/source contracts implemented. Accepted independent full object source remains open.",
+      "legacy_criterion_id": "experiment06"
     }
   ],
   "constraints": {
@@ -97,5 +98,175 @@
     "controller_configuration": "PRESERVE_ORIGINAL",
     "new_motor_safety_settings": "NOT_AUTHORIZED",
     "arm_motion": "SEPARATE_USER_OBSERVED_TEST_REQUIRED"
+  },
+  "experiment_matrix": {
+    "numbering_version": 2,
+    "identity_source": "shared/explorer_shared/experiments.py",
+    "scope_note": "Current main, actual live release, SIM/mock software and unvalidated physical skills are distinct; no single cell closes an experiment.",
+    "dimensions": [
+      "interface_and_instructions",
+      "required_cameras",
+      "manual_control",
+      "keyboard_gamepad_leader",
+      "synchronized_recording",
+      "dataset_composition",
+      "training_launch",
+      "model_version_provenance",
+      "skill_replay",
+      "STOP_cancel",
+      "restart_recovery",
+      "user_physical_actions"
+    ],
+    "experiments": [
+      {
+        "experiment_id": "01",
+        "status": "IN_PROGRESS",
+        "checks": {
+          "interface_and_instructions": "LIVE_WITHIN_SCOPE",
+          "required_cameras": "SIM_RENDER_TESTED",
+          "manual_control": "NOT_APPLICABLE",
+          "keyboard_gamepad_leader": "NOT_APPLICABLE",
+          "synchronized_recording": "SIM_TESTED",
+          "dataset_composition": "TESTED_WITHIN_SCOPE",
+          "training_launch": "REAL_CPU_GPU_TESTED",
+          "model_version_provenance": "TESTED",
+          "skill_replay": "LEARNED_FULL_TASK_OPEN",
+          "STOP_cancel": "TESTED",
+          "restart_recovery": "PROCESS_TESTED_DEVICE_OPEN",
+          "user_physical_actions": "SIM_NONE_PHYSICAL_DEPLOY_SEPARATE"
+        },
+        "evidence": [
+          "shared/training/PROFILE4_ACTUAL_20261026_RU.md",
+          "research/audits/TRANSFER_CONTACT_V10_RESULTS_RU.md"
+        ],
+        "physical_skill_status": "NOT_VALIDATED"
+      },
+      {
+        "experiment_id": "02",
+        "status": "IN_PROGRESS",
+        "checks": {
+          "interface_and_instructions": "LIVE_WITHIN_SCOPE",
+          "required_cameras": "LIVE_WITHIN_SCOPE",
+          "manual_control": "SOFTWARE_TESTED_PHYSICAL_OPEN",
+          "keyboard_gamepad_leader": "SOFTWARE_TESTED_JOYSTICK_PHYSICAL_OPEN",
+          "synchronized_recording": "RAW_SENSOR_TESTED_FULL_DEMO_OPEN",
+          "dataset_composition": "TESTED_WITHIN_SCOPE",
+          "training_launch": "CPU_106_SIM_TESTED_PHYSICAL_DATA_OPEN",
+          "model_version_provenance": "TESTED",
+          "skill_replay": "PHYSICAL_OPEN",
+          "STOP_cancel": "TESTED",
+          "restart_recovery": "PROCESS_TESTED_DEVICE_OPEN",
+          "user_physical_actions": "USER_CURRENT_OBSERVED_TEST"
+        },
+        "evidence": [
+          "research/audits/NATIVE_SENSOR_CACHE_RU.md",
+          "shared/training/NATIVE6_QUEUE_STATION_R3B_20261027_RU.md"
+        ],
+        "physical_skill_status": "NOT_VALIDATED"
+      },
+      {
+        "experiment_id": "03",
+        "status": "IN_PROGRESS",
+        "checks": {
+          "interface_and_instructions": "LIVE_WITHIN_SCOPE",
+          "required_cameras": "LIVE_WITHIN_SCOPE",
+          "manual_control": "SOFTWARE_TESTED_MAPPING_UNREGISTERED",
+          "keyboard_gamepad_leader": "LEADER_KEYBOARD_SOFTWARE_TESTED",
+          "synchronized_recording": "TESTED_FULL_PHYSICAL_DEMO_OPEN",
+          "dataset_composition": "TESTED_WITHIN_SCOPE",
+          "training_launch": "CPU_106_SIM_TESTED_PHYSICAL_DATA_OPEN",
+          "model_version_provenance": "TESTED",
+          "skill_replay": "PHYSICAL_MAPPING_OPEN",
+          "STOP_cancel": "TESTED",
+          "restart_recovery": "PROCESS_TESTED_DEVICE_OPEN",
+          "user_physical_actions": "USER_MAPPING_AND_OBSERVED_TEST"
+        },
+        "evidence": [
+          "research/audits/EXPERIMENT_NUMBERING_V2_RU.md",
+          "03-lerobot-teaching/docs/NATIVE_STREAM_RU.md"
+        ],
+        "physical_skill_status": "NOT_VALIDATED"
+      },
+      {
+        "experiment_id": "04",
+        "status": "IN_PROGRESS",
+        "checks": {
+          "interface_and_instructions": "MAIN_NEW_UI_TESTED_LIVE_BASE",
+          "required_cameras": "PI_CAMERA_LIVE_STATION_READ_ERROR",
+          "manual_control": "SOFTWARE_TESTED",
+          "keyboard_gamepad_leader": "LEADER_SOFTWARE_TESTED",
+          "synchronized_recording": "NATIVE6_TESTED_FULL_DEMO_OPEN",
+          "dataset_composition": "NATIVE6_COHORT_TESTED",
+          "training_launch": "REAL_ACT_DP_CPU_TESTED",
+          "model_version_provenance": "TESTED",
+          "skill_replay": "OBSERVED_OWNER_TESTED_FULL_OBJECT_OPEN",
+          "STOP_cancel": "TESTED",
+          "restart_recovery": "PROCESS_TESTED_DEVICE_OPEN",
+          "user_physical_actions": "USER_POWER_REFERENCE_DEMONSTRATIONS"
+        },
+        "evidence": [
+          "shared/training/STATION_CPU_20261027_STATION_R3B_RU.md",
+          "tests/test_source_evaluation_api.py",
+          "tests/test_source_evaluation_ui.js"
+        ],
+        "physical_skill_status": "NOT_VALIDATED"
+      },
+      {
+        "experiment_id": "05",
+        "status": "IN_PROGRESS",
+        "checks": {
+          "interface_and_instructions": "MAIN_TESTED_INTEGRATION_OPEN",
+          "required_cameras": "BOTH_CAMERA_PATHS_TESTED_SHARED_VIEW_OPEN",
+          "manual_control": "FOUR_MODES_SOFTWARE_PARTIAL",
+          "keyboard_gamepad_leader": "NATIVE_INPUTS_TESTED_PHASE_LOOP_OPEN",
+          "synchronized_recording": "DUAL_TYPED_TESTED_PHYSICAL_OPEN",
+          "dataset_composition": "PAIRED_NATIVE_SEPARATE_TESTED",
+          "training_launch": "ROLE_WARM_TRAIN_PATH_TESTED",
+          "model_version_provenance": "TESTED",
+          "skill_replay": "FULL_HANDOVER_OPEN",
+          "STOP_cancel": "SCOPED_AND_DURABLE_LATCH_TESTED",
+          "restart_recovery": "WAL_PROCESS_TESTED_DEVICE_OPEN",
+          "user_physical_actions": "USER_SCENE_ENDPOINTS_HOLD_OUTCOMES"
+        },
+        "evidence": [
+          "05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md",
+          "tests/test_cooperative_interlock_coordinator.py",
+          "tests/test_station_cooperative_http.py"
+        ],
+        "physical_skill_status": "NOT_VALIDATED"
+      },
+      {
+        "experiment_id": "06",
+        "status": "IN_PROGRESS",
+        "checks": {
+          "interface_and_instructions": "LIVE_CATALOG_MAIN_NEW_TESTED",
+          "required_cameras": "SOURCE_TARGET_CAMERA_SEPARATE_TESTED",
+          "manual_control": "SOURCE_TEACHING_SEPARATE",
+          "keyboard_gamepad_leader": "NOT_A_SHARED_RAW_ACTION_HEAD",
+          "synchronized_recording": "SOURCE_TARGET_LINEAGE_TESTED",
+          "dataset_composition": "EXPLICIT_TARGET_SPLIT_TESTED",
+          "training_launch": "TARGET_LEARNED_FULL_TASK_OPEN",
+          "model_version_provenance": "TYPED_VERSIONS_TESTED",
+          "skill_replay": "SCRIPTED_SIM_ONLY_LEARNED_TRANSFER_OPEN",
+          "STOP_cancel": "TESTED",
+          "restart_recovery": "PROCESS_TESTED_DEVICE_OPEN",
+          "user_physical_actions": "USER_SOURCE_SKILL_AND_MAPPING"
+        },
+        "evidence": [
+          "research/audits/TRANSFER_FUTURE_INITIAL_CAPTURE_RU.md",
+          "research/audits/transfer-hover-development-v9-results-20261026.json",
+          "tests/test_transfer_target_split.py"
+        ],
+        "physical_skill_status": "NOT_VALIDATED"
+      }
+    ]
+  },
+  "state_documents": {
+    "goals": "GOALS.md",
+    "plan": "PLAN.md",
+    "facts": "STATUS.md",
+    "decisions": "DECISIONS.md",
+    "hardware": "HARDWARE.md",
+    "physical_actions": "PHYSICAL_CHECKLIST.md"
   }
 }

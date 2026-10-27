@@ -1,5 +1,29 @@
 # Explorer — выполняется на Homebrain, 27 октября 2026
 
+Текущая операция: завершаются observed receiver setup API/UI и последующая
+общая регрессия/развёртывание. Root checkpoint receiver/giver guards:45 targeted
+passed; WAL loss/corrupt/concurrent-fault и native reference checks также
+проверены на fake owners. Новые версии main ещё не равны live release.
+
+Состояние проекта нормализовано: [GOALS](GOALS.md), [PLAN](PLAN.md),
+[DECISIONS](DECISIONS.md), [HARDWARE](HARDWARE.md),
+[PHYSICAL_CHECKLIST](PHYSICAL_CHECKLIST.md). Матрица01–06 с12 измерениями
+хранится единожды в [_registry/acceptance.json](_registry/acceptance.json);
+исторический snapshot сохранён. Это индекс оригинального master-prompt.
+
+Новая фактическая контактная диагностика:16 фиксированных matched probes,
+контактное восстановление2/4,3/4,4/4,4/4; signed opposing floor/bottom forces
+измерены в новых неудачах. Уникальная причина AMBIGUOUS, проникновение в
+геометрию сохраняется. Learned/full-object/physical success не заявляются.
+[Все исходы](research/audits/TRANSFER_CONTACT_V10_RESULTS_RU.md).
+
+Новый реальный future-hook snapshot→API→Supervisor/bootstrap→worker→download→
+отдельный PID byte-restore прошёл:153859356B MJB,20 CAD,1 реальный RGB,0 target
+advances; все33 исходных файла совпали. Преднамеренный последующий diagnostic
+stop сохранён как literal failed trial; export PARTIAL, без numerical/RGB
+reexecution claim. [Receipt](research/audits/recorded-initial-capture-export-a1-20261027-RU.md).
+
+
 Весь исходный мастер-промпт **не завершён**. Канонический Git находится в
 `/home/jetsonnx/work/Explorer`; Mac не нужен для работающих служб.
 Предыдущий статус сохранён [побайтно](research/audits/status-snapshots/STATUS-before-20261027-0210.md).

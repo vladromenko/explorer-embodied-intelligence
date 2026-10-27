@@ -1,0 +1,101 @@
+{
+  "schema": "explorer_acceptance_snapshot_v1",
+  "reviewed_on": "2026-10-26",
+  "overall_status": "IN_PROGRESS",
+  "software_integrated": false,
+  "physical_skill_status": "NOT_VALIDATED",
+  "science_status": "UNTESTED_HYPOTHESIS",
+  "criteria": [
+    {
+      "id": "monorepo",
+      "title": "Единый приватный репозиторий и сохранённые исходники",
+      "status": "VERIFIED",
+      "evidence": "Private origin/main; legacy bundles and payload restore receipts retained"
+    },
+    {
+      "id": "control_center",
+      "title": "Панель и автономный runtime Homebrain",
+      "status": "VERIFIED_WITHIN_SCOPE",
+      "evidence": "Authenticated HTTP200 pages01/03/04/05; durable explorer-worker; current release80eae2e; no new graphical browser provider"
+    },
+    {
+      "id": "observers",
+      "title": "Настоящие Pi/Nano наблюдения",
+      "status": "VERIFIED_WITHIN_SCOPE",
+      "evidence": "Both actual authenticated observer APIs online; station has leader/follower cache; new remote release not deployed"
+    },
+    {
+      "id": "arbitration",
+      "title": "Единый аппаратный gateway без обхода",
+      "status": "OPEN",
+      "evidence": "Direct source adapter rejects conflicts and old epochs; legacy external web bypass not physically qualified"
+    },
+    {
+      "id": "training",
+      "title": "Forward/backward, processors, checkpoint/reload/resume",
+      "status": "VERIFIED_WITHIN_SCOPE",
+      "evidence": "Official CPU/GPU ACT and durable optimizer resume; completed1000update objectACT: grasp3/3 but lift/carry/full0/3; GPU qualification only within pinned graph"
+    },
+    {
+      "id": "full01",
+      "title": "Полные предметные и мобильные задачи01",
+      "status": "OPEN",
+      "evidence": "Real candy/deformable-sock contact scenes and independent complete evaluator; learned object mastery/mobile kitchen unresolved"
+    },
+    {
+      "id": "teaching",
+      "title": "Полные показы02/03 и мастер охвата",
+      "status": "PARTIAL",
+      "evidence": "Real recording/import and source-bound adaptive wizard; direct03 backend localhost-qualified; physical registration/new remote deployment missing"
+    },
+    {
+      "id": "transfer",
+      "title": "Обученная SO-101 policy → ROSMASTER",
+      "status": "PARTIAL",
+      "evidence": "Official ACT+processors4physical-source predictions; missing measured mapping correctly blocks target; virtual synthetic hold separately qualified"
+    },
+    {
+      "id": "handover",
+      "title": "Координация и подтверждённая передача05",
+      "status": "PARTIAL",
+      "evidence": "Durable coordinator, native adapters and operator inbox tested; actual native dispatch/receiverhold/registered common scene missing"
+    },
+    {
+      "id": "skill_memory",
+      "title": "Хранение, поиск, адаптация, композиция и повторная проверка",
+      "status": "VERIFIED_WITHIN_SIMULATION",
+      "evidence": "Actual MuJoCo skill-cycle with64adaptationupdates, composition and retained incumbent tests; candidate rejected"
+    },
+    {
+      "id": "research",
+      "title": "100+ первичных текстов, методы и научное сравнение",
+      "status": "PARTIAL",
+      "evidence": "102fulltext/35deep, provenance checks; H1–H5 matched scientific campaigns and submission-ready article remain open"
+    },
+    {
+      "id": "recovery",
+      "title": "Backup/restore, source pin и восстановление после отказов",
+      "status": "PARTIAL",
+      "evidence": "Verified payload restore; actual isolated scheduler/outbox crashes and64MiBcgroupOOM; full device reboot/physicalWiFi/production learnerOOM acceptance remains open"
+    },
+    {
+      "id": "external_storage",
+      "title": "Samsung T5, сохранённые пути и проверенный перенос",
+      "status": "VERIFIED_WITHIN_SCOPE",
+      "evidence": "Explicitly authorized exact-serial T5 ext4;2437entries/4.18GB SHA matches;SQLite integrity+counts match;services resumed6.72s;0jobs/recordings interrupted;NVMe rollback retained;full reboot not tested",
+      "receipt": "_registry/evidence/storage-t5-cutover-20261026.json"
+    },
+    {
+      "id": "experiment06",
+      "title": "Две руки LeRobot в общем Experiment 06",
+      "status": "IN_PROGRESS",
+      "evidence": "Source project06 enrolment and lossless personal alias/legacy URL redirect under test; prior actual technical hold/train/shadow evidence retained; full skill aggregate/grid/calibration/HailoVLM/click-grasp and physical validation remain open"
+    }
+  ],
+  "constraints": {
+    "chassis_motion": "PROHIBITED_BY_OWNER",
+    "controller_configuration": "PRESERVE_ORIGINAL",
+    "new_motor_safety_settings": "NOT_AUTHORIZED",
+    "arm_motion": "SEPARATE_USER_OBSERVED_TEST_REQUIRED"
+  }
+}
