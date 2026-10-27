@@ -36,6 +36,18 @@ corrupt/pending/read failure ставит глобальный uncertainty latch
 получает `allowed=false`. Existing original measured STOP hold обрабатывает
 исходный Station; wrapper его не заменяет и не объявляет target dispatched.
 
+До самого первого WAL durable exclusive-create сохраняет постоянный marker
+`cooperative-hold.json.initialized.json`. Если marker есть, а WAL исчез,
+constructor не принимает потерю истории за первую установку: все targets
+закрыты до отдельного USER safe-object reset. Corrupt/read-error marker также
+закрывает latch. Constructor ничего не пишет; marker создаётся только explicit
+metadata transaction и не удаляется reset. Если повреждён сам marker, explicit
+USER recovery сначала fsync-сохраняет pending/fault WAL и только затем
+восстанавливает прежний constant marker; invalid/rejected recovery оставляет
+pending/fault и не открывает targets. Обычный reset marker не переписывает.
+Это обнаружение потери отдельного
+WAL, не резервная копия и не гарантия восстановления после потери всего диска.
+
 Recovery требует новый current authenticated USER grant в original idle,
 `object_safe_no_dual_hold=true` и exact fault/interlock ID+revision. До успешного
 final fsync runtime fault остаётся закрытым. Повреждённые original bytes не

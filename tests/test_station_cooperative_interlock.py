@@ -68,6 +68,62 @@ def test_pending_or_corrupt_wal_never_recovers_fresh_unarmed_and_status_remains_
         assert recovered.path.read_bytes()==raw
 
 
+def test_lost_wal_after_initialized_arm_never_becomes_first_install_unarmed(tmp_path):
+    wrapper,provider,station,camera,tick,grant,profile=rig(tmp_path);bind_arm(wrapper,grant,profile)
+    marker=wrapper.initialized_path.read_bytes();wrapper.path.unlink()
+    recovered=StationCooperativeInterlock(provider,wrapper.path)
+    assert recovered.status()['armed'] and recovered.status()['all_target_writes_blocked']
+    assert not recovered.check_publication('unowned','teleoperation',[0.]*6)['allowed']
+    assert recovered.initialized_path.read_bytes()==marker and not recovered.path.exists()
+    provider.command(grant['grant_id'],grant['binding'],'stop',{'expected_control_epoch':grant['control_epoch']})
+    fresh,_=authorize(provider,grant['binding']);fault=recovered.status()
+    call(recovered,'reset_safe',{**base(fresh),'interlock_id':fault['interlock_id'],'expected_revision':fault['revision'],
+        'object_safe_no_dual_hold':True})
+    assert not recovered.status()['armed'] and recovered.initialized_path.read_bytes()==marker and recovered.path.exists()
+
+
+def test_durable_marker_precedes_first_wal_and_is_never_used_as_safety_proof(tmp_path,monkeypatch):
+    wrapper,provider,station,camera,tick,grant,profile=rig(tmp_path);writes=[];original=module._write
+    def observe(path,value):
+        assert wrapper.initialized_path.exists();writes.append(value)
+        return original(path,value)
+    monkeypatch.setattr(module,'_write',observe)
+    call(wrapper,'bind',{**base(grant),'expected_revision':0,'direction_profile_id':profile['profile_sha256']})
+    assert len(writes)==2 and writes[0]['pending'] and not writes[1]['pending']
+    wrapper.initialized_path.write_bytes(b'corrupt')
+    recovered=StationCooperativeInterlock(provider,wrapper.path)
+    assert recovered.status()['all_target_writes_blocked'] and not recovered.check_publication('any','policy',[0.]*6)['allowed']
+
+
+def test_first_wal_write_failure_keeps_marker_and_restart_requires_user_safe_reset(tmp_path,monkeypatch):
+    wrapper,provider,station,camera,tick,grant,profile=rig(tmp_path)
+    def fail(*args,**kwargs):raise OSError('first WAL write failed before replace')
+    monkeypatch.setattr(module,'_write',fail)
+    with pytest.raises(OSError,match='first WAL'):call(wrapper,'bind',{**base(grant),'expected_revision':0,'direction_profile_id':profile['profile_sha256']})
+    assert wrapper.initialized_path.exists() and not wrapper.path.exists()
+    recovered=StationCooperativeInterlock(provider,wrapper.path)
+    assert recovered.status()['all_target_writes_blocked'] and not recovered.check_publication('legacy','teleoperation',[0.]*6)['allowed']
+
+
+def test_marker_corruption_repair_is_only_after_pending_wal_and_explicit_user_safe_reset(tmp_path,monkeypatch):
+    wrapper,provider,station,camera,tick,grant,profile=rig(tmp_path);bind_arm(wrapper,grant,profile)
+    marker=wrapper.initialized_path.read_bytes();wrapper.initialized_path.write_bytes(b'corrupt')
+    recovered=StationCooperativeInterlock(provider,wrapper.path);fault=recovered.status()
+    provider.command(grant['grant_id'],grant['binding'],'stop',{'expected_control_epoch':grant['control_epoch']})
+    fresh,_=authorize(provider,grant['binding']);original=module._write;order=[]
+    def observed(path,value):
+        order.append(path)
+        if path==recovered.initialized_path:
+            assert json.loads(recovered.path.read_bytes())['pending'] is not None
+        return original(path,value)
+    monkeypatch.setattr(module,'_write',observed)
+    call(recovered,'reset_safe',{**base(fresh),'interlock_id':fault['interlock_id'],'expected_revision':fault['revision'],
+        'object_safe_no_dual_hold':True})
+    assert order==[recovered.path,recovered.initialized_path,recovered.path]
+    assert recovered.initialized_path.read_bytes()==marker and not recovered.status()['all_target_writes_blocked']
+    assert not StationCooperativeInterlock(provider,recovered.path).status()['armed']
+
+
 def test_final_fsync_failure_leaves_runtime_and_restart_global_latch_closed(tmp_path,monkeypatch):
     wrapper,provider,station,camera,tick,grant,profile=rig(tmp_path)
     bound=call(wrapper,'bind',{**base(grant),'expected_revision':0,'direction_profile_id':profile['profile_sha256']})

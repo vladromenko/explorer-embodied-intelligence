@@ -21,6 +21,7 @@ from .cooperative_receiver_interlock05 import ReceiverHoldInterlock,PROFILE_SCHE
 from .so101_station import LOW,HIGH
 
 ENVELOPE='explorer_station_cooperative_interlock_wal_v1'
+INITIALIZED='explorer_station_cooperative_interlock_initialized_v1'
 LIMIT=1024*1024
 ID=re.compile('[0-9a-f]{64}')
 CAPTURE_ID=re.compile('[0-9a-f]{32}')
@@ -66,12 +67,16 @@ class StationCooperativeInterlock:
     def __init__(self,provider,state_path):
         self.provider=provider;self.station=provider.station;self.clock=provider.clock
         self.path=Path(state_path);self.metadata_lock=threading.RLock();self.fault=None;self.fault_id=None;self.fault_revision=0
+        self.initialized_path=self.path.with_name(self.path.name+'.initialized.json')
         self.profile_root=self.path.parent/'cooperative-direction-profiles';self.profiles={}
         self.capture_root=self.path.parent/'cooperative-direction-captures';self.captures={};self.capture_errors={}
         self.helper=self._new_helper();self.last_transaction=None
         try:
             if self.path.parent.resolve()!=Path(self.station.root).resolve() or self.path.is_symlink():
                 raise ValueError('Fixed original Station state directory required')
+            if self.initialized_path.exists() or self.initialized_path.is_symlink():
+                self._initialized()
+                if not self.path.exists():raise ValueError('Previously initialized interlock WAL is missing; armed history is unknown')
             if self.path.exists():
                 envelope=_read(self.path)
                 if envelope.get('schema')!=ENVELOPE or envelope.get('envelope_sha256')!=digest({key:value for key,value in envelope.items() if key!='envelope_sha256'}):
@@ -87,6 +92,18 @@ class StationCooperativeInterlock:
     def _fault(self,reason):
         if self.fault is None:self.fault_id=uuid.uuid4().hex;self.fault_revision+=1
         self.fault=str(reason)[:1000]
+    def _initialized(self,create=False,repair=False):
+        marker={'schema':INITIALIZED,'state_file':self.path.name,'initialization_is_not_object_safety_or_authority':True}
+        if self.initialized_path.exists() or self.initialized_path.is_symlink():
+            try:
+                if _read(self.initialized_path,4096)!=marker:raise ValueError('Original interlock initialization marker differs')
+            except (ValueError,OSError):
+                if not repair:raise
+                # Explicit recovery first sealed a pending/fault WAL. Repairing
+                # this known constant can never expose an unrecorded reset.
+                _write(self.initialized_path,marker)
+        elif create:_original(self.initialized_path,canonical(marker))
+        else:raise ValueError('Original interlock initialization marker is missing')
     def _load_profiles(self):
         if not self.profile_root.exists():return
         if self.profile_root.is_symlink():raise ValueError('Managed direction profiles required')
@@ -186,7 +203,13 @@ class StationCooperativeInterlock:
             current=self._current(body,actor);before=self.helper.snapshot_state()
             transaction={'transaction_id':uuid.uuid4().hex,'operation':operation,'actor_id':actor,
                 'grant_id':current['grant_id'],'native_epoch':current['control_epoch'],'before_state_sha256':before['state_sha256']}
-            try:_write(self.path,self._envelope(pending=transaction,fault=self.fault))
+            try:
+                if recover:
+                    _write(self.path,self._envelope(pending=transaction,fault=self.fault))
+                    self._initialized(create=True,repair=True)
+                else:
+                    self._initialized(create=True)
+                    _write(self.path,self._envelope(pending=transaction,fault=self.fault))
             except Exception as error:self._fault('INTERLOCK_WAL_WRITE_FAILED:'+str(error));raise
             try:
                 with self._locks():
