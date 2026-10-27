@@ -70,10 +70,14 @@
       revise: patch => act("revision", { patch, spec_sha256: data.state?.spec_sha256 }, result => { data.version = result.spec.version; data.state = null; }),
       confirm: () => act("confirm", { spec_sha256: data.state?.spec_sha256 }),
       createSession: body => act("session", body),
-      captureContext: body => act("capture-context", body, result => {
-        data.captureContext = result; data.notice = "Контекст показа подготовлен. Запись и управление запускаются отдельно.";
-        if (options.onCaptureContext) options.onCaptureContext(copy(result));
-      }),
+      captureContext(body) {
+        const selected=data.selected,version=data.version,specSHA=data.state?.spec_sha256;
+        return act("capture-context", body, result => {
+          if(data.selected!==selected || data.version!==version || data.state?.spec_sha256!==specSHA)return;
+          data.captureContext = result; data.notice = "Контекст показа подготовлен. Запись и управление запускаются отдельно.";
+          if (options.onCaptureContext) options.onCaptureContext(copy(result));
+        });
+      },
       bind: body => act("bind", body), review: body => act("review", body),
       aggregate: () => act("aggregate"),
       train: body => act("train", body),
@@ -166,7 +170,8 @@
     root.addEventListener("click", click); root.addEventListener("change", change); root.addEventListener("submit", submit);
     return () => { root.removeEventListener("click", click); root.removeEventListener("change", change); root.removeEventListener("submit", submit); };
   }
-  const exported = { createLabSkillsClient, labSkillsPanel, installLabSkillsHandlers, labSkillsTimelinePanel: timelinePanel };
+  const exported = { createLabSkillsClient, labSkillsPanel, installLabSkillsHandlers, labSkillsTimelinePanel: timelinePanel,
+    labSkillPhaseTitle: value=>phaseTitle[value] || value };
   Object.assign(surface, exported);
   if (typeof module !== "undefined" && module.exports) module.exports = exported;
 })(typeof window !== "undefined" ? window : globalThis);

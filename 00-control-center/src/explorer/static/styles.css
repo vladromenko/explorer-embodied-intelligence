@@ -87,17 +87,19 @@ label.form-field { display:flex; flex-direction:column; gap:8px; min-width:0; co
 .lab-skills-panel input[type=checkbox] { flex:none; width:17px; height:17px; margin-top:2px; }
 .lab-skills-panel img { max-width:100%; height:auto; }
 @media(max-width:700px) { .cooperative-workbench .form-grid { grid-template-columns:minmax(0,1fr); } }
-.source-evaluation-workbench { margin-top:24px; overflow-wrap:anywhere; }
-.source-evaluation-workbench .panel-body { display:grid; gap:16px; }
-.source-evaluation-workbench label:not(.check-field) { display:flex; flex-direction:column; gap:8px; min-width:0; font-size:12px; }
-.source-evaluation-workbench :is(input,select) { min-width:0; max-width:100%; width:100%; padding:10px 12px; border:1px solid #36505f; background:#0e1f2e; color:var(--text); border-radius:10px; }
-.source-evaluation-workbench .check-field input { flex:none; width:17px; height:17px; padding:0; }
-.source-evaluation-workbench figure { min-width:0; margin:0; }
-.source-evaluation-workbench .camera-preview { display:block; width:100%; max-width:640px; height:auto; border-radius:9px; }
-.source-evaluation-workbench figcaption { margin-top:8px; font-size:11px; line-height:1.6; }
-.source-evaluation-workbench fieldset { min-width:0; border:1px solid var(--line); border-radius:9px; padding:14px; }
-.source-evaluation-workbench .panel-heading { flex-wrap:wrap; }
-@media(max-width:700px) { .source-evaluation-workbench .form-grid { grid-template-columns:minmax(0,1fr); } }
+:is(.source-evaluation-workbench,.source-demonstration) { margin-top:24px; overflow-wrap:anywhere; }
+:is(.source-evaluation-workbench,.source-demonstration) .panel-body { display:grid; gap:16px; }
+:is(.source-evaluation-workbench,.source-demonstration) label:not(.check-field) { display:flex; flex-direction:column; gap:8px; min-width:0; font-size:12px; }
+:is(.source-evaluation-workbench,.source-demonstration) :is(input,select) { min-width:0; max-width:100%; width:100%; padding:10px 12px; border:1px solid #36505f; background:#0e1f2e; color:var(--text); border-radius:10px; }
+:is(.source-evaluation-workbench,.source-demonstration) .check-field input { flex:none; width:17px; height:17px; padding:0; }
+:is(.source-evaluation-workbench,.source-demonstration) figure { min-width:0; margin:0; }
+:is(.source-evaluation-workbench,.source-demonstration) .camera-preview { display:block; width:100%; max-width:640px; height:auto; border-radius:9px; }
+:is(.source-evaluation-workbench,.source-demonstration) figcaption { margin-top:8px; font-size:11px; line-height:1.6; }
+:is(.source-evaluation-workbench,.source-demonstration) fieldset { min-width:0; border:1px solid var(--line); border-radius:9px; padding:14px; }
+:is(.source-evaluation-workbench,.source-demonstration) .panel-heading { flex-wrap:wrap; }
+.source-demonstration .source-demo-live { position:sticky; top:12px; z-index:2; align-self:start; padding:8px; background:var(--surface); border-radius:9px; }
+.source-demonstration .source-demo-live .camera-preview { max-height:32vh; object-fit:contain; }
+@media(max-width:700px) { :is(.source-evaluation-workbench,.source-demonstration) .form-grid { grid-template-columns:minmax(0,1fr); } }
 .cooperative-observed-workbench { margin-top:24px; overflow-wrap:anywhere; }
 .cooperative-observed-workbench .panel-body { display:grid; gap:18px; }
 .cooperative-observed-workbench .panel-heading { flex-wrap:wrap; }

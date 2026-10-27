@@ -26,6 +26,11 @@ class Element {
   querySelectorAll() { return []; }
   append(child) { child.remove(); child.parentNode = this; this.nodes.set("#" + (child.id || "anonymous"), child); }
   remove() { if (this.parentNode) for (const [key, value] of this.parentNode.nodes) if (value === this) this.parentNode.nodes.delete(key); this.parentNode = null; }
+  replaceWith(child) {
+    const parent=this.parentNode;if(!parent)return;
+    const keys=[...parent.nodes].filter(([,value])=>value===this).map(([key])=>key);
+    child.remove();this.remove();child.parentNode=parent;for(const key of keys)parent.nodes.set(key,child);
+  }
   contains(target) { for (let item = target; item; item = item.parentNode) if (item === this) return true; return false; }
   addEventListener(name, callback) { const list = this.listeners.get(name) || []; list.push(callback); this.listeners.set(name, list); }
   removeEventListener(name, callback) { this.listeners.set(name,(this.listeners.get(name) || []).filter(item => item !== callback)); }
@@ -97,6 +102,22 @@ for (const route of ["/", "/experiments/01", "/experiments/02", "/experiments/03
     }
   });
 }
+test("04 ordinary render retains its pane and blur/pagehide issue no legacy STOP; explicit header keeps original STOP ABI",async()=>{
+  const rig=bootstrap("/experiments/04");await flush();
+  const pane=rig.document.querySelector("#main").querySelector("#source-demonstration-slot");
+  rig.run("render()");assert.equal(rig.document.querySelector("#main").querySelector("#source-demonstration-slot"),pane);
+  for(const event of ["blur","pagehide"])for(const fn of rig.events.get(event) || [])fn();
+  await flush();assert.ok(rig.requests.every(row=>row.method==="GET"));
+  const mutations=[],previous=rig.context.fetch;
+  rig.context.fetch=async(url,options={})=>{
+    if(options.method && options.method!=="GET"){mutations.push({url,body:options.body});return {ok:true,status:200,json:async()=>({mode:"idle"})};}
+    return previous(url,options);
+  };
+  await rig.document.querySelector("#stop-button").listeners.get("click")[0]();await flush();
+  assert.deepEqual(mutations.filter(row=>row.url==="/api/station/stop"),[{url:"/api/station/stop",body:"{}"}]);
+  assert.equal(mutations.filter(row=>row.url==="/api/stop").length,1);
+});
+
 async function pump(rig, rounds = 40) {
   for (let round = 0; round < rounds; round++) {
     await flush();

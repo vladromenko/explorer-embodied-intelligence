@@ -95,15 +95,60 @@ function sourceEvaluationRoute(route=path()) { return [SO101_SOURCE_ROUTE,"/lear
 const sourceEvaluation = createSourceEvaluationClient({get:api,post:(...args)=>post(...args),
   visible:sourceEvaluationRoute() && !document.hidden,
   storage:(()=>{try{return window.sessionStorage;}catch(_){return undefined;}})(),
-  onChange:()=>{if(sourceEvaluationRoute()){model.forceRender=true;render();}}});
+  onChange:()=>{if(sourceEvaluationRoute())refreshSourcePane("evaluation");}});
 let sourceEvaluationUnbind = () => {}, sourceEvaluationLoadedAt = 0;
-const labSkills = createLabSkillsClient({api,onChange: () => { model.forceRender = true; render(); },onCaptureContext: context => { stationLab.skillContext = context.record_start_body; toast("Контекст навыка выбран. Запись запускается отдельно при наблюдении за руками."); }});
+const sourceDemonstration = createSourceDemonstrationClient({get:api,post:(url,body)=>post(url,body,{keepalive:true}),
+  visible:sourceEvaluationRoute() && !document.hidden,onChange:()=>{if(sourceEvaluationRoute())refreshSourcePane("demonstration");}});
+let sourceDemonstrationUnbind = () => {}, sourceDemonstrationLoadedAt = 0;
+const labSkills = createLabSkillsClient({api,onChange: () => {
+  const state=labSkills.snapshot().state;
+  if(state?.spec)sourceDemonstration.setPhaseCatalogue({...state.spec,spec_sha256:state.spec_sha256},state.spec.phase_ids);
+  if(sourceEvaluationRoute())refreshSourcePane("skills");
+},onCaptureContext: context => {
+  const chosen=labSkills.snapshot(),body=context.record_start_body;
+  if(!sourceEvaluationRoute() || body?.skill_id!==chosen.selected || body?.skill_version!==chosen.version || body?.skill_spec_sha256!==chosen.state?.spec_sha256)return;
+  sourceDemonstration.setContext(context,chosen.state.spec.phase_ids);toast("Контекст показa выбран. Подготовьте показ и отдельно подтвердите наблюдение за руками.");
+}});
 let labSkillsLoadedAt = 0;
 const keyboard = new ManualKeyboard();
 const mobileLearning = { importJob: "" };
 const worldLearning = { datasets: [], error: null, loading: false, lastLoad: 0, manifest: "", development: null, signature: "", busy: false };
 let episodeLeaseBusy = false;
 const main = document.querySelector("#main");
+let sourceLabDraft=null;
+function sourceLabKey() {
+  const data=labSkills.snapshot();return JSON.stringify([data.selected,data.version,data.state?.spec_sha256,data.reviewImport,
+    (data.state?.assignments || []).map(row=>[row.binding?.original_episode_id,row.binding?.receipt_sha256,row.review?.receipt_sha256])]);
+}
+function saveSourceLabDraft() {
+  const slot=main.querySelector("#source-skills-slot");if(!slot)return;
+  sourceLabDraft={key:slot.dataset.sourceLabKey || sourceLabKey(),forms:[...slot.querySelectorAll("form[data-lab-form]")].map(form=>({kind:form.dataset.labForm,episode:form.dataset.episode || "",
+    fields:[...form.elements].filter(field=>field.name && field.type!=="hidden").map(field=>({name:field.name,value:field.value,checked:field.checked,type:field.type}))})),
+    details:[...slot.querySelectorAll("details")].map(node=>node.open)};
+}
+function restoreSourceLabDraft() {
+  const slot=main.querySelector("#source-skills-slot");if(!slot || sourceLabDraft?.key!==sourceLabKey())return;
+  for(const saved of sourceLabDraft.forms){const form=[...slot.querySelectorAll("form[data-lab-form]")].find(node=>node.dataset.labForm===saved.kind && (node.dataset.episode || "")===saved.episode);if(!form)continue;
+    for(const field of saved.fields){const node=form.elements.namedItem(field.name);if(!node || node.type==="hidden")continue;
+      if(node.type==="checkbox")node.checked=field.checked;else if(node.tagName!=="SELECT" || [...node.options].some(option=>option.value===field.value))node.value=field.value;}}
+  [...slot.querySelectorAll("details")].forEach((node,index)=>{if(index<sourceLabDraft.details.length)node.open=sourceLabDraft.details[index];});
+}
+function refreshSourcePane(kind) {
+  const slot=main.querySelector(`#source-${kind}-slot`);
+  if(!slot){model.forceRender=true;render();return;}
+  const focused=document.activeElement,focus=focused && slot.contains(focused) && ["INPUT","SELECT","TEXTAREA"].includes(focused.tagName) ? {
+    name:focused.name,data:{...focused.dataset},start:focused.selectionStart,end:focused.selectionEnd}:null;
+  if(kind==="evaluation"){sourceEvaluationUnbind();slot.innerHTML=sourceEvaluationPanel(sourceEvaluation.snapshot());sourceEvaluationUnbind=bindSourceEvaluation(slot,sourceEvaluation,error=>toast(error.message,true));}
+  else if(kind==="demonstration"){
+    const view=sourceDemonstration.snapshot(),key=sourceDemonstrationRenderKey(view);
+    if(slot.dataset.sourceDemoRenderKey===key && patchSourceDemonstrationFrame(slot,view))return;
+    sourceDemonstrationUnbind();slot.innerHTML=sourceDemonstrationPanel(view,{phaseTitle:labSkillPhaseTitle});slot.dataset.sourceDemoRenderKey=key;
+    sourceDemonstrationUnbind=bindSourceDemonstration(slot,sourceDemonstration,{onError:error=>toast(error.message,true)});
+  }
+  else {saveSourceLabDraft();slot.innerHTML=labSkillsPanel(labSkills.snapshot());slot.dataset.sourceLabKey=sourceLabKey();restoreSourceLabDraft();}
+  if(focus){const input=[...slot.querySelectorAll("input,select,textarea")].find(node=>node.name===focus.name && Object.entries(focus.data).every(([key,value])=>node.dataset[key]===value));
+    if(input){input.focus({preventScroll:true});if(typeof focus.start==="number" && input.setSelectionRange)try{input.setSelectionRange(focus.start,focus.end);}catch(_){}}}
+}
 const dialog = document.querySelector("#record-dialog");
 const record = { step: 0, project: "02", camera: "", duration: 15, busy: false };
 let toastTimeout;
@@ -156,7 +201,7 @@ function toast(message, error = false) {
 }
 function path() { return window.location.pathname.replace(/\/$/, "") || "/"; }
 function activeProject() { return PROJECTS.find((project) => path() === `/experiments/${project.id}`); }
-function navigate(url) { if(path()!==url)sourceEvaluation.interrupt("Наблюдение выключено при переходе в другой раздел"); if(path()!==url)cooperativeObserved.interrupt("Переход выключил наблюдение кооперации"); if (path() !== url && (stationLab.owned || stationLab.present)) stopStation(true); if ((keyboard.active || keyboard.starting) && url !== "/experiments/02") stopKeyboard(true); if (path() !== url) history.pushState({}, "", url); sourceEvaluation.setVisible(sourceEvaluationRoute() && !document.hidden); cooperativeObserved.setVisible(path()==="/experiments/05" && !document.hidden); render(); main.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); if (url === "/experiments/01") refreshWorldDatasets(); }
+function navigate(url) { if(path()!==url)sourceDemonstration.interrupt("Переход выключил наблюдение показа"); if(path()!==url)sourceEvaluation.interrupt("Наблюдение выключено при переходе в другой раздел"); if(path()!==url)cooperativeObserved.interrupt("Переход выключил наблюдение кооперации"); if (path() !== url && (stationLab.owned || stationLab.present)) stopStation(true); if ((keyboard.active || keyboard.starting) && url !== "/experiments/02") stopKeyboard(true); if (path() !== url) history.pushState({}, "", url); sourceEvaluation.setVisible(sourceEvaluationRoute() && !document.hidden); sourceDemonstration.setVisible(sourceEvaluationRoute() && !document.hidden); cooperativeObserved.setVisible(path()==="/experiments/05" && !document.hidden); render(); main.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); if (url === "/experiments/01") refreshWorldDatasets(); }
 
 function navigation() {
   const item = (href, label, symbol, ordinal) => `<a href="${href}" data-link class="nav-item ${path() === href ? "active" : ""}" ${path() === href ? 'aria-current="page"' : ""}>${ordinal ? `<span class="nav-number">${ordinal}</span>` : icon(symbol, "nav-icon")}<span>${label}</span></a>`;
@@ -686,6 +731,10 @@ function render() {
   else if (route === "/") markup = dashboard();
   else markup = heading("Раздел не найден", "Вернитесь к обзору станции или выберите опыт в меню.") + '<a href="/" class="button primary" data-link>Открыть обзор</a>';
   const cameraWasVisible = document.contains(cameraCard); const slotNeeded = markup.includes('id="camera-slot"');
+  const demoPane=sourceEvaluationRoute(route)?main.querySelector("#source-demonstration-slot"):null;
+  const demoRenderKey=sourceDemonstrationRenderKey(sourceDemonstration.snapshot());
+  const preservedDemoPane=demoPane?.dataset.sourceDemoRenderKey===demoRenderKey?demoPane:null;
+  if(preservedDemoPane)preservedDemoPane.remove();
   if (cameraWasVisible) cameraCard.remove();
   cooperativeUnbind(); cooperativeUnbind = () => {};
   cooperativeObservedUnbind(); cooperativeObservedUnbind = () => {};
@@ -693,7 +742,10 @@ function render() {
   researchExportUnbind(); researchExportUnbind = () => {};
   studyExportUnbind(); studyExportUnbind = () => {};
   sourceEvaluationUnbind(); sourceEvaluationUnbind = () => {};
+  sourceDemonstrationUnbind(); sourceDemonstrationUnbind = () => {};
+  saveSourceLabDraft();
   main.innerHTML = markup;
+  if(preservedDemoPane)main.querySelector("#source-demonstration-slot")?.replaceWith(preservedDemoPane);
   if (project?.id === "05") cooperativeUnbind = bindCooperativeWorkbench(main,cooperativeWorkbench,error => toast(error.message,true));
   if (project?.id === "05") cooperativeObservedUnbind = bindCooperativeObserved(main,cooperativeObserved,error=>toast(error.message,true));
   if (route === "/queue") sharedQueueUnbind = bindSharedQueue(main,sharedQueue,error => toast(error.message,true));
@@ -702,7 +754,11 @@ function render() {
   if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(route)) {
     bindLabVision(main,labVision);
     bindTabletopCalibration(main,tabletopCalibration,error => toast(error.message));
-    sourceEvaluationUnbind=bindSourceEvaluation(main,sourceEvaluation,error=>toast(error.message,true));
+    const skillsSlot=main.querySelector("#source-skills-slot");if(skillsSlot){skillsSlot.dataset.sourceLabKey=sourceLabKey();restoreSourceLabDraft();}
+    const evaluationSlot=main.querySelector("#source-evaluation-slot") || main;
+    sourceEvaluationUnbind=bindSourceEvaluation(evaluationSlot,sourceEvaluation,error=>toast(error.message,true));
+    const demoSlot=main.querySelector("#source-demonstration-slot");
+    if(demoSlot){demoSlot.dataset.sourceDemoRenderKey=demoRenderKey;patchSourceDemonstrationFrame(demoSlot,sourceDemonstration.snapshot());sourceDemonstrationUnbind=bindSourceDemonstration(demoSlot,sourceDemonstration,{onError:error=>toast(error.message,true)});}
   }
   if (slotNeeded) { main.querySelector("#camera-slot").append(cameraCard); syncCamera(); }
   else { if (manualPreview.state().active) manualPreview.stop("preview_not_visible"); cameraImage.removeAttribute("src"); cameraLoaded = false; }
@@ -761,6 +817,7 @@ async function refresh(forceExtras = false) {
     if (path() === "/research" && (forceExtras || Date.now()-researchExportLoadedAt>5000)) { researchExportLoadedAt=Date.now(); await researchExport.refresh(); }
     if (path() === "/research" && (forceExtras || Date.now()-studyExportLoadedAt>5000)) { studyExportLoadedAt=Date.now(); await studyExport.refresh(); }
     if (sourceEvaluationRoute() && (forceExtras || Date.now()-sourceEvaluationLoadedAt>2000)) { sourceEvaluationLoadedAt=Date.now(); await sourceEvaluation.refresh(); }
+    if (sourceEvaluationRoute() && (forceExtras || Date.now()-sourceDemonstrationLoadedAt>2000)) { sourceDemonstrationLoadedAt=Date.now(); await sourceDemonstration.refresh(); }
     if (activeProject()?.id === TRANSFER_PROJECT && workflow.currentSources === null && !workflow.loading) await loadTransferSources();
     if (stationRoute()) await pollStation(forceExtras);
     if ([SO101_SOURCE_ROUTE, "/learning/so101"].includes(path())) await Promise.all([labVision.refresh(forceExtras),tabletopCalibration.refresh(forceExtras)]);
@@ -770,6 +827,7 @@ async function refresh(forceExtras = false) {
 }
 
 function openRecord(project) {
+  if(projectId(project)===SO101_SOURCE_PROJECT){if(path()!==SO101_SOURCE_ROUTE)navigate(SO101_SOURCE_ROUTE);main.querySelector("#source-demonstration-slot")?.scrollIntoView({behavior:"smooth",block:"start"});toast("Показ04 записывается в панели навыка после отдельного наблюдаемого управления.");return;}
   if (stationLab.owned || stationLab.present || stationLab.pendingControl) stopStation(true);
   if (keyboard.active || keyboard.starting) stopKeyboard(true);
   record.step = 0; record.project = projectId(project || activeProject()?.id) || "02";
@@ -952,12 +1010,13 @@ document.addEventListener("submit", async (event) => {
 document.querySelector("#stop-button").addEventListener("click", async () => {
   cooperativeObserved.interrupt("Общий STOP выключил наблюдение кооперации");
   sourceEvaluation.interrupt("Общий STOP: наблюдение этой попытки выключено");
+  sourceDemonstration.interrupt("Общий STOP выключил наблюдение показа");
   const button = document.querySelector("#stop-button"); button.disabled = true;
   manualInputFreezeCount += 1;
   void stopKeyboard(true);
   void browserGamepad.disconnect("Общий STOP.");
   // Dispatch both STOP paths immediately, even if one node is unreachable.
-  void stopStation(true);
+  void stopStation(true,{explicitUserGlobalStop:true});
   try { const result = await post("/api/stop"); toast(result.robot_error ? `Задачи остановлены. Запрос STOP роботу не подтверждён: ${result.robot_error}` : "Запрос STOP передан штатному управлению робота. Задачи Explorer останавливаются.", Boolean(result.robot_error)); await refresh(true); }
   catch (error) { toast(error.message, true); }
   finally { manualInputFreezeCount -= 1; button.disabled = false; }
@@ -967,14 +1026,16 @@ document.querySelector("#logout-button").addEventListener("click", async () => {
   const sourceView=sourceEvaluation.snapshot(),sourceAttempt=sourceView.data?.attempts?.find(row=>row.id===sourceView.selected);
   const sourceCancellation=sourceAttempt && !["completed","failed","cancelled"].includes(sourceAttempt.status) ? sourceEvaluation.cancel() : Promise.resolve();
   sourceEvaluation.interrupt("Выход из панели: наблюдение выключено");
+  const demoCleanup=(async()=>{await sourceDemonstration.interrupt("Выход из панели выключил наблюдение показа");return sourceDemonstration.drain();})();
   manualInputFreezeCount += 1;
   try {
     const stoppedInputs = await Promise.allSettled([
       stopKeyboard(true), browserGamepad.disconnect("Выход из панели."),
       stationLab.owned || stationLab.present || stationLab.pendingControl ? stopStation(true) : Promise.resolve(),
-      direct03.held || direct03.busy ? direct03Stop(true) : Promise.resolve(),sourceCancellation
+      direct03.held || direct03.busy ? direct03Stop(true) : Promise.resolve(),sourceCancellation,demoCleanup
     ]);
-    if(stoppedInputs.at(-1).status==="rejected")throw stoppedInputs.at(-1).reason;
+    const sourceCleanupFailure=stoppedInputs.slice(-2).find(result=>result.status==="rejected");
+    if(sourceCleanupFailure)throw sourceCleanupFailure.reason;
     const drainUntil = performance.now() + 15000;
     while (keyboard.busy || keyboard.starting || keyboard.stopping || browserGamepad.busy || browserGamepad.stopping) {
       if (performance.now() > drainUntil) throw new Error("Завершение управления ещё ожидается. Вход сохранён.");
@@ -987,7 +1048,7 @@ document.querySelector("#logout-button").addEventListener("click", async () => {
   finally { manualInputFreezeCount -= 1; }
 });
 window.addEventListener("popstate", () => { if ((keyboard.active || keyboard.starting) && path() !== "/experiments/02") stopKeyboard(true); model.forceRender = true; render(); });
-window.addEventListener("popstate",()=>{sourceEvaluation.interrupt("Навигация выключила наблюдение текущей попытки");cooperativeObserved.interrupt("Навигация выключила наблюдение кооперации");cooperativeObserved.setVisible(path()==="/experiments/05" && !document.hidden);sourceEvaluation.setVisible(sourceEvaluationRoute() && !document.hidden);});
+window.addEventListener("popstate",()=>{sourceDemonstration.interrupt("Навигация выключила наблюдение показа");sourceDemonstration.setVisible(sourceEvaluationRoute() && !document.hidden);sourceEvaluation.interrupt("Навигация выключила наблюдение текущей попытки");cooperativeObserved.interrupt("Навигация выключила наблюдение кооперации");cooperativeObserved.setVisible(path()==="/experiments/05" && !document.hidden);sourceEvaluation.setVisible(sourceEvaluationRoute() && !document.hidden);});
 window.addEventListener("blur", () => { if (keyboard.active || keyboard.starting) stopKeyboard(true); });
 window.addEventListener("blur", () => {const owned=observedNative.snapshot().activation?.execution_permission;observedNative.cancelPending();if(owned)void observedNative.revoke().catch(error=>toast(error.message,true));});
 window.addEventListener("pagehide", () => {if(observedNative.snapshot().activation?.execution_permission)void observedNative.revoke().catch(()=>{});else observedNative.cancelPending();});

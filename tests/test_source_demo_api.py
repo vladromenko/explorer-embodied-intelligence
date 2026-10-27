@@ -154,6 +154,9 @@ def test_authenticated_demo_control_record_pause_review_and_Range_use_one_actual
         assert len(store.jobs())==1 and len(bus.writes)==writes
         assert permission.status()['grant']['binding']==row['binding']
         assert client.post(route+'/stop',json={'grant_id':current['grant_id'],'expected_control_epoch':grant['control_epoch']},headers=csrf).status_code==409
+        stopped=client.post(route+'/stop',json={'grant_id':current['grant_id'],'expected_control_epoch':current['control_epoch']},headers=csrf)
+        assert stopped.status_code==200,stopped.text
+        assert stopped.json()['native_command_called'] and stopped.json()['status']['mode']=='idle'
     finally:
         client.__exit__(None,None,None);server.shutdown();server.server_close();thread.join(2);capture.close()
         station.record_queue.put(None);writer.join(2);assert not writer.is_alive()

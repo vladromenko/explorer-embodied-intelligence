@@ -3,6 +3,7 @@
 // ENGINEERING_GLUE: real station measurements, recordings and explicit import lineage.
 const stationLab = { status: null, recordings: [], error: null, busy: false, polling: false, updatedAt: 0, owned: false, present: false, name: "Первый показ SO-101", manifest: "", skill: "", importJob: "", lastEpisode: null, signature: "", interruptEpoch: 0, pendingControl: false, rolloutJob: "" };
 const stationRoute = (route = window.location.pathname) => ["/learning/so101", "/experiments/03", TRANSFER_ROUTE, SO101_SOURCE_ROUTE].includes(route.replace(/\/$/, ""));
+const stationSourceOnlyRoute = (route = window.location.pathname) => ["/learning/so101", SO101_SOURCE_ROUTE].includes(route.replace(/\/$/, ""));
 const stationProject = () => activeProject()?.id || SO101_SOURCE_PROJECT;
 const stationFinished = (job) => ["completed", "complete", "succeeded", "success"].includes(job.status);
 function stationImports(project) {
@@ -61,6 +62,9 @@ function stationRecordingPanel(project) {
 }
 function stationPage(project = SO101_SOURCE_PROJECT) {
   const personal = ["personal", SO101_SOURCE_PROJECT].includes(project); const experiment = PROJECTS.find((item) => item.id === project);
+  if (personal) return heading("Две руки SO101 · показать и обучить", "Одна Logitech на Raspberry Pi. Подтверждённый навык и условия выбираются до отдельного наблюдаемого управления.", `Исследовательский опыт / ${SO101_SOURCE_PROJECT}`) +
+    `<div id="source-skills-slot">${labSkillsPanel(labSkills.snapshot())}</div><div class="overview-grid station-workspace"><div><div id="camera-slot"></div><section class="panel spaced-section"><div class="panel-heading"><h2>Исходные измерения рук</h2></div><div class="panel-body">${stationMeasurements()}<p class="form-hint">Источник — Raspberry Pi · текущие положения ведущей и ведомой рук.</p></div></section></div><div id="source-demonstration-slot">${sourceDemonstrationPanel(sourceDemonstration.snapshot(),{phaseTitle:labSkillPhaseTitle})}</div></div>` +
+    labVisionPanel(labVision.snapshot()) + tabletopCalibrationPanel(tabletopCalibration.snapshot()) + `<div id="source-evaluation-slot">${sourceEvaluationPanel(sourceEvaluation.snapshot())}</div>`;
   if (project === "03") return experiment02Page(experiment);
   if (project === TRANSFER_PROJECT) return heading("Перенос обученного навыка", `Выберите уже обученную исходную модель. Прямая телеманипуляция находится в опыте 03, обучение follower — в опыте ${SO101_SOURCE_PROJECT}.`, `Исследовательский опыт / ${TRANSFER_PROJECT}`) +
     policyTransferPanel() + notice("Разные embodiment", "Перед исполнением нужны подтверждённая геометрия, соответствие команд и независимая проверка. Inference исходной модели сам по себе не подтверждает перенос навыка.") +
@@ -85,7 +89,11 @@ async function pollStation(extras = false) {
   } catch (error) { const changed = stationLab.error !== error.message || stationLab.updatedAt !== 0; stationLab.error = error.message; stationLab.updatedAt = 0; if (changed) render(); }
   finally { stationLab.polling = false; }
 }
-async function stopStation(quiet = false) {
+async function stopStation(quiet = false, { explicitUserGlobalStop = false } = {}) {
+  if (stationSourceOnlyRoute() && !explicitUserGlobalStop) {
+    stationLab.present=false;stationLab.owned=false;stationLab.pendingControl=false;
+    return {ignored:true,reason:"SOURCE04_USES_OWNED_OBSERVED_SESSION"};
+  }
   stationLab.interruptEpoch += 1;
   stationLab.present = false; stationLab.owned = false;
   if (stationLab.rolloutJob) { const id = stationLab.rolloutJob; stationLab.rolloutJob = ""; post(`/api/jobs/${encodeURIComponent(id)}/cancel`, {}, { keepalive: true }).catch(() => {}); }
@@ -94,6 +102,7 @@ async function stopStation(quiet = false) {
   if (stationRoute()) { model.forceRender = true; render(); }
 }
 async function stationOperation(operation, body, success) {
+  if (stationSourceOnlyRoute()) throw new Error("Для04 используйте подтверждённый SourceDemo flow");
   if (stationLab.busy) return;
   stationLab.busy = true;
   try { const result = await post(`/api/station/${operation}`, body); if (result.mode) stationLab.status = result; if (success) toast(success); return result; }
@@ -103,6 +112,7 @@ async function stationOperation(operation, body, success) {
 document.addEventListener("input", (event) => { if (event.target.id === "station-name") stationLab.name = event.target.value; });
 document.addEventListener("change", (event) => { if (event.target.id === "station-dataset") stationLab.manifest = event.target.value; if (event.target.id === "station-skill") { stationLab.skill = event.target.value; model.forceRender = true; render(); } });
 document.addEventListener("submit", async (event) => {
+  if (stationSourceOnlyRoute()) return;
   if (event.target.id !== "station-record-form") return;
   event.preventDefault();
   if (stationLab.busy) return;
@@ -111,6 +121,7 @@ document.addEventListener("submit", async (event) => {
   try { await stationOperation("record/start", { ...stationLab.skillContext, name: stationLab.name.trim() || stationLab.skillContext.name, project_id: stationProject() }, "Записываем измеренные движения, команды и камеру выбранной версии навыка."); } catch (_) { /* Displayed by stationOperation. */ }
 });
 document.addEventListener("click", async (event) => {
+  if (stationSourceOnlyRoute()) return;
   const button = event.target.closest("button"); if (!button || button.disabled) return;
   const action = button.dataset.action;
   if (stationLab.busy && (button.dataset.stationOutcome || (action?.startsWith("station-") && action !== "station-stop"))) return;
@@ -147,7 +158,7 @@ document.addEventListener("click", async (event) => {
     }
   } catch (error) { stationLab.error = error.message; toast(error.message, true); model.forceRender = true; render(); }
 });
-function stationInterrupt() { stationLab.interruptEpoch += 1; if (stationLab.owned || stationLab.present || stationLab.pendingControl) stopStation(true); }
+function stationInterrupt() { stationLab.interruptEpoch += 1; if(stationSourceOnlyRoute()){stationLab.present=false;stationLab.owned=false;stationLab.pendingControl=false;return;} if (stationLab.owned || stationLab.present || stationLab.pendingControl) stopStation(true); }
 window.addEventListener("blur", stationInterrupt);
 window.addEventListener("pagehide", stationInterrupt);
 window.addEventListener("popstate", stationInterrupt);

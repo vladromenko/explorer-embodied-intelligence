@@ -57,6 +57,18 @@ test("capture-context emits metadata callback and makes exactly one explicit lab
   assert.equal(contexts[0].physical_commands_dispatched, false);
 });
 
+test("late capture context cannot seed a different selected skill or version", async () => {
+  let finish; const contexts=[];
+  const {client}=harness({respond(path,request){
+    if(path.endsWith("capture-context") && request.method==="POST")return new Promise(resolve=>{finish=resolve;});
+  },client:{onCaptureContext:value=>contexts.push(value)}});
+  await client.refresh();const pending=client.captureContext({variant_id:"variant-001",session_id:"session-a",object_instance_id:"object-a"});
+  await client.select("skill-b",2);
+  finish({record_start_body:{skill_id:"skill-a",skill_version:1},physical_commands_dispatched:false});await pending;
+  assert.equal(client.snapshot().selected,"skill-b");assert.equal(client.snapshot().version,2);
+  assert.equal(client.snapshot().captureContext,null);assert.deepEqual(contexts,[]);
+});
+
 test("explicit mutations are serialized and disposal ignores late metadata", async () => {
   let finish; const { client, calls } = harness({ respond(path, request) {
     if (path.endsWith("/train") && request.method === "POST") return new Promise(resolve => { finish = resolve; });

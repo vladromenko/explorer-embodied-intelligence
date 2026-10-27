@@ -1,0 +1,158 @@
+{
+  "schema": "explorer04_source_demo_actual_UI_qualification_v1",
+  "status": "PASS_SCOPED_SOFTWARE",
+  "parent_commit": "8f622d3e50ef07d99f377b841a5c4c2281413ce4",
+  "source_sha256": {
+    "00-control-center/src/explorer/static/app.js": "48a1f9c5eca9ab9b084ea75079025aff9c5a940c64d17ebf4995131b585b9ad2",
+    "00-control-center/src/explorer/static/index.html": "e07055cb1eaf3ff7637853aaf1ea62b92485ac8395a975fa1ef799c578316145",
+    "00-control-center/src/explorer/static/lab-skills.js": "921d6ff74a481a2578bf6b8e4e68d318659808a8d8d258079cac25cb79bd9e05",
+    "00-control-center/src/explorer/static/station.js": "9cd73bc1a632a64aa7106240dbed45a85287747c85a7a3651bb792ba3b67ca60",
+    "00-control-center/src/explorer/static/styles.css": "4ead9e382c23859e5e494511069021ca658aed8e6a621d34e1410ee20762bfdc",
+    "tests/test_app_bootstrap.js": "3b6d6d6b08634a961985e233aab5aab3d03d6697ccd8b2b7e92226df99328659",
+    "tests/test_lab_skills_ui.js": "bcd62eb7f278531b2c4adc2ad0f89cd77157c05544978db7d11cee05bcbc825b",
+    "tests/test_source_demo_api.py": "f27c232bb91634f0db446c6ee2b1a742ac95a65bbffdd4d1836ca0ef455c99d0",
+    "00-control-center/src/explorer/static/source-demonstration.js": "de5b40018b4784d16cb9554bd5a8293d90695b3c5c3f626a4495a25c3cafe2b2",
+    "tests/test_source_demonstration_ui.js": "39651619d37f789dd2a80fc6026c1a45b71f6beb43ee0c18db879020379a2e64"
+  },
+  "tests": [
+    {
+      "command": "node --test --test-concurrency=2 tests/*.js",
+      "pass_count": 268,
+      "fail_count": 0,
+      "duration_s": 3.441556463,
+      "log": "/mnt/explorer-data/explorer-work/04-demo-capture-recovery-20261027-a/all-node-source04-final.log",
+      "sha256": "24ec2d26a4479c978b6ab675ef64df2a7ab048866e9086f0f3c84204717b3cf3"
+    },
+    {
+      "command": "pytest tests/test_source_demo_api.py tests/test_source_demo_capture.py",
+      "pass_count": 26,
+      "fail_count": 0,
+      "duration_s": 6.6,
+      "log": "/mnt/explorer-data/explorer-work/04-demo-capture-recovery-20261027-a/source-demo-final-python-a.log",
+      "sha256": "bf9d224d563fd68161cf49431e32cc399004eb91bd06893a2a8ab0b94c40ad95"
+    }
+  ],
+  "actual_firefox": [
+    {
+      "name": "browser-a",
+      "receipt": "/mnt/explorer-data/explorer-work/04-source-demo-browser-20261027-f/browser-a/receipt.json",
+      "receipt_sha256": "2ce8494bdc175d0eb788233070348a4d23f040de767f3758371bb37aaffab34a",
+      "viewport_width": 1440,
+      "steps": [
+        "Actual04 page loads existing confirmed Skill without implicit control",
+        "Existing Skill/session/variant picker prepares exact SourceDemo context",
+        "Explicit prepare and metadata-only unfinished form draft survives actual poll",
+        "Actual decoded visible JPEG → COMMON permission → original fake-bus teleop → original recorder",
+        "Two advancing actually displayed observation frames preserve SAME actionable pause button",
+        "Pause/resume/stage → original finish UNKNOWN; no finish import or control command",
+        "Separate explicit STOP uses exact locally returned grant/epoch, without changing saved data",
+        "Actually displayed saved original JPEG → separate approve creates typed import → later reject retained",
+        "Desktop1440/mobile390 layouts have no horizontal overflow; zero actual-device requests"
+      ],
+      "javascript_errors": [],
+      "raw_samples": 35,
+      "unpaused_samples": 31,
+      "operator_outcome": "unknown",
+      "source_kind": "software_fixture",
+      "recording_state": "completed",
+      "final_source_review": "reject",
+      "import_jobs": 1,
+      "final_local_owner": null,
+      "screenshots": {
+        "desktop": "f06648689a3ab05a3c9d430dc49b3c05f258b0e2fb62fa0f44a132a5e6b81d94",
+        "mobile": "4e5f188931dee5e5b49fe2a4f44b862508d498b62a2e9052c059809f09f82fc7"
+      }
+    },
+    {
+      "name": "browser-mobile-a",
+      "receipt": "/mnt/explorer-data/explorer-work/04-source-demo-browser-20261027-f/browser-mobile-a/receipt.json",
+      "receipt_sha256": "93259226ebd6156868336ab73bb5da5adcb77face98480774b225e631b6656f2",
+      "viewport_width": 390,
+      "steps": [
+        "Actual04 page loads existing confirmed Skill without implicit control",
+        "Existing Skill/session/variant picker prepares exact SourceDemo context",
+        "Explicit prepare and metadata-only unfinished form draft survives actual poll",
+        "Actual decoded visible JPEG → COMMON permission → original fake-bus teleop → original recorder",
+        "Two advancing actually displayed observation frames preserve SAME actionable pause button",
+        "Pause/resume/stage → original finish UNKNOWN; no finish import or control command",
+        "Separate explicit STOP uses exact locally returned grant/epoch, without changing saved data",
+        "Actually displayed saved original JPEG → separate approve creates typed import → later reject retained",
+        "Desktop1440/mobile390 layouts have no horizontal overflow; zero actual-device requests"
+      ],
+      "javascript_errors": [],
+      "raw_samples": 30,
+      "unpaused_samples": 25,
+      "operator_outcome": "unknown",
+      "source_kind": "software_fixture",
+      "recording_state": "completed",
+      "final_source_review": "reject",
+      "import_jobs": 1,
+      "final_local_owner": null,
+      "screenshots": {
+        "desktop": "0d3cd326877ce593f18014dc002833b8a9ac451d44f112cc2227aef676fe93bb",
+        "mobile": "0d3cd326877ce593f18014dc002833b8a9ac451d44f112cc2227aef676fe93bb"
+      }
+    }
+  ],
+  "fixture": {
+    "script": "/home/jetsonnx/.local/state/explorer-work/source04_browser_fixture_20261027.py",
+    "script_sha256": "54eeefc3d15a73dfc8f0fc023fa891edfca3631d90c5d004ae14e8b368c68be7",
+    "driver": "/home/jetsonnx/.local/state/explorer-work/qualify_source04_browser_20261027.py",
+    "driver_sha256": "50ce8822a93e34da4a4f94b91b12838510300add973a333c474ec523b5081e6b",
+    "original_station_worker": true,
+    "original_station_recorder": true,
+    "actual_central_and_Node_HTTP": true,
+    "generated_JPEG_only": true,
+    "fake_buses_only": true,
+    "python_non_loopback_connections_forbidden": true,
+    "production_state_used": false,
+    "final_fake_station_state": "idle",
+    "fake_bus_write_count": 272,
+    "real_device_io": 0
+  },
+  "fixes": [
+    "Explicit lost-ACK DATA reconciliation; never GET-adopt control",
+    "Failed scoped cleanup preserves credentials; logout drains late native returns and exact returned-epoch cleanup",
+    "Prepare context cannot silently follow a different displayed attempt",
+    "Exact original JPEG witness for observation and saved archive review",
+    "Data pause/cancel/stage/finish independent of control; finish UNKNOWN does not auto STOP/import",
+    "Typed immutable import job status recovered through existing jobs list and exact archive/review pins; rejection retains prior job without admitting it",
+    "Observation deadline survives rerender; decoded JPEG patches existing DOM and retains buttons across actual advancing frames",
+    "Shared evaluator styles bound select/image dimensions; desktop and actual mobile interaction without horizontal overflow",
+    "Legacy04 STOP-on-blur/finish-autoimport disabled; explicit header global STOP ABI unchanged"
+  ],
+  "retained_negatives": {
+    "browser_roots": [
+      "/mnt/explorer-data/explorer-work/04-source-demo-browser-20261027-a",
+      "/mnt/explorer-data/explorer-work/04-source-demo-browser-20261027-b",
+      "/mnt/explorer-data/explorer-work/04-source-demo-browser-20261027-c",
+      "/mnt/explorer-data/explorer-work/04-source-demo-browser-20261027-d",
+      "/mnt/explorer-data/explorer-work/04-source-demo-browser-20261027-e",
+      "/mnt/explorer-data/explorer-work/04-source-demo-browser-20261027-f"
+    ],
+    "all_setup_failures_and_raw_archives_retained": true,
+    "issues": [
+      "fixture inventory duplicate last_seen",
+      "HTTP secure-cookie setup",
+      "fixture startup timing",
+      "import receipt overwritten by review refresh",
+      "global test job-count assumption",
+      "desktop select/JPEG overflow",
+      "TTL expiry while image offscreen; STOP-before-finish honestly interrupted",
+      "rerender observation delay and button replacement",
+      "Node fake DOM missing replaceWith and fixture unknown attempt/header mismatches"
+    ]
+  },
+  "deployed": false,
+  "physical_acceptance": false,
+  "real_expert_demonstrations": 0,
+  "frozen_station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+  "controller_configuration_changes": 0,
+  "remaining": [
+    "Full training/library/current model visibility through04 UI still to integrate/verify",
+    "Existing VLM/grid/click/tabletop backend availability audit",
+    "Proved safe first Pi4c upgrade barrier",
+    "Current02/03 queue-pin qualification and frozen full regression before rollout",
+    "Deploy HB/Pi profile and actual GET/UI verification; then mandatory E03-SOFTWARE-DEPLOY"
+  ]
+}
