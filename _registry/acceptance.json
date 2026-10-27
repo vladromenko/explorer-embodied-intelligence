@@ -139,7 +139,8 @@
           "shared/training/PROFILE4_ACTUAL_20261026_RU.md",
           "research/audits/TRANSFER_CONTACT_V10_RESULTS_RU.md",
           "research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md",
-          "research/audits/CONTACT_V10_FIGURE_RU.md"
+          "research/audits/CONTACT_V10_FIGURE_RU.md",
+          "_registry/evidence/release-883478fe-actual-activation-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED"
       },
@@ -162,7 +163,8 @@
         },
         "evidence": [
           "research/audits/NATIVE_SENSOR_CACHE_RU.md",
-          "shared/training/NATIVE6_QUEUE_STATION_R3B_20261027_RU.md"
+          "shared/training/NATIVE6_QUEUE_STATION_R3B_20261027_RU.md",
+          "_registry/evidence/release-883478fe-actual-activation-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED"
       },
@@ -185,7 +187,8 @@
         },
         "evidence": [
           "research/audits/EXPERIMENT_NUMBERING_V2_RU.md",
-          "03-lerobot-teaching/docs/NATIVE_STREAM_RU.md"
+          "03-lerobot-teaching/docs/NATIVE_STREAM_RU.md",
+          "_registry/evidence/release-883478fe-actual-activation-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED"
       },
@@ -193,8 +196,8 @@
         "experiment_id": "04",
         "status": "IN_PROGRESS",
         "checks": {
-          "interface_and_instructions": "MAIN_NEW_UI_TESTED_LIVE_BASE",
-          "required_cameras": "PI_CAMERA_LIVE_STATION_READ_ERROR",
+          "interface_and_instructions": "LIVE_883478FE_DESKTOP_MOBILE_TESTED_WITHIN_SCOPE",
+          "required_cameras": "PI_CAMERA_LIVE_STATION_AVAILABLE_READ_ONLY_PHYSICAL_TASK_OPEN",
           "manual_control": "SOFTWARE_TESTED",
           "keyboard_gamepad_leader": "LEADER_SOFTWARE_TESTED",
           "synchronized_recording": "NATIVE6_TESTED_FULL_DEMO_OPEN",
@@ -209,7 +212,8 @@
         "evidence": [
           "shared/training/STATION_CPU_20261027_STATION_R3B_RU.md",
           "tests/test_source_evaluation_api.py",
-          "tests/test_source_evaluation_ui.js"
+          "tests/test_source_evaluation_ui.js",
+          "_registry/evidence/release-883478fe-actual-activation-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED"
       },
@@ -217,7 +221,7 @@
         "experiment_id": "05",
         "status": "IN_PROGRESS",
         "checks": {
-          "interface_and_instructions": "MAIN_NATIVE_RECEIVER_METADATA_UI_TESTED_LIVE_BASE",
+          "interface_and_instructions": "LIVE_883478FE_DESKTOP_MOBILE_TESTED_WITHIN_SCOPE",
           "required_cameras": "BOTH_CAMERA_PATHS_TESTED_SHARED_VIEW_OPEN",
           "manual_control": "FOUR_MODES_SOFTWARE_PARTIAL",
           "keyboard_gamepad_leader": "NATIVE_INPUTS_TESTED_PHASE_LOOP_OPEN",
@@ -227,13 +231,14 @@
           "model_version_provenance": "TESTED",
           "skill_replay": "FULL_HANDOVER_OPEN",
           "STOP_cancel": "EXACT_UNATTACHED_NATIVE_EPOCH_TESTED_PHYSICAL_OPEN",
-          "restart_recovery": "WAL_PROCESS_TESTED_DEVICE_OPEN",
+          "restart_recovery": "RECEIVER_WAL_TESTED_GIVER_DURABLE_LATCH_OPEN",
           "user_physical_actions": "USER_SCENE_ENDPOINTS_HOLD_OUTCOMES"
         },
         "evidence": [
           "05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md",
           "tests/test_cooperative_interlock_coordinator.py",
-          "tests/test_station_cooperative_http.py"
+          "tests/test_station_cooperative_http.py",
+          "_registry/evidence/release-883478fe-actual-activation-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED"
       },
@@ -259,7 +264,8 @@
           "research/audits/transfer-hover-development-v9-results-20261026.json",
           "tests/test_transfer_target_split.py",
           "research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md",
-          "research/audits/CONTACT_V10_FIGURE_RU.md"
+          "research/audits/CONTACT_V10_FIGURE_RU.md",
+          "_registry/evidence/release-883478fe-actual-activation-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED"
       }

@@ -3,14 +3,11 @@
 **IN_PROGRESS. Весь master-prompt не завершён.** Canonical Git:
 `/home/jetsonnx/work/Explorer`; работающие службы не зависят от Mac/чата.
 
-Receiver setup05 подключён к service/API/UI; root выполняет frozen релизную
-регрессию и готовит guarded cutover. Подготовленные ветки и stash сохранены;
-изменения интегрируются отдельными commits с адресными проверками.
-
-В production central+worker активен **36a2d6c72295b8bf0598e1af953ade06cf217752**;
-собственные Pi/Nano observers и import pin оригинального Nano web —
-**f4cc5c37096698633aba313dbc67b2769a647dd7**. Поздний main ещё не считается live.
-[Фактический cutover](_registry/evidence/central-profile4-actual-activation-20261027.json).
+Receiver setup05 подключён к service/API/UI. Live central+worker, собственные
+Pi/Nano observers и import pin оригинального Nano web —
+**883478fe2411b83eface304af5f2a1607c344058**. Проверены actual Firefox desktop/mobile,
+API и scientific bytes. Поздние source commits отдельно не считаются live.
+[Фактический выпуск](_registry/evidence/release-883478fe-actual-activation-20261027.json).
 
 Подтверждено:
 
@@ -42,22 +39,24 @@ Receiver setup05 подключён к service/API/UI; root выполняет f
   14016×769 float64, contacts/solver/score bytes exact,0diff. Python old-path
   ban проверен; C opens UNMEASURED, OS closure PARTIAL. Отрицательные исходы
   сохранены. [Receipt](research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md).
-- Frozen883478fe:1579passed/31skipped/2failed за315.00s: Git-снимок не
-  содержал внешние CAD для двух MuJoCo tests. С проверенными20CAD и явным
-  headless EGL оба tests прошли за5.79s; исправленный полный прогон идёт.
-  Все198 Node tests прошли. Исходные24jobs/11cards/events/schema сохранены.
-  [Первый прогон](_registry/evidence/full-regression-release-first-883478fe-20261027.json).
+- Frozen883478fe с20 проверенными CAD/headless EGL:1597passed/15skipped,
+  0failed за361.87s; CPU3/5GiB, peak4.07GiB, swap/OOM0.198 Node tests прошли.
+  Настоящий Firefox:9desktop/mobile pages,0overflow,0non-GET requests;
+  12authenticated live GETs.24jobs/11cards/12096старыхevents/schema exact.
+  Отрицательный первый прогон с отсутствовавшими внешними CAD сохранён.
 
 
-Блокеры: Pi station idle с sync-read error при двух присутствующих USB-адаптерах;
+Текущее оборудование: Pi station available=true, idle/error=null, configuration
+writes0 и last_command=null; фактическое чтение восстановилось после перезапуска.
 Nano native reference невалиден после сохранённого telemetry fault. Агент не
 делает HOME, не двигает шасси/руки и не меняет6 исходных ROSMASTER configs,
 firmware/limits/watchdogs/readbackOFF. Unknown и command-estimate не становятся
 measured. Source/target splits раздельны; development/sealed/unknown не optimizer.
 
 Открытый программный объём: phase/hold-successor lifecycle
-без скрытого TTL/lease продления; final regression/deploy/Firefox/live scientific
-byte audit; полный learned object/transfer/retention цикл, независимые H1–H5
+без скрытого TTL/lease продления (новый source successor проверен, ещё не live);
+durable giver latch/restart recovery; полный learned object/transfer/retention цикл,
+независимые H1–H5
 comparisons/ablations и broad recovery. Физическая подготовка отдельно.
 
 Единственная матрица01–06: [_registry/acceptance.json](_registry/acceptance.json).

@@ -1,0 +1,174 @@
+{
+  "schema": "explorer_actual_release_checkpoint_v1",
+  "execution_commit": "883478fe2411b83eface304af5f2a1607c344058",
+  "scope": "Actual software release and read-only verification; whole master and physical object skills remain IN_PROGRESS/NOT_VALIDATED.",
+  "central_elapsed_s": 2.4970387570065213,
+  "full_regression": {
+    "passed": 1597,
+    "skipped": 15,
+    "failed": 0,
+    "pytest_s": 361.87,
+    "launcher_elapsed_s": 369.1405545910093,
+    "resources": {
+      "cpu.max": "300000 100000",
+      "memory.max": "5368709120",
+      "memory.current": "1108594688",
+      "memory.peak": "4071432192",
+      "memory.swap.max": "0",
+      "memory.swap.peak": "0",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    "verified_CAD_files": 20,
+    "environment": {
+      "MUJOCO_GL": "egl",
+      "EXPLORER_SIM_MESH_DIR": "/mnt/explorer-data/explorer-work/sim-initial-state-20261027-v7-recovered-cad",
+      "EXPLORER_NATIVE_STARTUP_SOURCE": "/home/jetsonnx/.local/state/explorer-work/native-rosmaster-stream-20261026"
+    }
+  },
+  "source_bindings": {
+    "schema": "explorer_release_qualified_sources_preflight_v1",
+    "commit": "883478fe2411b83eface304af5f2a1607c344058",
+    "gpu_binding_sha256": "133722c61f8bbb01e7bd6fbc91228bf8d8f7f0a6a807ebf8450cefa377acf328",
+    "gpu_source_files": 16,
+    "diffusion_binding_sha256": "8bc7bd625702da22a3074c5640e118ec6a83b096e81da6b9d5ff710704f2ac0b",
+    "diffusion_source_files": 18,
+    "actual_sources_verified": true,
+    "active_source_switched": false,
+    "physical_IO": false
+  },
+  "all_three_own_node_and_central_pins_match": true,
+  "original_native_web_import_pin": "883478fe2411b83eface304af5f2a1607c344058",
+  "original_native_web_only_restarted": true,
+  "original_camera_MCU_control_PIDs_unchanged": {
+    "explorer-camera": "2347",
+    "explorer-mcu": "2356",
+    "explorer-control": "2413"
+  },
+  "passive_ROS": {
+    "counts": {
+      "/arm6_joints": 0,
+      "/explorer/request": 0
+    },
+    "observation_seconds": 20,
+    "passive_only": true,
+    "received_count": 0,
+    "schema": "explorer_native_forward_passive_ROS_v1",
+    "topics": [
+      "/arm6_joints",
+      "/explorer/request"
+    ]
+  },
+  "all_six_controller_configs_unchanged": true,
+  "original_arm_reference_files_unchanged": true,
+  "post_forward_source_audit": {
+    "non_web_source_files": 154,
+    "all_sources_configs_and_web_pin_exact": true,
+    "shared_files": 88
+  },
+  "file_only_preparation_helper": {
+    "commit": "c73bb9f5de304011347ed80569ea575e6600ecf2",
+    "sha256": "68e3a2666bd4d23a8a9aae17683b098d3eabed3eec42df7f5520c02b252812ec",
+    "scope": "Pure preparation/ancestry only; execution runtime remains883478fe, qualification graph unchanged."
+  },
+  "firefox": {
+    "pages": 9,
+    "all_settled": true,
+    "horizontal_overflow": false,
+    "non_get_browser_requests": [],
+    "physical_gamepad_tested": false
+  },
+  "live_authenticated_GETs": {
+    "/api/state": {
+      "status": 200,
+      "bytes": 404520,
+      "sha256": "fa29b4f73de73046804a576539f24b37a18eeba02d08f714e0f65c62901c0724"
+    },
+    "/api/jobs": {
+      "status": 200,
+      "bytes": 245931,
+      "sha256": "74e54870a9d15123a479d2a86687026f352f5a60523774f59be37332c1803828"
+    },
+    "/api/skills": {
+      "status": 200,
+      "bytes": 49990,
+      "sha256": "a5f35aafc8028aecf2fef0d4dcee9cb87616569d2e58149cd459dadf89d92c4f"
+    },
+    "/api/queue": {
+      "status": 200,
+      "bytes": 1640,
+      "sha256": "a8dcc44e34b5bf659f632e39f7894b1d416fb719b2afbaf09687c8bbaa762b5e"
+    },
+    "/api/cooperative": {
+      "status": 200,
+      "bytes": 4642,
+      "sha256": "7d0da77ab0514fd163b99beba7edc67e17eba2a11b402084e1ef2659fc1d4301",
+      "receiver_setup_interface_present": true,
+      "physical_execution_default": false,
+      "execution_authority": {
+        "explicit_user_observed_test_current": false
+      }
+    },
+    "/api/research/exports": {
+      "status": 200,
+      "bytes": 3323,
+      "sha256": "6bfc687d4dbfe5eaa682faab95e61e7552ba273fa45653908f0cef180dced4d7"
+    },
+    "/api/visual-act/profile": {
+      "status": 200,
+      "bytes": 412,
+      "sha256": "f91fa700e6f773a0d30b55facd11a2956b16b1e01618c24c4e689b5171673afb"
+    },
+    "/api/policy-backends": {
+      "status": 200,
+      "bytes": 2830,
+      "sha256": "b022b8b8cf032c9e6aba38c2261170a9b9e4d4b25afae99ed63f238846bf8170"
+    },
+    "/api/transfer/sources": {
+      "status": 200,
+      "bytes": 2755,
+      "sha256": "ee2d13b21fae60f4e9f0037558642dc5f7337d6fac926b633b0260e1451c2315"
+    },
+    "/api/evening": {
+      "status": 200,
+      "bytes": 4590,
+      "sha256": "ffcb163fe4b944c5537b01af77a4c0f4c47fa4f75b6853d720a6164a37059118"
+    },
+    "/api/lab/vision/calibration/status": {
+      "status": 200,
+      "bytes": 4482,
+      "sha256": "b81106ab95c56fa8919b0f3421ae76e3eeb9a0449ce77b02f1d79d3053d7f3ed"
+    },
+    "/api/cameras/nano-rgbd/snapshot": {
+      "status": 200,
+      "bytes": 5695,
+      "sha256": "73dab2f83a47872f1c8986f97a16dd091835420144252b1166115e2376473db0"
+    }
+  },
+  "scientific_originals": {
+    "jobs": {
+      "original_rows": 24,
+      "current_rows": 24,
+      "all_original_rows_identical": true
+    },
+    "skills": {
+      "original_rows": 11,
+      "current_rows": 11,
+      "all_original_rows_identical": true
+    },
+    "events": {
+      "original_rows": 12096,
+      "current_rows": 12125,
+      "all_original_rows_identical": true
+    }
+  },
+  "production_schema_unchanged": true,
+  "active_jobs": 0,
+  "pi_read_only_station": {
+    "available": true,
+    "mode": "idle",
+    "configuration_writes": 0,
+    "last_command": null
+  },
+  "physical_control_requests_by_agent": 0,
+  "physical_skill_status": "NOT_VALIDATED"
+}
