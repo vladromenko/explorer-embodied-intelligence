@@ -5727,6 +5727,45 @@
         "tests/test_cooperative_unattached_stop.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-FRESH-COOPERATIVE-DISPATCH-SCOPE-20261027",
+      "function_or_module": "00-control-center/src/explorer/cooperative_dispatch_authority.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:00-control-center/src/explorer/cooperative_native_sessions.py",
+          "role": "Exact current USER grant and source-native owner binding"
+        },
+        {
+          "url": "project-file:00-control-center/src/explorer/cooperative_observed_scopes.py",
+          "role": "Source-held partner observations independent from own motion permission"
+        },
+        {
+          "url": "project-file:05-cooperative-handover/docs/FRESH_DISPATCH_SCOPE_RU.md",
+          "role": "Fresh GET action gate and original native boundary contract"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_WEIGHTS_IN_MODULE",
+      "data_license": "PRIVATE_LOCAL_EVIDENCE",
+      "changes_and_reason": "Validate fresh per-role Source and immutable Root actor/Spec/grant/model/native scope before dispatch. A parked role cannot grant its own motion; cached UI flags never admit commands. Partner IO consumes the original moving native lease; close/release require both armed guards. No start/resume/lease/target APIs. Workflow/submit integration is separate.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        {
+          "command": "python -m pytest tests/test_cooperative_dispatch_authority.py -q",
+          "result": "Eight cases verified in targeted runs:5passed28.40s, corrected lease case1passed4.92s, two armed negatives2passed9.80s. Actual Root/Node/COMMON/source wrappers with fake buses only; no real hardware IO. Initial fake-clock unit and regex failures retained.",
+          "scope": "SOFTWARE_ONLY_NO_HARDWARE_VALIDATION"
+        }
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
