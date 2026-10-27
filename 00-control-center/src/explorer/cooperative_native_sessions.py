@@ -14,6 +14,7 @@ from explorer_shared.cooperative_action_constraint05 import stationary_constrain
 from explorer_shared.cooperative_transport05 import NativeGiverPolicyTransport,NativeGiverManualTransport
 from explorer_shared.cooperative_receiver_transport05 import NativeReceiverTransport
 from explorer_shared.station_observed_http import StationObservedHttp
+from .cooperative_native_scope import returned_giver_scope
 
 OPERATIONS=('native_begin','native_recenter','native_resume','native_attach','native_lease','native_stop','native_reset_safe','native_phase_activate')
 
@@ -328,9 +329,7 @@ class CooperativeNativeSessions:
         if activation.get('authorization_id') not in (None,binding['authorization_id']):return {'new_native_authorization_not_owned':True}
         source=request('GET','/legacy/explorer/cooperative/status',None)
         bound=(source.get('release_boundary') or {}).get('binding') or {};native=source.get('native') or {}
-        expected=(pair['source']['native'] if operation=='native_attach' else result.get('begin',result.get('native',
-            (result.get('prepare') or {}).get('native',result))))
-        expected=expected.get('native') or expected
+        expected=returned_giver_scope(pair,result,operation)
         if any(bound.get(key)!=binding[key] for key in ('run_id','object_id','coordinator_epoch','authorization_id')):
             return {'new_native_binding_not_owned':True}
         if (native.get('owner_generation')!=expected.get('owner_generation') or native.get('control_epoch')!=expected.get('control_epoch') or

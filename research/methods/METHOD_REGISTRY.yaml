@@ -5461,6 +5461,34 @@
         "tests/test_native_giver_phase_http.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-COOPERATIVE-NATIVE-SCOPE-20261027",
+      "function_or_module": "00-control-center/src/explorer/cooperative_native_scope.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:05-cooperative-handover/docs/NATIVE_USER_SESSIONS_RU.md",
+          "role": "Exact original native ownership and scoped STOP ABI"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_WEIGHTS_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Extract an actual returned giver epoch/generation scope before considering nested native dictionaries. A policy resume outer reply contains the scope while its inner native is only a ManualTeleop acknowledgement. Exact old scope is used for STOP; malformed replies never borrow a current remote epoch.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_cooperative_native_scope.py",
+        "tests/test_cooperative_unattached_stop.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
