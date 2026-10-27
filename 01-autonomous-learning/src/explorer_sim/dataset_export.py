@@ -121,6 +121,7 @@ def validate_splits(manifest):
 
 
 def export_lerobot_v3(manifest_path, target_dir, repo_id=None):
+    from PIL import Image
     from lerobot.datasets.lerobot_dataset import LeRobotDataset
     from lerobot.datasets.dataset_metadata import CODEBASE_VERSION
 
@@ -189,7 +190,9 @@ def export_lerobot_v3(manifest_path, target_dir, repo_id=None):
     try:
         for source in source_episodes:
             for index in range(len(source["rgb"])):
-                frame = {IMAGE_KEY: source["rgb"][index], "observation.state": source["state"][index],
+                # Official0.6.1 treats an ndarray with height3 as channels-first.
+                # PIL carries the explicit HWC/RGB meaning without changing pixels.
+                frame = {IMAGE_KEY: Image.fromarray(source["rgb"][index]), "observation.state": source["state"][index],
                     "action": source["action"][index], "next.reward": np.asarray([source["reward"][index]], np.float32),
                     "next.done": np.asarray([index == len(source["rgb"]) - 1], bool),
                     "task": manifest.get("task", "Reach the visible green target with the gripper; base fixed")}

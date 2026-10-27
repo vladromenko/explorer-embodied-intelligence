@@ -117,7 +117,14 @@ def test_authenticated_demo_control_record_pause_review_and_Range_use_one_actual
         checksum=first.headers['X-Content-SHA256']
         approval=client.post(route+'/review',json={'recording_id':ident,'decision':'approve','expected_archive_sha256':checksum},headers=csrf)
         assert approval.status_code==200 and approval.json()['transfer_ready'],approval.text
-        assert store.jobs()==[]  # Separate worker/import wiring remains the next integration step.
+        queued=store.jobs();assert len(queued)==1 and queued[0]['kind']=='station_import'
+        assert approval.json()['import_job']['id']==queued[0]['id']
+        assert queued[0]['config']==dict(episode_id=ident,archive_sha256=checksum,
+            source_format='so101_source_capture_v1',source_review_sha256=approval.json()['review_sha256'])
+        rejected=client.post(route+'/review',json={'recording_id':ident,'decision':'reject','expected_archive_sha256':checksum},headers=csrf)
+        assert rejected.status_code==200 and rejected.json()['import_job'] is None
+        with pytest.raises(ValueError):workflow.current_source_review(store,ident,checksum,approval.json()['review_sha256'])
+        assert len(store.jobs())==1 and len(bus.writes)==writes
         assert permission.status()['grant']['binding']==row['binding']
         assert client.post(route+'/stop',json={'grant_id':current['grant_id'],'expected_control_epoch':grant['control_epoch']},headers=csrf).status_code==409
     finally:

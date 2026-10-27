@@ -3,9 +3,11 @@ from copy import deepcopy
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
 import socket
 import sys
+import subprocess
 import tarfile
 import threading
 
@@ -107,7 +109,10 @@ def test_real_jpeg_native6_originals_and_review_roundtrip_idempotent_without_con
     second=imported(captured,destination,review=literal)
     assert second['idempotent_existing'] and not list(destination.glob('.source04-import-*'))
     assert {path.relative_to(base).as_posix():path.read_bytes() for path in base.rglob('*') if path.is_file()}==before
-    assert 'torch' not in sys.modules
+    root=Path(__file__).resolve().parents[1]
+    env=dict(os.environ,PYTHONPATH=os.pathsep.join([str(root/'shared'),str(root/'04-so101-source-learning/src')]))
+    subprocess.run([sys.executable,'-c',"import sys; import explorer_so101.capture_archive; assert 'torch' not in sys.modules"],
+        check=True,timeout=10,env=env)
     assert [call for call in captured['source'].calls if call not in ('archive',)]==[call for call in captured['calls'] if call not in ('archive',)]
 
 

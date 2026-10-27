@@ -58,6 +58,11 @@ async def poll_nodes():
             payload=response.json()
             STORE.update_node(node['id'],payload)
             if node['id']=='pi':
+                from .source_demo_workflow import queue_source_review
+                for recording in (payload.get('station_capture') or {}).get('ready_recordings',[]):
+                    if (recording.get('project_id')=='04' and recording.get('producer_schema')=='explorer_so101_source_capture_v1'
+                            and recording.get('source_review')):
+                        await asyncio.to_thread(queue_source_review,STORE,recording['recording_id'],recording['archive_sha256'],recording)
                 direct=await CLIENT.get('http://'+node['host']+':'+str(node['port'])+'/arm-retarget/recordings',headers={'Authorization':'Bearer '+node['token']})
                 if direct.status_code==200:
                     for recording in direct.json().get('recordings',[]):

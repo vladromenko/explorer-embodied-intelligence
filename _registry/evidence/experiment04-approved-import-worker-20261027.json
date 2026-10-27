@@ -1,0 +1,109 @@
+{
+  "schema": "explorer_source04_approved_import_worker_software_qualification_v1",
+  "tested_worktree_base_commit": "99eee529ab5e50aa5a5bfe12038a6a166d08e653",
+  "scope": "GENERATED_JPEG_ORIGINAL_FAKE_STATION_WRITER_MOCK_HTTP_AND_REAL_OFFICIAL_LEROBOT_0_6_1_NO_HARDWARE",
+  "source_sha256": {
+    "00-control-center/src/explorer/app.py": "d0bcff861179367c7a3d5f5277cfe72f33506051043f5631ac6b62bc43762434",
+    "00-control-center/src/explorer/job_runner.py": "a98bef44a04bf3e5a462fbf43bfd4eb8bc9fa3f6cf56377cb3e719f8abad5db5",
+    "00-control-center/src/explorer/lab_skill_workflow.py": "aadb3a469b0699b852f3adaf415a574ce452958c753e6f82c8aa09cf52225d69",
+    "00-control-center/src/explorer/native_capture_transfer.py": "6aa3cb54d2c557a3668deaaaa690511b6c79f7631867cee54573c82a052ecc84",
+    "00-control-center/src/explorer/source_demo_api.py": "52177e8d9b8ebccc44c142d1a7bd65fff36b71c0ccb92543989439e725373753",
+    "00-control-center/src/explorer/source_demo_workflow.py": "bd3452a9e094bca97550ddfee0bddb143f1afdf656c085f6580074b34445999d",
+    "00-control-center/src/explorer/store.py": "2db93ad6432d8e1d16f3c75d7354dc4e3eea7f9b412312c7c0e4c7a14e2e8813",
+    "01-autonomous-learning/src/explorer_sim/dataset_export.py": "3fdbc2c808c1af937c5e5be5cc55a1661421219f2d4df44c9825a98579e464d4",
+    "04-so101-source-learning/src/explorer_so101/capture_service.py": "c9bbba69b0b85ec6ddd62cd72de6dae738cb245ffc9fcda076edc15de9849ffc",
+    "tests/test_so101_capture_archive.py": "22354ee4b3e9ffdb68802a5eb2b8326fadd197143578a9eee968f82afc2a45a9",
+    "tests/test_source_demo_api.py": "8389426030f50702525ce194040d6379736f76360acf6a4508457e9facd2f88f",
+    "tests/test_so101_capture_worker.py": "9098c66a0becf8cb63f110aa79be076b12935e18647519406057ff2983187231"
+  },
+  "tests": {
+    "passed": 145,
+    "skipped": 4,
+    "failed": 0,
+    "pytest_seconds": 22.07,
+    "command": [
+      "/home/jetsonnx/.local/share/explorer/venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_so101_capture_worker.py",
+      "tests/test_source_demo_api.py",
+      "tests/test_lab_skill_workflow.py",
+      "tests/test_station_capture_timeline_conversion.py",
+      "tests/test_native_capture_worker.py",
+      "tests/test_mobile_import_review_queue.py",
+      "tests/test_native_capture_transfer.py",
+      "tests/test_so101_capture_service.py",
+      "tests/test_so101_capture_archive.py",
+      "01-autonomous-learning/tests/test_station_adapter.py",
+      "01-autonomous-learning/tests/test_mobile_adapter.py",
+      "01-autonomous-learning/tests/test_mobile_observation_adapter.py"
+    ],
+    "range_resumed_bytes": 4096,
+    "paused_raw_samples": 3,
+    "converted_samples": 2,
+    "official_dataset_readback": true,
+    "unknown_outcome_not_promoted": true,
+    "approval_revision_preserves_old_job_and_originals": true,
+    "late_reject_closes_admission": true,
+    "cancel_retains_data": true,
+    "legacy_approval_bypass_closed": true,
+    "actual_inventory_poll_recovery": true,
+    "native02_native03_regression_included": true
+  },
+  "negative_runs": [
+    {
+      "log": "run-a.log",
+      "outcome": "1FAILED37PASS: test HTTP Client function substitution broke HuggingFace runtime type annotation; harness fixed to subclass"
+    },
+    {
+      "log": "run-b.log",
+      "outcome": "1FAILED39PASS: official writer treated HWC height3 as CHW; explicit PIL RGB fixes actual pixel identity"
+    },
+    {
+      "log": "run-c.log",
+      "outcome": "128PASS3SKIP before final current-review admission and inventory poll tests"
+    }
+  ],
+  "resources": {
+    "cpu_max": "200000 100000",
+    "memory_max": "5368709120",
+    "swap_max": "0",
+    "actual_kernel_memory_peak": 578174976,
+    "actual_swap_peak": 0,
+    "last_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+    "runtime_s": 26.733096042007674,
+    "exit_code": 0
+  },
+  "raw_evidence": {
+    "directory": "/mnt/explorer-data/explorer-work/04-approved-worker-20261027-a",
+    "files_sha256": {
+      "run-c.py": "43166efe9f1f986148d0661c056ce9452448c133fd9e75f3fecc8fa0a68f077e",
+      "resource-final.json": "57a5046a0353dacc4f9221254678dd6880416aaf06f3b219d33bf31808d218b3",
+      "run-c.log": "4d55b484d8282f74a2430d8f7868c8b5370045d3c777208f4b30a267f5ffc7f4",
+      "resource-b.json": "9f33ac1d3c94eb29cace347547c44ff67e6450c630bf7286db838a58765ffa74",
+      "run-b.log": "4f855c27da5d0a05170ab6668e90109898e268455b4c2798a7740817fb248c22",
+      "run-a.py": "de69df40803aaa38236b4014cef4609e0a5675939d0cee5ff306b52a48c8e0cd",
+      "run-b.py": "f343cb162781adff6f987446a4278ce03240f28af4264ecfcd19f0cd7c401314",
+      "run-a.log": "ccb8e3645f0e389423dda20c139e43846e761569023996b53457230dba6b21e7",
+      "resource-c.json": "ef14eb3101903e5e3e49798000e1d5c49e52b7526cb595c7cdd1acfb33430fd2",
+      "resource-d.json": "12affbdcf31033a2520894c7a625bfc666669653080fb872351dd057a3889324",
+      "run-d.log": "4b6fdff526fc2fee3ecc4e6e74fa1d3b4966c76bb338c2ec87fec77e98b4c5e3",
+      "run-d.py": "7b4e9139113e3445ee8d054446382dd957ec81bdbd733a96e33c3a6e9ce48b0e",
+      "retention.json": "463afc8610ac597a4f13d023b9836bd3cca3626e83a70e307c46205bb49e293d"
+    },
+    "retained_fixture_bytes": 17095132,
+    "retained_fixture_files": 2886
+  },
+  "physical_commands_or_RPC": 0,
+  "real_expert_demonstrations": 0,
+  "optimizer_updates": 0,
+  "deployed": false,
+  "source04_software_ready": false,
+  "remaining": [
+    "accepted cohort envelope/review fingerprint and official aggregate/train/resume/reload/shadow",
+    "operator UI integration",
+    "proven safe first oldPi upgrade and scoped deployment",
+    "physical demonstrations and independent acceptance"
+  ]
+}

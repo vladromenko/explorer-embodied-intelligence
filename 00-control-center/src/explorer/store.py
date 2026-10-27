@@ -96,15 +96,21 @@ class Store:
         role={'station_import':'so101_source_learning','mobile_import':'rosmaster_keyboard_learning','retarget_import':'rosmaster_leader_learning'}[kind]
         if project_id!=experiment_id(role):raise ValueError('Original recording producer belongs to a different semantic experiment')
         settings={'episode_id':episode_id}
-        if source_format not in (None,'native_capture_v1'):raise ValueError('Unknown source producer format')
+        if source_format not in (None,'native_capture_v1','so101_source_capture_v1'):raise ValueError('Unknown source producer format')
+        source04=source_format=='so101_source_capture_v1'
+        if source04:
+            if (kind,project_id)!=('station_import','04'):raise ValueError('Source04 capture requires its exact station04 producer identity')
+            if not isinstance(episode_id,str) or not re.fullmatch('[0-9a-f]{32}',episode_id):raise ValueError('Original source04 recording identity required')
+            if not isinstance(source_review_sha256,str) or not re.fullmatch('[0-9a-f]{64}',source_review_sha256):raise ValueError('Pinned source04 review SHA256 required')
+            settings['source_format']=source_format
         if source_format=='native_capture_v1':
             if (kind,project_id) not in (('mobile_import','02'),('retarget_import','03')):raise ValueError('Native target import requires its exact02/03 producer identity')
             settings['source_format']=source_format
         if source_review_sha256 is not None:
-            if source_format!='native_capture_v1' or not isinstance(source_review_sha256,str) or not re.fullmatch('[0-9a-f]{64}',source_review_sha256):
+            if source_format not in ('native_capture_v1','so101_source_capture_v1') or not isinstance(source_review_sha256,str) or not re.fullmatch('[0-9a-f]{64}',source_review_sha256):
                 raise ValueError('Pinned native Source review SHA256 required')
             settings['source_review_sha256']=source_review_sha256
-        if kind=='retarget_import' or source_format=='native_capture_v1':
+        if kind=='retarget_import' or source_format in ('native_capture_v1','so101_source_capture_v1'):
             if not isinstance(source_sha256,str) or not re.fullmatch('[0-9a-f]{64}',source_sha256):
                 raise ValueError('Direct teaching import requires the immutable source archive SHA256')
             settings['archive_sha256']=source_sha256
@@ -113,6 +119,15 @@ class Store:
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')
             previous=db.execute("SELECT * FROM jobs WHERE kind=? AND json_extract(config,'$.episode_id')=? ORDER BY (status='completed') DESC,created DESC LIMIT 1",(kind,episode_id)).fetchone()
+            if previous and (source04 or json.loads(previous['config']).get('source_format')=='so101_source_capture_v1'):
+                originals=db.execute("SELECT * FROM jobs WHERE kind=? AND json_extract(config,'$.episode_id')=? ORDER BY (status='completed') DESC,created DESC",(kind,episode_id)).fetchall()
+                if any(json.loads(row['config']).get('source_format')!=source_format or json.loads(row['config']).get('archive_sha256')!=source_sha256 for row in originals):
+                    raise ValueError('Conflicting source04 archive or producer identity; original jobs retained')
+                matching=next((row for row in originals if json.loads(row['config']).get('source_review_sha256')==source_review_sha256),None)
+                if matching:return self.decode_job(matching)
+                settings['retry_of_job_id']=previous['id']
+                settings['review_revision_of_job_id']=previous['id']
+                previous=None  # A new approval has a new immutable job, even after completion.
             if previous:
                 if (kind=='retarget_import' or source_format=='native_capture_v1') and json.loads(previous['config']).get('archive_sha256')!=source_sha256:
                     raise ValueError('Conflicting direct teaching archive for the same original recording')

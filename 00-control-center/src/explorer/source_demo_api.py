@@ -104,7 +104,12 @@ def install_router(app,get_store,get_config,get_actor,get_client):
                 ident=flow.capture_identity(get_store(),row)
                 if body.get('recording_id')!=ident:raise ValueError('Exact acknowledged recording identity required')
                 if 'actor_id' in body:raise ValueError('Capture actor is derived from authentication')
-                return capture_request(row,'POST','record/'+operation,dict(body,actor_id=actor))
+                reply=capture_request(row,'POST','record/'+operation,dict(body,actor_id=actor))
+                if operation=='review':
+                    original(row)
+                    job=flow.queue_source_review(get_store(),ident,body.get('expected_archive_sha256'),reply)
+                    return dict(reply,import_job=job)
+                return reply
             with pi_connection(get_config(),row['binding']) as (_,permission):
                 if operation=='challenge':
                     if body:raise ValueError('Challenge takes no client-selected binding')
@@ -134,7 +139,12 @@ def install_router(app,get_store,get_config,get_actor,get_client):
         ident=await safe(lambda:flow.capture_identity(get_store(),row))
         if operation in ('manifest','review'):
             await safe(lambda:original(row))
-            return await safe(lambda:capture_request(row,'GET','recordings/'+ident+'/'+operation))
+            def read():
+                reply=capture_request(row,'GET','recordings/'+ident+'/'+operation)
+                if operation=='review' and reply.get('source_review'):
+                    flow.observe_source_review(get_store(),ident,reply['source_review']['archive_sha256'],reply)
+                return reply
+            return await safe(read)
         if operation=='download':
             await safe(lambda:original(row))
             node=next(node for node in get_config()['nodes'] if node['id']=='pi')

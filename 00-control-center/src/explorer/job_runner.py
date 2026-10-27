@@ -108,8 +108,65 @@ def approved_native_capture_import(store,job,config):
         source_approval_path=str(receipt),source_approval_file_sha256=hashlib.sha256(raw).hexdigest(),transfer_evidence=transfer)
 
 
+def approved_source_capture_import(store,job,config):
+    """Thin04 adapter: shared approved transfer -> original converter/export.
+
+    Each review revision has its own immutable import/conversion directory.
+    UNKNOWN outcomes and cancelled attempts remain evidence, never auto-training.
+    """
+    if (job.get('kind'),job.get('project_id'),job['config'].get('source_format'))!=('station_import','04','so101_source_capture_v1'):
+        raise ValueError('Exact approved source04 producer identity required')
+    from explorer_so101.capture_archive import import_source_capture,MAX_OUTER
+    from .native_capture_transfer import transfer_native_capture
+    from .native_capture_approval import validate_source_approval
+    from . import source_demo_workflow as flow
+    ident=job['config']['episode_id'];checksum=job['config'].get('archive_sha256');review_sha=job['config'].get('source_review_sha256')
+    node=next(node for node in config['nodes'] if node['id']=='pi')
+    base='http://'+node['host']+':'+str(node['port'])
+    def guarded():
+        current=store.job(job['id'])
+        if current and current['status'] in ('cancel_requested','cancelled'):
+            raise RuntimeError('Source04 import cancelled; original/partial bytes retained, no training admission')
+        if shutil.disk_usage(store.root).free<1024**3:raise ValueError('Source04 import disk reserve exhausted; originals retained')
+    def observed(wrapper):return flow.observe_source_review(store,ident,checksum,wrapper)
+    with httpx.Client(timeout=60,trust_env=False,headers={'Authorization':'Bearer '+node['token']}) as client:
+        artifact,approval,transfer=transfer_native_capture(client,base,ident,checksum,review_sha,store.root/'artifacts',
+            source_prefix='/so101-capture',max_archive_bytes=MAX_OUTER,guard=guarded,review_observer=observed)
+        guarded()
+        if shutil.disk_usage(store.root).free<3*artifact.stat().st_size+1024**3:
+            raise ValueError('Source04 original extraction/conversion disk reserve insufficient; archive retained')
+        result=import_source_capture(artifact,checksum,store.root/'episodes'/'station-approved'/review_sha,ident,approval)
+        guarded()
+        sys.path.insert(0,str(Path(config['root'])/'01-autonomous-learning/src'))
+        from explorer_sim.station_adapter import convert_station_episode
+        from explorer_sim.dataset_export import export_lerobot_v3
+        target=store.root/'datasets'/'station-approved'/review_sha/ident
+        converted=convert_station_episode(result['source_manifest_path'],target,
+            capture_manifest_path=result['capture_manifest_path'],expected_capture_sha256=result['capture_manifest_sha256'])
+        guarded()
+        exported=export_lerobot_v3(target/'manifest.json',target/'lerobot_v3')
+        guarded()
+        # Conversion/export can outlive the transfer. Recheck the current Source
+        # decision, recording rejections even when this particular job must fail.
+        response=client.get(base+'/so101-capture/recordings/'+ident+'/review');response.raise_for_status()
+        if len(response.content)>32*1024:raise ValueError('Bounded current source04 review required')
+        wrapper=response.json();observed(wrapper)
+        validate_source_approval(wrapper,ident,checksum,expected_review_sha256=review_sha)
+        flow.current_source_review(store,ident,checksum,review_sha);guarded()
+    return dict(result,dataset_manifest=str(target/'manifest.json'),
+        frames=sum(row['frames'] for row in converted['episodes']),state_basis=converted['state_basis'],
+        action_basis=converted['action_basis'],action_names=converted['action_names'],
+        training_admission=converted.get('training_admission'),lerobot_v3=exported,transfer_evidence=transfer,
+        source_approval=approval,source_approval_path=result['source_review_path'],
+        source_approval_file_sha256=result['source_review_bytes_sha256'],
+        result_scope='Source04 approved immutable native6 observations; outcome/skill admission remain separate')
+
+
 def station_import(store, job, config):
-    if job['config'].get('source_format')=='native_capture_v1':return approved_native_capture_import(store,job,config)
+    source_format=job['config'].get('source_format')
+    if source_format=='native_capture_v1':return approved_native_capture_import(store,job,config)
+    if source_format=='so101_source_capture_v1':return approved_source_capture_import(store,job,config)
+    if source_format is not None:raise ValueError('Unknown station source format; no implicit legacy fallback')
     episode_id = job['config']['episode_id']
     import re
     mobile=job['kind']=='mobile_import'
@@ -154,6 +211,10 @@ def station_import(store, job, config):
             import shutil
             shutil.rmtree(destination)
         stage.replace(destination)
+    if not mobile:
+        raw=json.loads((destination/'manifest.json').read_bytes())
+        if ((raw.get('source_context') or {}).get('context') or {}).get('source04_demo_permission') is not None:
+            raise ValueError('Source04 demonstration requires its approved capture envelope; legacy import cannot bypass review')
     if mobile:
         descriptor=json.loads((destination/'episode.json').read_text())
         if descriptor.get('format')=='explorer_mobile_observation_episode_v1':

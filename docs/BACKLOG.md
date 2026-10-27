@@ -1,6 +1,8 @@
 # Explorer — атомарный backlog
 
-Приоритет владельца:03 safe checkpoint →04 software/operator-ready →05 →06 →01.
+Приоритет владельца (последнее указание): **04 implemented +software-tested +deployed →03 software/deploy →05 →06 →01**.
+После checkpoint04 обязательно возобновить `E03-SOFTWARE-DEPLOY`, не переходить к05.
+Физическое acceptance ведётся отдельно; требования не завершены одним checkpoint.
 Организационный checkpoint не меняет этот порядок. `DONE` относится только к
 конкретному критерию строки, не к целому опыту/master. Физические gates отдельны.
 
@@ -15,18 +17,19 @@ integrator. При отсутствии полезного software-действ
 |E03-CHECKPOINT|03|none|Central-only65 actual release/full regression/GET UI, physical path CLOSED; [proof](../_registry/evidence/experiment03-central-data-actual-65ae9d02-20261027.json)|DONE|Сохранять separate physical gates|
 |E03-BOOTSTRAP|03|E03-CHECKPOINT|Автоматический labelled existing-calibration/URDF bootstrap, command-estimate recenter, provisional gripper; [proof](../_registry/evidence/experiment03-bootstrap-existing-calibration-20261027.json)|DONE|Не требовать полного measured registration для software разработки|
 |E03-CONTINUITY|03|E03-BOOTSTRAP|Real changing leader shadow before/after с dt/jitter/steps/derivatives/drop/zero/transitions, original stable ACTIVE preserved|WAIT_USER|Нужны changing real inputs и valid current reference; static100GET не PASS|
+|E03-SOFTWARE-DEPLOY|03/shared|E04-RELEASE|Direct Pi→Nano route в main, existing real calibration+SO101/ROSMASTER URDF+servo_coordinates+current command_estimate bootstrap с честным provenance, без ложного UNREGISTERED; Pi/Nano endpoints, UI03 Start/Recenter/held heartbeat/STOP/record; deploy HB/Pi/Nano и бездвигательная связная проверка|OPEN|Обязательно возобновить после04 checkpoint; цель DEPLOYED_AWAITING_PHYSICAL_ACCEPTANCE, без firmware/config/servo-feedback изменений|
 |E03-PHYSICAL-RELEASE|03|E03-CONTINUITY|Полный physical path qualified и отдельная малая observed trial, ARM_ONLY/mobile permissions раздельны|BLOCKED|Не обновлять03 physical runtime до continuity PASS|
 |E02-REAL|02|none|Real expert demos/model, valid live-shadow и independent full-task trial с сохранёнными failures|WAIT_USER|Камера/task scene, fresh MCU/reference, gamepad и показы — PHYSICAL_CHECKS|
 |E04-CAPTURE|04|E03-CHECKPOINT|Thin same-Station capture +shared review/Range +pause-aware converter; component [proof](../_registry/evidence/experiment04-node-capture-shared-HTTP-20261027.json)|DONE|Сохранять raw originals и typed scope|
 |E04-PERMISSION|04/shared|E04-CAPTURE|Source-only process isolation и COMMON server demo identity, exact JPEG/actor/epoch; [API proof](../_registry/evidence/experiment04-central-demo-API-20261027.json)|DONE|Не применять legacy uncontrolled mutations в новом profile|
-|E04-IMPORT|04/shared|E04-CAPTURE,E04-PERMISSION|Approved source archive→bounded immutable import→Store/worker, current review/archive pins, retry/cancel/Range, no legacy approval bypass|IN_PROGRESS|Review prepared consumer branch; интегрировать worker+Store и targeted tests|
-|E04-COHORT|04/shared|E04-IMPORT|Capture envelope SHA/segments входят в admission/fingerprint/aggregate; actual official Dataset→ACT resume/reload→новый PID DEV/shadow|OPEN|Передать pause envelope в существующий qualify_station_dataset; generated inputs отмечать отдельно|
+|E04-IMPORT|04/shared|E04-CAPTURE,E04-PERMISSION|Approved source archive→bounded immutable import→Store/worker, current review/archive pins, retry/cancel/Range, no legacy approval bypass; [145PASS/4SKIP](../_registry/evidence/experiment04-approved-import-worker-20261027.json)|DONE|Сохранить отдельные current review и outcome; продолжить E04-COHORT|
+|E04-COHORT|04/shared|E04-IMPORT|Capture envelope SHA/segments входят в admission/fingerprint/aggregate; actual official Dataset→ACT resume/reload→новый PID DEV/shadow|IN_PROGRESS|Передать pause envelope в существующий qualify_station_dataset; generated inputs отмечать отдельно|
 |E04-UI|04|E04-PERMISSION,E04-IMPORT,E04-COHORT|One scene/task/connect/teleop/record pause cancel preview approve reject/train versions/replay/shadow flow, ownership cleanup и mobile UI|OPEN|Подключить существующие shared clients/panels; без копии полного UI|
 |E04-VISION|04/perception|E04-UI|Existing Logitech/cache VLM/grid/click/tabletop capabilities have real UI/backend and honest availability; no autonomous grasp claim|OPEN|Проверить существующий lab vision/Hailo adapter; не добавлять камеру/владельца|
 |E04-FIRST-UPGRADE|04/deploy|E04-UI|First old4c teardown защищён доказанным admission/drain либо отдельно наблюдаемым USER upgrade; source-only Pi profile активен|WAIT_USER|Old race [proof](../04-so101-source-learning/docs/OLD4C_LIFECYCLE_PROOF_20261027_RU.md); не считать idleGET достаточным|
 |E04-RELEASE|04/shared|E04-UI,E04-VISION,E04-FIRST-UPGRADE|Frozen current integration/full regression, scoped deployment, actual authenticated UI/GET verification/rollback evidence|BLOCKED|Сначала закончить независимо доступное ПО; один full перед release|
 |E04-REAL|04|E04-RELEASE|3–5 technical smoke, затем покрытие Spec и независимая physical source skill acceptance; не обещать mastery по числу demos|WAIT_USER|Питание/calibration/scene, реальные показы и observed model trial|
-|E05-MANUAL|05|E04-IMPORT,E04-COHORT,E04-UI|Reuse check; manual/manual first, full FSM opening→hold→release→transfer→finish/park, two cameras, STOP/ownership/recovery/data UI|OPEN|Завершить04 software; не считать FSM learned skill|
+|E05-MANUAL|05|E04-RELEASE,E03-SOFTWARE-DEPLOY|Reuse check; manual/manual first, full FSM opening→hold→release→transfer→finish/park, two cameras, STOP/ownership/recovery/data UI|OPEN|Завершить04 software; не считать FSM learned skill|
 |E05-LEARNING|05/shared|E05-MANUAL|Two original clocks/actions/handshake/grasp/release/outcome→review/dataset/train/reload/shadow через shared02/04 core|OPEN|Тонкий coordinator/producer adapter, не новый recorder/trainer|
 |E05-RELEASE|05|E05-LEARNING|Software/operator-ready flow deployed, software evidence полный; real hold/transfer gates остаются отдельными|OPEN|Frozen regression/deploy только после полной интеграции|
 |E05-REAL|05|E05-RELEASE|Shared-zone visibility и independent hold/release/full handover observed acceptance|WAIT_USER|Максимум две реальные камеры; physical double-hold не выводить из receipts|

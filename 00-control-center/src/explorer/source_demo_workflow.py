@@ -1,5 +1,6 @@
 """ENGINEERING_GLUE: thin human-demo intents over the existing04 skill workflow."""
 from copy import deepcopy
+from explorer_shared.native_capture_approval import validate_source_approval
 import re
 import uuid
 
@@ -58,3 +59,77 @@ def capture_identity(store,row):
 def listing(store,actor):
     with store.connect() as db:values=lab._records(db)
     return [deepcopy(row) for row in values if row.get('type')==lab.PREFIX+'demo_attempt' and row['actor_id']==actor]
+
+
+def observe_source_review(store,recording_id,archive_sha256,wrapper):
+    """Remember latest authenticated Source metadata, including late rejection.
+
+    This is data approval only. It cannot grant control or infer task success.
+    Missing intermediate reviews are allowed only with a later same-boot clock;
+    a direct predecessor link also orders reviews within one clock tick.
+    """
+    checked=validate_source_approval(wrapper,recording_id,archive_sha256,require_approved=False)
+    exact={key:deepcopy(wrapper[key]) for key in ('source_review','review_sha256','transfer_ready')}
+    with store.connect() as db:
+        db.execute('BEGIN IMMEDIATE')
+        old=lab._latest(lab._records(db),'source_review_observed','recording_id').get(recording_id)
+        if old:
+            prior=old['wrapper'];a,b=prior['source_review'],exact['source_review']
+            if old['archive_sha256']!=archive_sha256:raise ValueError('Immutable source04 archive changed')
+            if prior==exact:return checked
+            if (a['source_boot_id'],a['source_clock_domain'])!=(b['source_boot_id'],b['source_clock_domain']):
+                raise ValueError('Source review clock/boot changed; explicit recovery required')
+            if b['reviewed_native_ns']<a['reviewed_native_ns'] or (b['previous_review_sha256']!=prior['review_sha256'] and b['reviewed_native_ns']<=a['reviewed_native_ns']):
+                raise ValueError('Stale source04 review cannot replace the current decision')
+            # A previously observed revision cannot become latest again.
+            if any(row.get('type')==lab.PREFIX+'source_review_observed' and row.get('recording_id')==recording_id and
+                   row['wrapper']['review_sha256']==exact['review_sha256'] for row in lab._records(db)):
+                raise ValueError('Stale source04 review revision cannot be replayed')
+        lab._append(db,'source_review_observed',dict(recording_id=recording_id,archive_sha256=archive_sha256,wrapper=exact),recording_id+':'+exact['review_sha256'])
+    return checked
+
+
+def current_source_review(store,recording_id,archive_sha256,review_sha256):
+    with store.connect() as db:
+        row=lab._latest(lab._records(db),'source_review_observed','recording_id').get(recording_id)
+    if row is None or row['archive_sha256']!=archive_sha256:raise ValueError('Current source04 review unavailable')
+    return validate_source_approval(row['wrapper'],recording_id,archive_sha256,expected_review_sha256=review_sha256)
+
+
+def queue_source_review(store,recording_id,archive_sha256,wrapper):
+    checked=observe_source_review(store,recording_id,archive_sha256,wrapper)
+    if not checked['transfer_ready']:return None
+    return store.create_import_job('station_import','04',recording_id,archive_sha256,
+        source_format='so101_source_capture_v1',source_review_sha256=checked['review_sha256'])
+
+
+def source_capture_evidence(store,job):
+    """Reverify immutable import pins AND latest known Source decision for admission."""
+    import json
+    config=job['config'];result=job.get('result') or {}
+    if (job['kind'],job['project_id'],config.get('source_format'))!=('station_import','04','so101_source_capture_v1'):
+        raise ValueError('Exact source04 import required')
+    current=current_source_review(store,config['episode_id'],config['archive_sha256'],config['source_review_sha256'])
+    expected={'source_manifest_path':'source_manifest_sha256','capture_manifest_path':'capture_manifest_sha256',
+        'source_archive_path':'source_archive_sha256','source_approval_path':'source_approval_file_sha256',
+        'provenance_path':'provenance_sha256'}
+    paths={}
+    for name,key in expected.items():
+        path=lab._local(store,result.get(name))
+        if lab._sha(path)!=result.get(key):raise ValueError('Imported source04 artifact SHA changed: '+name)
+        paths[name]=path
+    if (result.get('source_format')!='so101_source_capture_v1' or result.get('source_archive_sha256')!=config['archive_sha256'] or
+            result.get('source_review_sha256')!=config['source_review_sha256']):raise ValueError('Imported source04 producer/review pins changed')
+    wrapper=json.loads(paths['source_approval_path'].read_bytes())
+    approved=validate_source_approval(wrapper,config['episode_id'],config['archive_sha256'],expected_review_sha256=config['source_review_sha256'])
+    if approved!=current or wrapper!=result.get('source_approval'):raise ValueError('Imported source04 approval differs from current Source')
+    provenance=json.loads(paths['provenance_path'].read_bytes());base=paths['provenance_path'].parent
+    if (provenance.get('schema')!='explorer_so101_source_capture_import_v1' or provenance.get('recording_id')!=config['episode_id'] or
+            provenance.get('source_archive_sha256')!=config['archive_sha256'] or provenance.get('source_review_sha256')!=config['source_review_sha256']):
+        raise ValueError('Source04 immutable import provenance differs')
+    for name,checksum in provenance['source_files_sha256'].items():
+        path=lab._local(store,base/name)
+        if not path.is_relative_to(base) or lab._sha(path)!=checksum:raise ValueError('Source04 retained original SHA changed')
+    return dict(capture_manifest_path=str(paths['capture_manifest_path']),capture_manifest_sha256=result['capture_manifest_sha256'],
+        source_review_sha256=config['source_review_sha256'],source_archive_sha256=config['archive_sha256'],
+        import_provenance_sha256=result['provenance_sha256'],source_approval=approved)

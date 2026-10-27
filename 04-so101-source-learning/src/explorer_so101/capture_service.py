@@ -42,6 +42,7 @@ class StationCaptureService:
     def status(self):
         result = self.adapter.status()
         return dict(result, active_recording_id=result['recording_id'],
+            ready_recordings=self.ready_recordings(),
             project_id='04', capture=dict(result['capture'], project_id='04') if result['capture'] else None)
 
     def capabilities(self):

@@ -21,3 +21,13 @@
 |D-PI-UPGRADE|IdleGET и daemon server_close не доказывают zero-write drain старого4c; conditional idle close и actual fake race сохранены. Первый unattended Pi update OPEN. [Контрпример](../04-so101-source-learning/docs/OLD4C_LIFECYCLE_PROOF_20261027_RU.md)|
 |D-PRIORITY|После03 safe checkpoint:04→05→06→01.01 long training PARKED; full248 smoke continuation не запускать. Инфраструктурная организация не меняет эту очередь|
 |D-STATE-DOCS|AGENTS→PROJECT_STATE→BACKLOG→Git+evidence — recovery entrypoint. Один короткий state и один приоритетный backlog; root STATUS/PLAN/DECISIONS/PHYSICAL_CHECKLIST — compatibility pointers, старые тексты остаются в Git/verified backup|
+
+## Последнее указание порядка:04 →03 →05 (2026-10-27)
+
+Не прерывая текущий атомик04, довести04 до implemented +software-tested +deployed.
+Сразу после04 checkpoint возобновить `E03-SOFTWARE-DEPLOY`: direct Pi→Nano, honest
+existing-calibration/URDF/servo mapping/current-command-estimate bootstrap, endpoints,
+UI03 и HB/Pi/Nano deploy с бездвигательной связной проверкой.05 начинается после
+закрытия этих software gaps03. Физическое acceptance остаётся отдельным; целевое
+состояние03 DEPLOYED_AWAITING_PHYSICAL_ACCEPTANCE. Firmware, исходные настройки
+ROSMASTER и проблемный servo feedback не менять. Gate shutdown/drain не обходить.

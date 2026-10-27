@@ -136,7 +136,14 @@ def _source(store,job_id):
             if expected is not None and _sha(path)!=expected:raise ValueError('Imported original source manifest SHA changed')
             selected=path;break
     if selected is None:raise ValueError('Retained native source manifest unavailable')
-    raw=json.loads(selected.read_text());inspect,_=_sim();evidence=inspect(selected)
+    raw=json.loads(selected.read_text());capture=None
+    if job.get('config',{}).get('source_format')=='so101_source_capture_v1':
+        from .source_demo_workflow import source_capture_evidence
+        capture=source_capture_evidence(store,job)
+    elif ((raw.get('source_context') or {}).get('context') or {}).get('source04_demo_permission') is not None:
+        raise ValueError('Source04 demonstration requires approved capture provenance; legacy admission is closed')
+    inspect,_=_sim();evidence=inspect(selected)
+    if capture:evidence['source_capture']=capture
     identity=job.get('config',{}).get('episode_id') or result.get('episode_id')
     if raw.get('episode_id')!=identity:raise ValueError('Imported original SO101 episode identity differs')
     evidence['source_experiment_identity']=_source_identity(job,raw,evidence['source_manifest_sha256'])

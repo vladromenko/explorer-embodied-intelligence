@@ -24,7 +24,9 @@ def _regular(path,flags):
 
 
 def transfer_native_capture(client,base_url,recording_id,archive_sha256,review_sha256,artifact_root,*,guard=lambda:None,
-                            source_prefix='/native-capture'):
+                            source_prefix='/native-capture',max_archive_bytes=MAX_ARCHIVE_BYTES,review_observer=None):
+    if type(max_archive_bytes) is not int or not 0<max_archive_bytes<=MAX_ARCHIVE_BYTES:
+        raise ValueError('Bounded source archive transfer budget required')
     if (not isinstance(recording_id,str) or not re.fullmatch('[0-9a-f]{32}',recording_id) or
             not re.fullmatch('[0-9a-f]{64}',str(archive_sha256)) or not re.fullmatch('[0-9a-f]{64}',str(review_sha256))):
         raise ValueError('Pinned native original/archive/Source review identity required')
@@ -34,7 +36,11 @@ def transfer_native_capture(client,base_url,recording_id,archive_sha256,review_s
     def review():
         guard();response=client.get(prefix+'/review');response.raise_for_status()
         if len(response.content)>32*1024:raise ValueError('Bounded Source approval required')
-        wrapper=response.json();validate_source_approval(wrapper,recording_id,archive_sha256,expected_review_sha256=review_sha256)
+        wrapper=response.json()
+        if review_observer is not None:
+            validate_source_approval(wrapper,recording_id,archive_sha256,require_approved=False)
+            review_observer(wrapper)
+        validate_source_approval(wrapper,recording_id,archive_sha256,expected_review_sha256=review_sha256)
         return wrapper
     approval=review();root=Path(artifact_root)/archive_sha256[:2];root.mkdir(parents=True,exist_ok=True)
     final=root/(archive_sha256+'.tar');part=final.with_suffix('.part');lock=final.with_suffix('.lock')
@@ -42,13 +48,14 @@ def transfer_native_capture(client,base_url,recording_id,archive_sha256,review_s
         fcntl.flock(held,fcntl.LOCK_EX|fcntl.LOCK_NB)
         if final.exists():
             with os.fdopen(_regular(final,os.O_RDONLY),'rb') as source:
+                if not 0<os.fstat(source.fileno()).st_size<=max_archive_bytes:raise ValueError('Existing native archive exceeds transfer budget')
                 if hashlib.file_digest(source,'sha256').hexdigest()!=archive_sha256:raise ValueError('Existing immutable native archive changed')
             if review()!=approval:raise ValueError('Source review changed during existing archive verification')
             return final,approval,{'resumed_bytes':0,'downloaded_bytes':0,'existing_archive_reverified':True}
         descriptor=_regular(part,os.O_RDWR|os.O_CREAT)
         with os.fdopen(descriptor,'r+b') as output:
             offset=os.fstat(output.fileno()).st_size
-            if offset>MAX_ARCHIVE_BYTES:raise ValueError('Partial native archive exceeds transfer budget')
+            if offset>max_archive_bytes:raise ValueError('Partial native archive exceeds transfer budget')
             if offset:
                 output.seek(0)
                 if hashlib.file_digest(output,'sha256').hexdigest()==archive_sha256:
@@ -70,7 +77,7 @@ def transfer_native_capture(client,base_url,recording_id,archive_sha256,review_s
                 elif response.status_code==200:
                     total=int(response.headers.get('Content-Length','0'));resumed=0;offset=0;output.seek(0);output.truncate()
                 else:raise ValueError('Native archive GET requires full or exact partial response')
-                if not 0<total<=MAX_ARCHIVE_BYTES:raise ValueError('Bounded native archive length required')
+                if not 0<total<=max_archive_bytes:raise ValueError('Bounded native archive length required')
                 output.seek(offset);downloaded=0
                 try:
                     for block in response.iter_bytes(CHUNK_BYTES):

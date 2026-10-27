@@ -6803,6 +6803,34 @@
         "tests/test_source_evaluation_api.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SO101-SOURCE-CAPTURE-ARCHIVE-20261027",
+      "function_or_module": "04-so101-source-learning/src/explorer_so101/capture_archive.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:04-so101-source-learning/docs/CAPTURE_ARCHIVE_CONSUMER_RU.md",
+          "role": "Existing native6 original writer and shared capture/review contracts"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Bounded local approved archive consumer preserves original native6 Station bytes, pause envelope, exact Source review and no-overwrite provenance; no dataset/training/control authority.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_so101_capture_archive.py",
+        "tests/test_so101_capture_worker.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
