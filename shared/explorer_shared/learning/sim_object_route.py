@@ -351,3 +351,29 @@ class VisualObjectChunks:
         return {IMAGE_KEY:prepare_rgb(source['rgb'][position][None])[0],
             'observation.state':torch.from_numpy(state),'action':torch.from_numpy(action.astype(np.float32)),
             'action_is_pad':torch.from_numpy(padded)}
+
+
+def learned_skill_card(plan,training,results,*,dataset_sha256,protocol_sha256,paired_freeze_sha256):
+    """All preregistered paired trials, including failures, enter one SIM card."""
+    if training.get('integration_only') is not False or training.get('heldout_samples_optimized')!=0:
+        raise ObjectRouteRejected('Meaningful train-only learned checkpoint required')
+    expected={(case['id'],strategy['id']) for case in split_cases(plan) if case['partition'] in ('development','sealed_test') for strategy in plan['strategies']}
+    actual=[(row['case']['id'],row['strategy']) for row in results]
+    if len(actual)!=len(set(actual)) or set(actual)!=expected:raise ObjectRouteRejected('Every frozen paired evaluation must be retained exactly once')
+    if any(row.get('checkpoint_sha256')!=training['checkpoint_sha256'] or row.get('paired_policy_freeze_sha256')!=paired_freeze_sha256 or row.get('teacher_query_count')!=0 or row.get('privileged_actor_input') is not False for row in results):
+        raise ObjectRouteRejected('Same frozen learned checkpoint and independent no-teacher rollout required')
+    evaluation=dict(schema='explorer_target_visual_object_paired_evaluation_v1',trials=deepcopy(results),
+        outcomes={partition:{strategy['id']:{status:sum(row['outcome']==status for row in results if row['case']['partition']==partition and row['strategy']==strategy['id']) for status in ('SUCCESS','FAILURE','UNKNOWN')} for strategy in plan['strategies']} for partition in ('development','sealed_test')},
+        physical_run_ids=[],navigation_run_ids=[],sealed_used_for_selection=False,whole_skill_mastered=False)
+    return dict(id='target-visual-object-'+training['checkpoint_sha256'][:24],**experiment_identity('cross_embodiment_transfer'),
+        task='Конфета в коробку — TARGET visual ACT9, stationary CAD SIM',source_type='simulation',status='SIM_learned_candidate_independent_full_object_assessed',
+        action_contract=dict(id=ACTION_CONTRACT_ID,names=list(ACTION_NAMES),units=list(ACTION_UNITS),dimension=9,neutral_channels_retained=True),
+        lineage=dict(skill_id=plan['skill_id'],skill_version=3,source_skill_version=plan['source_skill_version'],source_template_sha256=plan['source_template_sha256'],
+            source_method='SCRIPTED_SIM_teacher_not_learned_source04',aggregate_sha256=dataset_sha256,checkpoint_sha256=training['checkpoint_sha256'],
+            protocol_sha256=protocol_sha256,paired_freeze_sha256=paired_freeze_sha256,source_commit=plan['source_commit']),
+        model_input_schema=dict(state_dimension=9,image_size=plan['settings']['image_size'],model_used_channels=['camera_rgb','preceding_command9'],
+            valid_recorded_joint_feedback_unused_not_masked=True,truth_phase_waypoints_used=False,language_is_only_metadata=True),
+        evaluation=evaluation,limitations=['Known candy CAD asset shared across all splits; no new-object generalization proof',
+            'Base has explicit stationary weld; no navigation or physical execution qualification',
+            'Target student learned from verified SCRIPTED_SIM target execution; learned source04/H2 not claimed',
+            'Finite paired development/sealed outcomes are retained; no mastery guarantee'])

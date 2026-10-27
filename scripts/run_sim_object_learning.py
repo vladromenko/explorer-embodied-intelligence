@@ -22,7 +22,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT/name) for name in ('shared','00-control-center/src','01-autonomous-learning/src')]
 from explorer_shared.contracts import ACTION_NAMES,ACTION_UNITS,canonical,digest
 from explorer_shared.learning.sim_object_route import (PHASES,LOW,HIGH,split_cases,target_split,
-    complete_object_score,export_teacher_view,ChunkDispatcher,stationary_endpoint,VisualObjectChunks)
+    complete_object_score,export_teacher_view,ChunkDispatcher,stationary_endpoint,VisualObjectChunks,learned_skill_card)
 
 GIB=1024**3
 
@@ -333,8 +333,11 @@ def main():
         elif args.stage=='rollout':result=rollout(plan,case,folder,output,args.strategy,args.sha)
         else:
             results=[json.loads(path.read_bytes()) for path in sorted((output/'rollout').glob('*/*/*/result.json'))]
+            training=json.loads((output/'train/training-result.json').read_bytes())
+            card=learned_skill_card(plan,training,results,dataset_sha256=sha(output/'dataset/manifest.json'),protocol_sha256=args.sha,paired_freeze_sha256=sha(output/'paired-policy-freeze.json'))
+            write(folder/'skill-card.json',card)
             result=dict(total=len(results),all_eight_completed=len(results)==8,successes={partition:{strategy:sum(row['outcome']=='SUCCESS' for row in results if row['case']['partition']==partition and row['strategy']==strategy) for strategy in ('chunk1','chunk8')} for partition in ('development','sealed_test')},
-                results=results,learned_source04=False,physical_io=False)
+                results=results,skill_card_sha256=sha(folder/'skill-card.json'),learned_source04=False,physical_io=False)
         write(folder/'stage-result.json',result);print(json.dumps({key:result[key] for key in result if key not in ('independent_evaluation','losses','results','checkpoint')},default=str),flush=True)
     except BaseException as error:
         write(folder/'stage-error.json',dict(type=type(error).__name__,detail=str(error)));raise
