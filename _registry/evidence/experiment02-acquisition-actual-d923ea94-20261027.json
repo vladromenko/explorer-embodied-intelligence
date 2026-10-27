@@ -1,0 +1,42 @@
+{
+  "schema": "explorer_02A_actual_scoped_release_v1",
+  "commit": "d923ea94becb68e3d540ba523b635483e2758689",
+  "scope": "CENTRAL_WORKER_AND_NANO_OWN_OBSERVER_CACHE",
+  "original_native_web_commit": "4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4",
+  "pi_own_commit": "4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4",
+  "actual_cutover_s": 2.47784424101701,
+  "original_native_services_PIDs_and_source_unchanged": true,
+  "six_original_controller_configs_unchanged": true,
+  "private_config_and_units_unchanged": true,
+  "passive_ROS": {
+    "counts": {
+      "/arm6_joints": 0,
+      "/explorer/request": 0
+    },
+    "observation_seconds": 20,
+    "passive_only": true,
+    "received_count": 0,
+    "schema": "explorer_02A_own_cutover_passive_ROS_v1",
+    "topics": [
+      "/arm6_joints",
+      "/explorer/request"
+    ]
+  },
+  "physical_control_requests_sent": 0,
+  "source_receipt_sha256": "ad00ee8114260249f7821c982f6074e33a42f7126374e8d758ca6e585febe6d2",
+  "backup_SQLite_sha256": "e7bb8a28d54a36ed628b6b1029dc0ee936ed3e58ffb4f7b66536c54d01537c87",
+  "full_regression": {
+    "passed": 2154,
+    "skipped": 15,
+    "failed": 0,
+    "elapsed_s": 778.23,
+    "qualification_sha256": "cc6dcc9581ebaf80be61682ff077cab85223b35e427d26f0dfac25a3dba10217"
+  },
+  "node_tests_passed": 226,
+  "browser_live_artifacts": "/mnt/explorer-data/explorer-work/experiment02-operator-20261027/browser-live-d923ea94",
+  "browser_scope": "actual HTTPS desktop/mobile Nano JPEG; software gamepad fixture, not physical gamepad",
+  "physical_skill_validated": false,
+  "whole_experiment02_complete": false,
+  "master_complete": false,
+  "status": "DEPLOYED_DISARMED_02A_02B_OPEN"
+}

@@ -54,7 +54,11 @@ Gamepad в browser qualification — явно программный fixture:50 
 
 Артефакты: `/mnt/explorer-data/explorer-work/experiment02-operator-20261027/`.
 Эти результаты не означают завершения02B или физически освоенного навыка.
-Фактический развёрнутый commit указан в STATUS; candidate ещё не live.
+02A развёрнут scoped commit d923ea94: central/worker и собственные Nano observer/cache.
+Pi и оригинальный Nano web остаются4c5f4f5b; их исходники/настройки/PIDs сохранены.
+Полная frozen регрессия2154PASS/15SKIP,226Node;02B ещё открыт.
+В следующем кандидате добавлен отдельный режим технической записи наблюдений:
+он не требует HOME, всегда analysis-only и не создаёт экспертных меток.
 
 ## Требуется наблюдаемая подготовка владельца
 

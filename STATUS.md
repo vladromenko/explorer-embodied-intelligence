@@ -32,21 +32,25 @@
 <!-- READINESS_TABLE_FROM_ACCEPTANCE:END -->
 
 
-Live central+worker, собственные Pi/Nano observers и import pin оригинального
-Nano web — **4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4**. Durable giver WAL,
-zero STOP, source phase activation, fixed reset UI и source receipts развёрнуты.
-Giver journal installed/healthy, ещё initialized=false до отдельной USER setup;
-Root не выдаёт это за физическую готовность.
-[Фактический выпуск4c5f4f5b](_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json).
+Live central+worker и собственные Nano observer/cache — **d923ea94becb68e3d540ba523b635483e2758689**.
+Pi observer и import pin оригинального Nano web остаются **4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4**.
+Оригинальные Nano camera/MCU/control/web не перезапускались; PIDs/source/reference
+и6 исходных configs совпали до/после. Cutover central2.478s, passiveROS20s:0сообщений.
+[Фактический scoped02A выпуск](_registry/evidence/experiment02-acquisition-actual-d923ea94-20261027.json).
+Полная frozen регрессия:2154PASS/15SKIP/0FAIL;226Node. Настоящий HTTPS Firefox
+на desktop/mobile декодировал кадры Nano; калибровка gamepad проверена только
+явным software fixture, физический Mac gamepad ещё не квалифицирован.
 
-Сохранённый позднейший main checkpoint: `61fe798a106ae4612112fe608d262db023b821b8`.
-`29e8570` отзывает Root epoch в памяти и запускает scoped cleanup до Root
-projection/Inbox IO.20 targeted tests прошли за8.68s, включая настоящий отказ
-final directory fsync; initial18PASS/2fixtureFAIL сохранены.
-[Evidence](_registry/evidence/cooperative-stop-projection-20261027.json).
-`61fe798` добавляет один тест существующей FSM до actual fake Publisher opening
-receipt:1PASS/7.17s на main. Transfer/finish остаётся OPEN.
-Это не новый развёрнутый release; текущий live по-прежнему4c5f4f5b.
+02A содержит запись/паузы/отмену, независимые кадры/сенсоры, input journal,
+просмотр/скачивание и отдельное Source approve→hash-bound resumable transfer.
+02B ещё **IN_PROGRESS**: новые исходники связывают official LeRobotDataset,
+source-bound сегменты без склейки пауз, ACT106, saved versions, DEV и GET-only
+shadow с API/UI. Реальная вычислительная fixture квалификация:3PASS/67.78s,
+ACT4→новыйPID+4 совпал с uninterrupted8; реальные физические demos0.
+Supervisor→bootstrap→job_runner106, актуальный общий controller, итоговая
+UI/регрессия и новый02B release проверяются отдельно. Неподвижная техническая
+запись сохраняется только для анализа и не заменяет успешный экспертный показ.
+Durable giver healthy/uninitialized; это не физическая готовность.
 
 Подготовленная статья отдельно сохранена в `work/temporal-numeric-admission`,
 `a5865cc22b973a5e1a1c6a988042f4c3668b129a`: настоящий TeX PDF6pages,
@@ -129,8 +133,7 @@ Nano native reference невалиден после сохранённого tel
 firmware/limits/watchdogs/readbackOFF. Unknown и command-estimate не становятся
 measured. Source/target splits раздельны; development/sealed/unknown не optimizer.
 
-Текущий программный остаток02: operator-ready камеры/gamepad/запись рядом с
-камерами на Nano и completed/approved transfer; затем канонический
+Текущий программный остаток02B: итоговый канонический
 record→approve→transfer→LeRobotDataset→ACT→save/reload→offline→live-shadow→UI
 с реальным dataset/model evidence, адресной регрессией и новым release.
 3–5 показов — технический smoke, не обещание освоенного навыка. Готовность02A
@@ -152,9 +155,9 @@ phase/hold-successor/transfer/retention/recovery и H1–H5 остатки; он
 
 Root — единственный координатор и интегратор; максимум1 независимый субагент.
 Все прежние активные агенты завершили безопасные checkpoints и idle.
-После этого checkpoint текущий длинный turn заканчивается по указанию
-пользователя. Следующий рабочий turn:02, High; повышать effort только для
-конкретного трудного вопроса. Этот документ не переключает модель/effort.
+Последнее указание пользователя: продолжать текущую работу автономно
+через02→03→01→04→05→06; не завершать turn после одного этапа. Повышать effort
+только для конкретного трудного вопроса. Этот документ не переключает модель/effort.
 Проверки: адресные при редактировании, интеграционные в конце эксперимента,
 один полный прогон перед deploy. Повторные широкие04–06 и2102-file аудиты
 не запускать без новой причины. Подробные логи остаются в артефактах.
