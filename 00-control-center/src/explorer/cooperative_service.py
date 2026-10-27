@@ -458,11 +458,12 @@ bound first; default construction cannot turn on policy execution.
             media='image/jpeg'
         elif kind=='receiver-metadata' and role is None:
             folder=self.root/'receiver-metadata'/identity;metadata=json.loads((folder/'registration.json').read_bytes());path=folder/'receipt.json'
-            document=json.loads(path.read_bytes())
-            if (metadata.get('receipt_id')!=identity or sha_file(path)!=metadata.get('receipt_sha256') or
-                    document.get('schema')!='explorer_cooperative_receiver_metadata_evidence_v1' or document.get('receipt_id')!=identity or
-                    document.get('context')!=metadata.get('context')):
+            if metadata.get('receipt_id')!=identity or sha_file(path)!=metadata.get('receipt_sha256'):
                 raise ValueError('Original receiver metadata receipt changed')
+            document=json.loads(path.read_bytes())
+            if (document.get('schema')!='explorer_cooperative_receiver_metadata_evidence_v1' or document.get('receipt_id')!=identity or
+                    document.get('context')!=metadata.get('context')):
+                raise ValueError('Original receiver metadata receipt context changed')
             media='application/json'
         elif kind=='recording' and role is None:
             folder=self.root/'recordings'/identity;metadata=json.loads((folder/'archive-info.json').read_bytes());path=folder/'recording.tar'

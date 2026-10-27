@@ -215,3 +215,11 @@ test('source metadata artifacts survive a stopped session and page recreation wi
  assert.match(html,/Сохранённые проверки SO101/);assert.ok(html.includes(receipt.url));assert.ok(!html.includes('javascript:'));
  assert.match(html,/Сохранённая запись недоступна/);assert.equal(r.calls.length,before);
 });
+
+
+test('giver reset wrapper accepts only explicit safe-object flag and opaque choice; source CAS remains server-owned',async()=>{
+ const r=await rig();await r.client.nativeOperation('native_reset_safe',{role:'giver',native_control_choice_id:'a'.repeat(64),observing:true,user_observed_test_confirmed:true,object_safe_no_dual_hold:true});
+ assert.deepEqual(r.calls.at(-1)[2],{role:'giver',native_control_choice_id:'a'.repeat(64),observing:true,user_observed_test_confirmed:true,object_safe_no_dual_hold:true,session_id:'server-session',expected_epoch:'epoch-one'});
+ for(const fields of [{expected_state_id:'spoof'},{expected_revision:123},{targets:[90,90]}])assert.throws(()=>r.client.nativeOperation('native_reset_safe',fields),/без подмены/);
+ assert.throws(()=>r.client.nativeOperation('native_begin',{object_safe_no_dual_hold:true}),/без подмены/);
+});

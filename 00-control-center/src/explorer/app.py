@@ -950,7 +950,7 @@ async def cooperative_state(request: Request):
 async def cooperative_operation(operation: str,request: Request):
     if operation not in {'propose_skill','confirm_skill','create_session','register_zone','record_start','record_stage','record_finish','step','stop','confirm_evidence','review_recording','aggregate','training_plan','train','shadow','warm_models','attach_native_giver',
             'observed_refresh','observed_challenge','observed_authorize','bind_observed_test','observed_display','observed_observe','observed_revoke',
-            'native_refresh','native_begin','native_resume','native_recenter','native_attach','native_lease','native_stop',
+            'native_refresh','native_begin','native_resume','native_recenter','native_attach','native_lease','native_stop','native_reset_safe',
             'receiver_setup_refresh','receiver_setup_bind_guard','receiver_setup_capture_empty_open','receiver_setup_capture_empty_closed','receiver_setup_reset_safe','receiver_setup_adopt_hold'}:
         raise HTTPException(404,'Unsupported cooperative workflow operation')
     try:

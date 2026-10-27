@@ -15,7 +15,7 @@ from explorer_shared.cooperative_transport05 import NativeGiverPolicyTransport,N
 from explorer_shared.cooperative_receiver_transport05 import NativeReceiverTransport
 from explorer_shared.station_observed_http import StationObservedHttp
 
-OPERATIONS=('native_begin','native_recenter','native_resume','native_attach','native_lease','native_stop')
+OPERATIONS=('native_begin','native_recenter','native_resume','native_attach','native_lease','native_stop','native_reset_safe')
 
 
 class CooperativeNativeSessions:
@@ -66,7 +66,9 @@ class CooperativeNativeSessions:
             return {'authorization_id':permission.get('authorization_id'),'input_mode':permission.get('input_mode'),
                 'native':{key:native.get(key) for key in ('control_epoch','owner_generation','native_owner','active','state','stop_latched')},
                 'binding':deepcopy(boundary.get('binding')),'armed':boundary.get('armed'),
-                'constraint':deepcopy(source.get('registered_action_constraint'))}
+                'constraint':deepcopy(source.get('registered_action_constraint')),
+                'persistence':deepcopy(boundary.get('persistence')),'quiescence':deepcopy(boundary.get('original_quiescence')),
+                'reference_fault':deepcopy(boundary.get('reference_fault'))}
         grant=permission.get('grant') or {}
         return {'grant':{key:deepcopy(grant.get(key)) for key in ('grant_id','binding','provider_process','control_epoch','native_mode','actor_id')},
             'native':{key:source.get(key) for key in ('available','mode','control_epoch','configuration_writes')}}
@@ -101,8 +103,18 @@ class CooperativeNativeSessions:
                         (active and native.get('state')=='ACTIVE' if policy else not active))
                     operations['native_lease'].update(implemented=policy,available=policy and same and active and native.get('state')=='ACTIVE')
                     operations['native_stop'].update(implemented=supported,available=supported and same)
+                    persistence=bound.get('persistence') or {};drained=(bound.get('original_quiescence') or {}).get('ready') is True
+                    reset_installed=persistence.get('installed') is True and isinstance(persistence.get('state_id'),str) and type(persistence.get('revision')) is int
+                    operations['native_reset_safe'].update(implemented=reset_installed,
+                        available=reset_installed and stopped and not active and drained and persistence.get('pending') is False,
+                        reason=None if drained else 'ORIGINAL_COMMAND_STREAM_MUST_DRAIN_BEFORE_SAFE_RESET')
+                    if bound.get('reference_fault') is not None:
+                        for name in ('native_begin','native_resume','native_recenter','native_attach'):
+                            operations[name].update(available=False,reason='NEW_USER_OBSERVED_ORIGINAL_REFERENCE_REQUIRED')
+
                     if mode=='so101_leader':
-                        for item in operations.values():item.update(implemented=False,available=False,reason='USE_EXISTING_DIRECT_PI_LEADER_SESSION_NO_SECOND_OWNER')
+                        for name,item in operations.items():
+                            if name!='native_reset_safe':item.update(implemented=False,available=False,reason='USE_EXISTING_DIRECT_PI_LEADER_SESSION_NO_SECOND_OWNER')
                 else:
                     native=pair['source'];grant=pair['permission']['grant']
                     guarded=pair['permission'].get('native_publication_permission_gate_installed') is True
@@ -144,6 +156,11 @@ class CooperativeNativeSessions:
                 'native_controls_started_by_snapshot':False}
         return cached[1]
     def _choose(self,operation,row,spec,body,actor):
+        allowed={'session_id','expected_epoch','role','native_control_choice_id','observing','user_observed_test_confirmed','neutral'}
+        if operation=='native_reset_safe':allowed.add('object_safe_no_dual_hold')
+        if not isinstance(body,dict) or set(body)-allowed:raise ValueError('Only fixed native USER IDs and confirmation fields required')
+        if operation=='native_reset_safe' and (body.get('role')!='giver' or body.get('object_safe_no_dual_hold') is not True):
+            raise ValueError('Separate giver safe-object confirmation required; no native movement is implied')
         current=self._fresh(row,spec,actor);role=body.get('role')
         if current.get('pending_operation') and operation not in ('native_lease','native_stop'):
             raise ValueError('Finish/cancel current protocol step before changing native control binding')
@@ -242,6 +259,10 @@ class CooperativeNativeSessions:
                 elif operation=='native_recenter':result=post('recenter',{**binding,'control_epoch':native['control_epoch']})
                 elif operation=='native_lease':result=post('lease',{**binding,'control_epoch':native['control_epoch']})
                 elif operation=='native_attach':result=self._attach(role,row,spec,pair,actor)
+                elif operation=='native_reset_safe':
+                    persistence=(source.get('release_boundary') or {}).get('persistence') or {}
+                    result=post('guard/reset',{'authorization_id':pair['permission']['authorization_id'],'observing':True,
+                        'object_safe_no_dual_hold':True,'expected_state_id':persistence['state_id'],'expected_revision':persistence['revision']})
                 elif operation=='native_stop':result=post('stop',{**binding,'control_epoch':native['control_epoch'] if mode=='policy' else None,
                     'expected_native_generation':native['owner_generation']})
                 else:raise ValueError('Known exact native USER operation required')
@@ -250,7 +271,8 @@ class CooperativeNativeSessions:
             self._save(row,spec,role,operation,result,actor)
             controls=self.refresh(row,spec,actor=actor)
             return {'role':role,'operation':operation,'native_receipt':result,'automatic_lease_renewal':False,
-                'native_controls':controls,'API_result_claims_hardware_attainment':False}
+                'native_controls':controls,'API_result_claims_hardware_attainment':False,
+                **({'native_command_sent':False,'native_lease_or_user_observation_renewed':False} if operation=='native_reset_safe' else {})}
         except Exception:
             if pair is not None and known_reply:
                 try:self._cleanup(role,row,spec,pair,result,operation)

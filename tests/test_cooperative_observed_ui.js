@@ -95,7 +95,7 @@ test("locally blocked unsent authorize is not mislabeled as uncertain remote aut
 
 async function nativeRig() {
   const r=await rig(),nativeCalls=[];
-  const operations=()=>Object.fromEntries(['native_begin','native_resume','native_recenter','native_attach','native_lease','native_stop'].map(op=>[op,{implemented:true,available:true,choice_id:digest('a')}]));
+  const operations=()=>Object.fromEntries(['native_begin','native_resume','native_recenter','native_attach','native_lease','native_stop','native_reset_safe'].map(op=>[op,{implemented:true,available:true,choice_id:digest('a')}]));
   r.controls={schema:'explorer_cooperative_native_controls_v1',roles:{giver:{operations:operations()},receiver:{operations:operations()}}};
   for(const op of ['native_resume','native_recenter','native_lease'])r.controls.roles.receiver.operations[op]={implemented:false,available:false,choice_id:null};
   r.options.invokeNative=async(op,fields)=>{nativeCalls.push([op,copy(fields)]);return op==='native_refresh'?copy(r.controls):{role:fields.role,operation:op,native_controls:copy(r.controls),API_result_claims_hardware_attainment:false};};
@@ -107,7 +107,7 @@ test('native rendering/observed watch never refreshes or starts control; separat
   const {client,nativeCalls,calls}=await nativeRig();cooperativeObservedPanel(client.snapshot());client.sync();assert.deepEqual(nativeCalls,[]);await client.refresh();assert.deepEqual(nativeCalls,[]);await client.nativeRefresh();assert.deepEqual(nativeCalls,[['native_refresh',{}]]);assert.deepEqual(calls,[['observed_refresh',{}]]);
 });
 test('native actions consume one server choice and separate confirmations, then reset flags without auto leases',async()=>{
-  const {client,nativeCalls}=await nativeRig();await client.nativeRefresh();await assert.rejects(client.nativeCommand('giver','native_begin'),/Лично подтвердите/);nativeAffirm(client);await client.nativeCommand('giver','native_begin');assert.deepEqual(nativeCalls.at(-1),['native_begin',{role:'giver',native_control_choice_id:digest('a'),observing:true,user_observed_test_confirmed:true,neutral:true}]);assert.deepEqual(client.snapshot().nativeFlags.giver,{observing:false,user_observed_test_confirmed:false,neutral:false});assert.equal(nativeCalls.length,2);await assert.rejects(client.nativeCommand('giver','native_resume'),/Лично подтвердите/);
+  const {client,nativeCalls}=await nativeRig();await client.nativeRefresh();await assert.rejects(client.nativeCommand('giver','native_begin'),/Лично подтвердите/);nativeAffirm(client);await client.nativeCommand('giver','native_begin');assert.deepEqual(nativeCalls.at(-1),['native_begin',{role:'giver',native_control_choice_id:digest('a'),observing:true,user_observed_test_confirmed:true,neutral:true}]);assert.deepEqual(client.snapshot().nativeFlags.giver,{observing:false,user_observed_test_confirmed:false,neutral:false,object_safe_no_dual_hold:false});assert.equal(nativeCalls.length,2);await assert.rejects(client.nativeCommand('giver','native_resume'),/Лично подтвердите/);
 });
 test('unimplemented Pi operations, unadvertised action and stale native choices cannot issue requests',async()=>{
   const {client,nativeCalls,clock}=await nativeRig();await client.nativeRefresh();nativeAffirm(client,'receiver');await assert.rejects(client.nativeCommand('receiver','native_resume'),/недоступно/);await assert.rejects(client.nativeCommand('receiver','action'),/реализованное/);clock.value+=1501;await assert.rejects(client.nativeCommand('receiver','native_begin'),/недоступно/);assert.deepEqual(nativeCalls,[['native_refresh',{}]]);
@@ -190,4 +190,12 @@ test('metadata receipt uses exact authenticated artifact link and SHA, fenced on
  assert.deepEqual(r.client.snapshot().receiverReceipt,receipt);assert.match(cooperativeObservedPanel(r.client.snapshot()),/Сохранённая проверка SO101/);
  const forged=r.client.snapshot();forged.receiverReceipt.url='javascript:move()';assert.ok(!cooperativeObservedPanel(forged).includes('javascript:'));
  r.client.setVisible(false);assert.equal(r.client.snapshot().receiverReceipt,null);
+});
+
+
+test('giver safe reset consumes fresh explicit object-safe confirmation and never calls begin or resume',async()=>{
+ const r=await nativeRig();await r.client.nativeRefresh();nativeAffirm(r.client);await assert.rejects(r.client.nativeCommand('giver','native_reset_safe'),/Лично подтвердите/);
+ r.client.nativeAffirm('giver','object_safe_no_dual_hold',true);await r.client.nativeCommand('giver','native_reset_safe');
+ assert.deepEqual(r.nativeCalls.at(-1),['native_reset_safe',{role:'giver',native_control_choice_id:digest('a'),observing:true,user_observed_test_confirmed:true,object_safe_no_dual_hold:true}]);
+ assert.equal(r.client.snapshot().nativeFlags.giver.object_safe_no_dual_hold,false);assert.deepEqual(r.nativeCalls.map(([op])=>op),['native_refresh','native_reset_safe']);
 });

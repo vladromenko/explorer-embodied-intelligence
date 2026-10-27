@@ -17,8 +17,8 @@ from test_native_cooperative05 import Publisher
 class NativePair(Pair):
     def __init__(self,tmp_path,service,*,publication_gate=True):
         super().__init__(tmp_path,service.observed_setup);self.publication_gate=publication_gate;self.delayed=None;self.selections=[]
-        self.arm.pub=Publisher()
-        self.owner=NativeCooperativeOwner(self.mux,self.gate,lambda:{'servo_deg':[90.]*6,'boot_id':'boot','measured':False},target_limits=[(0,180)]*6)
+        self.arm.pub=Publisher();self.arm.lock=threading.Lock();self.arm.streaming_active=False
+        self.owner=NativeCooperativeOwner(self.mux,self.gate,lambda:{'servo_deg':[90.]*6,'boot_id':'boot','measured':False},target_limits=[(0,180)]*6,state_path=tmp_path/'giver-hold.json')
         def select(source,observing,neutral=True):
             assert source=='keyboard' and observing is True and neutral is True
             self.selections.append((source,observing,neutral));self.teleop.owner=source;self.teleop.inputs={}
@@ -109,7 +109,7 @@ def test_separate_user_manual_prepare_resume_attach_and_pi_original_start_never_
     finally:service.close();pair.close();client.close()
 
 
-def test_choices_are_actor_role_epoch_one_use_and_ignore_forged_native_identifiers(tmp_path):
+def test_choices_are_actor_role_epoch_one_use_and_reject_forged_native_identifiers(tmp_path):
     service,store,row,spec,pair,client=configured(tmp_path)
     try:
         body=choice(service,row,'giver','native_begin');before=len(pair.calls)
@@ -117,7 +117,10 @@ def test_choices_are_actor_role_epoch_one_use_and_ignore_forged_native_identifie
         with pytest.raises(ValueError,match='Fresh unconsumed'):execute(service,'native_begin',{**body,'role':'receiver'})
         with pytest.raises(ValueError,match='Separate explicit USER'):execute(service,'native_begin',{**body,'neutral':False})
         assert len(pair.calls)==before
-        execute(service,'native_begin',{**body,'authorization_id':'forged','control_epoch':'forged','source':'other'})
+        with pytest.raises(ValueError,match='fixed native USER'):
+            execute(service,'native_begin',{**body,'authorization_id':'forged','control_epoch':'forged','source':'other'})
+        assert len(pair.calls)==before
+        execute(service,'native_begin',body)
         actual=next(payload for _,method,path,payload in pair.calls[before:] if method=='POST' and path.endswith('/prepare'))
         assert actual['authorization_id']!='forged'
         with pytest.raises(ValueError,match='Fresh unconsumed'):execute(service,'native_begin',body)
@@ -217,4 +220,28 @@ def test_generic_receiver_begin_never_offered_over_held_or_faulted_publication_g
         result=service.native_controls.refresh(row,spec,actor='trusted-owner');begin=result['roles']['receiver']['operations']['native_begin']
         assert not begin['available'] and begin['reason']=='EXPLICIT_HELD_PHASE_TRANSITION_OR_SAFE_OBJECT_RESET_REQUIRED'
         assert not begin.get('choice_id') and pair.station.calls==[]
+    finally:service.close();pair.close();client.close()
+
+
+def test_explicit_giver_safe_reset_uses_server_cas_and_retains_reference_fault_without_native_motion(tmp_path):
+    service,store,row,spec,pair,client=configured(tmp_path)
+    try:
+        pair.owner.guard.journal.fail('SOFTWARE_ONLY_CORRUPT_METADATA')
+        fault={'invalidated_native_ns':pair.native_tick[0],'reason':'SOFTWARE_REFERENCE_UNKNOWN','original_reference_sha256':None}
+        pair.owner.guard.reference_fault=deepcopy(fault)
+        status=pair.owner.guard.status();body=choice(service,row,'giver','native_reset_safe');before=len(pair.calls)
+        with pytest.raises(ValueError,match='safe-object'):execute(service,'native_reset_safe',body)
+        assert len(pair.calls)==before
+        body['object_safe_no_dual_hold']=True
+        with pytest.raises(ValueError,match='fixed native USER'):execute(service,'native_reset_safe',{**body,'expected_revision':999})
+        assert len(pair.calls)==before
+        result=execute(service,'native_reset_safe',body)
+        posts=[body for _,method,path,body in pair.calls if method=='POST' and path.endswith('/cooperative/guard/reset')]
+        assert posts==[{'authorization_id':row['observed_test_binding']['native_grants']['giver']['authorization_id'],
+            'observing':True,'object_safe_no_dual_hold':True,'expected_state_id':status['persistence']['state_id'],'expected_revision':status['revision']}]
+        assert result['native_command_sent'] is False and not result['native_lease_or_user_observation_renewed']
+        assert pair.owner.guard.reference_fault==fault and not pair.owner.guard.journal.recovery_required
+        assert pair.owner.guard.journal.initialized and not pair.arm.calls and not pair.teleop.native_drive
+        assert not result['native_controls']['roles']['giver']['operations']['native_begin']['available']
+        with pytest.raises(ValueError,match='unconsumed|changed'):execute(service,'native_reset_safe',body)
     finally:service.close();pair.close();client.close()
