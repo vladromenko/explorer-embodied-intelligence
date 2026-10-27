@@ -107,6 +107,11 @@ def validate_packet(packet):
 def run_rosmaster_shadow(store,job,config,*,client_factory=httpx.Client,loader=None,clock=time.monotonic_ns):
     expected=shadow_request(store,job['config'].get('model_job_id'))
     if any(job['config'].get(key)!=value for key,value in expected.items()):raise ValueError('Queued native model binding changed')
+    if 'skill_reference' in job['config']:
+        from .rosmaster_learning import model_reference
+        reference=job['config']['skill_reference']
+        if reference!=model_reference(store,reference.get('skill_id'),reference.get('skill_version'),expected['model_job_id']):
+            raise ValueError('Queued shadow skill version/aggregate binding changed')
     if loader is None:
         from explorer_shared.learning.rosmaster_skill_pipeline import RosmasterSkillPolicy
         loader=lambda path:RosmasterSkillPolicy(path,candidate='ACT9')

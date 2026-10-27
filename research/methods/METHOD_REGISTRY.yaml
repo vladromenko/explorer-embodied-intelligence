@@ -6081,6 +6081,60 @@
         "tests/test_native_capture_transfer.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE9-SAVED-MODEL-VERSIONS-20261027",
+      "function_or_module": "00-control-center/src/explorer/rosmaster_learning.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/learning/rosmaster_skill_pipeline.py",
+          "role": "Existing canonical ACT106 to target9 saved model and DEV metric contract"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_WEIGHTS_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Metadata-only version list and exact managed model/source/Spec/checkpoint pins; explicit typed eval/shadow enqueue with dedup and runtime identity.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_rosmaster_learning.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE9-SAVED-DEV-EVALUATION-20261027",
+      "function_or_module": "00-control-center/src/explorer/rosmaster_eval_job.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/learning/rosmaster_skill_pipeline.py",
+          "role": "Existing canonical ACT106 to target9 saved model and DEV metric contract"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_WEIGHTS_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Isolated CPU saved-model evaluation on independent DEV only; train-only preprocessing verified, immutable originals unchanged and cancellation fenced; no optimizer, Source network, simulator or dispatch.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_rosmaster_learning.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
