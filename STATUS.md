@@ -42,11 +42,12 @@ Receiver setup05 подключён к service/API/UI; root выполняет f
   14016×769 float64, contacts/solver/score bytes exact,0diff. Python old-path
   ban проверен; C opens UNMEASURED, OS closure PARTIAL. Отрицательные исходы
   сохранены. [Receipt](research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md).
-- Последний полный frozen d52d13d:1401passed/21skipped/7failed за308.28s.
-  Stale proof ожидания и общий login budget тестов исправлены,11 targeted
-  passed; новый полный релизный прогон запускается из frozen commit.198 Node tests прошли.
-  Все24jobs/11cards/11892старыхevents и production schema совпали.
-  [Отрицательный первый прогон](_registry/evidence/full-regression-first-current-20261027.json).
+- Frozen883478fe:1579passed/31skipped/2failed за315.00s: Git-снимок не
+  содержал внешние CAD для двух MuJoCo tests. С проверенными20CAD и явным
+  headless EGL оба tests прошли за5.79s; исправленный полный прогон идёт.
+  Все198 Node tests прошли. Исходные24jobs/11cards/events/schema сохранены.
+  [Первый прогон](_registry/evidence/full-regression-release-first-883478fe-20261027.json).
+
 
 Блокеры: Pi station idle с sync-read error при двух присутствующих USB-адаптерах;
 Nano native reference невалиден после сохранённого telemetry fault. Агент не
@@ -72,5 +73,7 @@ Root — единственный координатор; по умолчани�
 Проверки: static→адресные→интеграционные→один полный прогон перед release;
 критические motion/STOP/interlock/data/provenance проверки не сокращаются.
 Исключение: полный d52-прогон понадобился после сквозной04/05/queue интеграции;
-после исправлений и новых publication guards требуется финальный релизный повтор.
+после исправлений и новых publication guards нужен релизный прогон. Повтор883
+потребовался из-за отсутствовавших во frozen environment внешних CAD/headless EGL;
+код не менялся, оба адресных actual MuJoCo tests прошли перед повтором.
 Повторный внешний сбой без новых фактов после2–3 попыток фиксируется как блокер.

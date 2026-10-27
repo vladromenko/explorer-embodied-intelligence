@@ -1,0 +1,55 @@
+{
+  "schema": "explorer_frozen_full_pytest_with_RO_originals_audit_v1",
+  "commit": "883478fe2411b83eface304af5f2a1607c344058",
+  "command": [
+    "/home/jetsonnx/.local/share/explorer/venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--basetemp=/mnt/explorer-data/explorer-work/full-regression-release-20261027-883478fe/result/pytest"
+  ],
+  "exit_code": 1,
+  "elapsed_s": 322.2798541700031,
+  "resources": {
+    "cpu.max": "300000 100000",
+    "memory.max": "5368709120",
+    "memory.current": "1167704064",
+    "memory.peak": "2598060032",
+    "memory.swap.max": "0",
+    "memory.swap.peak": "0",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+  },
+  "scientific_originals": {
+    "jobs": {
+      "original_rows": 24,
+      "current_rows": 24,
+      "all_original_rows_identical": true
+    },
+    "skills": {
+      "original_rows": 11,
+      "current_rows": 11,
+      "all_original_rows_identical": true
+    },
+    "events": {
+      "original_rows": 12068,
+      "current_rows": 12078,
+      "all_original_rows_identical": true
+    }
+  },
+  "production_schema_unchanged": true,
+  "production_active_jobs": 0,
+  "physical_controls_called_by_launcher": 0,
+  "summary": {
+    "passed": 1579,
+    "failed": 2,
+    "skipped": 31,
+    "pytest_s": 315.0
+  },
+  "failure_scope": "Frozen Git archive omitted external CAD; two actual MuJoCo target tests failed before simulation. Code unchanged; headless EGL and verified CAD must be explicit in corrected qualification environment.",
+  "negative_receipt_retained": true,
+  "production_deployed": false,
+  "targeted_missing_headless_context_abort_retained": {
+    "artifact": "/mnt/explorer-data/explorer-work/full-regression-release-20261027-883478fe/render-targeted-without-headless-context.log",
+    "sha256": "6f134d9cefeba8788a0b85516378c346ffdb354f085f7ee191062ec912b35b30"
+  }
+}
