@@ -1,0 +1,1926 @@
+{
+  "counts": {
+    "actual_RGB_frames": 12800,
+    "actual_native_dispatch9": 12800,
+    "all_trials_reached_800_steps": true,
+    "development": {
+      "FAILURE": 8,
+      "SUCCESS": 0,
+      "UNKNOWN": 0
+    },
+    "exceptions": 0,
+    "independent_carry": 0,
+    "independent_grasp": 1,
+    "independent_lift": 0,
+    "independent_placement_dwell": 0,
+    "sealed_test": {
+      "FAILURE": 8,
+      "SUCCESS": 0,
+      "UNKNOWN": 0
+    },
+    "total_trials": 16,
+    "whole_task_success": 0
+  },
+  "data": {
+    "SEALED_never_used_for_selection_or_tuning": true,
+    "actual_geometry_perturbations_documented": true,
+    "all_four_1200_update_models_frozen_before_any_new_C_heldout": true,
+    "disjoint_session_or_seed_alone_not_generalization": true,
+    "excluded_train_episode_ids": [
+      "target-v3-train-74101",
+      "target-v3-train-74102",
+      "target-v3-train-74103"
+    ],
+    "expert_frames": 439,
+    "failed_train_episodes_retained_analysis_only": 3,
+    "first_DEV_seen_for_v1_numerical_bug": true,
+    "initial_model_and_config_matched_across_cells": true,
+    "models_or_training_changed_in_v2": false,
+    "new_optimizer_updates_in_v2": 0,
+    "new_teacher_queries": 0,
+    "same_known_candy_CAD_not_novel_object": true,
+    "training_manifest": {
+      "bytes": 230825,
+      "path": "/mnt/explorer-data/explorer-work/target-visual-object-v3-20261027-b/dataset/manifest.json",
+      "sha256": "8452a6e7ca8e9e4ba9bbfeccd7cc002564fb69ffc120b8fb8293c11eb8b14b82"
+    },
+    "verified_expert_episode_id": "target-v3-train-74104",
+    "verified_expert_episodes": 1
+  },
+  "date": "2026-10-27",
+  "evaluation_freeze": {
+    "bytes": 2236,
+    "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/evaluation-freeze.json",
+    "sha256": "66f2eebd6566f85ac80d962325c091c73d4b6a7d2ad6bdedf31e46903264f5b1"
+  },
+  "experiment_numbering_version": 2,
+  "experiment_slug": "cross_embodiment_transfer",
+  "host": "homebrain",
+  "interpretation": [
+    "All four fixed candidates failed the full task in both DEV cases and both SEALED cases. No variant is selected/promoted from these outcomes.",
+    "ZERO_ABS SEALED86102 had evaluator-confirmed grasp, without lift/carry/placement; component settled/released flags do not constitute placement success.",
+    "The numerical admission allowed completion of previously rejected exact-roundoff input without changing neural tensor bytes. This is input-validation repair, not evidence of skill improvement.",
+    "One successful scripted training demonstration and three excluded failures do not establish that a unique training/data/architecture cause explains all negatives. Action error, temporal alias, latent uncertainty and distribution shift remain questions.",
+    "This is n=4 matched known-CAD scenarios with different geometry perturbations; no learned source04/H2, physical success, navigation mastery, novel-object or vision-causality claim."
+  ],
+  "model_input": {
+    "action_dimension": 9,
+    "actual_base3_stationary_projection_explicit": true,
+    "all9_raw_predictions_retained": true,
+    "chunk_execution_steps": 8,
+    "clock": "ZERO ablation or actual native elapsed/40s",
+    "clock_raw_availability_mask_retained": true,
+    "prior9": "literal actual preceding command9, never measured joints+odom synthesis",
+    "privileged_phase_goal_truth_teacher_input": false,
+    "state_dimension": 10,
+    "target_RGB": true
+  },
+  "models": {
+    "ELAPSED_ABS": {
+      "checkpoint_files_sha256": {
+        "config.json": "e291291450c04adcc4031a99929733a1867742cdcba66b151ee36802a05ae156",
+        "explorer_preprocessing.json": "da59dadb9fe1a807689dcc24a3d82bc65a9de3cf98cfd6be7da24cc23d7fc836",
+        "model.safetensors": "7ddb2e4214018267d7b5ccd86bd393e3d4da4ce07ca33087d0e6d5217632c33e"
+      },
+      "checkpoint_path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-20261027-a/train/ELAPSED_ABS/student_act",
+      "checkpoint_sha256": "7ddb2e4214018267d7b5ccd86bd393e3d4da4ce07ca33087d0e6d5217632c33e",
+      "compact_skill_card": {
+        "bytes": 10138,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/summary/skill-card-ELAPSED_ABS.json",
+        "sha256": "71b751e859b38ad775c71f8bee1ec093e6b2a763cf79c312be89c572a6548b69"
+      },
+      "initial_parameters_sha256": "7cb7908f6e1ece9028d639daefb96e0817ae8f6ba43c4a712b7c3d505e0c3aa2",
+      "optimizer_steps": 1200,
+      "outcomes": {
+        "development": {
+          "FAILURE": 2,
+          "SUCCESS": 0,
+          "UNKNOWN": 0
+        },
+        "sealed_test": {
+          "FAILURE": 2,
+          "SUCCESS": 0,
+          "UNKNOWN": 0
+        }
+      },
+      "phase_conditions": {
+        "development": {
+          "measured_gripper_open": 2,
+          "released": 2,
+          "retreated": 2,
+          "settled": 2,
+          "terminal_within_rim": 2
+        },
+        "sealed_test": {
+          "measured_gripper_open": 2,
+          "released": 2,
+          "retreated": 2,
+          "settled": 2,
+          "terminal_within_rim": 2
+        }
+      },
+      "reload_max_abs_error": 0.0,
+      "settings": {
+        "act_steps": 1200,
+        "batch_size": 8,
+        "chunk_size": 16,
+        "device": "cpu",
+        "image_size": 64,
+        "seed": 77101
+      }
+    },
+    "ELAPSED_INCREMENT": {
+      "checkpoint_files_sha256": {
+        "config.json": "e291291450c04adcc4031a99929733a1867742cdcba66b151ee36802a05ae156",
+        "explorer_preprocessing.json": "fc4aa64dd3a5e32bdd2b058a03286fdee5186a38259d5df830b801575939cc41",
+        "model.safetensors": "0594eb9af5f34c8726b12d54b231a11a4518c12867f878d0c7949c75711ff588"
+      },
+      "checkpoint_path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-20261027-a/train/ELAPSED_INCREMENT/student_act",
+      "checkpoint_sha256": "0594eb9af5f34c8726b12d54b231a11a4518c12867f878d0c7949c75711ff588",
+      "compact_skill_card": {
+        "bytes": 10209,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/summary/skill-card-ELAPSED_INCREMENT.json",
+        "sha256": "f3c5b5a92ce774aaf24700743f11c7f044f1780d9ba7f4d2ad2f3fa8746d7b15"
+      },
+      "initial_parameters_sha256": "7cb7908f6e1ece9028d639daefb96e0817ae8f6ba43c4a712b7c3d505e0c3aa2",
+      "optimizer_steps": 1200,
+      "outcomes": {
+        "development": {
+          "FAILURE": 2,
+          "SUCCESS": 0,
+          "UNKNOWN": 0
+        },
+        "sealed_test": {
+          "FAILURE": 2,
+          "SUCCESS": 0,
+          "UNKNOWN": 0
+        }
+      },
+      "phase_conditions": {
+        "development": {
+          "measured_gripper_open": 2,
+          "released": 2,
+          "retreated": 2,
+          "settled": 2,
+          "terminal_within_rim": 2
+        },
+        "sealed_test": {
+          "measured_gripper_open": 2,
+          "released": 2,
+          "retreated": 2,
+          "settled": 2,
+          "terminal_within_rim": 2
+        }
+      },
+      "reload_max_abs_error": 0.0,
+      "settings": {
+        "act_steps": 1200,
+        "batch_size": 8,
+        "chunk_size": 16,
+        "device": "cpu",
+        "image_size": 64,
+        "seed": 77101
+      }
+    },
+    "ZERO_ABS": {
+      "checkpoint_files_sha256": {
+        "config.json": "e291291450c04adcc4031a99929733a1867742cdcba66b151ee36802a05ae156",
+        "explorer_preprocessing.json": "8383c14c6c51d28db57474f21812717550e2998c3d387a9f6652b6dec97e8d7f",
+        "model.safetensors": "a60353029fc59d95793c67d3cb9ff6b798f400ae5df546498a111002006ae7e2"
+      },
+      "checkpoint_path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-20261027-a/train/ZERO_ABS/student_act",
+      "checkpoint_sha256": "a60353029fc59d95793c67d3cb9ff6b798f400ae5df546498a111002006ae7e2",
+      "compact_skill_card": {
+        "bytes": 10109,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/summary/skill-card-ZERO_ABS.json",
+        "sha256": "8b7e23713e641585d95e30eac6b50818093699b0b9f4dd3117669da4378b73ee"
+      },
+      "initial_parameters_sha256": "7cb7908f6e1ece9028d639daefb96e0817ae8f6ba43c4a712b7c3d505e0c3aa2",
+      "optimizer_steps": 1200,
+      "outcomes": {
+        "development": {
+          "FAILURE": 2,
+          "SUCCESS": 0,
+          "UNKNOWN": 0
+        },
+        "sealed_test": {
+          "FAILURE": 2,
+          "SUCCESS": 0,
+          "UNKNOWN": 0
+        }
+      },
+      "phase_conditions": {
+        "development": {
+          "released": 2,
+          "retreated": 2,
+          "settled": 2,
+          "terminal_within_rim": 2
+        },
+        "sealed_test": {
+          "grasp": 1,
+          "released": 2,
+          "retreated": 2,
+          "settled": 2,
+          "terminal_within_rim": 2
+        }
+      },
+      "reload_max_abs_error": 0.0,
+      "settings": {
+        "act_steps": 1200,
+        "batch_size": 8,
+        "chunk_size": 16,
+        "device": "cpu",
+        "image_size": 64,
+        "seed": 77101
+      }
+    },
+    "ZERO_INCREMENT": {
+      "checkpoint_files_sha256": {
+        "config.json": "e291291450c04adcc4031a99929733a1867742cdcba66b151ee36802a05ae156",
+        "explorer_preprocessing.json": "b6f7a7f9a9ff786d6cda3021053a298bac0d21767688ec569ca2ab3a58044bac",
+        "model.safetensors": "4fc373244a61b8837527969329727d3b06f8483092cf5ed1da7dc73b8e1c4868"
+      },
+      "checkpoint_path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-20261027-a/train/ZERO_INCREMENT/student_act",
+      "checkpoint_sha256": "4fc373244a61b8837527969329727d3b06f8483092cf5ed1da7dc73b8e1c4868",
+      "compact_skill_card": {
+        "bytes": 10188,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/summary/skill-card-ZERO_INCREMENT.json",
+        "sha256": "d0194f595edf0eb97015865c52eb914cc881c7b6654629822458e9315c5e8397"
+      },
+      "initial_parameters_sha256": "7cb7908f6e1ece9028d639daefb96e0817ae8f6ba43c4a712b7c3d505e0c3aa2",
+      "optimizer_steps": 1200,
+      "outcomes": {
+        "development": {
+          "FAILURE": 2,
+          "SUCCESS": 0,
+          "UNKNOWN": 0
+        },
+        "sealed_test": {
+          "FAILURE": 2,
+          "SUCCESS": 0,
+          "UNKNOWN": 0
+        }
+      },
+      "phase_conditions": {
+        "development": {
+          "measured_gripper_open": 2,
+          "released": 2,
+          "retreated": 2,
+          "settled": 2,
+          "terminal_within_rim": 2
+        },
+        "sealed_test": {
+          "measured_gripper_open": 2,
+          "released": 2,
+          "retreated": 2,
+          "settled": 2,
+          "terminal_within_rim": 2
+        }
+      },
+      "reload_max_abs_error": 0.0,
+      "settings": {
+        "act_steps": 1200,
+        "batch_size": 8,
+        "chunk_size": 16,
+        "device": "cpu",
+        "image_size": 64,
+        "seed": 77101
+      }
+    }
+  },
+  "numeric_admission": {
+    "NN_state10_and_tensor_bytes_unchanged": true,
+    "admissions_by_cell": {
+      "ELAPSED_ABS": 0,
+      "ELAPSED_INCREMENT": 0,
+      "ZERO_ABS": 2,
+      "ZERO_INCREMENT": 0
+    },
+    "admissions_total": 2,
+    "kind": "proven native float64 interpolation roundoff only",
+    "numerical_correction_is_not_model_gain": true,
+    "original_executor_provider_physics_unchanged": true,
+    "raw_prior_requested_issued_native_values_retained": true
+  },
+  "original_C_v1": {
+    "NOT_STARTED": 15,
+    "UNKNOWN": 1,
+    "excluded_from_v2_quality_denominator": true,
+    "first_dispatch_count": 163,
+    "first_result": {
+      "bytes": 659644,
+      "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-20261027-a/rollout/development/ZERO_ABS/target-temporal-C-development-85101/result.json",
+      "sha256": "ef3230d456e8f1c93dbcc2a9f3423ec5d791bb4c4d9ef8e9a4b10bd9ae027245"
+    },
+    "originals_not_replaced": true,
+    "sealed_opened": false
+  },
+  "original_four_model_freeze": {
+    "bytes": 664800,
+    "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-20261027-a/four-policy-freeze.json",
+    "sha256": "94310623c1bdd88661cda0a5666bbf1f9a1708a81f56fcd020dc5757bbec74e2"
+  },
+  "postrun_verification": {
+    "bytes": 54374,
+    "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/retained-campaign-verification.json",
+    "sha256": "a25043b0582de42592c9a2f5c08fb1eae7b3179cc5b4272374d8f369ad0bc69d"
+  },
+  "private_skillcard_roundtrip": {
+    "bytes": 854,
+    "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/private-card-roundtrip-receipt.json",
+    "sha256": "b8edfbbb97e162c3cc463c3854088eede1237a41c2da27997be586abe8c5199c"
+  },
+  "project_id": "06",
+  "protocol": {
+    "bytes": 1528283,
+    "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/protocol.json",
+    "sha256": "1a042117e539a481543792e3e4f88f4bc634cbe9a34971f35b7ad9f94df77250"
+  },
+  "resources": {
+    "EGL_rendering_GPU_context": true,
+    "all_child_units_exit_zero_and_reaped": true,
+    "cpu_quota": "200000 100000",
+    "memory_max_bytes": 4294967296,
+    "memory_swap_max_bytes": 0,
+    "observed_cgroup_memory_peak_max_bytes": 2329845760,
+    "oom_or_cap_events": 0,
+    "optimizer_device": "cpu",
+    "serial_rollout_units": true,
+    "training_executed_in_v2": false,
+    "unit_exit_zero_means_driver_completed_not_task_success": true
+  },
+  "schema": "explorer_target_factorial_C_v2_actual_results_v1",
+  "scope": {
+    "learned_source04": false,
+    "learned_transfer_H2_claim": false,
+    "navigation_qualified": false,
+    "physical_execution_authorized": false,
+    "physical_io": false,
+    "target_visual_student_only": true,
+    "vision_causality_proven": false,
+    "whole_master_prompt_complete": false,
+    "whole_skill_mastered": false
+  },
+  "source": {
+    "all_source_pin_mismatches": 0,
+    "current_evaluation_commit": "be493936e8d8b46a9e7323e735d7e034d18dd273",
+    "numeric_helper_sha256": "b3d7cf3d92a96bf625599099933625d8d53626df7bf3f2bdc91b4f2192924cec",
+    "original_B_source_bytes_unchanged": true,
+    "original_C_training_commit": "6b25d010c5243409c7bb6aa498035d4894617ad4",
+    "original_source_and_input_pins": 2073,
+    "runner_sha256": "2cea95f7a27a8cb5c7a88ae328e062ebcae9c56d4c5d29d7e0a009fb917c9e7a"
+  },
+  "source_kind": "simulation",
+  "status": "ALL_16_COMPLETED_NEGATIVE_NO_MODEL_PROMOTION",
+  "summary": {
+    "bytes": 31484,
+    "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/summary/summary.json",
+    "sha256": "f1f8e86b36616b54e4a998735d599637e349ec2ea66f09346711c566b7185984"
+  },
+  "target_skill_id": "a7c5ad8d-9a22-4635-85dd-c84347c6edc5",
+  "target_skill_version": 4,
+  "task": "Known candy CAD object to bin, whole grasp/lift/carry/release/settle/retreat in stationary welded-base unified ROSMASTER simulation",
+  "training_source_skill_version": 3,
+  "trials": [
+    {
+      "boot_id": "sim-target-98d14164529f-9bfd1d43368d46a7ba4630a84385df67",
+      "case": {
+        "geometry_signature": "4fee7a1430acd846635ab50754b49bf5b123a5d0d9d96c0962afa1a2844f2d12",
+        "goal_offset_xy_m": [
+          0.003,
+          0.004
+        ],
+        "id": "target-temporal-C-development-85101",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-development-85101",
+        "object_offset_xy_m": [
+          -0.004,
+          0.005
+        ],
+        "object_yaw_rad": -0.03,
+        "partition": "development",
+        "scene_id": "geometry-4fee7a1430acd846635ab50754b49bf5b123a5d0d9d96c0962afa1a2844f2d12",
+        "seed": 85101,
+        "session_id": "independent_sim_reset-target-temporal-C-development-85101",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ZERO_ABS",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "427daea0bb043f823d2e19d616bf78b9d11068755907257e1761e261d5ed99bd",
+        "mjb_sha256": "80956c32c6fe1390db08381b4fad708d1f194ea1043ec5585bb6bd0ccfb0dc33",
+        "native_state_sha256": "2359a2ffbd55101ee2d32f114a33344bd6520a5f9f8a075dfaa70c7772eaeeee",
+        "xml_sha256": "98d14164529ff3cfcb4966908ba928123fe64ca10897ce1edc8b131d87e1fad3"
+      },
+      "initial_manifest": {
+        "bytes": 27957,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_ABS/target-temporal-C-development-85101/initial-state/manifest.json",
+        "sha256": "4af2b92068d1f2fb9ea7aad9de03038d45c6ba54523570c7fd069208797687e4"
+      },
+      "launch": {
+        "bytes": 280,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_ABS/target-temporal-C-development-85101/unit-launch-observed.json",
+        "sha256": "de43f9403f68f9ad2c5b50a29078255ac3135a30cbe40c5aab5d31f5014444a6"
+      },
+      "numerical_admissions": 1,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-dev-ZERO-ABS-85101.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2199969792,
+        "pid": 2205510
+      },
+      "result": {
+        "bytes": 3221583,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_ABS/target-temporal-C-development-85101/result.json",
+        "sha256": "15db8c2036b8a3bf4e5d4a935583597e16d1121f07f661f59b466aa29a51b40b"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": false,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          44.76907414512791,
+          63.05297495143557,
+          46.85073340862961,
+          37.59615941620474,
+          80.37320428334573,
+          165.20742836394749
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13538779,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_ABS/target-temporal-C-development-85101/learned-trace.json",
+        "sha256": "7b9879f826e8c3f0e4da92bafec2191567f62eb6224eecef629826b53fef5c8f"
+      },
+      "trial_id": "b0fb138a-d5ff-4b06-8776-bf98939dffbb"
+    },
+    {
+      "boot_id": "sim-target-98d14164529f-953e371c99fa492e84b3ce7ae3e31e6c",
+      "case": {
+        "geometry_signature": "4fee7a1430acd846635ab50754b49bf5b123a5d0d9d96c0962afa1a2844f2d12",
+        "goal_offset_xy_m": [
+          0.003,
+          0.004
+        ],
+        "id": "target-temporal-C-development-85101",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-development-85101",
+        "object_offset_xy_m": [
+          -0.004,
+          0.005
+        ],
+        "object_yaw_rad": -0.03,
+        "partition": "development",
+        "scene_id": "geometry-4fee7a1430acd846635ab50754b49bf5b123a5d0d9d96c0962afa1a2844f2d12",
+        "seed": 85101,
+        "session_id": "independent_sim_reset-target-temporal-C-development-85101",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ELAPSED_ABS",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "427daea0bb043f823d2e19d616bf78b9d11068755907257e1761e261d5ed99bd",
+        "mjb_sha256": "80956c32c6fe1390db08381b4fad708d1f194ea1043ec5585bb6bd0ccfb0dc33",
+        "native_state_sha256": "2359a2ffbd55101ee2d32f114a33344bd6520a5f9f8a075dfaa70c7772eaeeee",
+        "xml_sha256": "98d14164529ff3cfcb4966908ba928123fe64ca10897ce1edc8b131d87e1fad3"
+      },
+      "initial_manifest": {
+        "bytes": 27960,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_ABS/target-temporal-C-development-85101/initial-state/manifest.json",
+        "sha256": "b221fce751df594ad101411e1b99333ec7406639dad16024927ebe5cf1cb583f"
+      },
+      "launch": {
+        "bytes": 175,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_ABS/target-temporal-C-development-85101/unit-launch-observed.json",
+        "sha256": "4c7200d5416134bf07cd2be86ec21d2095119ee5b52a49a2132e748b059353aa"
+      },
+      "numerical_admissions": 0,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-dev-ELAPSED-ABS-85101.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2173345792,
+        "pid": 2205819
+      },
+      "result": {
+        "bytes": 3232124,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_ABS/target-temporal-C-development-85101/result.json",
+        "sha256": "4529cd8fe5f9f658d5d392e6a25af369416f298ab524aa1cbfa36533470ea854"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": true,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          29.238003379210923,
+          47.622229092453566,
+          44.63362119024075,
+          34.564793152592244,
+          81.96871896867441,
+          31.889286979143723
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13643298,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_ABS/target-temporal-C-development-85101/learned-trace.json",
+        "sha256": "5e1000936b40f550e0a846965f165740199623ee0f5d61cd253aa19e706234e1"
+      },
+      "trial_id": "3a0091cf-54f3-481d-a817-510cae92ec47"
+    },
+    {
+      "boot_id": "sim-target-98d14164529f-f3bee0345b7240e3a7dabf6c986572c9",
+      "case": {
+        "geometry_signature": "4fee7a1430acd846635ab50754b49bf5b123a5d0d9d96c0962afa1a2844f2d12",
+        "goal_offset_xy_m": [
+          0.003,
+          0.004
+        ],
+        "id": "target-temporal-C-development-85101",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-development-85101",
+        "object_offset_xy_m": [
+          -0.004,
+          0.005
+        ],
+        "object_yaw_rad": -0.03,
+        "partition": "development",
+        "scene_id": "geometry-4fee7a1430acd846635ab50754b49bf5b123a5d0d9d96c0962afa1a2844f2d12",
+        "seed": 85101,
+        "session_id": "independent_sim_reset-target-temporal-C-development-85101",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ZERO_INCREMENT",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "427daea0bb043f823d2e19d616bf78b9d11068755907257e1761e261d5ed99bd",
+        "mjb_sha256": "80956c32c6fe1390db08381b4fad708d1f194ea1043ec5585bb6bd0ccfb0dc33",
+        "native_state_sha256": "2359a2ffbd55101ee2d32f114a33344bd6520a5f9f8a075dfaa70c7772eaeeee",
+        "xml_sha256": "98d14164529ff3cfcb4966908ba928123fe64ca10897ce1edc8b131d87e1fad3"
+      },
+      "initial_manifest": {
+        "bytes": 27963,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_INCREMENT/target-temporal-C-development-85101/initial-state/manifest.json",
+        "sha256": "62705cd86a449f1f7454951426117950298a531da30a3fe67114657c54d500e2"
+      },
+      "launch": {
+        "bytes": 175,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_INCREMENT/target-temporal-C-development-85101/unit-launch-observed.json",
+        "sha256": "92a96952acf583d6371cd4a7c0c853471b3b6f47fc12691b9e3021ffd98ebf7e"
+      },
+      "numerical_admissions": 0,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-dev-ZERO-INC-85101.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2171723776,
+        "pid": 2206381
+      },
+      "result": {
+        "bytes": 3217443,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_INCREMENT/target-temporal-C-development-85101/result.json",
+        "sha256": "a5467a85d8217ce8cdf34a3fd94d24de597d5beca38986bb11dcaa41e334962b"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": true,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          88.76195666327223,
+          52.395735487321865,
+          49.12560212145765,
+          -0.04685481204047903,
+          66.97068978077463,
+          30.021038062736654
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13632460,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_INCREMENT/target-temporal-C-development-85101/learned-trace.json",
+        "sha256": "ba2671de95bc6d08bb6924c9807582da31bb1248debde84a2bc112363b235b00"
+      },
+      "trial_id": "1032e818-e5f6-4156-86be-840d34a09ffd"
+    },
+    {
+      "boot_id": "sim-target-98d14164529f-5dc25b784b9b4849868f51f64dba80c6",
+      "case": {
+        "geometry_signature": "4fee7a1430acd846635ab50754b49bf5b123a5d0d9d96c0962afa1a2844f2d12",
+        "goal_offset_xy_m": [
+          0.003,
+          0.004
+        ],
+        "id": "target-temporal-C-development-85101",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-development-85101",
+        "object_offset_xy_m": [
+          -0.004,
+          0.005
+        ],
+        "object_yaw_rad": -0.03,
+        "partition": "development",
+        "scene_id": "geometry-4fee7a1430acd846635ab50754b49bf5b123a5d0d9d96c0962afa1a2844f2d12",
+        "seed": 85101,
+        "session_id": "independent_sim_reset-target-temporal-C-development-85101",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ELAPSED_INCREMENT",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "427daea0bb043f823d2e19d616bf78b9d11068755907257e1761e261d5ed99bd",
+        "mjb_sha256": "80956c32c6fe1390db08381b4fad708d1f194ea1043ec5585bb6bd0ccfb0dc33",
+        "native_state_sha256": "2359a2ffbd55101ee2d32f114a33344bd6520a5f9f8a075dfaa70c7772eaeeee",
+        "xml_sha256": "98d14164529ff3cfcb4966908ba928123fe64ca10897ce1edc8b131d87e1fad3"
+      },
+      "initial_manifest": {
+        "bytes": 27966,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_INCREMENT/target-temporal-C-development-85101/initial-state/manifest.json",
+        "sha256": "29a0ea950895600ac3f677c2eb7eada9b767432c728e1cb2a903534ccd471096"
+      },
+      "launch": {
+        "bytes": 175,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_INCREMENT/target-temporal-C-development-85101/unit-launch-observed.json",
+        "sha256": "81931876748550e533e71aa1ff4cfd586636b908a53b18892e54bf0e2752991b"
+      },
+      "numerical_admissions": 0,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-dev-ELAPSED-INC-85101.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2329845760,
+        "pid": 2208393
+      },
+      "result": {
+        "bytes": 3217446,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_INCREMENT/target-temporal-C-development-85101/result.json",
+        "sha256": "3f953f30cb60aa5bdc8bc991321fd4cd3e797fb2e79224efe3ddfec374a04596"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": true,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          101.57364660947958,
+          65.87801358137584,
+          55.80728013643418,
+          5.816087594752759,
+          74.44376734115714,
+          30.017040332052144
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13850850,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_INCREMENT/target-temporal-C-development-85101/learned-trace.json",
+        "sha256": "77f470d6fa4860d97a7005c48fd9aec54ec1d5ac71a9315c1c2fc0ad57e777e8"
+      },
+      "trial_id": "b1c94f1f-216d-41c3-b237-9fd9aefb82d7"
+    },
+    {
+      "boot_id": "sim-target-a5e8319f0a59-40c0bdcb77bf4b4fac038fcc37360bbc",
+      "case": {
+        "geometry_signature": "1bd7f2dd51f1bdace4e2b6c63512d8911f50861ac26468900c5f2b4019693156",
+        "goal_offset_xy_m": [
+          -0.003,
+          -0.004
+        ],
+        "id": "target-temporal-C-development-85102",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-development-85102",
+        "object_offset_xy_m": [
+          0.004,
+          -0.005
+        ],
+        "object_yaw_rad": 0.03,
+        "partition": "development",
+        "scene_id": "geometry-1bd7f2dd51f1bdace4e2b6c63512d8911f50861ac26468900c5f2b4019693156",
+        "seed": 85102,
+        "session_id": "independent_sim_reset-target-temporal-C-development-85102",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ZERO_ABS",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "2b72ddc637daf4a0d8ce88397916402bd4a4e3dbe64594875f4af4d177b46ca3",
+        "mjb_sha256": "224fce42d6f44b084bb3a0d4fe4c96fd5b19f2871a6cae2ce4d8729d56ce4d67",
+        "native_state_sha256": "73e27cd4982760f4320e772897d623cc8ed7bef1786c8a5524acc69a488c309f",
+        "xml_sha256": "a5e8319f0a59ace1894d06996af4d7adfb7edcfa3848ff7bd10dd253659c4037"
+      },
+      "initial_manifest": {
+        "bytes": 27958,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_ABS/target-temporal-C-development-85102/initial-state/manifest.json",
+        "sha256": "9ca34bc16dfe0b3b595d952c1f44a9349347d23ce06bd31a49cc48ec65aa4e82"
+      },
+      "launch": {
+        "bytes": 175,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_ABS/target-temporal-C-development-85102/unit-launch-observed.json",
+        "sha256": "ae40783e96030c44960b7d6747a2d079fc29019df4b31a11b7c03dbe5e6b05d1"
+      },
+      "numerical_admissions": 1,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-dev-ZERO-ABS-85102.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2212433920,
+        "pid": 2209497
+      },
+      "result": {
+        "bytes": 3242913,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_ABS/target-temporal-C-development-85102/result.json",
+        "sha256": "ca6ff504f7c9601c553db57e335c4fc31a4b3ad190ee865141f8b0bc6169dc67"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": false,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          44.779443649449725,
+          63.0327042634712,
+          46.846877216129776,
+          37.576263677924324,
+          80.36733672628986,
+          165.207427766606
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13553832,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_ABS/target-temporal-C-development-85102/learned-trace.json",
+        "sha256": "0268919ed9ff05b03e1c6ce710f87cd21e9a04ddde35e50e6a29dc41f1814da4"
+      },
+      "trial_id": "b990a609-05e3-4762-80b5-7800e4067a18"
+    },
+    {
+      "boot_id": "sim-target-a5e8319f0a59-736c404e6051401abcd64b8412aca788",
+      "case": {
+        "geometry_signature": "1bd7f2dd51f1bdace4e2b6c63512d8911f50861ac26468900c5f2b4019693156",
+        "goal_offset_xy_m": [
+          -0.003,
+          -0.004
+        ],
+        "id": "target-temporal-C-development-85102",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-development-85102",
+        "object_offset_xy_m": [
+          0.004,
+          -0.005
+        ],
+        "object_yaw_rad": 0.03,
+        "partition": "development",
+        "scene_id": "geometry-1bd7f2dd51f1bdace4e2b6c63512d8911f50861ac26468900c5f2b4019693156",
+        "seed": 85102,
+        "session_id": "independent_sim_reset-target-temporal-C-development-85102",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ELAPSED_ABS",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "2b72ddc637daf4a0d8ce88397916402bd4a4e3dbe64594875f4af4d177b46ca3",
+        "mjb_sha256": "224fce42d6f44b084bb3a0d4fe4c96fd5b19f2871a6cae2ce4d8729d56ce4d67",
+        "native_state_sha256": "73e27cd4982760f4320e772897d623cc8ed7bef1786c8a5524acc69a488c309f",
+        "xml_sha256": "a5e8319f0a59ace1894d06996af4d7adfb7edcfa3848ff7bd10dd253659c4037"
+      },
+      "initial_manifest": {
+        "bytes": 27961,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_ABS/target-temporal-C-development-85102/initial-state/manifest.json",
+        "sha256": "34cbb8a6028fe37f27673823837e13e4f8a36b341fedd59c56fd4e69c6f681a3"
+      },
+      "launch": {
+        "bytes": 175,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_ABS/target-temporal-C-development-85102/unit-launch-observed.json",
+        "sha256": "46072b78bd56e0f68a6aa12f63900a651445e777d1da49cd626a81cff9232c35"
+      },
+      "numerical_admissions": 0,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-dev-ELAPSED-ABS-85102.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2171957248,
+        "pid": 2213407
+      },
+      "result": {
+        "bytes": 3241828,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_ABS/target-temporal-C-development-85102/result.json",
+        "sha256": "c9a54215afbd785c5f8eb6c6b895d65749edde3948020827b89873ce5f6d468f"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": true,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          29.238385771012958,
+          47.62328529062437,
+          44.63370657321218,
+          34.564935620139174,
+          81.9686942474974,
+          31.889371198331645
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13645393,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_ABS/target-temporal-C-development-85102/learned-trace.json",
+        "sha256": "1a0923e6e9e6ccf5bb50b1e5941092981720e1cbd7a64aabfed89b8a686a076f"
+      },
+      "trial_id": "dbdeba08-0c02-4422-b6a3-151ca4834501"
+    },
+    {
+      "boot_id": "sim-target-a5e8319f0a59-d2b5bdc69454438ab03aa92fac882525",
+      "case": {
+        "geometry_signature": "1bd7f2dd51f1bdace4e2b6c63512d8911f50861ac26468900c5f2b4019693156",
+        "goal_offset_xy_m": [
+          -0.003,
+          -0.004
+        ],
+        "id": "target-temporal-C-development-85102",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-development-85102",
+        "object_offset_xy_m": [
+          0.004,
+          -0.005
+        ],
+        "object_yaw_rad": 0.03,
+        "partition": "development",
+        "scene_id": "geometry-1bd7f2dd51f1bdace4e2b6c63512d8911f50861ac26468900c5f2b4019693156",
+        "seed": 85102,
+        "session_id": "independent_sim_reset-target-temporal-C-development-85102",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ZERO_INCREMENT",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "2b72ddc637daf4a0d8ce88397916402bd4a4e3dbe64594875f4af4d177b46ca3",
+        "mjb_sha256": "224fce42d6f44b084bb3a0d4fe4c96fd5b19f2871a6cae2ce4d8729d56ce4d67",
+        "native_state_sha256": "73e27cd4982760f4320e772897d623cc8ed7bef1786c8a5524acc69a488c309f",
+        "xml_sha256": "a5e8319f0a59ace1894d06996af4d7adfb7edcfa3848ff7bd10dd253659c4037"
+      },
+      "initial_manifest": {
+        "bytes": 27964,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_INCREMENT/target-temporal-C-development-85102/initial-state/manifest.json",
+        "sha256": "8435a6b68ee2bbf0125c51cb9f5054a036960e4b9d70d886e5990f2cbc37119b"
+      },
+      "launch": {
+        "bytes": 143,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_INCREMENT/target-temporal-C-development-85102/unit-launch-observed.json",
+        "sha256": "4dd07b29e9e62ddfc689919663f1ff57ef780dbbae06b6fb582d391164a926a6"
+      },
+      "numerical_admissions": 0,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-dev-ZERO-INC-85102.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2173550592,
+        "pid": 2215708
+      },
+      "result": {
+        "bytes": 3247674,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_INCREMENT/target-temporal-C-development-85102/result.json",
+        "sha256": "a16dfd52068a638b01edf633522f7a036e8c993bc1cc77eb72954327227aa384"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": true,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          88.76230708959883,
+          52.393893726274975,
+          49.12659326901289,
+          -0.04685312554904897,
+          66.97054005131973,
+          30.02103812498518
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13631417,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ZERO_INCREMENT/target-temporal-C-development-85102/learned-trace.json",
+        "sha256": "7835dba2e45c02de93ee7490f725751cf239e90ae63de7b891e2c899aedb0ff6"
+      },
+      "trial_id": "0ae4d43a-5f86-4e80-9f86-04ff1eb2bb32"
+    },
+    {
+      "boot_id": "sim-target-a5e8319f0a59-4941f42b66cb4f6bb0c37de44d29ddbd",
+      "case": {
+        "geometry_signature": "1bd7f2dd51f1bdace4e2b6c63512d8911f50861ac26468900c5f2b4019693156",
+        "goal_offset_xy_m": [
+          -0.003,
+          -0.004
+        ],
+        "id": "target-temporal-C-development-85102",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-development-85102",
+        "object_offset_xy_m": [
+          0.004,
+          -0.005
+        ],
+        "object_yaw_rad": 0.03,
+        "partition": "development",
+        "scene_id": "geometry-1bd7f2dd51f1bdace4e2b6c63512d8911f50861ac26468900c5f2b4019693156",
+        "seed": 85102,
+        "session_id": "independent_sim_reset-target-temporal-C-development-85102",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ELAPSED_INCREMENT",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "2b72ddc637daf4a0d8ce88397916402bd4a4e3dbe64594875f4af4d177b46ca3",
+        "mjb_sha256": "224fce42d6f44b084bb3a0d4fe4c96fd5b19f2871a6cae2ce4d8729d56ce4d67",
+        "native_state_sha256": "73e27cd4982760f4320e772897d623cc8ed7bef1786c8a5524acc69a488c309f",
+        "xml_sha256": "a5e8319f0a59ace1894d06996af4d7adfb7edcfa3848ff7bd10dd253659c4037"
+      },
+      "initial_manifest": {
+        "bytes": 27967,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_INCREMENT/target-temporal-C-development-85102/initial-state/manifest.json",
+        "sha256": "d827e0c2d955ac69a445a3ef6744012f9b11fea8f2d710bd29940ec117b4a950"
+      },
+      "launch": {
+        "bytes": 143,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_INCREMENT/target-temporal-C-development-85102/unit-launch-observed.json",
+        "sha256": "447dbb0da432562bb7cae547d4d29f1d42f8d8b3187aaa83a00519411d8af80f"
+      },
+      "numerical_admissions": 0,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-dev-ELAPSED-INC-85102.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2193199104,
+        "pid": 2216623
+      },
+      "result": {
+        "bytes": 3247678,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_INCREMENT/target-temporal-C-development-85102/result.json",
+        "sha256": "9965561a77200c3cb450ea01bf8533ca89542984c4fa77930a64cda7392cda6b"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": true,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          101.57365275583692,
+          65.87791076152195,
+          55.80733423822428,
+          5.816096636582898,
+          74.44374540886787,
+          30.017040341436143
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13851233,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/development/ELAPSED_INCREMENT/target-temporal-C-development-85102/learned-trace.json",
+        "sha256": "77f0f9ef61b5afb1e4e5ea357623496e23499406ee61a6b06514ed77f136127a"
+      },
+      "trial_id": "1ab621e8-8f9a-4ead-9927-525c806c22a7"
+    },
+    {
+      "boot_id": "sim-target-a6c2c6f24e9d-2e17511e1e2b4156a7a396ce9a5a4747",
+      "case": {
+        "geometry_signature": "7bfe2cf41db319bb804e8a04a582c4e349a435bf8cb0689bc8b60f2deb794708",
+        "goal_offset_xy_m": [
+          0.005,
+          -0.005
+        ],
+        "id": "target-temporal-C-sealed_test-86101",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-sealed_test-86101",
+        "object_offset_xy_m": [
+          -0.008,
+          0.005
+        ],
+        "object_yaw_rad": -0.07,
+        "partition": "sealed_test",
+        "scene_id": "geometry-7bfe2cf41db319bb804e8a04a582c4e349a435bf8cb0689bc8b60f2deb794708",
+        "seed": 86101,
+        "session_id": "independent_sim_reset-target-temporal-C-sealed_test-86101",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ZERO_ABS",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "f9964091aeda0976d3f7e093f9734330600228462ab45abd8efc17d8ea7df3ce",
+        "mjb_sha256": "0e9d6a0ad2bf661dfce7aaea4bb82def8a180f444d6cea1cbde0235bdeafadcd",
+        "native_state_sha256": "3810c84b0a2158a97ad83a56f3a0e571e421d223aca4c029a724fb83271c5b9e",
+        "xml_sha256": "a6c2c6f24e9d164c7317a35b96b738b3c62f48f4144f6ab7a2f6fc295c33def4"
+      },
+      "initial_manifest": {
+        "bytes": 27958,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_ABS/target-temporal-C-sealed_test-86101/initial-state/manifest.json",
+        "sha256": "15af33fc030abd7e2105ee74ede7ce1e55c7c041e89f1f40cc7481ba98586a81"
+      },
+      "launch": {
+        "bytes": 143,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_ABS/target-temporal-C-sealed_test-86101/unit-launch-observed.json",
+        "sha256": "398a8bef7eefab1366c2b4cd1cc1f5d2e656aad6ac2cd9f633142a472541c00d"
+      },
+      "numerical_admissions": 0,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-sealed-ZERO-ABS-86101.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2179579904,
+        "pid": 2219683
+      },
+      "result": {
+        "bytes": 3263853,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_ABS/target-temporal-C-sealed_test-86101/result.json",
+        "sha256": "7438ad4e60d0f36390dec8742b6b3943f98f7a9189045b6ff0e0ebdfe53bb3ca"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": false,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          44.78158283733997,
+          63.03042541397476,
+          46.846600989488934,
+          37.57375314169216,
+          80.36670150824735,
+          165.20742776444678
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13550311,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_ABS/target-temporal-C-sealed_test-86101/learned-trace.json",
+        "sha256": "21d37e1bd7785ff023924c6b159e6119443d3ff223c09eaa2bd211f6a0cb2ac9"
+      },
+      "trial_id": "4140fc76-ec03-4ebc-a5d8-5d9bda799095"
+    },
+    {
+      "boot_id": "sim-target-a6c2c6f24e9d-2d089867cfec4dcb93ceda79fb045708",
+      "case": {
+        "geometry_signature": "7bfe2cf41db319bb804e8a04a582c4e349a435bf8cb0689bc8b60f2deb794708",
+        "goal_offset_xy_m": [
+          0.005,
+          -0.005
+        ],
+        "id": "target-temporal-C-sealed_test-86101",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-sealed_test-86101",
+        "object_offset_xy_m": [
+          -0.008,
+          0.005
+        ],
+        "object_yaw_rad": -0.07,
+        "partition": "sealed_test",
+        "scene_id": "geometry-7bfe2cf41db319bb804e8a04a582c4e349a435bf8cb0689bc8b60f2deb794708",
+        "seed": 86101,
+        "session_id": "independent_sim_reset-target-temporal-C-sealed_test-86101",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ELAPSED_ABS",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "f9964091aeda0976d3f7e093f9734330600228462ab45abd8efc17d8ea7df3ce",
+        "mjb_sha256": "0e9d6a0ad2bf661dfce7aaea4bb82def8a180f444d6cea1cbde0235bdeafadcd",
+        "native_state_sha256": "3810c84b0a2158a97ad83a56f3a0e571e421d223aca4c029a724fb83271c5b9e",
+        "xml_sha256": "a6c2c6f24e9d164c7317a35b96b738b3c62f48f4144f6ab7a2f6fc295c33def4"
+      },
+      "initial_manifest": {
+        "bytes": 27961,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_ABS/target-temporal-C-sealed_test-86101/initial-state/manifest.json",
+        "sha256": "a87c1b33e202e7138da2b243dbefa3ca7b80343d0528b32d9fa427e3877b758c"
+      },
+      "launch": {
+        "bytes": 143,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_ABS/target-temporal-C-sealed_test-86101/unit-launch-observed.json",
+        "sha256": "d0078cfa08ed98c3ee92765715c121d2e32407eef461b98e1cc804735d76cbba"
+      },
+      "numerical_admissions": 0,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-sealed-ELAPSED-ABS-86101.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2193522688,
+        "pid": 2219990
+      },
+      "result": {
+        "bytes": 3247810,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_ABS/target-temporal-C-sealed_test-86101/result.json",
+        "sha256": "29972de7f91fe46c81125ea15e85050fb0ed4dc2b21324ed5e8da5b3a6201c01"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": true,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          29.23803049255445,
+          47.62264047901178,
+          44.63352417632317,
+          34.56488979837739,
+          81.96874594917514,
+          31.889290528549214
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13653252,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_ABS/target-temporal-C-sealed_test-86101/learned-trace.json",
+        "sha256": "5dbd9314ddbba86145f8a787f501f8106c3b86139e015b15cc45b406e0350933"
+      },
+      "trial_id": "79a6fb9b-380d-4d38-8474-3c243f6ab82d"
+    },
+    {
+      "boot_id": "sim-target-a6c2c6f24e9d-c8398fb7f7634b63aac42d848a70a0cd",
+      "case": {
+        "geometry_signature": "7bfe2cf41db319bb804e8a04a582c4e349a435bf8cb0689bc8b60f2deb794708",
+        "goal_offset_xy_m": [
+          0.005,
+          -0.005
+        ],
+        "id": "target-temporal-C-sealed_test-86101",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-sealed_test-86101",
+        "object_offset_xy_m": [
+          -0.008,
+          0.005
+        ],
+        "object_yaw_rad": -0.07,
+        "partition": "sealed_test",
+        "scene_id": "geometry-7bfe2cf41db319bb804e8a04a582c4e349a435bf8cb0689bc8b60f2deb794708",
+        "seed": 86101,
+        "session_id": "independent_sim_reset-target-temporal-C-sealed_test-86101",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ZERO_INCREMENT",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "f9964091aeda0976d3f7e093f9734330600228462ab45abd8efc17d8ea7df3ce",
+        "mjb_sha256": "0e9d6a0ad2bf661dfce7aaea4bb82def8a180f444d6cea1cbde0235bdeafadcd",
+        "native_state_sha256": "3810c84b0a2158a97ad83a56f3a0e571e421d223aca4c029a724fb83271c5b9e",
+        "xml_sha256": "a6c2c6f24e9d164c7317a35b96b738b3c62f48f4144f6ab7a2f6fc295c33def4"
+      },
+      "initial_manifest": {
+        "bytes": 27964,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_INCREMENT/target-temporal-C-sealed_test-86101/initial-state/manifest.json",
+        "sha256": "894c4396323d5b732976741fc1694ccb839b6a00dbbb1bd3c0fa038fb0d3ca46"
+      },
+      "launch": {
+        "bytes": 143,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_INCREMENT/target-temporal-C-sealed_test-86101/unit-launch-observed.json",
+        "sha256": "a8ff0e29148d647ffae51e69c6cfdf41f1a6638132f4ccb71b7be193caad1203"
+      },
+      "numerical_admissions": 0,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-sealed-ZERO-INC-86101.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2173870080,
+        "pid": 2220269
+      },
+      "result": {
+        "bytes": 3268761,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_INCREMENT/target-temporal-C-sealed_test-86101/result.json",
+        "sha256": "c4babe6adc3ec4a9626eac0d9f57b7434b81fbb2e21c9e912a39814ca9da07b6"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": true,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          88.75880940040527,
+          52.39709989243208,
+          49.12581452410638,
+          -0.04685784298803242,
+          66.9723104082423,
+          30.021037943713786
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13636938,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_INCREMENT/target-temporal-C-sealed_test-86101/learned-trace.json",
+        "sha256": "828ab65e9f62d30717a19bb6ebdbe2c3b5959d4df015f6f2633273a6bc81929b"
+      },
+      "trial_id": "587a33d9-b510-4e89-b35b-9e870a5fc88b"
+    },
+    {
+      "boot_id": "sim-target-a6c2c6f24e9d-dee00202e3b045bc8590d94a83cfaff2",
+      "case": {
+        "geometry_signature": "7bfe2cf41db319bb804e8a04a582c4e349a435bf8cb0689bc8b60f2deb794708",
+        "goal_offset_xy_m": [
+          0.005,
+          -0.005
+        ],
+        "id": "target-temporal-C-sealed_test-86101",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-sealed_test-86101",
+        "object_offset_xy_m": [
+          -0.008,
+          0.005
+        ],
+        "object_yaw_rad": -0.07,
+        "partition": "sealed_test",
+        "scene_id": "geometry-7bfe2cf41db319bb804e8a04a582c4e349a435bf8cb0689bc8b60f2deb794708",
+        "seed": 86101,
+        "session_id": "independent_sim_reset-target-temporal-C-sealed_test-86101",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ELAPSED_INCREMENT",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "f9964091aeda0976d3f7e093f9734330600228462ab45abd8efc17d8ea7df3ce",
+        "mjb_sha256": "0e9d6a0ad2bf661dfce7aaea4bb82def8a180f444d6cea1cbde0235bdeafadcd",
+        "native_state_sha256": "3810c84b0a2158a97ad83a56f3a0e571e421d223aca4c029a724fb83271c5b9e",
+        "xml_sha256": "a6c2c6f24e9d164c7317a35b96b738b3c62f48f4144f6ab7a2f6fc295c33def4"
+      },
+      "initial_manifest": {
+        "bytes": 27967,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_INCREMENT/target-temporal-C-sealed_test-86101/initial-state/manifest.json",
+        "sha256": "8425c87c929acf750e0b080bcbb52cea128df2242ef06c45a6d9aea9cbe982a1"
+      },
+      "launch": {
+        "bytes": 143,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_INCREMENT/target-temporal-C-sealed_test-86101/unit-launch-observed.json",
+        "sha256": "de434a0ffe103299fefa7a4dfaa6f93e18eed2e920a8d95f43f4c798cd38f9c4"
+      },
+      "numerical_admissions": 0,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-sealed-ELAPSED-INC-86101.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2185109504,
+        "pid": 2220569
+      },
+      "result": {
+        "bytes": 3268767,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_INCREMENT/target-temporal-C-sealed_test-86101/result.json",
+        "sha256": "acd712bd088dde8d6c54d6dd716b014709204e06ffa0fcc993cc71a4353e3004"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": true,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          101.57363995045023,
+          65.87797011220079,
+          55.80734184515297,
+          5.8161804543040745,
+          74.44378869223067,
+          30.017040306975925
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13856339,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_INCREMENT/target-temporal-C-sealed_test-86101/learned-trace.json",
+        "sha256": "0a16bf23bd3eff20b9e0283b9666a07a027ee52ff3c5024d0573fa06f68d6044"
+      },
+      "trial_id": "dac59f25-8564-48c0-9651-c69e5c4d0766"
+    },
+    {
+      "boot_id": "sim-target-b79ec0d2c732-fc26a79a406e413a8415e896c7c27c78",
+      "case": {
+        "geometry_signature": "e09036a7f95a4225cd20b281caa3b720c5989775cb61d184377674e10107a08f",
+        "goal_offset_xy_m": [
+          -0.005,
+          0.005
+        ],
+        "id": "target-temporal-C-sealed_test-86102",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-sealed_test-86102",
+        "object_offset_xy_m": [
+          0.008,
+          -0.005
+        ],
+        "object_yaw_rad": 0.07,
+        "partition": "sealed_test",
+        "scene_id": "geometry-e09036a7f95a4225cd20b281caa3b720c5989775cb61d184377674e10107a08f",
+        "seed": 86102,
+        "session_id": "independent_sim_reset-target-temporal-C-sealed_test-86102",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ZERO_ABS",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "84d39e713c99d8580c3f495f7de096c075e1c2cd6c052301c7af4d1692e39a1d",
+        "mjb_sha256": "fd394506412e93fe1b7250ca9d8cf805d0751497352214b069c0116de37d0481",
+        "native_state_sha256": "5da3d129329d53ec4d11ed76aff58e2d1b114f9928b90c2abeebb6702f94fb43",
+        "xml_sha256": "b79ec0d2c732d073e48c973259cacfb2768d204e3cecebc95d25ab682f80022f"
+      },
+      "initial_manifest": {
+        "bytes": 27957,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_ABS/target-temporal-C-sealed_test-86102/initial-state/manifest.json",
+        "sha256": "a379a775b5ed5df2bbb8f0fb93c258f0d837190328bffaab96f1c02b0055f39e"
+      },
+      "launch": {
+        "bytes": 143,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_ABS/target-temporal-C-sealed_test-86102/unit-launch-observed.json",
+        "sha256": "fb9ffb83b4d1b26ff6599176cc91dea0e6f42489541767fcda7b7400504bf3da"
+      },
+      "numerical_admissions": 0,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-sealed-ZERO-ABS-86102.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2220105728,
+        "pid": 2222233
+      },
+      "result": {
+        "bytes": 3259893,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_ABS/target-temporal-C-sealed_test-86102/result.json",
+        "sha256": "0f6045413eecdcf91fda7243d26067e8f5844e92012da77a291d6e31ce8ec6b7"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": true,
+          "lift": false,
+          "measured_gripper_open": false,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          44.768610830263256,
+          63.053467275307995,
+          46.85121403309374,
+          37.59680270783722,
+          80.37365094922518,
+          165.2074283635894
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13551639,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_ABS/target-temporal-C-sealed_test-86102/learned-trace.json",
+        "sha256": "69a434ded490f0d99ff5fb95cc3e7eee661e86c906268bd9f6e32d2063ad9ea5"
+      },
+      "trial_id": "ae69fd33-bf7b-4ae8-9ba7-a6ae7a7de027"
+    },
+    {
+      "boot_id": "sim-target-b79ec0d2c732-4e34e86fcc144b64a5d8d39f162e59db",
+      "case": {
+        "geometry_signature": "e09036a7f95a4225cd20b281caa3b720c5989775cb61d184377674e10107a08f",
+        "goal_offset_xy_m": [
+          -0.005,
+          0.005
+        ],
+        "id": "target-temporal-C-sealed_test-86102",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-sealed_test-86102",
+        "object_offset_xy_m": [
+          0.008,
+          -0.005
+        ],
+        "object_yaw_rad": 0.07,
+        "partition": "sealed_test",
+        "scene_id": "geometry-e09036a7f95a4225cd20b281caa3b720c5989775cb61d184377674e10107a08f",
+        "seed": 86102,
+        "session_id": "independent_sim_reset-target-temporal-C-sealed_test-86102",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ELAPSED_ABS",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "84d39e713c99d8580c3f495f7de096c075e1c2cd6c052301c7af4d1692e39a1d",
+        "mjb_sha256": "fd394506412e93fe1b7250ca9d8cf805d0751497352214b069c0116de37d0481",
+        "native_state_sha256": "5da3d129329d53ec4d11ed76aff58e2d1b114f9928b90c2abeebb6702f94fb43",
+        "xml_sha256": "b79ec0d2c732d073e48c973259cacfb2768d204e3cecebc95d25ab682f80022f"
+      },
+      "initial_manifest": {
+        "bytes": 27960,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_ABS/target-temporal-C-sealed_test-86102/initial-state/manifest.json",
+        "sha256": "19b667452a19c2deaffa1c6efc4d3e0646c2e4204bc83795d59cd57f9659225d"
+      },
+      "launch": {
+        "bytes": 143,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_ABS/target-temporal-C-sealed_test-86102/unit-launch-observed.json",
+        "sha256": "7e515b4740fa50b2963a6d486af7b474f693a0e5a73b24e7c63e335803379302"
+      },
+      "numerical_admissions": 0,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-sealed-ELAPSED-ABS-86102.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2184900608,
+        "pid": 2222629
+      },
+      "result": {
+        "bytes": 3239589,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_ABS/target-temporal-C-sealed_test-86102/result.json",
+        "sha256": "b735cf42530dfb6a63cd10b3b35922dd0489891e3c6891d798abc2b326cf66db"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": true,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          29.238002139530785,
+          47.62237195416751,
+          44.633626480883535,
+          34.56475898276894,
+          81.9686712697349,
+          31.889284956930698
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13645130,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_ABS/target-temporal-C-sealed_test-86102/learned-trace.json",
+        "sha256": "5d4157778fdebbf46fe364f7a4f38e997e1824613286064178fb3ee0c77a03e7"
+      },
+      "trial_id": "53357462-d78f-4b72-b7c2-9488895ab665"
+    },
+    {
+      "boot_id": "sim-target-b79ec0d2c732-b1e5c8d18a9d4af9b7d48aeb7de2da22",
+      "case": {
+        "geometry_signature": "e09036a7f95a4225cd20b281caa3b720c5989775cb61d184377674e10107a08f",
+        "goal_offset_xy_m": [
+          -0.005,
+          0.005
+        ],
+        "id": "target-temporal-C-sealed_test-86102",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-sealed_test-86102",
+        "object_offset_xy_m": [
+          0.008,
+          -0.005
+        ],
+        "object_yaw_rad": 0.07,
+        "partition": "sealed_test",
+        "scene_id": "geometry-e09036a7f95a4225cd20b281caa3b720c5989775cb61d184377674e10107a08f",
+        "seed": 86102,
+        "session_id": "independent_sim_reset-target-temporal-C-sealed_test-86102",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ZERO_INCREMENT",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "84d39e713c99d8580c3f495f7de096c075e1c2cd6c052301c7af4d1692e39a1d",
+        "mjb_sha256": "fd394506412e93fe1b7250ca9d8cf805d0751497352214b069c0116de37d0481",
+        "native_state_sha256": "5da3d129329d53ec4d11ed76aff58e2d1b114f9928b90c2abeebb6702f94fb43",
+        "xml_sha256": "b79ec0d2c732d073e48c973259cacfb2768d204e3cecebc95d25ab682f80022f"
+      },
+      "initial_manifest": {
+        "bytes": 27963,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_INCREMENT/target-temporal-C-sealed_test-86102/initial-state/manifest.json",
+        "sha256": "a254511887f8b031885f678cfa9d531f14982cec79f2d2b150243fe61592fcf3"
+      },
+      "launch": {
+        "bytes": 143,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_INCREMENT/target-temporal-C-sealed_test-86102/unit-launch-observed.json",
+        "sha256": "7bcc9d7f8307c4c6684bb4b00341e2b4567c41242c1f20a564fd3bd902423968"
+      },
+      "numerical_admissions": 0,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-sealed-ZERO-INC-86102.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2178469888,
+        "pid": 2223316
+      },
+      "result": {
+        "bytes": 3241547,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_INCREMENT/target-temporal-C-sealed_test-86102/result.json",
+        "sha256": "4035b0534205fb53d416e8f0b56c006202d2722482ee360d17dd44e74bf32a43"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": true,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          88.76511132165516,
+          52.39050159042258,
+          49.12766426574547,
+          -0.046848599652150824,
+          66.96908007183903,
+          30.02103829821547
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13632988,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ZERO_INCREMENT/target-temporal-C-sealed_test-86102/learned-trace.json",
+        "sha256": "5f4b6493b478a3cc6fe9f735a8b2f9c00cf98258d1702eedca69251ea37ed5d1"
+      },
+      "trial_id": "4436b47f-910c-47cb-87a0-c5850aef1c5e"
+    },
+    {
+      "boot_id": "sim-target-b79ec0d2c732-0bbc19572aeb4455b88837f3467b0092",
+      "case": {
+        "geometry_signature": "e09036a7f95a4225cd20b281caa3b720c5989775cb61d184377674e10107a08f",
+        "goal_offset_xy_m": [
+          -0.005,
+          0.005
+        ],
+        "id": "target-temporal-C-sealed_test-86102",
+        "object_geometry_generalization": false,
+        "object_instance_id": "spawned_candy-target-temporal-C-sealed_test-86102",
+        "object_offset_xy_m": [
+          0.008,
+          -0.005
+        ],
+        "object_yaw_rad": 0.07,
+        "partition": "sealed_test",
+        "scene_id": "geometry-e09036a7f95a4225cd20b281caa3b720c5989775cb61d184377674e10107a08f",
+        "seed": 86102,
+        "session_id": "independent_sim_reset-target-temporal-C-sealed_test-86102",
+        "shared_object_asset_across_all_splits": true
+      },
+      "cell": "ELAPSED_INCREMENT",
+      "failure": null,
+      "frames": 800,
+      "initial": {
+        "first_rgb_sha256": "84d39e713c99d8580c3f495f7de096c075e1c2cd6c052301c7af4d1692e39a1d",
+        "mjb_sha256": "fd394506412e93fe1b7250ca9d8cf805d0751497352214b069c0116de37d0481",
+        "native_state_sha256": "5da3d129329d53ec4d11ed76aff58e2d1b114f9928b90c2abeebb6702f94fb43",
+        "xml_sha256": "b79ec0d2c732d073e48c973259cacfb2768d204e3cecebc95d25ab682f80022f"
+      },
+      "initial_manifest": {
+        "bytes": 27966,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_INCREMENT/target-temporal-C-sealed_test-86102/initial-state/manifest.json",
+        "sha256": "f6abffb233fabf492d707d775e71ec2291afe738c4c2228880c53b4147ac90cc"
+      },
+      "launch": {
+        "bytes": 143,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_INCREMENT/target-temporal-C-sealed_test-86102/unit-launch-observed.json",
+        "sha256": "fd51ee45c4d78b4c7e259cc80e8d0c14707a86a0704321049f7ec708dc8f6dfd"
+      },
+      "numerical_admissions": 0,
+      "outcome": "FAILURE",
+      "resources": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-target-Cv2-sealed-ELAPSED-INC-86102.service",
+        "limits": {
+          "cpu.max": "200000 100000",
+          "memory.max": "4294967296",
+          "memory.swap.max": "0"
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "memory_peak_bytes": 2187624448,
+        "pid": 2223640
+      },
+      "result": {
+        "bytes": 3241550,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_INCREMENT/target-temporal-C-sealed_test-86102/result.json",
+        "sha256": "cc89be25b7834683e548b85a0204aaea202ce097a2d3b9fbf23ca44cf74a8bcd"
+      },
+      "terminal_score": {
+        "conditions": {
+          "carry": false,
+          "grasp": false,
+          "lift": false,
+          "measured_gripper_open": true,
+          "placement_dwell": false,
+          "released": true,
+          "retreated": true,
+          "settled": true,
+          "terminal_inside": false,
+          "terminal_supported": false,
+          "terminal_within_rim": true
+        },
+        "full_object_success": false,
+        "measured_terminal_servo6": [
+          101.57368518983864,
+          65.87791473343412,
+          55.8073482029365,
+          5.816041357386709,
+          74.44373212622169,
+          30.017040349550122
+        ],
+        "observer": "independent_native_contact_substeps_and_measured_terminal_joints",
+        "physical_io": false,
+        "support_force_N": 0.0,
+        "task_scope": "whole_candy_grasp_lift_carry_release_settle_retreat_in_stationary_unified_ROSMASTER_SIM_fixture"
+      },
+      "trace": {
+        "bytes": 13853414,
+        "path": "/mnt/explorer-data/explorer-work/target-temporal-factorial-C-v2-20261027-a/rollout/sealed_test/ELAPSED_INCREMENT/target-temporal-C-sealed_test-86102/learned-trace.json",
+        "sha256": "c3711af97d97b3b29e0bf74a2fa4077b1b1f76db821ce648fb81be1186d1da9c"
+      },
+      "trial_id": "d39ab016-9f05-457a-937d-c8579ec4e154"
+    }
+  ],
+  "verification": {
+    "OS_runtime_dependency_closure": "PARTIAL; not requalified here",
+    "all_RGB_request_dispatch_context_SHA_checked": true,
+    "all_initial_manifest_payloads_SHA_checked": true,
+    "matched_initial_state_XML_MJB_firstRGB_by_case": {
+      "target-temporal-C-development-85101": {
+        "first_rgb_sha256": true,
+        "mjb_sha256": true,
+        "native_state_sha256": true,
+        "xml_sha256": true
+      },
+      "target-temporal-C-development-85102": {
+        "first_rgb_sha256": true,
+        "mjb_sha256": true,
+        "native_state_sha256": true,
+        "xml_sha256": true
+      },
+      "target-temporal-C-sealed_test-86101": {
+        "first_rgb_sha256": true,
+        "mjb_sha256": true,
+        "native_state_sha256": true,
+        "xml_sha256": true
+      },
+      "target-temporal-C-sealed_test-86102": {
+        "first_rgb_sha256": true,
+        "mjb_sha256": true,
+        "native_state_sha256": true,
+        "xml_sha256": true
+      }
+    },
+    "new_numerical_or_RGB_reexecution_claim": false,
+    "private_Store_card_roundtrips": 4,
+    "production_registry_modified": false,
+    "unique_native_boot_UUIDs": 16,
+    "unique_trial_UUIDs": 16
+  }
+}
