@@ -162,3 +162,16 @@ remote03 STOP delivery. Default старого profile не изменён.
 contracts PASS2.09s. В тестах только fake native buses и generated data; реальные
 USER grants, физические RPC и Pi update не выполнялись. Первые отрицательные
 harness invocations сохранены. Source04 software-ready остаётся OPEN.
+
+## Central lost-ACK reconciliation (software2026-10-27)
+
+Перед Source capture-start Root сохраняет один durable intent с уже возвращённым
+original teleop grant/epoch. Повторный start того же demo не повторяет SourcePOST.
+GET listing/status показывает только persisted DATA acknowledgement и pending;
+не присваивает polled recording ID или native control. Explicit capture-reconcile
+сверяет actor/binding/context, original writer, boot/clock и обе calibration SHA
+и может подтвердить только DATA identity. Текущий чужой native epoch не становится
+локальным grant. Source recovery_required/UNCERTAIN остаётся закрытым gate.
+Finish/cancel по-прежнему data-only; новый grant, teleop и STOP не выполняются
+reconciler. [44Python/33Node software proof](../../_registry/evidence/experiment04-demo-capture-recovery-20261027.json);
+SourceDemo UI ещё подключается.

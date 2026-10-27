@@ -55,7 +55,8 @@ def test_shared_display_receipts_do_not_cross_scope_actor_or_survive_consumption
     with pytest.raises(ValueError):receipts.consume(kind,'demonstration','frame','actor','a'*64)
 
 
-def test_authenticated_demo_control_record_pause_review_and_Range_use_one_actual_software_Station(tmp_path,monkeypatch):
+@pytest.mark.parametrize('lost_capture_ack',[False,True])
+def test_authenticated_demo_control_record_pause_review_and_Range_use_one_actual_software_Station(tmp_path,monkeypatch,lost_capture_ack):
     store=Store(tmp_path/'central');body=prepared(store)
     source_root=tmp_path/'source';source_root.mkdir()
     station,permission,_,_,bus,_,tick,_,_=demo_rig(source_root,monkeypatch)
@@ -100,8 +101,34 @@ def test_authenticated_demo_control_record_pause_review_and_Range_use_one_actual
         assert started.status_code==200,started.text
         current=started.json()['grant'];assert station.mode=='teleoperation' and bus.writes
         capture_body={'grant_id':current['grant_id'],'expected_control_epoch':current['control_epoch']}
-        begin=client.post(route+'/capture-start',json=capture_body,headers=csrf);assert begin.status_code==200,begin.text
-        ident=begin.json()['recording_id'];writes=len(bus.writes)
+        lost=[]
+        if lost_capture_ack:
+            from explorer import source_demo_api
+            original_request=source_demo_api.bounded_request
+            def lose_reply(client,method,path,*args,**kwargs):
+                reply=original_request(client,method,path,*args,**kwargs)
+                if method=='POST' and path=='/so101-capture/record/start':
+                    lost.append(json.loads(reply[0]));raise httpx.ReadTimeout('SOFTWARE lost capture-start acknowledgement')
+                return reply
+            monkeypatch.setattr(source_demo_api,'bounded_request',lose_reply)
+        begin=client.post(route+'/capture-start',json=capture_body,headers=csrf)
+        writes=len(bus.writes)
+        if lost_capture_ack:
+            assert begin.status_code==503,begin.text
+            ident=lost[0]['recording_id']
+            listed=client.get(base).json()['attempts'][0]
+            assert listed['acknowledged_recording_id'] is None and listed['capture_start_pending']
+            assert client.get(route+'/status').json()['attempt']['acknowledged_recording_id'] is None
+            assert client.post(route+'/capture-start',json=capture_body,headers=csrf).status_code==409 and len(lost)==1
+            assert client.post(route+'/capture-reconcile',json={'recording_id':'e'*32,'acknowledge_data_only_recovery':True},headers=csrf).status_code==409
+            recovered=client.post(route+'/capture-reconcile',json={'recording_id':ident,'acknowledge_data_only_recovery':True},headers=csrf)
+            assert recovered.status_code==200,recovered.text
+            assert recovered.json()['data_recording_acknowledged'] and not recovered.json()['control_authority_adopted']
+            assert not recovered.json()['native_commands_dispatched'] and len(bus.writes)==writes
+        else:
+            assert begin.status_code==200,begin.text
+            ident=begin.json()['recording_id']
+        assert client.get(route+'/status').json()['attempt']['acknowledged_recording_id']==ident
         tick[0]+=110_000_000;measured=[0.,1.,2.,3.,4.,50.];issued=[1.,2.,3.,4.,5.,50.]
         station.measurements=dict(leader=measured,follower=measured,clock_domain=station.clock_domain,monotonic_ns=tick[0])
         station.last_command=dict(requested=issued,dispatched=issued,monotonic_ns=tick[0]+1,clock_domain=station.clock_domain,control_epoch=station.control_epoch,sequence=0)

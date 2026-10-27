@@ -63,7 +63,12 @@ actual HTTPS Firefox desktop/mobile, passiveROS20s0, source/reference/PIDs/6conf
 
 - `E04-IMPORT` DONE в software scope выше; archive/review/provenance pins обязательны.
 - `E04-COHORT` DONE: accepted cohort/officialDataset/current ACT+DP/actual queued resume/DEV/offline-shadow на labelled generated inputs.
-- `E04-UI` CURRENT: thin SourceDemo integration, explicit lost-ACK data reconciliation; legacy global STOP на blur и finish-autoimport заменить scoped flow.
+- `E04-UI` CURRENT: data-only lost-ACK reconciliation реализован:44Python tests11.60s,
+  source start intent/one-winner/reload ack/actor-context-boot-calib fences,0realIO.
+  Shared delivered-JPEG helper извлечён из evaluator,33Node UI regressions PASS.
+  [Recovery proof](../_registry/evidence/experiment04-demo-capture-recovery-20261027.json).
+  Следующее — thin SourceDemo client/panel и замена legacy04 global STOP-on-blur/
+  finish-autoimport на scoped flow; полноценный UI ещё не проверен.
 - `E04-UI`: связать counters/coverage/review/models, actual JPEG display и scoped tab cleanup; no GET control adoption.
 - Старый Pi4c имеет воспроизведённую shutdown race. Первый unattended Pi update
   OPEN: idleGET+server_close не drain. Нужен доказанный admission barrier либо

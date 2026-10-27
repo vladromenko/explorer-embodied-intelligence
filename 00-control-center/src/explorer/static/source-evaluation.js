@@ -138,25 +138,11 @@
       } catch (failure) {if (sequence === shadowReadSequence && epoch === generation) shadowError = failure.message;throw failure;}
       finally {notify();}
     }
-    async function binary(path) {
-      if (options.loadFrame) return options.loadFrame(path);
-      const response = await surface.fetch(path,{credentials:"same-origin",cache:"no-store"});
-      if (!response.ok) throw new Error("Исходный кадр недоступен: "+response.status);
-      const size = Number(response.headers.get("content-length"));
-      if (Number.isFinite(size) && size > 8*1024**2) throw new Error("Кадр превышает допустимый размер");
-      return {bytes:new Uint8Array(await response.arrayBuffer()),headers:response.headers};
-    }
     async function load(path,kind,expected,epoch) {
-      const token = ++frameSequence, id = selected, raw = await binary(path);
-      const bytes = raw.bytes instanceof Uint8Array ? raw.bytes : new Uint8Array(raw.bytes);
-      if (bytes.length < 4 || bytes.length > 8*1024**2 || bytes[0] !== 255 || bytes[1] !== 216 || bytes.at(-2) !== 255 || bytes.at(-1) !== 217) throw new Error("Нужен настоящий ограниченный JPEG");
-      const header = name=>raw.headers?.get ? raw.headers.get(name) : raw.headers?.[name.toLowerCase()];
-      const checksum = header("x-jpeg-sha256"), frameID = header("x-frame-id"), boot = header("x-boot-id");
-      const digest = options.sha256 || surface.explorerSha256Bytes || (typeof require === "function" ? require("./sha256.js").explorerSha256Bytes : null);
-      if (typeof digest !== "function") throw new Error("Не загружен общий SHA256 verifier");
-      const actual = await digest(bytes,{crypto:Object.hasOwn(options,"crypto") ? options.crypto : surface.crypto});
-      if (!SHA.test(checksum || "") || checksum !== actual || !frameID || !boot ||
-          checksum !== expected.jpeg_sha256 || frameID !== expected.frame_id || (expected.boot_id && boot !== expected.boot_id)) throw new Error("SHA, камера или boot исходного кадра не совпадают");
+      const token = ++frameSequence, id = selected;
+      const verify = surface.verifiedDeliveredJPEG || (typeof require === "function" ? require("./delivered-jpeg.js").verifiedDeliveredJPEG : null);
+      if (typeof verify !== "function") throw new Error("Не загружен общий verifier исходного JPEG");
+      const {bytes,jpeg_sha256:checksum,frame_id:frameID,boot_id:boot} = await verify(path,expected,options);
       if (epoch !== generation || id !== selected || token !== frameSequence || !visible || cancelled.has(id)) return {ignored:true};
       const url = options.makeObjectURL ? options.makeObjectURL(bytes) : surface.URL.createObjectURL(new Blob([bytes],{type:"image/jpeg"}));
       releaseFrame();frame = {token,kind,url,jpeg_sha256:checksum,frame_id:frameID,boot_id:boot,displayed:false,observed:false,loadedAt:now()};
@@ -318,12 +304,9 @@
     const submit = event=>{if (!event.target.hasAttribute?.("data-source-eval-form") || !root.contains(event.target)) return;event.preventDefault();run(()=>client.prepare());};
     const loaded = event=>{
       const image = event.target;
-      if (!root.contains(image) || image.dataset?.sourceEvalFrame == null || !image.complete || !image.naturalWidth || document?.visibilityState === "hidden") return;
-      if (image.getClientRects && !image.getClientRects().length) return;
-      if (image.getBoundingClientRect) {
-        const rect = image.getBoundingClientRect();
-        if (rect.width <= 0 || rect.height <= 0 || rect.bottom <= 0 || rect.right <= 0 || rect.top >= (window?.innerHeight ?? Infinity) || rect.left >= (window?.innerWidth ?? Infinity)) return;
-      }
+      if (image.dataset?.sourceEvalFrame == null) return;
+      const visibleImage = surface.deliveredImageVisible || (typeof require === "function" ? require("./delivered-jpeg.js").deliveredImageVisible : null);
+      if (!visibleImage || !visibleImage(image,root,{document,window})) return;
       const token = Number(image.dataset.sourceEvalFrame);run(()=>client.displayed(token));
     };
     const scrolled = ()=>{for (const image of root.querySelectorAll?.("img[data-source-eval-frame]") || []) loaded({target:image});};

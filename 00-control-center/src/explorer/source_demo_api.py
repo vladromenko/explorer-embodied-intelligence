@@ -10,6 +10,7 @@ from fastapi.responses import Response
 
 from explorer_shared.observed_display_receipts import ObservedDisplayReceipts
 from . import source_demo_workflow as flow
+from . import source_demo_capture as captures
 from .source_evaluation_api import bounded_body,checked_jpeg
 from .source_evaluation_transport import pi_connection,bounded_request
 from .capture_media_proxy import archive_response
@@ -39,7 +40,9 @@ def install_router(app,get_store,get_config,get_actor,get_client):
     @app.get(base)
     async def listing(request:Request):
         if request.query_params:raise HTTPException(400,'Fixed demonstration list takes no query')
-        return await safe(lambda:{'schema':'explorer_source04_demonstration_workbench_v1','attempts':flow.listing(get_store(),get_actor(request)),'physical_execution_authorized':False})
+        return await safe(lambda:{'schema':'explorer_source04_demonstration_workbench_v1',
+            'attempts':[dict(row,**captures.projection(get_store(),row)) for row in flow.listing(get_store(),get_actor(request))],
+            'physical_execution_authorized':False})
 
     @app.post(base)
     async def prepare(request:Request):
@@ -54,7 +57,7 @@ def install_router(app,get_store,get_config,get_actor,get_client):
                 native=station.status();observed=permission.status()
             grant=observed.get('grant') or {}
             owned=grant.get('binding')==row['binding'] and grant.get('actor_id')==row['actor_id']
-            return {'attempt':row,'station':native,'permission':dict(observed,grant=grant if owned else None,
+            return {'attempt':dict(row,**captures.projection(get_store(),row)),'station':native,'permission':dict(observed,grant=grant if owned else None,
                 execution_permission=bool(owned and observed.get('execution_permission'))),'capture':capture_request(row,'GET','status')}
         return await safe(read)
 
@@ -93,13 +96,23 @@ def install_router(app,get_store,get_config,get_actor,get_client):
         if request.query_params or not isinstance(body,dict):raise HTTPException(400,'Fixed demonstration operation form required')
         def perform():
             actor=get_actor(request);row=flow.attempt(get_store(),identity,actor)
+            if operation=='capture-reconcile':
+                if (set(body)!={'recording_id','acknowledge_data_only_recovery'} or body['acknowledge_data_only_recovery'] is not True):
+                    raise ValueError('Explicit data-only capture reconciliation and exact candidate recording ID required')
+                packet=capture_request(row,'GET','status')
+                with pi_connection(get_config(),row['binding']) as (station,permission):
+                    native=station.status();stamp=permission.status().get('source_stamp')
+                ident=captures.validate_source(get_store(),row,packet,native=native,source_stamp=stamp)
+                if body['recording_id']!=ident:raise ValueError('Exact verified source capture recovery identity required')
+                return captures.acknowledge(get_store(),row,packet,native=native,source_stamp=stamp)
             if operation in ('capture-start','pause','resume','cancel','finish','stage','review'):
                 if operation=='capture-start':
                     if set(body)!={'grant_id','expected_control_epoch'}:raise ValueError('Exact acknowledged demo grant/epoch required')
+                    captures.begin(get_store(),row,body)
                     reply=capture_request(row,'POST','record/start',{'record_start_body':row['record_start_body'],
                         'permission':{'binding':row['binding'],'grant_id':body['grant_id'],'control_epoch':body['expected_control_epoch']},'actor_id':actor})
                     if not ID.fullmatch(str(reply.get('recording_id'))):raise ValueError('Original recorder did not acknowledge its recording identity')
-                    flow.record_return(get_store(),row,'capture_return',{'recording_id':reply['recording_id']})
+                    captures.acknowledge(get_store(),row,reply)
                     return reply
                 ident=flow.capture_identity(get_store(),row)
                 if body.get('recording_id')!=ident:raise ValueError('Exact acknowledged recording identity required')

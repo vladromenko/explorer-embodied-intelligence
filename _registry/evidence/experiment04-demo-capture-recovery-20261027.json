@@ -1,0 +1,72 @@
+{
+  "schema": "explorer_source04_capture_ack_recovery_software_qualification_v1",
+  "source_sha256": {
+    "00-control-center/src/explorer/source_demo_capture.py": "ce5c98a451a2b2e0c45f7b6062d80068dcd32c9b46529634602c24ac1e4c5b8d",
+    "00-control-center/src/explorer/source_demo_api.py": "acac17444e4f922c2a929c193fb0a682b544bf2341e2350834cbe815baca4483",
+    "tests/test_source_demo_capture.py": "660d7e60ac6ddfcd648aa7f09fc964aa8030add5f2432e19ebd32e08b80436ac",
+    "tests/test_source_demo_api.py": "4f3d4be24381ab8eda2cee34274400d0a1a4f27dce680075973ce77ce0b1f098",
+    "00-control-center/src/explorer/static/delivered-jpeg.js": "845e7ea3502c84728c3d00c3aab857717537e94303099383fc413aee9d5d7763",
+    "00-control-center/src/explorer/static/source-evaluation.js": "346a6b61e52a2d9bd09728f87c7b0bf8c5761b56c32ad84988853bdfcf2a05cc"
+  },
+  "scope": "PURE_METADATA_AND_ACTUAL_AUTH_ASGI_LOOPBACK_NODE_ORIGINAL_STATION_WITH_FAKE_BUSES_ONLY",
+  "tests": {
+    "python_passed": 44,
+    "python_seconds": 11.6,
+    "command": [
+      "/home/jetsonnx/.local/share/explorer/venv/bin/python",
+      "-m",
+      "pytest",
+      "-x",
+      "-q",
+      "--basetemp=/mnt/explorer-data/explorer-work/04-demo-capture-recovery-20261027-a/pytest",
+      "tests/test_source_demo_capture.py",
+      "tests/test_source_demo_api.py",
+      "tests/test_so101_capture_service.py",
+      "tests/test_source_demo_permission.py",
+      "tests/test_source_evaluation_api.py",
+      "tests/test_current_profile4_controller_evidence.py",
+      "tests/test_current_diffusion_binding.py"
+    ],
+    "lost_Node_reply_after_real_fake_writer_start_503": true,
+    "no_implicit_GET_adoption": true,
+    "one_durable_start_intent_and_no_blind_retry": true,
+    "explicit_reconciliation_no_native_commands": true,
+    "actor_binding_original_writer_boot_clock_calibration_context_fences": true,
+    "concurrent_intent_single_winner": true,
+    "reload_projects_only_persisted_data_ack": true,
+    "evaluation_UI_shared_JPEG_regression": {
+      "passed": 33,
+      "failed": 0,
+      "log": "/mnt/explorer-data/explorer-work/04-demo-capture-recovery-20261027-a/shared-jpeg-evaluation-final.log",
+      "log_sha256": "006258a74577cdaad2bb27541b064ec1cb449b8ea8ce9592b421c952d0abe029"
+    },
+    "current_native6_R7_and_binding_contracts_remain_PASS": true
+  },
+  "resources": {
+    "cpu_max": "200000 100000",
+    "memory_max": "4294967296",
+    "swap_max": "0",
+    "actual_kernel_memory_peak": 93052928,
+    "actual_swap_peak": 0,
+    "last_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+    "exit_code": 0
+  },
+  "raw_directory": "/mnt/explorer-data/explorer-work/04-demo-capture-recovery-20261027-a",
+  "raw_files_sha256": {
+    "shared-jpeg-evaluation.log": "5dd17480ed703d8f74e5826e0b050787e6e3bdfcf4c30e4ef822198699db8284",
+    "resource-a.json": "4fa61922e261c298b8000ad6fc7dbdbbd8b79cc717a80f3ae838866fae603328",
+    "shared-jpeg-evaluation-final.log": "006258a74577cdaad2bb27541b064ec1cb449b8ea8ce9592b421c952d0abe029",
+    "run-a.py": "7c53e2b601dfcced3151de314870d22307af96d8d7a1db9b68b9796bfddc83b5",
+    "run-a.log": "85ae3d155e9dbbbe4cda9b3dc0f151c526b754a1272c8244c6bede4b471110cc"
+  },
+  "physical_commands_or_RPC": 0,
+  "original_Station_changed": false,
+  "deployed": false,
+  "source04_software_ready": false,
+  "remaining": [
+    "SourceDemo client/panel integration and shared JPEG second-consumer tests",
+    "legacy04 global STOP/finish-autoimport handler isolation",
+    "actual authenticated desktop/mobile frontend smoke with fake control and production read-only",
+    "vision and safe Pi first upgrade/full release"
+  ]
+}

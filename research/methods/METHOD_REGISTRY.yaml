@@ -6831,6 +6831,34 @@
         "tests/test_so101_capture_worker.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SOURCE04-DATA-CAPTURE-ACK-RECOVERY-20261027",
+      "function_or_module": "00-control-center/src/explorer/source_demo_capture.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:04-so101-source-learning/docs/CAPTURE_ADAPTER_CONTRACT_RU.md",
+          "role": "Existing shared permission/capture/transport ABI and software scope"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Thin central data-only capture start intent, exact original acknowledgement and explicit lost-reply reconciliation; no polled grant adoption, no control or device operation.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_source_demo_capture.py",
+        "tests/test_source_demo_api.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
