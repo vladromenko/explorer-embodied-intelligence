@@ -961,7 +961,7 @@ async def cooperative_operation(operation: str,request: Request):
         actor=session_actor(request)
         return await asyncio.to_thread(lambda:cooperative_service().command(operation,body,authenticated_actor=actor))
     except FileNotFoundError as error:raise HTTPException(404,'Original cooperative source does not exist') from error
-    except (ValueError,KeyError,TypeError,RuntimeError) as error:
+    except (ValueError,KeyError,TypeError,RuntimeError,TimeoutError) as error:
         return JSONResponse({'detail':str(error),'reasons':getattr(error,'reasons',[])},409)
 
 

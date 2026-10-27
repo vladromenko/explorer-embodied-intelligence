@@ -66,3 +66,9 @@ def test_cooperative_routes_pin_session_scope_actor_and_managed_artifact(tmp_pat
         assert client.get('/api/cooperative/artifacts/native-control/'+ident+'?path=/etc/passwd').status_code==400
         assert client.get('/api/cooperative/artifacts/receiver-metadata/'+ident+'?path=/etc/passwd').status_code==400
         assert client.post('/api/cooperative/step',json=[],headers=headers).status_code==409
+        def expired(operation,body,*,authenticated_actor):
+            assert operation=='native_parked_release_resume' and authenticated_actor.startswith('authenticated-session:')
+            raise TimeoutError('Source challenge elapsed before USER facts could be consumed')
+        monkeypatch.setattr(service,'command',expired)
+        expired_reply=client.post('/api/cooperative/native_parked_release_resume',json={'session_id':ident},headers=headers)
+        assert expired_reply.status_code==409 and 'elapsed' in expired_reply.json()['detail']
