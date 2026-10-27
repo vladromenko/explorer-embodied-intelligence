@@ -21,11 +21,12 @@ OPERATIONS=('native_begin','native_recenter','native_resume','native_attach','na
 class CooperativeNativeSessions:
     def __init__(self,service):
         self.service=service;self.workflow=service.workflow;self.clock=service.clock
-        self.lock=threading.RLock();self.choices=OrderedDict();self.cache={};self.pending=set()
+        self.lock=threading.RLock();self.choices=OrderedDict();self.cache={};self.pending=set();self.owned=OrderedDict();self.cancelled=set()
     def _fresh(self,row,spec,actor=None):
         current=self.workflow.snapshot(row['session_id']);bound=current.get('observed_test_binding') or {}
+        with self.lock:cancelled=(row['session_id'],row['epoch']) in self.cancelled
         context=self.service.observed_setup._context(current,spec)
-        if (self.service.closed or self.workflow.closed or current['epoch']!=row['epoch'] or
+        if (cancelled or self.service.closed or self.workflow.closed or current['epoch']!=row['epoch'] or
                 current['process_session']!=self.workflow.process or current['execution_domain']!='user_observed_physical_test' or
                 current['skill_id']!=spec['skill_id'] or current['skill_version']!=spec['version'] or current['spec_sha256']!=spec['spec_sha256'] or
                 digest({key:value for key,value in spec.items() if key!='spec_sha256'})!=spec['spec_sha256'] or
@@ -128,6 +129,7 @@ class CooperativeNativeSessions:
         result={'schema':'explorer_cooperative_native_controls_v1','roles':roles,'current_received_ns':self.clock(),
             'native_controls_started_by_snapshot':False,'native_operations_are_separate_USER_actions':True}
         with self.lock:
+            if (row['session_id'],row['epoch']) in self.cancelled:raise ValueError('Late native controls refresh after cooperative STOP')
             self.cache[row['session_id']]=(row['epoch'],deepcopy(result))
             while len(self.cache)>64:self.cache.pop(next(iter(self.cache)))
         return result
@@ -158,6 +160,49 @@ class CooperativeNativeSessions:
                 'received_nx_ns':self.clock(),'received_clock_domain':self.workflow.domain,'actor_id':actor,
                 'basis':'parsed_authenticated_source_reply_not_hardware_attainment'})
             current['native_user_control_receipts']=current['native_user_control_receipts'][-64:];self.workflow._save(current)
+    def _remember_owned(self,row,spec,role,operation,pair,result,actor):
+        key=(row['session_id'],row['epoch'],role)
+        with self.lock:
+            if operation=='native_stop':self.owned.pop(key,None)
+            elif operation in ('native_begin','native_resume','native_recenter','native_attach'):
+                self.owned[key]={'row':deepcopy(row),'spec':deepcopy(spec),'role':role,'operation':operation,
+                    'pair':deepcopy(pair),'result':deepcopy(result),'actor':actor}
+                self.owned.move_to_end(key)
+                while len(self.owned)>128:self.owned.popitem(last=False)
+            cancelled=key[:2] in self.cancelled
+        if cancelled:raise ValueError('Native USER operation returned after this cooperative STOP')
+    def cancel_owned_sessions(self,row,*,actor=None,reason='EXPLICIT_COOPERATIVE_STOP'):
+        """Revoke local choices first, then exact returned native owners.
+
+        Pass the saved pre-STOP row, including when workflow already cancelled
+        its epoch. No current source epoch is adopted: the cached authenticated
+        reply is the STOP CAS basis.
+        Source boundary rejects newer grants/generations; armed latches persist.
+        """
+        bound=row.get('observed_test_binding') or {};owner=bound.get('actor_id')
+        if (row.get('process_session')!=self.workflow.process or actor is not None and owner is not None and actor!=owner):
+            raise ValueError('Exact owned cooperative process/operator required for native cancellation')
+        context=(row['session_id'],row['epoch'])
+        with self.lock:
+            self.cancelled.add(context);self.cache.pop(row['session_id'],None)
+            for choice in self.choices.values():
+                if (choice['context']['session_id'],choice['context']['epoch'])==context:choice['used']=True
+            records={key[2]:deepcopy(value) for key,value in self.owned.items() if key[:2]==context}
+        results={}
+        for role in ('giver','receiver'):
+            record=records.get(role)
+            if record is None:results[role]={'known_owned_native_session':False,'source_stop_requested':False}
+            elif record['actor']!=owner:results[role]={'known_owned_native_session':False,'source_stop_requested':False,'reason':'OWNED_ACTOR_CHANGED'}
+            else:
+                try:
+                    response=self._cleanup(role,record['row'],record['spec'],record['pair'],record['result'],record['operation'])
+                    results[role]={'known_owned_native_session':True,'source_cleanup_receipt':deepcopy(response),
+                        'hardware_attainment_or_object_safety_claimed':False}
+                except Exception as error:
+                    results[role]={'known_owned_native_session':True,'delivery_unknown':True,'error':type(error).__name__+':'+str(error),
+                        'requested_only_exact_returned_source_scope':True}
+        return {'session_id':row['session_id'],'coordinator_epoch':row['epoch'],'reason':str(reason)[:160],'roles':results,
+            'native_lease_automatically_renewed':False,'dual_hold_interlocks_unarmed':False}
     def command(self,operation,row,spec,body,*,actor):
         selected=self._choose(operation,row,spec,body,actor);role=selected['role'];pair=None;result={};known_reply=False
         request=self.service._request(role)
@@ -196,7 +241,8 @@ class CooperativeNativeSessions:
                 elif operation=='native_stop':result=post('stop',{**binding,'control_epoch':native['control_epoch'] if mode=='policy' else None,
                     'expected_native_generation':native['owner_generation']})
                 else:raise ValueError('Known exact native USER operation required')
-            known_reply=operation in ('native_recenter','native_resume','native_attach') or operation=='native_begin' and (role=='receiver' or 'begin' in result)
+            known_reply=operation in ('native_recenter','native_resume','native_attach') or operation=='native_begin' and (role=='receiver' or 'bind' in result)
+            self._remember_owned(row,spec,role,operation,pair,result,actor)
             self._save(row,spec,role,operation,result,actor)
             controls=self.refresh(row,spec,actor=actor)
             return {'role':role,'operation':operation,'native_receipt':result,'automatic_lease_renewal':False,
@@ -211,16 +257,22 @@ class CooperativeNativeSessions:
     def _cleanup(self,role,row,spec,pair,result,operation):
         request=self.service._request(role)
         if role=='receiver':
-            initial=pair['permission']['grant'];current=request('GET','/station/observed-test/status',None).get('grant') or {}
+            initial=pair['permission']['grant']
+            try:current=request('GET','/station/observed-test/status',None).get('grant') or {}
+            except Exception:current={}  # Source STOP still enforces exact cached grant/epoch CAS.
             if current and (current.get('grant_id')!=initial['grant_id'] or current.get('binding')!=initial['binding'] or
                     current.get('provider_process')!=initial['provider_process']):return {'new_native_grant_not_owned':True}
             grant=result.get('grant') or initial
             if current and current.get('control_epoch')!=grant['control_epoch']:return {'new_native_epoch_not_owned':True}
             facade=StationObservedHttp(request,grant['binding'])
             return facade.command(grant['grant_id'],grant['binding'],'stop',{'expected_control_epoch':grant['control_epoch']})
-        binding=self._binding(row,pair);source=request('GET','/legacy/explorer/cooperative/status',None)
+        binding=self._binding(row,pair)
+        activation=request('GET','/legacy/explorer/retarget/activation/status',None)
+        if activation.get('authorization_id') not in (None,binding['authorization_id']):return {'new_native_authorization_not_owned':True}
+        source=request('GET','/legacy/explorer/cooperative/status',None)
         bound=(source.get('release_boundary') or {}).get('binding') or {};native=source.get('native') or {}
-        expected=(pair['source']['native'] if operation=='native_attach' else result.get('begin',result))
+        expected=(pair['source']['native'] if operation=='native_attach' else result.get('begin',result.get('native',
+            (result.get('prepare') or {}).get('native',result))))
         expected=expected.get('native') or expected
         if any(bound.get(key)!=binding[key] for key in ('run_id','object_id','coordinator_epoch','authorization_id')):
             return {'new_native_binding_not_owned':True}
