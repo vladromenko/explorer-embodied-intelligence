@@ -24,12 +24,16 @@ def test_exact_forward_repin_full_factory_startup(tmp_path,fresh):
     for path in (source/'src').glob('*.py'):
         if path.name!='web.py':(runtime/'src'/path.name).symlink_to(path)
     (runtime/'src/web.py').write_bytes((old/'web.patched.py').read_bytes())
-    new=tmp_path/'forward';prepare_native_owner_repin(runtime,old,new,pinned_shared_path=str(shared),baseline=baseline,
+    middle=tmp_path/'middle-shared';middle.symlink_to(shared,target_is_directory=True)
+    new=tmp_path/'forward';prepare_native_owner_repin(runtime,old,new,pinned_shared_path=str(middle),baseline=baseline,
         expected_previous_plan_sha256=hashlib.sha256((old/'plan.json').read_bytes()).hexdigest())
+    (runtime/'src/web.py').write_bytes((new/'web.repin.py').read_bytes())
+    final=tmp_path/'second-forward';prepare_native_owner_repin(runtime,new,final,pinned_shared_path=str(shared),baseline=baseline,
+        expected_previous_plan_sha256=hashlib.sha256((new/'plan.json').read_bytes()).hexdigest())
     output=tmp_path/'receipt.json'
     process=subprocess.run([sys.executable,'-m','explorer_shared.native_web_startup_probe',
         '--source-root',str(source),'--uptime','120' if fresh else '18002.49',
-        '--candidate',str(new/'web.repin.py'),'--output',str(output)],
+        '--candidate',str(final/'web.repin.py'),'--output',str(output)],
         env={**os.environ,'PYTHONPATH':str(shared)},capture_output=True,text=True,timeout=40)
     assert process.returncode==0,process.stderr
     receipt=json.loads(output.read_bytes())

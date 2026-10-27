@@ -26,19 +26,52 @@ def _baseline(root,baseline):
             raise ValueError('Original controller baseline changed during forward pin')
 
 
-def prepare_native_owner_repin(root,previous_prepared,output_dir,*,pinned_shared_path,baseline,expected_previous_plan_sha256):
+def _original_patch(previous,old,raw_plan,*,original_prepared=None,expected_original_plan_sha256=None):
+    """Retain the original anchored factory across any number of forward pins."""
+    schema=old.get('schema')
+    if schema=='explorer_native_owner_patch_plan_v1':
+        folder=previous;original_plan=raw_plan;original=(folder/'web.original.py').read_bytes()
+    elif schema=='explorer_native_owner_repin_plan_v1':
+        if (previous/'original-plan.json').is_file():
+            original_plan=(previous/'original-plan.json').read_bytes();original=(previous/'web.original.py').read_bytes()
+            if _sha(original_plan)!=old.get('original_patch_plan_sha256'):
+                raise ValueError('Retained original patch plan anchor changed')
+        else:
+            # The first historical forward plan did not retain factory bytes.
+            # It needs an independently anchored original preparation once.
+            if original_prepared is None or expected_original_plan_sha256 is None:
+                raise ValueError('Historical forward pin requires independently anchored original preparation')
+            folder=Path(original_prepared);original_plan=(folder/'plan.json').read_bytes()
+            if _sha(original_plan)!=expected_original_plan_sha256:
+                raise ValueError('Independent original patch plan SHA changed')
+            original=(folder/'web.original.py').read_bytes()
+    else:raise ValueError('Known original patch or forward pin plan required')
+    if len(original_plan)>1024**2:raise ValueError('Bounded original patch plan required')
+    factory=json.loads(original_plan)
+    if (factory.get('schema')!='explorer_native_owner_patch_plan_v1' or _sha(original)!=patch.WEB_SHA256 or
+            factory.get('original_web_sha256')!=patch.WEB_SHA256 or factory.get('source_sha256')!=old.get('source_sha256') or
+            factory.get('controller_baseline')!=old.get('controller_baseline') or factory.get('nano_node_id')!=old.get('nano_node_id') or
+            factory.get('default_execution_permission') is not False):
+        raise ValueError('Exact original factory ancestry/source/controller baseline required')
+    return original,original_plan
+
+
+def prepare_native_owner_repin(root,previous_prepared,output_dir,*,pinned_shared_path,baseline,expected_previous_plan_sha256,
+                               original_prepared=None,expected_original_plan_sha256=None):
     root=Path(root);previous=Path(previous_prepared);output=Path(output_dir)
     if output.exists() or output.is_symlink():raise ValueError('New private forward-pin preparation directory required')
     raw_plan=(previous/'plan.json').read_bytes()
     if (not isinstance(expected_previous_plan_sha256,str) or len(raw_plan)>1024**2 or
             _sha(raw_plan)!=expected_previous_plan_sha256):raise ValueError('Independently retained previous patch plan SHA required')
     old=json.loads(raw_plan)
-    original=(previous/'web.original.py').read_bytes();current=(root/'src/web.py').read_bytes()
-    old_candidate=(previous/'web.patched.py').read_bytes();sources=_inventory(root)
-    if (old.get('schema')!='explorer_native_owner_patch_plan_v1' or _sha(original)!=patch.WEB_SHA256 or
-            old.get('original_web_sha256')!=patch.WEB_SHA256 or _sha(old_candidate)!=old.get('candidate_web_sha256') or
-            current!=old_candidate or sources!=old.get('source_sha256') or
-            baseline!=old.get('controller_baseline') or old.get('default_execution_permission') is not False):
+    original,original_plan=_original_patch(previous,old,raw_plan,original_prepared=original_prepared,
+        expected_original_plan_sha256=expected_original_plan_sha256)
+    current=(root/'src/web.py').read_bytes()
+    old_candidate=(previous/('web.patched.py' if old['schema']=='explorer_native_owner_patch_plan_v1' else 'web.repin.py')).read_bytes()
+    sources=_inventory(root)
+    if (_sha(old_candidate)!=old.get('candidate_web_sha256') or current!=old_candidate or sources!=old.get('source_sha256') or
+            baseline!=old.get('controller_baseline') or old.get('default_execution_permission') is not False or
+            old['schema']=='explorer_native_owner_repin_plan_v1' and old.get('factory_original_web_sha256')!=patch.WEB_SHA256):
         raise ValueError('Exact original/known patched owner plan and full source inventory required')
     _baseline(root,baseline)
     pinned=Path(pinned_shared_path)
@@ -66,9 +99,10 @@ def prepare_native_owner_repin(root,previous_prepared,output_dir,*,pinned_shared
     if _inventory(root)!=sources or (root/'src/web.py').read_bytes()!=current:
         raise ValueError('Native original source changed while preparing forward pin')
     _baseline(root,baseline);output.mkdir(parents=True,exist_ok=False)
+    patch._atomic(output/'web.original.py',original);patch._atomic(output/'original-plan.json',original_plan)
     patch._atomic(output/'web.previous.py',current);patch._atomic(output/'web.repin.py',candidate)
     plan={'schema':'explorer_native_owner_repin_plan_v1','prepared_at':time.time(),
-        'previous_plan_sha256':_sha(raw_plan),'factory_original_web_sha256':patch.WEB_SHA256,
+        'previous_plan_sha256':_sha(raw_plan),'original_patch_plan_sha256':_sha(original_plan),'factory_original_web_sha256':patch.WEB_SHA256,
         'previous_web_sha256':_sha(current),'candidate_web_sha256':_sha(candidate),'source_sha256':sources,
         'controller_baseline':dict(baseline),'previous_pinned_shared_path':old['pinned_shared_path'],
         'pinned_shared_path':str(pinned),'nano_node_id':old['nano_node_id'],'default_execution_permission':False,

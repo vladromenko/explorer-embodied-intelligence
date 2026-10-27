@@ -96,3 +96,38 @@ def test_independent_previous_plan_anchor_and_fresh_boot_guard_fail_closed(tmp_p
     monkeypatch.setattr(mount,'assert_native_restart_safe',fresh)
     with pytest.raises(ValueError,match='HOME_WINDOW'):apply_prepared_native_repin(root,new,runtime_guard=idle)
     assert (root/'src/web.py').read_bytes()==original
+
+
+def test_repeated_forward_pins_retain_anchored_factory_and_exact_one_path_changes(tmp_path,monkeypatch):
+    root,old,first,plan,baseline=prepared(tmp_path,monkeypatch)
+    apply_prepared_native_repin(root,first,runtime_guard=idle)
+    for index in range(2,5):
+        previous=first if index==2 else tmp_path/('forward'+str(index-1));target=tmp_path/('forward'+str(index))
+        before=(root/'src/web.py').read_bytes();parent=json.loads((previous/'plan.json').read_bytes())
+        result=prepare_native_owner_repin(root,previous,target,pinned_shared_path='/immutable/release'+str(index)+'/shared',baseline=baseline,
+            expected_previous_plan_sha256=hashlib.sha256((previous/'plan.json').read_bytes()).hexdigest())
+        assert result['previous_plan_sha256']==hashlib.sha256((previous/'plan.json').read_bytes()).hexdigest()
+        assert (target/'web.original.py').read_bytes()==(old/'web.original.py').read_bytes()
+        assert result['original_patch_plan_sha256']==hashlib.sha256((old/'plan.json').read_bytes()).hexdigest()
+        apply_prepared_native_repin(root,target,runtime_guard=idle)
+        assert (root/'src/web.py').read_bytes().replace(repr(result['pinned_shared_path']).encode(),repr(parent['pinned_shared_path']).encode())==before
+        apply_prepared_native_repin(root,target,runtime_guard=None,rollback=True);assert (root/'src/web.py').read_bytes()==before
+        apply_prepared_native_repin(root,target,runtime_guard=idle)
+
+
+def test_historical_forward_missing_original_requires_independent_ancestor_and_rejects_tamper(tmp_path,monkeypatch):
+    root,old,first,plan,baseline=prepared(tmp_path,monkeypatch);apply_prepared_native_repin(root,first,runtime_guard=idle)
+    (first/'web.original.py').unlink();(first/'original-plan.json').unlink()
+    plan.pop('original_patch_plan_sha256');(first/'plan.json').write_text(json.dumps(plan))
+    options=dict(pinned_shared_path='/immutable/next/shared',baseline=baseline,expected_previous_plan_sha256=hashlib.sha256((first/'plan.json').read_bytes()).hexdigest())
+    before=(root/'src/web.py').read_bytes()
+    with pytest.raises(ValueError,match='independently anchored'):prepare_native_owner_repin(root,first,tmp_path/'missing',**options)
+    with pytest.raises(ValueError,match='Independent original'):prepare_native_owner_repin(root,first,tmp_path/'bad',**options,original_prepared=old,expected_original_plan_sha256='0'*64)
+    result=prepare_native_owner_repin(root,first,tmp_path/'good',**options,original_prepared=old,expected_original_plan_sha256=hashlib.sha256((old/'plan.json').read_bytes()).hexdigest())
+    assert result['previous_plan_sha256']==options['expected_previous_plan_sha256'] and (root/'src/web.py').read_bytes()==before
+    # A matching changed plan/hash still cannot introduce new factory behavior.
+    raw=(first/'web.repin.py').read_bytes()+b'\nUNREVIEWED_FACTORY=1\n';(first/'web.repin.py').write_bytes(raw);(root/'src/web.py').write_bytes(raw)
+    plan['candidate_web_sha256']=hashlib.sha256(raw).hexdigest();(first/'plan.json').write_text(json.dumps(plan));options['expected_previous_plan_sha256']=hashlib.sha256((first/'plan.json').read_bytes()).hexdigest()
+    with pytest.raises(ValueError,match='exact original patch generator'):
+        prepare_native_owner_repin(root,first,tmp_path/'evil',**options,original_prepared=old,expected_original_plan_sha256=hashlib.sha256((old/'plan.json').read_bytes()).hexdigest())
+    assert not (tmp_path/'evil').exists()
