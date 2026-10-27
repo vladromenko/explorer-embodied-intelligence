@@ -1,8 +1,13 @@
 """Existing ORIGINAL Publisher proxy with temp metadata only; no ROS/devices."""
 from copy import deepcopy
+import ast
+import hashlib
 import json
+import os
+from pathlib import Path
 import threading
 import time
+from types import SimpleNamespace,MethodType
 
 import pytest
 
@@ -10,6 +15,7 @@ from explorer_shared import giver_hold_persistence05 as wal
 from explorer_shared import native_cooperative05 as cooperative
 from explorer_shared.native_cooperative05 import NativeCooperativeOwner,ExistingBaseDriveBoundary
 from explorer_shared.native_stream03 import NativeDispatchTap,NativeTeleopMux
+from explorer_shared.native_owner_patch import WEB_SHA256
 from test_native_cooperative05 import OriginalArm,Activation,start,confirmed,message
 from test_native_stream03 import Teleop
 
@@ -246,11 +252,11 @@ def test_revoke_during_confirmation_validation_cannot_stamp_old_challenge_with_n
             assert owner.guard.revision>challenge['revision']
         return original(value)
     monkeypatch.setattr(cooperative,'identity',validating)
-    returned=owner.guard.authorize(confirmed(binding,challenge))
+    with pytest.raises(ValueError,match='superseded by revoke'):owner.guard.authorize(confirmed(binding,challenge))
     for thread in threads:thread.join(2);assert not thread.is_alive()
-    assert returned['revision']==challenge['revision']<owner.guard.revision and owner.guard.grant is None
-    assert not owner.guard.journal.pending and owner.guard.journal.fault is None
-    with pytest.raises(ValueError,match='NO_FRESH'):arm.pub.publish(message(80))
+    assert challenge['revision']<owner.guard.revision and owner.guard.grant is None and 'new-operator-receipt' not in owner.guard.used
+    assert owner.guard.journal.pending and owner.guard.journal.recovery_required
+    with pytest.raises(ValueError):arm.pub.publish(message(80))
     assert len(publisher.messages)==1
 
 
@@ -268,3 +274,73 @@ def test_genuine_zero_stop_does_not_wait_for_an_inflight_arm_publisher_guard(tmp
         assert teleop.native_drive[-1]==[0.,0.,0.] and tap.base_history[-1]['velocity']==[0.,0.,0.]
     finally:release.set();worker.join(2);zero.join(2)
     assert not worker.is_alive() and not zero.is_alive() and owner.guard.last_publication['opening']
+
+
+def test_original_global_stop_base_latch_does_not_wait_for_admitted_arm_publisher(tmp_path):
+    owner,mux,teleop,arm,publisher,tap,activation,tick,binding,path=armed(tmp_path)
+    challenge=owner.guard.challenge({**binding,'after_receiver_command_id':'receiver-close-actual'})
+    grant=owner.guard.authorize(confirmed(binding,challenge));entered,release,base_stopped=threading.Event(),threading.Event(),threading.Event()
+    original_pub=publisher.publish;original_stop=mux.original['stop_all']
+    def blocked(message):entered.set();assert release.wait(2);return original_pub(message)
+    def base_stop():result=original_stop();base_stopped.set();return result
+    def production_invalidate(reason):
+        result=activation.revoke(reason);owner.guard.revoke(reason);return result
+    mux.original['stop_all']=base_stop;mux.on_invalidate=production_invalidate;publisher.publish=blocked
+    worker=threading.Thread(target=lambda:arm.pub.publish(message(80)));worker.start();assert entered.wait(1)
+    stopped=threading.Thread(target=mux._stop_all);stopped.start()
+    try:
+        assert base_stopped.wait(.5) and not release.is_set()
+        assert not activation.valid and not mux.active and teleop.native_stop==1
+        assert tap.since()['receipts'][-1]['kind']=='base_stop_host_request'
+    finally:release.set();worker.join(2);stopped.join(2)
+    assert not worker.is_alive() and not stopped.is_alive()
+    actual=owner.guard.last_publication
+    assert actual['opening'] and actual['guard_grant']['grant_id']==grant['grant_id']
+    assert actual['guard_revision']==grant['revision']<owner.guard.revision and actual['binding']==owner.guard.binding
+    assert owner.guard.grant is None and owner.guard.armed
+
+
+def test_exact_retained_web_stop_emits_base_before_actual_original_arm_stop_waits_for_publication(tmp_path):
+    source=os.environ.get('EXPLORER_NATIVE_STARTUP_SOURCE')
+    if not source:pytest.skip('Opt-in exact original private source required; all dependencies remain fake')
+    source=Path(source);raw=(source/'src/web.py').read_bytes();arm_raw=(source/'src/manual_arm.py').read_bytes()
+    from explorer_shared.native_stream03 import AUDITED_FACTORY_SHA256
+    assert hashlib.sha256(raw).hexdigest()==WEB_SHA256
+    assert hashlib.sha256(arm_raw).hexdigest()==AUDITED_FACTORY_SHA256['src/manual_arm.py']
+    stop_all=next(node for node in ast.parse(raw).body if isinstance(node,ast.FunctionDef) and node.name=='stop_all')
+    arm_class=next(node for node in ast.parse(arm_raw).body if isinstance(node,ast.ClassDef) and node.name=='ManualArm')
+    arm_stop=next(node for node in arm_class.body if isinstance(node,ast.FunctionDef) and node.name=='stop')
+    owner,mux,teleop,arm,publisher,tap,activation,tick,binding,path=armed(tmp_path)
+    challenge=owner.guard.challenge({**binding,'after_receiver_command_id':'receiver-close-actual'});grant=owner.guard.authorize(confirmed(binding,challenge))
+    entered,release,base_emitted=threading.Event(),threading.Event(),threading.Event();serial=threading.RLock()
+    original=publisher.publish
+    def blocked(message):
+        with serial:entered.set();assert release.wait(2);return original(message)
+    def emit(command):assert command=='stop';base_emitted.set();return {'queued':True,'source':'SOFTWARE_FAKE_EXISTING_EMITTER'}
+    native=SimpleNamespace(publication_lock=serial,stop_revision=0,cancelled=threading.Event(),active_runtime_ms=80)
+    namespace={'emit':emit,'manual_arm':native}
+    exec(compile(ast.Module(body=[stop_all,arm_stop],type_ignores=[]),'<exact-original-stop-functions-fake-dependencies>','exec'),namespace)
+    native.stop=MethodType(namespace['stop'],native);mux.original['stop_all']=namespace['stop_all']
+    def invalidate(reason):
+        value=activation.revoke(reason);owner.guard.revoke(reason);return value
+    mux.on_invalidate=invalidate;publisher.publish=blocked
+    worker=threading.Thread(target=lambda:arm.pub.publish(message(80)));worker.start();assert entered.wait(1)
+    stopping=threading.Thread(target=mux._stop_all);stopping.start()
+    try:
+        assert base_emitted.wait(.5) and not release.is_set() and not native.cancelled.is_set()
+        assert tap.base_pending==1 and not any(row['kind']=='base_stop_host_request' for row in tap.since()['receipts'])
+    finally:release.set();worker.join(2);stopping.join(2)
+    assert not worker.is_alive() and not stopping.is_alive() and native.cancelled.is_set() and native.stop_revision==1
+    assert tap.since()['receipts'][-1]['kind']=='base_stop_host_request' and tap.base_pending==0
+    assert owner.guard.last_publication['guard_grant']['grant_id']==grant['grant_id'] and owner.guard.grant is None
+
+
+def test_tiny_revoke_admission_lock_never_covers_camera_check_or_original_publisher(tmp_path,monkeypatch):
+    owner,mux,teleop,arm,publisher,tap,activation,tick,binding,path=armed(tmp_path)
+    fresh=activation.allowed;identity=activation.current_authorization_id;original=publisher.publish;cached=[]
+    def camera_check():assert not owner.guard.revision_lock.locked();return fresh()
+    def current_identity():assert owner.guard.revision_lock.locked();cached.append(True);return identity()
+    def publish(message):assert not owner.guard.revision_lock.locked();return original(message)
+    monkeypatch.setattr(activation,'allowed',camera_check);monkeypatch.setattr(activation,'current_authorization_id',current_identity)
+    monkeypatch.setattr(publisher,'publish',publish);arm.pub.publish(message(100))
+    assert cached==[True] and not owner.guard.last_publication['opening']

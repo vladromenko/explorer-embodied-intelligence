@@ -37,6 +37,22 @@ events/grants внутри receipts остаются историей, а не �
 сохраняются. Публикация, уже допущенная до revoke, может вернуть настоящий receipt;
 она сохраняется как host return, без MCU acknowledgement/attainment claim.
 
+Logical revoke не ждёт guard lock уже допущенного arm Publisher: revision/cache
+invalidation завершается до исходного global STOP, чтобы независимый base latch
+не оказался позади arm callback. Tiny admission/revision lock охватывает только
+cached owner/authorization checks; camera/file checks и исходный Publisher вне
+него. Authorize повторно проверяет captured challenge revision в atomic attach:
+late proof не возвращается как новая действующая permission. Binding/grant/revision
+для одного уже допущенного return сохраняются **до** вызова исходного Publisher.
+Production invalidate сначала отзывает cached observed activation, затем release
+guard; fresh или закрывающая публикация не заимствует промежуточный старый grant.
+
+Opt-in тест исполняет точные SHA-pinned исходные `web.stop_all` и `ManualArm.stop`
+с fake emitter/arm lock: base emit происходит при ещё заблокированном arm publish,
+а общий STOP return и его Tap receipt честно появляются только после завершения
+original arm cancellation. Сам факт early base emit не выдаётся за завершённый
+HTTP/whole-stop receipt или достигнутую скорость.
+
 File fsync выполняется вне guard/teleop/publication locks. Pending mutation
 закрывает новые публикации до final seal; несогласованность/revoke не оживляет
 grant. В текущем armed runtime closing также проверяет прежний `_current`:

@@ -150,12 +150,13 @@ class NativeReceiverHoldBoundary:
                     else:self.journal.fail('GIVER_MUTATION_OR_SEAL_UNCERTAIN')
                 except Exception:self.journal.fail('GIVER_REJECTED_METADATA_SEAL_FAILED')
                 raise
-    def _current(self):
+    def _current(self,*,cached=False):
         if self.journal.fault is not None or self.journal.recovery_required:raise ValueError('Durable giver recovery is required')
         binding=self.binding
         if (binding is None or self.mux.teleop.owner!='keyboard' or self.mux.teleop.generation!=binding['native_generation'] or
                 self.mux.teleop.stop_latched or not self.mux.clock()<self.mux.teleop.lease or
-                not self.activation.allowed() or self.activation.receipt(binding['authorization_id']) is None):
+                (self.activation.current_authorization_id()!=binding['authorization_id'] if cached else
+                    not self.activation.allowed() or self.activation.receipt(binding['authorization_id']) is None)):
             raise ValueError('Current original native owner/observation lease required')
         if binding.get('native_control_epoch') is not None and (
                 not self.mux.active or self.mux.epoch!=binding['native_control_epoch']):raise ValueError('Native cooperative epoch changed')
@@ -231,16 +232,20 @@ class NativeReceiverHoldBoundary:
             receipt_id=identity(proof.get('challenge_id'))
             if receipt_id in self.used:raise ValueError('Receiver holding receipt cannot be reused')
             if len(self.used)>=2048:raise ValueError('Retained native receiver-proof budget reached')
-            self.used.add(receipt_id)
-            self.grant={'grant_id':uuid.uuid4().hex,'challenge':deepcopy(challenge),'operator_confirmation':deepcopy(proof),
+            selected={'grant_id':uuid.uuid4().hex,'challenge':deepcopy(challenge),'operator_confirmation':deepcopy(proof),
                 'expires_native_ns':challenge['expires_native_ns'],'revision':challenge['revision'],
                 'clock_conversion_assumed':False,'force_or_attainment_measured':False}
-            self.pending=None;return deepcopy(self.grant)
+            with self.revision_lock:
+                if self.revision!=challenge['revision'] or self.pending is not challenge:
+                    raise ValueError('Native receiver-hold authorization superseded by revoke')
+                self.used.add(receipt_id);self.grant=selected;self.pending=None
+            return deepcopy(selected)
     def revoke(self,reason):
-        # Increment before waiting on an already-started bounded publication.
-        # This never emits HOLD/open/HOME or changes a controller constant.
-        self._bump_revision()
-        with self.lock:self.pending=self.grant=None
+        # Logical invalidation NEVER waits for an admitted arm Publisher: the
+        # original global STOP must reach its independent base latch promptly.
+        # A concurrently finishing authorization carries its captured OLD
+        # challenge revision and cannot restore opening authority.
+        with self.revision_lock:self.revision+=1;self.pending=self.grant=None
         return {'revoked':True,'reason':reason,'dual_hold_protection_remains_armed':self.armed}
     def _check_reset(self,body):
         self.activation.require(body.get('authorization_id'))
@@ -276,9 +281,18 @@ class NativeReceiverHoldBoundary:
                     if (grant is None or grant['revision']!=self.revision or
                             not grant['challenge']['issued_native_ns']<=self.clock()<grant['expires_native_ns']):
                         raise ValueError('NO_FRESH_NATIVE_RECEIVER_HOLD_AT_OPENING_PUBLICATION')
+                admitted_binding=deepcopy(self.binding);admitted_grant=deepcopy(self.grant) if opening else None
+                # Serialize only cached admission with logical revoke. Camera
+                # reads and the ORIGINAL Publisher are outside this tiny lock.
+                with self.revision_lock:
+                    if self.armed:self._current(cached=True)
+                    revision=self.revision;started=self.clock()
+                    if opening and (self.grant is None or admitted_grant is None or
+                            self.grant['grant_id']!=admitted_grant['grant_id'] or self.grant['revision']!=revision or
+                            not self.grant['challenge']['issued_native_ns']<=started<self.grant['expires_native_ns']):
+                        raise ValueError('NO_FRESH_NATIVE_RECEIVER_HOLD_AT_OPENING_PUBLICATION')
             except ValueError as error:
                 self._publication_failed(str(error));raise
-            started=self.clock();revision=self.revision
             try:result=callback()  # Same original Publisher, serialized transaction.
             except Exception:
                 if self.armed:self._publication_failed('ORIGINAL_PUBLISHER_RETURN_UNKNOWN')
@@ -286,8 +300,8 @@ class NativeReceiverHoldBoundary:
             finished=self.clock()
             if self.armed:
                 receipt={'schema':'explorer_native_cooperative_publication_v1','receipt_id':uuid.uuid4().hex,
-                    'binding':deepcopy(self.binding),'requested_servo_deg':list(pose),'opening':opening,
-                    'guard_grant':deepcopy(self.grant) if opening else None,'guard_revision':revision,
+                    'binding':admitted_binding,'requested_servo_deg':list(pose),'opening':opening,
+                    'guard_grant':admitted_grant,'guard_revision':revision,
                     'host_publication_started_native_ns':started,'host_publication_returned_native_ns':finished,
                     'native_clock_domain':self.mux.tap.clock_domain,'native_boot_id':self.mux.tap.boot_id,
                     'semantics':'original_publisher_returned_not_MCU_ack_or_attainment',

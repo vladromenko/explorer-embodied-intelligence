@@ -127,7 +127,7 @@ def mount_factory_owner(app,root,manual_arm,teleop,token,*,clock_domain,observed
         cooperative=NativeCooperativeOwner(mux,activation,guarded_reference,target_limits=limits,
             state_path=root/'data'/'explorer-cooperative-giver-hold.json')
         def invalidate(reason):
-            cooperative.guard.revoke(reason);return activation.revoke(reason)
+            result=activation.revoke(reason);cooperative.guard.revoke(reason);return result
         mux.on_invalidate=invalidate
         mux.chassis_permit=lambda:not cooperative.guard.base_motion_blocked() and activation.base_allowed()
         mux.publication_evidence=lambda:deepcopy(cooperative.guard.last_publication)
