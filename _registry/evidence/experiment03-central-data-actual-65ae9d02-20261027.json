@@ -1,0 +1,169 @@
+{
+  "schema": "explorer03_central_data_actual_release_v1",
+  "release_commit": "65ae9d021796c5ec4c9cab8a129fdb827dbf36f3",
+  "deployed_scope": "central+worker only; Nano OWN722; Pi and original NanoWEB4c unchanged",
+  "full_regression": {
+    "passed": 2271,
+    "skipped": 20,
+    "pytest_elapsed_s": 855.56,
+    "launcher_elapsed_s": 867.1391669359873,
+    "resources": {
+      "cpu.max": "300000 100000",
+      "memory.max": "5368709120",
+      "memory.current": "1468375040",
+      "memory.peak": "4343767040",
+      "memory.swap.max": "0",
+      "memory.swap.peak": "0",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    "CAD_files": 20
+  },
+  "node_regression": {
+    "passed": 243,
+    "elapsed_s": 2.46,
+    "scope": "same final executable JS bytes; earlier preserved qualification"
+  },
+  "cutover": {
+    "elapsed_s": 2.5499547479848843,
+    "only_own_two_services_restarted": true,
+    "private_config_units_unchanged": true,
+    "original_source_reference_PIDs_six_configs_unchanged": true,
+    "passive_ROS": {
+      "counts": {
+        "/arm6_joints": 0,
+        "/explorer/request": 0
+      },
+      "observation_seconds": 20,
+      "passive_only": true,
+      "received_count": 0,
+      "schema": "explorer_03data_own_cutover_passive_ROS_v1",
+      "topics": [
+        "/arm6_joints",
+        "/explorer/request"
+      ]
+    }
+  },
+  "scientific_originals": {
+    "scientific_originals": {
+      "jobs": {
+        "original_rows": 25,
+        "current_rows": 25,
+        "all_original_rows_identical": true
+      },
+      "skills": {
+        "original_rows": 11,
+        "current_rows": 11,
+        "all_original_rows_identical": true
+      },
+      "events": {
+        "original_rows": 16339,
+        "current_rows": 16410,
+        "all_original_rows_identical": true
+      }
+    },
+    "schema_unchanged": true,
+    "active_jobs": 0
+  },
+  "actual_HTTPS_UI": {
+    "browser": "Firefox",
+    "viewports": [
+      {
+        "name": "desktop",
+        "horizontal_overflow": false,
+        "advancing_frame_ids": [
+          "nano-rgbd:34ccf0e4f3ab:93217",
+          "nano-rgbd:34ccf0e4f3ab:93223"
+        ],
+        "physical_admission": {
+          "state": "OPEN",
+          "allowed": false,
+          "reason": "CONTINUITY_QUALIFICATION_REQUIRED",
+          "evidence": "03-lerobot-teaching/docs/CONTINUITY_20261027.json",
+          "physical_commands_authorized": false
+        },
+        "cameras": 2,
+        "project03_counts": {
+          "imported": 0,
+          "pending_imports": 0,
+          "raw_frames_recorded": 0,
+          "admitted_for_training": 0,
+          "observation_or_rejected": 0,
+          "operator_labelled_success": 0,
+          "trained_RGB9D_models": 0
+        },
+        "API_GET_statuses": [
+          200,
+          200,
+          200,
+          200
+        ]
+      },
+      {
+        "name": "mobile",
+        "horizontal_overflow": false,
+        "advancing_frame_ids": [
+          "nano-rgbd:34ccf0e4f3ab:93238",
+          "nano-rgbd:34ccf0e4f3ab:93242"
+        ],
+        "physical_admission": {
+          "state": "OPEN",
+          "allowed": false,
+          "reason": "CONTINUITY_QUALIFICATION_REQUIRED",
+          "evidence": "03-lerobot-teaching/docs/CONTINUITY_20261027.json",
+          "physical_commands_authorized": false
+        },
+        "cameras": 2,
+        "project03_counts": {
+          "imported": 0,
+          "pending_imports": 0,
+          "raw_frames_recorded": 0,
+          "admitted_for_training": 0,
+          "observation_or_rejected": 0,
+          "operator_labelled_success": 0,
+          "trained_RGB9D_models": 0
+        },
+        "API_GET_statuses": [
+          200,
+          200,
+          200,
+          200
+        ]
+      }
+    ],
+    "non_GET_product_requests": [],
+    "production03_imports": 0,
+    "candidate_real39RGB_analysis_import": "separate private candidate; retained evidence in experiment03-native-capture-candidate-0d91dff2-20261027.json; not inserted into production"
+  },
+  "safety": {
+    "physical_control_API_calls": 0,
+    "new03_physical_path_deployed": false,
+    "native_grants_created": 0,
+    "physical_motion_claimed": false,
+    "controller_settings_written": false
+  },
+  "remaining": {
+    "03_SOFTWARE_READY": false,
+    "real_changing_leader_continuity": "OPEN",
+    "B_registration_gripper_reference": "OPEN",
+    "real_expert_model_and_task": "OPEN",
+    "whole_master_complete": false,
+    "next_work": "04 software/operator-ready then05 then06 then01;01 long training PARKED"
+  },
+  "raw_originals_sha256": {
+    "/mnt/explorer-data/explorer-work/experiment03-data-full-release-20261027-65ae9d02/result/qualification.json": "e9b6042dc9670296c87ee5321590707d60ed398006f862487b0513d6bc79ec51",
+    "/mnt/explorer-data/explorer-work/experiment03-data-full-release-20261027-65ae9d02/result/pytest.log": "4a12fd22d08bcf02be725bdab9446d331c4397e5d81f4ada157c122790d8935c",
+    "/mnt/explorer-data/explorer-work/experiment03-data-full-release-20261027-65ae9d02/result/production-before-hash-audit.json": "96f782156b0a5e65e51a9ecaeff7bf6a596571b7cf6f0071327342d3ef2cb6d7",
+    "/mnt/explorer-data/explorer-work/experiment03-data-full-release-20261027-65ae9d02/result/production-after-hash-audit.json": "a870a3012fcba56510d5c5bf026e175549c967a040d8edcdc0f2120f229bcf00",
+    "/home/jetsonnx/.local/state/explorer-work/central-release-65ae9d02-activation-20261027.json": "743cc87888a8f1d00662d3603e3a9c49fd9a0231b82ae033beb6b83fa85e94fa",
+    "/home/jetsonnx/.local/state/explorer-work/experiment03-central-cutover-65ae9d02.json": "d5820a958ec4f7f40b4449f8ca5fd858123f3a6eeedb6b6a6432d4a01b65bf45",
+    "/home/jetsonnx/.local/state/explorer-work/release-source-preflight-20261027-65ae9d02.json": "fff33db66f2090fea1d4ef5d1b072b20fb79f2f56ae90cc1136975facb217fa9",
+    "/mnt/explorer-data/explorer-work/experiment03-central-live-20261027-65ae9d02/production-after-live-audit.json": "055bf7fc01cf7863fec996b89d6f30e068c9fcfbf9d8043ca7503b741dc3cf77",
+    "/mnt/explorer-data/explorer-work/experiment03-central-live-20261027-65ae9d02/browser/receipt.json": "4f6159bc9a0fae4000148162143af81182a488918c1ed38bf982dc2506ba363f",
+    "/mnt/explorer-data/explorer-work/experiment03-central-live-20261027-65ae9d02/browser/desktop.png": "7250aa447957012179048ab742b366424cbf256e50d05135468849c7b9cc589c",
+    "/mnt/explorer-data/explorer-work/experiment03-central-live-20261027-65ae9d02/browser/mobile.png": "ee4c01ac5b433679a1e8fff2dc07de53cad56d8fcf8d4ee93a2cf216e60d5fd5",
+    "/home/jetsonnx/.local/state/explorer-work/prepare_central03_release_20261027.py": "080836beefd5965e71b9e1028d865da9f4187646655258474f8f63d2b86b81ea",
+    "/home/jetsonnx/.local/state/explorer-work/activate_central_release_65ae9d02_20261027.py": "b957b5e9880489c37506171007eef567ff6001f4cd4cd14a1da5d9b87b94ca55",
+    "/home/jetsonnx/.local/state/explorer-work/activate_experiment03_central_65ae9d02_20261027.py": "7c7aedce2b87197aff07345f2034b7749c522c0a4eb286016eda4276b2f0001d",
+    "/home/jetsonnx/.local/state/explorer-work/qualify_03_central_live_browser_20261027.py": "02f392b996dfdf8498b97bc279f7c94e4c8e03009146fe30db07528d235f7674"
+  }
+}

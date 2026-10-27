@@ -35,7 +35,16 @@ fixtures. Продолжаем03 по исходной очереди, не ож
 <!-- READINESS_TABLE_FROM_ACCEPTANCE:END -->
 
 
-Live central+worker и собственные Nano observer/cache — **722755dc99094fc86bab20796d2b7bc4bf56d536**.
+Live central+worker — **65ae9d021796c5ec4c9cab8a129fdb827dbf36f3**;
+собственные Nano observer/cache остаются **722755dc99094fc86bab20796d2b7bc4bf56d536**.
+[Фактический central-only выпуск03](_registry/evidence/experiment03-central-data-actual-65ae9d02-20261027.json):
+2271PASS/20SKIP, kernel peak4343767040B, swap/OOM0;243Node на тех же JS bytes.
+Только central+worker restart2.550s; originalNano source/reference/PIDs/6configs exact,
+passiveROS20s0. Настоящий HTTPS Firefox desktop/mobile: advancing Nano JPEG,2cameras,
+0overflow/0nonGET; data02/03 scoped. Technical39RGB остаётся privatecandidate,
+production03imports0. Real continuity/B-registration/gripper/current-reference OPEN;
+03 **не SOFTWARE READY**, новый03physical runtime не развёрнут.
+Далее04→05→06;01 long training PARKED.
 Pi observer и import pin оригинального Nano web остаются **4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4**.
 Оригинальные Nano camera/MCU/control/web не перезапускались; PIDs/source/reference
 и6 исходных configs совпали до/после. Central cutover2.518s; passiveROS20s:0сообщений.
@@ -210,14 +219,15 @@ Firefox desktop/mobile actualdecoded/advancing frames, archivepreview,0overflow/
 Final inspector+app: native02R4 3PASS35.60s и native03R2 1PASS35.49s, actualACT4→DEV10
 в каждой private fixture очереди. 19+18pins и дополнительный inspector SHA строгие;
 R1–R3 originals сохранены. Это не реальные экспертные показы/continuity/whole-master.
-Сейчас нужен один полный frozen regression перед central-only выпуском; physical03
-begin/recenter остаются CLOSED, Pi/originalNanoWEB не обновляются.
+Полный frozen regression и central-only выпуск65ae9d0 завершены; physical03
+begin/recenter остаются CLOSED, Pi/originalNanoWEB не обновлялись.
 
 Последнее окончательное указание владельца: CURRENT03, NEXT04, THEN05→06→01.
 01 паркуется после завершённого bounded audit/уже начатых8-step smoke; долгие
 продолжения не запускаются. Для04–06 сначала короткий reuse check: существующие
-shared modules, новый тонкий adapter, contract tests. Текущий reuse status04:
-READ-ONLY gap map начат; новый producer/core ещё не менялся.05/06 — reuse check
+shared modules, новый тонкий adapter, contract tests. Текущий reuse status04: gap/deployment audits сохранены в отдельной ветке;
+реализуется тонкий metadata capture adapter с общими timeline/review и contract tests.
+Station writer/control/camera owner и физическое ПО Pi пока неизменны.05/06 — reuse check
 перед реализацией, процент за копирование не прибавляется. Общие Recorder/API/
 Dataset/trainer/model-registry/UI не копируются; существующий владелец камеры
 остаётся единственным. Physical/real-data gates и critical03 continuity не сняты.
