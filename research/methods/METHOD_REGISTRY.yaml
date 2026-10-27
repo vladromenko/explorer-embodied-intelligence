@@ -5361,6 +5361,70 @@
         "tests/test_sim_numeric_driver.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SIM-TRAIN-FORWARD-AUDIT-20261027",
+      "function_or_module": "shared/explorer_shared/learning/sim_train_forward_audit.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/learning/sim_temporal_route.py",
+          "role": "Exact frozen training label/state formulas reused without changes"
+        },
+        {
+          "url": "project-file:installed-lerobot-0.6.1/modeling_act.py",
+          "role": "Static installed source/loss/latent inspection; exact file SHA pinned in separate protocol, no upstream byte identity asserted"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_NEW_MODEL; EXISTING_FROZEN_C_FOUR_CHECKPOINTS",
+      "data_license": "PRIVATE_EXPLICIT_SIMULATION",
+      "changes_and_reason": "Separate successful TRAIN-only source admission and deployment-prior forward diagnostics, labels/phase only in scorer; no posterior execution, optimizer, renderer, dispatch or physical capability. Future real forward requires separately reviewed frozen protocol.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_sim_train_forward_audit.py",
+        "tests/test_train_forward_driver.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SIM-TRAIN-FORWARD-DRIVER-20261027",
+      "function_or_module": "scripts/run_train_forward_audit.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/learning/sim_temporal_route.py",
+          "role": "Exact frozen training label/state formulas reused without changes"
+        },
+        {
+          "url": "project-file:installed-lerobot-0.6.1/modeling_act.py",
+          "role": "Static installed source/loss/latent inspection; exact file SHA pinned in separate protocol, no upstream byte identity asserted"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_NEW_MODEL; EXISTING_FROZEN_C_FOUR_CHECKPOINTS",
+      "data_license": "PRIVATE_EXPLICIT_SIMULATION",
+      "changes_and_reason": "Separate successful TRAIN-only source admission and deployment-prior forward diagnostics, labels/phase only in scorer; no posterior execution, optimizer, renderer, dispatch or physical capability. Future real forward requires separately reviewed frozen protocol.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_sim_train_forward_audit.py",
+        "tests/test_train_forward_driver.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
