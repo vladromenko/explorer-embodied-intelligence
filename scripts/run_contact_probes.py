@@ -151,6 +151,30 @@ def require_resources(plan):
     return actual
 
 
+def native_abi(model):
+    """Own only small immutable shape/index bytes, never a native model view."""
+    counts={name:int(getattr(model,name)) for name in ('nq','nv','na','nu','nbody','njnt','ngeom','neq')}
+    arrays={}
+    for name in ('jnt_type','jnt_qposadr','jnt_dofadr','geom_bodyid','actuator_trnid'):
+        array=getattr(model,name)
+        arrays[name]=(array.dtype.str,tuple(map(int,array.shape)),array.tobytes())
+    return dict(counts=counts,arrays=arrays)
+
+
+def release_then_compile(env,compile_model):
+    """Never overlap two full CAD model/data heaps under the2GiB boundary.
+
+    No env/profile/physics methods run while these fields are temporarily None.
+    A failed compile leaves only a setup failure, never a capture/step fallback.
+    """
+    expected=native_abi(env.model)
+    env.data=None;env.model=None;gc.collect()
+    model=compile_model()
+    if native_abi(model)!=expected:
+        raise ContactEvidenceRejected('Copied CAD/native shape or identity differs')
+    return model
+
+
 def build_provider(plan,case,condition,folder):
     """Use the actual supported class/profile; explicit copied-model/state seed."""
     import mujoco
@@ -168,13 +192,8 @@ def build_provider(plan,case,condition,folder):
     mesh=Path(next(iter(plan['assets']))).parent
     env=ManipulationEnv(mesh,'candy_to_tray',horizon=32)
     env.reset(seed=plan['initial_state_semantics']['RNG_seed'])
-    original_model=env.model
-    model=mujoco.MjModel.from_xml_string(xml.decode())
-    # No guessed remapping of a native vector into a different model ABI.
-    for name in ('nq','nv','na','nu','nbody','njnt','ngeom','neq'):
-        if getattr(model,name)!=getattr(original_model,name):raise ContactEvidenceRejected('Copied CAD/native shape differs: '+name)
-    for name in ('jnt_type','jnt_qposadr','jnt_dofadr','geom_bodyid','actuator_trnid'):
-        if not np.array_equal(getattr(model,name),getattr(original_model,name)):raise ContactEvidenceRejected('Copied CAD/native identity differs: '+name)
+    # No guessed remapping and no second native model while the old one lives.
+    model=release_then_compile(env,lambda:mujoco.MjModel.from_xml_string(xml.decode()))
     if model.opt.integrator!=mujoco.mjtIntegrator.mjINT_DISCRETE:
         raise ContactEvidenceRejected('Actual compiled discrete enum required')
     declared_bin=np.asarray([float(v) for v in ET.fromstring(original).find(".//body[@name='bin']").get('pos').split()])
@@ -182,7 +201,6 @@ def build_provider(plan,case,condition,folder):
         raise ContactEvidenceRejected('Actual compiled static bin position must match this original scene XML')
     if abs(float(model.opt.timestep)-condition['timestep_s'])>1e-12:
         raise ContactEvidenceRejected('Actual compiled declared timestep differs')
-    del original_model
     env.xml=xml.decode();env.model=model;env.data=mujoco.MjData(model)
     native=np.asarray(selected['dispatch']['native_integration_state'],dtype=np.float64)
     spec=mujoco.mjtState.mjSTATE_INTEGRATION

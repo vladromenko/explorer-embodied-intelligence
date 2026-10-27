@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 import xml.etree.ElementTree as ET
+import weakref
 
 import pytest
 
@@ -134,3 +135,37 @@ def test_contact_recovery_is_not_inferred_from_large_normal_magnitude(driver):
     result=driver.contact_outcome(rows,geometry)
     assert not result['contact_recovered'] and not result['terminal_supported']
     assert result['maximum_downward_bottom_force_N']==33. and not result['full_task_success_claimed']
+
+
+def fake_model():
+    import numpy as np
+    class Model:
+        pass
+    model=Model()
+    for name in ('nq','nv','na','nu','nbody','njnt','ngeom','neq'):setattr(model,name,3)
+    for name in ('jnt_type','jnt_qposadr','jnt_dofadr','geom_bodyid','actuator_trnid'):
+        setattr(model,name,np.arange(3,dtype=np.int32))
+    return model
+
+
+def test_original_model_and_data_are_gone_before_replacement_CAD_compile(driver):
+    class Data:
+        def __init__(self,model):self.model=model
+    env=SimpleNamespace(model=fake_model());env.data=Data(env.model)
+    old_model=weakref.ref(env.model);old_data=weakref.ref(env.data);calls=[]
+    def compile_next():
+        calls.append('compile')
+        assert env.model is None and env.data is None
+        assert old_model() is None and old_data() is None
+        return fake_model()
+    result=driver.release_then_compile(env,compile_next)
+    assert calls==['compile'] and result.nq==3 and env.model is None and env.data is None
+
+
+def test_small_native_ABI_is_immutable_and_changed_replacement_does_not_get_installed(driver):
+    model=fake_model();snapshot=driver.native_abi(model);model.jnt_type[0]=123
+    assert snapshot['arrays']['jnt_type'][2]!=model.jnt_type.tobytes()
+    env=SimpleNamespace(model=model,data=object())
+    with pytest.raises(contact.ContactEvidenceRejected,match='shape or identity'):
+        driver.release_then_compile(env,fake_model)
+    assert env.model is None and env.data is None

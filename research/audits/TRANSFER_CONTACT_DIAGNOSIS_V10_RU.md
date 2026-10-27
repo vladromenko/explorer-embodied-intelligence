@@ -73,6 +73,10 @@ integration vector не используется как замена `model.body
 subprocesses, CPU1 thread, MemoryMax2 GiB, swap0, wall max360 с, disk budget6 GiB;
 renderer/EGL/GPU отсутствуют. Изменяется только новый скопированный SIM XML,
 исходные env/provider/defaults и старые результаты остаются прежними.
+До компиляции replacement CAD driver сохраняет только маленький immutable ABI
+(counts/dtype/shape/index bytes), освобождает прежние env.data/env.model и
+выполняет GC. Два полных CAD model/data не удерживаются одновременно; fake
+weakref regression проверяет освобождение **до** вызова нового compiler.
 Зарегистрированный initial helper применяется только после действительных
 проверок его поддерживаемого env/provider/static/mutable профиля. Неподдержанный
 профиль завершает попытку **до первого dynamics шага**, без fallback/обхода.
