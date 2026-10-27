@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T02:11:00+03:00`
-Code commit: `f807a98e423412c7a29c9739686e9060a522fbb6`
+Updated: `2026-10-28T02:37:00+03:00`
+Code commit: `559e9139ad1c0beb6872792a56928c46b1ffd0a0`
 Current task: `E05-MANUAL`
 Next tasks: `E05-MANUAL`, `E05-LEARNING`, `E06-PIPELINE`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -164,3 +164,11 @@ metadata profile reuses original guarded04 capture with cooperative05 permission
 [Component](../05-cooperative-handover/docs/COMMON_RECEIVER_CAPTURE_RU.md).
 Live HB976/Pi+Nano c516 unchanged. Next: durable known start intent +explicit
 DATA lost-ACK reconciliation, then whole manual/manual FSM/data/UI; not05DONE.
+
+Candidate559e913: durable known receiver DATA start/reconcile +shared04/05 ACK
+validator, append-only recovered-source sidecar, stopped/restart UNKNOWN cleanup,
+one-writer/late/foreign/fsync fences and data-only UI. Frozen targeted128PASS33.91s
++276NodePASS2.76s; [proof](../05-cooperative-handover/docs/KNOWN_CAPTURE_RECOVERY_RU.md).
+NOTdeployed, currentE05MANUAL. Далее finish/giver recovery +whole manual/manual
+FSM/actual generated UI, затем paired learning/full release. Live pins above
+не менялись; physical/master остаются OPEN.

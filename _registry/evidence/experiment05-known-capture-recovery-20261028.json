@@ -1,0 +1,75 @@
+{
+  "schema": "explorer05_known_capture_start_recovery_component_v1",
+  "code_commit": "559e9139ad1c0beb6872792a56928c46b1ffd0a0",
+  "status": "IMPLEMENTED_SOFTWARE_TESTED_NOT_DEPLOYED",
+  "scope": "Known receiver start DATA intent, shared04/05 ACK validator, explicit reconciliation and append-only camera sidecar; no control recovery",
+  "verification": {
+    "frozen_targeted_Python": {
+      "passed": 128,
+      "seconds": 33.91,
+      "source": "/mnt/explorer-data/explorer-work/05-capture-recovery-20261028-559e913/source",
+      "CPUQuota": "300%",
+      "MemoryMax": "4G",
+      "swap": "0",
+      "full_regression": false
+    },
+    "Node_tests": 276,
+    "Node_ms": 2756.847202,
+    "actual_hardware_test": false
+  },
+  "source_sha256": {
+    "00-control-center/src/explorer/app.py": "b8afeddcecd2fa7517743ad1931b5e8e4d86f16203f2cb3de9425d56b384d07d",
+    "00-control-center/src/explorer/cooperative_capture_starts.py": "887a895561f0912cce219db4cd6d9ba5cfaf73663295bed3492646c7da5e0461",
+    "00-control-center/src/explorer/cooperative_service.py": "bd884de9708f0915a4f9d271e509457e8a29b84b36a2d9c60f0cdb825bd0f392",
+    "00-control-center/src/explorer/source_demo_capture.py": "23f92a834db2527a25f7a8c7a61bf8dd65c438c7673678cc6da47b0b1be92880",
+    "00-control-center/src/explorer/static/cooperative-workbench.js": "e38bdbdce990151126c39148e79d5045b4264587173fb4f5185aef425c90ace5",
+    "shared/explorer_shared/cooperative_native05.py": "593ade559fe5135f528eac0949102ba13c3b787b729be328795880286de45550",
+    "shared/explorer_shared/cooperative_recording05.py": "eab9161b6e1e9fb7ad336ea77a2ee83f344a47517e758a10ce61e15f67b59f5e",
+    "shared/explorer_shared/cooperative_workflow05.py": "912b26b4bef73b69219db63d9eb6f014d133f69462f975b2210219ae86b1a17b",
+    "shared/explorer_shared/source_capture_ack.py": "11cc81b2e7dd7bb45b590280b16d5cb0f863fba58beccf20e218bf5782b8b135",
+    "tests/test_cooperative_capture_recovery.py": "0aa1e45402ae44a901242c4781d972500c001be9969b29ba1a8ad0af934804c6",
+    "tests/test_cooperative_guarded_capture.py": "e8d0456cb15c945ba3427609a88b53cb4703f6616eb9f0f2a9bf694796469ac8",
+    "tests/test_cooperative_service.py": "cf84b8dc322112d2ea796e1de0fff8d0c8562b3f0251f3d88006cfa5616f2474",
+    "tests/test_cooperative_workbench_contract.js": "587768c6f6b042700d62e713d53e8715ed161f0d148b50a30017fb5e1b90f638",
+    "tests/test_cooperative_workbench_ui.js": "a68e5874440d2898a37105a964d408e93fa4f19790c84b63e2910b7b9e9aadcf"
+  },
+  "raw_evidence": {
+    "/mnt/explorer-data/explorer-work/05-capture-recovery-20261028-559e913/result/pytest.log": "1fce66242fc7ae0fbe9c81b7e906509aa97f7f90db280ba93fecc3afb5b0e390",
+    "/mnt/explorer-data/explorer-work/05-capture-recovery-all-Node-20261028.log": "6a57c0fe8bd706dfb4615bb3896f686c6eacfc2d1a0e48bdaddf415e55171499",
+    "/mnt/explorer-data/explorer-work/05-durable-capture-start-targeted-20261028-b.log": "4268501b669bb7d648fe36df233a18831ce3936b7ba898c46c2805c78947e599",
+    "/mnt/explorer-data/explorer-work/05-durable-capture-recovery-20261028-c.log": "37411979c9f0a73b078e0e77d287c45bc320809beb9247ab6df25e0242dfa757",
+    "/mnt/explorer-data/explorer-work/05-capture-ACK-shape-current-20261028.log": "40eb9d3dff27fce71ab6bcf464dd6e3ff567e1c871967e590165db71c99dfb68"
+  },
+  "properties": [
+    "Literal COMMON grant kept separate from source DATA identity; no invented leader field in cooperative grant",
+    "Unique attempt ID and immutable intent persist BEFORE source record RPC",
+    "Pending/unknown start blocks another cooperative native start before either role mutates",
+    "Both04 demo and05 cooperative consumers use one pure known-intent validator",
+    "Original writer/context/actor/epoch/boot/calibration/start receipt required; no adoption of polled owner",
+    "Explicit actor-bound DATA reconcile adds sidecar, keeps original sources/native-producer-start.json bytes",
+    "Stopped/restarted session may finish only known source DATA as UNKNOWN; no old control/grant/lease replay",
+    "One writer flock acquired before workflow recovery can mutate session",
+    "Missing ACK checksum/changed intent remains UNKNOWN; no RAM ready publication",
+    "UI sends only session_id/expected_epoch, allows stopped-session DATA cleanup, renders native errors"
+  ],
+  "negatives_retained": [
+    "Initial lost-ACK test patched request factory but not captured consumer callback; two failures retained, corrected fixture actually drops reply after original writer starts",
+    "Old JS metadata lifecycle fixture has no COMMON receiver grant; now correctly asserts receiver blocked rather than inventing an implicit grant",
+    "Source ACK checksum fsync failure and post-replace session save failure preserve originals/unknown or known pre-RPC abort"
+  ],
+  "live_unchanged": {
+    "Homebrain": "9766bc3ee495a104a16303fef0c4b4d4d215eef0",
+    "Pi_Nano_OWN": "c516de71c156b1d427f367be4a0754fe1b54bb81"
+  },
+  "physical_acceptance": false,
+  "actual_native_commands": 0,
+  "actual_native_grants": 0,
+  "controller_configuration_changes": 0,
+  "frozen_station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+  "remaining": [
+    "finish-ACK/giver source data recovery",
+    "whole manual/manual opening→hold→release→transfer→finish/park and actual generated desktop/mobile flow",
+    "paired data/review/train/reload/shadow",
+    "current full frozen regression and scoped deployment; physical gates separate"
+  ]
+}
