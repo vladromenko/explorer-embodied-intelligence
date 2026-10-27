@@ -699,6 +699,9 @@ class CooperativeWorkflow:
                 if row['execution_domain']=='user_observed_physical_test' and provider is not None and callable(provider.arm_release_guard):
                     self._fresh(row,epoch)
                     observations.append({'native_cooperative_dual_hold_guards':provider.arm_release_guard(deepcopy(row))})
+                    self._fresh(row,epoch);self._phase_current(fsm)
+                    if any(not 0<=self.clock()-item.received_ns<=fsm.hold_ttl_ns for item in stationary):
+                        raise ValueError('Both stationary observations expired during native guard arm; new evidence required')
                 elif row['execution_domain']=='user_observed_physical_test':
                     raise ValueError('Native giver dual-hold protection must be bound before an observed grasp test')
             self._fresh(row,epoch)

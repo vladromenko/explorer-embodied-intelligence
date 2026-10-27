@@ -109,3 +109,29 @@ def test_inbox_cancellation_write_failure_cannot_prevent_original_scoped_native_
         stops=[body for operation,body in pair.station.calls if operation=='stop']
         assert len(stops)==1 and stops[0]['expected_control_epoch']==started['control_epoch'] and pair.station.mode=='idle'
     finally:close(service,pair,client)
+
+
+@pytest.mark.parametrize('elapsed_ns',[1_999_999_999,2_000_000_001])
+def test_original_stationary_freshness_is_rechecked_after_guard_network_and_wal_io(tmp_path,monkeypatch,elapsed_ns):
+    import time
+    from explorer_shared.handover_runtime import ArmObservation
+    from test_cooperative_workflow05 import zone,run_step,DOMAIN
+    tick=[time.monotonic_ns()];arms=[]
+    def arm(row):
+        arms.append(row['session_id']);tick[0]+=elapsed_ns
+        return {'both_original_publication_boundaries_armed':True,'fixture_only':True}
+    workflow,row,inbox,calls,refs=workflow_fixture(tmp_path,giver={'arm_release_guard':arm})
+    try:
+        zone(workflow,row)
+        for event in ('giver_holding','offer_ready','receiver_ready'):row=run_step(workflow,row,event)
+        row['execution_domain']='user_observed_physical_test';workflow._save(row)
+        tick[0]=time.monotonic_ns();workflow.clock=lambda:tick[0]
+        monkeypatch.setattr(workflow,'_stationary',lambda current,role,after=None:ArmObservation(role,True,tick[0],DOMAIN,{'explicit_USER_fact':True},after))
+        current=run_step(workflow,row,'receiver_at_object');assert arms==[row['session_id']]
+        if elapsed_ns<2_000_000_000:
+            assert current['status']=='READY_FOR_OBSERVED_STEPS' and current['protocol_state']=='RECEIVER_GRASP_CHECK'
+        else:
+            assert current['status']=='STOPPED' and current['protocol_state']=='SAFE_STOP'
+            assert any('expired during native guard arm' in item['error'] for item in current['errors'])
+            assert {item[1] for item in calls if item[0]=='stop'}=={'giver','receiver'}
+    finally:workflow.close()
