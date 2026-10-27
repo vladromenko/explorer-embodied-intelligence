@@ -24,8 +24,11 @@ Capture/review/provenance SHA входят в binding/fingerprint/aggregate; lat
 закрывает cached aggregate, reapproval сохраняет предыдущие artifacts.
 [Evidence](../_registry/evidence/experiment04-approved-capture-cohort-20261027.json).
 Полный train-resume-DEV/shadow/UI/deploy ещё OPEN; это не готовность всего04.
-В undeployed main после этих code changes текущий старый native6 Diffusion binding
-не переименовывается в PASS: следующий атомик — fresh bounded qualification.
+Fresh frozen3b81623 ACT8/DP8 CPU qualification PASS с actual save/reload и прежними
+R2 weights exact; native6 binding теперь содержит21 исходник, actual selector PASS.
+[CPU evidence](../_registry/evidence/experiment04-current-native6-CPU-20261027.json).
+Следующий атомик — actual Supervisor pause/process-exit/new-PID/resume на новом
+approved capture cohort; этот новый queued test пока только подготовлен, не PASS.
 
 
 ## Фактический deploy

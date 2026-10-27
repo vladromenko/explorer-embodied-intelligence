@@ -90,11 +90,13 @@ def diffusion_implementation(extraction,result_path,observation,sources):
         measured_versions={name:row['version'] for name,row in measured['packages'].items()},resume_metadata=metadata)
 
 
-def publish(plan_path,act_output,destination):
+def publish(plan_path,act_output,destination,*,native6_only=False):
+    if type(native6_only) is not bool:raise q.QualificationRejected('Explicit boolean native6 publication scope required')
     plan_path=Path(plan_path);plan=q.read(plan_path);root=q.assert_source(plan['source_root'],plan['source_commit'],plan['source_sha256']['diffusion'][q.STATION],plan['auxiliary_source_sha256'][q.GATE])
     label=plan['label'];destination=Path(destination)
     if destination.exists():raise q.QualificationRejected('New publication candidate directory required')
-    collected={mode:collect(plan_path,mode,Path(act_output) if mode=='act' else plan_path.parent/mode) for mode in ('act','diffusion','fused106')}
+    modes=('act','diffusion') if native6_only else ('act','diffusion','fused106')
+    collected={mode:collect(plan_path,mode,Path(act_output) if mode=='act' else plan_path.parent/mode) for mode in modes}
     dp_path,dp_result,dp_observation,_=collected['diffusion']
     implementation=diffusion_implementation(q.read(plan_path.parent/'diffusion/resume-extraction.json'),dp_path,dp_observation,plan['source_sha256']['diffusion'])
     destination.mkdir(mode=0o700,parents=True)
@@ -120,7 +122,8 @@ def publish(plan_path,act_output,destination):
     summary=dict(schema='explorer_current_station_CPU_qualification_summary_v1',source_commit=plan['source_commit'],label=label,
         original_plan=str(plan_path),original_plan_sha256=q.sha(plan_path),publisher_sha256=q.sha(__file__),
         formal_DP_changes_from_R2=plan['formal_DP_changes_from_R2'],auxiliary_source_sha256=plan['auxiliary_source_sha256'],
-        profiles={mode:row[3] for mode,row in collected.items()},publication_files_sha256={p.name:q.sha(p) for p in destination.iterdir() if p.is_file()},
+        profiles={mode:row[3] for mode,row in collected.items()},native6_only=native6_only,fused106_requalified=not native6_only,
+        publication_files_sha256={p.name:q.sha(p) for p in destination.iterdir() if p.is_file()},
         reporting_wrapper_failures_retained=True,actual_new_PID_controller_qualification_in_this_receipt=False,
         physical_io=False,production_state_writes=False,task_success_claimed=False)
     q.write(destination/('STATION_CPU_'+label+'_SUMMARY.json'),summary)
@@ -129,5 +132,6 @@ def publish(plan_path,act_output,destination):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--plan',required=True,type=Path);parser.add_argument('--act-output',required=True,type=Path);parser.add_argument('--destination',required=True,type=Path)
-    args=parser.parse_args();summary=publish(args.plan,args.act_output,args.destination)
+    parser.add_argument('--native6-only',action='store_true')
+    args=parser.parse_args();summary=publish(args.plan,args.act_output,args.destination,native6_only=args.native6_only)
     print(json.dumps(dict(source_commit=summary['source_commit'],profiles={key:dict(model_weights_equal_R2=value['model_weights_equal_R2'],original_reporting_wrapper_exit_code=value['original_reporting_wrapper_exit_code']) for key,value in summary['profiles'].items()}),sort_keys=True))

@@ -1,0 +1,108 @@
+{
+  "schema": "explorer_source04_current_native6_actual_CPU_requalification_v1",
+  "source_commit": "3b81623a6ff195e7fbdf6e4da5e5aa130c962f45",
+  "scope": "GENERATED_LEGACY_NATIVE6_MATH_FIXTURE_CURRENT_ADMISSION_CODE_NOT_YET_APPROVED_CAPTURE_QUEUE",
+  "phases": {
+    "act": {
+      "pytest_exit_code": 0,
+      "failure": null,
+      "elapsed_s": 16.49111706702388,
+      "cgroup_peak_memory_bytes": 1259708416,
+      "cgroup_swap_peak_bytes": 0,
+      "cgroup_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "qualification_result": "/mnt/explorer-data/explorer-work/04-current-native6-20261027-3b81623a/qualification/act/pytest/test_real_official_ACT6_eight_0/actual8-qualification.json",
+      "qualification_result_sha256": "adcc2615056f446e779f0dd6feed08684199d1b82244927486061329d2f87dde",
+      "optimizer_steps": 8,
+      "reload_max_abs_error": 0.0,
+      "weights_changed": true,
+      "training_resume": {
+        "supported": true,
+        "checkpoint_loaded": false,
+        "resumed_from_step": 0,
+        "completed_steps": 8,
+        "optimizer_steps_executed_this_process": 8,
+        "checkpoint_interval": 8,
+        "signature": "7ac2d07b87555f04203d82f81e5d996f418e90c4164545d36dd42ba55ae3dbb6",
+        "active_optimizer_elapsed_s": 3.1729164120042697,
+        "non_durable_updates_may_be_replayed": true,
+        "retained_history_is_not_total_compute_across_failed_attempts": true,
+        "rng_sources": [
+          "python",
+          "numpy_global",
+          "torch_cpu",
+          "all_initialized_cuda",
+          "explicit_batch_sampler"
+        ]
+      }
+    },
+    "diffusion": {
+      "pytest_exit_code": 0,
+      "failure": null,
+      "elapsed_s": 22.7545781529916,
+      "cgroup_peak_memory_bytes": 1394802688,
+      "cgroup_swap_peak_bytes": 0,
+      "cgroup_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "qualification_result": "/mnt/explorer-data/explorer-work/04-current-native6-20261027-3b81623a/qualification/diffusion/pytest/test_same_accepted_whole_skill0/qualification.json",
+      "qualification_result_sha256": "9e0b002f46771d39a5108eb572235667bf4ecf9763d2b0022f8ffc4d77ceb996",
+      "optimizer_steps": 8,
+      "reload_max_abs_error": 0.0,
+      "weights_changed": true,
+      "training_resume": {
+        "supported": true,
+        "checkpoint_loaded": true,
+        "resumed_from_step": 4,
+        "completed_steps": 8,
+        "optimizer_steps_executed_this_process": 4,
+        "checkpoint_interval": 4,
+        "signature": "d8892a1f01901ef7b5d2200efc8d9b82183337b4df6eea30e4a4be0cc26f84fb",
+        "active_optimizer_elapsed_s": 4.528598011034774,
+        "non_durable_updates_may_be_replayed": true,
+        "retained_history_is_not_total_compute_across_failed_attempts": true,
+        "rng_sources": [
+          "python",
+          "numpy_global",
+          "torch_cpu",
+          "all_initialized_cuda",
+          "explicit_batch_sampler"
+        ]
+      }
+    }
+  },
+  "implementation_source_count": 21,
+  "new_source_dependencies": [
+    "source_demo_workflow.py",
+    "native_capture_approval.py",
+    "capture_timeline.py"
+  ],
+  "model_weights_equal_previous_R2": true,
+  "publication_files_sha256": {
+    "shared/training/DIFFUSION_NATIVE6_ACTIVE_BINDING.json": "873d1204cdd9f8bd23ec7c70e145a7a2b6b662eddc2ba649bb07f64c8bdd45d2",
+    "shared/training/DIFFUSION_NATIVE6_20261027_APPROVED04_SOURCE_R7_IMPLEMENTATION_BINDING.json": "576cbe939223d2d85e34e54fdbe585031730700e23fe0a88a3c4b4dc39d18a2c",
+    "shared/training/SO101_ACT6_20261027_APPROVED04_SOURCE_R7_QUALIFICATION.json": "adcc2615056f446e779f0dd6feed08684199d1b82244927486061329d2f87dde",
+    "shared/training/DIFFUSION_NATIVE6_20261027_APPROVED04_SOURCE_R7_QUALIFICATION.json": "9e0b002f46771d39a5108eb572235667bf4ecf9763d2b0022f8ffc4d77ceb996",
+    "shared/training/SO101_ACT6_20261027_APPROVED04_SOURCE_R7_RUNTIME_OBSERVATION.json": "165d892d94923e9e740271c320bd0b28b0af34bffa959d8886a6ef73be6da332",
+    "shared/training/DIFFUSION_NATIVE6_20261027_APPROVED04_SOURCE_R7_RUNTIME_OBSERVATION.json": "31628e823687afb2615ef3526c83d69bc9217372c5a6517018da136b3651f66e",
+    "shared/training/DIFFUSION_NATIVE6_20261027_APPROVED04_SOURCE_R7_ARTIFACT_VALIDATION.json": "21c47059db0c0cf814c06bb009c5a633833c994c64e8f5c7ea3ef6cc705ef17d",
+    "shared/training/STATION_CPU_20261027_APPROVED04_SOURCE_R7_SUMMARY.json": "7d790890d237e64b7df2362f2d81e5bc047e2d4ab51295d49ab601499a40bdff",
+    "shared/training/DIFFUSION_NATIVE6_20261027_APPROVED04_SOURCE_R7_SOURCE_BINDING.json": "410ebdc779d7ed4994683217a3268a7280c7fb7e9ad908fb42fce01c71d2c757",
+    "shared/training/SO101_ACT6_20261027_APPROVED04_SOURCE_R7_ARTIFACT_VALIDATION.json": "6ba142ef5923b2b7ea96dad0cbb50898c0917b1185fe61a8c65d7fb4a4a191fb"
+  },
+  "originals_directory": "/mnt/explorer-data/explorer-work/04-current-native6-20261027-3b81623a",
+  "fused106_requalified_in_this_stage": false,
+  "new_PID_queue_qualification_in_this_stage": false,
+  "physical_io": false,
+  "production_state_writes": false,
+  "deployed": false,
+  "source04_software_ready": false,
+  "next": "same actual Supervisor checkpoint/resume proof using five approved source04 pause envelopes and independent offline shadow",
+  "publication_contract_tests": {
+    "passed": 4,
+    "pytest_seconds": 1.02,
+    "log": "/mnt/explorer-data/explorer-work/04-current-native6-20261027-3b81623a/active-binding-contract.log"
+  },
+  "runtime_selector": {
+    "available": true,
+    "log": "/mnt/explorer-data/explorer-work/04-current-native6-20261027-3b81623a/runtime-selector.log",
+    "initial_local_CLI_setup_failure": "ModuleNotFoundError explorer with no PYTHONPATH; no IO/model/qualification action; corrected to explicit repo module paths"
+  }
+}

@@ -68,7 +68,19 @@ def test_unknown_failure_and_modified_resume_signature_cannot_be_published(froze
     after['failure']['detail']='A real failed model';after_path.write_bytes(q.canonical(after))
     with pytest.raises(q.QualificationRejected,match='Unrecognized'):publication.publish(output/'plan.json',output/'act',tmp_path/'rejected')
     assert not (tmp_path/'rejected').exists()
+
     after['failure']['detail']=publication.KNOWN_LOCATOR_FAILURES['fused106'];after_path.write_bytes(q.canonical(after))
     extraction_path=output/'diffusion/resume-extraction.json';extraction=q.read(extraction_path);extraction['resume_metadata']['unmeasured']='tampered';extraction_path.write_bytes(q.canonical(extraction))
     with pytest.raises(q.QualificationRejected,match='checkpoint|signature'):publication.publish(output/'plan.json',output/'act',tmp_path/'rejected')
     assert not (tmp_path/'rejected').exists()
+
+
+def test_native6_only_publication_does_not_read_or_claim_a_new_fused106_proof(frozen,tmp_path,monkeypatch):
+    output=fixture(frozen,tmp_path,monkeypatch)
+    # A nonselected producer has no newly measured result. Its old files stay
+    # untouched and must not be adopted into this native6-only publication.
+    (output/'fused106/runtime-after.json').unlink()
+    summary=publication.publish(output/'plan.json',output/'act',tmp_path/'native6',native6_only=True)
+    assert set(summary['profiles'])=={'act','diffusion'} and not summary['fused106_requalified']
+    assert summary['native6_only'] and not list((tmp_path/'native6').glob('ROSMASTER_ACT106*'))
+    assert (output/'fused106/runtime-before.json').is_file()

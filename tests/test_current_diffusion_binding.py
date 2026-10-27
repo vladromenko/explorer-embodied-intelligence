@@ -26,9 +26,11 @@ def test_active_current_native6_binding_matches_real_resume_metadata_and_current
     assert signature==implementation['resume_signature']==receipt['training_resume']['signature']
     assert receipt['training_resume']['resumed_from_step']==4 and receipt['training_resume']['optimizer_steps_executed_this_process']==4 and receipt['optimizer_steps']==implementation['completed_steps']==8
     assert receipt['project_id']==receipt['original_spec_owner_experiment']=='04' and receipt['source_kind']=='SIMULATION' and not receipt['physical_io']
-    assert len(source['implementation_sha256'])==18 and 'shared/explorer_shared/so101_station.py' in source['implementation_sha256']
+    assert len(source['implementation_sha256'])==21 and 'shared/explorer_shared/so101_station.py' in source['implementation_sha256']
     for name,expected in source['implementation_sha256'].items():
         path=(ROOT/name).resolve();assert path.is_relative_to(ROOT.resolve()) and sha(path)==expected
+    assert {'00-control-center/src/explorer/source_demo_workflow.py','shared/explorer_shared/native_capture_approval.py',
+        'shared/explorer_shared/capture_timeline.py'}<=set(source['implementation_sha256'])
     assert implementation['shared_implementation_sha256']==source['implementation_sha256']
     observation_path=(PROOFS/source['runtime_observation']).resolve()
     assert observation_path.is_relative_to(PROOFS.resolve()) and sha(observation_path)==source['runtime_observation_sha256']

@@ -1,0 +1,246 @@
+{
+  "trained": true,
+  "backend": "diffusion",
+  "profile_id": "diffusion_resnet18_unet32_64_ddim4_cpu_v1",
+  "framework": "LeRobot",
+  "framework_version": "0.6.1",
+  "algorithm": "official Diffusion RGB_history2+measured_follower6\u2192issued_native_follower6",
+  "source_kind": "SIMULATION",
+  "source_type": "SIMULATION",
+  "status": "trained_offline_only",
+  "skill_id": "d5f31ce4-3773-45c9-af1a-b7a2219c85cb",
+  "skill_version": 1,
+  "spec_sha256": "ee047b54c65c19b3e0aac594961f36ab293ea90ce9002b91bfb52d412e4091cd",
+  "action_contract_id": "so101_follower_calibrated_position6_v1",
+  "project_id": "04",
+  "experiment_slug": "so101_source_learning",
+  "experiment_numbering_version": 2,
+  "original_spec_owner_experiment": "04",
+  "source_manifest_path": "/mnt/explorer-data/explorer-work/04-current-native6-20261027-3b81623a/qualification/diffusion/pytest/test_same_accepted_whole_skill0/state/datasets/lab-skills/d5f31ce4-3773-45c9-af1a-b7a2219c85cb/v0001/a6b852daeaa6581a76c7a059c835690d0972b769d191dc27b7491804136d0aca/skill-manifest.json",
+  "source_manifest_sha256": "95000bcbfaf04953093d3b100befc61e4fe1e1dcd7f6bb449f3cd13dabe1b8dc",
+  "aggregate_manifest_sha256": "95000bcbfaf04953093d3b100befc61e4fe1e1dcd7f6bb449f3cd13dabe1b8dc",
+  "official_dataset_readback": {
+    "format": "LeRobotDataset v3.0",
+    "directory": "/mnt/explorer-data/explorer-work/04-current-native6-20261027-3b81623a/qualification/diffusion/pytest/test_same_accepted_whole_skill0/state/datasets/lab-skills/d5f31ce4-3773-45c9-af1a-b7a2219c85cb/v0001/a6b852daeaa6581a76c7a059c835690d0972b769d191dc27b7491804136d0aca/native-data/lerobot_v3",
+    "repo_id": "local-explorer/so101-b7673f4f1d4785a026c84d6f",
+    "episodes": 4,
+    "frames": 32,
+    "fps": 10,
+    "image_only": true,
+    "finalize_called": true,
+    "official_readback_passed": true,
+    "all_frame_state_action_image_checks_passed": true,
+    "causal_alignment_checked": true,
+    "source_splits_preserved": true,
+    "source_npz_immutable": true,
+    "native_monotonic_timestamps_preserved": true,
+    "native_wall_timestamps_preserved": false,
+    "conversion_grid_preserved": true,
+    "source_manifest_sha256": "e9368fe56985b24a3642da59197ee9d5c77b0fc047c07314ec5ad35236791701",
+    "provenance_sha256": "482f190ddcb0931cebc66775cf81a988878ca50c9f37c38c87d01c58d383e202",
+    "uploaded_to_hub": false
+  },
+  "optimizer_steps": 8,
+  "optimizer_class": "torch.optim.adam.Adam",
+  "loss_first": 1.2903050184249878,
+  "loss_last": 0.6897179484367371,
+  "weights_changed": true,
+  "training_resume": {
+    "supported": true,
+    "checkpoint_loaded": true,
+    "resumed_from_step": 4,
+    "completed_steps": 8,
+    "optimizer_steps_executed_this_process": 4,
+    "checkpoint_interval": 4,
+    "signature": "d8892a1f01901ef7b5d2200efc8d9b82183337b4df6eea30e4a4be0cc26f84fb",
+    "active_optimizer_elapsed_s": 4.528598011034774,
+    "non_durable_updates_may_be_replayed": true,
+    "retained_history_is_not_total_compute_across_failed_attempts": true,
+    "rng_sources": [
+      "python",
+      "numpy_global",
+      "torch_cpu",
+      "all_initialized_cuda",
+      "explicit_batch_sampler"
+    ]
+  },
+  "RGB_encoder_first_conv_gradient_norm": 0.08432547748088837,
+  "save_reload_passed": true,
+  "reload_max_abs_error": 0.0,
+  "checkpoint_dir": "/mnt/explorer-data/explorer-work/04-current-native6-20261027-3b81623a/qualification/diffusion/pytest/test_same_accepted_whole_skill0/state/jobs/ceab421051184b129eb71cf2f679972e/student_diffusion",
+  "checkpoint_sha256": {
+    "model.safetensors": "149e662f58be6c77a2043c26eb0e41b45eabe61334993569ade0a271d41c87e5",
+    "explorer_preprocessing.json": "bb72d17e54aeba40b3a10094d293c69b54d72962e996c9ffb8e856bc30c11623",
+    "config.json": "5cfec7ddf559544e02f8066a9f108e371596430ad132c279ad6a4757dcfb7548"
+  },
+  "checkpoint_content_sha256": "f479dd16d6ce6b8aba40d55b1322b2c0a2b60c26c9884fb88a6997237549739d",
+  "evaluation": {
+    "domain": "independent_development_offline_diffusion_chunks",
+    "available": true,
+    "independent_episode_split": true,
+    "valid_chunk_actions": 26,
+    "batches": 2,
+    "history_steps": 2,
+    "action_start_offset": 1,
+    "mean_absolute_error_normalized": 0.8802853058546019,
+    "action_mae": {
+      "shoulder_pan": {
+        "value": 88.42562161959134,
+        "unit": "calibrated_normalized_-100_100"
+      },
+      "shoulder_lift": {
+        "value": 82.0787209730882,
+        "unit": "calibrated_normalized_-100_100"
+      },
+      "elbow_flex": {
+        "value": 79.1702673985408,
+        "unit": "calibrated_normalized_-100_100"
+      },
+      "wrist_flex": {
+        "value": 87.58435616126428,
+        "unit": "calibrated_normalized_-100_100"
+      },
+      "wrist_roll": {
+        "value": 83.76621099618765,
+        "unit": "calibrated_normalized_-100_100"
+      },
+      "gripper": {
+        "value": 53.573003182044395,
+        "unit": "normalized_0_100"
+      }
+    },
+    "fixed_noise_seed": 41,
+    "sealed_test_used": false,
+    "rollout_success_claimed": false,
+    "physical_run_ids": [],
+    "physical_io": false
+  },
+  "training_original_episode_ids": [
+    "79cdb547be344b658387ac6bef511bb4",
+    "8f7dc37c9dc14627af8c0991b29d4e59",
+    "4aae94d04b8d497fa0871089b579fe90"
+  ],
+  "development_original_episode_ids": [
+    "445b142d31a84d31b41666da401c0645"
+  ],
+  "sealed_original_episode_ids": [
+    "017c7233736e4549bd3f6357340e5c07"
+  ],
+  "sealed_payload_used": false,
+  "physical_io": false,
+  "simulator_executed": false,
+  "rollout_success_claimed": false,
+  "physical_success_inferred": false,
+  "elapsed_s": 3.966381767997518,
+  "framework_versions": {
+    "torch": "2.11.0",
+    "torchvision": "0.26.0"
+  },
+  "framework_compatibility_note": "Torch/torchvision versions lie within LeRobot 0.6.1 declared bounds",
+  "skill_card": {
+    "id": "so101-diffusion-ceab421051184b129eb71cf2f679972e",
+    "task": "\u0412\u0437\u044f\u0442\u044c \u043f\u0440\u0435\u0434\u043c\u0435\u0442 \u0438 \u043f\u043e\u043b\u043e\u0436\u0438\u0442\u044c \u0432 \u043a\u043e\u043d\u0442\u0435\u0439\u043d\u0435\u0440",
+    "source_type": "SIMULATION",
+    "source_kind": "SIMULATION",
+    "status": "trained_offline_only",
+    "action_contract": {
+      "id": "so101_follower_calibrated_position6_v1",
+      "names": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "units": [
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "calibrated_normalized_-100_100",
+        "normalized_0_100"
+      ],
+      "state_basis": "measured_state",
+      "official_robot_use_degrees": false
+    },
+    "lineage": {
+      "job_id": "ceab421051184b129eb71cf2f679972e",
+      "skill_id": "d5f31ce4-3773-45c9-af1a-b7a2219c85cb",
+      "skill_version": 1,
+      "spec_sha256": "ee047b54c65c19b3e0aac594961f36ab293ea90ce9002b91bfb52d412e4091cd",
+      "dataset_manifest_sha256": "95000bcbfaf04953093d3b100befc61e4fe1e1dcd7f6bb449f3cd13dabe1b8dc",
+      "checkpoint_sha256": "f479dd16d6ce6b8aba40d55b1322b2c0a2b60c26c9884fb88a6997237549739d",
+      "backend": "diffusion",
+      "profile_id": "diffusion_resnet18_unet32_64_ddim4_cpu_v1",
+      "methods": [
+        "DIFFUSION_LEROBOT_0_6_1",
+        "ENGINEERING_GLUE"
+      ],
+      "project_id": "04",
+      "experiment_slug": "so101_source_learning",
+      "experiment_numbering_version": 2,
+      "training_original_episode_ids": [
+        "79cdb547be344b658387ac6bef511bb4",
+        "8f7dc37c9dc14627af8c0991b29d4e59",
+        "4aae94d04b8d497fa0871089b579fe90"
+      ],
+      "development_original_episode_ids": [
+        "445b142d31a84d31b41666da401c0645"
+      ],
+      "sealed_original_episode_ids": [
+        "017c7233736e4549bd3f6357340e5c07"
+      ]
+    },
+    "evaluation": {
+      "domain": "independent_development_offline_diffusion_chunks",
+      "available": true,
+      "independent_episode_split": true,
+      "valid_chunk_actions": 26,
+      "batches": 2,
+      "history_steps": 2,
+      "action_start_offset": 1,
+      "mean_absolute_error_normalized": 0.8802853058546019,
+      "action_mae": {
+        "shoulder_pan": {
+          "value": 88.42562161959134,
+          "unit": "calibrated_normalized_-100_100"
+        },
+        "shoulder_lift": {
+          "value": 82.0787209730882,
+          "unit": "calibrated_normalized_-100_100"
+        },
+        "elbow_flex": {
+          "value": 79.1702673985408,
+          "unit": "calibrated_normalized_-100_100"
+        },
+        "wrist_flex": {
+          "value": 87.58435616126428,
+          "unit": "calibrated_normalized_-100_100"
+        },
+        "wrist_roll": {
+          "value": 83.76621099618765,
+          "unit": "calibrated_normalized_-100_100"
+        },
+        "gripper": {
+          "value": 53.573003182044395,
+          "unit": "normalized_0_100"
+        }
+      },
+      "fixed_noise_seed": 41,
+      "sealed_test_used": false,
+      "rollout_success_claimed": false,
+      "physical_run_ids": [],
+      "physical_io": false
+    },
+    "deployment_scope": "SIMULATION_ONLY",
+    "limitations": [
+      "Source video outcomes are BC targets, not model physical success",
+      "Offline Diffusion chunk error is not whole-task rollout",
+      "No hardware or replay CLI invoked",
+      "Oldnumeric source identity preserved; semantic role selects current experiment",
+      "Sealed payload excluded",
+      "Text and source phase labels are not model inputs"
+    ]
+  }
+}
