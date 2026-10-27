@@ -16,7 +16,7 @@
       "id": "control_center",
       "title": "Панель и автономный runtime Homebrain",
       "status": "VERIFIED_WITHIN_SCOPE",
-      "evidence": "Actual all-node3ba5f938 disarmed release;1712pytest/205Node,9Firefox pages/12authenticatedGETs; source/controller/scientific prefixes exact. Later main is not automatically live."
+      "evidence": "Actual all-node4c5f4f5b disarmed release;1835pytest/15skip,215Node,9Firefox pages/12authenticatedGETs;154nonweb/6configs/94shared and old scientific prefixes exact. Camera exposure freshness and physical trial are not implied."
     },
     {
       "id": "observers",
@@ -58,7 +58,7 @@
       "id": "handover",
       "title": "Координация и подтверждённая передача05",
       "status": "PARTIAL",
-      "evidence": "Live3ba5: receiver/giver durable publication guards, source atomic phase activation, metadata/setup/reset UI and receipts. Later main adds immutable native reply chains and Root Pi successor/explicit phase CONTROL; complete parked coordinator/physicalH5 remain open."
+      "evidence": "Live4c5f4f5b: immutable source reply custody, Pi hold-successor and explicit giver park/adopt/begin/resume UI/API, typed exact STOP scopes, Source parked release challenge+resume within original2s/0.45s deadlines. Per-role parked scopes/metadata arm and complete release coordinator still open; physical H5 unvalidated."
     },
     {
       "id": "skill_memory",

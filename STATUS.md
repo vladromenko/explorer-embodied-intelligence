@@ -4,11 +4,11 @@
 `/home/jetsonnx/work/Explorer`; работающие службы не зависят от Mac/чата.
 
 Live central+worker, собственные Pi/Nano observers и import pin оригинального
-Nano web — **3ba5f9385affab877268c8f421abf282edcbf2ce**. Durable giver WAL,
+Nano web — **4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4**. Durable giver WAL,
 zero STOP, source phase activation, fixed reset UI и source receipts развёрнуты.
 Giver journal installed/healthy, ещё initialized=false до отдельной USER setup;
 Root не выдаёт это за физическую готовность.
-[Фактический выпуск3ba5](_registry/evidence/release-3ba5f938-actual-activation-20261027.json).
+[Фактический выпуск4c5f4f5b](_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json).
 
 Подтверждено:
 
@@ -48,13 +48,16 @@ Root не выдаёт это за физическую готовность.
   8самостоятельных dev/sealed rollout/6400dispatch дали полный успех0/8.
   Chunk8:grasp4/4,lift+carry2/4, measured-open0/4; это не полный навык.
   [Результат](research/audits/target-visual-object-v3-results-20261027.json).
-  Новый C2×2 clock×absolute/increment:4смоука прошли/reload0; первый из4×1200
-  CPU train запущен; все4freeze до16новых held-out rollout.
-- Frozen3ba5f938 с20 проверенными CAD/headless EGL:1712passed/15skipped,
-  0failed за384.18s; CPU3/5GiB, peak4.30GB, swap/OOM0.205 Node tests прошли.
+  C2×2 clock×absolute/increment:4×1200CPU train завершены/reload0, все4
+  модели frozen. C-v1:1UNKNOWN из-за доказанной float64 roundoff границы,
+  остальные15NOT_STARTED. Отдельный preregistered C-v2 проверяет те же модели
+  с доказуемым numeric admission;16новых dev/sealed испытаний идут без tuning.
+  Качество полного навыка по незавершённой серии не заявлено.
+- Frozen4c5f4f5b с20 проверенными CAD/headless EGL:1835passed/15skipped,
+  0failed за458.79s; CPU3/5GiB, peak4.20GB, swap/OOM0.215 Node tests прошли.
   Firefox:9desktop/mobile pages,0overflow,0non-GET;12authenticated live GETs.
-  24jobs/11cards/13286старыхevents/schema exact; centralcutover2.457s.
-  154исходных non-web.py,6configs,91shared files exact; только web restart,
+  24jobs/11cards/14042старыхevents/schema exact; centralcutover2.430s.
+  154исходных non-web.py,6configs,94shared files exact; только web restart,
   пассивный ROS20s:0actuator messages. Старые отрицательные прогоны сохранены.
 
 
@@ -67,8 +70,8 @@ firmware/limits/watchdogs/readbackOFF. Unknown и command-estimate не стан
 measured. Source/target splits раздельны; development/sealed/unknown не optimizer.
 
 Открытый программный объём: phase/hold-successor lifecycle
-без скрытого TTL/lease продления (новый source successor проверен, ещё не live);
-root giver parked scope/phase activation/continuous lifecycle; полный learned
+без скрытого TTL/lease продления (source successor и phase CONTROL уже live);
+per-role parked scopes/metadata arm и полный root release coordinator; полный learned
 object/transfer/retention цикл,
 независимые H1–H5
 comparisons/ablations и broad recovery. Физическая подготовка отдельно.

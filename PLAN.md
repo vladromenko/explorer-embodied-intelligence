@@ -16,10 +16,9 @@
 Root интегрирует, выпускает и запускает общую регрессию. По умолчанию0–2
 субагента; третий только для трёх крупных независимых потоков. Отдельные worktree
 и непересекающееся владение файлами; короткие проверки выполняет root.
-Сейчас: direct03 — phase/actual-hold successor05 без изменения исходного TTL;
-portable16 и figures/paper завершены и интегрированы, их агенты не заняты.
-Root — phase park/hold-successor API/UI; текущий3ba5 release прошёл полный
-регресс/cutover/Firefox/scientific byte audit. direct03 также закрывает durable
-giver parked COMMAND_ESTIMATE lifecycle; wizard — frozen2×2 temporal target
-experiment после отрицательной actual B-серии. Source actor/teacher/physics
-оригиналы сохраняются; C прошёл root review и4смоука;4×1200CPU train идут последовательно, затем16held-out.
+Сейчас: direct03 — source-held scopes/metadata arm и per-role authority05;
+Root — source-challenge→новые USER facts→parked release coordinator/API/UI.
+Фактический4c5f4f5b release прошёл полный регресс/cutover/Firefox/scientific audit.
+Wizard — frozen C-v2: те же4модели после4×1200CPU updates,16новых serial dev/sealed
+испытаний без tuning. Оригинальный C-v1 UNKNOWN и B0/8 сохранены отдельно;
+незавершённая C-v2 серия не означает learned mastery.

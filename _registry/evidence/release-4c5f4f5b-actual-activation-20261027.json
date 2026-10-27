@@ -1,0 +1,150 @@
+{
+  "schema": "explorer_actual_release_activation_evidence_v1",
+  "commit": "4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4",
+  "previous_commit": "3ba5f9385affab877268c8f421abf282edcbf2ce",
+  "status": "SOFTWARE_RELEASE_DEPLOYED_DISARMED_MASTER_IN_PROGRESS",
+  "full_pytest": {
+    "passed": 1835,
+    "skipped": 15,
+    "failed": 0,
+    "elapsed_s": 458.79,
+    "launcher_elapsed_s": 468.49347358998784,
+    "verified_CAD_files": 20,
+    "MUJOCO_GL": "egl",
+    "resource_limits": {
+      "cpu.max": "300000 100000",
+      "memory.max": "5368709120",
+      "memory.current": "1208455168",
+      "memory.peak": "4196085760",
+      "memory.swap.max": "0",
+      "memory.swap.peak": "0",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  "node_tests": {
+    "passed": 215,
+    "scope": "frozen_release_source"
+  },
+  "source_bindings": {
+    "schema": "explorer_release_qualified_sources_preflight_v1",
+    "commit": "4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4",
+    "gpu_binding_sha256": "395d5e2948a570440c0b1441a254cd31cbd9225ad55ae433d809d6b5cab2fa86",
+    "gpu_source_files": 16,
+    "diffusion_binding_sha256": "8bc7bd625702da22a3074c5640e118ec6a83b096e81da6b9d5ff710704f2ac0b",
+    "diffusion_source_files": 18,
+    "actual_sources_verified": true,
+    "active_source_switched": false,
+    "physical_IO": false
+  },
+  "actual_central_cutover_s": 2.430459975003032,
+  "actual_native": {
+    "only_original_web_restarted": true,
+    "before_services": {
+      "explorer-camera": {
+        "ActiveState": "active",
+        "MainPID": "2347"
+      },
+      "explorer-control": {
+        "ActiveState": "active",
+        "MainPID": "2413"
+      },
+      "explorer-mcu": {
+        "ActiveState": "active",
+        "MainPID": "2356"
+      },
+      "explorer-web": {
+        "ActiveState": "active",
+        "MainPID": "333226"
+      }
+    },
+    "after_services": {
+      "explorer-camera": {
+        "ActiveState": "active",
+        "MainPID": "2347"
+      },
+      "explorer-control": {
+        "ActiveState": "active",
+        "MainPID": "2413"
+      },
+      "explorer-mcu": {
+        "ActiveState": "active",
+        "MainPID": "2356"
+      },
+      "explorer-web": {
+        "ActiveState": "active",
+        "MainPID": "365852"
+      }
+    },
+    "original_arm_reference_files_unchanged": true,
+    "all_six_controller_configs_unchanged": true,
+    "actuator_ROS_messages": 0
+  },
+  "source_audit": {
+    "original_non_web_python": 154,
+    "web_pin_exact": true,
+    "original_configs": 6,
+    "shared_files": 94,
+    "all_exact": true
+  },
+  "actual_firefox": {
+    "pages": 9,
+    "all_settled": true,
+    "horizontal_overflow": false,
+    "non_get_requests": 0,
+    "camera_image_load_and_exposure_freshness_qualified": false
+  },
+  "actual_authenticated_GETs": 12,
+  "scientific_originals": {
+    "jobs": {
+      "original_rows": 24,
+      "current_rows": 24,
+      "all_original_rows_identical": true
+    },
+    "skills": {
+      "original_rows": 11,
+      "current_rows": 11,
+      "all_original_rows_identical": true
+    },
+    "events": {
+      "original_rows": 14042,
+      "current_rows": 14051,
+      "all_original_rows_identical": true
+    }
+  },
+  "production_schema_unchanged": true,
+  "production_active_jobs": 0,
+  "giver_durable_status": {
+    "active_grants_or_pending_challenges_restored": false,
+    "fail_closed_publication_gate": true,
+    "fault": null,
+    "healthy": true,
+    "initialized": false,
+    "installed": true,
+    "last_sealed_sha256": null,
+    "pending": false,
+    "recovery_required": false,
+    "restored_armed": false,
+    "revision": 0,
+    "scope": "durable_armed_latch_not_restored_authorization_or_latest_published_pose",
+    "state_id": "5b858ecc72654a0cb2e689bf6b2b267b"
+  },
+  "physical_controls_called_by_agent": 0,
+  "actual_rollback_test_for_this_release": false,
+  "limitations": [
+    "Giver durable installed/healthy but uninitialized until explicit USER setup; Root physical authority remains blocked.",
+    "Native reference fault retained; no HOME/movement/authorization issued by agent.",
+    "Firefox qualification proves settled pages/layout and GET-only access, not camera exposure freshness or a physical trial.",
+    "Complete parked coordinator, learned whole-object tasks and scientific H1–H5 acceptance remain open."
+  ],
+  "private_receipts_sha256": {
+    "full_regression": "1dcd25c6633120f6448c752cb6390e620de305ac56423ce24789461cf9774ade",
+    "central": "31da93ea2d1e52bd7246e1bd76dbd89d2154b568febd9b2180a1d9bb2c1374dc",
+    "native": "a38263b353ee590bc1bdf7d448ce17d6fbbe052f6195a7aaf46d2b2c3d214734",
+    "pi_observer": "fc4650dbedc30e3bdbefcc2ab9df2f6d28bbdd4ce833c188135e44428b2cc979",
+    "nano_observer": "e5b9d24b125e730c4d0365b98a20fde60c322254c10b35cfde102382ea164a72",
+    "api": "81a34f6328cc81e6e26852ebe0f8ac6fa3cead7fbe89cc952a1b87439daa7a68",
+    "firefox": "6aefb393717765951b3d6fd1623ea535a23df547b4b00119084e7861cbeb200a",
+    "fleet": "2a4d1bae6b16f826ee53bb7d651cd5139d73a8c8a66c2cafe431a79a4d60885c",
+    "bindings": "aa27c0c2bd72e66c2e9f18c2d390fd11f4b61b82af5b3a97f54771e2e19bd875"
+  }
+}
