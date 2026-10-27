@@ -1,0 +1,445 @@
+{
+  "schema": "explorer01_saved_trace_cause_audit_v1",
+  "audit_source_commit": "fa65609",
+  "scope": {
+    "new_optimizer_updates": 0,
+    "model_loads": 0,
+    "renders": 0,
+    "simulation_steps": 0,
+    "robot_requests": 0,
+    "production_writes": 0,
+    "existing_originals_modified": false,
+    "cause_established": false
+  },
+  "pilot": {
+    "job_id": "7a2877b5c47f49acaa04c164961e7fcd",
+    "teacher_DEV_success": 6,
+    "teacher_DEV_count": 6,
+    "total_source_episodes": 12,
+    "total_frames": 167,
+    "successful_BC_episodes": 10,
+    "successful_BC_frames": 47,
+    "state_copy_normalized_L1_all9": 0.0036180512561302097,
+    "state_copy_normalized_L1_active3": 0.010854153768390629,
+    "inactive_target_dimensions_constant": 6,
+    "initial_images_differing_pixels_vs_first": [
+      33,
+      36,
+      20,
+      18,
+      38,
+      16,
+      23,
+      38,
+      36
+    ],
+    "data_alignment_checks": [
+      {
+        "id": "episode_0000",
+        "next_state_minus_prior_action_max_abs_deg": 0.0,
+        "normalized_state_max_abs_error": 0.0,
+        "normalized_action_max_abs_error": 0.0
+      },
+      {
+        "id": "episode_0001",
+        "next_state_minus_prior_action_max_abs_deg": 0.0,
+        "normalized_state_max_abs_error": 0.0,
+        "normalized_action_max_abs_error": 0.0
+      },
+      {
+        "id": "episode_0002",
+        "next_state_minus_prior_action_max_abs_deg": 0.0,
+        "normalized_state_max_abs_error": 0.0,
+        "normalized_action_max_abs_error": 0.0
+      },
+      {
+        "id": "episode_0003",
+        "next_state_minus_prior_action_max_abs_deg": 0.0,
+        "normalized_state_max_abs_error": 0.0,
+        "normalized_action_max_abs_error": 0.0
+      },
+      {
+        "id": "episode_0004",
+        "next_state_minus_prior_action_max_abs_deg": 0.0,
+        "normalized_state_max_abs_error": 0.0,
+        "normalized_action_max_abs_error": 0.0
+      },
+      {
+        "id": "episode_0005",
+        "next_state_minus_prior_action_max_abs_deg": 0.0,
+        "normalized_state_max_abs_error": 0.0,
+        "normalized_action_max_abs_error": 0.0
+      },
+      {
+        "id": "episode_0006",
+        "next_state_minus_prior_action_max_abs_deg": 0.0,
+        "normalized_state_max_abs_error": 0.0,
+        "normalized_action_max_abs_error": 0.0
+      },
+      {
+        "id": "episode_0007",
+        "next_state_minus_prior_action_max_abs_deg": 0.0,
+        "normalized_state_max_abs_error": 0.0,
+        "normalized_action_max_abs_error": 0.0
+      },
+      {
+        "id": "episode_0008",
+        "next_state_minus_prior_action_max_abs_deg": 0.0,
+        "normalized_state_max_abs_error": 0.0,
+        "normalized_action_max_abs_error": 0.0
+      },
+      {
+        "id": "episode_0009",
+        "next_state_minus_prior_action_max_abs_deg": 0.0,
+        "normalized_state_max_abs_error": 0.0,
+        "normalized_action_max_abs_error": 0.0
+      },
+      {
+        "id": "episode_0010",
+        "next_state_minus_prior_action_max_abs_deg": 0.0,
+        "normalized_state_max_abs_error": 0.0,
+        "normalized_action_max_abs_error": 0.0
+      },
+      {
+        "id": "episode_0011",
+        "next_state_minus_prior_action_max_abs_deg": 0.0,
+        "normalized_state_max_abs_error": 0.0,
+        "normalized_action_max_abs_error": 0.0
+      }
+    ]
+  },
+  "NX_dagger": {
+    "job_id": "23eb8ea681894833872cffa8023e86c6",
+    "settings": {
+      "seed": 52041,
+      "initial_act_steps": 120,
+      "act_steps": 120,
+      "collection_episodes": 4,
+      "evaluation_episodes": 6,
+      "horizon": 60,
+      "image_size": 64,
+      "chunk_size": 8,
+      "batch_size": 8,
+      "device": "cpu"
+    },
+    "seed_plan": {
+      "collection": [
+        54041,
+        54042,
+        54043,
+        54044
+      ],
+      "development": [
+        62041,
+        62042,
+        62043,
+        62044,
+        62045,
+        62046
+      ],
+      "blocked_source_seeds": [
+        41,
+        2041,
+        2042,
+        2043,
+        2044,
+        2045,
+        2046,
+        2047,
+        2048,
+        2049,
+        2050,
+        2051,
+        2052,
+        10040,
+        10041,
+        10042,
+        10043,
+        10044,
+        10045,
+        10046
+      ],
+      "collection_role": "development_training_only",
+      "evaluation_role": "engineering_development_evaluation",
+      "development_observations_fit": false,
+      "sealed_final_test": false,
+      "beta": 0.0,
+      "rounds": 1
+    },
+    "before": {
+      "n": 6,
+      "successes": 0,
+      "success_rate": 0.0,
+      "mean_final_distance_m": 0.09454986246256443,
+      "physical_run_ids": [],
+      "evaluation_domain": "simulation",
+      "independent_from_training_episodes": true,
+      "split_role": "engineering_development_evaluation",
+      "sealed_final_test": false
+    },
+    "after": {
+      "n": 6,
+      "successes": 0,
+      "success_rate": 0.0,
+      "mean_final_distance_m": 0.08014174207194574,
+      "physical_run_ids": [],
+      "evaluation_domain": "simulation",
+      "independent_from_training_episodes": true,
+      "split_role": "engineering_development_evaluation",
+      "sealed_final_test": false
+    },
+    "privileged_teacher_reference": {
+      "n": 6,
+      "successes": 6,
+      "success_rate": 1.0,
+      "mean_final_distance_m": 0.015146020812006828,
+      "physical_run_ids": [],
+      "evaluation_domain": "simulation",
+      "independent_from_training_episodes": true,
+      "split_role": "engineering_development_evaluation",
+      "sealed_final_test": false
+    },
+    "expert_source_frames": 47,
+    "aggregated_frames": 176,
+    "groups": {
+      "development_before": {
+        "frames": 360,
+        "raw_requested_normalized_std": [
+          2.6435914774021503e-05,
+          3.136219090614982e-05,
+          1.4013057517538234e-05,
+          7.809750420743214e-06,
+          3.1433797365891225e-05,
+          1.766428968144822e-05,
+          1.991439866172816e-05,
+          2.3088214021441455e-05,
+          1.1207244405922151e-05
+        ],
+        "raw_requested_normalized_range": [
+          0.0001759454607963562,
+          0.00021761655807495117,
+          0.00011256709694862366,
+          3.554485738277435e-05,
+          0.00017508864402770996,
+          0.00012558698654174805,
+          0.00015739351511001587,
+          0.00014851588639430702,
+          6.630271673202515e-05
+        ],
+        "initial_prediction_std_between_goals": [
+          1.0936816190086959e-05,
+          8.650484151973089e-06,
+          7.792274411664532e-06,
+          4.457659544623695e-06,
+          2.475919396902498e-05,
+          7.2875260882567356e-06,
+          1.4363018574502137e-05,
+          1.052463376058036e-05,
+          1.0968945693925194e-05
+        ],
+        "native_command_state_std_deg": [
+          1.7925266815255985,
+          1.2820720234634975,
+          0.2594423327923366,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "unique_initial_RGB": 6,
+        "heuristic_green_pixels_initial": [
+          2,
+          2,
+          2,
+          2,
+          3,
+          1
+        ],
+        "initial_RGB_differing_pixel_counts_vs_first": [
+          43,
+          46,
+          47,
+          43,
+          20
+        ]
+      },
+      "development_after": {
+        "frames": 360,
+        "raw_requested_normalized_std": [
+          6.57672987158965e-07,
+          6.272795358264308e-07,
+          3.965606032192938e-07,
+          1.7029240563190136e-07,
+          6.980878258029698e-07,
+          6.320007200600963e-07,
+          5.466670060393229e-07,
+          3.510249092563013e-07,
+          4.333212463792335e-07
+        ],
+        "raw_requested_normalized_range": [
+          4.92483377456665e-06,
+          3.5651028156280518e-06,
+          2.6300549507141113e-06,
+          1.1771917343139648e-06,
+          4.798173904418945e-06,
+          4.291534423828125e-06,
+          3.919005393981934e-06,
+          1.7099082469940186e-06,
+          3.21120023727417e-06
+        ],
+        "initial_prediction_std_between_goals": [
+          2.443088688217988e-07,
+          5.28914335313813e-07,
+          1.668081669303634e-07,
+          1.9803304362772533e-07,
+          3.940285802935312e-07,
+          4.0959374364392565e-07,
+          3.5402292180436737e-07,
+          3.356375381804426e-07,
+          4.222928032542886e-07
+        ],
+        "native_command_state_std_deg": [
+          1.5867341211149444,
+          0.39525569884732376,
+          0.8482245118727518,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "unique_initial_RGB": 6,
+        "heuristic_green_pixels_initial": [
+          2,
+          2,
+          2,
+          2,
+          3,
+          1
+        ],
+        "initial_RGB_differing_pixel_counts_vs_first": [
+          43,
+          46,
+          47,
+          43,
+          20
+        ]
+      },
+      "corrections": {
+        "frames": 129,
+        "raw_requested_normalized_std": [
+          2.896025713989143e-05,
+          3.6507647030144565e-05,
+          1.4830192021649504e-05,
+          9.518254727413646e-06,
+          2.370923180877281e-05,
+          1.7651864685273027e-05,
+          2.389797731009495e-05,
+          2.818358977218086e-05,
+          6.618668853613231e-06
+        ],
+        "raw_requested_normalized_range": [
+          0.00017177313566207886,
+          0.00020362436771392822,
+          0.00011577457189559937,
+          4.419498145580292e-05,
+          0.00012552738189697266,
+          0.0001195073127746582,
+          0.00012165307998657227,
+          0.00014139112317934632,
+          4.715472459793091e-05
+        ],
+        "initial_prediction_std_between_goals": [
+          2.1229338318645756e-05,
+          7.424342579332645e-06,
+          6.3372366399203586e-06,
+          1.38166591104031e-05,
+          1.48175171865227e-05,
+          1.190445178454315e-05,
+          5.198893204981412e-06,
+          7.233810941642111e-06,
+          2.7057663326424337e-06
+        ],
+        "native_command_state_std_deg": [
+          2.380428430977091,
+          1.711569265260315,
+          0.35141407613505665,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "unique_initial_RGB": 4,
+        "heuristic_green_pixels_initial": [
+          4,
+          2,
+          2,
+          2
+        ],
+        "initial_RGB_differing_pixel_counts_vs_first": [
+          38,
+          46,
+          27
+        ]
+      }
+    },
+    "checkpoint_compute_was_preexisting": true
+  },
+  "raw_sources_verified_sha256": {
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0000.npz": "249ad0f2c560fb6df8996401102dd9b87efd865de93268df100c79119b8150b2",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0001.npz": "a6c2ca4532f7e9586a6f07097273c4f85987bb0dc46f418cc1df101cf1282120",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0002.npz": "d73f1de37678d0fa9f0de00980079e450860895d80cf25e8dcf85cfbb0a97b87",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0003.npz": "60c31aab6c7782fa92c3c6d26e78b083810a2ed83932214d1cc6a242668c2790",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0004.npz": "9f9fbd615ef184cc38f2fb29d81085182f519600237be413c95a858331b81e29",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0005.npz": "582042b58e07c0f1c44d552a3220cdbb2f81c0578ab7ac6af3718c1a1f541c0b",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0006.npz": "e6e942cd76a310adecee9bfa0c2a9f1be28ba886c2de5f50ed4e9924874e7a5e",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0007.npz": "3322b04f345929d88e22551e95d58ca69d67cf563f47e98a4a84a61114fcd135",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0008.npz": "ffc3c06bfe0e514254e32133ffa7659b8a43570462b3d2e74c2f74143daa9956",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0009.npz": "63cb285c01ecb6a3e84ee5a65fabc7d901ab034cfb7a75013a2096abe928daf2",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0010.npz": "4c8f2ff44b055f14b571058705de5365e7d8fc0566883710c083676290cc1438",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0011.npz": "432a87e93cfa1d8d27d627974a4b475327a3f1a0d7f1758409c50b5d888c43e0",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/manifest.json": "f9ca7d5061548441bf678fcb20d18b82a805c55a79f0bf29588cd270a6361f1d",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0000.npz": "f59f2401981817cd5dd2d0502711bb14b88d68a80bab84b4601a655e1cb30db3",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0001.npz": "e2d2b0ab2e0002e83de5eb87ab542ae057a57be413ced544feb03b4d17faacf9",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0002.npz": "672394a09b9ad0e6f95ddc878add74c9e9b83665cd2caf5fe4aea87b731cdc40",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0003.npz": "feb747b355a0eb787fa0e7f9f33ff6c6558825793870c5fc544ccbe6c2a42028",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0004.npz": "16e0b0bdde3bdd569867b5364d7a051cbe1ebfbcad7ce165bd4267351a7db9ac",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0005.npz": "06b733018e277418b44abe9d174b86101d72ecac2215cb0a46e3c1e5741c5c9b",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_after/manifest.json": "647074d2046af46e2b6d74f14100346539f67d87f9c8d464cb2d0c16d4546209",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_after/episode_0000.npz": "8daae75efc9dcda3a4c5756824ae2ce94931e581aaf5648944cb00301e3cebd9",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_after/episode_0001.npz": "16f552650b35f2e3f5fc19612c3d76e462b6c915ca91828f6cb683572c5f2151",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_after/episode_0002.npz": "6ca8afa72db0bf63a6395bf922f35766c69bc2e04528ac35aca337944f0cf441",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_after/episode_0003.npz": "dd1d5e8dbda1933e2eea5f8b4a6e31427c5c26640ffbbde391551cc5ee90fde8",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_after/episode_0004.npz": "d253932401a78debaeb77c451fbd82bc0036dc7d26e7dd5c81109513ab25a24d",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_after/episode_0005.npz": "84614595d58106bf990e79ee8269284fa00a3c3b95dce1a9381a8c30a0570384",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/corrections/manifest.json": "5b151cef18545235d8658992f8fcc4c90cffa5aef58d5f0f293bce2170964e5a",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/corrections/episode_0000.npz": "21e3e64a46bfb5e37e7fc1d031ac330a3c466eece1df91dc8dac99f912128056",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/corrections/episode_0001.npz": "0e740353ba80dbea06689e773f8a5cc438655825a89c32746c8a0a391b39c4ce",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/corrections/episode_0002.npz": "88b70b3dfe16664a3c328eab863afc91df4354636d9f74677f29662221f9e6c6",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/corrections/episode_0003.npz": "5a0115b38295e2883af3947b2984bb1ce65ba89851946201947d66e6d1f00ff1",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/result.json": "98cf528f1bc19037c45a3ea255b100283584c37c97e144fc2a24c71c02750c0a",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/result.json": "1901584ad7cc6814785df88a32a7228335fa1baea1329a1516d63b2f0f7255aa",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/manifest.json": "326c2662ff8094783abc6393f99d5686d4f26daa0c7a2390018122447f0fbb32",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/model.xml": "db8d23eadca2434f44365b86610c3e60d27d46a51482f2bd63ad7bf013f2ef56",
+    "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/provenance.json": "7285c3c7b1eb6a10eb8cd06a4d618c22efbad579976f775e067d0d0402449d76"
+  },
+  "inspected_current_sources_sha256": {
+    "01-autonomous-learning/src/explorer_sim/pilot.py": "45712fd7df9fc3cd27af82e0e12ed1a4d8bcb110c6b920efb718da97989cdcf0",
+    "01-autonomous-learning/src/explorer_sim/student.py": "a5ab57b876c147a9165b48e8da41e5b7fb140e971b6c2bfd620f18a2630aab95",
+    "01-autonomous-learning/src/explorer_sim/dagger.py": "29f6c1bc3bd7ad008afbc7a97c9fb09b1ca91158c77196c63b6b1bff234cf591",
+    "01-autonomous-learning/src/explorer_sim/dataset_export.py": "0e1163980f598d5bd7cf8dee8077db446537cb32c473ead1719ecf2efc82a589",
+    "shared/explorer_shared/learning/act_backend.py": "4bad89f03289705570aa7e4a2c2eeea571a319e2e7dcc7a8f4bd6df96b049137"
+  },
+  "inference_limits": [
+    "Small heuristic green mask also includes grasp marker; true reach_target accessibility needs matched target-on/off render.",
+    "Nearly constant raw actions establish input insensitivity in these saved trajectories, not its causal origin.",
+    "Loss comparisons to state-copy baseline do not establish a training fix.",
+    "Historical different seeds/platform checkpoints are not a matched causal experiment.",
+    "Reach is a scoped curriculum, not sock/kitchen/contact/mobile full-task mastery."
+  ]
+}
