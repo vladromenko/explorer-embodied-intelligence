@@ -1,0 +1,76 @@
+{
+  "schema": "explorer_source04_approved_capture_actual_queue_qualification_v1",
+  "source_commit": "f96031f6771f98d0c4036a96d083c8bdfce0105c",
+  "source_profile": "approved_capture",
+  "scope": "GENERATED_APPROVED_SOURCE04_ORIGINAL_STATION_CAPTURES_AND_SYNTHETIC_REVIEWS_NO_REAL_HARDWARE",
+  "actual_pytest_passed": 2,
+  "pytest_seconds": 120.16,
+  "qualifier_elapsed_seconds": 124.51862743799575,
+  "official_ACT_and_Diffusion": true,
+  "optimizer_updates_total": 32,
+  "per_backend": {
+    "act": {
+      "paused_pid": 2553448,
+      "paused_at_completed_step": 2,
+      "completed_updates": 8,
+      "updates_in_resumed_process": 6,
+      "old_process_gone": true,
+      "model_optimizer_losses_Torch_RNG_sampler_exactly_equal": true,
+      "own_Python_NumPy_RNG_checkpoint_continuation_verified": true,
+      "model_weights_sha256": "1233e28d483bd09237105ed9e60873e294aab9a21f244caf734f60cdcc8c6616",
+      "original_source_format": "so101_source_capture_v1",
+      "original_samples_each": 8,
+      "unpaused_samples_each": 7,
+      "sealed_payload_excluded": true
+    },
+    "diffusion": {
+      "paused_pid": 2553632,
+      "paused_at_completed_step": 2,
+      "completed_updates": 8,
+      "updates_in_resumed_process": 6,
+      "old_process_gone": true,
+      "model_optimizer_losses_Torch_RNG_sampler_exactly_equal": true,
+      "own_Python_NumPy_RNG_checkpoint_continuation_verified": true,
+      "model_weights_sha256": "be3468cb89e898ec62d06b72ef0cee0bf698ab321a44bef0a78e7d0d26f26555",
+      "original_source_format": "so101_source_capture_v1",
+      "original_samples_each": 8,
+      "unpaused_samples_each": 7,
+      "sealed_payload_excluded": true
+    }
+  },
+  "actual_supervisor_bootstrap_job_runner": true,
+  "worker_jobs_completed": 4,
+  "actual_kernel_cgroup_peak_memory_bytes": 3445071872,
+  "swap_peak_bytes": 0,
+  "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "ACT_saved_official_processors_and_independent_DEV_offline_shadow": true,
+  "live_shadow_or_physical_skill_qualification": false,
+  "published_files_sha256": {
+    "NATIVE6_QUEUE_SOURCE04_CAPTURE_R7_20261027_SOURCE_TREE.json": "93b298c0c6a837a15f2b84dfb030d5d759941a16d51f1176e4579f21443c6997",
+    "NATIVE6_QUEUE_SOURCE04_CAPTURE_R7_20261027_RUNTIME.json": "69e12540835a54a65ca5bbb0240066d1d701400d20fd74247f2ca3ce6658e4f0",
+    "NATIVE6_QUEUE_SOURCE04_CAPTURE_R7_20261027_ACT_QUALIFICATION.json": "77909dcc4d836fe951217855cde26ab483c3404448066aedb17194cfbbf8bba3",
+    "NATIVE6_QUEUE_SOURCE04_CAPTURE_R7_20261027_SUMMARY.json": "6cc71b0826fe3bb56b9dd897a752f35b340933fea10b691f9a4a15eb9547ff61",
+    "NATIVE6_QUEUE_SOURCE04_CAPTURE_R7_20261027_PREFLIGHT.json": "d49e9cb0806268f6b8326bc0bfd75926d274da962dad02784ea7ff82d256e4fa",
+    "NATIVE6_QUEUE_SOURCE04_CAPTURE_R7_20261027_DIFFUSION_QUALIFICATION.json": "3b46a6d3ab111bbe21d60ca61eb0ed22841f8ec9dfc9ed32f40ec815250cc028",
+    "NATIVE6_QUEUE_SOURCE04_CAPTURE_R7_20261027_SOURCE_LIBRARY.json": "ec6856ed5a015beb99512ef980d57f48291f6c855bf495296eacab7792b342b4"
+  },
+  "direct_legacy_math_preserved_current_native6_summary_sha256": "7d790890d237e64b7df2362f2d81e5bc047e2d4ab51295d49ab601499a40bdff",
+  "historical_R6_PROFILE4_originals_retained": true,
+  "current_dependency_checks": {
+    "passed": 4,
+    "pytest_seconds": 0.26,
+    "log": "/mnt/explorer-data/explorer-work/04-approved-capture-controller-20261027-f96031f6/published-contract.log"
+  },
+  "raw_directory": "/mnt/explorer-data/explorer-work/04-approved-capture-controller-20261027-f96031f6",
+  "physical_commands_or_RPC": 0,
+  "real_expert_demos": 0,
+  "production_state_writes": false,
+  "deployed": false,
+  "source04_software_ready": false,
+  "remaining": [
+    "operator SourceDemo UI and explicit uncertain-record reconciliation",
+    "vision/tabletop availability and full operator smoke",
+    "safe oldPi first upgrade and whole frozen integration rollout",
+    "real expert demonstrations and independent physical acceptance"
+  ]
+}

@@ -1,9 +1,9 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-27T19:30:02+03:00`
-Code commit: `974dcd4b29d1fbdcf725abfd1240d637aec9682b`
-Current task: `E04-COHORT`
-Next tasks: `E04-COHORT`, `E04-UI`, `E04-RELEASE`
+Updated: `2026-10-27T19:42:36+03:00`
+Code commit: `f96031f6771f98d0c4036a96d083c8bdfce0105c`
+Current task: `E04-UI`
+Next tasks: `E04-UI`, `E04-VISION`, `E04-RELEASE`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
 
 Это единственный краткий текущий статус. Commit выше — последний проверенный
@@ -27,8 +27,14 @@ Capture/review/provenance SHA входят в binding/fingerprint/aggregate; lat
 Fresh frozen3b81623 ACT8/DP8 CPU qualification PASS с actual save/reload и прежними
 R2 weights exact; native6 binding теперь содержит21 исходник, actual selector PASS.
 [CPU evidence](../_registry/evidence/experiment04-current-native6-CPU-20261027.json).
-Следующий атомик — actual Supervisor pause/process-exit/new-PID/resume на новом
-approved capture cohort; этот новый queued test пока только подготовлен, не PASS.
+Actual approved-capture queue proof теперь PASS:2tests/120.16s (qualifier124.52s),
+ACT/DP каждый reference8 +pause2→oldPID exit→newPID6,32actual updates total,
+model/optimizer/losses/sampler/Torch/Python/NumPy continuation exact; actual DEV
+metrics и ACT offline shadow from saved official processors. Kernel peak3445071872B,
+swap0/OOM0. [Queue proof](../_registry/evidence/experiment04-approved-capture-queued-training-20261027.json).
+Новые source inputs отличаются от PROFILE4: weights сравниваются со своим actual
+uninterrupted reference; прежняя math equality отдельно сохранена ACT8/DP8 выше.
+R6/PROFILE4 originals immutable; current runtime/source pins проверяются полностью.
 
 
 ## Фактический deploy
@@ -56,9 +62,9 @@ actual HTTPS Firefox desktop/mobile, passiveROS20s0, source/reference/PIDs/6conf
 ## Блокеры и ближайшие действия
 
 - `E04-IMPORT` DONE в software scope выше; archive/review/provenance pins обязательны.
-- `E04-COHORT`: accepted cohort+officialDataset PASS; теперь fresh current-source ACT/DP
-  qualification и queued resume/reload/new-PID/DEV/offline-shadow на labelled software inputs.
-- `E04-UI`: связать новый flow, counters/coverage/review/models и scoped tab cleanup.
+- `E04-COHORT` DONE: accepted cohort/officialDataset/current ACT+DP/actual queued resume/DEV/offline-shadow на labelled generated inputs.
+- `E04-UI` CURRENT: thin SourceDemo integration, explicit lost-ACK data reconciliation; legacy global STOP на blur и finish-autoimport заменить scoped flow.
+- `E04-UI`: связать counters/coverage/review/models, actual JPEG display и scoped tab cleanup; no GET control adoption.
 - Старый Pi4c имеет воспроизведённую shutdown race. Первый unattended Pi update
   OPEN: idleGET+server_close не drain. Нужен доказанный admission barrier либо
   отдельный наблюдаемый первый upgrade; пока продолжаем программную работу.
