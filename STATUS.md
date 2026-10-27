@@ -4,10 +4,11 @@
 `/home/jetsonnx/work/Explorer`; работающие службы не зависят от Mac/чата.
 
 Live central+worker, собственные Pi/Nano observers и import pin оригинального
-Nano web — **883478fe2411b83eface304af5f2a1607c344058**. Поздний main добавляет
-durable giver WAL/zero STOP, source phase activation, fixed reset UI и сохранённые
-source receipts. Его новый полный прогон/выпуск ещё предстоят.
-[Фактический выпуск883](_registry/evidence/release-883478fe-actual-activation-20261027.json).
+Nano web — **3ba5f9385affab877268c8f421abf282edcbf2ce**. Durable giver WAL,
+zero STOP, source phase activation, fixed reset UI и source receipts развёрнуты.
+Giver journal installed/healthy, ещё initialized=false до отдельной USER setup;
+Root не выдаёт это за физическую готовность.
+[Фактический выпуск3ba5](_registry/evidence/release-3ba5f938-actual-activation-20261027.json).
 
 Подтверждено:
 
@@ -47,12 +48,15 @@ source receipts. Его новый полный прогон/выпуск ещё
   8самостоятельных dev/sealed rollout/6400dispatch дали полный успех0/8.
   Chunk8:grasp4/4,lift+carry2/4, measured-open0/4; это не полный навык.
   [Результат](research/audits/target-visual-object-v3-results-20261027.json).
-  Новый опыт C2×2 clock×absolute/increment готов, тяжёлые запуски ещё не начаты.
-- Frozen883478fe с20 проверенными CAD/headless EGL:1597passed/15skipped,
-  0failed за361.87s; CPU3/5GiB, peak4.07GiB, swap/OOM0.198 Node tests прошли.
-  Настоящий Firefox:9desktop/mobile pages,0overflow,0non-GET requests;
-  12authenticated live GETs.24jobs/11cards/12096старыхevents/schema exact.
-  Отрицательный первый прогон с отсутствовавшими внешними CAD сохранён.
+  Новый C2×2 clock×absolute/increment:4смоука прошли/reload0; первый из4×1200
+  CPU train запущен; все4freeze до16новых held-out rollout.
+- Frozen3ba5f938 с20 проверенными CAD/headless EGL:1712passed/15skipped,
+  0failed за384.18s; CPU3/5GiB, peak4.30GB, swap/OOM0.205 Node tests прошли.
+  Firefox:9desktop/mobile pages,0overflow,0non-GET;12authenticated live GETs.
+  24jobs/11cards/13286старыхevents/schema exact; centralcutover2.457s.
+  154исходных non-web.py,6configs,91shared files exact; только web restart,
+  пассивный ROS20s:0actuator messages. Старые отрицательные прогоны сохранены.
+
 
 
 Текущее оборудование: Pi station available=true, idle/error=null, configuration

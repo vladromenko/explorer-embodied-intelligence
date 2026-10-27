@@ -18,8 +18,8 @@ Root интегрирует, выпускает и запускает общую
 и непересекающееся владение файлами; короткие проверки выполняет root.
 Сейчас: direct03 — phase/actual-hold successor05 без изменения исходного TTL;
 portable16 и figures/paper завершены и интегрированы, их агенты не заняты.
-Root — следующий frozen release regression и phase park/hold-successor API/UI; текущий883 release прошёл полный
+Root — phase park/hold-successor API/UI; текущий3ba5 release прошёл полный
 регресс/cutover/Firefox/scientific byte audit. direct03 также закрывает durable
 giver parked COMMAND_ESTIMATE lifecycle; wizard — frozen2×2 temporal target
 experiment после отрицательной actual B-серии. Source actor/teacher/physics
-оригиналы сохраняются; Cheavy ждёт review и завершения root5GiB окна.
+оригиналы сохраняются; C прошёл root review и4смоука;4×1200CPU train идут последовательно, затем16held-out.

@@ -1,0 +1,147 @@
+{
+  "schema": "explorer_actual_release_activation_evidence_v1",
+  "commit": "3ba5f9385affab877268c8f421abf282edcbf2ce",
+  "previous_commit": "883478fe2411b83eface304af5f2a1607c344058",
+  "status": "SOFTWARE_RELEASE_DEPLOYED_DISARMED_MASTER_IN_PROGRESS",
+  "full_pytest": {
+    "passed": 1712,
+    "skipped": 15,
+    "failed": 0,
+    "elapsed_s": 384.18,
+    "verified_CAD_files": 20,
+    "MUJOCO_GL": "egl",
+    "resource_limits": {
+      "cpu.max": "300000 100000",
+      "memory.max": "5368709120",
+      "memory.current": "1252347904",
+      "memory.peak": "4303200256",
+      "memory.swap.max": "0",
+      "memory.swap.peak": "0",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  "node_tests": {
+    "passed": 205,
+    "scope": "frozen_release_source"
+  },
+  "source_bindings": {
+    "schema": "explorer_release_qualified_sources_preflight_v1",
+    "commit": "3ba5f9385affab877268c8f421abf282edcbf2ce",
+    "gpu_binding_sha256": "fb12aa0f063e7f0aaa881cd94c5f0ce107113b3d51822219d751300984fe3524",
+    "gpu_source_files": 16,
+    "diffusion_binding_sha256": "8bc7bd625702da22a3074c5640e118ec6a83b096e81da6b9d5ff710704f2ac0b",
+    "diffusion_source_files": 18,
+    "actual_sources_verified": true,
+    "active_source_switched": false,
+    "physical_IO": false
+  },
+  "actual_central_cutover_s": 2.457190500004799,
+  "actual_native": {
+    "only_original_web_restarted": true,
+    "actuator_ROS_messages": 0,
+    "before_services": {
+      "explorer-camera": {
+        "ActiveState": "active",
+        "MainPID": "2347"
+      },
+      "explorer-control": {
+        "ActiveState": "active",
+        "MainPID": "2413"
+      },
+      "explorer-mcu": {
+        "ActiveState": "active",
+        "MainPID": "2356"
+      },
+      "explorer-web": {
+        "ActiveState": "active",
+        "MainPID": "287839"
+      }
+    },
+    "after_services": {
+      "explorer-camera": {
+        "ActiveState": "active",
+        "MainPID": "2347"
+      },
+      "explorer-control": {
+        "ActiveState": "active",
+        "MainPID": "2413"
+      },
+      "explorer-mcu": {
+        "ActiveState": "active",
+        "MainPID": "2356"
+      },
+      "explorer-web": {
+        "ActiveState": "active",
+        "MainPID": "333226"
+      }
+    },
+    "original_arm_reference_files_unchanged": true,
+    "all_six_controller_configs_unchanged": true
+  },
+  "source_audit": {
+    "original_non_web_python": 154,
+    "web_pin_exact": true,
+    "original_configs": 6,
+    "shared_files": 91,
+    "all_exact": true
+  },
+  "actual_firefox": {
+    "pages": 9,
+    "all_settled": true,
+    "horizontal_overflow": false,
+    "non_get_requests": 0
+  },
+  "actual_authenticated_GETs": 12,
+  "scientific_originals": {
+    "jobs": {
+      "original_rows": 24,
+      "current_rows": 24,
+      "all_original_rows_identical": true
+    },
+    "skills": {
+      "original_rows": 11,
+      "current_rows": 11,
+      "all_original_rows_identical": true
+    },
+    "events": {
+      "original_rows": 13286,
+      "current_rows": 13292,
+      "all_original_rows_identical": true
+    }
+  },
+  "production_schema_unchanged": true,
+  "production_active_jobs": 0,
+  "giver_durable_status": {
+    "active_grants_or_pending_challenges_restored": false,
+    "fail_closed_publication_gate": true,
+    "fault": null,
+    "healthy": true,
+    "initialized": false,
+    "installed": true,
+    "last_sealed_sha256": null,
+    "pending": false,
+    "recovery_required": false,
+    "restored_armed": false,
+    "revision": 0,
+    "scope": "durable_armed_latch_not_restored_authorization_or_latest_published_pose",
+    "state_id": "a2a41777fd8d4c2db05ec9e41fdce77e"
+  },
+  "physical_controls_called_by_agent": 0,
+  "actual_rollback_test_for_this_release": false,
+  "limitations": [
+    "Giver durable installed/healthy but uninitialized until explicit USER setup; Root physical authority remains blocked.",
+    "Native reference fault retained; no HOME/movement/authorization issued by agent.",
+    "Complete phase coordinator and scientific H1–H5 acceptance remain open."
+  ],
+  "private_receipts_sha256": {
+    "full_regression": "2f1435e9009422f68abce55de048293780a416617669cd82541bde474138a4fb",
+    "central": "25fbb3e04fe56151ee135bfacdf8178231f89ae5ccac46e735d98af0ce172888",
+    "native": "752525334b3d1e1e3e6c7edd4e038c9d1b728a74575c0a16aa1dfc953b1a3d7f",
+    "pi_observer": "627944f0ff1dd4ab3a9fd4c90ad775b3373ab8142f288db5dac93c54587ede68",
+    "nano_observer": "c02c8e3e90117042fbfc07eca5ca5e624c1459e53a3de7125123963836efd14e",
+    "api": "ca4f090575af0cf4e3df8c4b32d6d80bd726ec8213e6e0a45d3c1015aa49be54",
+    "firefox": "a26a933dc63e817b4c49ba17186dc3c5c23a886addb3e94177c3b6912614346d",
+    "fleet": "adf3063a59480b15e9f045f7006f56c9e95a094af40a2b91c311d8bd7119b24f",
+    "bindings": "c13fc0c90909b11cc5c11e2a27c9d6a176a9de4bcf1df76fee73af1312c21809"
+  }
+}
