@@ -108,7 +108,7 @@ def export_official_dataset(corpus,folder,*,image_size,partition,guard=lambda:No
             'lerobot_version':importlib.metadata.version('lerobot'),'lerobot_timestamp_basis':'logical_frame_index_grid_fps1_NOT_native_time_or_camera_exposure',
             'exact_source_clocks_retained':True,'temporal_resampling_performed':False,'interpolation_performed':False,
             'episodes':episodes,'rows':rows,'original_demo_count':len(selected),'segment_episode_count':len(episodes),
-            'segments_do_not_inflate_demonstration_count':True,'sealed_payloads_exported':False,'source_kinds':sorted({row['report']['source_kind'] for row in corpus.episodes}),
+            'segments_do_not_inflate_demonstration_count':True,'sealed_payloads_exported':False,'source_kinds':sorted({row['report']['source_kind'] for row in selected}),
             'files_sha256':inventory}
         from .artifacts import write_json
         write_json(stage/'explorer-source-index.json',index)

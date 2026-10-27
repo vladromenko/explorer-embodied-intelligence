@@ -24,6 +24,7 @@ from explorer.store import Store
 from explorer.skill_workflow import build_aggregate,create_session
 from explorer_shared.contracts import canonical
 from explorer_shared.native_capture import NativeCaptureWriter
+from explorer_shared.native_capture_service import NativeCaptureService
 from explorer_shared.native_stream03 import NativeDispatchTap
 from explorer_shared.node_agent import CameraSource
 from explorer_shared.learning.rosmaster_skill_pipeline import CanonicalCorpus
@@ -44,6 +45,7 @@ def native_aggregate(tmp_path,monkeypatch):
         clock.value=1200;tap.append('arm_host_publish',{'q_commanded_deg':[90]*6,'q_estimated_deg':[90.]*6},source_id='SOFTWARE-original-arm',started_ns=1190)
         camera=CameraSource('nano-rgbd','SOFTWARE-existing-cache');clock.value=2000
         writer=NativeCaptureWriter(tmp_path/'source',camera,clock_domain='nano',boot_id='software-boot',clock=clock)
+        journal=NativeCaptureService(writer,None,clock=clock)
         consumed=threading.Event();original_consume=writer._consume
         def consume(*args,original_consume=original_consume):
             result=original_consume(*args);consumed.set();return result
@@ -51,18 +53,26 @@ def native_aggregate(tmp_path,monkeypatch):
         session=sessions[variant['split']]
         context={'project_id':'02','input_mode':'keyboard','skill_id':selected['spec']['skill_id'],'skill_version':1,
             'skill_spec_sha256':selected['spec_sha256'],'variant_id':variant['variant_id'],'session_id':session['session_id'],
-            'episode_scope':'whole_episode','phase_id':phases[0],
+            'episode_scope':'whole_episode','phase_id':phases[0],'operator_input_trace_required':True,
             'split':{'partition':variant['split'],'scene_id':'software-scene-'+variant['split'],'session_id':session['session_id'],
                 'object_instance_id':'software-object-'+str(episode_index),'group_id':'software-series-'+str(episode_index),
                 'group_by':['scene_id','session_id','episode_id','object_instance_id']}}
         identity=writer.start(context,canonical(tap.since(0)))['recording_id']
+        journal.active_id=identity  # Passive callback only; fetch_enabled staysFalse.
         try:
             for index,phase in enumerate(phases):
-                tick=3000+index*1000;clock.value=tick-300
+                tick=3000+index*1000
+                if index==5:
+                    clock.value=tick-600;writer.pause(identity)
+                    clock.value=tick-500;writer.resume(identity)
+                clock.value=tick-300
                 if index:writer.stage(identity,phase)
                 rgb=np.zeros((32,32,3),np.uint8);rgb[...,0]=index*20;rgb[...,1]=episode_index*35+10;rgb[...,2]=np.arange(32)[:,None]*7
                 stream=BytesIO();Image.fromarray(rgb).save(stream,format='JPEG',quality=95)
                 camera.publish(stream.getvalue(),32,32,monotonic_ns=tick-150)
+                clock.value=tick-75
+                journal.observe_operator_input({'source':'keyboard','keys':['KeyI'],'observing':True},
+                    {'state':'ACTIVE','arm_mode':'cartesian'},200,tick-100,{'input_origin':'SOFTWARE_FIXTURE_NO_HARDWARE'})
                 before=tap.sequence;clock.value=tick
                 tap.append('arm_host_publish',{'q_commanded_deg':[90+index]*6,'q_estimated_deg':[90.+index]*6,
                     'input_source':'keyboard','command_generation':index+1,'input_received_at':float(tick)},
@@ -73,6 +83,8 @@ def native_aggregate(tmp_path,monkeypatch):
             source_manifest=writer.folder/'manifest.json';document=json.loads(source_manifest.read_bytes())
             assert document['admission']['admitted_for_dataset'],document['admission']['missing_facts']
             assert document['admission']['eligible_as_successful_bc_expert']==(variant['split']=='train')
+            assert len(document['embodied_episode']['operator_input_trace'])==10
+            assert [row['recording_segment_id'] for row in document['embodied_episode']['samples']]==[0]*5+[1]*5
             archive=writer.archive(identity);raw=archive.read_bytes();checksum=hashlib.sha256(raw).hexdigest()
             review=(writer.review(identity,decision='approve',actor_id='SOFTWARE-FIXTURE-OWNER',expected_archive_sha256=checksum)
                 if hasattr(writer,'review') else approved(identity,checksum,actor='SOFTWARE-FIXTURE-OWNER'))
@@ -90,7 +102,7 @@ def native_aggregate(tmp_path,monkeypatch):
             store.complete_job(job['id'],result);job=store.job(job['id']);assign(store,selected,job,variant['variant_id'],session)
             originals[str(source_manifest)]=hashlib.sha256(source_manifest.read_bytes()).hexdigest()
             originals[str(archive)]=checksum
-        finally:writer.close()
+        finally:journal.close()
     result=build_aggregate(store,selected['spec']['skill_id'],1);path=Path(result['dataset_manifest']);corpus=CanonicalCorpus(path)
     return path,store,{'all_sources_are_software_fixtures':True,'physical_validation':False,'request_methods':[method for method,_ in requests],
         'originals_sha256':originals,'native_source_original_ids':[row['descriptor']['source_episode_id'] for row in corpus.episodes],
