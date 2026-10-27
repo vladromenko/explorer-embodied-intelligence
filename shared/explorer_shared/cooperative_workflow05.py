@@ -47,10 +47,11 @@ def _id(value):
 
 class CooperativeWorkflow:
     def __init__(self,root,registry,recorder=None,evidence_inbox=None,*,clock_domain,
-                 clock=time.monotonic_ns,authority=lambda session:{},managed_root=None):
+                 clock=time.monotonic_ns,authority=lambda session:{},managed_root=None,native_owned_stop=None):
         self.root=Path(root);self.root.mkdir(parents=True,exist_ok=True)
         self.registry,self.recorder,self.inbox=registry,recorder,evidence_inbox
         self.domain,self.clock,self.authority=clock_domain,clock,authority
+        self.native_owned_stop=native_owned_stop
         self.managed=Path(managed_root or root).resolve()
         self.lock=threading.RLock();self.record_io=threading.Lock()
         self.native_phase_condition=threading.Condition(self.lock);self.native_phase_changes={};self.native_phase_checkpoints={}
@@ -617,24 +618,39 @@ class CooperativeWorkflow:
             if stop_current:self.cancel_session(session_id,'PROTOCOL_STEP_FAILED:'+type(error).__name__)
     def cancel_session(self,session_id,reason='explicit_operator_stop'):
         with self.lock:
-            row=self._session(session_id);row.update(epoch=uuid.uuid4().hex,status='STOPPED',pending_operation=None,
+            row=self._session(session_id);previous=deepcopy(row);row.update(epoch=uuid.uuid4().hex,status='STOPPED',pending_operation=None,
                 protocol_state='SAFE_STOP',protocol_completed=False,stop_reason=reason)
             self._save(row)
             for key in tuple(self.native_phase_checkpoints):
                 if key[0]==session_id:self.native_phase_checkpoints.pop(key,None)
             self.native_phase_condition.notify_all()
-        if self.inbox is not None:self.inbox.cancel_run(session_id)
         spec=self._spec_for(row);stops={}
         def stop_role(role,ref):
             provider=self.registry.provider(role,ref)
             if provider is None or not callable(provider.stop):return {'delivery_unknown':True,'reason':'EXISTING_STOP_NOT_BOUND'}
             try:return provider.stop(session_id)
             except Exception as error:return {'delivery_unknown':True,'error':type(error).__name__+': '+str(error)}
-        with ThreadPoolExecutor(max_workers=2) as pool:
+        def stop_owned():
+            try:return self.native_owned_stop(previous)
+            except Exception as error:return {'delivery_unknown':True,'error':type(error).__name__+': '+str(error),
+                'dual_hold_interlocks_unarmed':False}
+        with ThreadPoolExecutor(max_workers=3) as pool:
             calls={role:pool.submit(stop_role,role,ref) for role,ref in spec['subskills'].items()}
+            owned=pool.submit(stop_owned) if callable(self.native_owned_stop) else None
+            evidence_cancellation_error=None
+            try:
+                if self.inbox is not None:self.inbox.cancel_run(session_id)
+            except Exception as error:
+                evidence_cancellation_error=type(error).__name__+': '+str(error)
             stops={role:call.result() for role,call in calls.items()}
+            native_owned=owned.result() if owned is not None else None
         with self.lock:
-            current=self._session(session_id);current['stop_receipts']=stops;self._save(current)
+            current=self._session(session_id);current['stop_receipts']=stops
+            if native_owned is not None:
+                current['native_owned_session_cleanup']=deepcopy(native_owned)
+            if evidence_cancellation_error is not None:
+                current['evidence_cancellation_error']=evidence_cancellation_error
+            self._save(current)
         def finish_recording():
             # Cancellation revokes the epoch before any file/network work. A
             # delayed native record/start is cleaned by its own epoch fence.
@@ -645,7 +661,9 @@ class CooperativeWorkflow:
                         with self.lock:
                             current=self._session(session_id);current['errors'].append({'record_finish_error':str(error)});self._save(current)
         threading.Thread(target=finish_recording,daemon=True,name='cooperative-cancel-recording').start()
-        return {'session':self.snapshot(session_id),'stop_receipts':stops,'physical_stop_confirmed':False}
+        result={'session':self.snapshot(session_id),'stop_receipts':stops,'physical_stop_confirmed':False}
+        if native_owned is not None:result['native_owned_session_cleanup']=native_owned
+        return result
     def training_requests(self,skill_id,version,settings=None):
         selected=self.skill(skill_id,version)
         if not selected['confirmed']:raise ValueError('Confirm exact cooperative and native specs first')

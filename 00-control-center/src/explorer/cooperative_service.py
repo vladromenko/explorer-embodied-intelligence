@@ -71,6 +71,8 @@ class CooperativeService:
         self.observed_setup=CooperativeObservedService(self.workflow,{role:self._request(role) for role in ('giver','receiver')},
             self._observed_binary,inspect_native=self._inspect_skill,has_prior_evidence=self._prior_test_evidence,clock=clock)
         self.native_controls=CooperativeNativeSessions(self)
+        self.workflow.native_owned_stop=lambda previous:self.native_controls.cancel_owned_sessions(previous,
+            reason='COOPERATIVE_WORKFLOW_EPOCH_REVOKED')
         self.receiver_setup=CooperativeReceiverSetup(self)
         self.native_receipts=CooperativeNativeReceipts(self)
         self.grant_lineage=CooperativeGrantLineage(self)
@@ -571,11 +573,12 @@ idempotent; process restart never queues its missing half automatically.
             previous=self.workflow.snapshot(session)
             self.receiver_setup.invalidate_session(previous)
             result=self.workflow.cancel_session(session)
-            try:
-                result['native_owned_session_cleanup']=self.native_controls.cancel_owned_sessions(previous,actor=authenticated_actor)
-            except Exception as error:
-                result['native_owned_session_cleanup']={'delivery_unknown':True,'error':type(error).__name__+':'+str(error),
-                    'dual_hold_interlocks_unarmed':False}
+            if 'native_owned_session_cleanup' not in result:
+                try:
+                    result['native_owned_session_cleanup']=self.native_controls.cancel_owned_sessions(previous,actor=authenticated_actor)
+                except Exception as error:
+                    result['native_owned_session_cleanup']={'delivery_unknown':True,'error':type(error).__name__+':'+str(error),
+                        'dual_hold_interlocks_unarmed':False}
             result['observed_metadata_revocations']=self.observed_setup.revoke_session(previous)
             result['warm_compute_jobs_cancelled']=self.warm_compute.cancel_session(self.workflow.snapshot(session))
         elif operation=='confirm_evidence':result=self.inbox.confirm(body.get('challenge_id'),

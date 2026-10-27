@@ -3827,7 +3827,13 @@
         "software_tested": false,
         "hardware_tested": false
       },
-      "test_evidence": [],
+      "test_evidence": [
+        {
+          "command": "python -m pytest tests/test_cooperative_workflow_owned_stop.py tests/test_cooperative_unattached_stop.py tests/test_cooperative_workflow05.py tests/test_cooperative_phase_checkpoints.py -q",
+          "result": "42passed16.16s; internal protocol cancellation cleans exact fake Source owners before attach, foreign epoch not adopted, delayed cleanup outside Workflow lock, Inbox marker error does not skip STOP, explicit API cleanup called once",
+          "scope": "SOFTWARE_ONLY_NO_DEVICE_IO"
+        }
+      ],
       "hardware_run_ids": []
     },
     {
