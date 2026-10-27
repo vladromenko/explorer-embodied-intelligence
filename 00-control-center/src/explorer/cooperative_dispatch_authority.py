@@ -7,6 +7,7 @@ own motion. Original source validation, watchdogs and publication gates remain
 the final boundary. This module never starts, resumes, renews or sends a target.
 """
 from copy import deepcopy
+import math
 
 from explorer_shared.contracts import digest
 
@@ -47,7 +48,7 @@ class CooperativeDispatchAuthority:
                     (getattr(getattr(transport,'permission',None),'binding',None))!=self.service.observed_setup.receiver_binding(row,spec) or
                     getattr(transport,'reference',None)!=spec['subskills']['receiver']):
                 raise ValueError('Exact current receiver model/grant/provider/native epoch required')
-        state=transport.observe_state();now=self.clock()
+        observed_began=self.clock();state=transport.observe_state();now=self.clock()
         if (not isinstance(state,dict) or state.get('current_native_owner_ready') is not True or not state.get('source_receipt') or
                 state.get('clock_domain')!=self.service.workflow.domain or type(state.get('received_ns')) is not int or
                 not began<=state['received_ns']<=now or not 0<=now-began<=2_000_000_000):
@@ -69,8 +70,14 @@ class CooperativeDispatchAuthority:
             raise ValueError('Native scope/model changed during fresh transport inspection: '+role)
         if role=='receiver' and state.get('cooperative_dual_hold_publication_interlock_current') is not True:
             raise ValueError('Current original receiver publication interlock required')
+        finished=self.clock()
+        if role=='giver':
+            remaining=(latest['source'].get('native') or {}).get('native_lease_remaining_s')
+            if (type(remaining) not in (int,float) or not math.isfinite(remaining) or remaining<=0 or
+                    not observed_began<=finished<observed_began+int(remaining*1e9)):
+                raise ValueError('Original native giver lease elapsed during paired source GETs')
         return {'kind':'active_native_transport','role':role,'source_pair':deepcopy(latest),'observed_state':deepcopy(state),
-            'received_nx_ns':now,'clock_domain':self.service.workflow.domain}
+            'received_nx_ns':finished,'clock_domain':self.service.workflow.domain}
     @staticmethod
     def _armed(role,proof):
         if proof['kind']=='parked_observation':return proof['scope']['facts'].get('armed') is True
