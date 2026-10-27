@@ -56,7 +56,8 @@ class CooperativeService:
         self.preparers=public_capture_preparers(store,rosmaster_create_session=mobile.create_session,
             rosmaster_prepare_capture=mobile.prepare_capture_request,lab_create_session=lab.create_session,lab_capture_context=lab.capture_context)
         self.producers={role:NativeMetadataRecorder(role,self._request(role),lambda context,_role=role:self._prepare_context(_role,context),
-            capture_started=self._capture_started if role=='giver' else None) for role in ('giver','receiver')}
+            capture_started=self._capture_started if role=='giver' else None,
+            receiver_profile='common' if role=='receiver' else 'legacy') for role in ('giver','receiver')}
         bindings={slug:self._provider_bindings('giver',slug) for slug in ('rosmaster_keyboard_learning','rosmaster_leader_learning')}
         bindings['so101_source_learning']=self._provider_bindings('receiver','so101_source_learning')
         self.registry=existing_workflow_providers(store,rosmaster_workflow=mobile.workflow,rosmaster_aggregate=mobile.build_aggregate,
@@ -132,7 +133,7 @@ class CooperativeService:
     def _request(self,role):
         def request(method,path,body):
             cleanup=(method=='GET' and path in ('/native-capture/status','/station/status')) or (
-                method=='POST' and path in ('/native-capture/record/finish','/station/record/finish',
+                method=='POST' and path in ('/native-capture/record/finish','/so101-capture/record/finish',
                     '/station/observed-test/revoke','/legacy/explorer/retarget/activation/revoke'))
             if self.closed and not cleanup:raise ValueError('Cooperative service is closed')
             node=self.nodes.get('nano' if role=='giver' else 'pi')
@@ -154,7 +155,31 @@ class CooperativeService:
         native=prepared['body']['skill_context'] if role=='giver' else prepared['body']['context']
         native['cooperative_source_execution_domain']='REAL'
         native['cooperative_domain_basis']='configured_physical_source_declared_by_server_not_independent_task_success'
+        if role=='receiver':self._receiver_capture_permission(context,prepared)
         return prepared
+    def _receiver_capture_permission(self,context,prepared):
+        parent=context.get('cooperative_parent') or {};row=self.workflow.snapshot(parent.get('session_id'))
+        actor=(row.get('observed_test_binding') or {}).get('actor_id')
+        if (self.closed or row['process_session']!=self.workflow.process or not actor or
+                row['execution_domain']!='user_observed_physical_test' or
+                row['status'] in ('STOPPED','INTERRUPTED','COMPLETED') or
+                context!=row['proposed_native_source_contexts']['receiver']):
+            raise ValueError('Exact current observed cooperative intent/actor required for receiver capture')
+        expected=self.observed_setup.receiver_binding(row,self.workflow._spec_for(row))
+        status=self._request('receiver')('GET','/station/observed-test/status',None);grant=status.get('grant') or {}
+        if (status.get('execution_permission') is not True or grant.get('execution_permission') is not True or
+                grant.get('binding')!=expected or grant.get('actor_id')!=actor or
+                not grant.get('grant_id') or not grant.get('control_epoch')):
+            raise ValueError('Exact current cooperative COMMON receiver grant required; recording creates no authority')
+        current=self.workflow.snapshot(row['session_id'])
+        if (self.closed or current['epoch']!=row['epoch'] or current['process_session']!=row['process_session'] or
+                current['status'] in ('STOPPED','INTERRUPTED','COMPLETED') or
+                (current.get('observed_test_binding') or {}).get('actor_id')!=actor):
+            raise ValueError('Cooperative capture context changed during permission read')
+        prepared['body']['context'].update(cooperative_coordinator_epoch=row['epoch'],
+            cooperative_object_id=row['protocol_object_id'],input_mode=row['receiver_input_mode'])
+        prepared['capture_actor_id']=actor
+        prepared['capture_permission']={key:deepcopy(grant[key]) for key in ('grant_id','binding','control_epoch')}
     def _record_stage(self,role,reference,phase,coordinator):
         result=self.producers[role].record_stage(reference,phase,coordinator)
         if role=='giver':

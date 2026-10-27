@@ -13,10 +13,13 @@ from .experiments import experiment_id
 
 
 class NativeMetadataRecorder:
-    def __init__(self,role,request,prepare_context,*,capture_started=None):
+    def __init__(self,role,request,prepare_context,*,capture_started=None,receiver_profile='legacy'):
         if role not in ('giver','receiver') or not callable(request) or not callable(prepare_context):
             raise ValueError('Authenticated native request and public context validator required')
         self.role,self.request,self.prepare,self.started=role,request,prepare_context,capture_started
+        if receiver_profile not in ('legacy','common') or role=='giver' and receiver_profile!='legacy':
+            raise ValueError('Explicit supported receiver capture profile required')
+        self.common_receiver=role=='receiver' and receiver_profile=='common'
         self.lock=threading.Lock();self.active=None
     def _status(self):
         return self.request('GET','/native-capture/status' if self.role=='giver' else '/station/status',None)
@@ -34,6 +37,10 @@ class NativeMetadataRecorder:
                 if (caps.get('metadata_skill_context_supported') is not True or caps.get('native_owner_ready') is not True or
                         caps.get('action_dimension')!=9):raise ValueError('Original native9 producer/tap is not ready')
             else:
+                if self.common_receiver:
+                    caps=self.request('GET','/so101-capture/capabilities',None)
+                    if caps.get('cooperative_permission_recording_supported') is not True:
+                        raise ValueError('Guarded cooperative COMMON capture source required; no raw fallback')
                 status=self._status()
                 if status.get('recording_identity_fence') is not True:
                     raise ValueError('Native metadata recorder lacks identity-fenced finish; upgrade source service first')
@@ -43,11 +50,19 @@ class NativeMetadataRecorder:
             if not isinstance(prepared,dict) or not isinstance(prepared.get('body'),dict):
                 raise ValueError('Public source workflow must return validated native metadata body')
             path='/native-capture/record/start' if self.role=='giver' else '/station/record/start'
-            result=self.request('POST',path,deepcopy(prepared['body']));identity=self._id(result)
+            body=deepcopy(prepared['body'])
+            if self.common_receiver:
+                actor=prepared.get('capture_actor_id');proof=prepared.get('capture_permission')
+                if not isinstance(actor,str) or not actor or not isinstance(proof,dict) or set(proof)!={'grant_id','binding','control_epoch'}:
+                    raise ValueError('Server-bound current cooperative capture actor/permission required')
+                body={'record_start_body':body,'permission':deepcopy(proof),'actor_id':actor}
+                path='/so101-capture/record/start'
+            result=self.request('POST',path,body);identity=self._id(result)
             reference={'recording_id':identity,'episode_id':identity,'role':self.role,
                 'native_start_result':deepcopy(result),'source_context_sha256':digest(prepared['body']),
                 'source_capture':deepcopy(prepared.get('source_capture')),
                 'metadata_only_no_control_started':True}
+            if self.common_receiver:reference.update(capture_profile='common',capture_actor_id=actor)
             self.active=identity
             if self.started is not None:
                 try:reference['source_capture_binding']=self.started(deepcopy(prepared),identity)
@@ -67,7 +82,9 @@ class NativeMetadataRecorder:
             if self.role=='receiver':body.update(episode_id=identity,request_id=uuid.uuid4().hex,
                 annotation_source='cooperative_coordinator_explicit_phase',phase_scope='coordinator_phase',
                 coordinator_context=deepcopy(coordinator_context))
-            return self.request('POST','/native-capture/record/stage' if self.role=='giver' else '/station/record/stage',body)
+            path='/native-capture/record/stage' if self.role=='giver' else '/station/record/stage'
+            if self.common_receiver:path='/so101-capture/record/stage';body['actor_id']=reference.get('capture_actor_id')
+            return self.request('POST',path,body)
     def record_finish(self,reference,outcome):
         with self.lock:
             identity=self._current(reference)
@@ -81,7 +98,11 @@ class NativeMetadataRecorder:
                 if status in ('success','failure') and outcome.get('method')!='operator_observation':
                     raise ValueError('Explicit native-role operator outcome observation required')
                 body={'episode_id':identity,'outcome':status if status!='interrupted' else 'unknown'}
-            result=self.request('POST','/native-capture/record/finish' if self.role=='giver' else '/station/record/finish',body)
+            path='/native-capture/record/finish' if self.role=='giver' else '/station/record/finish'
+            if self.common_receiver:
+                path='/so101-capture/record/finish'
+                body={'recording_id':identity,'outcome':body['outcome'],'actor_id':reference.get('capture_actor_id')}
+            result=self.request('POST',path,body)
             self.active=None;return result
 
 

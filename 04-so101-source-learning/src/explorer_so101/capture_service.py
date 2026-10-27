@@ -20,16 +20,34 @@ class StationCaptureService:
         self.writer, self.root, self.schema = self, self.adapter.root, SCHEMA
 
     def _check_start(self, body, actor_id):
-        proof = (body.get('context') or {}).get('source04_demo_permission') or {}
+        context = body.get('context') or {}
+        demo = context.get('source04_demo_permission')
+        cooperative = context.get('cooperative05_capture_permission')
+        if bool(demo) == bool(cooperative):
+            raise ValueError('One exact COMMON capture permission purpose required')
+        proof = demo or cooperative
         selected = binding(proof.get('binding'))
-        if (selected['purpose'] != 'source04_demo' or
-                (selected['skill_id'], selected['skill_version'], selected['spec_sha256']) !=
-                (body.get('skill_id'), body.get('skill_version'), body.get('skill_spec_sha256')) or
-                selected['source_session_id'] != uuid.UUID(str(body.get('session_id'))).hex):
-            raise ValueError('Exact confirmed demonstration skill/session/attempt required')
+        if ((selected['skill_id'], selected['skill_version'], selected['spec_sha256']) !=
+                (body.get('skill_id'), body.get('skill_version'), body.get('skill_spec_sha256'))):
+            raise ValueError('Exact confirmed capture skill/version/Spec required')
+        if demo:
+            if (selected['purpose'] != 'source04_demo' or
+                    selected['source_session_id'] != uuid.UUID(str(body.get('session_id'))).hex):
+                raise ValueError('Exact confirmed demonstration skill/session/attempt required')
+        else:
+            parent = context.get('cooperative_parent') or {}
+            if (selected['purpose'] != 'cooperative05' or parent.get('role') != 'receiver' or
+                    uuid.UUID(str(body.get('session_id'))).hex != selected.get('cooperative_session_id') or
+                    parent.get('session_id') != selected.get('cooperative_session_id') or
+                    context.get('cooperative_parent_session_id') != selected.get('cooperative_session_id') or
+                    context.get('cooperative_coordinator_epoch') != selected.get('coordinator_epoch') or
+                    context.get('cooperative_object_id') != selected.get('object_id') or
+                    context.get('input_mode') != selected.get('input_mode')):
+                raise ValueError('Exact cooperative receiver session/epoch/object/input required')
         grant = self.permission.check(proof.get('grant_id'), selected, proof.get('control_epoch'))
-        if grant['actor_id'] != actor_id or self.station.mode != 'teleoperation':
-            raise ValueError('Capture requires its exact already-started observed demonstration owner')
+        mode = 'policy' if selected.get('input_mode') == 'policy' else 'teleoperation'
+        if grant['actor_id'] != actor_id or self.station.mode != mode:
+            raise ValueError('Capture requires its exact already-started observed native owner')
 
     def _start_original(self, body):
         # Keep correlation through the ORIGINAL Station lock, across admission
@@ -49,7 +67,9 @@ class StationCaptureService:
         return {'schema': SCHEMA, 'projects': ['04'], 'action_dimension': 6,
                 'same_original_station_writer': True, 'recording_modes': ['demonstration'],
                 'recording_operations': ['start', 'stage', 'pause', 'resume', 'cancel', 'finish', 'review'],
-                'requires_current_source04_demo_permission': True, 'physical_qualification': False}
+                'requires_current_source04_demo_permission': True,
+                'cooperative_permission_recording_supported': True,
+                'permission_purposes': ['source04_demo', 'cooperative05'], 'physical_qualification': False}
 
     def ready_recordings(self):return self.adapter.recordings()
     def manifest(self, ident):return self.adapter.manifest(ident)
@@ -65,9 +85,11 @@ class StationCaptureService:
                 set(proof) != {'grant_id', 'binding', 'control_epoch'}):
             raise ValueError('Exact native grant/binding/returned epoch required')
         context = dict(original.get('context') or {})
-        if 'source04_demo_permission' in context:
-            raise ValueError('Demo permission provenance is inserted only by the fixed source adapter')
-        context['source04_demo_permission'] = proof;original['context'] = context
+        if any(key in context for key in ('source04_demo_permission', 'cooperative05_capture_permission')):
+            raise ValueError('Capture permission provenance is inserted only by the fixed source adapter')
+        selected = binding(proof.get('binding'))
+        key = 'cooperative05_capture_permission' if selected['purpose'] == 'cooperative05' else 'source04_demo_permission'
+        context[key] = proof;original['context'] = context
         with self.station.lock:self._check_start(original,actor_id)
         return self.adapter.start(original, actor_id)
 

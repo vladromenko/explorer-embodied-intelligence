@@ -32,15 +32,23 @@ def fixture(tmp_path):
         path=req.url.path
         if req.method=='GET':
             if path=='/native-capture/capabilities':result={'metadata_skill_context_supported':True,'native_owner_ready':True,'action_dimension':9}
+            elif path=='/so101-capture/capabilities':result={'cooperative_permission_recording_supported':True}
             elif path=='/native-capture/status':result={'active_recording_id':active[role]}
             elif path=='/station/status':result={'mode':'teleoperation','recording_identity_fence':True,
                 'recording':{'episode_id':active[role]} if active[role] else None}
+            elif path=='/station/observed-test/status':
+                row=service.workflow.snapshot()['sessions'][-1];spec=service.workflow._spec_for(row)
+                result={'execution_permission':True,'grant':{'execution_permission':True,
+                    'grant_id':'fake-source-current-grant','control_epoch':'fake-source-epoch',
+                    'actor_id':row['observed_test_binding']['actor_id'],
+                    'binding':service.observed_setup.receiver_binding(row,spec)}}
             else:raise AssertionError('No actual device/status path expected')
         else:
             assert '/record/' in path, 'No control/motor endpoint belongs to this integration fixture'
             if path.endswith('/start'):
-                active[role]=('a' if role=='nano.test' else 'b')*32;contexts[role]=deepcopy(body)
-                result={'recording_id' if role=='nano.test' else 'episode_id':active[role]}
+                active[role]=('a' if role=='nano.test' else 'b')*32
+                contexts[role]=deepcopy(body['record_start_body'] if path.startswith('/so101-capture/') else body)
+                result={'recording_id' if role=='nano.test' or path.startswith('/so101-capture/') else 'episode_id':active[role]}
             elif path.endswith('/stage'):
                 assert body['recording_id']==active[role];result={'source_annotation':True}
             elif path.endswith('/finish'):
@@ -96,6 +104,10 @@ def test_real_public_source_contexts_and_authenticated_metadata_recording_preser
     service,store,calls,active,contexts,client=fixture(tmp_path)
     try:
         row,spec=session(service);base={'session_id':row['session_id'],'expected_epoch':row['epoch']}
+        # Explicit fake observed binding for this metadata-only source fixture.
+        # No authorize/start/control endpoint is invoked by this test.
+        row.update(execution_domain='user_observed_physical_test',observed_test_binding={'actor_id':'trusted-owner'})
+        service.workflow._save(row)
         result=service.command('record_start',base,authenticated_actor='trusted-owner')['result'];identity=result['recording_id']
         nano=contexts['nano.test']['skill_context'];pi=contexts['pi.test']
         assert nano['cooperative_parent_session_id']==row['session_id']==pi['context']['cooperative_parent_session_id']
