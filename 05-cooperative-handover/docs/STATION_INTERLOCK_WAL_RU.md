@@ -27,6 +27,12 @@ Provider.check проверяет текущие USER frame/native grant до me
 helper lock не ждёт этих locks. Capture/hash/profile file reads и fsync не
 выполняются из publication admission.
 
+Explicit bind profile integrity check и сама transaction сериализованы одним
+metadata lock. Обычный успешный commit не снимает fault; снять его может только
+explicit safe recovery. Поздний final seal arm не стирает fault от другого bind.
+Неверный JSON-тип envelope также даёт читаемый global-fault status вместо abort
+source constructor.
+
 Перед любой мутацией сохраняется pending WAL envelope с предыдущим exact state;
 после — final state с SHA и cleared pending. File mode600, atomic replace и
 file/directory fsync. Отклонённый запрос без изменения helper state запечатывает

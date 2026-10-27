@@ -60,7 +60,7 @@ def test_real_grant_id_only_bind_arm_actual_cached_write_and_cached_hook_no_came
 def test_pending_or_corrupt_wal_never_recovers_fresh_unarmed_and_status_remains_readable(tmp_path):
     wrapper,provider,station,camera,tick,grant,profile=rig(tmp_path);bind_arm(wrapper,grant,profile)
     original=json.loads(wrapper.path.read_bytes())
-    for raw in (b'{corrupt',canonical(dict(original,pending={'transaction_id':'lost-fsync'},
+    for raw in (b'{corrupt',b'[]',b'null',canonical(dict(original,pending={'transaction_id':'lost-fsync'},
             envelope_sha256=digest({key:value for key,value in dict(original,pending={'transaction_id':'lost-fsync'}).items() if key!='envelope_sha256'})))):
         wrapper.path.write_bytes(raw);recovered=StationCooperativeInterlock(provider,wrapper.path)
         assert recovered.status()['armed'] and recovered.status()['all_target_writes_blocked']
@@ -103,6 +103,30 @@ def test_first_wal_write_failure_keeps_marker_and_restart_requires_user_safe_res
     assert wrapper.initialized_path.exists() and not wrapper.path.exists()
     recovered=StationCooperativeInterlock(provider,wrapper.path)
     assert recovered.status()['all_target_writes_blocked'] and not recovered.check_publication('legacy','teleoperation',[0.]*6)['allowed']
+
+
+def test_concurrent_profile_fault_cannot_be_cleared_by_late_arm_final_seal(tmp_path,monkeypatch):
+    wrapper,provider,station,camera,tick,grant,profile=rig(tmp_path)
+    bound=call(wrapper,'bind',{**base(grant),'expected_revision':0,'direction_profile_id':profile['profile_sha256']})
+    entered,release,attempted=threading.Event(),threading.Event(),threading.Event();errors=[];results=[];original=module._write
+    def delayed(path,value):
+        if threading.current_thread().name=='final-arm' and value.get('pending') is None:
+            entered.set();assert release.wait(2)
+        return original(path,value)
+    monkeypatch.setattr(module,'_write',delayed)
+    def arm():results.append(call(wrapper,'arm',{**base(grant),'interlock_id':bound['interlock_id'],'expected_revision':bound['revision']}))
+    def concurrent_bind():
+        attempted.set()
+        try:call(wrapper,'bind',{**base(grant),'expected_revision':bound['revision'],'direction_profile_id':profile['profile_sha256']})
+        except ValueError as error:errors.append(error)
+    arm_thread=threading.Thread(target=arm,name='final-arm');arm_thread.start();assert entered.wait(1)
+    (wrapper.profile_root/(profile['profile_sha256']+'.json')).write_bytes(b'{}')
+    bind_thread=threading.Thread(target=concurrent_bind);bind_thread.start();assert attempted.wait(1)
+    release.set();arm_thread.join(2);bind_thread.join(2)
+    assert not arm_thread.is_alive() and not bind_thread.is_alive() and results[0]['armed'] and errors
+    assert wrapper.status()['all_target_writes_blocked']
+    assert not wrapper.check_publication(station.control_epoch,station.mode,[1.,2.,3.,4.,5.,50.])['allowed']
+    assert StationCooperativeInterlock(provider,wrapper.path).status()['all_target_writes_blocked']
 
 
 def test_marker_corruption_repair_is_only_after_pending_wal_and_explicit_user_safe_reset(tmp_path,monkeypatch):

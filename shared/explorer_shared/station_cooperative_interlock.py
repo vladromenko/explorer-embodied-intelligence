@@ -79,14 +79,14 @@ class StationCooperativeInterlock:
                 if not self.path.exists():raise ValueError('Previously initialized interlock WAL is missing; armed history is unknown')
             if self.path.exists():
                 envelope=_read(self.path)
-                if envelope.get('schema')!=ENVELOPE or envelope.get('envelope_sha256')!=digest({key:value for key,value in envelope.items() if key!='envelope_sha256'}):
+                if not isinstance(envelope,dict) or envelope.get('schema')!=ENVELOPE or envelope.get('envelope_sha256')!=digest({key:value for key,value in envelope.items() if key!='envelope_sha256'}):
                     raise ValueError('Interlock WAL integrity/schema differs')
                 if envelope.get('pending') is not None or envelope.get('fault') is not None:
                     raise ValueError('Pending/failed interlock WAL must not restore an unarmed default')
                 self.helper=self._new_helper(envelope['state']);self.last_transaction=envelope.get('last_transaction')
             self._load_profiles()
             self._load_captures()
-        except (ValueError,OSError,KeyError,TypeError) as error:self._fault('INTERLOCK_PERSISTENCE_UNCERTAIN:'+str(error))
+        except (ValueError,OSError,KeyError,TypeError,AttributeError) as error:self._fault('INTERLOCK_PERSISTENCE_UNCERTAIN:'+str(error))
     def _new_helper(self,state=None):
         return ReceiverHoldInterlock(clock_domain=self.station.clock_domain,boot_id=self.station.boot,clock=self.clock,state=state)
     def _fault(self,reason):
@@ -217,7 +217,8 @@ class StationCooperativeInterlock:
                     result=mutate(actual)
                     after=self.helper.snapshot_state()
                 _write(self.path,self._envelope(state=after,last_transaction=transaction))
-                self.last_transaction=transaction;self.fault=self.fault_id=None
+                self.last_transaction=transaction
+                if recover:self.fault=self.fault_id=None
                 return result
             except Exception:
                 # A rejected, unmodified metadata request can safely seal the
@@ -346,32 +347,34 @@ class StationCooperativeInterlock:
         extras={'bind':{'direction_profile_id'},'arm':set(),'finish/challenge':{'giver_release_receipt'},
             'finish':{'challenge_id','confirmation'},'reset_safe':{'object_safe_no_dual_hold'}}
         if operation not in extras or set(body)-common-extras[operation]:raise ValueError('ID-only known receiver metadata operation required')
-        profile=None
-        if operation=='bind' and body.get('direction_profile_id') is not None:
-            identity=body['direction_profile_id']
-            if not isinstance(identity,str) or not ID.fullmatch(identity) or identity not in self.profiles:
-                raise ValueError('Select an actual server-registered source direction profile')
-            # Re-read original descriptor only for the explicit request, never
-            # from status/write admission; modified originals fail closed.
-            try:
-                profile=_read(self.profile_root/(identity+'.json'),128*1024)
-                if profile!=self.profiles[identity]:raise ValueError('Original direction profile changed')
-                self._verify_profile_sources(profile)
-            except (ValueError,OSError,KeyError,TypeError) as error:
-                self._fault('DIRECTION_PROFILE_SOURCE_UNCERTAIN:'+str(error));raise
-        def mutate(permission):
-            if operation=='bind':return self.helper.bind(binding=permission['binding'],permission=permission,
-                direction_profile=profile,expected_revision=body.get('expected_revision'))
-            arguments={'interlock_id':body.get('interlock_id'),'expected_revision':body.get('expected_revision'),'permission':permission}
-            if operation=='arm':return self.helper.arm(**arguments,last_command=deepcopy(self.station.last_command))
-            if operation=='finish/challenge':return self.helper.finish_challenge(**arguments,giver_release_receipt=body.get('giver_release_receipt'))
-            if operation=='finish':return self.helper.finish(**arguments,challenge_id=body.get('challenge_id'),confirmation=body.get('confirmation'))
-            if self.fault is not None:
-                if (body.get('interlock_id')!=self.fault_id or body.get('expected_revision')!=self.fault_revision or
-                        body.get('object_safe_no_dual_hold') is not True or self.station.mode!='idle' or permission['native_mode']!='idle'):
-                    raise ValueError('Exact uncertain-state ID/revision and explicit USER safe object under idle required')
-                self.helper=self._new_helper()
-                return self.helper.status(permission)
-            return self.helper.reset_safe(**arguments,object_safe_no_dual_hold=body.get('object_safe_no_dual_hold'),
-                actor_id=authenticated_actor,native_mode=self.station.mode)
-        return self._transaction(operation,body,authenticated_actor,mutate,recover=operation=='reset_safe' and self.fault is not None)
+        # Profile integrity faults and the transaction must share this lock:
+        # otherwise a concurrent ordinary final seal could clear a newer fault.
+        # The publication check never takes metadata_lock.
+        with self.metadata_lock:
+            profile=None
+            if operation=='bind' and body.get('direction_profile_id') is not None:
+                identity=body['direction_profile_id']
+                if not isinstance(identity,str) or not ID.fullmatch(identity) or identity not in self.profiles:
+                    raise ValueError('Select an actual server-registered source direction profile')
+                try:
+                    profile=_read(self.profile_root/(identity+'.json'),128*1024)
+                    if profile!=self.profiles[identity]:raise ValueError('Original direction profile changed')
+                    self._verify_profile_sources(profile)
+                except (ValueError,OSError,KeyError,TypeError) as error:
+                    self._fault('DIRECTION_PROFILE_SOURCE_UNCERTAIN:'+str(error));raise
+            def mutate(permission):
+                if operation=='bind':return self.helper.bind(binding=permission['binding'],permission=permission,
+                    direction_profile=profile,expected_revision=body.get('expected_revision'))
+                arguments={'interlock_id':body.get('interlock_id'),'expected_revision':body.get('expected_revision'),'permission':permission}
+                if operation=='arm':return self.helper.arm(**arguments,last_command=deepcopy(self.station.last_command))
+                if operation=='finish/challenge':return self.helper.finish_challenge(**arguments,giver_release_receipt=body.get('giver_release_receipt'))
+                if operation=='finish':return self.helper.finish(**arguments,challenge_id=body.get('challenge_id'),confirmation=body.get('confirmation'))
+                if self.fault is not None:
+                    if (body.get('interlock_id')!=self.fault_id or body.get('expected_revision')!=self.fault_revision or
+                            body.get('object_safe_no_dual_hold') is not True or self.station.mode!='idle' or permission['native_mode']!='idle'):
+                        raise ValueError('Exact uncertain-state ID/revision and explicit USER safe object under idle required')
+                    self.helper=self._new_helper()
+                    return self.helper.status(permission)
+                return self.helper.reset_safe(**arguments,object_safe_no_dual_hold=body.get('object_safe_no_dual_hold'),
+                    actor_id=authenticated_actor,native_mode=self.station.mode)
+            return self._transaction(operation,body,authenticated_actor,mutate,recover=operation=='reset_safe' and self.fault is not None)
