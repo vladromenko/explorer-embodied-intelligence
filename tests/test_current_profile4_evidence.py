@@ -37,11 +37,17 @@ def test_actual_current_production_profile_has_first_start_and_exact_GPU_new_pro
     assert index['independent_development_successes']==0 and not index['physical_skill_qualified']
 
 
-def test_new_helper_does_not_change_ACT6_DP6_CPU_weights_or_qualify_fused106_on_GPU():
+def test_historical_fused106_CPU_proof_remains_bound_to_its_frozen_PROFILE4_source():
     comparison=read('SOURCE04_PROFILE4_20261026_CHARACTERIZATION.json')
     assert comparison['weights_equal_prior_qualification'] and comparison['CPU_flags_unchanged']
     assert comparison['new_runtime_profile_helper_in_source'] and not comparison['task_success_claimed']
     fused=read('ROSMASTER_ACT106_20261026_PROFILE4_CPU_QUALIFICATION.json')
     assert fused['optimizer_steps']==8 and fused['device']=='cpu' and fused['feature_dimension']==106 and fused['action_dimension']==9
     assert fused['reload_max_abs_error']==0 and not fused['GPU_qualified'] and not fused['physical_io']
-    for name,expected in fused['runtime']['source_sha256'].items():assert sha(ROOT/name)==expected
+    # This immutable fused proof predates the official Dataset loader. Preserve
+    # its exact source against its original archive, never relabel it current.
+    index=json.loads((ROOT/'_registry/evidence/native6-queue-profile4-current-20261026.json').read_bytes())
+    tree_name='NATIVE6_QUEUE_PROFILE4_20261026_SOURCE_TREE.json'
+    assert sha(PROOFS/tree_name)==index['archives'][tree_name]
+    tree=read(tree_name)
+    for name,expected in fused['runtime']['source_sha256'].items():assert tree[name]==expected
