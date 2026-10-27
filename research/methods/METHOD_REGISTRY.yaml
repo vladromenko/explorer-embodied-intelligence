@@ -6135,6 +6135,131 @@
         "tests/test_rosmaster_learning.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SHARED-NATIVE-CAPTURE-APPROVAL-20261027",
+      "function_or_module": "shared/explorer_shared/native_capture_approval.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:02-demonstration-learning/docs/NATIVE9_LEROBOT_PIPELINE_RU.md",
+          "role": "Exact source contracts and truthful source-versus-logical timestamp semantics"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/learning/rosmaster_skill_pipeline.py",
+          "role": "Existing source-bound available-sensor106/native9 ACT preprocessing"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_WEIGHTS_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "One pure exact Source review ABI for control-center and canonical worker; central compatibility imports preserved.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_native_capture_approval.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-CAPTURE-DELAYED-COHORT-APPROVAL-20261027",
+      "function_or_module": "00-control-center/src/explorer/native_capture_cohort.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:02-demonstration-learning/docs/NATIVE9_LEROBOT_PIPELINE_RU.md",
+          "role": "Exact source contracts and truthful source-versus-logical timestamp semantics"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/learning/rosmaster_skill_pipeline.py",
+          "role": "Existing source-bound available-sensor106/native9 ACT preprocessing"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_WEIGHTS_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Before delayed fit reject revised/withdrawn local central USER approval without rewriting original aggregate or source outcome.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_native_approval_training.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE9-SOURCE-PAUSE-SEGMENTS-20261027",
+      "function_or_module": "shared/explorer_shared/learning/rosmaster_skill_segments.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:02-demonstration-learning/docs/NATIVE9_LEROBOT_PIPELINE_RU.md",
+          "role": "Exact source contracts and truthful source-versus-logical timestamp semantics"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/learning/rosmaster_skill_pipeline.py",
+          "role": "Existing source-bound available-sensor106/native9 ACT preprocessing"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_WEIGHTS_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Source-proof-only pause segments and contiguous original-sample chunks; pad discontinuity, retain complete target9 and original demonstration count.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_rosmaster_skill_segments.py",
+        "tests/test_native_approval_training.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE9-OFFICIAL-LEROBOT-INTERCHANGE-20261027",
+      "function_or_module": "shared/explorer_shared/learning/rosmaster_lerobot_dataset.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:02-demonstration-learning/docs/NATIVE9_LEROBOT_PIPELINE_RU.md",
+          "role": "Exact source contracts and truthful source-versus-logical timestamp semantics"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/learning/rosmaster_skill_pipeline.py",
+          "role": "Existing source-bound available-sensor106/native9 ACT preprocessing"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_WEIGHTS_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Worker-only official local LeRobot0.6.1 target9 interchange; separate TRAIN/DEV, exact raw source times/segments and logical non-native writer timestamps; actual opt-in roundtrip/ACT proof PENDING.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": false,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_rosmaster_native02_e2e.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

@@ -21,12 +21,13 @@ from test_skill_workflow import skill,imported,assign,sha
 from test_embodied_episode import package,encoded
 
 
-def fixture_aggregate(tmp_path,*,missing_sensors=False):
+def fixture_aggregate(tmp_path,*,missing_sensors=False,native02=False,paused=False):
     store=Store(tmp_path/'state');selected=skill(store);identity=selected['spec']['skill_id']
     sessions={partition:create_session(store,identity,1,dict(split=partition,scene='fixture-scene-'+partition)) for partition in ('train','development','sealed_test')}
     for episode_index,variant in enumerate(selected['spec']['coverage_plan']['variants']):
-        project='03' if episode_index%2 else '02';kind='retarget_import' if project=='03' else 'mobile_import'
-        job,path=imported(store,selected,'packet-'+str(episode_index),project_id=project,job_kind=kind,split=variant['split'],command_estimate=missing_sensors)
+        project='03' if episode_index%2 and not native02 else '02';kind='retarget_import' if project=='03' else 'mobile_import'
+        original=hashlib.sha256(('native-fixture-'+str(episode_index)).encode()).hexdigest()[:32] if native02 else 'packet-'+str(episode_index)
+        job,path=imported(store,selected,original,project_id=project,job_kind=kind,split=variant['split'],command_estimate=missing_sensors)
         facts=json.loads((path.parent/'facts.json').read_text());assets={}
         depth=np.full((32,32),700,dtype='<u2');assets['depth.u16']=depth.tobytes()
         for index,sample in enumerate(facts['samples']):
@@ -36,16 +37,37 @@ def fixture_aggregate(tmp_path,*,missing_sensors=False):
             stamp=deepcopy(sample['channels']['camera_rgb']['stamp'])
             sample['channels']['preceding_command9']=dict(present=True,available=True,mask=[True]*9,source_id='literal-native-prior9',stamp=stamp,
                 value=dict(values=[0.]*9,names=list(ACTION_NAMES),state_source='command_estimate',reference_id='factory-known-reference',estimator_id='original-native-no-readback',last_dispatch_receipt_id='reference-receipt'))
+            if paused:
+                sample.update(recording_segment_id=int(index>=5),recording_segment={'index':int(index>=5)})
+                sample['action']['stamp']['monotonic_ns']=20+index*10;sample['action']['delivery']['stamp']['monotonic_ns']=20+index*10
+                for record in sample['channels'].values():
+                    if isinstance(record.get('stamp'),dict):record['stamp']['monotonic_ns']=10+index*10
             if not missing_sensors:
                 sample['channels']['camera_depth']['value'].update(source_file='depth.u16',sha256=hashlib.sha256(assets['depth.u16']).hexdigest(),width=32,height=32,encoding='uint16_le')
                 sample['channels']['camera_calibration']['value'].update(frame_id='world',intrinsics=[16,0,16,0,16,16,0,0,1])
                 sample['channels']['odometry_pose']['value']['position']=[index*.02,0.,0.]
                 sample['channels']['goal']['value'].update(position=[.6,.6,0.],units='m',frame_id='world',calibration_id='cal-1')
                 sample['channels']['lidar']['value']['occupancy_grid']=dict(cells=np.zeros((14,14),int).tolist(),origin_xy_m=[-.2,-.2],resolution_m=.1,frame_id='world',source_id='synthetic_observed_map',robot_radius_m=.08,robot_geometry_id='software_fixture_ROSMASTER_body')
+        if paused:facts['recording']['capture_intervals']={'started_monotonic_ns':1,'pause_intervals':[{'start_monotonic_ns':65,'end_monotonic_ns':68}]}
         facts['identity']={key:deepcopy(facts[key]) for key in ('episode_id','run_id','project_id','source_kind','skill','episode_scope','action_contract')}
         envelope,payloads=package(facts,assets)
+        if paused:
+            for index,sample in enumerate(envelope['samples']):sample['recording_segment']['provenance']={
+                'source_file':'facts.json','sha256':envelope['source_files_sha256']['facts.json'],'json_pointer':'/samples/'+str(index)+'/recording_segment'}
         for name,raw in payloads.items():(path.parent/name).write_bytes(raw)
-        path.write_bytes(encoded(envelope));assign(store,selected,job,variant['variant_id'],sessions[variant['split']])
+        path.write_bytes(encoded(envelope))
+        if native02:
+            from explorer.native_capture_approval import source_bytes
+            from test_native_capture_approval import approved
+            wrapper=approved();wrapper['source_review']['recording_id']=original
+            wrapper['review_sha256']=hashlib.sha256(source_bytes(wrapper['source_review'])).hexdigest()
+            approval=path.parent/'source-review.json';approval.write_bytes(source_bytes(wrapper))
+            job['config'].update(source_format='native_capture_v1',archive_sha256='b'*64,source_review_sha256=wrapper['review_sha256'])
+            job['result'].update(schema='explorer_native_capture_import_v1',source_archive_sha256='b'*64,source_approval=wrapper,
+                source_review_sha256=wrapper['review_sha256'],source_approval_path=str(approval),source_approval_file_sha256=sha(approval))
+            with store.connect() as db:db.execute('UPDATE jobs SET config=?,result=? WHERE id=?',(json.dumps(job['config']),json.dumps(job['result']),job['id']))
+            job=store.job(job['id'])
+        assign(store,selected,job,variant['variant_id'],sessions[variant['split']])
     result=build_aggregate(store,identity,1)
     return Path(result['dataset_manifest']),store
 
@@ -58,7 +80,7 @@ def test_canonical_reader_real_RGB_full9D_sensor_masks_and_train_only_normalizat
     assert item['observation.state'].shape==(len(FEATURE_NAMES)*2,) and item['action'].shape==(2,9)
     assert item['observation.images.overview'].shape==(3,32,32)
     assert np.isfinite(item['observation.state'].numpy()).all() and len(corpus.normalizer.mean)>9
-    assert set(dataset.resume_context['source_implementation_sha256'])=={'rosmaster_skill_features.py','rosmaster_skill_hybrid.py'}
+    assert set(dataset.resume_context['source_implementation_sha256'])=={'rosmaster_skill_pipeline.py','rosmaster_skill_features.py','rosmaster_skill_hybrid.py','rosmaster_skill_segments.py'}
     assert corpus.normalizer.document()['fit_partition']=='train'
     assert not corpus.normalizer.document()['masks_normalized']
     # Development mutation is diagnostic data, never a normalization fit input.

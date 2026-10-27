@@ -18,6 +18,7 @@ from explorer_shared.contracts import ACTION_NAMES,ACTION_UNITS,canonical,digest
 from explorer_shared.embodied_episode import ACTION_CONTRACT_ID,inspect_embodied_episode
 from .rosmaster_skill_features import FEATURE_NAMES,FEATURE_GROUPS,PipelineBlocked,TrainNormalizer,channel,rgb_image,sensor_features
 from .rosmaster_skill_hybrid import NAV_PHASES,PhaseCoordinator,PhaseModel,calibrated_goal,navigation_action
+from .rosmaster_skill_segments import verified_recording_segments,chunk_slots
 
 JOB_KIND='rosmaster_skill_train'
 MODEL_SCHEMA='explorer_rosmaster_skill_model_v1'
@@ -51,6 +52,7 @@ def pipeline_capabilities():
     return dict(schema='rosmaster_skill_pipeline_capabilities_v1',job_kind=JOB_KIND,compatible_source_projects=['02','03'],
         action_contract_id=ACTION_CONTRACT_ID,action_names=list(ACTION_NAMES),action_dimension=9,
         fused_state_dimension=len(FEATURE_NAMES)*2,RGB_real_input=True,qualified_devices=['cpu'],controlplane_imports_torch=False,
+        supports_segment_chunks=True,official_lerobot_native9_dataset=True,
         end_to_end_implemented=True,hybrid_implemented=True,whole_autonomous_execution_qualified=False,
         implemented_candidates=['official_ACT9_RGB_available_sensor_fusion','calibrated_goal_Astar_navigation_ACT9_contact_observed_phase_coordinator_recovery'],
         user_robot_modes=['whole_unified_ROSMASTER'],physical_execution=False,automatic_deployment=False,
@@ -141,6 +143,14 @@ class CanonicalCorpus:
             if partition not in ('train','development'):raise PipelineBlocked('SEALED_OR_UNKNOWN_PARTITION_FORBIDDEN',str(partition))
             ids.add(original)
             if descriptor.get('skill_id')!=self.skill_id or descriptor.get('skill_version')!=self.version:raise PipelineBlocked('CROSS_SKILL_OR_VERSION_MIXING')
+            if descriptor.get('source_approval_required') is True or descriptor.get('source_approval_file') or descriptor.get('source_format')=='native_capture_v1':
+                from explorer_shared.native_capture_approval import validate_source_approval
+                approval_file=descriptor.get('source_approval_file')
+                if approval_file not in inventory:raise PipelineBlocked('NATIVE_SOURCE_APPROVAL_SNAPSHOT_REQUIRED')
+                try:
+                    validate_source_approval(_json(_member(self.root,approval_file)),original,descriptor.get('source_archive_sha256'),
+                        expected_review_sha256=descriptor.get('source_review_sha256'))
+                except (ValueError,TypeError,KeyError) as error:raise PipelineBlocked('NATIVE_SOURCE_APPROVAL_NOT_VALID',str(error)) from error
             inspection=_json(_member(self.root,descriptor['canonical_admission_file']))
             if descriptor['canonical_admission_file'] not in inventory or _sha(_member(self.root,descriptor['canonical_admission_file']))!=descriptor.get('canonical_admission_sha256'):raise PipelineBlocked('ADMISSION_SNAPSHOT_SHA_MISMATCH')
             mapping=descriptor.get('source_artifact_map') or {};document=_json(_member(self.root,mapping.get('__envelope__/original-document.json')))
@@ -166,7 +176,7 @@ class CanonicalCorpus:
             variant=descriptor.get('variant_id')
             if variant in variant_splits and variant_splits[variant]!=partition:raise PipelineBlocked('VARIANT_SPLIT_CHANGED')
             variant_splits[variant]=partition
-            samples=envelope.get('samples') or [];labels=[None]*len(samples)
+            samples=envelope.get('samples') or [];labels=[None]*len(samples);segments=verified_recording_segments(envelope,payloads)
             for phase in envelope.get('phases',[]):
                 if phase['id'] not in self.phases:raise PipelineBlocked('SOURCE_PHASE_OUTSIDE_SKILL')
                 for index in range(phase['start_sample'],phase['end_sample']+1):labels[index]=phase['id']
@@ -189,7 +199,7 @@ class CanonicalCorpus:
                 image=rgb_image(rgb,read_payload);values,masks,used=sensor_features(sample,read_payload)
                 action=np.asarray(sample['action']['values'],np.float32)
                 if action.shape!=(9,) or not np.isfinite(action).all():raise PipelineBlocked('SIMULTANEOUS_ACTION9_REQUIRED')
-                frames.append(dict(values=values,masks=masks,used=used,action=action,phase=labels[index],original_sample_index=index,rgb_record=rgb,
+                frames.append(dict(values=values,masks=masks,used=used,action=action,phase=labels[index],original_sample_index=index,recording_segment_id=segments[index],rgb_record=rgb,
                     rgb_summary=np.concatenate([image.mean(axis=(0,1))/255.,image.std(axis=(0,1))/255.]).astype(np.float32),sample=sample))
             self.episodes.append(dict(descriptor=descriptor,envelope=envelope,report=report,frames=frames,paths=paths))
         self.train=[episode for episode in self.episodes if episode['descriptor']['split']=='train'];self.development=[episode for episode in self.episodes if episode['descriptor']['split']=='development']
@@ -214,7 +224,7 @@ class FusedChunks:
         self.corpus,self.episodes,self.chunk_size,self.image_size=corpus,episodes,chunk_size,image_size
         self.indices=[(episode_index,index) for episode_index,episode in enumerate(episodes) for index in range(len(episode['frames']))]
         self.resume_context=dict(source_signature=corpus.sha256,source_files=[dict(path=path,sha256=expected) for path,expected in sorted(corpus.source_files.items())],
-            source_implementation_sha256={name:_sha(Path(__file__).with_name(name)) for name in ('rosmaster_skill_features.py','rosmaster_skill_hybrid.py')},
+            source_implementation_sha256={name:_sha(Path(__file__).with_name(name)) for name in ('rosmaster_skill_pipeline.py','rosmaster_skill_features.py','rosmaster_skill_hybrid.py','rosmaster_skill_segments.py')},
             skill_id=corpus.skill_id,skill_version=corpus.version,training_episode_ids=[row['descriptor']['source_episode_id'] for row in episodes],
             feature_schema=corpus.normalizer.document(),chunk_size=chunk_size,image_size=image_size,actor_inputs='real_RGB_and_source_sensor_values_with_availability_only')
     def __len__(self):return len(self.indices)
@@ -224,10 +234,7 @@ class FusedChunks:
         episode_index,position=self.indices[index];episode=self.episodes[episode_index];frame=episode['frames'][position]
         image=rgb_image(frame['rgb_record'],lambda name:self.corpus.read(episode,name))
         image=np.asarray(Image.fromarray(image).resize((self.image_size,self.image_size),Image.Resampling.BILINEAR))
-        slots=position+np.arange(self.chunk_size);padded=slots>=len(episode['frames']);slots=np.minimum(slots,len(episode['frames'])-1)
-        discontinuity=np.array([episode['frames'][slot]['original_sample_index']!=frame['original_sample_index']+offset for offset,slot in enumerate(slots)])
-        padded|=np.maximum.accumulate(discontinuity)
-        last_valid=int(np.flatnonzero(~padded)[-1]);slots=np.where(padded,slots[last_valid],slots)
+        slots,padded=chunk_slots(episode['frames'],position,self.chunk_size);padded=np.asarray(padded,dtype=bool)
         actions=np.asarray([episode['frames'][slot]['action'] for slot in slots])
         return {IMAGE_KEY:prepare_rgb(image[None])[0],'observation.state':torch.from_numpy(self.corpus.normalizer.state(frame['values'],frame['masks'])),
             'action':torch.from_numpy(self.corpus.normalizer.action(actions)),'action_is_pad':torch.from_numpy(padded)}
@@ -267,7 +274,8 @@ def offline_metrics(policy,corpus,samples,phase_model,device):
         raw_predictions=predictions,sealed_test_used=False,learned_policy_rollout_executed=False,whole_task_success='NOT_EVALUATED',physical_success=False)
 
 
-def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None):
+def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None,guard=lambda:None):
+    guard()
     import torch
     from explorer_shared.learning.act_backend import IMAGE_KEY,framework_info,make_act_policy,optimize_act,save_reload_act
     from explorer_shared.learning.artifacts import state_digest
@@ -278,9 +286,13 @@ def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None):
         if type(options[name]) is not int or not low<=options[name]<=high:raise ValueError('Invalid fused ACT setting: '+name)
     if options['device']!='cpu':raise PipelineBlocked('FUSED_ACT_DEVICE_NOT_QUALIFIED','This new feature shape has CPU qualification only; old6D/CUDA receipts do not apply')
     torch.set_num_threads(options['threads']);started=time.monotonic();corpus=CanonicalCorpus(dataset_manifest);folder=Path(output_dir);folder.mkdir(parents=True,exist_ok=True)
-    training=FusedChunks(corpus,corpus.train,options['chunk_size'],options['image_size']);development=FusedChunks(corpus,corpus.development,options['chunk_size'],options['image_size'])
+    from .rosmaster_lerobot_dataset import export_official_dataset,OfficialFusedChunks
+    train_folder,train_index=export_official_dataset(corpus,folder/'lerobot_native9'/'train',image_size=options['image_size'],partition='train',guard=guard)
+    development_folder,development_index=export_official_dataset(corpus,folder/'lerobot_native9'/'development',image_size=options['image_size'],partition='development',guard=guard)
+    training=OfficialFusedChunks(corpus,corpus.train,options['chunk_size'],options['image_size'],train_folder,train_index)
+    development=OfficialFusedChunks(corpus,corpus.development,options['chunk_size'],options['image_size'],development_folder,development_index)
     settings_act={key:value for key,value in options.items() if key!='threads'}
-    policy=make_act_policy(settings_act,len(FEATURE_NAMES)*2,9);initial=state_digest(policy)
+    guard();policy=make_act_policy(settings_act,len(FEATURE_NAMES)*2,9);initial=state_digest(policy)
     progress=progress or (lambda *args:None)
     optimizer,losses,_=optimize_act(policy,training,settings_act,folder,progress,.05,.75,checkpoint_interval=min(25,options['act_steps']))
     phase_rows=[row for episode in corpus.train for row in episode['frames']]
@@ -290,8 +302,8 @@ def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None):
         RGB='actual_source_RGB_UINT8_resize_bilinear_to_declared_size_once_ImageNet_normalization',image_size=options['image_size'],actor_state_dimension=len(FEATURE_NAMES)*2,
         action_names=list(ACTION_NAMES),action_units=list(ACTION_UNITS),action_contract_id=ACTION_CONTRACT_ID,
         source_phase_labels_or_privileged_object_truth_in_actor=False,phase_is_not_actor_input=True,neutral_channels_retained=True)
-    reloaded,checkpoint,error=save_reload_act(policy,optimizer,folder,preprocessing,inputs,'cpu')
-    evaluation=offline_metrics(reloaded,corpus,development,phase_model,'cpu');corpus.recheck()
+    guard();reloaded,checkpoint,error=save_reload_act(policy,optimizer,folder,preprocessing,inputs,'cpu')
+    evaluation=offline_metrics(reloaded,corpus,development,phase_model,'cpu');guard();corpus.recheck();training.recheck();development.recheck()
     used=Counter();recorded=set();admitted=set()
     for episode in corpus.train:
         for name,channel_report in episode['report']['channels'].items():
@@ -304,6 +316,11 @@ def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None):
     model=dict(schema=MODEL_SCHEMA,job_kind=JOB_KIND,status='TRAINED_OFFLINE_CANDIDATE_NOT_ROLLOUT_QUALIFIED',skill_id=corpus.skill_id,skill_version=corpus.version,
         skill_spec_sha256=corpus.manifest['skill_spec_sha256'],aggregate_sha256=corpus.sha256,source_files_sha256=corpus.source_files,
         action_contract_id=ACTION_CONTRACT_ID,action_names=list(ACTION_NAMES),action_units=list(ACTION_UNITS),simultaneous_9d=True,
+        official_dataset={'schema':train_index['schema'],'train_path':str(train_folder),'development_path':str(development_folder),
+            'train_index_sha256':_sha(train_folder/'explorer-source-index.json'),'development_index_sha256':_sha(development_folder/'explorer-source-index.json'),
+            'original_train_demo_count':train_index['original_demo_count'],'train_segment_episode_count':train_index['segment_episode_count'],
+            'partitions_exported_separately':True,'sealed_payloads_exported':False,'target_dimension':9,'recorded_source_times_preserved':True,
+            'lerobot_timestamp_basis':train_index['lerobot_timestamp_basis']},
         ACT9=dict(implemented=True,official_module=type(policy).__module__,state_dimension=len(FEATURE_NAMES)*2,output_dimension=9,RGB_input=True,model_used_channels=used_channels),
         hybrid=dict(implemented=True,phase_model=phase_model.document(),navigation='A_star_observed_occupancy_grid_body_trajectory_tracking',perception='recorded_calibrated_goal_or_locked_RGB_detection_and_depth',
             transitions='independent_phase_outcome_receipt_required',recovery='measured_relocalization_then_policy_reset; no fabricated_contact_or_timed_release',runtime_capability_missing=evaluation['hybrid']['blocked_reasons'],model_used_channels=hybrid_used),
@@ -312,7 +329,8 @@ def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None):
         train_original_episode_ids=[row['descriptor']['source_episode_id'] for row in corpus.train],development_original_episode_ids=[row['descriptor']['source_episode_id'] for row in corpus.development],sealed_original_episode_ids=corpus.sealed_ids,
         input_adapters_are_provenance_only=True,compatible_source_projects=['02','03'],source_kind=sorted({row['report']['source_kind'] for row in corpus.episodes}),
         weights_sha256={path.name:_sha(path) for path in sorted(checkpoint.iterdir()) if path.is_file()},hybrid_weights_sha256=digest(phase_model.document()),
-        implementation_sha256={Path(__file__).name:_sha(__file__), 'rosmaster_skill_features.py':_sha(Path(__file__).with_name('rosmaster_skill_features.py')),'rosmaster_skill_hybrid.py':_sha(Path(__file__).with_name('rosmaster_skill_hybrid.py'))},
+        implementation_sha256={name:_sha(Path(__file__).with_name(name)) for name in
+            ('rosmaster_skill_pipeline.py','rosmaster_skill_features.py','rosmaster_skill_hybrid.py','rosmaster_skill_segments.py','rosmaster_lerobot_dataset.py')},
         offline_evaluation=evaluation,physical_execution_qualified=False,whole_skill_mastered=False,method_ids=['ACT_LEROBOT_0_6_1','ENGINEERING_GLUE'])
     _write(folder/'model_manifest.json',model)
     source_type='simulation' if model['source_kind']==['simulation'] else 'physical_demonstrations' if model['source_kind']==['physical'] else 'mixed_simulation_and_physical_demonstrations'
@@ -325,12 +343,16 @@ def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None):
         algorithm='official LeRobot compact ACT9 available-sensor fusion plus separately composed hybrid candidate',job_kind=JOB_KIND,feature_dimension=len(FEATURE_NAMES)*2,
         output_action_dimension=9,device='cpu',checkpoint_dir=str(checkpoint),checkpoint_sha256=model['weights_sha256'],model_manifest=str(folder/'model_manifest.json'),
         model_manifest_sha256=_sha(folder/'model_manifest.json'),source_manifest_path=str(corpus.path),source_manifest_sha256=corpus.sha256,
-        training_resume=optimizer.explorer_resume_info,evaluation=evaluation,skill_card=card,physical_io=False,simulator_executed=False,learned_rollout_executed=False,elapsed_s=time.monotonic()-started,**framework_info())
+        training_resume=optimizer.explorer_resume_info,evaluation=evaluation,official_dataset=model['official_dataset'],skill_card=card,physical_io=False,simulator_executed=False,learned_rollout_executed=False,elapsed_s=time.monotonic()-started,**framework_info())
     _write(folder/'result.json',result);progress(1.,'shared_rosmaster_ACT9_and_hybrid_offline_receipts_saved')
     return result
 
 
 def train_rosmaster_skill(store,job):
+    def guard():
+        current=store.job(job['id'])
+        if current and current['status'] in ('cancel_requested','cancelled'):raise RuntimeError('Native9 training cancelled before next export/model/result')
+    guard()
     config=job.get('config') or {};source=config.get('dataset_manifest')
     if not source:raise PipelineBlocked('CANONICAL_AGGREGATE_REQUIRED')
     source=Path(source).expanduser().resolve()
@@ -347,8 +369,12 @@ def train_rosmaster_skill(store,job):
         declared=lineage.get(key)
         if not isinstance(declared,list) or len(declared)!=len(set(declared)) or set(declared)!=actual:raise PipelineBlocked('QUEUED_SOURCE_PARTITION_LINEAGE_CHANGED',key)
     if set(lineage.get('sealed_original_episode_ids') or [])!={row['original_episode_id'] for row in manifest.get('sealed_sources_excluded',[])}:raise PipelineBlocked('QUEUED_SEALED_LINEAGE_CHANGED')
+    from explorer.native_capture_cohort import validate_current_approvals
+    validate_current_approvals(store,manifest)
     options={key:config[key] for key in ('seed','act_steps','batch_size','image_size','chunk_size','device','threads') if key in config}
-    result=train_pipeline(source,store.root/'jobs'/job['id'],settings=options,progress=lambda value,phase:store.update_job(job['id'],progress=value,result=dict(phase=phase)))
+    def progress(value,phase):guard();store.update_job(job['id'],progress=value,result=dict(phase=phase))
+    result=train_pipeline(source,store.root/'jobs'/job['id'],settings=options,progress=progress,guard=guard)
+    guard()
     result['skill_card']['lineage']['job_id']=job['id']
     if not any(item['id']==result['skill_card']['id'] for item in store.skills()):store.add_skill(result['skill_card'])
     _write(store.root/'jobs'/job['id']/'result.json',result)

@@ -554,6 +554,15 @@ def _admission(store,spec,binding,inspector=None):
             retained.append(dict(relative_name=name,path=str(path),sha256=artifact['sha256']))
         if not retained:raise ValueError('no retained canonical envelope/payload artifacts')
     except (OSError,ValueError,KeyError,TypeError) as error:reasons.append('embodied_source_artifact_invalid:'+str(error))
+    if ((report.get('source_approval') or {}).get('required') is True and
+            (runtime_pipeline().get('capabilities') or {}).get('supports_segment_chunks') is True):
+        try:
+            from explorer_shared.learning.rosmaster_skill_segments import verified_recording_segments
+            names={(envelope.get('recording') or {}).get('provenance',{}).get('source_file')}
+            names.update((sample.get('recording_segment') or {}).get('provenance',{}).get('source_file') for sample in envelope.get('samples') or [])
+            proofs={item['relative_name']:Path(item['path']).read_bytes() for item in retained if item['relative_name'] in names}
+            verified_recording_segments(envelope,proofs)
+        except (OSError,ValueError,KeyError,TypeError) as error:reasons.append('native_recording_segments_not_source_verified:'+str(error))
     return dict(binding=binding,accepted=not reasons,reasons=list(dict.fromkeys(reasons)),evidence=report,manifest=manifest,
         original_episode_id=binding['original_episode_id'],embodied_source_artifacts=retained,
         legacy_RGB9D_view_available=report.get('legacy_RGB9D_contract_admitted') is True and bool(manifest and legacy_path and legacy_sha),legacy_manifest_path=legacy_path,legacy_manifest_sha256=legacy_sha,
@@ -717,6 +726,8 @@ def build_aggregate(store,skill_id,version,*,inspector=None):
             relative=namespace+'/source-approval.json';raw=source_bytes(wrapper);files[relative]=(raw,hashlib.sha256(raw).hexdigest())
             source_record.update(source_approval_file=relative,source_review_sha256=checked['review_sha256'],source_archive_sha256=checked['archive_sha256'])
             canonical_episodes[-1].update(source_approval_file=relative,source_review_sha256=checked['review_sha256'],source_archive_sha256=checked['archive_sha256'])
+            canonical_episodes[-1].update(source_approval_required=True,source_format='native_capture_v1')
+            source_record.update(source_approval_required=True,source_format='native_capture_v1')
         # An unchanged optional legacy RGB/prior-command9 view may be retained
         # for an internal ACT component; it never becomes the full dataset.
         if manifest and row.get('legacy_manifest_path'):

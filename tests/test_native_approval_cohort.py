@@ -16,9 +16,16 @@ def native_job(store,selected,*,paused=False):
     if paused:
         from test_embodied_episode import package,encoded
         folder=path.parent;facts=json.loads((folder/'facts.json').read_bytes())
-        facts['recording']['capture_intervals']={'started_monotonic_ns':1,'pause_intervals':[{'start_monotonic_ns':40,'end_monotonic_ns':50}]}
+        facts['recording']['capture_intervals']={'started_monotonic_ns':1,'pause_intervals':[{'start_monotonic_ns':65,'end_monotonic_ns':68}]}
+        for index,sample in enumerate(facts['samples']):
+            sample.update(recording_segment_id=int(index>=5),recording_segment={'index':int(index>=5)})
+            sample['action']['stamp']['monotonic_ns']=20+index*10;sample['action']['delivery']['stamp']['monotonic_ns']=20+index*10
+            for record in sample['channels'].values():
+                if isinstance(record.get('stamp'),dict):record['stamp']['monotonic_ns']=10+index*10
         assets={name:(folder/name).read_bytes() for name in json.loads(path.read_bytes())['source_files_sha256'] if name!='facts.json'}
         envelope,payloads=package(facts,assets)
+        for index,sample in enumerate(envelope['samples']):sample['recording_segment']['provenance']={
+            'source_file':'facts.json','sha256':envelope['source_files_sha256']['facts.json'],'json_pointer':'/samples/'+str(index)+'/recording_segment'}
         for name,raw in payloads.items():(folder/name).write_bytes(raw)
         path.write_bytes(encoded(envelope))
     wrapper=approved();source=path.parent/'source-review.json';source.write_bytes(source_bytes(wrapper))
@@ -62,11 +69,14 @@ def test_paused_native02_is_retained_but_not_bc_expert_until_runtime_segment_cap
     session=flow.create_session(store,selected['spec']['skill_id'],1,{'split':'train','scene':'explicit-pause-fixture'})
     before={path:path.read_bytes() for path in (store.root/'datasets'/('a'*32)).glob('*') if path.is_file()}
     report=inspect_mobile_import(job,managed_root=store.root);assert report['source_quality_usable'] and report['mobile_embodied']['admitted_for_training']
+    runtime=flow.runtime_pipeline
+    def legacy():
+        value=runtime();value['capabilities'].pop('supports_segment_chunks',None);return value
+    monkeypatch.setattr(flow,'runtime_pipeline',legacy)
     assign(store,selected,job,'variant-001',session)
     result=flow.workflow(store,selected['spec']['skill_id'],1)
     assert not result['assignments'][0]['accepted'] and 'paused_native02_requires_segment_loader_qualification' in result['assignments'][0]['reasons']
     assert not result['train_ready'] and all(path.read_bytes()==raw for path,raw in before.items())
-    runtime=flow.runtime_pipeline
     def qualified():
         value=runtime();value['capabilities']['supports_segment_chunks']=True;return value
     monkeypatch.setattr(flow,'runtime_pipeline',qualified)
