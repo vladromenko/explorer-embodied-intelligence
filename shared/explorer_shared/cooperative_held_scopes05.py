@@ -167,6 +167,7 @@ def _arm_receipt(role,scope,interlock,already):
     return {'schema':'explorer_cooperative_parked_arm_receipt_v1','role':role,'armed':True,'already_armed':already,
         'binding':deepcopy(scope['binding']),'native_owner':deepcopy(scope['native_owner']),
         'source_scope_sha256':scope['scope_sha256'],'source_origin_sha256':scope['source_origin_sha256'],
+        'source_scope':deepcopy(scope),
         'interlock':interlock,'native_commands_sent':0,'native_command_called':False,'native_lease_renewed':False,
         'physical_execution_authorized':False,'hold_contact_or_stationarity_claimed':False}
 

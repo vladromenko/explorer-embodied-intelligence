@@ -46,6 +46,7 @@ def test_giver_metadata_arm_keeps_exact_park_origin_and_usedproofs_without_write
         assert result['armed'] and result['already_armed'] is False and guard.armed and guard.last_pose==[90]*6
         assert guard.revision==body['expected_revision']+1 and guard.parked==parked and guard.used==used
         assert result['native_commands_sent']==0 and not result['physical_execution_authorized'] and not result['native_command_called']
+        assert result['source_scope_sha256']==digest({key:value for key,value in result['source_scope'].items() if key!='scope_sha256'})
         assert pair.teleop.lease==lease and pair.teleop.native_drive==drives and len(pair.owner.original_publisher.messages)==publications
         assert pair.owner.held_scope.snapshot()['ready']
         again=pair.owner.arm_parked(giver_body(pair.owner),authenticated_actor='trusted-owner')
@@ -92,6 +93,17 @@ def test_giver_revoke_during_wal_rejects_late_metadata_arm_and_preserves_park(tm
         release.set()
         if 'worker' in locals():worker.join(3)
         close(values)
+
+
+def test_metadata_receipt_retains_its_literal_scope_even_when_source_clock_advanced_since_root_get(tmp_path):
+    values=giver(tmp_path);service,store,row,spec,pair,client=values
+    try:
+        before=pair.owner.held_scope.snapshot();body=giver_body(pair.owner);pair.native_tick[0]+=1
+        result=pair.owner.arm_parked(body,authenticated_actor='trusted-owner');actual=result['source_scope']
+        assert result['source_scope_sha256']==actual['scope_sha256']!=before['scope_sha256']
+        assert actual['source_origin']==before['source_origin'] and actual['actual_issued']['arm_receipt']==before['actual_issued']['arm_receipt']
+        assert actual['source_stamp']['monotonic_ns']>before['source_stamp']['monotonic_ns'] and not result['native_command_called']
+    finally:close(values)
 
 
 @pytest.mark.parametrize('already',[False,True])

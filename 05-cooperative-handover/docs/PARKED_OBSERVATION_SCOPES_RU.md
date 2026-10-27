@@ -83,6 +83,10 @@ locks; ошибка после изменения оставляет armed/recov
 `explorer_cooperative_parked_arm_receipt_v1` с `native_commands_sent=0`,
 `native_command_called=false`, `native_lease_renewed=false`,
 `physical_execution_authorized=false`. Это safety metadata, не grasp proof.
+Receipt сохраняет literal `source_scope` и его SHA именно на source arm cutoff.
+Whole-scope SHA более раннего Root GET отличается при новом чтении часов;
+для CAS между чтениями сравниваются стабильные owner/origin/actual receipts,
+а отдельные source timestamps сохраняются без переименования.
 
 Отдельная следующая интеграция — Root per-role authority/observation scopes.
 Generic parked arm/rebind и существующие dispatch/motion gates этими endpoints
