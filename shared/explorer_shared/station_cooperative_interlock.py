@@ -234,6 +234,9 @@ class StationCooperativeInterlock:
         """Cached-only; caller already holds original/publication locks."""
         if self.fault is not None:return {'allowed':False,'armed':True,'binding_current':False,
             'reason':'INTERLOCK_PERSISTENCE_UNCERTAIN','interlock_id':self.fault_id,'revision':self.fault_revision}
+        if (self.helper.frozen or {}).get('parked_observation_only') is True:
+            return {'allowed':False,'armed':self.helper.armed,'binding_current':False,'interlock_id':self.helper.interlock_id,
+                'revision':self.helper.revision,'reason':'PARKED_MEASURED_HOLD_REQUIRES_EXPLICIT_NATIVE_PHASE_ACTIVATION'}
         return self.helper.check(permission=self._cached_permission(),control_epoch=control_epoch,mode=mode,target=target,
             last_command=getattr(self.station,'last_command',None) if last_command is None else last_command)
     def status(self):
@@ -246,7 +249,102 @@ class StationCooperativeInterlock:
                 'basis':value['basis']} for key,value in self.profiles.items()])
         result.update(direction_capture_choices=deepcopy(list(self.captures.values())),direction_capture_errors=deepcopy(self.capture_errors),
             direction_capture_uses_existing_caches_only=True,physical_position_accuracy_known=False)
+        result.update(parked_observation_only=(self.helper.frozen or {}).get('parked_observation_only') is True,
+            parked_target_writes_allowed=False,parked_is_not_dispatch_authority=True)
         return result
+    @staticmethod
+    def _native6(value):
+        if (not isinstance(value,list) or len(value)!=6 or any(type(item) not in (int,float) or not math.isfinite(item) or
+                not LOW[index]<=item<=HIGH[index] for index,item in enumerate(value))):raise ValueError('Actual finite original native6 hold required')
+        return deepcopy(value)
+    def _hold_origin(self,old,permission):
+        frozen=old.get('frozen') or {};sealed=frozen.get('held_successor') or {};origin=sealed.get('origin')
+        if origin is not None:
+            if (not isinstance(origin,dict) or origin.get('origin_sha256')!=digest({key:value for key,value in origin.items() if key!='origin_sha256'})):
+                raise ValueError('Source-owned sealed hold lineage differs')
+            raw=origin['raw_receipt']
+            current=(self.provider.publication_gate.last_measured_hold if origin['basis']=='original_denial_measured_hold'
+                else self.station.last_command)
+            if current!=raw:raise ValueError('Original parked hold receipt is no longer current')
+            return deepcopy(origin)
+        owner=old['owner'];hold=deepcopy(getattr(self.provider.publication_gate,'last_measured_hold',None) or {})
+        previous_command=deepcopy(getattr(self.station,'last_command',None))
+        if (hold.get('schema')=='explorer_station_observed_denial_measured_hold_v1' and hold.get('grant_id')==owner['grant_id'] and
+                hold.get('denied_native_epoch')==owner['control_epoch']):
+            if (hold.get('original_position_write_returned') is not True or hold.get('MCU_attainment_verified') is not False or
+                    hold.get('old_target_sample_emitted') is not False or hold.get('boot_id')!=self.station.boot or
+                    hold.get('clock_domain')!=self.station.clock_domain or type(hold.get('measured_monotonic_ns')) is not int or
+                    type(hold.get('write_returned_monotonic_ns')) is not int or
+                    not 0<=hold['measured_monotonic_ns']<=hold['write_returned_monotonic_ns']<=self.clock()):
+                raise ValueError('Actual original gate-denial measured hold receipt required')
+            values=self._native6(hold.get('requested_and_dispatched'));epoch=hold.get('ended_native_epoch');stamp=hold['write_returned_monotonic_ns']
+            # A labelled canonical reference view; never invent a Station
+            # last_command or action sequence absent from this actual receipt.
+            reference={'schema':'explorer_returned_measured_hold_reference_view_v1','operation':'original_denial_measured_hold',
+                'control_epoch':epoch,'sequence':None,'requested':values,'dispatched':values,'monotonic_ns':stamp,
+                'clock_domain':self.station.clock_domain,'derived_metadata_view_not_station_last_command':True,
+                'original_source_receipt_sha256':digest(hold)}
+            basis='original_denial_measured_hold'
+        else:
+            record=self.provider.retired.get(owner['grant_id']);retired=(record or {}).get('data') or {}
+            hold=deepcopy(getattr(self.station,'last_command',None) or {});prior=deepcopy(getattr(self.station,'preceding_command',None))
+            previous_command=prior
+            if (retired.get('revoked_reason')!='EXPLICIT_USER_SCOPED_STOP' or retired.get('binding')!=old['binding'] or
+                    any(retired.get(key)!=owner[key] for key in owner) or hold.get('operation')!='hold_current_position' or
+                    hold.get('sequence')!=-1 or hold.get('requested')!=hold.get('dispatched') or
+                    hold.get('clock_domain')!=self.station.clock_domain or type(hold.get('monotonic_ns')) is not int or
+                    not 0<=hold['monotonic_ns']<=self.clock() or getattr(self.station,'last_hold_error',None) is not None or
+                    old['armed'] and (not isinstance(prior,dict) or prior.get('control_epoch')!=owner['control_epoch'] or
+                        prior.get('clock_domain')!=self.station.clock_domain or type(prior.get('monotonic_ns')) is not int or
+                        not 0<=prior['monotonic_ns']<=hold['monotonic_ns'])):
+                raise ValueError('Actual original scoped STOP measured-hold receipt and retired owned lineage required; idle is insufficient')
+            values=self._native6(hold.get('dispatched'));epoch=hold.get('control_epoch');stamp=hold['monotonic_ns'];reference=hold
+            basis='original_scoped_stop_measured_hold'
+        origin={'schema':'explorer_station_source_measured_hold_origin_v1','basis':basis,'raw_receipt':hold,
+            'reference_view':reference,'previous_source_command':previous_command,'held_native6':values,'held_native_epoch':epoch,'write_returned_native_ns':stamp,
+            'boot_id':self.station.boot,'clock_domain':self.station.clock_domain,
+            'follower_calibration_sha256':permission['follower_calibration_sha256'],'binding':deepcopy(old['binding']),
+            'original_owner':deepcopy(owner),'measurement_time_reported':basis=='original_denial_measured_hold',
+            'physical_attainment_or_contact_claimed':False}
+        return dict(origin,origin_sha256=digest(origin))
+    def _successor(self,permission,body):
+        old=self.helper.snapshot_state();self.helper._cas(body.get('interlock_id'),body.get('expected_revision'));owner=old.get('owner') or {}
+        if (not owner or old['binding']!=permission['binding'] or permission['native_mode']!='idle' or self.station.mode!='idle' or
+                body.get('previous_grant_id')!=owner.get('grant_id') or body.get('previous_control_epoch')!=owner.get('control_epoch') or
+                permission['grant_id']==owner.get('grant_id') or any(permission.get(key)!=owner.get(key) for key in
+                    ('actor_id','provider_process','boot_id','clock_domain','follower_calibration_sha256')) or
+                body.get('observing') is not True or body.get('user_observed_test_confirmed') is not True):
+            raise ValueError('Exact previous owner and NEW explicit same-source USER idle grant/binding required')
+        origin=self._hold_origin(old,permission);measured=deepcopy(self.station.measurements);now=self.clock();stamp=measured.get('monotonic_ns')
+        frame=permission.get('displayed_frame') or {};received=frame.get('received_monotonic_ns');created=permission.get('created_monotonic_ns')
+        if (origin.get('held_native_epoch')!=self.station.control_epoch or origin.get('held_native_epoch')!=permission['control_epoch'] or
+                origin.get('boot_id')!=self.station.boot or origin.get('clock_domain')!=self.station.clock_domain or
+                origin.get('follower_calibration_sha256')!=permission['follower_calibration_sha256'] or origin.get('binding')!=old['binding'] or
+                measured.get('clock_domain')!=self.station.clock_domain or type(stamp) is not int or
+                not origin['write_returned_native_ns']<=stamp<=now or not 0<=now-stamp<=500_000_000 or
+                self._native6(measured.get('follower'))!=origin['held_native6'] or type(received) is not int or type(created) is not int or
+                not origin['write_returned_native_ns']<=received<=created<=now or frame.get('boot_id')!=self.station.boot or
+                frame.get('clock_domain')!=self.station.clock_domain):
+            raise ValueError('Current unchanged fresh measured hold/idle epoch and USER image after actual hold return required')
+        previous=old.get('frozen') or {};lineage=deepcopy(previous.get('held_successor') or {
+            'origin':origin,'initial_reference':deepcopy(previous),'successions':[]})
+        if not isinstance(lineage.get('successions'),list) or len(lineage['successions'])>=32:raise ValueError('Retained successor lineage bound reached')
+        identity=uuid.uuid4().hex
+        event={'schema':'explorer_station_measured_hold_successor_v1','receipt_id':identity,'event_id':identity,'kind':'EXPLICIT_USER_MEASURED_HOLD_SUCCESSOR',
+            'interlock_id':old['interlock_id'],'revision':old['revision']+1,'previous_owner':owner,'new_owner':self.helper._owner(permission),
+            'origin_sha256':origin['origin_sha256'],'previous_reference_sha256':previous.get('source_receipt_sha256'),
+            'current_measured_snapshot':measured,'displayed_frame':deepcopy(frame),'confirmed_native_ns':now,
+            'clock_domain':self.station.clock_domain,'boot_id':self.station.boot,'parked_observation_only':True,
+            'retained_armed':old['armed'],'native_commands_sent':0,'execution_authority':False}
+        lineage['successions'].append(deepcopy(event));reference=deepcopy(origin['reference_view'])
+        old.update(owner=self.helper._owner(permission),revision=old['revision']+1,pending=None,
+            frozen={'native6':deepcopy(origin['held_native6']),'original_last_command':reference,'source_receipt_sha256':digest(reference),
+                'parked_observation_only':True,'held_successor':lineage},events=(old['events']+[deepcopy(event)])[-64:])
+        old['state_sha256']=digest({key:value for key,value in old.items() if key!='state_sha256'})
+        self.helper=self._new_helper(old)
+        return {'schema':'explorer_station_cooperative_successor_receipt_v1','successor':event,
+            'source_hold_origin':deepcopy(origin),'interlock':self.helper.status(permission),
+            'parked_observation_only':True,'native_commands_sent':0,'physical_execution_authorized':False}
     def _calibration_resolution(self,permission):
         profile=(self.station.profiles.get('follower') or {});path=profile.get('calibration_path')
         if not isinstance(path,str):raise ValueError('Original verified follower calibration file required for native normalization resolution')
@@ -345,7 +443,8 @@ class StationCooperativeInterlock:
         if operation=='direction/observe':return self.observe_direction(body,authenticated_actor=authenticated_actor)
         common={'grant_id','expected_control_epoch','expected_revision','interlock_id'}
         extras={'bind':{'direction_profile_id'},'arm':set(),'finish/challenge':{'giver_release_receipt'},
-            'finish':{'challenge_id','confirmation'},'reset_safe':{'object_safe_no_dual_hold'}}
+            'finish':{'challenge_id','confirmation'},'reset_safe':{'object_safe_no_dual_hold'},
+            'successor':{'previous_grant_id','previous_control_epoch','observing','user_observed_test_confirmed'}}
         if operation not in extras or set(body)-common-extras[operation]:raise ValueError('ID-only known receiver metadata operation required')
         # Profile integrity faults and the transaction must share this lock:
         # otherwise a concurrent ordinary final seal could clear a newer fault.
@@ -363,6 +462,9 @@ class StationCooperativeInterlock:
                 except (ValueError,OSError,KeyError,TypeError) as error:
                     self._fault('DIRECTION_PROFILE_SOURCE_UNCERTAIN:'+str(error));raise
             def mutate(permission):
+                if operation=='successor':return self._successor(permission,body)
+                if operation in ('bind','arm') and (self.helper.frozen or {}).get('parked_observation_only') is True:
+                    raise ValueError('Parked hold requires a separate explicit native phase activation or safe reset')
                 if operation=='bind':return self.helper.bind(binding=permission['binding'],permission=permission,
                     direction_profile=profile,expected_revision=body.get('expected_revision'))
                 arguments={'interlock_id':body.get('interlock_id'),'expected_revision':body.get('expected_revision'),'permission':permission}
