@@ -1,0 +1,39 @@
+{
+  "schema": "explorer_source04_cold_publication_guard_v1",
+  "scope": "FROZEN_ORIGINAL_STATION_COMMON_AND_NODE_FAKE_BUS_ONLY",
+  "baseline_commit": "5d7cd238109d83ce1d12cc9d97edbe980d8851bf",
+  "source_sha256": {
+    "shared/explorer_shared/source_only_runtime.py": "225d77760497909d78863bed93e6cbe138dc141e66cd1dc5bef95fcabe8e30ee",
+    "shared/explorer_shared/station_observed_activation.py": "585cc9c400cbf5fc440e958eaecf5eb401a514b3ebd20a24a8184b1199f90c7b",
+    "shared/explorer_shared/node_agent.py": "ba967eca2209acad949506e6de69c827e28bce40b9ceb8a3ec2948925b0217c8",
+    "tests/test_source_cold_start_guard.py": "5f51e31f9a21712c3bc44b68f7ea0ce427952ca648dce922c8471747849c4cde",
+    "tests/test_source_only_runtime.py": "6026737cc4354426de4e961898a3ca933495cf4ca2b589021ab2b1580ceb7dcd"
+  },
+  "frozen_station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+  "tests": {
+    "passed": 73,
+    "seconds": 8.85,
+    "raw_log": "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/cold-guard-targeted-b.log",
+    "raw_log_sha256": "7a5d86ff2ccda5c5452b9ec3274ba1dac3c1da112fb590aad2d9a64c74cec690"
+  },
+  "assertions": [
+    "Original idle worker connection-error hold blocked before underlying sync_write",
+    "Metadata authorize, rejected foreign/expired/revoked grant, old epoch or binding cannot unlock",
+    "Idle scoped STOP and original close cannot unlock",
+    "Validated current COMMON start uses original Goal_Position/Torque_Enable bytes, subsequent targets and scoped hold unchanged",
+    "Node installs guard on same Station before worker start; authenticated GET reports disarmed status",
+    "Default COMMON consumers retain inert hook; source evaluation and cooperative contracts pass"
+  ],
+  "actual_robot_commands": 0,
+  "actual_native_grants": 0,
+  "controller_configuration_changes": 0,
+  "physical_acceptance": false,
+  "deployed": false,
+  "first_unattended_upgrade_qualified": false,
+  "limits": [
+    "Transparent proxy gates only frozen Station sync_write interface; original cold SDK connect audited separately read-only",
+    "Read-only bus identity/calibration/position methods remain original owner",
+    "After first validated observed USER start original control and exception holds remain enabled for that process",
+    "All-stop/kill barrier still requires exact old4c isolated process qualification; stdlib fake capability proof is insufficient"
+  ]
+}

@@ -55,10 +55,11 @@ def binding(value):
 
 
 class StationObservedPermission:
-    def __init__(self,station,camera,*,clock=time.monotonic_ns,command_guard=None,command_admission=None,command_admission_status=None):
+    def __init__(self,station,camera,*,clock=time.monotonic_ns,command_guard=None,command_admission=None,command_admission_status=None,validated_start=None):
         self.station,self.camera,self.clock=station,camera,clock;self.command_guard=command_guard or (lambda operation:None)
         self.command_admission=command_admission or (lambda operation:nullcontext())
         self.command_admission_status=command_admission_status or (lambda:{})
+        self.validated_start=validated_start or (lambda record,operation:None)
         self.lock=threading.RLock();self.pending=None;self.grant=None;self.retired=OrderedDict();self.revision=0
         self.process=uuid.uuid4().hex
         self.publication_gate=None;self.cooperative_interlock=None
@@ -246,6 +247,7 @@ class StationObservedPermission:
                 if operation in ('policy/start','teleop/start') and native['mode']!='idle':raise ValueError('Explicit original STOP/idle required before a new native start')
                 if operation in ('policy/start','teleop/start') and self.cooperative_interlock is not None:
                     self.cooperative_interlock.require_start_admission(self._data(record),operation)
+                if operation in ('policy/start','teleop/start'):self.validated_start(record,operation)
                 epoch=record['data']['control_epoch'];payload=deepcopy(body)
                 payload.update(observing=True,operator_present=False)
                 if operation in ('policy/start','teleop/start','teleop/recenter'):payload['expected_control_epoch']=epoch

@@ -577,6 +577,7 @@ class NodeAgent:
         self.stream_slots = threading.BoundedSemaphore(3)
         self.observer = None
         self.station = None
+        self.station_startup_guard=None
         arms_configuration = Path.home() / '.config/explorer/arms.json'
         if mode == "pi" and arms_configuration.exists():
             from .so101_station import SO101Station
@@ -618,13 +619,17 @@ class NodeAgent:
                     raise RuntimeError('Stop the existing direct ROSMASTER source session before using the follower controller')
             semantic_admission=None
             if pi_runtime_profile=='so101_source_only':
+                from .source_only_runtime import SourceColdStartGuard
+                self.station_startup_guard=SourceColdStartGuard()
+                self.station_startup_guard.install(self.station)
                 from .lab_vision_service import SourceSemanticAdmission
                 semantic_admission=SourceSemanticAdmission(self.station,self.lab_vision)
                 self.lab_vision.semantic_admission=semantic_admission.semantic
                 self.lab_vision.runtime_admission_status=semantic_admission.status
             self.station_observed=StationObservedPermission(self.station,self.sources['pi-overview'],command_guard=command_guard,
                 command_admission=semantic_admission.control if semantic_admission else None,
-                command_admission_status=semantic_admission.status if semantic_admission else None)
+                command_admission_status=semantic_admission.status if semantic_admission else None,
+                validated_start=self.station_startup_guard.validated_start if self.station_startup_guard else None)
             if pi_runtime_profile=='so101_source_only':
                 # Immutable source releases also run directly via PYTHONPATH;
                 # the experiment package remains in its canonical directory.
@@ -839,6 +844,7 @@ class NodeAgent:
                 "cameras": cameras, "serial_devices": serial, "calibrations": calibrations,
                 "perception": observer, "station": station,"mobile_observation":mobile,
                 "lab_vision":lab_vision,
+                "station_startup_safety":self.station_startup_guard.status() if self.station_startup_guard else None,
                 "native_capture":self.native_capture.status() if self.native_capture else None,
                 "station_capture":self.station_capture.status() if self.station_capture else None,
                 "pi_runtime_profile":self.pi_runtime_profile if self.mode=='pi' else None,
@@ -1041,7 +1047,9 @@ def make_handler(agent):
                 elif path=='/station/status':
                     provider=getattr(agent,'station_observed',None)
                     gate=getattr(provider,'publication_gate',None)
-                    self._json(200,{**agent.station.status(),'observed_publication_gate':gate.status() if gate is not None else None})
+                    startup=getattr(agent,'station_startup_guard',None)
+                    self._json(200,{**agent.station.status(),'observed_publication_gate':gate.status() if gate is not None else None,
+                        'startup_safety':startup.status() if startup is not None else None})
                 elif path=='/station/observation':
                     if urlsplit(self.path).query:raise ValueError('Source observation takes no query parameters')
                     self._json(200,agent.so101_observations.create())

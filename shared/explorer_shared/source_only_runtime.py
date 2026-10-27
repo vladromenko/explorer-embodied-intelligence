@@ -1,7 +1,66 @@
 """ENGINEERING_GLUE: Explicit04 runtime boundary; no peer config/client/leader worker is created."""
 import uuid
+import threading
 
 from .pi_native_retarget import LegacyRawView
+
+
+class SourceColdStartGuard:
+    """Reject original bus writes until a validated current-user start enters.
+
+    Original idle worker exceptions can attempt a measured hold during startup.
+    Guard the SAME bus objects before that worker starts; never change targets,
+    calibration, register values or the frozen Station. After observed admission
+    the existing controller's holds/publication remain unchanged.
+    """
+    def __init__(self):
+        self.lock=threading.RLock();self.unlocked=False;self.blocked_writes=0
+        self.forwarded_writes=0;self.first_observed_grant=None;self.buses=None
+
+    def install(self,station):
+        if self.buses is not None:raise ValueError('Startup bus admission already has its original owner')
+        self.buses=_ColdBusMap(self)
+        for role,bus in getattr(station,'buses',{}).items():self.buses[role]=bus
+        station.buses=self.buses
+
+    def validated_start(self,record,operation):
+        if operation not in ('teleop/start','policy/start'):raise ValueError('Only validated original start may unlock cold publication')
+        data=record.get('data',{})
+        if (not hasattr(record.get('revoked'),'is_set') or record['revoked'].is_set() or
+                data.get('execution_permission') is not True or data.get('native_mode')!='idle' or
+                not data.get('grant_id') or not data.get('actor_id') or not data.get('control_epoch')):
+            raise ValueError('Current original COMMON record is required before cold publication')
+        with self.lock:
+            self.unlocked=True
+            if self.first_observed_grant is None:self.first_observed_grant=data['grant_id']
+
+    def write(self,callback,*args,**kwargs):
+        with self.lock:
+            if not self.unlocked:
+                self.blocked_writes+=1
+                raise RuntimeError('Source startup is disarmed until a validated observed start; no motor write dispatched')
+            self.forwarded_writes+=1
+            return callback(*args,**kwargs)
+
+    def status(self):
+        with self.lock:
+            return dict(schema='explorer_source04_cold_publication_admission_v1',
+                disarmed_until_observed_start=not self.unlocked,blocked_write_attempts=self.blocked_writes,
+                forwarded_write_calls=self.forwarded_writes,guarded_bus_roles=sorted(self.buses or {}),
+                original_bus_owners_preserved=True,controller_configuration_written=False)
+
+
+class _ColdBus:
+    def __init__(self,bus,guard):self._bus,self._guard=bus,guard
+    def __getattr__(self,name):return getattr(self._bus,name)
+    def sync_write(self,*args,**kwargs):return self._guard.write(self._bus.sync_write,*args,**kwargs)
+
+
+class _ColdBusMap(dict):
+    def __init__(self,guard):super().__init__();self.guard=guard
+    def __setitem__(self,role,bus):
+        if isinstance(bus,_ColdBus):raise ValueError('Another startup proxy cannot replace the original bus owner')
+        super().__setitem__(role,_ColdBus(bus,self.guard))
 
 
 class SourceOnlyRetarget:

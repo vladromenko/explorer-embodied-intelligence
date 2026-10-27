@@ -85,11 +85,18 @@ def test_profile_wires_capture_to_the_same_single_station_and_camera_without_ope
     agent=NodeAgent('pi','pi',tmp_path/'state','local-test-source-only-token',sources={'pi-overview':camera},pi_runtime_profile='so101_source_only')
     try:
         assert len(constructions)==1 and agent.station is constructions[0]
+        assert agent.station_startup_guard.buses is agent.station.buses
+        assert agent.station_observed.validated_start==agent.station_startup_guard.validated_start
+        assert agent.inventory()['station_startup_safety']['disarmed_until_observed_start']
         assert agent.station_capture.station is agent.station and agent.station.camera is camera
         assert list(agent.sources)==['pi-overview'] and agent.station_capture.status()['capture'] is None
         server=AgentHTTPServer(('127.0.0.1',0),make_handler(agent));thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
         try:
             origin='http://127.0.0.1:'+str(server.server_port)
+            with urlopen(Request(origin+'/station/status',headers={'Authorization':'Bearer local-test-source-only-token'}),timeout=2) as response:
+                status=json.load(response)
+                assert status['startup_safety']['disarmed_until_observed_start']
+                assert status['startup_safety']['forwarded_write_calls']==0
             def post(operation):
                 return urlopen(Request(origin+'/station/'+operation,data=b'{}',headers={'Authorization':'Bearer local-test-source-only-token'}),timeout=2)
             for operation in ('teleop/start','teleop/recenter','policy/start','action','record/start','record/stage','record/finish'):
