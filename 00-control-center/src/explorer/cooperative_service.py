@@ -669,6 +669,10 @@ idempotent; process restart never queues its missing half automatically.
             if body.get('expected_epoch')!=current['epoch']:raise ValueError('Session epoch changed; stale operation rejected')
             if operation in ('record_stage','record_finish') and body.get('recording_id')!=current.get('recording_id'):
                 raise ValueError('Original cooperative recording changed; stale metadata operation rejected')
+            if operation in ('record_stage','record_finish'):
+                owner=current.get('recording_actor_id') or (current.get('observed_test_binding') or {}).get('actor_id')
+                if owner is not None and owner!=authenticated_actor:
+                    raise ValueError('Exact authenticated cooperative DATA recording actor required')
         if operation=='propose_skill':
             refs={role:deepcopy(self._choice(role,body.get(role+'_choice_id'))['reference']) for role in ('giver','receiver')}
             for role,reference in refs.items():
@@ -706,12 +710,14 @@ idempotent; process restart never queues its missing half automatically.
             self.capture_starts.require_no_pending()
             if any(producer.active is not None for producer in self.producers.values()):
                 raise ValueError('Finish known native DATA capture cleanup before another cooperative start')
-            result=self.workflow.record_start(session)
+            result=self.workflow.record_start(session,authenticated_actor)
         elif operation=='record_reconcile':
             if set(body)!={'session_id','expected_epoch'}:raise ValueError('Only the server-known DATA intent may be reconciled')
             result=self._reconcile_receiver_capture(self.workflow.snapshot(session),authenticated_actor)
-        elif operation=='record_stage':result=self.workflow.record_stage(session,body.get('phase_id'))
-        elif operation=='record_finish':result=self.workflow.record_finish(session,deepcopy(body.get('outcome') or {'status':'unknown'}))
+        elif operation=='record_stage':result=self.workflow.record_stage(session,body.get('phase_id'),
+            recording_id=body.get('recording_id'),actor_id=authenticated_actor)
+        elif operation=='record_finish':result=self.workflow.record_finish(session,deepcopy(body.get('outcome') or {'status':'unknown'}),
+            recording_id=body.get('recording_id'),actor_id=authenticated_actor)
         elif operation=='step':result=self.workflow.request_step(session,body.get('event'),expected_epoch=body.get('expected_epoch'))
         elif operation=='stop':
             previous=self.workflow.snapshot(session)

@@ -244,9 +244,9 @@ class CooperativeWorkflow:
             if current['epoch']!=row['epoch'] or current['pending_operation']:raise ValueError('Session changed during zone evidence validation')
             current['zone_registration_id']=value['zone_id'];self._save(current)
         return value
-    def record_start(self,session_id):
+    def record_start(self,session_id,actor_id=None):
         if not self.record_io.acquire(blocking=False):raise ValueError('Another recording metadata operation is pending')
-        try:return self._record_start(session_id)
+        try:return self._record_start(session_id,actor_id)
         finally:self.record_io.release()
     def _finish_sources(self,row,refs,outcome):
         results={}
@@ -256,7 +256,7 @@ class CooperativeWorkflow:
                 try:results[role]=provider.record_finish(deepcopy(native),deepcopy((outcome.get('native_roles') or {}).get(role,{'status':'unknown'})))
                 except Exception as error:results[role]={'error':type(error).__name__+': '+str(error)}
         return results
-    def _record_start(self,session_id):
+    def _record_start(self,session_id,actor_id=None):
         if self.recorder is None:raise ValueError('Both authenticated existing camera caches must be bound')
         with self.lock:
             row=self._session(session_id)
@@ -264,6 +264,11 @@ class CooperativeWorkflow:
                 raise ValueError('A current cooperative session is required')
             if any(json.loads(path.read_bytes()).get('recording_id') for path in (self.root/'sessions').glob('*/session.json')):
                 raise ValueError('Finish active cooperative recording first')
+            if actor_id is not None:
+                owner=(row.get('observed_test_binding') or {}).get('actor_id')
+                if not isinstance(actor_id,str) or not actor_id or owner is not None and owner!=actor_id:
+                    raise ValueError('Exact authenticated cooperative DATA recording actor required')
+                row['recording_actor_id']=actor_id;self._save(row)
             expected=row['epoch'];spec=self._spec_for(row)
         refs={};errors={}
         for role,ref in spec['subskills'].items():
@@ -297,13 +302,21 @@ class CooperativeWorkflow:
             self.recorder.finish({'status':'interrupted','reason':'SESSION_CHANGED_DURING_METADATA_RECORD_START'},finished)
             raise ValueError('Session was stopped during record start; no new control session created')
         return {**recording,'native_sources':refs,'native_source_errors':errors,'control_sessions_started':False}
-    def record_stage(self,session_id,phase_id):
+    @staticmethod
+    def _recording_owner(row,recording_id,actor_id):
+        if recording_id is not None and row.get('recording_id')!=recording_id:
+            raise ValueError('Original cooperative recording changed inside DATA IO lock')
+        if actor_id is not None:
+            owner=row.get('recording_actor_id') or (row.get('observed_test_binding') or {}).get('actor_id')
+            if owner!=actor_id:raise ValueError('Exact authenticated cooperative DATA recording actor required')
+    def record_stage(self,session_id,phase_id,*,recording_id=None,actor_id=None):
         if not self.record_io.acquire(blocking=False):raise ValueError('Another recording metadata operation is pending')
-        try:return self._record_stage(session_id,phase_id)
+        try:return self._record_stage(session_id,phase_id,recording_id,actor_id)
         finally:self.record_io.release()
-    def _record_stage(self,session_id,phase_id):
+    def _record_stage(self,session_id,phase_id,recording_id=None,actor_id=None):
         if phase_id not in PHASES:raise ValueError('Only explicit cooperative phase annotations')
         row=self.snapshot(session_id);spec=self._spec_for(row);receipts={}
+        self._recording_owner(row,recording_id,actor_id)
         if not row['recording_id']:raise ValueError('Start cooperative recording first')
         self._fresh(row,row['epoch'])
         for role,ref in spec['subskills'].items():
@@ -316,12 +329,13 @@ class CooperativeWorkflow:
                 try:receipts[role]=provider.record_stage(deepcopy(native),phase,{'cooperative_session_id':session_id,'phase_id':phase_id})
                 except Exception as error:receipts[role]={'available':False,'error':type(error).__name__+': '+str(error)}
         return self.recorder.stage(phase_id,receipts)
-    def record_finish(self,session_id,outcome):
+    def record_finish(self,session_id,outcome,*,recording_id=None,actor_id=None):
         if not self.record_io.acquire(blocking=False):raise ValueError('Another recording metadata operation is pending')
-        try:return self._record_finish(session_id,outcome)
+        try:return self._record_finish(session_id,outcome,recording_id,actor_id)
         finally:self.record_io.release()
-    def _record_finish(self,session_id,outcome):
+    def _record_finish(self,session_id,outcome,recording_id=None,actor_id=None):
         row=self.snapshot(session_id);spec=self._spec_for(row);results={}
+        self._recording_owner(row,recording_id,actor_id)
         if not row['recording_id']:raise ValueError('No active cooperative recording')
         if not isinstance(outcome,dict):raise ValueError('Typed actual/unknown outcome evidence required')
         results=self._finish_sources(row,row['recording_source_refs'],outcome)
