@@ -135,6 +135,13 @@ class ReceiverHoldInterlock:
             return self.status(permission=current)
     def _returned(self,last_command):
         if not isinstance(last_command,dict):raise ValueError('Actual original returned native position write required')
+        active=(self.frozen or {}).get('active_phase') or {};origin=((self.frozen or {}).get('held_successor') or {}).get('origin') or {}
+        if (active.get('schema')=='explorer_station_cooperative_phase_activation_v1' and active.get('new_owner')==self.owner and
+                active.get('origin_sha256')==origin.get('origin_sha256') and active.get('native_baseline_exactly_matches_returned_hold') is True and
+                last_command==active.get('preceding_actual_station_last_command') and digest(last_command)==active.get('preceding_actual_station_last_command_sha256')):
+            # This is the actual earlier hold plus a source-atomic start link,
+            # never a fabricated new-epoch command/sequence/publication receipt.
+            return _six(origin.get('held_native6'))
         dispatched=_six(last_command.get('dispatched'));stamp=last_command.get('monotonic_ns')
         if (not self.owner or last_command.get('control_epoch')!=self.owner['control_epoch'] or last_command.get('clock_domain')!=self.domain or
                 type(stamp) is not int or not 0<=stamp<=self.clock() or type(last_command.get('sequence')) is not int or

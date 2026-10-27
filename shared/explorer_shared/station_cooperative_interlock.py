@@ -1,8 +1,9 @@
-"""ENGINEERING_GLUE: durable metadata wrapper for the COMMON native receiver.
+"""ENGINEERING_GLUE: durable interlock wrapper for the COMMON native receiver.
 
-No native command, camera owner or driver. File operations occur only during
-construction/explicit metadata requests, outside Station/publication locks.
-check_publication reads cached state only and must precede legacy early-return.
+No new camera/driver/control owner. Ordinary metadata operations do not command
+motors; explicit USER phase/activate calls the SAME original native start once.
+File fsync occurs outside Station/publication/provider locks. check_publication
+reads cached state only and must precede legacy early-return.
 """
 from contextlib import contextmanager
 from copy import deepcopy
@@ -71,6 +72,7 @@ class StationCooperativeInterlock:
         self.profile_root=self.path.parent/'cooperative-direction-profiles';self.profiles={}
         self.capture_root=self.path.parent/'cooperative-direction-captures';self.captures={};self.capture_errors={}
         self.helper=self._new_helper();self.last_transaction=None
+        self.phase_prepared=None;self.phase_start_context=None
         try:
             if self.path.parent.resolve()!=Path(self.station.root).resolve() or self.path.is_symlink():
                 raise ValueError('Fixed original Station state directory required')
@@ -234,6 +236,12 @@ class StationCooperativeInterlock:
         """Cached-only; caller already holds original/publication locks."""
         if self.fault is not None:return {'allowed':False,'armed':True,'binding_current':False,
             'reason':'INTERLOCK_PERSISTENCE_UNCERTAIN','interlock_id':self.fault_id,'revision':self.fault_revision}
+        if self.phase_prepared is not None:
+            current=self._cached_permission();prepared=self.phase_prepared
+            if (not prepared.get('linked') or current is None or
+                    self.helper._owner(current)!=prepared.get('owner') or control_epoch!=current['control_epoch'] or mode!=current['native_mode']):
+                return {'allowed':False,'armed':self.helper.armed,'binding_current':False,'interlock_id':self.helper.interlock_id,
+                    'revision':self.helper.revision,'reason':'PREPARED_PHASE_REQUIRES_EXACT_ATOMICALLY_LINKED_OWNER'}
         if (self.helper.frozen or {}).get('parked_observation_only') is True:
             return {'allowed':False,'armed':self.helper.armed,'binding_current':False,'interlock_id':self.helper.interlock_id,
                 'revision':self.helper.revision,'reason':'PARKED_MEASURED_HOLD_REQUIRES_EXPLICIT_NATIVE_PHASE_ACTIVATION'}
@@ -251,7 +259,15 @@ class StationCooperativeInterlock:
             direction_capture_uses_existing_caches_only=True,physical_position_accuracy_known=False)
         result.update(measured_hold_successor_metadata_supported=True,parked_observation_only=(self.helper.frozen or {}).get('parked_observation_only') is True,
             parked_target_writes_allowed=False,parked_is_not_dispatch_authority=True)
+        result.update(explicit_native_phase_activation_supported=True,phase_activation_pending=self.phase_prepared is not None)
         return result
+    def require_start_admission(self,permission,operation):
+        """Cached only, called by COMMON under original Station/provider locks."""
+        if (self.helper.frozen or {}).get('parked_observation_only') is not True:return
+        context=self.phase_start_context
+        if (context is None or context.get('thread')!=threading.get_ident() or context.get('operation')!=operation or
+                context.get('owner')!=self.helper._owner(permission) or context.get('state_sha256')!=self.helper.snapshot_state()['state_sha256']):
+            raise ValueError('Parked hold requires the separate atomic explicit USER phase activation')
     @staticmethod
     def _native6(value):
         if (not isinstance(value,list) or len(value)!=6 or any(type(item) not in (int,float) or not math.isfinite(item) or
@@ -259,7 +275,7 @@ class StationCooperativeInterlock:
         return deepcopy(value)
     def _hold_origin(self,old,permission):
         frozen=old.get('frozen') or {};sealed=frozen.get('held_successor') or {};origin=sealed.get('origin')
-        if origin is not None:
+        if origin is not None and frozen.get('parked_observation_only') is True:
             if (not isinstance(origin,dict) or origin.get('origin_sha256')!=digest({key:value for key,value in origin.items() if key!='origin_sha256'})):
                 raise ValueError('Source-owned sealed hold lineage differs')
             raw=origin['raw_receipt']
@@ -328,6 +344,10 @@ class StationCooperativeInterlock:
             raise ValueError('Current unchanged fresh measured hold/idle epoch and USER image after actual hold return required')
         previous=old.get('frozen') or {};lineage=deepcopy(previous.get('held_successor') or {
             'origin':origin,'initial_reference':deepcopy(previous),'successions':[]})
+        if lineage['origin']['origin_sha256']!=origin['origin_sha256']:
+            history=lineage.setdefault('previous_hold_origins',[])
+            if len(history)>=32:raise ValueError('Retained phase hold-origin bound reached')
+            history.append(deepcopy(lineage['origin']));lineage['origin']=deepcopy(origin)
         if not isinstance(lineage.get('successions'),list) or len(lineage['successions'])>=32:raise ValueError('Retained successor lineage bound reached')
         identity=uuid.uuid4().hex
         event={'schema':'explorer_station_measured_hold_successor_v1','receipt_id':identity,'event_id':identity,'kind':'EXPLICIT_USER_MEASURED_HOLD_SUCCESSOR',
@@ -340,11 +360,124 @@ class StationCooperativeInterlock:
         old.update(owner=self.helper._owner(permission),revision=old['revision']+1,pending=None,
             frozen={'native6':deepcopy(origin['held_native6']),'original_last_command':reference,'source_receipt_sha256':digest(reference),
                 'parked_observation_only':True,'held_successor':lineage},events=(old['events']+[deepcopy(event)])[-64:])
+        if previous.get('phase_activations'):old['frozen']['phase_activations']=deepcopy(previous['phase_activations'])
         old['state_sha256']=digest({key:value for key,value in old.items() if key!='state_sha256'})
         self.helper=self._new_helper(old)
         return {'schema':'explorer_station_cooperative_successor_receipt_v1','successor':event,
             'source_hold_origin':deepcopy(origin),'interlock':self.helper.status(permission),
             'parked_observation_only':True,'native_commands_sent':0,'physical_execution_authorized':False}
+    def _phase_ready(self,permission,body):
+        old=self.helper.snapshot_state();self.helper._cas(body.get('interlock_id'),body.get('expected_revision'))
+        if (not self.helper._current(permission) or not (old.get('frozen') or {}).get('parked_observation_only') or
+                permission['native_mode']!='idle' or self.station.mode!='idle' or
+                not all(body.get(key) is True for key in ('observing','user_observed_test_confirmed','neutral'))):
+            raise ValueError('Exact parked idle hold and separate current neutral USER phase confirmation required')
+        origin=self._hold_origin(old,permission);measured=deepcopy(self.station.measurements);stamp=measured.get('monotonic_ns');now=self.clock()
+        frame=permission.get('displayed_frame') or {};received=frame.get('received_monotonic_ns');created=permission.get('created_monotonic_ns')
+        if (origin['held_native_epoch']!=self.station.control_epoch or origin['boot_id']!=self.station.boot or
+                origin['clock_domain']!=self.station.clock_domain or origin['binding']!=permission['binding'] or
+                origin['follower_calibration_sha256']!=permission['follower_calibration_sha256'] or
+                type(stamp) is not int or not origin['write_returned_native_ns']<=stamp<=now or not 0<=now-stamp<=500_000_000 or
+                measured.get('clock_domain')!=self.station.clock_domain or self._native6(measured.get('follower'))!=origin['held_native6'] or
+                type(received) is not int or type(created) is not int or not origin['write_returned_native_ns']<=received<=now or
+                not origin['write_returned_native_ns']<=created<=now or frame.get('boot_id')!=self.station.boot or frame.get('clock_domain')!=self.station.clock_domain):
+            raise ValueError('Current unchanged fresh measured6 and exact source-owned parked hold required')
+        if len(old['frozen'].get('phase_activations') or [])>=32:raise ValueError('Retained explicit phase activation bound reached')
+        return old,origin
+    def activate_phase(self,body,*,authenticated_actor):
+        """Explicit CONTROL: one original start atomically linked before worker.
+
+        PREPARED WAL fsync precedes original start; final fsync is outside all
+        control locks. One actually admitted write may return during final seal.
+        No prediction/action, deadline extension, new loop or restored authority.
+        """
+        allowed={'grant_id','expected_control_epoch','interlock_id','expected_revision','phase_id','observing','user_observed_test_confirmed','neutral'}
+        if (not isinstance(body,dict) or set(body)-allowed or not isinstance(authenticated_actor,str) or not authenticated_actor or
+                not isinstance(body.get('phase_id'),str) or not re.fullmatch('[A-Za-z0-9_.:-]{1,160}',body['phase_id'])):
+            raise ValueError('ID-only source phase activation with authenticated server actor required')
+        with self.metadata_lock:
+            if self.fault is not None:raise ValueError('Uncertain receiver persistence requires USER safe recovery')
+            current=self._current(body,authenticated_actor);before,origin=self._phase_ready(current,body)
+            operation='teleop/start' if current['binding'].get('input_mode','policy')=='leader' else 'policy/start'
+            transaction={'transaction_id':uuid.uuid4().hex,'operation':'phase/activate','native_operation':operation,
+                'phase_id':body['phase_id'],'actor_id':authenticated_actor,'grant_id':current['grant_id'],
+                'native_epoch':current['control_epoch'],'before_state_sha256':before['state_sha256'],
+                'prepared_restart_blocks_all_targets':True,'native_command_called_is_control':True}
+            self.phase_prepared={'linked':False};started=False;sealed=False;reply=None
+            try:
+                self._initialized(create=True);_write(self.path,self._envelope(pending=transaction))
+                with self._locks():
+                    actual=self._locked_current(current,authenticated_actor);locked,origin=self._phase_ready(actual,body)
+                    if locked!=before:raise ValueError('Parked phase state changed during prepared WAL')
+                    self.phase_start_context={'thread':threading.get_ident(),'operation':operation,
+                        'owner':self.helper._owner(actual),'state_sha256':before['state_sha256']}
+                    previous=deepcopy(self.station.last_command)
+                    try:
+                        started=True
+                        reply=self.provider.command(actual['grant_id'],actual['binding'],operation,
+                            {'expected_control_epoch':actual['control_epoch']})
+                    finally:self.phase_start_context=None
+                    new=reply.get('grant') or {};status=reply.get('status') or {}
+                    native,_=self.provider._native()
+                    record=self.provider._current_locked(actual['grant_id'],actual['binding'],native,
+                        actual['follower_calibration_sha256'],new.get('control_epoch'))
+                    verified=self.provider._data(record)
+                    if (new!=verified or new.get('actor_id')!=authenticated_actor or new.get('control_epoch')==actual['control_epoch'] or
+                            status.get('control_epoch')!=new.get('control_epoch') or
+                            status.get('mode')!=('teleoperation' if operation=='teleop/start' else 'policy') or
+                            any(new.get(key)!=actual.get(key) for key in ('grant_id','binding','boot_id','clock_domain','provider_process','follower_calibration_sha256'))):
+                        raise ValueError('Exact returned original phase epoch/mode/current USER grant required')
+                    baseline=self.station.baseline_follower if operation=='teleop/start' else self.station.explicit_goal
+                    if self._native6(baseline)!=origin['held_native6']:
+                        raise ValueError('Original returned native phase baseline changed from sealed measured hold')
+                    if self.station.last_command!=previous:raise ValueError('Original preceding return changed during native phase start')
+                    old=deepcopy(before);identity=uuid.uuid4().hex
+                    event={'schema':'explorer_station_cooperative_phase_activation_v1','event_id':identity,'receipt_id':identity,
+                        'kind':'EXPLICIT_USER_NATIVE_PHASE_ACTIVATION','phase_id':body['phase_id'],'native_operation':operation,
+                        'interlock_id':old['interlock_id'],'revision':old['revision']+1,
+                        'previous_owner':deepcopy(old['owner']),'new_owner':self.helper._owner(new),
+                        'origin_sha256':origin['origin_sha256'],'preceding_actual_station_last_command':previous,
+                        'preceding_actual_station_last_command_sha256':digest(previous),'held_native6':deepcopy(origin['held_native6']),
+                        'native_baseline_exactly_matches_returned_hold':True,'activated_native_ns':self.clock(),
+                        'clock_domain':self.station.clock_domain,'boot_id':self.station.boot,
+                        'native_command_called':True,'dispatch_or_attainment_claimed_from_start':False}
+                    history=old['frozen'].setdefault('phase_activations',[])
+                    if len(history)>=32:raise ValueError('Retained explicit phase activation bound reached')
+                    history.append(deepcopy(event));old['frozen'].update(parked_observation_only=False,active_phase=deepcopy(event))
+                    old.update(owner=self.helper._owner(new),revision=old['revision']+1,pending=None,events=(old['events']+[deepcopy(event)])[-64:])
+                    old['state_sha256']=digest({key:value for key,value in old.items() if key!='state_sha256'})
+                    self.helper=self._new_helper(old);after=self.helper.snapshot_state()
+                    self.phase_prepared={'linked':True,'owner':self.helper._owner(new)}
+                _write(self.path,self._envelope(state=after,last_transaction=transaction))
+                self.last_transaction=transaction;self.phase_prepared=None;sealed=True
+                # Final metadata I/O may outlive the original goal or USER
+                # permission. A historical successful start is not a current
+                # activation/grant receipt and must never be promoted by CC.
+                self.provider.check(new['grant_id'],new['binding'],new['control_epoch'])
+                with self._locks():
+                    new=self._locked_current(new,authenticated_actor)
+                    if self.helper._owner(new)!=self.helper.owner:raise ValueError('Native phase owner superseded before final response')
+                    status=self.station.status()
+                return {'schema':'explorer_station_cooperative_phase_activation_receipt_v1','activation':event,
+                    'status':status,'grant':new,'interlock':self.helper.status(self._cached_permission()),
+                    'phase_activation_current':True,'native_command_called':True,
+                    'dispatch_claimed_from_HTTP_acceptance':False,'controller_settings_written':False}
+            except Exception:
+                if started:
+                    # Uncertain start/seal installs global fault BEFORE scoped
+                    # cleanup. A completed seal followed by ordinary authority
+                    # loss remains known history. Never adopt a foreign epoch.
+                    if not sealed:self._fault('NATIVE_PHASE_ACTIVATION_OR_FINAL_PERSISTENCE_UNCERTAIN')
+                    if isinstance(reply,dict) and isinstance(reply.get('grant'),dict):
+                        owned=reply['grant']
+                        try:self.provider.command(owned['grant_id'],current['binding'],'stop',{'expected_control_epoch':owned['control_epoch']})
+                        except Exception:pass  # Fault/WAL remain authoritative, no arbitrary-epoch STOP.
+                else:
+                    try:
+                        if self.helper.snapshot_state()==before:_write(self.path,self._envelope(state=before,last_transaction=dict(transaction,rejected_without_native_start=True)))
+                        else:self._fault('PREPARED_NATIVE_PHASE_STATE_CHANGED')
+                    except Exception:self._fault('PREPARED_NATIVE_PHASE_WAL_UNCERTAIN')
+                self.phase_prepared=None;raise
     def _calibration_resolution(self,permission):
         profile=(self.station.profiles.get('follower') or {});path=profile.get('calibration_path')
         if not isinstance(path,str):raise ValueError('Original verified follower calibration file required for native normalization resolution')
@@ -440,6 +573,7 @@ class StationCooperativeInterlock:
             if authenticated_actor is None:authenticated_actor=actor_field
         if not isinstance(body,dict) or not isinstance(authenticated_actor,str) or not authenticated_actor:
             raise ValueError('Authenticated typed metadata operation required')
+        if operation=='phase/activate':return self.activate_phase(body,authenticated_actor=authenticated_actor)
         if operation=='direction/observe':return self.observe_direction(body,authenticated_actor=authenticated_actor)
         common={'grant_id','expected_control_epoch','expected_revision','interlock_id'}
         extras={'bind':{'direction_profile_id'},'arm':set(),'finish/challenge':{'giver_release_receipt'},

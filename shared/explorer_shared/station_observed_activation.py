@@ -210,6 +210,8 @@ class StationObservedPermission:
             with self.lock:
                 record=self._current_locked(grant_id,selected,native,calibration,body.get('expected_control_epoch',body.get('control_epoch')))
                 if operation in ('policy/start','teleop/start') and native['mode']!='idle':raise ValueError('Explicit original STOP/idle required before a new native start')
+                if operation in ('policy/start','teleop/start') and self.cooperative_interlock is not None:
+                    self.cooperative_interlock.require_start_admission(self._data(record),operation)
                 epoch=record['data']['control_epoch'];payload=deepcopy(body)
                 payload.update(observing=True,operator_present=False)
                 if operation in ('policy/start','teleop/start','teleop/recenter'):payload['expected_control_epoch']=epoch
