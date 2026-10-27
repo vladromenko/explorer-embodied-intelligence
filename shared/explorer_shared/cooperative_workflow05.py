@@ -6,6 +6,7 @@ native controllers/learners are injected; no driver/torque/settings code exists.
 """
 from copy import deepcopy
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from dataclasses import asdict
 import hashlib
 import json
@@ -52,6 +53,7 @@ class CooperativeWorkflow:
         self.domain,self.clock,self.authority=clock_domain,clock,authority
         self.managed=Path(managed_root or root).resolve()
         self.lock=threading.RLock();self.record_io=threading.Lock()
+        self.native_phase_condition=threading.Condition(self.lock);self.native_phase_changes={};self.native_phase_checkpoints={}
         self.process=uuid.uuid4().hex;self.threads={};self.closed=False
         for name in ('skills','sessions','zones','reviews','aggregates','shadows'):(self.root/name).mkdir(exist_ok=True)
         # Metadata recovery only: never replay a command or call stop/enable in
@@ -138,15 +140,18 @@ class CooperativeWorkflow:
     def _session(self,session_id):return json.loads(self._path(session_id).read_bytes())
     def _save(self,row):
         path=self._path(row['session_id']);path.parent.mkdir(exist_ok=True)
-        write_projection(path,row)
+        projection=deepcopy(row)
+        if isinstance(projection.get('pending_operation'),dict):
+            projection['pending_operation'].pop('native_control_checkpoint',None)
+        write_projection(path,projection)
     def snapshot(self,session_id=None):
         if session_id is not None:
-            with self.lock:row=self._session(session_id)
+            with self.lock:row=self._project_native_checkpoint(self._session(session_id))
             return row
         with self.lock:
             return {'schema':'explorer_cooperative_workbench_v1',
                 'skills':[json.loads(path.read_bytes()) for path in sorted((self.root/'skills').glob('*/*.json'))],
-                'sessions':[json.loads(path.read_bytes()) for path in sorted((self.root/'sessions').glob('*/session.json'))],
+                'sessions':[self._project_native_checkpoint(json.loads(path.read_bytes())) for path in sorted((self.root/'sessions').glob('*/session.json'))],
                 'model_input_plan':model_input_plan(),'physical_execution_authorized':False}
     def _spec_for(self,row):return self.skill(row['skill_id'],row['skill_version'])['spec']
     def readiness(self,session_id):
@@ -322,6 +327,8 @@ class CooperativeWorkflow:
             row=self._session(session_id)
             if self.closed or row['epoch']!=expected_epoch or row['pending_operation'] or row['status'] in ('STOPPED','INTERRUPTED','COMPLETED'):
                 raise ValueError('Fresh cooperative session/epoch with no pending step required')
+            if self._native_phase_inflight(session_id,expected_epoch):
+                raise ValueError('Complete explicit native phase change before starting a protocol step')
             if self._fsm(row).state not in LEGAL_STATES[event]:
                 raise ValueError('Protocol state does not admit this step; no command submitted')
             operation=uuid.uuid4().hex;row['pending_operation']={'operation_id':operation,'event':event}
@@ -330,6 +337,93 @@ class CooperativeWorkflow:
             self.threads[operation]=thread;thread.start()
             return {'session_id':session_id,'operation_id':operation,'event':event,'state':'WAITING_FOR_CURRENT_EVIDENCE_OR_PROVIDER',
                     'motor_command_claimed':False}
+    def _native_phase_inflight(self,session_id,epoch):
+        return any(item['session_id']==session_id and item['epoch']==epoch for item in self.native_phase_changes.values())
+    def _project_native_checkpoint(self,row):
+        pending=row.get('pending_operation') or {};key=(row['session_id'],row['epoch'],pending.get('operation_id'))
+        if pending and key in self.native_phase_checkpoints:
+            pending['native_control_checkpoint']=deepcopy(self.native_phase_checkpoints[key])
+        return row
+    def native_phase_change_window(self,row):
+        """A metadata admission window, never evidence or actuator authority."""
+        with self.lock:
+            current=self._session(row['session_id']);pending=current.get('pending_operation') or {}
+            checkpoint=self.native_phase_checkpoints.get((current['session_id'],current['epoch'],pending.get('operation_id'))) or {}
+            return bool(not self.closed and current['epoch']==row['epoch'] and current['process_session']==self.process and
+                current['status'] not in ('STOPPED','INTERRUPTED','COMPLETED') and
+                (not pending or checkpoint.get('accepting') is True))
+    def begin_native_phase_change(self,session_id,expected_epoch,role,operation):
+        """Reserve explicit source scope changes before any source RPC.
+
+        A pending protocol admits them only while its evidence-only checkpoint
+        is open. The reservation spans source reply custody/lineage; STOP does
+        not wait for it, and a constructor never restores it as permission.
+        """
+        allowed={'native_phase_park','native_phase_adopt','native_phase_begin','native_phase_resume',
+            'native_phase_activate','receiver_setup_adopt_hold','native_attach'}
+        if role not in ('giver','receiver') or operation not in allowed:
+            raise ValueError('Fixed explicit USER native phase scope change required')
+        with self.native_phase_condition:
+            current=self._session(session_id)
+            if current['epoch']!=expected_epoch or not self.native_phase_change_window(current):
+                raise ValueError('Native phase change requires current idle/evidence-only checkpoint')
+            key=(session_id,expected_epoch,role)
+            if key in self.native_phase_changes:raise ValueError('This native role already has a phase change in flight')
+            pending=current.get('pending_operation') or {}
+            checkpoint=self.native_phase_checkpoints.get((session_id,expected_epoch,pending.get('operation_id'))) or {}
+            token={'token_id':uuid.uuid4().hex,'session_id':session_id,'epoch':expected_epoch,'role':role,'operation':operation,
+                'process_session':self.process,'protocol_state':current['protocol_state'],'pending_operation_id':pending.get('operation_id'),
+                'checkpoint_id':checkpoint.get('checkpoint_id'),'started_nx_ns':self.clock()}
+            self.native_phase_changes[key]=deepcopy(token)
+            return deepcopy(token)
+    def end_native_phase_change(self,token):
+        if not isinstance(token,dict):raise ValueError('Original native phase reservation required')
+        key=(token.get('session_id'),token.get('epoch'),token.get('role'))
+        with self.native_phase_condition:
+            if self.native_phase_changes.get(key)!=token:return False
+            self.native_phase_changes.pop(key);self.native_phase_condition.notify_all();return True
+    @contextmanager
+    def _native_evidence_checkpoint(self,row,operation,fsm):
+        """Quiesce source-binding mutations before any post-evidence action.
+
+        No native RPC or grant/lease renewal occurs here. Closing the window
+        waits only for already reserved metadata/control replies, with the
+        original phase deadline and a bounded host wait. Freshness and dispatch
+        authority are rechecked afterwards by the existing protocol paths.
+        """
+        with self.native_phase_condition:
+            current=self._fresh(row,row['epoch']);pending=current.get('pending_operation') or {}
+            if pending.get('operation_id')!=operation:raise ValueError('Original pending evidence operation changed')
+            challenge_bound=bool(pending.get('native_release_challenge') or pending.get('native_transfer_challenge'))
+            checkpoint={'checkpoint_id':uuid.uuid4().hex,'accepting':not challenge_bound,'kind':'EVIDENCE_ONLY_NO_NATIVE_SUBMISSION',
+                'binding_change_blocker':'SOURCE_CHALLENGE_IS_EPOCH_BOUND' if challenge_bound else None,
+                'opened_nx_ns':self.clock(),'clock_domain':self.domain}
+            self.native_phase_checkpoints[(row['session_id'],row['epoch'],operation)]=checkpoint
+        try:yield
+        except BaseException:
+            # Preserve the actual evidence error and proceed to the existing
+            # STOP path immediately; never wait on source I/O after rejection.
+            try:self._close_native_checkpoint(row,operation,checkpoint,fsm,wait=False)
+            except Exception:pass  # Epoch may already have been revoked by STOP.
+            raise
+        else:self._close_native_checkpoint(row,operation,checkpoint,fsm,wait=True)
+    def _close_native_checkpoint(self,row,operation,checkpoint,fsm,*,wait):
+        with self.native_phase_condition:
+            current=self._fresh(row,row['epoch']);pending=current.get('pending_operation') or {}
+            key=(row['session_id'],row['epoch'],operation);actual=self.native_phase_checkpoints.get(key) or {}
+            if pending.get('operation_id')!=operation or actual.get('checkpoint_id')!=checkpoint['checkpoint_id']:
+                raise ValueError('Evidence checkpoint changed or was cancelled')
+            actual['accepting']=False
+            try:
+                if wait:
+                    deadline=time.monotonic()+3.
+                    while self._native_phase_inflight(row['session_id'],row['epoch']) and time.monotonic()<deadline:
+                        self._fresh(row,row['epoch']);self._phase_current(fsm)
+                        self.native_phase_condition.wait(timeout=min(.05,max(0.,deadline-time.monotonic())))
+                    self._fresh(row,row['epoch']);self._phase_current(fsm)
+                    if self._native_phase_inflight(row['session_id'],row['epoch']):
+                        raise ValueError('Explicit native phase change did not finish before evidence revalidation')
+            finally:self.native_phase_checkpoints.pop(key,None)
     def _fresh(self,row,epoch):
         with self.lock:current=self._session(row['session_id'])
         if self.closed or current['epoch']!=epoch or current['process_session']!=self.process or current['status'] in ('STOPPED','INTERRUPTED'):
@@ -376,11 +470,12 @@ class CooperativeWorkflow:
                 # All three prompts are current and concurrent; none is inferred
                 # from servo closure or time passing. Check freshness again only
                 # AFTER all responses, before any physical transport call.
-                with ThreadPoolExecutor(max_workers=3) as pool:
-                    hold=pool.submit(self._receiver_hold,row,receiver_after)
-                    giver=pool.submit(self._stationary,row,'giver',self._last_command(row,'giver'))
-                    receiver=pool.submit(self._stationary,row,'receiver',self._last_command(row,'receiver'))
-                    held,giver_still,receiver_still=hold.result(),giver.result(),receiver.result()
+                with self._native_evidence_checkpoint(row,operation,fsm):
+                    with ThreadPoolExecutor(max_workers=3) as pool:
+                        hold=pool.submit(self._receiver_hold,row,receiver_after)
+                        giver=pool.submit(self._stationary,row,'giver',self._last_command(row,'giver'))
+                        receiver=pool.submit(self._stationary,row,'receiver',self._last_command(row,'receiver'))
+                        held,giver_still,receiver_still=hold.result(),giver.result(),receiver.result()
                 self._fresh(row,epoch)
                 self._phase_current(fsm)
                 if any(not 0<=self.clock()-item.received_ns<=fsm.hold_ttl_ns for item in (giver_still,receiver_still)):
@@ -468,7 +563,8 @@ class CooperativeWorkflow:
                         if current['epoch']!=epoch:raise ValueError('Transfer challenge superseded by STOP')
                         current['pending_operation']['native_transfer_challenge']=deepcopy(transfer_challenge);self._save(current)
                 elif after is None:after=self._last_command(row,role)
-                result=self.inbox(statement,session_id,row['protocol_object_id'],role,after,30.)
+                with self._native_evidence_checkpoint(row,operation,fsm):
+                    result=self.inbox(statement,session_id,row['protocol_object_id'],role,after,30.)
                 self._fresh(row,epoch)
                 if (not isinstance(result,CorrelatedEvidence) or result.run_id!=session_id or result.object_id!=row['protocol_object_id'] or
                         result.role!=role or result.after_command_id!=after or not result.source_receipt):
@@ -482,15 +578,18 @@ class CooperativeWorkflow:
                 if event=='receiver_hold_confirmed':facts={'run_id':session_id,'receiver_role':'receiver'}
             elif event=='offer_ready':
                 if not row['zone_registration_id']:raise ValueError('Register current shared zone before offering')
-                observations.append(asdict(self._stationary(row,'giver',after)));facts={'zone_registered':True,'giver_stationary':True}
+                with self._native_evidence_checkpoint(row,operation,fsm):
+                    observations.append(asdict(self._stationary(row,'giver',after)))
+                facts={'zone_registered':True,'giver_stationary':True}
             elif event=='receiver_ready':facts={'receiver_ready':True}
             elif event=='receiver_at_object':
                 # Evidence requests are separate and fresh for each robot;
                 # closed command/busy=false/time passage cannot substitute.
-                with ThreadPoolExecutor(max_workers=2) as pool:
-                    giver=pool.submit(self._stationary,row,'giver',self._last_command(row,'giver'))
-                    receiver=pool.submit(self._stationary,row,'receiver',self._last_command(row,'receiver'))
-                    stationary=[giver.result(),receiver.result()]
+                with self._native_evidence_checkpoint(row,operation,fsm):
+                    with ThreadPoolExecutor(max_workers=2) as pool:
+                        giver=pool.submit(self._stationary,row,'giver',self._last_command(row,'giver'))
+                        receiver=pool.submit(self._stationary,row,'receiver',self._last_command(row,'receiver'))
+                        stationary=[giver.result(),receiver.result()]
                 if any(not 0<=self.clock()-item.received_ns<=fsm.hold_ttl_ns for item in stationary):
                     raise ValueError('Both stationary observations must remain fresh at grasp check')
                 observations.extend(asdict(item) for item in stationary)
@@ -521,6 +620,9 @@ class CooperativeWorkflow:
             row=self._session(session_id);row.update(epoch=uuid.uuid4().hex,status='STOPPED',pending_operation=None,
                 protocol_state='SAFE_STOP',protocol_completed=False,stop_reason=reason)
             self._save(row)
+            for key in tuple(self.native_phase_checkpoints):
+                if key[0]==session_id:self.native_phase_checkpoints.pop(key,None)
+            self.native_phase_condition.notify_all()
         if self.inbox is not None:self.inbox.cancel_run(session_id)
         spec=self._spec_for(row);stops={}
         def stop_role(role,ref):
@@ -692,7 +794,7 @@ request is retained as a request, never labelled a measured observation.
     def close(self):
         # Revoke metadata lifecycle only; application shutdown is never a new
         # physical command authorization or automatic native control replay.
-        with self.lock:self.closed=True
+        with self.lock:self.closed=True;self.native_phase_condition.notify_all()
         if self.inbox is not None:
             for row in self.snapshot()['sessions']:
                 if row.get('pending_operation'):self.inbox.cancel_run(row['session_id'])
