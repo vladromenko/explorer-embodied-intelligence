@@ -187,15 +187,17 @@ def main():
         if not all(identical.values()):raise PlotRejected('Repeated current-environment render bytes differ')
         assert not {'mujoco','torch','OpenGL'}&set(sys.modules)
         if script_sha!=sha(__file__) or any(sha(path)!=row['sha256'] for path,row in locked.items()):raise PlotRejected('Plot source/input bytes changed during rendering')
+        artifacts=[args.output/name for name in ('contact_development_v10.csv','contact_development_v10_paired_counts.csv')] + [folder/name for folder in (first,second) for name in ('contact_development_v10.pdf','contact_development_v10.png')]
         proof=dict(schema='explorer_contact_development_plot_provenance_v1',plot_script_sha256=script_sha,input_files=locked,public_receipt_sha256=RECEIPT_SHA,
             case_order=cases,condition_order=list(CONDITIONS),matched_source_cases_per_condition=4,attempts=16,total_verified_contact_substeps=sum(r['verified_substeps'] for r in rows),
+            discarded_constructor_reset_steps=protocol['discarded_constructor_and_reset_native_steps_per_attempt']*len(rows),
             paired_counts=summary,uncertainty_scope='descriptive paired counts only; no population confidence interval or significance test for inspected nonrandom cases',
             new_contact_initial_conditions_not_original_V9_reexecution=True,heldout_generalization_test=False,original_V9_outcomes_unchanged=True,
             raw_SHA_binding_basis=RAW_BASIS,raw_bytes_rehashed_by_plotter=True,producer_raw_hash_claim_added=False,
             signed_opposing_floor_bottom_mechanism='OBSERVED_IN_NEW_BASELINE_CONTACTS',unique_solver_cause='AMBIGUOUS',physics_accuracy_validated=False,
             full_task_success_claimed=False,learned_repair_tested=False,learned_policy_executed=False,initial_restore_reexecution='UNQUALIFIED',original_runtime_OS_closure='PARTIAL',
             system_python=sys.executable,runtime=runtime,repeated_render_same_process_and_environment_only=True,repeated_render_bytes_equal=identical,scientific_archived_code_or_native_state_executed=False,
-            output_sha256={str(p.relative_to(args.output)):sha(p) for p in args.output.rglob('*') if p.is_file()},elapsed_s=time.monotonic()-start,physical_io=False)
+            output_sha256={str(p.relative_to(args.output)):sha(p) for p in artifacts},elapsed_s=time.monotonic()-start,physical_io=False)
         write(args.output/'provenance.json',proof)
         print(json.dumps(dict(paired_counts=summary,repeated_render_bytes_equal=identical,elapsed_s=proof['elapsed_s'])))
     except BaseException as error:
