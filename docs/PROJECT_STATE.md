@@ -1,160 +1,132 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-27T22:19:51+03:00`
-Code commit: `cad792860cefbd362cb8a205c488c735b85017f8`
-Current task: `E04-FIRST-UPGRADE`
-Next tasks: `E04-FIRST-UPGRADE`, `E04-RELEASE`, `E03-SOFTWARE-DEPLOY`
+Updated: `2026-10-28T00:58:00+03:00`
+Code commit: `ef3f5185c6199d93044fe54c791e2f67946a56cc`
+Current task: `E03-SOFTWARE-DEPLOY`
+Next tasks: `E03-SOFTWARE-DEPLOY`, `E05-MANUAL`, `E05-LEARNING`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
 
-Это единственный краткий текущий статус. Commit выше — последний проверенный
-product checkpoint; commit этой документации виден в `git log -- docs/PROJECT_STATE.md`.
-Детали функций — [ACCEPTANCE_MATRIX](ACCEPTANCE_MATRIX.md), порядок —
-[BACKLOG](BACKLOG.md), машинные научные gates — [acceptance.json](../_registry/acceptance.json).
+Это единственный краткий текущий статус. История требований/отказов и научные
+originals сохранены. Подробности: [BACKLOG](BACKLOG.md),
+[ACCEPTANCE_MATRIX](ACCEPTANCE_MATRIX.md), [physical queue](PHYSICAL_CHECKS.md),
+[машинные scientific gates](../_registry/acceptance.json).
 
-Последний milestone: approved04 archive consumer `99eee52` интегрирован с typed
-Store/worker, COMMON demo review API и inventory recovery.145PASS/4SKIP22.07s:
-GET-only Range-resume4096B→same original3raw samples→2unpaused samples→official
-LeRobotDataset0.6.1 native6 с точным readback; UNKNOWN не promoted. Поздний reject
-закрывает admission; renewed approval создаёт отдельные immutable job/paths,
-старые originals/review сохраняются. Негативные прогоны и generated fixtures retained.
-[Evidence](../_registry/evidence/experiment04-approved-import-worker-20261027.json).
-Approved cohort теперь проверен отдельно:189PASS/5SKIP42.33s,5generated originals
-(3train/1DEV/1sealed),8raw→7selected, official28frames/8segments,0sealed payload.
-Capture/review/provenance SHA входят в binding/fingerprint/aggregate; late reject
-закрывает cached aggregate, reapproval сохраняет предыдущие artifacts.
-[Evidence](../_registry/evidence/experiment04-approved-capture-cohort-20261027.json).
-Operator learning UI квалифицирован ниже; deployment ещё OPEN, это не готовность всего04.
-Fresh frozen3b81623 ACT8/DP8 CPU qualification PASS с actual save/reload и прежними
-R2 weights exact; native6 binding теперь содержит21 исходник, actual selector PASS.
-[CPU evidence](../_registry/evidence/experiment04-current-native6-CPU-20261027.json).
-Actual approved-capture queue proof теперь PASS:2tests/120.16s (qualifier124.52s),
-ACT/DP каждый reference8 +pause2→oldPID exit→newPID6,32actual updates total,
-model/optimizer/losses/sampler/Torch/Python/NumPy continuation exact; actual DEV
-metrics и ACT offline shadow from saved official processors. Kernel peak3445071872B,
-swap0/OOM0. [Queue proof](../_registry/evidence/experiment04-approved-capture-queued-training-20261027.json).
-Новые source inputs отличаются от PROFILE4: weights сравниваются со своим actual
-uninterrupted reference; прежняя math equality отдельно сохранена ACT8/DP8 выше.
-R6/PROFILE4 originals immutable; current runtime/source pins проверяются полностью.
+## Последний checkpoint04
 
+**IMPLEMENTED +SOFTWARE_TESTED +DEPLOYED; physical acceptance OPEN.**
+[Actual release evidence](../_registry/evidence/experiment04-source-release-actual-ef3f5185-20261028.json).
+Это software/operator flow, не принятый предметный навык и не весь master.
+
+- Single original frozen Station/recorder/camera owner; source-only04 profile,
+  COMMON exact actor/JPEG/boot/epoch/Skill/session/demo binding. Legacy raw04
+  mutations закрыты; explicit global STOP ABI сохранён, агент его не вызывал.
+- Prepare→отдельное наблюдение→teleop→record/pause/resume/cancel/stage→finish
+  UNKNOWN/failure/success→saved preview→separate approve/reject→immutable
+  typed import/Range/retry. UNKNOWN не становится success; finish не импортирует.
+- Approved generated cohort5originals (3train/1DEV/1sealed),8raw→7selected,
+  official LeRobotDataset0.6.1:28frames/8segments. Actual ACT8/DP8 +reference8/
+  pause2→oldPID exit→newPID6, model/optimizer/losses/sampler/all RNG exact.
+  Real accepted experts0. [Cohort/queue proof](../_registry/evidence/experiment04-approved-capture-queued-training-20261027.json).
+- Actual generated desktop/mobile capture and full approved learning/model UI,
+  separate ACT/DP jobs/reload/DEV/offline shadow, no physical quality claim.
+  [Whole learning UI](../_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json).
+- CV/VLM uses existing Logitech/Hailo. Actual oldPi Qwen event31.576s recovered
+  CV/camera; original6s poll timeout retained. New admission allows semantic only
+  idle/no record and fences pending/inflight/unknown-release against native start;
+  cancellation не означает release.147Python/272Node/generated actual Firefox.
+  [Vision](../_registry/evidence/experiment04-vision-source-admission-20261027.json).
+- Cold guard34c5f10 installed on SAME buses before original worker starts;
+  no sync_write forwarded until first valid COMMON observed USER start.73Python
+  +actual Pi3.13.5 full Node/frozen Station/fake buses PASS: forced idle error
+  caused1blocked hold/0writes. Original Station SHA unchanged.
+  [Cold Pi proof](../_registry/evidence/experiment04-cold-current-Pi-20261027.json).
 
 ## Фактический deploy
 
-Homebrain current+worker: **65ae9d021796c5ec4c9cab8a129fdb827dbf36f3**.
-Nano OWN observer/cache: **722755dc99094fc86bab20796d2b7bc4bf56d536**.
-Pi OWN и original Nano web import pin: **4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4**.
-При организационной инвентаризации actual local `/api/health` подтвердил65,
-production active jobs=0. Новые04 и bootstrap03 **не deployed на Pi**.
-Последний deployed frozen full:2271PASS/20SKIP/855.56s,243Node на тех же JS bytes;
-actual HTTPS Firefox desktop/mobile, passiveROS20s0, source/reference/PIDs/6configs
-сохранены. Это scope выпуска65, не full regression позднейшего main.
-[Release](../_registry/evidence/experiment03-central-data-actual-65ae9d02-20261027.json) ·
-[Инвентаризация/backup](../_registry/evidence/project-state-inventory-20261027.json).
+| Runtime | Actual commit / evidence |
+|---|---|
+|Homebrain central +worker|**ef3f5185c6199d93044fe54c791e2f67946a56cc**|
+|Pi OWN observer, source-only04|**9fc1fb655493a97320ce3de310dd7eb012f0cc78**, PID62031|
+|Nano OWN observer/cache|**722755dc99094fc86bab20796d2b7bc4bf56d536**|
+|Original Nano web import pin|**4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4**|
 
-| Опыт | Что подтверждено | Остаток и scope |
-|---|---|---|
-|01 PARKED|CAD/SIM, компоненты ACT/DP/reload; bounded8+8 smoke сохранены|Canonical PPO→demos/DAgger→ACT full-task успех не достигнут. Target C-v2=0/16; long248 не запускался. [Pause](../01-autonomous-learning/docs/audits/PARKED_AFTER_SMOKE8_20261027_RU.md)|
-|02|SOFTWARE READY в scope одной Nano camera; actual17RGB→analysis, generated Dataset/ACT/resume/DEV, UI/deploy|0принятых real experts/models; valid live-shadow/full physical skill OPEN. [02 release](../_registry/evidence/experiment02-learning-actual-722755dc-20261027.json)|
-|03|Shared data path/UI deployed65; candidate actual39RGB/0expert commands отдельно; bootstrap из исходной калибровки реализован/tested|Не SOFTWARE READY: changing real leader continuity OPEN, current reference409; новый physical path не deployed. Measured registration не блокирует bootstrap-разработку. [Bootstrap](../03-lerobot-teaching/docs/BOOTSTRAP_REGISTRATION_RU.md)|
-|04 CURRENT|Source-only/COMMON capture, approved cohort/ACT+DP resume; actual desktop/mobile SourceDemo и learning/model UI на labelled generated inputs|First upgrade и release OPEN; новый04 не deployed. [UI proof](../_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json)|
-|05 NEXT|Typed two-role components, hold WAL/interlocks и shared queued shadows tested|Полный manual/manual операторский FSM→record/review/train/shadow/release ещё открыт. FSM не learned skill. [Interlock](../05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md)|
-|06 THEN|Lineage/splits/FK/IK/SIM и ACT/adaptation компоненты; отрицательные исходы сохранены|Approved04 source и полный distinct-domain zero/adapt/target-only UI/pipeline OPEN; physical transfer не доказан. [Negative trials](../research/audits/TARGET_TEMPORAL_C_V2_RESULTS_RU.md)|
+USER явно подтвердил отключённое силовое питание обеих SO101 рук. При этом
+условии первый old4c PID43382 завершён SIGKILL без Node.close/Station STOP,
+после запрета auto-restart. Новый profile disarmed, grantNone, forwarded0;
+Restart=on-failure возвращён после проверки. Original Pi node.env/arms/calibs/
+unit file SHA сохранены; добавлен только own runtime/profile drop-in. SDK connect
+сейчас ожидаемо unavailable при powerOFF; это не physical acceptance.
+Actual GDB attach к рабочему observer не выполнялся.
 
-## Блокеры и ближайшие действия
+New ef3f518 — только UI hotfix: deferred direct03/station timers больше не
+обращаются к app globals до загрузки app.js.3новых delayed-load tests,275Node
+PASS2.55s. **Все600 Python files byte-identical** frozen9fc, где полный
+**2435PASS/22SKIP/878.97s**, kernelpeak4593295360B/swap0/OOM0. Production25jobs,
+11skills, все исходные events и schema сохранены, activejobs0.
 
-- `E04-IMPORT` DONE в software scope выше; archive/review/provenance pins обязательны.
-- `E04-COHORT` DONE: accepted cohort/officialDataset/current ACT+DP/actual queued resume/DEV/offline-shadow на labelled generated inputs.
-- `E04-UI` DONE в software scope: thin SourceDemo client/panel подключён к настоящим API;
-  legacy04 STOP-on-blur/finish-autoimport заменены scoped flow. Actual Firefox
-  desktop1440/mobile390: контекст→видимый verifiedJPEG→COMMON→same fake-bus
-  Station/recorder→pause/resume/stage→finishUNKNOWN→отдельный STOP→preview→
-  approve immutable import→reject PASS,35raw/31selected и30raw/25selected;
-  268Node/26Python PASS. JPEG обновляется без замены кнопок/сброса таймера;
-  logout ждёт поздние ответы, uncertain cleanup сохраняет вход.0realIO/deploy.
-  [UI proof](../_registry/evidence/experiment04-source-demo-actual-UI-20261027.json).
-- Approved learning actual Firefox:5/5 покрытие→original JPEG/raw8→official28frames/
-  8segments→ACT8+DP8 через UI/общую очередь, pause/resume, save/reload0 и отдельный
-  DEV. Пауза здесь SIGSTOP/memory retained, exact new-PID отдельно R7 выше.
-  Новые карточки обоих backend/версий/checkpoint/DEV проверены отдельным GET-only
-  Firefox desktop/mobile без повторного optimizer; SIM не допускается физически.
-  270Node +36targeted +3current policy pins PASS; kernelpeak2115121152B/swap0/OOM0.
-  [Learning UI proof](../_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json).
-- `E04-VISION` DONE scoped software: actual Pi GET camera/CV/tabletop200; одна Logitech, CV
-  instance segmentation. Один non-actuating Qwen2-VL event получил SEMANTIC_RESULT
-  за31.576s; тот же old4c PID, camera/CV восстановлены, Stationidle/configwrites0.
-  Во время native initialization был HTTP ReadTimeout6s, затем восстановление.
-  Новый source-only04 admission сериализует VLM submission и COMMON entry:
-  только idle/no recording, pending/inflight/unknown-release блокируют native;
-  cancel не означает release, scoped STOP остаётся отдельным обходом.
-  147Python/86.63s +272Node PASS; actual localhost Firefox generated CV/VLM→
-  exact JPEG/mask/click→native block→CV recovery→new shown grant/fake teleop→
-  semantic block→scoped STOP PASS, desktop/mobile. Guard НЕ deployed.
-  [Vision proof](../_registry/evidence/experiment04-vision-source-admission-20261027.json).
-  Метрическая калибровка отсутствует, actual later JPEG почти чёрный max2/255;
-  exact old VLM input JPEG не сохранён. Semantic accuracy/physical skill OPEN.
-- `E04-FIRST-UPGRADE` CURRENT: проверить безопасный первый переход old4c.
-  Candidate34c5f10: same-bus startup guard до первого валидированного COMMON USER
-  start. Original idle connection-error hold блокируется до SDK sync_write;
-  metadata/foreign/stale/revoked grants/idle STOP не открывают запись. После
-  valid observed start исходные Goal/Torque/target/scoped hold без изменений.
-  Frozen Station SHA сохранён;73Python PASS8.85s, Node wiring/HTTP status и
-  default COMMON/source evaluation/cooperative consumers. Это fake-bus proof,
-  guard не deployed. [Evidence](../_registry/evidence/experiment04-cold-publication-guard-20261027.json).
-  На Pi stdlib fake, затем12 exactold4c cases: idle/partialHTTP freeze→kill
-  с0fake writes PASS; active/raw/inflight rejected, missing field FAIL_UNKNOWN.
-  Но detach после unknown+expired fake serial deadline воспроизвёл1hold из idle.
-  Безопасный abort НЕ доказан: actual observer43382 не трогали. USER затем
-  явно подтвердил отключённое силовое питание ОБЕИХ SO101 рук. Это условие
-  отдельного первого перехода, не разрешение движения/настройки. После fullPASS
-  допустим guarded own-observer kill без Node.close/STOP и запуск new profile;
-  до завершения перехода питание оставляем OFF. [Proof](../04-so101-source-learning/docs/FIRST_UPGRADE_ALLSTOP_20261027_RU.md).
-  Actual Pi3.13.5 isolated current Node/source-only/frozen Station smoke PASS:
-  localhost status, idle camera-error→1blocked hold/0buswrites, owned threads
-  exited. [Pi proof](../_registry/evidence/experiment04-cold-current-Pi-20261027.json).
-  Actual preupgrade Pi99files62,759,615B +online outbox SQLite backup и исходные
-  configs/calibs/unit сохранены; все members проверены SHA на Homebrain.
-  [Backup](../_registry/evidence/experiment04-Pi-preupgrade-backup-20261027.json).
-- Current02 queueR5 и03 queueR3: actual4updates/reload0/DEV10 каждый; источники
-  pinned80c5eca, current computational bytes сверены,0physicalIO. Strict3PASS.
-  [02](../shared/training/NATIVE02_QUEUED_CPU_R5_20261027_QUALIFICATION.json) ·
-  [03](../03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_R3_20261027.json).
-  Release staging отклонил old16-source GPU proof: dataset_export.py изменён04.
-  Fresh actualACT9 CUDA8 +separate reference8/pause4→exit/newPID4 PASS: current16
-  source pins, model/optimizer/losses/RNG/sampler exact, reload0, DEV0/1 retained.
-  13+1actual tests,24updates total; это release qualification,01 long tuning PARKED.
-  Current8strict metadata checks PASS, прежние proof bytes неизменны.
-  [CUDA proof](../_registry/evidence/act9-source04-current-20261027.json).
-- Current recovery CLI correctedcad7928: obsolete job_runner-only search replaced
-  disclosed TEST-OWNED prebootstrap exec gate. Actual supervisor/worker SIGKILL→
-  same pinned source recovery PASS; outbox3/lostACK/dedup и two-process stale
-  action/lease rejection PASS. HB11981payloadfiles8,563,858,810B copied with actual
-  isolated restore/Store integrity/SHA PASS. Same SSD, source/venv/OS excluded.
-  [Recovery/backup](../_registry/evidence/experiment04-current-recovery-20261027.json).
-  One earlyfull467 deliberately interrupted after qualifier bug discovery;
-  frozen fullcad running. Its old current-GPU SHA test mismatch is being repaired
-  using fresh proof above; no fullPASS/deployment claimed yet.
-  PiSSH ключ работает, sudo-n требует пароль. Read-only cold-connect SDK source:
-  port open +motor identity/firmware checks; запрет actual grants/STOP сохраняется.
-  Проверить возможность доказанного freeze/zero-write termination barrier на
-  изолированном old4c/fake IO, прежде любого действия с настоящим процессом.
-  IdleGET/daemon server_close остаются недостаточными; fallback — отдельный
-  наблюдаемый upgrade. Параллельно можно подготовить current release checks.
-- Старый Pi4c имеет воспроизведённую shutdown race. Первый unattended Pi update
-  OPEN: idleGET+server_close не drain. Нужен доказанный admission barrier либо
-  отдельный наблюдаемый первый upgrade; пока продолжаем программную работу.
-  [Proof](../04-so101-source-learning/docs/OLD4C_LIFECYCLE_PROOF_20261027_RU.md).
-- Current native reference409/MCU stale, физическая рабочая сцена не подтверждена.
-  Не делать HOME/grants/движение агентом. [Только действия владельца](PHYSICAL_CHECKS.md).
+Actual authenticated HTTPS Firefox desktop1440/mobile390 PASS: real Pi JPEG,
+ровно2existing camera inventories, no overflow,0JSerrors,0nonGET requests,
+no owner/affirmations/grants. Фотография рабочего стола/части SO101 стала видимой;
+это не доказательство полной object/goal scene visibility или metric calibration.
+Passive ROS:60s при первом переходе и20s при UI hotfix, оба0actuator messages.
+Original Nano source/reference/six configs/PIDs exact до/после, включая finalUI.
 
-Согласованный новый порядок: **04 →03 →05 →06 →01**. Сначала04 до
-IMPLEMENTED +SOFTWARE_TESTED +DEPLOYED; сразу после04 checkpoint обязательно
-возобновить `E03-SOFTWARE-DEPLOY`, не05. В03 закрыть software gaps direct Pi→Nano,
-existing-calibration/URDF/mapping/command-estimate bootstrap, endpoints и UI03,
-развернуть HB/Pi/Nano и выполнить бездвигательную связную проверку; целевой статус
-**DEPLOYED_AWAITING_PHYSICAL_ACCEPTANCE**. Physical gates остаются отдельными;
-новый порядок не разрешает агенту движения/feedback/config changes.01 long tuning PARKED. Рабочий
-repo на Homebrain; Mac/открытый чат не нужны runtime. Полный original master:
-`~/.local/state/explorer-work/master-prompt.md`; private handoff — recovery pointer,
-не второй канонический текущий статус. Историю требований/исходов не переписывать.
+Отказы сохранены: early full467 interrupted; fullcad2434PASS/22SKIP/1FAIL old
+current-GPU SHA. Fresh actual CUDA8 +reference8/pause4→exit/newPID4 квалифицировали
+current16source bytes, reload0/model+optimizer+all RNG exact; DEV0/1 retained.
+[Fresh CUDA](../_registry/evidence/act9-source04-current-20261027.json).
+Current02/03 queues ACT4/reload0/DEV10 PASS, source pins verified.
+[02R5](../shared/training/NATIVE02_QUEUED_CPU_R5_20261027_QUALIFICATION.json) ·
+[03R3](../03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_R3_20261027.json).
+01 long tuning/248 не возобновлялся.
 
-Организационный цикл внедрён: root AGENTS +canonical docs +repo skill +лёгкий
-consistency check. Это инфраструктурный checkpoint; acceptance уровни не повышены.
+Реальный HTTPS выявил startup ReferenceError, исправленный ef3f518. Затем mDNS
+и GET3s timeout сорвали private cutover checks; старый one-off rollback helper
+вернул только symlink при уже работающем ef3f518. Фактический health проверен,
+current согласован без повторного restart. Live UI503 из-за `.local` устранён
+изменением ТОЛЬКО own central nodes.host: Pi192.168.0.131/Nano192.168.0.177;
+токены и остальные поля exact, private config backup retained. Это наблюдаемые
+LAN/DHCP IP, не OS/router reservation. Final Firefox PASS после изменения.
+Не переиспользовать старый rollback helper без исправления process reconciliation.
+
+## Восстановление и границы
+
+- Actual HB11981payloadfiles8,563,858,810B +metadata/private configs/calibs copied;
+  isolated real restore/Store integrity/SHA PASS. Pi99files62,759,615B +online
+  outbox SQLite snapshot saved/verified on Homebrain. SameSSD не защита от его
+  потери; source/venv/OS и невыбранные remote paths не входят в полный image.
+- Current supervisor/worker SIGKILL recovery сохраняет pinned source, outbox3
+  lostACK/retry/dedup и two-process stale action/lease rejection PASS. Первый
+  worker остановлен TEST-OWNED exec gate до bootstrap, scope явно записан.
+  [Recovery](../_registry/evidence/experiment04-current-recovery-20261027.json).
+- Old4c all-stop12fake cases: idle/partialHTTP kill0writes; active/raw/inflight
+  rejected. Но unknown detach+expired fake serial deadline дал1idle hold.
+  Это отрицательный исход безопасного abort, не qualified unattended barrier.
+  Actual первый переход выполнен отдельно при USER-confirmed powerOFF.
+  [Negative proof](../04-so101-source-learning/docs/FIRST_UPGRADE_ALLSTOP_20261027_RU.md).
+- No real native grants/HOME/begin/resume/policy/action/STOP от агента, no chassis
+  or arm motion. Original6 ROSMASTER configs/firmware/limits/watchdogs/feedbackOFF
+  и frozen Station SHA2d191534…a885 сохраняются.
+
+## Следующая обязательная задача03
+
+04 checkpoint закрыт в software/deploy scope выше. **Сразу E03-SOFTWARE-DEPLOY,
+не05**: direct Pi→Nano, original existing calibration/URDF/factory servo mapping/
+current command_estimate bootstrap, endpoints и UI03, deploy/no-motor checks.
+Цель — **DEPLOYED_AWAITING_PHYSICAL_ACCEPTANCE**. Measured manual registration
+не блокирует bootstrap-разработку; derived pose не называется measured.
+[Bootstrap evidence](../_registry/evidence/experiment03-bootstrap-existing-calibration-20261027.json).
+
+Текущий Pi source-only profile намеренно не создаёт03peer/client/worker. Нужен
+software integration/profile, сохраняющий04 capture/cold/semantic guards и
+единственного Station owner при добавлении gated03 capabilities. Physical path
+по-прежнему CLOSED: real changing leader continuity OPEN, current reference409,
+сцена/метрическая привязка/реальные эксперты не приняты. Static100GET не PASS.
+После03 software/deploy идут05→06→01; физический gate не причина бросать доступное ПО.
+
+01 PARKED: current C-v2=0/16, canonical full-task mastery/DAgger/ACT не достигнут;
+02 software ready в scope одной Nano camera, real experts/models/live physical
+skill OPEN;05 full manual/manual→learning flow и06 distinct-domain pipeline
+ещё открыты. Research originals/negative outcomes/protocols не переписаны.
+Исходный полный master: `~/.local/state/explorer-work/master-prompt.md`.
+AGENTS/runbook/repo skill обязательны. Mac не является runtime dependency.

@@ -1,0 +1,292 @@
+{
+  "schema": "explorer_source04_actual_deployed_release_v1",
+  "status": "IMPLEMENTED_SOFTWARE_TESTED_DEPLOYED_AWAITING_PHYSICAL_ACCEPTANCE",
+  "live": {
+    "Homebrain_central_worker": "ef3f5185c6199d93044fe54c791e2f67946a56cc",
+    "Pi_own": "9fc1fb655493a97320ce3de310dd7eb012f0cc78",
+    "Pi_PID": 62031,
+    "Nano_own": "722755dc99094fc86bab20796d2b7bc4bf56d536",
+    "original_Nano_web": "4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4"
+  },
+  "full_python": {
+    "commit": "9fc1fb655493a97320ce3de310dd7eb012f0cc78",
+    "passed": 2435,
+    "skipped": 22,
+    "pytest_seconds": 878.97,
+    "qualifier_seconds": 890.3899788020062,
+    "resources": {
+      "cpu.max": "300000 100000",
+      "memory.max": "5368709120",
+      "memory.current": "1510223872",
+      "memory.peak": "4593295360",
+      "memory.swap.max": "0",
+      "memory.swap.peak": "0",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    "scientific_originals": {
+      "jobs": {
+        "original_rows": 25,
+        "current_rows": 25,
+        "all_original_rows_identical": true
+      },
+      "skills": {
+        "original_rows": 11,
+        "current_rows": 11,
+        "all_original_rows_identical": true
+      },
+      "events": {
+        "original_rows": 17120,
+        "current_rows": 17149,
+        "all_original_rows_identical": true
+      }
+    },
+    "schema_unchanged": true,
+    "current600Python_files_byte_identical": true
+  },
+  "current_Node": {
+    "passed": 275,
+    "seconds": 2.548607653,
+    "new_deferred_download_gap_tests": 3,
+    "only_source_changes": [
+      "00-control-center/src/explorer/static/direct03.js",
+      "00-control-center/src/explorer/static/station.js",
+      "tests/test_app_bootstrap.js"
+    ]
+  },
+  "first_Pi_transition": {
+    "user_confirmed_both_SO101_motor_supplies_OFF": true,
+    "old_PID": 43382,
+    "new_PID": 62031,
+    "old_Node_close_or_native_STOP_called": false,
+    "actual_GDB_attach": false,
+    "new_profile": "so101_source_only",
+    "original_config_calibration_node_env_unit_files_preserved": true,
+    "new_runtime_dropin": true,
+    "new_guard": {
+      "blocked_write_attempts": 0,
+      "controller_configuration_written": false,
+      "disarmed_until_observed_start": true,
+      "forwarded_write_calls": 0,
+      "guarded_bus_roles": [
+        "leader"
+      ],
+      "original_bus_owners_preserved": true,
+      "schema": "explorer_source04_cold_publication_admission_v1"
+    },
+    "observed_permission_after": false
+  },
+  "actual_HTTPS_Firefox": {
+    "origin": "https://homebrain.tail4a7de4.ts.net",
+    "pages": [
+      {
+        "view": "desktop",
+        "route": "/experiments/04",
+        "horizontal_overflow": false,
+        "camera": "pi-overview",
+        "camera_inventory": [
+          {
+            "id": "pi-overview",
+            "label": "Logitech Pi · рабочее поле LeRobot"
+          },
+          {
+            "id": "nano-rgbd",
+            "label": "Камера ROSMASTER · Nano"
+          }
+        ],
+        "guard": {
+          "blocked_write_attempts": 0,
+          "controller_configuration_written": false,
+          "disarmed_until_observed_start": true,
+          "forwarded_write_calls": 0,
+          "guarded_bus_roles": [
+            "leader"
+          ],
+          "original_bus_owners_preserved": true,
+          "schema": "explorer_source04_cold_publication_admission_v1"
+        },
+        "station_mode": "idle",
+        "station_available": false,
+        "local_owner": null,
+        "affirmations": [
+          false,
+          false,
+          false
+        ],
+        "disabled_native_buttons": [
+          {
+            "action": "authorize",
+            "disabled": true
+          },
+          {
+            "action": "start",
+            "disabled": true
+          }
+        ],
+        "API_GET_statuses": {
+          "/api/health": 200,
+          "/api/station/status": 200,
+          "/api/lab/demonstrations": 200,
+          "/api/lab/vision/status": 200,
+          "/api/retarget/status": 200
+        },
+        "screenshot_sha256": "03873f2291347751ef73df3f4d839f54d1712a3ba8b272dda76f3b9ce569293a"
+      },
+      {
+        "view": "mobile",
+        "route": "/experiments/04",
+        "horizontal_overflow": false,
+        "camera": "pi-overview",
+        "camera_inventory": [
+          {
+            "id": "pi-overview",
+            "label": "Logitech Pi · рабочее поле LeRobot"
+          },
+          {
+            "id": "nano-rgbd",
+            "label": "Камера ROSMASTER · Nano"
+          }
+        ],
+        "guard": {
+          "blocked_write_attempts": 0,
+          "controller_configuration_written": false,
+          "disarmed_until_observed_start": true,
+          "forwarded_write_calls": 0,
+          "guarded_bus_roles": [
+            "leader"
+          ],
+          "original_bus_owners_preserved": true,
+          "schema": "explorer_source04_cold_publication_admission_v1"
+        },
+        "station_mode": "idle",
+        "station_available": false,
+        "local_owner": null,
+        "affirmations": [
+          false,
+          false,
+          false
+        ],
+        "disabled_native_buttons": [
+          {
+            "action": "authorize",
+            "disabled": true
+          },
+          {
+            "action": "start",
+            "disabled": true
+          }
+        ],
+        "API_GET_statuses": {
+          "/api/health": 200,
+          "/api/station/status": 200,
+          "/api/lab/demonstrations": 200,
+          "/api/lab/vision/status": 200,
+          "/api/retarget/status": 200
+        },
+        "screenshot_sha256": "992afb9755ec49d83e589f989f356290565dbaed54430c667a332832b637b5a0"
+      }
+    ],
+    "javascript_errors": [],
+    "non_GET_app_requests": []
+  },
+  "passive_ROS": {
+    "first_cutover": {
+      "counts": {
+        "/arm6_joints": 0,
+        "/explorer/request": 0
+      },
+      "observation_seconds": 60,
+      "passive_only": true,
+      "received_count": 0,
+      "schema": "explorer_source04_cutover_passive_ROS_v1",
+      "topics": [
+        "/arm6_joints",
+        "/explorer/request"
+      ]
+    },
+    "UI_hotfix": {
+      "counts": {
+        "/arm6_joints": 0,
+        "/explorer/request": 0
+      },
+      "observation_seconds": 20,
+      "passive_only": true,
+      "received_count": 0,
+      "schema": "explorer_source04_UI_hotfix_passive_ROS_v1",
+      "topics": [
+        "/arm6_joints",
+        "/explorer/request"
+      ]
+    }
+  },
+  "original_Nano_sources_reference_six_configs_and_PIDs_preserved": true,
+  "own_transport_repair": {
+    "old_hosts": {
+      "pi": "explorer-pi.local",
+      "nano": "explorer.local"
+    },
+    "new_hosts": {
+      "pi": "192.168.0.131",
+      "nano": "192.168.0.177"
+    },
+    "only_own_central_node_host_fields_changed": true,
+    "tokens_unchanged": true,
+    "private_backup_retained": true,
+    "health_endpoint_is_public": true,
+    "authenticated_disarmed_status_endpoints_verified_by_reconciliation": true,
+    "controller_settings_changed": false,
+    "LAN_DHCP_not_static_reservation": true
+  },
+  "original_frozen_Station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+  "actual_native_commands": 0,
+  "actual_native_grants": 0,
+  "actual_controller_configuration_changes": 0,
+  "physical_acceptance": false,
+  "real_accepted_source_experts": 0,
+  "real_source_skill_success_claimed": false,
+  "previous_generated_software_proofs": [
+    "_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json",
+    "_registry/evidence/experiment04-vision-source-admission-20261027.json",
+    "_registry/evidence/experiment04-approved-capture-queued-training-20261027.json"
+  ],
+  "raw_immutable_receipts_sha256": {
+    "/mnt/explorer-data/explorer-work/experiment03-data-full-release-20261027-9fc1fb65/result/qualification.json": "bb9a95bd3657dd4c4f01572872f5db61145f6873d9dfd22c7e4c5709d439918c",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/source04-composite-activation.json": "b22d2218e0b1a7fcb3d23078a32ed9ec60359ed4deb7d2fe4f6c93a3d80140b2",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/source04-Pi-activation.json": "f3e18bef7de17f89dddcd72949a3f8eeb3140b0c9b64e2b757f925ea4b414561",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/UIhotfix-pointer-reconciliation-b.json": "4456cdf50fd3cf68c2f4c2ed36c2b87017288ebf635b4bb5efc7a5dc29601f0c",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/own-LAN-transport-update.json": "27fd254ae8b9e164c786a730e5c1ac24fe6c2b136fff79125dbbecd38fddf11d",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/UIhotfix-b-passive-eventual-result.json": "382dff3593d7b18c442892aab9d812701b8f2323b6f0b379382c3f75f5f02932",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/original-Nano-post-UI-acceptance.json": "2e04c3a4f8c9b5e5b31f18a7443c59f5ad199a62c1e2fbef0e03793724550cf7",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/UI-startup-gap-all-Node.log": "7c71e2339f91d7fbf2b28e6b1294268415fe7982d0ae0ff11c25600cc6e856d4",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/staged-central-source-ef3f518.json": "dd2df98f939726d55af5653ff927d1d27ac5df7115cd92b22c1760c0e052ca1e",
+    "/mnt/explorer-data/explorer-work/04-source-release-live-20261028-ef3f5185-f/receipt.json": "e1ef415d140047ab65fcfdc39f21bf2c13dfab7d791e8245b109ab003d35e85f",
+    "/mnt/explorer-data/explorer-work/04-source-release-live-20261028-ef3f5185-f/desktop.png": "03873f2291347751ef73df3f4d839f54d1712a3ba8b272dda76f3b9ce569293a",
+    "/mnt/explorer-data/explorer-work/04-source-release-live-20261028-ef3f5185-f/mobile.png": "992afb9755ec49d83e589f989f356290565dbaed54430c667a332832b637b5a0"
+  },
+  "negative_originals_sha256": {
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/UIhotfix-actual-activation-launch.log": "2be41961b3af4ff1083cc4075718aa18c8673cb9bb839a93775223ab9ab88615",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/UIhotfix-central-activation.log": "fcc9b607fc09694d27b9c12bb7e531570e571be43387eaffe8d12e21b8af6805",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/UIhotfix-actual-activation-b-launch.log": "fe68a5ab43a0a9fb32deb6cd2928fe1076a6b7b1d586309afc926496afc85919",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/UIhotfix-central-activation-b.log": "1601d4bc8cf227502586808b052ba428be0666b20dccd89656a2ff9260b88d52",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/UIhotfix-pointer-reconciliation-launch.log": "57dea85535478c5d950a60247ec91295d7f3ac795e5ea751a5b906620337b078",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/source04-deployed-browser-c-launch.log": "fcabd7752bacc6b3ccbbbc11b1b74d53a3fcaeca376a793ea2f78a38ae4ef308",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/source04-deployed-browser-d-launch.log": "f76da60ebe93e4100a7e3cd356ed2cba2acda0fa5a5df80921f6cb5eab91801f",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/UI-startup-gap-targeted.log": "71ee7a481efae9d3e107c6e7da66658453190cc0208c56d159acaa429675ddc7",
+    "/mnt/explorer-data/explorer-work/04-source-release-live-20261027-9fc1fb65/receipt.json": "a0ae76030af39a88c9b459c5132918c5d868b91c371e470d73f6cd8c2740ef5a",
+    "/mnt/explorer-data/explorer-work/04-source-release-live-20261027-9fc1fb65-debug-a/receipt.json": "b7303c2f6104984f54a03736987e8387aa0362e7919eb1a7c1991c3e34dfd875",
+    "/mnt/explorer-data/explorer-work/04-source-release-live-20261027-9fc1fb65-b/receipt.json": "43351f587d4e6bf790d2e22ccac13f8017e6a4b88d10eb3c3666c7f5eb109ea1",
+    "/mnt/explorer-data/explorer-work/04-source-release-live-20261028-ef3f5185-e/receipt.json": "8fb438ce3bdfa8f29201bc62f4c31e72b5d0f2dde9e6e5931851008336546fea"
+  },
+  "negative_interpretation": [
+    "Initial HTTPS harness transient-ready predicate timeout retained; stricter diagnostics exposed actual deferred direct03 timer ReferenceError, fixed ef3f518 plus delayed-app tests",
+    "First hotfix preflight transient mDNS failure returned old central safely; second Pi GET3s timeout exposed one-off rollback helper symlink/process mismatch. Actual ef3f518 health +fresh disarmed endpoints verified, pointer aligned without another restart",
+    "Real .local transport503 observed in UI, own central peer host fields changed to known verified LAN IPs. No controller or Pi env changes",
+    "Browser c/d runs stopped at release-identity setup assertions, no false UI PASS; e revealed transport/unsettled state, final f desktop/mobile PASS"
+  ],
+  "limitations": [
+    "User motor power remains OFF; physical scene, connectivity under restored motor power, real expert demos/models and independent object-task acceptance OPEN",
+    "Actual later visible scene is white work surface and part of SO101, not full workspace/object/goal acceptance; no camera settings changed",
+    "Historical technical57-sample engineering hold recording remains labelled engineering, not an expert demonstration",
+    "SameSSD backups do not protect against disk loss; source/venv/OS/other remote files not a complete system image",
+    "No entire master completion; next mandatory E03-SOFTWARE-DEPLOY, then05→06→01; no chassis/arm motion by agent"
+  ]
+}

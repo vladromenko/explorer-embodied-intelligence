@@ -1,6 +1,6 @@
 # Приёмка пользовательских функций
 
-Snapshot: product code `cad7928`; live Homebrain65/NanoOWN722/Pi4c (точные commits
+Snapshot: product code `ef3f518`; live Homebrainef3f518/NanoOWN722/Pi9fc (точные commits
 в [PROJECT_STATE](PROJECT_STATE.md)). Это function-level view;
 [машинные gates/исторические scope](../_registry/acceptance.json) сохранены.
 Новая документация не повышает готовность. `PASS` software может относиться к
@@ -24,9 +24,9 @@ Physical acceptance=`PASS/OPEN/N/A`. PARTIAL означает только scope
 |E03-SMOOTHNESS · неизменная stable trajectory|PARTIAL|PARTIAL|NOT_DEPLOYED|NOT_DEPLOYED|NOT_DEPLOYED|OPEN|[Actual static trace only](../03-lerobot-teaching/docs/CONTINUITY_20261027.json)|Real changing-input frequency/dt/jitter/derivatives/drop/zero comparison OPEN|
 |E03-MOBILE-RECORD · arm+keyboard base/camera/record|PARTIAL|PASS|PARTIAL|NOT_DEPLOYED|PARTIAL|OPEN|[Candidate39RGB](../_registry/evidence/experiment03-native-capture-candidate-0d91dff2-20261027.json)|39RGB/0expert commands private candidate; chassis never moved|
 |E03-TRAIN · official Dataset/ACT/reload/DEV|YES|PASS|PARTIAL|N/A|N/A|OPEN|[Generated03 queueR3](../03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_R3_20261027.json)|No real expert03 model; actual canonical data UI deployed, generated proof отдельный|
-|E04-CAPTURE · две руки/одна Logitech/full skill capture|YES|PASS|NOT_DEPLOYED|NOT_DEPLOYED|N/A|OPEN|[Actual SourceDemo UI](../_registry/evidence/experiment04-source-demo-actual-UI-20261027.json)|Actual central/Node/original recorder, generated JPEG/fake buses; desktop/mobile full capture/review scoped proof. First oldPi upgrade/release OPEN|
-|E04-TRAIN · native6 Dataset/ACT+DP/resume/models|YES|PASS|PARTIAL|NOT_DEPLOYED|N/A|OPEN|[Actual learning UI](../_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json)|Approved generated cohort→actual UI ACT8/DP8/queue retained-process pause/reload/DEV/model versions; exact new-PID отдельный R7 proof. Deployment/current real experts OPEN|
-|E04-REPLAY · reload/offline/live shadow/observed trial|PARTIAL|PARTIAL|PARTIAL|PARTIAL|N/A|OPEN|[Source shadow](../04-so101-source-learning/docs/LIVE_SHADOW_TRANSPORT_RU.md)|Новая модель из current approved cohort и полный UI; no object skill claim|
+|E04-CAPTURE · две руки/одна Logitech/full skill capture|YES|PASS|DEPLOYED|DEPLOYED|N/A|OPEN|[Actual04 release](../_registry/evidence/experiment04-source-release-actual-ef3f5185-20261028.json)|Generated full capture/review +actual HTTPS desktop/mobile/real JPEG/COMMON guard; motor power OFF, real experts0, physical scene/skill OPEN|
+|E04-TRAIN · native6 Dataset/ACT+DP/resume/models|YES|PASS|DEPLOYED|DEPLOYED|N/A|OPEN|[Actual learning UI](../_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json)|Approved generated cohort→actual UI ACT8/DP8/queue retained-process pause/reload/DEV/model versions; exact new-PID отдельный R7 proof. Math workers on HB, source adapter on Pi; current real experts/physical skill OPEN|
+|E04-REPLAY · reload/offline/live shadow/observed trial|YES|PASS|DEPLOYED|DEPLOYED|N/A|OPEN|[Current learning/model UI](../_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json)|Current generated models/reload/DEV/offline shadow +COMMON observed source transport qualified; actual real model/physical trial OPEN, motor power OFF|
 |E05-HANDOVER · manual/manual FSM, два робота|PARTIAL|PARTIAL|PARTIAL|PARTIAL|PARTIAL|OPEN|[Receiver interlocks](../05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md)|Opening→independent transfer→finish/park+data path/UI/release, real shared zone|
 |E05-LEARNING · two-clock capture/train/reload/shadow|PARTIAL|PARTIAL|PARTIAL|PARTIAL|PARTIAL|OPEN|[Queued native shadows](../05-cooperative-handover/docs/QUEUED_NATIVE_SHADOW_RU.md)|Whole approved dual data pipeline; FSM не learned skill|
 |E06-TRANSFER · distinct-domain source→target/adapt|PARTIAL|PARTIAL|PARTIAL|PARTIAL|PARTIAL|OPEN|[Negative full-task0/16](../research/audits/TARGET_TEMPORAL_C_V2_RESULTS_RU.md)|Approved04 source, registration/UI/5-10-25 target comparisons, full release|
