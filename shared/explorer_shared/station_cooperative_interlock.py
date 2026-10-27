@@ -73,6 +73,7 @@ class StationCooperativeInterlock:
         self.capture_root=self.path.parent/'cooperative-direction-captures';self.captures={};self.capture_errors={}
         self.helper=self._new_helper();self.last_transaction=None
         self.phase_prepared=None;self.phase_start_context=None
+        self.held_scope_http=False
         try:
             if self.path.parent.resolve()!=Path(self.station.root).resolve() or self.path.is_symlink():
                 raise ValueError('Fixed original Station state directory required')
@@ -260,7 +261,11 @@ class StationCooperativeInterlock:
         result.update(measured_hold_successor_metadata_supported=True,parked_observation_only=(self.helper.frozen or {}).get('parked_observation_only') is True,
             parked_target_writes_allowed=False,parked_is_not_dispatch_authority=True)
         result.update(explicit_native_phase_activation_supported=True,phase_activation_pending=self.phase_prepared is not None)
+        result['parked_observation_scope_http']=self.held_scope_http
         return result
+    def held_scope(self):
+        from .cooperative_held_scopes05 import receiver_held_scope
+        return receiver_held_scope(self)
     def require_start_admission(self,permission,operation):
         """Cached only, called by COMMON under original Station/provider locks."""
         if (self.helper.frozen or {}).get('parked_observation_only') is not True:return

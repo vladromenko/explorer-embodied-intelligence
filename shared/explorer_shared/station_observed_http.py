@@ -16,6 +16,7 @@ class StationObservedHttp:
         if binding(value)!=self.binding:raise ValueError('Exact pinned native source/model binding required')
     def _post(self,operation,body):return self.request('POST','/station/observed-test/'+operation,body)
     def status(self):return self.request('GET','/station/observed-test/status',None)
+    def held_scope(self):return self.request('GET','/station/observed-test/cooperative/held/status',None)
     def challenge(self):return self._post('challenge',{'binding':deepcopy(self.binding)})
     def authorize(self,body,*,authenticated_actor):
         allowed=('challenge_id','displayed_jpeg_sha256','expected_control_epoch','observing','robot_workspace_checked','user_observed_test_confirmed')

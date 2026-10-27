@@ -819,6 +819,8 @@ class NodeAgent:
 
 
 def make_handler(agent):
+    interlock=getattr(getattr(agent,'station_observed',None),'cooperative_interlock',None)
+    if interlock is not None and callable(getattr(interlock,'held_scope',None)):interlock.held_scope_http=True
     class Handler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
@@ -973,6 +975,11 @@ def make_handler(agent):
                     interlock=getattr(agent.station_observed,'cooperative_interlock',None)
                     if interlock is None:raise ValueError('Original receiver publication interlock unavailable')
                     self._json(200,interlock.status())
+                elif path=='/station/observed-test/cooperative/held/status' and getattr(agent,'station_observed',None) is not None:
+                    if urlsplit(self.path).query:raise ValueError('Fixed parked observation scope takes no query parameters')
+                    interlock=getattr(agent.station_observed,'cooperative_interlock',None)
+                    if interlock is None:raise ValueError('Original receiver publication interlock unavailable')
+                    self._json(200,interlock.held_scope())
                 elif len(parts)==5 and parts[:3]==['station','observed-test','challenges'] and parts[4]=='frame' and getattr(agent,'station_observed',None) is not None:
                     if urlsplit(self.path).query:raise ValueError('Pinned observed Pi JPEG takes no query parameters')
                     raw,metadata=agent.station_observed.frame(parts[3]);self.send_response(200)

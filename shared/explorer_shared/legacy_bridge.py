@@ -15,6 +15,7 @@ GET_PATHS = {'status', 'teleop', 'teleop/controls', 'arm/manual', 'arm/feedback'
 GET_PATHS |= {'explorer/retarget/status', 'explorer/retarget/reference', 'explorer/retarget/dispatch'}
 GET_PATHS |= {'explorer/retarget/activation/status','explorer/retarget/activation/challenge'}
 GET_PATHS |= {'explorer/cooperative/status','explorer/cooperative/observation'}
+GET_PATHS |= {'explorer/cooperative/phase/held-status'}
 POST_PATHS = {'control', 'teleop/select', 'teleop/mode', 'teleop/speed', 'teleop/input',
     'teleop/stop', 'teleop/resume', 'teleop/disconnect', 'teaching/mobile/start',
     'teaching/mobile/lease', 'teaching/mobile/finish', 'teaching/mobile/stage', 'arm/jog', 'arm/finite',

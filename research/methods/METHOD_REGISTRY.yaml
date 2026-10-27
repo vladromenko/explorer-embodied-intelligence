@@ -5565,6 +5565,45 @@
         "tests/test_cooperative_api.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SOURCE-PARKED-OBSERVATION-SCOPES-20261027",
+      "function_or_module": "shared/explorer_shared/cooperative_held_scopes05.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/giver_phase_lifecycle05.py",
+          "role": "Original parked command-estimate lineage and native owner identity"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/station_cooperative_interlock.py",
+          "role": "Sealed source-owned measured hold and COMMON grant continuity"
+        },
+        {
+          "url": "project-file:05-cooperative-handover/docs/PARKED_OBSERVATION_SCOPES_RU.md",
+          "role": "Typed read-only observation context and source lock/clock boundaries"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_WEIGHTS_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Expose source-owned parked contexts using only existing original reference/camera/Tap/measured/WAL caches, then exact source CAS checks. Preserve new real BEGIN base0 receipt while forbidding arm/q9 drift. Keep every motion, stationarity, grasp and attainment claim false; no grant or lease renewal and no original Station/controller edits.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_cooperative_held_scopes05.py",
+        "tests/test_native_owner_mount.py",
+        "tests/test_native_web_startup_qualification.py",
+        "tests/test_station_cooperative_http.py",
+        "tests/test_station_observed_http.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

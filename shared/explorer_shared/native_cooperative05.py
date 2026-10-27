@@ -373,8 +373,9 @@ class NativeReceiverHoldBoundary:
 
 
 class NativeCooperativeOwner:
-    def __init__(self,mux,activation,reference_reader,*,target_limits,state_path=None):
+    def __init__(self,mux,activation,reference_reader,*,target_limits,state_path=None,scope_reference_reader=None):
         self.mux,self.activation,self.reference=mux,activation,reference_reader
+        self.scope_reference=scope_reference_reader or reference_reader
         self.limits=target_limits;self.guard=NativeReceiverHoldBoundary(mux,activation,state_path=state_path);self.policy=None;self.action_constraint=None
         self.frames=OrderedDict();self.frame_lock=threading.Lock()
         self.original_publisher=mux.arm.pub
@@ -383,6 +384,8 @@ class NativeCooperativeOwner:
         self.phases=GiverPhaseLifecycle(self)
         from .giver_parked_release05 import GiverParkedRelease
         self.parked_release=GiverParkedRelease(self)
+        from .cooperative_held_scopes05 import GiverParkedObservationScope
+        self.held_scope=GiverParkedObservationScope(self)
     def park(self,body,*,authenticated_actor=None):return self.phases.park(body,authenticated_actor=authenticated_actor)
     def adopt_parked(self,body,*,authenticated_actor=None):return self.phases.adopt(body,authenticated_actor=authenticated_actor)
     def begin_parked(self,body,*,authenticated_actor=None):return self.phases.begin(body,authenticated_actor=authenticated_actor)
@@ -583,7 +586,8 @@ class NativeCooperativeOwner:
                 'raw_policy9_projection_provenance_required_when_registered':True,
                 'explicit_user_prepare':True,'explicit_user_manual_resume':True,'scoped_manual_stop':True,
                 'explicit_user_giver_phase_http':self.phases.http_mounted,
-                'explicit_user_parked_release_http':self.parked_release.http_mounted},
+                'explicit_user_parked_release_http':self.parked_release.http_mounted,
+                'parked_observation_scope_http':self.held_scope.http_mounted},
             'release_boundary':self.guard.status(),'native':self.mux.status(),'same_original_stream_worker':True,
             'phase_lifecycle':self.phases.status(),
             'controller_settings_written':False,'native_dispatch_proof':'read actual correlated dispatch ring',
@@ -613,6 +617,9 @@ def mount_native_cooperative_api(app,owner,*,authenticate,allowed,operation,acti
     prefix='/api/explorer/cooperative/'
     @app.get(prefix+'status')
     def status(request:Request):authenticate(request);return owner.status()
+    @app.get(prefix+'phase/held-status')
+    def held_status(request:Request):authenticate(request);return operation(owner.held_scope.snapshot)
+    owner.held_scope.http_mounted=True
     @app.get(prefix+'observation')
     def observation(request:Request):authenticate(request);return operation(owner.observation)
     @app.get(prefix+'observations/{observation_id}/frame')

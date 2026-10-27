@@ -120,6 +120,10 @@ def test_blocked_publication_requires_new_same_boot_original_observed_home_recei
     current['at']=21.;path.write_text(json.dumps({**original,'at':20.,'ends_monotonic':14.}))
     with pytest.raises(ValueError,match='New user-observed original reference'):mounted['reference_reader']()
     path.write_text(json.dumps({**original,'at':20.,'ends_monotonic':20.}))
+    saved_fault=deepcopy(guard.reference_fault)
+    with pytest.raises(ValueError,match='Read-only parked scope cannot clear'):
+        mounted['cooperative'].scope_reference()
+    assert guard.reference_fault==saved_fault
     assert mounted['reference_reader']()['servo_deg']==[90]*6 and guard.reference_fault is None
     assert arm.pub.original.messages==[] and not arm.calls and not teleop.native_drive
 

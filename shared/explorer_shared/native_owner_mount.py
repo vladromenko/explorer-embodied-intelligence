@@ -93,7 +93,7 @@ def mount_factory_owner(app,root,manual_arm,teleop,token,*,clock_domain,observed
     mux.on_invalidate=activation.revoke
     mux.chassis_permit=activation.base_allowed
 
-    def guarded_reference():
+    def guarded_reference(*,clear_cooperative_fault=True):
         current=manual_arm.reference(read_status_check())
         # Preserve the real native startup/reference identity across streamed
         # state updates. Never accept/erase a later telemetry fault ourselves.
@@ -108,6 +108,7 @@ def mount_factory_owner(app,root,manual_arm,teleop,token,*,clock_domain,observed
             raise ValueError('New observed factory reference required after native telemetry fault')
         source_sha=hashlib.sha256(raw).hexdigest()
         if cooperative is not None and cooperative.guard.reference_fault is not None:
+            if not clear_cooperative_fault:raise ValueError('Read-only parked scope cannot clear an original cooperative reference fault')
             fault=cooperative.guard.reference_fault;ended=original.get('ends_monotonic')
             if (source_sha==fault.get('original_reference_sha256') or type(ended) not in (int,float) or
                     not math.isfinite(ended) or ended*1e9<=fault['invalidated_native_ns']):
@@ -125,6 +126,7 @@ def mount_factory_owner(app,root,manual_arm,teleop,token,*,clock_domain,observed
     if callable(getattr(getattr(manual_arm,'pub',None),'publish',None)) and limits is not None:
         from .native_cooperative05 import NativeCooperativeOwner,ExistingBaseDriveBoundary
         cooperative=NativeCooperativeOwner(mux,activation,guarded_reference,target_limits=limits,
+                    scope_reference_reader=lambda:guarded_reference(clear_cooperative_fault=False),
             state_path=root/'data'/'explorer-cooperative-giver-hold.json')
         def invalidate(reason):
             result=activation.revoke(reason);cooperative.guard.revoke(reason);return result
