@@ -1,0 +1,31 @@
+{
+  "schema": "explorer_source04_current_pi_cold_guard_smoke_v1",
+  "scope": "EXACT_CURRENT_NODE_SOURCE_ONLY_AND_FROZEN_STATION_FAKE_IO_ON_PI",
+  "source_commit": "cad792860cefbd362cb8a205c488c735b85017f8",
+  "python": "3.13.5 (main, Aug 10 2026, 12:06:59) [GCC 14.2.0]",
+  "raw_result": "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-cold-cad7928/result.json",
+  "raw_result_sha256": "b4ed8846a8484d11978c7364dd783df4f5f3450e5054abf2e9b90b406cdf4c71",
+  "harness": "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/new-cold-smoke.py",
+  "harness_sha256": "ae514ce5e39050a6cae7dbf7979d7f75226048f3eb792af6d868fd4be3d3baa1",
+  "original_station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+  "startup_guard": {
+    "schema": "explorer_source04_cold_publication_admission_v1",
+    "disarmed_until_observed_start": true,
+    "blocked_write_attempts": 1,
+    "forwarded_write_calls": 0,
+    "guarded_bus_roles": [
+      "follower",
+      "leader"
+    ],
+    "original_bus_owners_preserved": true,
+    "controller_configuration_written": false
+  },
+  "all_owned_station_threads_exited": true,
+  "original_bus_count": 2,
+  "new_camera_owners": 0,
+  "actual_robot_commands": 0,
+  "actual_native_grants": 0,
+  "controller_configuration_changes": 0,
+  "deployed": false,
+  "physical_acceptance": false
+}

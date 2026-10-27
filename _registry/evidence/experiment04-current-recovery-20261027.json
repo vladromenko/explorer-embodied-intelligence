@@ -1,0 +1,192 @@
+{
+  "schema": "explorer_current_release_recovery_and_payload_backup_v1",
+  "source_commit": "cad792860cefbd362cb8a205c488c735b85017f8",
+  "recovery": {
+    "created_unix_s": 1793131569.7564685,
+    "limitations": [
+      "No host/Pi/Nano reboot",
+      "No physical Wi-Fi disconnect or production network changes",
+      "No original controller writes or robot commands",
+      "Gateway epoch check uses an explicitly non-physical executor fixture",
+      "OOM qualification, when requested, is limited to a new own constrained user cgroup; it does not test production learner OOM recovery"
+    ],
+    "oom": {
+      "host_pressure_attempted": false,
+      "status": "NOT_REQUESTED"
+    },
+    "outbox": {
+      "HTTP_requests": [
+        {
+          "event_id": "80db4e7d-18e8-4e3e-87d2-f872a98b0c53",
+          "inserted": true
+        },
+        {
+          "event_id": "80db4e7d-18e8-4e3e-87d2-f872a98b0c53",
+          "inserted": false
+        },
+        {
+          "event_id": "00807dcf-d33d-4909-989a-475ce040c838",
+          "inserted": true
+        },
+        {
+          "event_id": "15ae2656-1668-4f9f-b01a-8dfead4a5b2b",
+          "inserted": true
+        }
+      ],
+      "acknowledged_events": 3,
+      "actual_first_outage_error_type": "URLError",
+      "central_unique_events": 3,
+      "conflicting_outbox_identity_rejected": true,
+      "event_ids": [
+        "80db4e7d-18e8-4e3e-87d2-f872a98b0c53",
+        "00807dcf-d33d-4909-989a-475ce040c838",
+        "15ae2656-1668-4f9f-b01a-8dfead4a5b2b"
+      ],
+      "immutable_event_bodies_preserved": true,
+      "loopback_port": 53123,
+      "outbox_integrity": "ok",
+      "passed": true,
+      "physical_WiFi_interrupted": false,
+      "preserved_pending_after_durable_ingest_without_ACK": 3,
+      "preserved_pending_after_outage_and_SIGKILL": 3,
+      "processes_SIGKILLed": [
+        2611184,
+        2611188,
+        2611191
+      ],
+      "receiver_integrity": "ok",
+      "scope": "actual EventDelivery processes and loopback HTTP outage/lost ACK/reconnect"
+    },
+    "ownership_epochs": {
+      "cancelled_owner_epoch": "99a114deac7a4f0ba9e48fcfb0b06a0c",
+      "original_executor_calls_after_restart": [],
+      "passed": true,
+      "physical_commands_dispatched": 0,
+      "physical_controller_reset_or_reboot_tested": false,
+      "restarted_epoch": "c812a77f5f6d49c5b0de62b138291115",
+      "scope": "actual NanoArmGateway epoch validation in two separate processes with a non-physical executor fixture",
+      "stale_action_and_lease_rejected_before_and_after_process_restart": true
+    },
+    "passed": true,
+    "qualifier_sha256": "c87f241ff4c5586f2de787873170519bee8877fde581fe4f0f030691ff27c57a",
+    "scheduler": {
+      "conflicting_finalization_rejected": true,
+      "current_release_after_restart": "cad792860cefbd362cb8a205c488c735b85017f8",
+      "database_integrity": "ok",
+      "execution_commit": "467a02e6bb4f52b72cd4764b5035ade89c9fb4f0",
+      "final_status": "completed",
+      "first_worker_bootstrap_admitted": false,
+      "first_worker_bootstrap_entered_before_crash": false,
+      "first_worker_durable_phase": "starting",
+      "first_worker_test_owned_exec_gate": true,
+      "job_id": "66a12ef216194c08ba11a5ce3370496d",
+      "kernel_or_device_reboot_tested": false,
+      "killed_isolated_supervisor_pid": 2611178,
+      "killed_isolated_worker_pid": 2611179,
+      "passed": true,
+      "physical_execution": false,
+      "restarted_worker_uses_original_bootstrap": true,
+      "scope": "actual isolated supervisor SIGKILL before worker bootstrap and non-physical handover_test recovery",
+      "single_completion_event": 1,
+      "source_commit_after_restart": "467a02e6bb4f52b72cd4764b5035ade89c9fb4f0",
+      "source_commit_before_crash": "467a02e6bb4f52b72cd4764b5035ade89c9fb4f0",
+      "status_at_crash": "running",
+      "test_owned_gate_sha256": "d4303f857771324009ebcc7083c15fc90ef465ffa75aebd655bcb1796ccbb0c9",
+      "worker_module_path_before_crash": "/mnt/explorer-data/explorer-work/04-release-recovery-20261027-cad7928/releases/467a02e6bb4f52b72cd4764b5035ade89c9fb4f0/00-control-center/src:/mnt/explorer-data/explorer-work/04-release-recovery-20261027-cad7928/releases/467a02e6bb4f52b72cd4764b5035ade89c9fb4f0/shared"
+    },
+    "schema": "explorer_isolated_recovery_qualification_v1",
+    "source_commits": [
+      "467a02e6bb4f52b72cd4764b5035ade89c9fb4f0",
+      "cad792860cefbd362cb8a205c488c735b85017f8"
+    ],
+    "source_repository": "/home/jetsonnx/work/Explorer",
+    "source_sha256": {
+      "00-control-center/src/explorer/job_runner.py": "07dc847a474b0daeac3cdc40bb76996efbeab7c8c93a486233f0bb83af994149",
+      "00-control-center/src/explorer/scheduler.py": "8f219f6257e3c967443e682801a1afb9674cd7135d43637788407007100901d3",
+      "00-control-center/src/explorer/store.py": "2db93ad6432d8e1d16f3c75d7354dc4e3eea7f9b412312c7c0e4c7a14e2e8813",
+      "shared/explorer_shared/node_agent.py": "ba967eca2209acad949506e6de69c827e28bce40b9ceb8a3ec2948925b0217c8",
+      "shared/explorer_shared/outbox.py": "4028a16450734f6595766a6a5dff05bb76a0b9e52d1f3523d3d2a19a9ca9a3fb",
+      "shared/explorer_shared/pi_nano_route.py": "1c02a3bbb58f755eb8373c93225570f57c9b1223cf399e228ef98390e44a6b57"
+    }
+  },
+  "raw_recovery_result": "/mnt/explorer-data/explorer-work/04-release-recovery-20261027-cad7928/result.json",
+  "raw_recovery_sha256": "d5dc0d153968cb841b86a9069d3c10d8975dc596ee352bf3ab22c12c3dc86105",
+  "recovery_contracts": {
+    "passed": 2,
+    "seconds": 2.19,
+    "log_sha256": "20fd34eff6b72bc399e1caf389dce61f6824b9424efe17f7f8e974c8683e0d55"
+  },
+  "actual_payload_backup": {
+    "all_restored_file_sha256_verified": true,
+    "artifact_payloads_included": true,
+    "backup_directory": "/mnt/explorer-data/explorer-backups/full-20261027-467a02e",
+    "completed": true,
+    "manifest_sha256": "45aded44c5e6d78a4c4ae48b24832f6ea31902726ce17b539186c61de815449f",
+    "payload_bytes": 8563858810,
+    "payload_file_count": 11981,
+    "references": {
+      "arbitrary_model_deserialization_executed": false,
+      "checkpoint_digest_groups_without_file_locator": 6,
+      "detached_qualification_relative_digest_entries_without_locator": 118,
+      "generated_qualification_test_documents_preserved_without_runtime_admission": 3613,
+      "known_dataset_manifests_checked": 7,
+      "local_hashed_references_checked": 894,
+      "original_absolute_provenance_paths_retained": 6,
+      "preserved_source_snapshot_documents_not_reinterpreted_as_runtime_artifacts": 702,
+      "source_relative_digests_requiring_their_original_or_aggregate_locator": 148,
+      "unparsed_or_large_json_files": 0
+    },
+    "schema": "explorer_full_payload_backup_v1",
+    "source_writes_performed": false,
+    "stage": "completed",
+    "store": {
+      "counts": {
+        "events": 17078,
+        "jobs": 25,
+        "nodes": 2,
+        "sessions": 56,
+        "skills": 11,
+        "tickets": 0
+      },
+      "integrity": "ok",
+      "store_opened": true
+    },
+    "test_restore_passed": true,
+    "total_bytes": 8623167002,
+    "total_regular_files": 11990
+  },
+  "backup_manifest_sha256": "45aded44c5e6d78a4c4ae48b24832f6ea31902726ce17b539186c61de815449f",
+  "backup_source_window": {
+    "all_jobs_terminal_and_unchanged": true,
+    "atomic_filesystem_snapshot": false,
+    "cross_host_atomic": false,
+    "end_unix": 1793131566.4765506,
+    "events_may_arrive": true,
+    "jobs": {
+      "count": 25,
+      "sha256": "64e01cefacfb561d4d1d2325d7a1338cc9f724d83aa8d95ce9a36f24aafebf35",
+      "statuses": {
+        "completed": 24,
+        "failed": 1
+      }
+    },
+    "metadata_snapshot_at": 1793131450.8982937,
+    "source_files_rehashed": true,
+    "start_unix": 1793131449.2509935
+  },
+  "limits": [
+    "Backup is on the same SSD; no disk-loss protection",
+    "Selected six local payload trees plus metadata/private configs/calibration only; remote node files/source/venv/OS require separate copies",
+    "OOM test not repeated; original bounded64MiB test preserved",
+    "No host reboot or production Wi-Fi interruption"
+  ],
+  "negative_originals_retained": {
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/current-recovery-launch.log": "1df368aaddfa2a1d65517e109e18014a9e5d1c993abaee1c8453347a900cfdb3",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/current-recovery-launch-b.log": "77235a3c49f9268537b6464704154cad99aa73f5ded774e34ec6c972ba9cb6b2",
+    "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/current-full-release-launch.log": "4c611e9b918f8923f5563da83c6dba8c433ccf0b0144e851f4f974e1a29464bc"
+  },
+  "negative_interpretation": "First recovery launcher used a relative script path; second exposed obsolete job_runner process matcher/ZombieProcess. Fixed qualifier uses a disclosed test-owned prebootstrap exec gate. Early full467 was deliberately interrupted after this discovery, not PASS.",
+  "actual_robot_commands": 0,
+  "controller_configuration_changes": 0,
+  "production_state_restored": false
+}

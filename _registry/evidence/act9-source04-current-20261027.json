@@ -1,0 +1,65 @@
+{
+  "schema": "explorer_profile4_cuda_actual_evidence_index_v1",
+  "source_commit": "cad792860cefbd362cb8a205c488c735b85017f8",
+  "scope": "Current16-source ACT9 CUDA64/b2/c4 FP32 implementation, scripted CAD fixture; no physical/full-task claim",
+  "archives": {
+    "ACT9_SOURCE04_CUDA_20261027_QUALIFICATION.json": "5bc0c87847f8364fee12f3c466780101468451dda4347cdf31313de7c1a55c37",
+    "ACT9_SOURCE04_CUDA_20261027_PREFLIGHT.json": "4804a2f0ea5944f953f5eab615967e4e3d5934cec976132053368bec6ae2ed26",
+    "ACT9_SOURCE04_CUDA_20261027_RESULT.json": "99d93a1b35a32550bd4709df51b09ac70d2f0538b87a1b1e3155fce9111734b4",
+    "ACT9_SOURCE04_CUDA_20261027_BINDING.json": "08b212a43a8c12ff8ac7265d9d04800a62463c7dacff40c292000ba7dd4f6bb1",
+    "ACT9_SOURCE04_CUDA_20261027_RESUME_QUALIFICATION.json": "0daf2938688141ea606e6523b38ddb4dc9a15eab3126c3bab89aa67ecbf3a686",
+    "ACT9_SOURCE04_CUDA_20261027_RESUME_PREFLIGHT.json": "a6d103c9068366e684ba33c94e1914b743c66c7243dac4215e9c8167649b1d99",
+    "ACT9_SOURCE04_CUDA_20261027_RESUME_RUNTIME.json": "f9abea60ffbe2d33f0009b1db5a2f862ec40a3c16dc631eb3f3d0635ba184707"
+  },
+  "actual_optimizer_tests_passed": 13,
+  "actual_process_resume_tests_passed": 1,
+  "optimizer_updates": 8,
+  "actual_optimizer_updates_including_resume_reference_and_continuation": 24,
+  "production_profile_source_qualified": true,
+  "production_binding_published": false,
+  "exact_model_optimizer_losses_all_RNG_sampler_equal": true,
+  "pipeline_graph_version": 4,
+  "qualified_tensor_profile": {
+    "action_dimension": 9,
+    "batch_size": 2,
+    "chunk_size": 4,
+    "cuda_execution_profile": "act9_cuda64_b2_c4_fp32_deterministic_v1",
+    "device": "cuda",
+    "image_size": 64,
+    "precision": "float32",
+    "runtime_constraints": {
+      "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+      "NVIDIA_TF32_OVERRIDE": "0",
+      "TORCH_ALLOW_TF32_CUBLAS_OVERRIDE": "0",
+      "cuda_matmul_tf32": false,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": true,
+      "cudnn_tf32": false,
+      "deterministic_algorithms": true,
+      "deterministic_warn_only": false,
+      "matmul_precision": "highest"
+    },
+    "state_dimension": 9
+  },
+  "resumed_from_step": 4,
+  "updates_in_new_process": 4,
+  "independent_development_successes": 0,
+  "independent_development_trials": 1,
+  "physical_skill_qualified": false,
+  "previous_original_proof": {
+    "path": "_registry/evidence/act9-profile4-current-20261026.json",
+    "sha256": "aee86530c8b323d1c0929d01ea8f1065d51070ea7931ebef3d507887d161ece1",
+    "archives": {
+      "ACT9_PROFILE4_CUDA_20261026_BINDING.json": "f57b8c17858b45e3b2af002338b6184cf0af3d1028846fdcaff2d6bebb3ace8c",
+      "ACT9_PROFILE4_CUDA_20261026_PREFLIGHT.json": "b620f00709cf219117fe62bea890e9756276f147b0a29701d0035cf3141073a0",
+      "ACT9_PROFILE4_CUDA_20261026_QUALIFICATION.json": "8e71a1d07471c26a12ced0f830ad085eeb35cbcad9b334db2c062f74630acf71",
+      "ACT9_PROFILE4_CUDA_20261026_RESULT.json": "f541a4262b4533f31617939eaa5a40067315f971c5dbef1e9dc6b2624e268c72",
+      "ACT9_PROFILE4_CUDA_20261026_RESUME_PREFLIGHT.json": "b37eea91d14e59c1b30d407225cc6bc445b27f96e374876978524456b264d023",
+      "ACT9_PROFILE4_CUDA_20261026_RESUME_QUALIFICATION.json": "9d456257fb9e230507dcc8c1cb998415428616359ae52559b38f8fe55d07bdad",
+      "ACT9_PROFILE4_CUDA_20261026_RESUME_RUNTIME.json": "98bb7ee9f258aaa7ecf264ae62bc27612402d0b7f05b960333081d327e75b089"
+    }
+  },
+  "private_training": "/mnt/explorer-data/explorer-work/04-release-ACT9-CUDA-20261027-cad7928",
+  "private_resume": "/mnt/explorer-data/explorer-work/04-release-ACT9-CUDA-resume-20261027-cad7928",
+  "no_new_01_tuning": true
+}

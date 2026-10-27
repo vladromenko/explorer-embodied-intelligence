@@ -1,0 +1,67 @@
+{
+  "source_commit": "cad792860cefbd362cb8a205c488c735b85017f8",
+  "pipeline_source_sha256": {
+    "01-autonomous-learning/src/explorer_sim/manipulation_student.py": "9e0e148989c4ad658fc6ea10af9f3ee7a90a604a8ad079543303f11f11e425a1",
+    "01-autonomous-learning/src/explorer_sim/manipulation.py": "4b3929dc4dfb474682daf8e8ac2956bcd772eaaace103cbf53866f60876b08c0",
+    "01-autonomous-learning/src/explorer_sim/manipulation_env.py": "a0bf6c275002d6a9ce457d1e38cbbc188b8edd13cfe1adbfa3026d533c8ffe8a",
+    "01-autonomous-learning/src/explorer_sim/recorded_training.py": "15192ca27cabad4321cf500fd0cb22d0e935b4fe12d269c19e7ed551202c9cdc",
+    "01-autonomous-learning/src/explorer_sim/student.py": "a5ab57b876c147a9165b48e8da41e5b7fb140e971b6c2bfd620f18a2630aab95",
+    "01-autonomous-learning/src/legacy/simulator/explorer_model.py": "2c46df3f6a81a2395132cd89bc702737c088171b83d3e05bb7eb63f5b4657d87",
+    "01-autonomous-learning/src/legacy/simulator/environment.py": "6665a148d854eb3f9d48fcd2b1a68eca7057ea804871b9080a1dbd7df547a9fe",
+    "01-autonomous-learning/src/legacy/simulator/model_config.json": "4ba8966fbea5837c300145e1c57fa05a817d2240ffa67ee0e786b14eada56e48",
+    "01-autonomous-learning/src/legacy/config/explorer.urdf": "9ee94f15a2473ba04c84c552bae47f7dd2bd734b8b3700f3fe25d752c3eace4b",
+    "01-autonomous-learning/src/legacy/config/arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+    "shared/explorer_shared/learning/act_backend.py": "4bad89f03289705570aa7e4a2c2eeea571a319e2e7dcc7a8f4bd6df96b049137",
+    "shared/explorer_shared/learning/artifacts.py": "c218abfc061878c85fdc7651df1de95beb2727d2afc4de193ba4b6d284d8d626",
+    "01-autonomous-learning/src/explorer_sim/pilot.py": "45712fd7df9fc3cd27af82e0e12ed1a4d8bcb110c6b920efb718da97989cdcf0",
+    "01-autonomous-learning/src/explorer_sim/dataset_export.py": "3fdbc2c808c1af937c5e5be5cc55a1661421219f2d4df44c9825a98579e464d4",
+    "shared/explorer_shared/learning/checkpoint_control.py": "4f62174e05516718299024be500677fb17948591830153fcc811f40d77959380",
+    "shared/explorer_shared/learning/runtime_profiles.py": "9cf18d5a9855cb7ea6d47acc3bd93f85cf1a2f0b7f32d4c3c3c0572cd17a7fa9"
+  },
+  "runtime_identity": {
+    "executable": "/home/jetsonnx/.local/share/explorer/gpu-venv/bin/python",
+    "resolved_executable_sha256": "c86f21d0da9290ece2d7d49a3f7ed52aed59cb029abdf0ea25c79634f6cbe960",
+    "pyvenv_config_sha256": "a73be1cf81b940cadbbbc20476d9ae1dc76adf9d566bd677c5ae36ee5f2cee65",
+    "distribution_records": {
+      "numpy": {
+        "version": "2.2.6",
+        "metadata_sha256": "77c8e31c559eae4dfab00dee334c3a57ec23d0b7cf7249472bf35648eddca83b",
+        "record_sha256": "6a0977e5fe6602d9587a26ff4756e4eba7aa2a27ad15975b69426c0d116a1b62",
+        "metadata_path": "/home/jetsonnx/.local/share/explorer/gpu-venv/lib/python3.12/site-packages/numpy-2.2.6.dist-info/METADATA"
+      },
+      "torchvision": {
+        "version": "0.27.0+cu132",
+        "metadata_sha256": "e6f676f6ead16b39ba31010fd06039b08696f01d914dfe9e4556f81cc5795f8d",
+        "record_sha256": "de815b20015b0ea7527c1609dc572a4f9c2c0f26901b0b23cc0132a915e3779f",
+        "metadata_path": "/home/jetsonnx/.local/share/explorer/gpu-venv/lib/python3.12/site-packages/torchvision-0.27.0+cu132.dist-info/METADATA"
+      },
+      "torch": {
+        "version": "2.12.0+cu132",
+        "metadata_sha256": "af7a5dc07d0de15f17459c9be4fe571f6b0568c2dd3470e8f930f84fa553e91b",
+        "record_sha256": "07d12c5d9ab64c5fc8ad71c5191345bd319e1bfb7162608c2eaf53b44a6450cb",
+        "metadata_path": "/home/jetsonnx/.local/share/explorer/gpu-venv/lib/python3.12/site-packages/torch-2.12.0+cu132.dist-info/METADATA"
+      },
+      "mujoco": {
+        "version": "3.17.0",
+        "metadata_sha256": "59c0628b1c219551fd19692987f988f93f076bfd30f43f048b7e0040797a0bf9",
+        "record_sha256": "96f312ea0246e765f4f4bd89d9ebd5956386f4212555e2fdb4e55e9a9aa843af",
+        "metadata_path": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages/mujoco-3.17.0.dist-info/METADATA"
+      },
+      "lerobot": {
+        "version": "0.6.1",
+        "metadata_sha256": "0269a6ad5649134835ee3a247d901e125501fb067ce407d76048612f538d6105",
+        "record_sha256": "2197e427eb677540e6cadab89f7e36803690e4be9209cc822ad0e83a637a7b17",
+        "metadata_path": "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages/lerobot-0.6.1.dist-info/METADATA"
+      }
+    },
+    "site_path_files_sha256": {
+      "/home/jetsonnx/.local/share/explorer/gpu-venv/lib/python3.12/site-packages/distutils-precedence.pth": "2638ce9e2500e572a5e0de7faed6661eb569d1b696fcba07b0dd223da5f5d224",
+      "/home/jetsonnx/.local/share/explorer/gpu-venv/lib/python3.12/site-packages/explorer_shared_dependencies.pth": "f6706be165230014876fc1b3cd3329303f05c63bef75e60056e2e6a007c36756"
+    },
+    "distribution_resolution": "qualified_interpreter_importlib_metadata",
+    "OS_and_GPU_driver_fully_hashed": false
+  },
+  "manifest": "/mnt/explorer-data/explorer-work/04-release-ACT9-CUDA-20261027-cad7928/result/pytest/test_actual_official_act_full_0/jobs/visual-cycle/dataset/manifest.json",
+  "manifest_sha256": "f75f3cbdbbb2e8ab232cce3217d41ef65b8ea473e7b2c8e62317a5a7efbe7b8d",
+  "physical_IO": false
+}

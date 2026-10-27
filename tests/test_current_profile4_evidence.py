@@ -15,11 +15,16 @@ def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def test_actual_current_production_profile_has_first_start_and_exact_GPU_new_process_receipts():
-    index=json.loads((ROOT/'_registry/evidence/act9-profile4-current-20261026.json').read_text())
+    index=json.loads((ROOT/'_registry/evidence/act9-source04-current-20261027.json').read_text())
     for name,expected in index['archives'].items():assert Path(name).name==name and sha(PROOFS/name)==expected
-    qualification=read('ACT9_PROFILE4_CUDA_20261026_QUALIFICATION.json')
-    result=read('ACT9_PROFILE4_CUDA_20261026_RESULT.json')
-    resume=read('ACT9_PROFILE4_CUDA_20261026_RESUME_QUALIFICATION.json')
+    qualification=read('ACT9_SOURCE04_CUDA_20261027_QUALIFICATION.json')
+    result=read('ACT9_SOURCE04_CUDA_20261027_RESULT.json')
+    resume=read('ACT9_SOURCE04_CUDA_20261027_RESUME_QUALIFICATION.json')
+    runtime=read('ACT9_SOURCE04_CUDA_20261027_RESUME_RUNTIME.json')
+    assert runtime['pipeline_source_sha256']==qualification['pipeline_source_sha256']
+    assert runtime['pytest_exit_code']==0 and not runtime['physical_io']
+    prior=index['previous_original_proof'];assert sha(ROOT/prior['path'])==prior['sha256']
+    for name,expected in prior['archives'].items():assert sha(PROOFS/name)==expected
     profile=qualification['qualified_tensor_profile']
     assert qualification['pipeline_graph_version']==4 and set(qualification['pipeline_source_sha256'])==set(PIPELINES['manipulation_student'])
     assert len(qualification['pipeline_source_sha256'])==16

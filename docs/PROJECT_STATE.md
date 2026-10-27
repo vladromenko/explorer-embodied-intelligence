@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
 Updated: `2026-10-27T22:19:51+03:00`
-Code commit: `34c5f1053e95b4ecf0bef311f1fdb627ad7aa5da`
+Code commit: `cad792860cefbd362cb8a205c488c735b85017f8`
 Current task: `E04-FIRST-UPGRADE`
 Next tasks: `E04-FIRST-UPGRADE`, `E04-RELEASE`, `E03-SOFTWARE-DEPLOY`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -102,9 +102,36 @@ actual HTTPS Firefox desktop/mobile, passiveROS20s0, source/reference/PIDs/6conf
   На Pi stdlib fake, затем12 exactold4c cases: idle/partialHTTP freeze→kill
   с0fake writes PASS; active/raw/inflight rejected, missing field FAIL_UNKNOWN.
   Но detach после unknown+expired fake serial deadline воспроизвёл1hold из idle.
-  Безопасный abort НЕ доказан: actual observer43382 не затрагивать. Запрошено
-  физически проверяемое состояние питания для отдельного первого upgrade;
-  release/recovery preparation продолжается. [Proof](../04-so101-source-learning/docs/FIRST_UPGRADE_ALLSTOP_20261027_RU.md).
+  Безопасный abort НЕ доказан: actual observer43382 не трогали. USER затем
+  явно подтвердил отключённое силовое питание ОБЕИХ SO101 рук. Это условие
+  отдельного первого перехода, не разрешение движения/настройки. После fullPASS
+  допустим guarded own-observer kill без Node.close/STOP и запуск new profile;
+  до завершения перехода питание оставляем OFF. [Proof](../04-so101-source-learning/docs/FIRST_UPGRADE_ALLSTOP_20261027_RU.md).
+  Actual Pi3.13.5 isolated current Node/source-only/frozen Station smoke PASS:
+  localhost status, idle camera-error→1blocked hold/0buswrites, owned threads
+  exited. [Pi proof](../_registry/evidence/experiment04-cold-current-Pi-20261027.json).
+  Actual preupgrade Pi99files62,759,615B +online outbox SQLite backup и исходные
+  configs/calibs/unit сохранены; все members проверены SHA на Homebrain.
+  [Backup](../_registry/evidence/experiment04-Pi-preupgrade-backup-20261027.json).
+- Current02 queueR5 и03 queueR3: actual4updates/reload0/DEV10 каждый; источники
+  pinned80c5eca, current computational bytes сверены,0physicalIO. Strict3PASS.
+  [02](../shared/training/NATIVE02_QUEUED_CPU_R5_20261027_QUALIFICATION.json) ·
+  [03](../03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_R3_20261027.json).
+  Release staging отклонил old16-source GPU proof: dataset_export.py изменён04.
+  Fresh actualACT9 CUDA8 +separate reference8/pause4→exit/newPID4 PASS: current16
+  source pins, model/optimizer/losses/RNG/sampler exact, reload0, DEV0/1 retained.
+  13+1actual tests,24updates total; это release qualification,01 long tuning PARKED.
+  Current8strict metadata checks PASS, прежние proof bytes неизменны.
+  [CUDA proof](../_registry/evidence/act9-source04-current-20261027.json).
+- Current recovery CLI correctedcad7928: obsolete job_runner-only search replaced
+  disclosed TEST-OWNED prebootstrap exec gate. Actual supervisor/worker SIGKILL→
+  same pinned source recovery PASS; outbox3/lostACK/dedup и two-process stale
+  action/lease rejection PASS. HB11981payloadfiles8,563,858,810B copied with actual
+  isolated restore/Store integrity/SHA PASS. Same SSD, source/venv/OS excluded.
+  [Recovery/backup](../_registry/evidence/experiment04-current-recovery-20261027.json).
+  One earlyfull467 deliberately interrupted after qualifier bug discovery;
+  frozen fullcad running. Its old current-GPU SHA test mismatch is being repaired
+  using fresh proof above; no fullPASS/deployment claimed yet.
   PiSSH ключ работает, sudo-n требует пароль. Read-only cold-connect SDK source:
   port open +motor identity/firmware checks; запрет actual grants/STOP сохраняется.
   Проверить возможность доказанного freeze/zero-write termination barrier на
