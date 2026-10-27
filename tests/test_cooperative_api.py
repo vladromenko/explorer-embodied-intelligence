@@ -42,6 +42,10 @@ def test_cooperative_routes_pin_session_scope_actor_and_managed_artifact(tmp_pat
             assert client.post('/api/cooperative/'+operation,json={'session_id':ident,'expected_epoch':'current-fixture','role':'giver','actor_id':'spoofed'},headers=headers).status_code==200
         native_calls=[row for row in calls if row[0]=='POST' and row[1].startswith('native_')]
         assert len(native_calls)==13 and all(row[-1].startswith('authenticated-session:') and row[-1]!='spoofed' for row in native_calls)
+        assert client.post('/api/cooperative/native_parked_release_resume',json={}).status_code==403
+        assert client.post('/api/cooperative/native_parked_release_resume',json={'session_id':ident,'expected_epoch':'current-fixture','actor_id':'spoofed'},headers=headers).status_code==200
+        release_call=next(row for row in calls if row[0]=='POST' and row[1]=='native_parked_release_resume')
+        assert release_call[-1].startswith('authenticated-session:') and release_call[-1]!='spoofed'
         for operation in ('receiver_setup_refresh','receiver_setup_bind_guard','receiver_setup_capture_empty_open',
                           'receiver_setup_capture_empty_closed','receiver_setup_reset_safe','receiver_setup_adopt_hold'):
             assert client.post('/api/cooperative/'+operation,json={'session_id':ident,'expected_epoch':'current-fixture'},headers=headers).status_code==200

@@ -29,3 +29,11 @@ RAM publication требуется после успешного fsync. Ошиб
 
 Это внутренний building block. Полный Root coordinator/API/UI и приёмка05
 остаются открытыми до отдельной сквозной интеграции и проверки.
+
+Подготовлена отдельная UI-команда `native_parked_release_resume`: три новых
+галочки, observing, neutral и отдельное разрешение наблюдаемого возобновления.
+Source/actor/control IDs в body отсутствуют. Все галочки RAM-only и сбрасываются
+при новом bundle/hash/epoch, перезагрузке, скрытии страницы или потере фокуса.
+Поздний ответ не отменяет STOP; автоматического запроса/повтора нет. HTTP allowlist
+подключён, серверная SourceControl orchestration остаётся отдельным незавершённым
+шагом. Обычная metadata confirmation не превращается в resume.

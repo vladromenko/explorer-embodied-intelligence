@@ -1,6 +1,7 @@
 "use strict";
 // ENGINEERING_GLUE: explicit cooperative workflow; no actuator/lease/authorization transport.
 (function (surface) {
+  const releaseEvidence=typeof module!=="undefined" && module.exports ? require("./cooperative-release-evidence.js") : surface;
   const rows = value => Array.isArray(value) ? value : [];
   const copy = value => value == null ? value : JSON.parse(JSON.stringify(value));
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -90,9 +91,11 @@
     const notify = () => {persist();options.onChange?.();};
     function snapshot() { return copy({data,error,busy,busyAction,selectedSkill,selectedSession,draft,stops,lastResult,trainingPlanReceipt,aggregateReceipt}); }
     function current() { return selected(snapshot()); }
+    let releasePins={};
     function adopt(value) {
       if (!value || typeof value !== "object") throw new Error("Сервер не вернул состояние кооперации");
       data = copy(value);
+      releasePins=releaseEvidence.releaseEvidencePins(rows(data.pending_evidence),sessions(data),releasePins,draft);
       if (!selectedSkill && specRows(data).length) selectedSkill = key(specRows(data).at(-1));
       if (selectedSession && !sessions(data).some(row => row.session_id === selectedSession)) selectedSession = "";
       const currentSession = sessions(data).find(row => row.session_id === selectedSession);
@@ -205,9 +208,15 @@
     }
     function confirmEvidence(challengeID) {
       const session = sessionRequired();const pending = rows(data?.pending_evidence).find(row => row.challenge_id === challengeID && row.run_id === session.session_id && row.state === "pending");
-      const proof = draft.evidence[challengeID];if (!pending || proof?.affirmed !== true || proof?.observing !== true) throw new Error("Подтвердите конкретный текущий вопрос, наблюдая предмет и обоих роботов");
+      const proof = draft.evidence[challengeID];if (!pending || pending.kind==="parked_release_bundle" || proof?.affirmed !== true || proof?.observing !== true) throw new Error("Подтвердите конкретный текущий вопрос, наблюдая предмет и обоих роботов");
       return operation("confirm_evidence",{challenge_id:challengeID,affirmed:true,observing:true,note:proof.note || ""});
     }
+    function resumeParkedRelease(identity) {
+      const session=sessionRequired();
+      const body=releaseEvidence.parkedReleaseBody(session,rows(data?.pending_evidence),identity,draft.evidence[identity]);
+      return operation("native_parked_release_resume",body);
+    }
+    function clearEvidence() {draft.evidence={};notify();}
     function review() {
       const session = sessionRequired(true), recording = session.last_recording_id;
       if (!recording || !draft.review.whole_episode_seen) throw new Error("Просмотрите весь завершённый показ перед независимым разбором");
@@ -274,7 +283,7 @@
       if((name!=="receiver_setup_refresh" && !names.includes(name)) || !fields || typeof fields!=="object" || Array.isArray(fields) || Object.keys(fields).some(key=>!(name==="receiver_setup_refresh" ? [] : allowed).includes(key)))throw new Error("Нужен текущий серверный выбор подготовки SO101 без native чисел, адресов или подмены epoch");
       const session=sessionRequired();return operation(name,{...copy(fields),session_id:session.session_id,expected_epoch:session.epoch});
     }
-    return {snapshot,refresh,edit,chooseSkill,chooseSession,propose,confirm,createSession,registerZone,recordStart,recordStage,recordFinish,step,stop,confirmEvidence,review,aggregate,trainingPlan,train,shadow,warmModels,observedOperation,nativeOperation,receiverSetupOperation};
+    return {snapshot,refresh,edit,chooseSkill,chooseSession,propose,confirm,createSession,registerZone,recordStart,recordStage,recordFinish,step,stop,confirmEvidence,resumeParkedRelease,clearEvidence,review,aggregate,trainingPlan,train,shadow,warmModels,observedOperation,nativeOperation,receiverSetupOperation};
   }
 
   function cooperativeWorkbenchPanel(view = {}) {
@@ -324,6 +333,7 @@
     const zone = session ? `<section><h3>Общая зона</h3><p>${session.zone_registration_id ? "Проверка общей зоны сохранена" : "Текущая общая зона не подтверждена"}. Ручная проверка не создаёт метрические трансформы для модели.</p>${check("zone_checked","Проверил обе рабочие зоны и неподвижное шасси",draft.zone_checked)}${check("zone_observing","Сейчас наблюдаю предмет и обоих роботов",draft.zone_observing)}${button("register-zone","Зафиксировать текущие кадры общей зоны",busy || stopped)}</section>` : "";
     const protocol = session ? `<section><h3>Протокол: ${esc(labels[session.protocol_state] || session.protocol_state)}</h3><p>${stopped ? ((view.stops?.[session.session_id]?.acknowledged ?? true) ? "STOP подтверждён сервером; старая сессия не возобновляется" : "STOP запрошен; ожидается подтверждение сервера, действия заблокированы") : esc(session.status)}${session.pending_operation ? " · ожидается текущий ответ / свидетельство" : ""}</p><div class="teleop-actions">${legalEvents(data,session).map(event => button("step",labels[event] || event,busy || stopped || Boolean(session.pending_operation),`data-coop-event="${esc(event)}"`)).join("")}</div><p class="form-hint">Закрытие сервопривода, таймер и текст VLM не доказывают удержание. Отпускание требует свежего независимого подтверждения и native guard. Автоматической авторизации и lease здесь нет.</p></section>` : "";
     const pending = rows(data?.pending_evidence).filter(row => !session || row.run_id === session.session_id).map(challenge => {
+      if (challenge.kind==="parked_release_bundle") return releaseEvidence.parkedReleasePanel(challenge,draft.evidence?.[challenge.bundle_id],{check,button,esc,disabled:busy || stopped || !session});
       const proof = draft.evidence?.[challenge.challenge_id] || {};
       return `<fieldset><legend>Текущее независимое свидетельство · ${esc(challenge.role)}</legend><p>${esc(challenge.question || challenge.statement)}</p>${check(`evidence.${challenge.challenge_id}.observing`,"Наблюдаю это сейчас",proof.observing)}${check(`evidence.${challenge.challenge_id}.affirmed`,"Подтверждаю именно указанное наблюдение",proof.affirmed)}${field(`evidence.${challenge.challenge_id}.note`,"Примечание, если нужно",proof.note)}${button("evidence","Подтвердить этот текущий вопрос",busy || stopped,`data-coop-challenge="${esc(challenge.challenge_id)}"`)}${button("stop","Не могу подтвердить · STOP",!session)}<p class="form-hint">Срок и привязку к текущему run/предмету/команде проверяет сервер. Часы браузера не считаются часами датчика.</p></fieldset>`;
     }).join("");
@@ -366,10 +376,14 @@
     const click = event => {
       const button = event.target?.closest?.("[data-coop-action]");if (!button || !root.contains(button) || button.disabled) return;
       const actions = {refresh:() => client.refresh(),confirm:() => client.confirm(),"register-zone":() => client.registerZone(),"record-start":() => client.recordStart(),"record-stage":() => client.recordStage(),"record-finish":() => client.recordFinish(),step:() => client.step(button.dataset.coopEvent),stop:() => client.stop(),evidence:() => client.confirmEvidence(button.dataset.coopChallenge),review:() => client.review(),aggregate:() => client.aggregate(),"training-plan":() => client.trainingPlan(),train:() => client.train(),shadow:() => client.shadow(),"warm-models":() => client.warmModels()};
-      if (actions[button.dataset.coopAction]) failure(actions[button.dataset.coopAction]);
+      if (button.dataset.coopAction==="release-resume") failure(()=>client.resumeParkedRelease(button.dataset.coopBundle));
+      else if (actions[button.dataset.coopAction]) failure(actions[button.dataset.coopAction]);
     };
+    const ownerDocument=root.ownerDocument || globalThis.document,ownerWindow=ownerDocument?.defaultView || globalThis.window;
+    const blur=()=>client.clearEvidence(),visibility=()=>{if (ownerDocument?.visibilityState==="hidden") client.clearEvidence();};
     for (const [type,handler] of [["input",input],["change",change],["submit",submit],["click",click]]) root.addEventListener(type,handler);
-    return () => {for (const [type,handler] of [["input",input],["change",change],["submit",submit],["click",click]]) root.removeEventListener(type,handler);};
+    ownerDocument?.addEventListener?.("visibilitychange",visibility);ownerWindow?.addEventListener?.("blur",blur);
+    return () => {for (const [type,handler] of [["input",input],["change",change],["submit",submit],["click",click]]) root.removeEventListener(type,handler);ownerDocument?.removeEventListener?.("visibilitychange",visibility);ownerWindow?.removeEventListener?.("blur",blur);};
   }
   const exported = {createCooperativeWorkbenchClient,cooperativeWorkbenchPanel,bindCooperativeWorkbench};
   Object.assign(surface,exported);if (typeof module !== "undefined" && module.exports) module.exports = exported;
