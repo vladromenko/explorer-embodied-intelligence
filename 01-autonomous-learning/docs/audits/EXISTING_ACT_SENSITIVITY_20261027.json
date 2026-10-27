@@ -1,0 +1,666 @@
+{
+  "schema": "explorer01_existing_ACT_readonly_sensitivity_receipt_v1",
+  "scope": {
+    "new_optimizer_updates": 0,
+    "robot_requests": 0,
+    "network_requests": 0,
+    "renders": 0,
+    "simulation_steps": 0,
+    "new_weights_saved": false,
+    "cause_established": false,
+    "full_task_evaluation": false
+  },
+  "helper_sha256": "a1b623b125f855d82e830e3978f82c52f48e251b8173e1ee7c3289efeaa9dc9a",
+  "models": [
+    {
+      "checkpoint_role": "round0_expert",
+      "checkpoint": "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/round0_expert/student_act",
+      "source_files_sha256": {
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/result.json": "1901584ad7cc6814785df88a32a7228335fa1baea1329a1516d63b2f0f7255aa",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/round0_expert/student_act/config.json": "5a1056188f424b8ec15c63516f8a77362efdcce99edb84e7b6286d67c7da1219",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/round0_expert/student_act/explorer_preprocessing.json": "a05990724159b83148b6a547a6fef90d1883e2f53523526616f021403cd01bc8",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/round0_expert/student_act/model.safetensors": "c8caa0286cec9deb507d2e52ddedacbe0e45a61c0cadc3f8ee573f2035c937b8",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0000.npz": "249ad0f2c560fb6df8996401102dd9b87efd865de93268df100c79119b8150b2",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0001.npz": "a6c2ca4532f7e9586a6f07097273c4f85987bb0dc46f418cc1df101cf1282120",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0002.npz": "d73f1de37678d0fa9f0de00980079e450860895d80cf25e8dcf85cfbb0a97b87",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0003.npz": "60c31aab6c7782fa92c3c6d26e78b083810a2ed83932214d1cc6a242668c2790",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0004.npz": "9f9fbd615ef184cc38f2fb29d81085182f519600237be413c95a858331b81e29",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0005.npz": "582042b58e07c0f1c44d552a3220cdbb2f81c0578ab7ac6af3718c1a1f541c0b",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0006.npz": "e6e942cd76a310adecee9bfa0c2a9f1be28ba886c2de5f50ed4e9924874e7a5e",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0007.npz": "3322b04f345929d88e22551e95d58ca69d67cf563f47e98a4a84a61114fcd135",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0000.npz": "f59f2401981817cd5dd2d0502711bb14b88d68a80bab84b4601a655e1cb30db3",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0001.npz": "e2d2b0ab2e0002e83de5eb87ab542ae057a57be413ced544feb03b4d17faacf9",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0002.npz": "672394a09b9ad0e6f95ddc878add74c9e9b83665cd2caf5fe4aea87b731cdc40",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0003.npz": "feb747b355a0eb787fa0e7f9f33ff6c6558825793870c5fc544ccbe6c2a42028",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0004.npz": "16e0b0bdde3bdd569867b5364d7a051cbe1ebfbcad7ce165bd4267351a7db9ac",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0005.npz": "06b733018e277418b44abe9d174b86101d72ecac2215cb0a46e3c1e5741c5c9b"
+      },
+      "model_state_sha256": "e281a10cb4aa4e373557b556745b7e4fdc92753538871c72284fb7aa0387285a",
+      "model_unchanged": true,
+      "inference_RNG_unchanged": true,
+      "RNG_restored": {
+        "python_restored": true,
+        "numpy_restored": true,
+        "torch_CPU_restored": true,
+        "CUDA_initialized": false
+      },
+      "actor_keys": [
+        "observation.images.overview",
+        "observation.state"
+      ],
+      "labels_in_actor": false,
+      "metrics": {
+        "own": {
+          "axis_std": [
+            6.611622210425208e-05,
+            8.56385712123097e-05,
+            3.7747731978994794e-05,
+            1.3257881958709175e-05,
+            5.194332553156766e-05,
+            4.6751464235148865e-05,
+            5.287912487125198e-05,
+            5.7529899494538015e-05,
+            1.8213096659508858e-05
+          ],
+          "axis_range": [
+            0.00017642229795455933,
+            0.00021727383136749268,
+            0.00011285021901130676,
+            4.865415394306183e-05,
+            0.00017404556274414062,
+            0.00013053417205810547,
+            0.00015649199485778809,
+            0.0001479826751165092,
+            6.066262722015381e-05
+          ],
+          "max_abs_difference_from_own_by_axis": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_abs_difference_from_own": 0.0
+        },
+        "rgb_permuted": {
+          "axis_std": [
+            6.611631823413424e-05,
+            8.564771731663616e-05,
+            3.77378206584763e-05,
+            1.3246616688948798e-05,
+            5.1956161375944355e-05,
+            4.674743157252249e-05,
+            5.284921766337084e-05,
+            5.756748746980467e-05,
+            1.8196676233534186e-05
+          ],
+          "axis_range": [
+            0.00017645210027694702,
+            0.00021743029356002808,
+            0.00011273659765720367,
+            4.863925278186798e-05,
+            0.0001741945743560791,
+            0.00013071298599243164,
+            0.00015652179718017578,
+            0.00014791515422984958,
+            6.0424208641052246e-05
+          ],
+          "max_abs_difference_from_own_by_axis": [
+            4.1715800762176514e-05,
+            2.4996697902679443e-05,
+            2.45068222284317e-05,
+            3.396347165107727e-05,
+            7.861852645874023e-05,
+            3.647804260253906e-05,
+            4.073232412338257e-05,
+            2.8825219487771392e-05,
+            3.199279308319092e-05
+          ],
+          "mean_abs_difference_from_own": 1.2673600091754148e-05
+        },
+        "rgb_zero": {
+          "axis_std": [
+            3.495944242777892e-05,
+            5.4248451256008885e-05,
+            2.465868652721422e-05,
+            2.128266379317874e-05,
+            5.750112081619106e-05,
+            2.281203363699417e-05,
+            3.144843089781405e-05,
+            5.4638552909289345e-05,
+            1.5579453693073898e-05
+          ],
+          "axis_range": [
+            7.635354995727539e-05,
+            0.00011846423149108887,
+            5.385838449001312e-05,
+            4.647299647331238e-05,
+            0.00012555718421936035,
+            4.988908767700195e-05,
+            6.876140832901001e-05,
+            0.00011927062587346882,
+            3.411620855331421e-05
+          ],
+          "max_abs_difference_from_own_by_axis": [
+            0.0003391653299331665,
+            0.00015666335821151733,
+            0.00010781735181808472,
+            0.00024374760687351227,
+            5.5730342864990234e-05,
+            0.00013959407806396484,
+            0.00021536648273468018,
+            0.0001200961705762893,
+            0.00017515569925308228
+          ],
+          "mean_abs_difference_from_own": 0.0001354527650012945
+        },
+        "state_permuted": {
+          "axis_std": [
+            6.613160823345092e-05,
+            8.563105072631483e-05,
+            3.7740781354928954e-05,
+            1.3250610165358548e-05,
+            5.193157465258166e-05,
+            4.678484668459348e-05,
+            5.2868160174140386e-05,
+            5.7503793286861515e-05,
+            1.823229838992566e-05
+          ],
+          "axis_range": [
+            0.00017645210027694702,
+            0.00021737068891525269,
+            0.00011283345520496368,
+            4.8587098717689514e-05,
+            0.00017398595809936523,
+            0.00013071298599243164,
+            0.00015659630298614502,
+            0.00014768081018701196,
+            6.060302257537842e-05
+          ],
+          "max_abs_difference_from_own_by_axis": [
+            5.960464477539063e-08,
+            1.7136335372924805e-07,
+            1.341104507446289e-07,
+            1.2852251529693604e-07,
+            1.7881393432617188e-07,
+            2.384185791015625e-07,
+            2.7567148208618164e-07,
+            3.01864929497242e-07,
+            2.3096799850463867e-07
+          ],
+          "mean_abs_difference_from_own": 2.6171781226164766e-08
+        },
+        "rgb_fixed": {
+          "axis_std": [
+            6.502961002842342e-05,
+            8.378711436719494e-05,
+            4.0262404248911575e-05,
+            1.603929695709053e-05,
+            3.939200683018733e-05,
+            4.5860266881567225e-05,
+            5.3901037314114205e-05,
+            5.3644717248487664e-05,
+            1.9671394383971636e-05
+          ],
+          "axis_range": [
+            0.00015268474817276,
+            0.00019521266222000122,
+            9.034760296344757e-05,
+            3.8310885429382324e-05,
+            8.675456047058105e-05,
+            0.0001062154769897461,
+            0.0001195669174194336,
+            0.00011939552496187389,
+            4.735589027404785e-05
+          ],
+          "max_abs_difference_from_own_by_axis": [
+            4.1715800762176514e-05,
+            2.3908913135528564e-05,
+            2.45068222284317e-05,
+            3.396347165107727e-05,
+            7.405877113342285e-05,
+            3.606081008911133e-05,
+            4.1544437408447266e-05,
+            2.8749433113262057e-05,
+            2.893805503845215e-05
+          ],
+          "mean_abs_difference_from_own": 1.195141440904182e-05
+        },
+        "state_fixed": {
+          "axis_std": [
+            6.611468069063307e-05,
+            8.561490241743209e-05,
+            3.776061005890129e-05,
+            1.3244470450626225e-05,
+            5.194053543575933e-05,
+            4.673631363555474e-05,
+            5.2841510712170373e-05,
+            5.7521218712408346e-05,
+            1.822295811629666e-05
+          ],
+          "axis_range": [
+            0.00017645210027694702,
+            0.00021721422672271729,
+            0.00011285021901130676,
+            4.8587098717689514e-05,
+            0.00017410516738891602,
+            0.00013053417205810547,
+            0.00015649199485778809,
+            0.00014791515422984958,
+            6.060302257537842e-05
+          ],
+          "max_abs_difference_from_own_by_axis": [
+            5.21540641784668e-08,
+            1.7136335372924805e-07,
+            1.0803341865539551e-07,
+            1.1175870895385742e-07,
+            1.4901161193847656e-07,
+            2.384185791015625e-07,
+            3.501772880554199e-07,
+            1.6007106751203537e-07,
+            2.1606683731079102e-07
+          ],
+          "mean_abs_difference_from_own": 1.721265208390024e-08
+        }
+      },
+      "state_stimulus_native_range_by_group": {
+        "source_expert_initial8": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "saved_DEV_initial6": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "saved_DEV_late6": [
+          0.00226593017578125,
+          0.0017242431640625,
+          0.001983642578125,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "runtime_ns": 13767169052,
+      "cgroup_peak_bytes": 614494208,
+      "max_observed_swap_bytes": 0,
+      "last_memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "child_max_rss_kib": 850236,
+      "child_pid": 2487015,
+      "start_ticks": 14238328,
+      "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2",
+      "versions": {
+        "torch": "2.11.0",
+        "torchvision": "0.26.0",
+        "lerobot": "0.6.1",
+        "numpy": "2.2.6"
+      },
+      "library_sources_sha256": {
+        "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages/lerobot/policies/act/modeling_act.py": "a6c1a49c5daafa513b9abee9b986205d327e25c70ed13623ab2e6c0ab6b1f577"
+      },
+      "raw_artifact_sha256": {
+        "/mnt/explorer-data/explorer-work/01-existing-act-sensitivity-20261027/round0_expert-request.json": "6395e321868e831974aced6537b9e09cd2f1da1728fdb2aa980edee814c36406",
+        "/mnt/explorer-data/explorer-work/01-existing-act-sensitivity-20261027/round0_expert-raw.log": "c822ddc536bc26aad50cd04f06becd6296cd1c83faddde098a5a6a20da052093",
+        "/mnt/explorer-data/explorer-work/01-existing-act-sensitivity-20261027/round0_expert-resource.json": "48d447cbd054d22c5a07e1c2479b20d2a0b0fe15e87cf01b9e04c2e2c7576676",
+        "/mnt/explorer-data/explorer-work/01-existing-act-sensitivity-20261027/round0_expert-v1/result.json": "00594ce4edc154136fd15dd4a3754fb5e1c16b986fae9440978abff43f2d69fb",
+        "/mnt/explorer-data/explorer-work/01-existing-act-sensitivity-20261027/round0_expert-v1/rng-restored.json": "e4f15d8183bb01bca646eae0d93f67c680e20a4d25857f643d76842c9bcb3989"
+      }
+    },
+    {
+      "checkpoint_role": "round1_aggregated",
+      "checkpoint": "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/round1_aggregated/student_act",
+      "source_files_sha256": {
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/result.json": "1901584ad7cc6814785df88a32a7228335fa1baea1329a1516d63b2f0f7255aa",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/round1_aggregated/student_act/config.json": "51e7850bcd8af61fdb4c7e32eef24fd7f98cfab82287da8f54ad53da09a2d843",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/round1_aggregated/student_act/explorer_preprocessing.json": "796e28407d61c8e6141aaecb423547d896951b67d9c9c96a1c905c1e2cba81b6",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/round1_aggregated/student_act/model.safetensors": "cca04a330efd2bd568909d64d564824d763f78a73e8fe3c9913bf8957323c3e5",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0000.npz": "249ad0f2c560fb6df8996401102dd9b87efd865de93268df100c79119b8150b2",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0001.npz": "a6c2ca4532f7e9586a6f07097273c4f85987bb0dc46f418cc1df101cf1282120",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0002.npz": "d73f1de37678d0fa9f0de00980079e450860895d80cf25e8dcf85cfbb0a97b87",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0003.npz": "60c31aab6c7782fa92c3c6d26e78b083810a2ed83932214d1cc6a242668c2790",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0004.npz": "9f9fbd615ef184cc38f2fb29d81085182f519600237be413c95a858331b81e29",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0005.npz": "582042b58e07c0f1c44d552a3220cdbb2f81c0578ab7ac6af3718c1a1f541c0b",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0006.npz": "e6e942cd76a310adecee9bfa0c2a9f1be28ba886c2de5f50ed4e9924874e7a5e",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/7a2877b5c47f49acaa04c164961e7fcd/dataset/episode_0007.npz": "3322b04f345929d88e22551e95d58ca69d67cf563f47e98a4a84a61114fcd135",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0000.npz": "f59f2401981817cd5dd2d0502711bb14b88d68a80bab84b4601a655e1cb30db3",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0001.npz": "e2d2b0ab2e0002e83de5eb87ab542ae057a57be413ced544feb03b4d17faacf9",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0002.npz": "672394a09b9ad0e6f95ddc878add74c9e9b83665cd2caf5fe4aea87b731cdc40",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0003.npz": "feb747b355a0eb787fa0e7f9f33ff6c6558825793870c5fc544ccbe6c2a42028",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0004.npz": "16e0b0bdde3bdd569867b5364d7a051cbe1ebfbcad7ce165bd4267351a7db9ac",
+        "/home/jetsonnx/.local/share/explorer/state/jobs/23eb8ea681894833872cffa8023e86c6/development_before/episode_0005.npz": "06b733018e277418b44abe9d174b86101d72ecac2215cb0a46e3c1e5741c5c9b"
+      },
+      "model_state_sha256": "f855cf5e583bd984324d32406416143a617f9de6f6cf1bce3dedacd2285682de",
+      "model_unchanged": true,
+      "inference_RNG_unchanged": true,
+      "RNG_restored": {
+        "python_restored": true,
+        "numpy_restored": true,
+        "torch_CPU_restored": true,
+        "CUDA_initialized": false
+      },
+      "actor_keys": [
+        "observation.images.overview",
+        "observation.state"
+      ],
+      "labels_in_actor": false,
+      "metrics": {
+        "own": {
+          "axis_std": [
+            9.192140789914109e-07,
+            8.744263981703915e-07,
+            4.3081415976302377e-07,
+            9.628502658684737e-07,
+            1.4502581447193572e-06,
+            3.0045648488084404e-06,
+            8.057868146640592e-07,
+            1.0157202455800112e-06,
+            2.3380315303104644e-06
+          ],
+          "axis_range": [
+            2.7641654014587402e-06,
+            3.2410025596618652e-06,
+            1.7434358596801758e-06,
+            2.8312206268310547e-06,
+            4.172325134277344e-06,
+            7.62939453125e-06,
+            2.559274435043335e-06,
+            2.9802322387695312e-06,
+            6.332993507385254e-06
+          ],
+          "max_abs_difference_from_own_by_axis": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_abs_difference_from_own": 0.0
+        },
+        "rgb_permuted": {
+          "axis_std": [
+            9.257156002650482e-07,
+            8.785758948384478e-07,
+            4.2782343834385944e-07,
+            9.547937930286e-07,
+            1.459488678180329e-06,
+            2.9507309345855862e-06,
+            8.052379139405553e-07,
+            1.0318052822336863e-06,
+            2.3089358285572583e-06
+          ],
+          "axis_range": [
+            2.7045607566833496e-06,
+            3.2782554626464844e-06,
+            1.7210841178894043e-06,
+            2.9355287551879883e-06,
+            4.172325134277344e-06,
+            7.62939453125e-06,
+            2.6188790798187256e-06,
+            3.0025839805603027e-06,
+            6.237998604774475e-06
+          ],
+          "max_abs_difference_from_own_by_axis": [
+            7.748603820800781e-07,
+            1.5720725059509277e-06,
+            9.015202522277832e-07,
+            9.834766387939453e-07,
+            1.1324882507324219e-06,
+            1.0728836059570312e-06,
+            1.087784767150879e-06,
+            9.98377799987793e-07,
+            1.0579824447631836e-06
+          ],
+          "mean_abs_difference_from_own": 4.6048727300431994e-07
+        },
+        "rgb_zero": {
+          "axis_std": [
+            1.170271590717644e-06,
+            6.776102091092982e-07,
+            8.181592435407647e-07,
+            1.9488467303263286e-07,
+            1.2731025758923452e-06,
+            2.4954636131886733e-06,
+            6.54769447439219e-08,
+            1.0935287950819163e-06,
+            1.5466763675793113e-06
+          ],
+          "axis_range": [
+            2.6151537895202637e-06,
+            1.5273690223693848e-06,
+            1.914799213409424e-06,
+            5.066394805908203e-07,
+            2.86102294921875e-06,
+            5.602836608886719e-06,
+            2.1606683731079102e-07,
+            2.473592758178711e-06,
+            3.4812837839126587e-06
+          ],
+          "max_abs_difference_from_own_by_axis": [
+            1.843273639678955e-05,
+            2.250075340270996e-05,
+            3.141909837722778e-05,
+            2.30446457862854e-05,
+            7.778406143188477e-06,
+            4.649162292480469e-05,
+            2.3342669010162354e-05,
+            1.7546117305755615e-05,
+            2.1453946828842163e-05
+          ],
+          "mean_abs_difference_from_own": 2.2530079715781742e-05
+        },
+        "state_permuted": {
+          "axis_std": [
+            9.189936297994888e-07,
+            8.670412097695815e-07,
+            4.1459836751276365e-07,
+            9.505091884384246e-07,
+            1.4457190756551809e-06,
+            2.969071231605007e-06,
+            8.109825216001827e-07,
+            1.006510756822195e-06,
+            2.3292858980504215e-06
+          ],
+          "axis_range": [
+            2.7045607566833496e-06,
+            3.170222043991089e-06,
+            1.7434358596801758e-06,
+            2.905726432800293e-06,
+            4.202127456665039e-06,
+            7.748603820800781e-06,
+            2.5331974029541016e-06,
+            2.9206275939941406e-06,
+            6.245449185371399e-06
+          ],
+          "max_abs_difference_from_own_by_axis": [
+            1.341104507446289e-07,
+            8.195638656616211e-08,
+            1.862645149230957e-07,
+            1.4901161193847656e-07,
+            8.940696716308594e-08,
+            4.76837158203125e-07,
+            1.1175870895385742e-07,
+            8.195638656616211e-08,
+            8.754432201385498e-08
+          ],
+          "mean_abs_difference_from_own": 2.163772781689962e-08
+        },
+        "rgb_fixed": {
+          "axis_std": [
+            7.258122773584917e-07,
+            6.906152456039255e-07,
+            4.813611339139056e-07,
+            8.230860941682683e-07,
+            1.4362091352332268e-06,
+            3.128846461176822e-06,
+            7.375889229652972e-07,
+            8.244626078860455e-07,
+            2.2282113428052954e-06
+          ],
+          "axis_range": [
+            1.7583370208740234e-06,
+            1.6540288925170898e-06,
+            1.1920928955078125e-06,
+            2.130866050720215e-06,
+            3.2782554626464844e-06,
+            7.033348083496094e-06,
+            1.7397105693817139e-06,
+            1.955777406692505e-06,
+            4.975125193595886e-06
+          ],
+          "max_abs_difference_from_own_by_axis": [
+            8.344650268554688e-07,
+            1.2405216693878174e-06,
+            8.717179298400879e-07,
+            8.195638656616211e-07,
+            1.1324882507324219e-06,
+            8.344650268554688e-07,
+            1.087784767150879e-06,
+            8.903443813323975e-07,
+            1.432374119758606e-06
+          ],
+          "mean_abs_difference_from_own": 3.903793791929881e-07
+        },
+        "state_fixed": {
+          "axis_std": [
+            9.166594376464889e-07,
+            8.640285444118157e-07,
+            4.2717808177986315e-07,
+            9.481053365684196e-07,
+            1.4514518876496263e-06,
+            2.979254562229958e-06,
+            8.153063784423256e-07,
+            1.02527980411002e-06,
+            2.3118455265824662e-06
+          ],
+          "axis_range": [
+            2.6971101760864258e-06,
+            3.2670795917510986e-06,
+            1.7657876014709473e-06,
+            2.8312206268310547e-06,
+            4.202127456665039e-06,
+            7.748603820800781e-06,
+            2.6188790798187256e-06,
+            3.0025839805603027e-06,
+            6.2640756368637085e-06
+          ],
+          "max_abs_difference_from_own_by_axis": [
+            8.195638656616211e-08,
+            8.940696716308594e-08,
+            2.2351741790771484e-07,
+            1.4156103134155273e-07,
+            1.1920928955078125e-07,
+            3.5762786865234375e-07,
+            1.341104507446289e-07,
+            1.4528632164001465e-07,
+            1.043081283569336e-07
+          ],
+          "mean_abs_difference_from_own": 1.649475759930081e-08
+        }
+      },
+      "state_stimulus_native_range_by_group": {
+        "source_expert_initial8": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "saved_DEV_initial6": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "saved_DEV_late6": [
+          0.00226593017578125,
+          0.0017242431640625,
+          0.001983642578125,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "runtime_ns": 13757214625,
+      "cgroup_peak_bytes": 615411712,
+      "max_observed_swap_bytes": 0,
+      "last_memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "child_max_rss_kib": 850776,
+      "child_pid": 2487241,
+      "start_ticks": 14248337,
+      "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2",
+      "versions": {
+        "torch": "2.11.0",
+        "torchvision": "0.26.0",
+        "lerobot": "0.6.1",
+        "numpy": "2.2.6"
+      },
+      "library_sources_sha256": {
+        "/home/jetsonnx/.local/share/explorer/venv/lib/python3.12/site-packages/lerobot/policies/act/modeling_act.py": "a6c1a49c5daafa513b9abee9b986205d327e25c70ed13623ab2e6c0ab6b1f577"
+      },
+      "raw_artifact_sha256": {
+        "/mnt/explorer-data/explorer-work/01-existing-act-sensitivity-20261027/round1_aggregated-request.json": "ac35f82f7c740dfb300acf28b905a5ad8f7328b01aecee1e15778bf51e991dcf",
+        "/mnt/explorer-data/explorer-work/01-existing-act-sensitivity-20261027/round1_aggregated-raw.log": "df50542a995f333534e159c204d3037440812599b76cddabbf0790e8144e6a04",
+        "/mnt/explorer-data/explorer-work/01-existing-act-sensitivity-20261027/round1_aggregated-resource.json": "27496a20c1ac56668dfcc80c7845195399b3f86fb366431c9ccfedd583414933",
+        "/mnt/explorer-data/explorer-work/01-existing-act-sensitivity-20261027/round1_aggregated-v1/result.json": "85d51917d44ca7f0a8dcd81d3b109a9103ed74ba89411eeb17c57b6242b52823",
+        "/mnt/explorer-data/explorer-work/01-existing-act-sensitivity-20261027/round1_aggregated-v1/rng-restored.json": "e4f15d8183bb01bca646eae0d93f67c680e20a4d25857f643d76842c9bcb3989"
+      }
+    }
+  ],
+  "limitations": [
+    "The state-permutation stimulus was weak: initial source/DEV states were identical; late DEV states span <=0.0023 degree. These results do not establish insensitivity to meaningful pose changes.",
+    "RGB permutation tests differences in these saved images; black RGB is out-of-distribution, not a task success test.",
+    "Posterior comparison was not run: official implementation requires training branch; no forced training/BatchNorm/dropout semantics.",
+    "No controller, runtime, model or observation repair was validated."
+  ]
+}

@@ -1,0 +1,294 @@
+{
+  "schema": "explorer01_target_visibility_negative_receipt_v1",
+  "overall_visibility_qualification": "NOT_PASSED",
+  "cause_established": false,
+  "scope": {
+    "model_or_optimizer_updates": 0,
+    "simulation_steps": 0,
+    "actor_queries": 0,
+    "robot_requests": 0,
+    "network_requests": 0,
+    "pose": "PINNED_XML_DEFAULT_STATIC_REFERENCE_NOT_RECORDED_DYNAMIC_REPLAY"
+  },
+  "attempts": [
+    {
+      "name": "initial",
+      "exit_code": 1,
+      "runtime_ns": 3979842615,
+      "child_pid": 2487772,
+      "start_ticks": 14272622,
+      "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2",
+      "child_max_rss_kib": 1292660,
+      "cgroup_peak_bytes": 1245581312,
+      "max_observed_swap_bytes": 0,
+      "last_memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "raw_artifacts_sha256": {
+        "/mnt/explorer-data/explorer-work/01-reach-target-visibility-20261027/probe_target_visibility.py": "17b42477472c51234073a70801eda82f5c37e167c4fc54f07b052b670bdb7483",
+        "/mnt/explorer-data/explorer-work/01-reach-target-visibility-20261027/request.json": "1c45afda02f25d8e6af63f83d9869fec017c69ec79a52e9fc8041eda1e12cb09",
+        "/mnt/explorer-data/explorer-work/01-reach-target-visibility-20261027/raw.log": "fbdded7f0481352e5b3503934b7bfb33fc99804791b14f113115b8e5359f1dc4",
+        "/mnt/explorer-data/explorer-work/01-reach-target-visibility-20261027/resource.json": "14241827023469631d1760ac87114bc560ef4a68d51c60cb60f72da6b5cdcc2c"
+      }
+    },
+    {
+      "name": "instrumented",
+      "exit_code": 1,
+      "runtime_ns": 6996750748,
+      "child_pid": 2489363,
+      "start_ticks": 14301953,
+      "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2",
+      "child_max_rss_kib": 1291636,
+      "cgroup_peak_bytes": 1163186176,
+      "max_observed_swap_bytes": 0,
+      "last_memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "raw_artifacts_sha256": {
+        "/mnt/explorer-data/explorer-work/01-reach-target-visibility-20261027/probe_target_visibility_debug.py": "b25650db06509f74ac2af273eebc7a23e3e9e7b054e93430768a368b55d49f70",
+        "/mnt/explorer-data/explorer-work/01-reach-target-visibility-20261027/request-debug.json": "7573e90b77cf42737c98d1f387ce64951387d52cf6101742f8986b448d54375a",
+        "/mnt/explorer-data/explorer-work/01-reach-target-visibility-20261027/raw-debug.log": "683ec65c5f1ae5cb476143f691848e5463d5cb81277752129b71defdd780f63a",
+        "/mnt/explorer-data/explorer-work/01-reach-target-visibility-20261027/resource-debug.json": "4da261f5d516ef6296bf918d4e814532f2807dc4b4600f80f475af644ffc5abe"
+      }
+    }
+  ],
+  "finite_prefix_examples_not_full_qualification": [
+    {
+      "goal_index": 0,
+      "full_state_unchanged": true,
+      "OFFrepeat_changed_pixels": 0,
+      "resolution": {
+        "native": {
+          "ON_OFF_changed_pixels": 80,
+          "max_channel_delta": 206,
+          "on_file_sha256": "e58d5914c53623a5d2b52d1806ad5ed40c47c6ec632ee72f1c57118ba29982e4",
+          "off_file_sha256": "4b61c95fe1e5211b5d28e1ac694f967049594d8d34d390f0231b650705595531"
+        },
+        "64": {
+          "ON_OFF_changed_pixels": 13,
+          "max_channel_delta": 115,
+          "on_file_sha256": "4ed04e9114b3e321db291e0abccf94c9f8a6dd347efa9255dd48e26a30dd003e",
+          "off_file_sha256": "fa535db099cceafdbf6921f41f5c84fdd83975e20083a9ac46276d0730006693"
+        },
+        "128": {
+          "ON_OFF_changed_pixels": 38,
+          "max_channel_delta": 201,
+          "on_file_sha256": "73f1c5f1689c3f9875c30190aeb0b14fe87bac75a804480373a242d1ba2d9cea",
+          "off_file_sha256": "a9cc4241fc4b1feff52ff866e78e3af9a67ef607fb01a1b601b91cfc41bc0904"
+        }
+      }
+    },
+    {
+      "goal_index": 1,
+      "full_state_unchanged": true,
+      "OFFrepeat_changed_pixels": 0,
+      "resolution": {
+        "native": {
+          "ON_OFF_changed_pixels": 138,
+          "max_channel_delta": 204,
+          "on_file_sha256": "671da7bc032c5cee05769c73ed6b484fdc571a73613c016b306e501c43ecda17",
+          "off_file_sha256": "4b61c95fe1e5211b5d28e1ac694f967049594d8d34d390f0231b650705595531"
+        },
+        "64": {
+          "ON_OFF_changed_pixels": 22,
+          "max_channel_delta": 156,
+          "on_file_sha256": "339900618f47486fbaa0c4df001ae1fc22dd7d67da2400811c3e303b5c82b8d8",
+          "off_file_sha256": "fa535db099cceafdbf6921f41f5c84fdd83975e20083a9ac46276d0730006693"
+        },
+        "128": {
+          "ON_OFF_changed_pixels": 60,
+          "max_channel_delta": 205,
+          "on_file_sha256": "14c49531a6ed8898e7b9c7390a8e043f7b26872ef24777a976f8dccec5477cdb",
+          "off_file_sha256": "a9cc4241fc4b1feff52ff866e78e3af9a67ef607fb01a1b601b91cfc41bc0904"
+        }
+      }
+    },
+    {
+      "goal_index": 2,
+      "full_state_unchanged": true,
+      "OFFrepeat_changed_pixels": 0,
+      "resolution": {
+        "native": {
+          "ON_OFF_changed_pixels": 104,
+          "max_channel_delta": 191,
+          "on_file_sha256": "b0e4ae2e126b9a2414073399ce12b429fcc6f0c10e0b076e8ce44e671dcdbecf",
+          "off_file_sha256": "4b61c95fe1e5211b5d28e1ac694f967049594d8d34d390f0231b650705595531"
+        },
+        "64": {
+          "ON_OFF_changed_pixels": 26,
+          "max_channel_delta": 130,
+          "on_file_sha256": "f10f2453e5974a4bae18536c298f1c3df31b17a66bb151f0f8de3a63ce64f336",
+          "off_file_sha256": "fa535db099cceafdbf6921f41f5c84fdd83975e20083a9ac46276d0730006693"
+        },
+        "128": {
+          "ON_OFF_changed_pixels": 57,
+          "max_channel_delta": 153,
+          "on_file_sha256": "604153c405b8830bca47a81a0b2f8eb71fcc792e258534252fb21ceb8d72f257",
+          "off_file_sha256": "a9cc4241fc4b1feff52ff866e78e3af9a67ef607fb01a1b601b91cfc41bc0904"
+        }
+      }
+    },
+    {
+      "goal_index": 3,
+      "full_state_unchanged": true,
+      "OFFrepeat_changed_pixels": 0,
+      "resolution": {
+        "native": {
+          "ON_OFF_changed_pixels": 80,
+          "max_channel_delta": 207,
+          "on_file_sha256": "b3c17f60e0061ccbb12f6a669993f0ea51239fea5b69a4435b4612101a6dbb98",
+          "off_file_sha256": "4b61c95fe1e5211b5d28e1ac694f967049594d8d34d390f0231b650705595531"
+        },
+        "64": {
+          "ON_OFF_changed_pixels": 15,
+          "max_channel_delta": 144,
+          "on_file_sha256": "d179103d5e932f1b316b9fe6f7947cd0739adf06e42a630f66c9700c3be9d5b5",
+          "off_file_sha256": "fa535db099cceafdbf6921f41f5c84fdd83975e20083a9ac46276d0730006693"
+        },
+        "128": {
+          "ON_OFF_changed_pixels": 35,
+          "max_channel_delta": 199,
+          "on_file_sha256": "0bb8ed7ca4bc2f2795f178212fbf0b1ff35b70264c1505f1f99c491a1c4bc537",
+          "off_file_sha256": "a9cc4241fc4b1feff52ff866e78e3af9a67ef607fb01a1b601b91cfc41bc0904"
+        }
+      }
+    },
+    {
+      "goal_index": 4,
+      "full_state_unchanged": true,
+      "OFFrepeat_changed_pixels": 0,
+      "resolution": {
+        "native": {
+          "ON_OFF_changed_pixels": 84,
+          "max_channel_delta": 214,
+          "on_file_sha256": "c2bfd56ca58554f0bc1499805306e6853167da938c1b706de23758f3da8f2f89",
+          "off_file_sha256": "4b61c95fe1e5211b5d28e1ac694f967049594d8d34d390f0231b650705595531"
+        },
+        "64": {
+          "ON_OFF_changed_pixels": 14,
+          "max_channel_delta": 141,
+          "on_file_sha256": "11301ca4a6e6c595b6e9e0c3fd49a41952e205cd3dbe87033f4fb8cc8aca7a31",
+          "off_file_sha256": "fa535db099cceafdbf6921f41f5c84fdd83975e20083a9ac46276d0730006693"
+        },
+        "128": {
+          "ON_OFF_changed_pixels": 33,
+          "max_channel_delta": 209,
+          "on_file_sha256": "fceec1ea06558ce5ee5393a921bd0591e887124abd7fa542c09570f527cf40f3",
+          "off_file_sha256": "a9cc4241fc4b1feff52ff866e78e3af9a67ef607fb01a1b601b91cfc41bc0904"
+        }
+      }
+    },
+    {
+      "goal_index": 5,
+      "full_state_unchanged": true,
+      "OFFrepeat_changed_pixels": 0,
+      "resolution": {
+        "native": {
+          "ON_OFF_changed_pixels": 118,
+          "max_channel_delta": 213,
+          "on_file_sha256": "8da7f808b047132c2dc3828f18478c13b50e8905604a8f55e24bedd213086ebd",
+          "off_file_sha256": "4b61c95fe1e5211b5d28e1ac694f967049594d8d34d390f0231b650705595531"
+        },
+        "64": {
+          "ON_OFF_changed_pixels": 23,
+          "max_channel_delta": 164,
+          "on_file_sha256": "7c6e2d8e153607d3d1ab42c38bdab388dd658023abf2d10333af09d3e4028cb5",
+          "off_file_sha256": "fa535db099cceafdbf6921f41f5c84fdd83975e20083a9ac46276d0730006693"
+        },
+        "128": {
+          "ON_OFF_changed_pixels": 52,
+          "max_channel_delta": 207,
+          "on_file_sha256": "28b202dbd39e2932028a5d349bb6d38e058200a8eb1f556afa5e1fe5889a45b6",
+          "off_file_sha256": "a9cc4241fc4b1feff52ff866e78e3af9a67ef607fb01a1b601b91cfc41bc0904"
+        }
+      }
+    },
+    {
+      "goal_index": 6,
+      "full_state_unchanged": true,
+      "OFFrepeat_changed_pixels": 0,
+      "resolution": {
+        "native": {
+          "ON_OFF_changed_pixels": 76,
+          "max_channel_delta": 214,
+          "on_file_sha256": "9968aeb2455051b63d5d856f19dc158850afbbffa5e9d76f6e5a528820c792cf",
+          "off_file_sha256": "4b61c95fe1e5211b5d28e1ac694f967049594d8d34d390f0231b650705595531"
+        },
+        "64": {
+          "ON_OFF_changed_pixels": 17,
+          "max_channel_delta": 132,
+          "on_file_sha256": "0a47e5400642a4220cc6806876211436ef81a49c3d2acea3103a5f145714bb16",
+          "off_file_sha256": "fa535db099cceafdbf6921f41f5c84fdd83975e20083a9ac46276d0730006693"
+        },
+        "128": {
+          "ON_OFF_changed_pixels": 35,
+          "max_channel_delta": 209,
+          "on_file_sha256": "d07e247f39e65aa938d102f7e0d410bbe958dbf9e554305c9c68e7d427b28680",
+          "off_file_sha256": "a9cc4241fc4b1feff52ff866e78e3af9a67ef607fb01a1b601b91cfc41bc0904"
+        }
+      }
+    },
+    {
+      "goal_index": 7,
+      "full_state_unchanged": true,
+      "OFFrepeat_changed_pixels": 0,
+      "resolution": {
+        "native": {
+          "ON_OFF_changed_pixels": 83,
+          "max_channel_delta": 205,
+          "on_file_sha256": "4d547146c4a865830aa7ad8dfb3783de92b8e454522cdc4be52220a43559cbe4",
+          "off_file_sha256": "4b61c95fe1e5211b5d28e1ac694f967049594d8d34d390f0231b650705595531"
+        },
+        "64": {
+          "ON_OFF_changed_pixels": 16,
+          "max_channel_delta": 172,
+          "on_file_sha256": "91fb59333400b157940254f349d5859e704f8a3cbbcc8b944e189f03a5fea2ba",
+          "off_file_sha256": "fa535db099cceafdbf6921f41f5c84fdd83975e20083a9ac46276d0730006693"
+        },
+        "128": {
+          "ON_OFF_changed_pixels": 39,
+          "max_channel_delta": 209,
+          "on_file_sha256": "982a4c4242e93d2672a2374804d8e959bab70d6325ba83af3cbb097e26af7a98",
+          "off_file_sha256": "a9cc4241fc4b1feff52ff866e78e3af9a67ef607fb01a1b601b91cfc41bc0904"
+        }
+      }
+    }
+  ],
+  "instrumented_failure": {
+    "goal_index": 8,
+    "full_state_sha256_before": "580114c1c48d78ffb73c28af86ac5d2fe179f1420df8a45d16b5f7069d790ee7",
+    "full_state_sha256_after": "580114c1c48d78ffb73c28af86ac5d2fe179f1420df8a45d16b5f7069d790ee7",
+    "OFF_repeat_equal": false,
+    "OFF_repeat_changed_pixels": 7,
+    "OFF_repeat_max_RGB_delta": 1,
+    "all_original_full_state_fields_retained": true,
+    "outcome": "FAILED_INVARIANT",
+    "changed_integration_fields": [],
+    "raw_detail_sha256": "2cabafab8b088d05687d9ed86bc95323e90e9e85cd340cc61d35b67b4ad2a7db",
+    "raw_detail_path": "/mnt/explorer-data/explorer-work/01-reach-target-visibility-20261027/paired-render-debug-v1/goal8-invariant-detail.json"
+  },
+  "limits": {
+    "CPUQuota_percent": 100,
+    "MemoryMax_bytes": 2147483648,
+    "MemorySwapMax_bytes": 0,
+    "RuntimeMaxSec": 120,
+    "LimitCORE": 0,
+    "EGL_contexts": 1
+  },
+  "interpretation": [
+    "No integration field changed in recorded instrumented operations, including warmstart and plugin state.",
+    "First instrumented failure was goal8 OFFrepeat RGB:7pixels by1LSB with identical fullstate. Rendering/driver cause is not established.",
+    "Eight completed prefix pairs show nonzero true-target contribution at64px (13..26 changedpixels), so absolute target invisibility is not supported for these static poses.",
+    "Prefix examples do not qualify all12goals, settled poses, policy perception or reliable rollout. Strict repeatability was not relaxed and failed attempts remain negative."
+  ]
+}
