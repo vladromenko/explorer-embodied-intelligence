@@ -24,7 +24,7 @@ def test_real_native03_source_to_common_supervisor_ACT4_saved_DEV_no_physical_re
     post=TestClient.post
     def scoped(self,url,**kwargs):
         if str(url).endswith('/train'):
-            kwargs['json']=dict(kwargs['json'],project_id='03',input_mode='so101_leader')
+            kwargs['json']=dict(kwargs['json'],project_id='03',input_mode='so101_leader_retarget')
         return post(self,url,**kwargs)
     monkeypatch.setattr(TestClient,'post',scoped)
     # Same executable test body: real ASGI→Supervisor→bootstrap→job_runner,
