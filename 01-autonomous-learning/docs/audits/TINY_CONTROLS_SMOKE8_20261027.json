@@ -1,0 +1,156 @@
+{
+  "schema": "explorer01_tiny_control_smoke_receipt_v1",
+  "status": "PARKED_BY_USER_PRIORITY_04_05_06_01",
+  "scope": {
+    "actual_new_optimizer_updates_total": 16,
+    "full248_continuation_executed": false,
+    "canonical_PPO_or_long_training_executed": false,
+    "simulation_steps": 0,
+    "renders": 0,
+    "network_requests": 0,
+    "robot_requests": 0,
+    "production_writes": 0,
+    "skill_or_model_registry_writes": 0,
+    "whole_task_or_memorization_criterion_qualified": false
+  },
+  "helper_sha256": "4fcaa11c2d1cc91c1a069c1f17e017648c397f8e63a651e9de6c08eb44acee87",
+  "data_manifest_sha256": "2abeba976c169c2cc8d9a18446c167643e8a996015c8875498f9b00894480ed0",
+  "cells": [
+    {
+      "cell": "visual8",
+      "label_kind": "ORIGINAL_EXECUTED_SUCCESS_CURRENT_TEACHER_ENDPOINT",
+      "status": "SMOKE_DURABLY_PAUSED_NOT_FINAL_QUALITY",
+      "actual_updates": 8,
+      "exit_code": 75,
+      "initial_weights_sha256": "e66efe7c4be782f0e4aaf4e236877e43af08b99d9352fdc9092df851c8743f95",
+      "weights_after8_sha256": "a35092c3ac4f09c59a0ebe21f06a9e299ced538eb831788ff19a7c423962eb3b",
+      "weights_changed": true,
+      "actual_original_pause_receipt": {
+        "acknowledged_monotonic_ns": 145202037143129,
+        "backend": "act",
+        "checkpoint_pointer_sha256": "9c95700b6decf5b453cfe6b1f354ce479b5f2f3b5f5433f579f4c2a17cb42a67",
+        "checkpoint_sha256": "61221d18893d68471cc70aa2ed229320fcf021c3ca0a1840fc8c422fe7d6430e",
+        "completed_steps": 8,
+        "memory_release_basis": "process_exit_must_be_verified_by_supervisor",
+        "operation": "pause",
+        "optimizer_RNG_sampler_durably_saved": true,
+        "physical_io": false,
+        "process_exit_code": 75,
+        "request_id": "519cb5d912cdb329036618230dea4a6a",
+        "schema": "explorer_optimizer_checkpoint_control_v1",
+        "signature": "e89079e6eae70793c55457b6831f5a7e1d235c6e8e980e4d981b76a6b9e05c36",
+        "worker": {
+          "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2",
+          "pid": 2495484,
+          "start_ticks": 14518376
+        }
+      },
+      "resume_checkpoint_sha256": "61221d18893d68471cc70aa2ed229320fcf021c3ca0a1840fc8c422fe7d6430e",
+      "preserved_smoke_files_sha256": {
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/visual8-smoke-v1/preserved-smoke8/act_training.json": "e62b09c480430f77fe102ad01710f2eb6f5eeb1bd0fa961af2d2a33af72047c8",
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/visual8-smoke-v1/preserved-smoke8/latest.json": "9c95700b6decf5b453cfe6b1f354ce479b5f2f3b5f5433f579f4c2a17cb42a67",
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/visual8-smoke-v1/preserved-smoke8/optimizer-control.json": "90aa65e6b1aa86ba059e7a346e67984ac33507e99840176330c470797b0d2109",
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/visual8-smoke-v1/preserved-smoke8/optimizer-paused.json": "295f3cdf1c7e6b3ccd37527aa46be7f4517493050f7da5cbc585e36aeae03f6c",
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/visual8-smoke-v1/preserved-smoke8/state-00000008-66445a31e8c74c7db51b08e9295c7be3.pt": "61221d18893d68471cc70aa2ed229320fcf021c3ca0a1840fc8c422fe7d6430e"
+      },
+      "official_reload_max_abs_error": 0.0,
+      "prior_active_MAE_at8": 0.030508989468216896,
+      "final_quality_claimed": false,
+      "criterion_at_smoke": false,
+      "runtime_ns": 22302780971,
+      "cgroup_peak_bytes": 1221545984,
+      "max_observed_swap_bytes": 0,
+      "last_memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "child_max_rss_kib": 1053304,
+      "child_pid": 2495484,
+      "start_ticks": 14518376,
+      "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2",
+      "source_originals_unchanged": true,
+      "raw_artifacts_sha256": {
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/visual8-request.json": "55920e625a23bdd4e94bfa4687583ff33002611bd3bdc4d04344dbf865116b8c",
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/visual8-smoke-raw.log": "c0121adc41877613ff19a6c7088714e73b7332528592270ac6227393882003b7",
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/visual8-smoke-resource.json": "a4a9020da7c99e32d94b3d692caa51966155847d10830e94b26dded2986ddb38",
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/visual8-smoke-v1/smoke-result.json": "25d571a93ec014734ca51523d2115603ce892f0a6316ce99f41e375c6f6168d0"
+      }
+    },
+    {
+      "cell": "state_identity8",
+      "label_kind": "SYNTHETIC_STATE_IDENTITY_DIAGNOSTIC_NOT_EXPERT_ACTION",
+      "status": "SMOKE_DURABLY_PAUSED_NOT_FINAL_QUALITY",
+      "actual_updates": 8,
+      "exit_code": 75,
+      "initial_weights_sha256": "e66efe7c4be782f0e4aaf4e236877e43af08b99d9352fdc9092df851c8743f95",
+      "weights_after8_sha256": "8202695217c968a431de7011f887f6b9de98b5c9f404e0e6fab86854a3b1e71c",
+      "weights_changed": true,
+      "actual_original_pause_receipt": {
+        "acknowledged_monotonic_ns": 145276823848111,
+        "backend": "act",
+        "checkpoint_pointer_sha256": "8a35a7a227e75303fec454b92a168b1a145cf158908bc3bb6d7aa26ce67cdb63",
+        "checkpoint_sha256": "671cef07602518e50f36e16c7977076fc722751a4f021a4ecc6944ae311554f8",
+        "completed_steps": 8,
+        "memory_release_basis": "process_exit_must_be_verified_by_supervisor",
+        "operation": "pause",
+        "optimizer_RNG_sampler_durably_saved": true,
+        "physical_io": false,
+        "process_exit_code": 75,
+        "request_id": "78d1920bf38b9210de8d7e3bce63408b",
+        "schema": "explorer_optimizer_checkpoint_control_v1",
+        "signature": "40ad872d6e78812396f93cfdfcc545d75b7e2ef2109fa98ca897dc4caf10387e",
+        "worker": {
+          "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2",
+          "pid": 2495668,
+          "start_ticks": 14525834
+        }
+      },
+      "resume_checkpoint_sha256": "671cef07602518e50f36e16c7977076fc722751a4f021a4ecc6944ae311554f8",
+      "preserved_smoke_files_sha256": {
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/state_identity8-smoke-v1/preserved-smoke8/act_training.json": "7c3ae6c286a29bf0b66e87bf4e340812dde37fc2321a86f248485d0ee84f7528",
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/state_identity8-smoke-v1/preserved-smoke8/latest.json": "8a35a7a227e75303fec454b92a168b1a145cf158908bc3bb6d7aa26ce67cdb63",
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/state_identity8-smoke-v1/preserved-smoke8/optimizer-control.json": "cf48db13d91e563164e11912d6b32db9766cb2244d07138d38a322fa549673aa",
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/state_identity8-smoke-v1/preserved-smoke8/optimizer-paused.json": "fe3fdfa5676bdc4b7853551faee109e3f3883870dc92e9fc5eb48496acd4f72d",
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/state_identity8-smoke-v1/preserved-smoke8/state-00000008-a808e1ab498743b886eedf1bcddc7d88.pt": "671cef07602518e50f36e16c7977076fc722751a4f021a4ecc6944ae311554f8"
+      },
+      "official_reload_max_abs_error": 0.0,
+      "prior_active_MAE_at8": 0.12113100290298462,
+      "final_quality_claimed": false,
+      "criterion_at_smoke": false,
+      "runtime_ns": 22484236195,
+      "cgroup_peak_bytes": 1223831552,
+      "max_observed_swap_bytes": 0,
+      "last_memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "child_max_rss_kib": 1052832,
+      "child_pid": 2495668,
+      "start_ticks": 14525834,
+      "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2",
+      "source_originals_unchanged": true,
+      "raw_artifacts_sha256": {
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/state_identity8-request.json": "b9ff3c62fa9ae0ca0e01e03f133f042277c159183dff1f0ab81c2146f7aad515",
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/state_identity8-smoke-raw.log": "c33abd0c246e84590114aa2b01c3fb5c022eac0a0a64ccc5548ee7bb6ff128d5",
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/state_identity8-smoke-resource.json": "6cc0dea43a9e4c31d1f6543e59586b75e277bc969049a1d9a9f7259a97d60227",
+        "/mnt/explorer-data/explorer-work/01-tiny-positive-controls-20261027/state_identity8-smoke-v1/smoke-result.json": "0b793f514dd9e77395ab5d598342b5575ffc5554c61c731352cbd5cfe926ca64"
+      }
+    }
+  ],
+  "prepared_full_commands_remain_unexecuted": true,
+  "notes": [
+    "Both eight-step smokes were authorized serially; second had already started when the user parked01. It finished only its existing atomic eight-step pause.",
+    "Expected exit75 is a genuine durable optimizer pause, not a final quality PASS.",
+    "Identity targets are synthetic state-identity diagnostics, not expert robot actions or accepted demonstrations.",
+    "Initialization seed86001 has now been consumed by this private diagnostic; future canonical preregistration should acknowledge this before opening new DEV/sealed."
+  ],
+  "matched_actual_initial_weights_sha256": "e66efe7c4be782f0e4aaf4e236877e43af08b99d9352fdc9092df851c8743f95"
+}
