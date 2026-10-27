@@ -180,6 +180,8 @@ class CooperativeNativeSessions:
         result={'schema':'explorer_cooperative_native_controls_v1','roles':roles,'current_received_ns':self.clock(),
             'phase_context':self._phase_pin(row),
             'native_controls_started_by_snapshot':False,'native_operations_are_separate_USER_actions':True}
+        scopes=getattr(self.service,'observed_scopes',None)
+        if scopes is not None:result['observation_scopes']=scopes.refresh(row,spec,actor=actor)
         with self.lock:
             if (row['session_id'],row['epoch']) in self.cancelled:raise ValueError('Late native controls refresh after cooperative STOP')
             self.cache[row['session_id']]=(row['epoch'],deepcopy(result))
@@ -268,6 +270,8 @@ class CooperativeNativeSessions:
             'native_lease_automatically_renewed':False,'dual_hold_interlocks_unarmed':False}
     def command(self,operation,row,spec,body,*,actor):
         selected=self._choose(operation,row,spec,body,actor);role=selected['role'];pair=None;result={};known_reply=False;custody=None;intent=None;reservation=None
+        scopes=getattr(self.service,'observed_scopes',None)
+        if scopes is not None:scopes.invalidate(row,role)
         request=self.service._request(role)
         try:
             if operation in PHASE_OPERATIONS+('native_attach',):

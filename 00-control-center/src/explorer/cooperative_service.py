@@ -35,6 +35,7 @@ from .cooperative_native_sessions import CooperativeNativeSessions,OPERATIONS as
 from .cooperative_receiver_setup import CooperativeReceiverSetup,OPERATIONS as RECEIVER_SETUP_OPERATIONS
 from .cooperative_native_receipts import CooperativeNativeReceipts
 from .cooperative_grant_lineage import CooperativeGrantLineage
+from .cooperative_observed_scopes import CooperativeObservedScopes
 
 
 def _boot():return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
@@ -76,6 +77,7 @@ class CooperativeService:
         self.receiver_setup=CooperativeReceiverSetup(self)
         self.native_receipts=CooperativeNativeReceipts(self)
         self.grant_lineage=CooperativeGrantLineage(self)
+        self.observed_scopes=CooperativeObservedScopes(self)
     def _prior_test_evidence(self,row):
         with self.store.connect() as db:
             jobs=list(db.execute("SELECT id,kind,config FROM jobs WHERE json_extract(config,'$.session_id')=? OR json_extract(config,'$.cooperative_shadow_binding.session_id')=?",
@@ -311,7 +313,7 @@ class CooperativeService:
         durable=self._durable_giver(boundary)
         unparked=boundary.get('parked') is None
         interlock=receiver_state.get('cooperative_dual_hold_publication_interlock_current') is True
-        return {'explicit_user_observed_test_current':current and interlock and durable and unparked,'source_receipt':deepcopy(authority),
+        result={'explicit_user_observed_test_current':current and interlock and durable and unparked,'source_receipt':deepcopy(authority),
             'both_current_user_grants_and_native_owners':current,'receiver_dual_hold_publication_interlock_current':interlock,
             'giver_durable_dual_hold_publication_interlock_current':durable,
             'giver_dispatch_phase_unparked':unparked,
@@ -320,6 +322,25 @@ class CooperativeService:
                 'NATIVE_GIVER_DURABLE_DUAL_HOLD_PUBLICATION_INTERLOCK_REQUIRED' if current and interlock and not durable else
                 'NATIVE_RECEIVER_DUAL_HOLD_PUBLICATION_INTERLOCK_REQUIRED' if current else
                 'BOTH_EXACT_SCOPED_NATIVE_TRANSPORTS_AND_CURRENT_USER_LEASES_REQUIRED'}
+        scopes={'roles':{role:{'current':False} for role in ('giver','receiver')},'cached_preview_only':True,
+            'source_revalidation_required_before_native_dispatch':True}
+        valid=False
+        if hasattr(self,'observed_scopes'):
+            try:
+                spec=self.workflow.skill(row['skill_id'],row['skill_version'])['spec']
+                self.native_controls._fresh(row,spec,row['observed_test_binding']['actor_id']);valid=True
+                scopes=self.observed_scopes.snapshot(row,spec)
+            except (ValueError,OSError,KeyError,TypeError):pass
+        parked={role:valid and scopes['roles'][role].get('current') is True for role in ('giver','receiver')}
+        giver_live=valid and giver_state.get('current_native_owner_ready') is True and durable and unparked
+        receiver_live=valid and receiver_state.get('current_native_owner_ready') is True and interlock
+        receiver_parked=parked['receiver'] and scopes['roles']['receiver'].get('facts',{}).get('direction_current') is True
+        result.update(observation_scopes_current=parked,observation_scope_proofs=scopes,
+            dispatch_authority_by_role={'giver':giver_live and (receiver_live or receiver_parked),
+                'receiver':receiver_live and (giver_live or parked['giver'])},
+            per_role_authority_is_metadata_preview=True,source_revalidation_required_before_native_dispatch=True,
+            parked_is_never_own_dispatch_authority=True,independent_stationary_and_hold_proofs_required=True)
+        return result
     def _observed_state(self,role):
         with self.lock:candidates=[transport for (session,kind),transport in self.transports.items() if kind==role]
         if len(candidates)==1:return candidates[0].observe_state()
@@ -370,6 +391,32 @@ bound first; default construction cannot turn on policy execution.
         return transport.stop(run)
     def _arm_guard(self,row):
         receiver=self.transports.get((row['session_id'],'receiver'));giver=self.transports.get((row['session_id'],'giver'))
+        states={}
+        for role,transport in (('giver',giver),('receiver',receiver)):
+            try:states[role]=transport.observe_state() if transport is not None else {}
+            except Exception:states[role]={}
+        parked=[role for role in ('giver','receiver') if states[role].get('current_native_owner_ready') is not True]
+        if parked:
+            spec=self.workflow.skill(row['skill_id'],row['skill_version'])['spec'];actor=row['observed_test_binding']['actor_id']
+            self.native_controls._fresh(row,spec,actor)
+            scopes=self.observed_scopes.require_current(row,spec,parked,actor=actor)
+            if 'receiver' in parked and scopes['roles']['receiver']['facts'].get('direction_current') is not True:
+                raise ValueError('Original observed receiver gripper direction required before dual-hold arm')
+            if 'giver' not in parked and not self._durable_giver(self._giver_source(states['giver']).get('release_boundary')):
+                raise ValueError('Current durable giver required before parked partner arm')
+            if 'receiver' not in parked and states['receiver'].get('cooperative_dual_hold_publication_interlock_current') is not True:
+                raise ValueError('Current original receiver publication interlock required before parked partner arm')
+            receipts={}
+            for role,transport in (('receiver',receiver),('giver',giver)):
+                if role in parked:receipts[role]=self.observed_scopes.arm_role(row,spec,role,actor=actor)
+                else:
+                    receipts[role]=transport.arm_release_guard(row)
+                    state=receipts[role].get('native_receiver_dual_hold_guard',{}) if role=='receiver' else receipts[role]
+                    if state.get('armed') is not True or role=='giver' and not self._durable_giver(state):
+                        raise ValueError('Actual current source publication latch required after arm')
+                self.native_controls._fresh(row,spec,actor)
+            return {**receipts,'both_original_publication_boundaries_armed':True,'parked_roles':parked,
+                'hardware_command_sent':False,'attainment_or_hold_claimed':False}
         if receiver is None or giver is None or not callable(getattr(receiver,'arm_release_guard',None)):
             raise ValueError('Both current original publication guards required')
         # A failure after the first arm leaves its durable latch in place. The
@@ -456,6 +503,7 @@ bound first; default construction cannot turn on policy execution.
             'observed_setup':observed,
             'native_controls':self.native_controls.snapshot(selected) if selected else None,
             'receiver_setup':self.receiver_setup.snapshot(selected) if selected else None,
+            'observed_scopes':self.observed_scopes.snapshot(selected,self.workflow.skill(selected['skill_id'],selected['skill_version'])['spec']) if selected else None,
             'execution_authority':self._authority(selected) if selected else {'explicit_user_observed_test_current':False},
             'persistent_warm_model_actor_ready':any(row['compute_ready'] for row in warm_compute),
             'model_adapters_bound':{role:callable(self.models.get(role)) for role in ('giver','receiver')}}
@@ -571,6 +619,7 @@ idempotent; process restart never queues its missing half automatically.
         elif operation=='step':result=self.workflow.request_step(session,body.get('event'),expected_epoch=body.get('expected_epoch'))
         elif operation=='stop':
             previous=self.workflow.snapshot(session)
+            self.observed_scopes.invalidate(previous)
             self.receiver_setup.invalidate_session(previous)
             result=self.workflow.cancel_session(session)
             if 'native_owned_session_cleanup' not in result:

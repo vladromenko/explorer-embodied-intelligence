@@ -5689,6 +5689,44 @@
         "tests/test_sim_numeric_driver.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-ROOT-OBSERVED-ROLE-SCOPES-20261027",
+      "function_or_module": "00-control-center/src/explorer/cooperative_observed_scopes.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/cooperative_held_scopes05.py",
+          "role": "Actual source-owned parked context and literal metadata-arm receipt"
+        },
+        {
+          "url": "project-file:00-control-center/src/explorer/cooperative_grant_lineage.py",
+          "role": "Immutable initial USER binding and source-authenticated successors"
+        },
+        {
+          "url": "project-file:00-control-center/src/explorer/cooperative_native_receipts.py",
+          "role": "Immutable parsed authenticated source custody outside workflow/STOP locks"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_WEIGHTS_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Validate per-role source-held observation scopes against immutable original Root grant lineage and fresh fixed source GETs; keep cached previews separate from native dispatch permission. Permit metadata arm from exact held context using existing source WALs, preserve source origins and prior proofs, retain late custody without reviving STOP, and expose a moving-role preview only with its own current transport and a separately supported partner. Original both-active and Workflow motion gates remain unchanged.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_cooperative_observed_scopes.py",
+        "tests/test_cooperative_phase_controls.py",
+        "tests/test_cooperative_giver_phases.py",
+        "tests/test_cooperative_unattached_stop.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
