@@ -92,19 +92,41 @@ def scheduler_probe(root_a, root_b, folder):
     config = folder/'config.json'; write_json(config, {'data_dir':str(store.root)})
     job = store.create_job('handover_test', '05', {'qualification_only':True})
     command = [sys.executable, '-c', 'from explorer.config import load;from explorer.store import Store;from explorer.scheduler import supervise;c=load();supervise(c,Store(c["data_dir"]))']
+    # A test-owned exec wrapper stops before bootstrap. The original Supervisor
+    # still claims/pins the real job and records the original worker PID. This
+    # avoids racing a fast non-physical job or depending on CPU scheduling.
+    gate=folder/'owned-worker-gate.py'
+    gate.write_text('import os,signal,sys\nos.kill(os.getpid(),signal.SIGSTOP)\nos.execv(sys.executable,[sys.executable,*sys.argv[1:]])\n')
+    gated_code=('import subprocess;from explorer import scheduler;from explorer.config import load;from explorer.store import Store;'
+        'original=scheduler.Supervisor;native=subprocess.Popen;'
+        'scheduler.Supervisor=lambda *a,**kw:original(*a,popen=lambda argv,**opts:native([argv[0],'+repr(str(gate))+',*argv[1:]],**opts),**kw);'
+        'c=load();scheduler.supervise(c,Store(c["data_dir"]))')
+    initial_command=[sys.executable,'-c',gated_code]
     handles, children, worker, stopped_pid = [], [], None, None
     log = (folder/'supervisor.log').open('ab')
     try:
-        first = subprocess.Popen(command, env=environment(root_a, config), stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+        first = subprocess.Popen(initial_command, env=environment(root_a, config), stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
         handles.append(first)
         def find_worker():
             if first.poll() is not None:
                 raise RuntimeError('Isolated scheduler exited before qualification: '+(folder/'supervisor.log').read_text()[-2000:])
             found = psutil.Process(first.pid).children(recursive=True)
-            return next((p for p in found if job['id'] in p.cmdline() and 'explorer.job_runner' in p.cmdline()), None)
+            for process in found:
+                try:
+                    arguments=process.cmdline()
+                    if (job['id'] in arguments and str(gate) in arguments and
+                            any(name in arguments for name in ('explorer.worker_bootstrap','explorer.job_runner')) and
+                            process.status()==psutil.STATUS_STOPPED):return process
+                except psutil.Error:pass
+            return None
         worker = wait_for(find_worker, 20, .001)
         worker.suspend(); children.append(worker); stopped_pid = worker.pid
         wait_for(lambda: store.job(job['id'])['status']=='running', 3)
+        def original_admission_recorded():
+            runtime=store.schedule_status(job['id'])['runtime']
+            return (runtime if (runtime.get('worker') or {}).get('pid')==worker.pid and
+                runtime.get('phase')=='starting' and runtime.get('bootstrap_admitted') is False else None)
+        starting_runtime=wait_for(original_admission_recorded,3)
         before = store.job(job['id'])
         if before['config'].get('_execution_commit') != root_a.name:
             raise AssertionError('First execution source was not pinned')
@@ -140,7 +162,10 @@ def scheduler_probe(root_a, root_b, folder):
             integrity = db.execute('PRAGMA integrity_check').fetchone()[0]
         if count_before != 1 or count_after != 1 or not conflict_rejected or after['result'] != result or after['status'] != 'completed' or integrity != 'ok':
             raise AssertionError('Durable finalization/idempotence did not hold')
-        return dict(passed=True, scope='actual isolated supervisor SIGKILL and non-physical handover_test recovery',
+        return dict(passed=True, scope='actual isolated supervisor SIGKILL before worker bootstrap and non-physical handover_test recovery',
+            first_worker_test_owned_exec_gate=True, first_worker_bootstrap_entered_before_crash=False,
+            test_owned_gate_sha256=digest(gate), restarted_worker_uses_original_bootstrap=True,
+            first_worker_durable_phase=starting_runtime['phase'], first_worker_bootstrap_admitted=starting_runtime['bootstrap_admitted'],
             job_id=job['id'], source_commit_before_crash=root_a.name, current_release_after_restart=root_b.name,
             source_commit_after_restart=after['config']['_execution_commit'], execution_commit=result['execution_commit'],
             killed_isolated_supervisor_pid=first.pid, killed_isolated_worker_pid=stopped_pid,
