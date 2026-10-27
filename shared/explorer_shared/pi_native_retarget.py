@@ -5,6 +5,7 @@ Only explicit operator heartbeat renews the ORIGINAL native manual lease.
 Recording is proxied to the SAME Nano producer used by02; old raw archives stay.
 """
 from copy import deepcopy
+from collections import deque
 import json
 from pathlib import Path
 import threading
@@ -18,6 +19,8 @@ from .native_stream03_client import NativeStreamClient
 from .native_leader_geometry import registered_native_leader_geometry
 from .retarget_recording import identity,digest
 
+HOLD_SCHEMA='explorer_pi_native_explicit_hold_v1'
+OPERATOR_PROFILES=('ARM_ONLY','MOBILE_MANIPULATION')
 
 class LegacyRawView:
     """Read-only old Pi archives only; new03 target IDs are never duplicated here."""
@@ -52,6 +55,11 @@ class PiNativeRetargetService:
         self.source_sequence=0;self.last_source_stamp=None;self.sample_count=0
         self.native_period=None;self.target_boot=None;self.estimate=None;self.target_camera=None
         self.chassis_authorized=False;self.chassis_requests=0
+        self.operator_profile='ARM_ONLY';self.authorization_id=None;self.target_generation=None
+        self.source_identity=None
+        self.begin_outcome_unknown=False
+        self.last_lease_receipt=None;self.last_proposal=None;self.last_stop_receipt=None
+        self.round_trips=deque(maxlen=64);self.last_source_age_ns=None;self.discarded_late_replies=0
         self.recorder=LegacyRawView(Path(state_dir)/'retarget-recordings');self.thread=None;self.calibration_wizard=None
 
     @classmethod
@@ -87,6 +95,10 @@ class PiNativeRetargetService:
             return {'schema':'explorer_pi_native_retarget_v1',
                 'state':'UNREGISTERED' if registration['state']=='UNREGISTERED' else self.mode,
                 'control_epoch':self.epoch,'target_control_epoch':self.target_epoch,'registration':registration,
+                'source_hold_gate_schema':HOLD_SCHEMA,'operator_profile':self.operator_profile,'operator_profiles':list(OPERATOR_PROFILES),
+                'first_held_requires_neutral_base':True,'mirror_dispatch_requires_explicit_held':True,
+                'source_cache_claimed':bool(self.target_epoch is not None or self.lifecycle_inflight or self.step_inflight or
+                    self.pending_stops or self.stop_uncertain or self.begin_outcome_unknown),
                 'peer_configured':self.client is not None,'lifecycle_inflight':self.lifecycle_inflight,
                 'step_inflight':self.step_inflight,'stop_delivery_uncertain':self.stop_uncertain,
                 'closed':self.shutdown.is_set(),
@@ -98,6 +110,12 @@ class PiNativeRetargetService:
                 'source_calibrated':bool(role.get('calibration_sha256')),
                 'missing_registration_is_cross_map_not_device_recalibration':True,
                 'cached_samples_consumed':self.sample_count,'last_result':deepcopy(self.last_result),'error':self.error,
+                'last_proposal':deepcopy(self.last_proposal),'last_lease_receipt':deepcopy(self.last_lease_receipt),
+                'last_stop_receipt':deepcopy(self.last_stop_receipt),
+                'timing_diagnostics':{'schema':'explorer_pi_retarget_host_timing_v1','sample_count':len(self.round_trips),
+                    'input_HTTP_RTT_ns':list(self.round_trips),'last_source_cache_age_ns':self.last_source_age_ns,
+                    'clock_basis':'Pi_host_monotonic_only_no_cross_device_subtraction','hardware_latency_verified':False,
+                    'discarded_late_replies':self.discarded_late_replies},
                 'loop':'independent_latest_measured_cache_no_FIFO_no_automatic_native_lease',
                 'recording':self.recorder.status(),'recording_owner':'nano_native_common_02_03',
                 'calibration_wizard':self.calibration_wizard.status() if self.calibration_wizard else None,
@@ -128,7 +146,7 @@ class PiNativeRetargetService:
 
     def _target_estimate(self,value):
         if (not isinstance(value,dict) or value.get('boot_id')!=self.target_boot or
-                value.get('measured') is True or value.get('blocked_by')):
+                value.get('measured') is not False or value.get('blocked_by')):
             raise ValueError('Same-boot original factory command reference unavailable')
         field='q_estimated_deg' if value.get('q_estimated_deg') is not None else 'servo_deg'
         q=np.asarray(value.get(field),float)
@@ -144,19 +162,36 @@ class PiNativeRetargetService:
         if body.get('control_epoch',body.get('expected_control_epoch'))!=self.epoch:
             raise ValueError('Source control epoch changed; old operator packet rejected')
 
+    def _owned_native(self,native,*,clutched=False):
+        if (native.get('execution_permission') is not True or native.get('active') is not True or
+                native.get('control_epoch')!=self.target_epoch or native.get('boot_id')!=self.target_boot or
+                self.authorization_id is not None and (native.get('activation') or {}).get('authorization_id')!=self.authorization_id or
+                self.target_generation is not None and (native.get('native_generation')!=self.target_generation or
+                    native.get('owner_generation')!=self.target_generation) or
+                clutched and native.get('state')!='CLUTCHED'):
+            raise ValueError('Original owned native epoch/authorization/reference context changed; no owner adoption')
+
+    def _same_source(self,measured):
+        current=tuple(measured.get(key) for key in ('clock_domain','boot_id','calibration_sha256','station_control_epoch'))
+        if self.source_identity is not None and current!=self.source_identity:
+            raise ValueError('Measured leader owner/boot/clock/calibration changed; fresh explicit start required')
+
     def start(self,body):
         if self.shutdown.is_set():
             raise ValueError('Pi native source is permanently closed')
         if self.geometry.status()['state']=='UNREGISTERED':
             return self.status()
         self._observe(body)
+        profile=body.get('operator_profile','ARM_ONLY')
+        if profile not in OPERATOR_PROFILES:raise ValueError('Explicit supported operator_profile required')
         registration=getattr(self.geometry,'registration',None) or {}
         if registration.get('provenance')=='synthetic' and not self.allow_synthetic:
             raise ValueError('Synthetic registration cannot activate a physical peer')
         with self.lock:
             self._match(body)
             if (self.shutdown.is_set() or self.client is None or self.lifecycle_inflight or self.step_inflight or self.pending_stops or
-                    self.mode in ('ACTIVE','STOPPING','CLOSED') or self.stop_uncertain):
+                    self.mode in ('ACTIVE','CLUTCHED','ACTIVATING','CLUTCHING','STOPPING','CLOSED') or
+                    self.target_epoch is not None or self.stop_uncertain):
                 raise ValueError('Native peer/session not idle or STOP delivery unknown')
             expected=self.epoch;self.lifecycle_inflight=True
         target_epoch=None
@@ -166,10 +201,13 @@ class PiNativeRetargetService:
             if native.get('execution_permission') is not True:
                 raise ValueError('NATIVE_OWNER_REQUIRES_SEPARATE_USER_OBSERVED_TEST')
             self.client.authorization_id=(native.get('activation') or {}).get('authorization_id')
+            self.authorization_id=self.client.authorization_id
             self.chassis_authorized=native.get('chassis_motion_allowed') is True
             if native.get('active') or native.get('stop_latched') is False:
                 raise ValueError('Explicit native STOP required before selecting leader mirror')
             self.target_boot=native.get('boot_id')
+            if not isinstance(self.target_boot,str) or not self.target_boot:
+                raise ValueError('Original native boot identity unavailable; reference cannot be adopted')
             period=(native.get('original_stream_config') or {}).get('publish_period_s')
             if not isinstance(period,(int,float)) or not np.isfinite(period) or period<=0:
                 raise ValueError('Original native Ruckig period not exposed')
@@ -179,25 +217,34 @@ class PiNativeRetargetService:
                 if self.epoch!=expected:
                     raise ValueError('Start superseded before native ownership selection')
             self.client.select_keyboard(observing=True,neutral=True)
-            result=self.client.begin(observing=True,neutral=True);target_epoch=result['control_epoch']
+            with self.lock:
+                if self.epoch!=expected:raise ValueError('Start superseded after native neutral owner selection')
+                self.begin_outcome_unknown=True
+            result=self.client.begin(observing=True,neutral=True,authorization_id=self.authorization_id);target_epoch=result['control_epoch']
+            if not isinstance(target_epoch,str) or not target_epoch:
+                target_epoch=None
+                raise ValueError('Original begin did not return an owned native epoch')
             with self.lock:
                 self.target_epoch=target_epoch
+                self.begin_outcome_unknown=False
+                self.target_generation=result.get('native_generation')
+                self.source_identity=tuple(measured.get(key) for key in ('clock_domain','boot_id','calibration_sha256','station_control_epoch'))
                 if self.epoch!=expected:
                     raise ValueError('Start superseded before native resume')
-            self.client.resume(target_epoch,observing=True)
             with self.lock:
                 if self.epoch!=expected:
                     raise ValueError('Start superseded after native resume')
                 self.target_epoch=target_epoch;self.native_period=period;self.estimate=estimate
                 self.source_sequence=0;self.last_source_stamp=measured['monotonic_ns'];self.last_lease_sequence=-1
-                self.epoch=uuid.uuid4().hex;self.mode='ACTIVE';self.error=None
+                self.epoch=uuid.uuid4().hex;self.mode='CLUTCHED';self.error=None;self.operator_profile=profile
                 self.last_result={'recentered':True,'target_estimate_basis':basis,'native_dispatched':False}
+                self.last_proposal=None;self.last_lease_receipt=None;self.round_trips.clear();self.last_source_age_ns=None
             self.wake.set();return self.status()
         except Exception as error:
             with self.lock:
                 if self.epoch==expected:
                     self.error=type(error).__name__+': '+str(error);self.mode='INTERRUPTED'
-                    if target_epoch is not None:
+                    if target_epoch is not None or self.begin_outcome_unknown:
                         self.stop_uncertain=True
             raise
         finally:
@@ -216,20 +263,23 @@ class PiNativeRetargetService:
             self.lifecycle_inflight=True;expected=self.epoch;target_epoch=self.target_epoch
         self.operation_lock.acquire()
         try:
-            result=self.client.recenter(target_epoch);new_target=result['control_epoch']
+            native=self.client.status();self._owned_native(native)
+            result=self.client.recenter(target_epoch,authorization_id=self.authorization_id);new_target=result['control_epoch']
             with self.lock:
                 self.target_epoch=new_target
             measured=self._measurement();estimate=self.client.reference();target,basis=self._target_estimate(estimate)
+            self._same_source(measured)
             self.geometry.recenter(measured['positions'],target)
             with self.lock:
                 if self.epoch!=expected:
                     raise ValueError('Recenter superseded by STOP')
-            self.client.resume(new_target,observing=True)
             with self.lock:
                 if self.epoch!=expected:
                     raise ValueError('Old recenter response discarded')
                 self.target_epoch=new_target;self.estimate=estimate;self.last_source_stamp=measured['monotonic_ns']
-                self.epoch=uuid.uuid4().hex;self.mode='ACTIVE';self.error=None
+                self.epoch=uuid.uuid4().hex;self.mode='CLUTCHED';self.error=None
+                self.last_lease_sequence=-1;self.last_proposal=None;self.last_lease_receipt=None
+                self.last_result={'recentered':True,'target_estimate_basis':basis,'native_dispatched':False}
             self.wake.set();return self.status()
         except Exception as error:
             with self.lock:
@@ -242,30 +292,84 @@ class PiNativeRetargetService:
             self.operation_lock.release()
 
     def lease(self,body):
-        with self.lock:
-            self._match(body)
-            if self.shutdown.is_set():
-                raise ValueError('Pi native source is permanently closed')
-            sequence=body.get('sequence')
-            if type(sequence) is not int or sequence<=self.last_lease_sequence:
-                raise ValueError('Old operator heartbeat rejected')
-            self.last_lease_sequence=sequence
-            if self.mode!='ACTIVE' or self.target_epoch is None:
-                raise ValueError('Fresh explicit native start/recenter required')
-            target_epoch=self.target_epoch
         if body.get('held') is not True:
+            with self.lock:self._match(body)
             return self.stop(body)
         self._observe(body)
         actions=body.get('base_actions',{})
         if (not isinstance(actions,dict) or any(key not in BASE_ACTIONS for key in actions) or
-                any(not np.isfinite(float(value)) for value in actions.values()) or
-                (not self.chassis_authorized and any(abs(float(value))>1e-12 for value in actions.values()))):
-            raise PermissionError('PHYSICAL_CHASSIS_PROHIBITED_BY_OWNER')
-        result=self.client.keyboard_base(target_epoch,actions,observing=True)
+                any(not np.isfinite(float(value)) for value in actions.values())):
+            raise ValueError('Finite existing native base actions required')
+        moving=any(float(value)!=0. for value in actions.values())
         with self.lock:
-            if any(abs(float(value))>1e-12 for value in actions.values()):self.chassis_requests+=1
-            self.last_result={'operator_native_lease_receipt':result,'native_dispatched':False}
+            self._match(body)
+            if self.shutdown.is_set():
+                raise ValueError('Pi native source is permanently closed')
+            if self.pending_stops or self.lifecycle_inflight:
+                raise ValueError('Source lifecycle/STOP already pending')
+            sequence=body.get('sequence')
+            if type(sequence) is not int or sequence<=self.last_lease_sequence:
+                raise ValueError('Old operator heartbeat rejected')
+            if self.mode not in ('ACTIVE','CLUTCHED') or self.target_epoch is None:
+                raise ValueError('Fresh explicit native start/recenter required')
+            if self.operator_profile=='ARM_ONLY' and moving:
+                raise PermissionError('ARM_ONLY_OPERATOR_PROFILE_FORBIDS_BASE_INTENT')
+            first=self.mode=='CLUTCHED'
+            if first and moving:raise ValueError('NEUTRAL_FIRST_HELD_FRAME_REQUIRED')
+            self.last_lease_sequence=sequence;expected=self.epoch;target_epoch=self.target_epoch;authorization=self.authorization_id
+            if first:self.mode='ACTIVATING';self.lifecycle_inflight=True
+        if first:return self._first_held(expected,target_epoch,authorization)
+        try:
+            if moving:
+                native=self.client.status();self._owned_native(native)
+                if native.get('chassis_motion_allowed') is not True:
+                    raise PermissionError('PHYSICAL_CHASSIS_PROHIBITED_BY_OWNER')
+            with self.lock:
+                if self.epoch!=expected or self.mode!='ACTIVE':raise ValueError('Held frame superseded before native lease')
+            result=self.client.keyboard_base(target_epoch,actions,observing=True,authorization_id=authorization)
+            with self.lock:
+                if self.epoch==expected and self.mode=='ACTIVE':
+                    if moving:self.chassis_requests+=1
+                    self.last_lease_receipt={'target_receipt':deepcopy(result),'target_control_epoch':target_epoch,'native_dispatched':False}
+                else:self.discarded_late_replies+=1
+        except Exception as error:
+            with self.lock:
+                if self.epoch==expected and self.mode=='ACTIVE':
+                    self.mode='INTERRUPTED';self.epoch=uuid.uuid4().hex;self.error=type(error).__name__+': '+str(error)
+            raise
         self.wake.set();return self.status()
+
+    def _first_held(self,expected,target_epoch,authorization):
+        self.operation_lock.acquire()
+        resume_started=False
+        try:
+            with self.lock:
+                if self.epoch!=expected or self.mode!='ACTIVATING':raise ValueError('First held superseded before native observation')
+            measured=self._measurement();native=self.client.status();self._owned_native(native,clutched=True)
+            self._same_source(measured)
+            estimate=self.client.reference();target,basis=self._target_estimate(estimate)
+            self.geometry.recenter(measured['positions'],target)
+            with self.lock:
+                if self.epoch!=expected or self.mode!='ACTIVATING':raise ValueError('First held superseded before native resume')
+            resume_started=True;self.client.resume(target_epoch,observing=True,authorization_id=authorization)
+            with self.lock:
+                if self.epoch!=expected or self.mode!='ACTIVATING':raise ValueError('First held superseded after native resume')
+            result=self.client.keyboard_base(target_epoch,{},observing=True,authorization_id=authorization)
+            with self.lock:
+                if self.epoch!=expected or self.mode!='ACTIVATING':raise ValueError('First held superseded after neutral lease')
+                self.mode='ACTIVE';self.estimate=estimate;self.last_source_stamp=measured['monotonic_ns'];self.error=None
+                self.last_lease_receipt={'target_receipt':deepcopy(result),'target_control_epoch':target_epoch,
+                    'first_explicit_held':True,'recentered_at_explicit_held':True,'target_estimate_basis':basis,'native_dispatched':False}
+            self.wake.set();return self.status()
+        except Exception as error:
+            with self.lock:
+                if self.epoch==expected:
+                    self.mode='INTERRUPTED';self.error=type(error).__name__+': '+str(error)
+                    if resume_started:self.stop_uncertain=True
+            raise
+        finally:
+            with self.lock:self.lifecycle_inflight=False
+            self.operation_lock.release()
 
     def stop(self,body=None):
         body=body or {}
@@ -280,20 +384,30 @@ class PiNativeRetargetService:
             # before its late-created native epoch has also been revoked.
             with self.lock:
                 target_epoch=self.target_epoch
-            if self.client is not None:
-                if target_epoch is None:
-                    peer=self.client.status();target_epoch=peer.get('control_epoch') if peer.get('active') else None
-                if target_epoch is not None:
-                    try:
-                        self.client.stop(target_epoch)
-                    except Exception:
-                        peer=self.client.status()
-                        if peer.get('active'):
-                            raise
+            cleanup={'owned_target_epoch':target_epoch,'native_stop_attempted':False,'hardware_stop_verified':False,
+                'outcome':'NO_OWNED_NATIVE_EPOCH'}
+            if self.client is not None and target_epoch is None and self.begin_outcome_unknown:
+                peer=self.client.status()
+                if peer.get('active') is not False:
+                    raise ValueError('Native begin reply unknown; explicit global STOP needed, no GET owner adopted')
+                cleanup['outcome']='UNKNOWN_BEGIN_SOURCE_NOW_INACTIVE'
+            if self.client is not None and target_epoch is not None:
+                cleanup['native_stop_attempted']=True
+                try:
+                    cleanup['native_receipt']=self.client.stop(target_epoch);cleanup['outcome']='OWNED_STOP_API_RETURNED'
+                except Exception:
+                    peer=self.client.status()
+                    if (not isinstance(peer,dict) or type(peer.get('active')) is not bool or
+                            peer.get('active') and not peer.get('control_epoch')):
+                        raise ValueError('Owned STOP outcome unavailable; malformed native status')
+                    if peer.get('active') and peer.get('control_epoch')==target_epoch:raise
+                    cleanup['outcome']='SUPERSEDED_BY_OTHER_OWNER' if peer.get('active') else 'OWNED_SCOPE_NO_LONGER_ACTIVE'
             with self.lock:
                 self.mode='CLOSED' if self.shutdown.is_set() else 'STOPPED'
                 self.target_epoch=None;self.stop_uncertain=False;self.error=None
                 self.chassis_authorized=False
+                self.begin_outcome_unknown=False
+                self.last_stop_receipt=cleanup
             return self.status()
         except Exception as error:
             with self.lock:
@@ -307,6 +421,11 @@ class PiNativeRetargetService:
 
     def command(self,operation,body):
         if operation in ('start','recenter','lease','stop'):
+            if operation=='stop':
+                # Node HTTP callers must retain THEIR source epoch. Internal
+                # global/user STOP may call stop() directly; it still cancels
+                # only this service's retained native epoch, never a GET owner.
+                with self.lock:self._match(body)
             return getattr(self,operation)(body)
         if self.shutdown.is_set():
             raise ValueError('Pi native source is permanently closed')
@@ -341,7 +460,8 @@ class PiNativeRetargetService:
             measured=self._measurement();return {'measured_leader':measured,
                 'preview':self.calibration_wizard.context.preview(measured['positions'])}
         with self.lock:
-            if (self.shutdown.is_set() or self.mode in ('ACTIVE','CLUTCHING','STOPPING') or
+            if (self.shutdown.is_set() or self.mode in ('ACTIVE','CLUTCHED','ACTIVATING','CLUTCHING','STOPPING') or
+                    self.target_epoch is not None or
                     self.lifecycle_inflight or self.step_inflight or self.pending_stops):
                 raise ValueError('Stop mirror before observing or accepting a new cross-map')
             self.lifecycle_inflight=True;expected=self.epoch
@@ -382,6 +502,7 @@ class PiNativeRetargetService:
             if active:
                 try:
                     measured=self._measurement()
+                    self._same_source(measured)
                     if measured['monotonic_ns']!=self.last_source_stamp:
                         estimate=self.estimate or self.client.reference();target,basis=self._target_estimate(estimate)
                         proposal=self.geometry.propose(measured['positions'],target,original_native_period_s=self.native_period)
@@ -394,12 +515,19 @@ class PiNativeRetargetService:
                         evidence={**measured,'target_estimate_basis':basis,'target_boot_id':self.target_boot,
                                   'registration_sha256':(getattr(self.geometry,'registration',None) or {}).get('sha256'),
                                   'geometric_proposal':deepcopy(proposal),'cross_device_clock_mapping_assumed':False}
-                        receipt=self.client.input(target_epoch,sequence,proposal['joint_velocity_deg_s'],evidence)
+                        started=self.clock()
+                        receipt=self.client.input(target_epoch,sequence,proposal['joint_velocity_deg_s'],evidence,
+                            authorization_id=self.authorization_id)
+                        ended=self.clock()
                         with self.lock:
                             if self.epoch==local_epoch and self.mode=='ACTIVE':
                                 self.estimate=receipt.get('command_estimate')
                                 self.last_source_stamp=measured['monotonic_ns'];self.sample_count+=1
                                 self.last_result={'proposal':proposal,'target_receipt':receipt,'native_dispatched':False}
+                                self.last_proposal=deepcopy(self.last_result)
+                                if ended>=started:self.round_trips.append(ended-started)
+                                self.last_source_age_ns=started-measured['monotonic_ns']
+                            else:self.discarded_late_replies+=1
                 except Exception as error:
                     with self.lock:
                         if self.epoch==local_epoch and self.mode=='ACTIVE':

@@ -6297,6 +6297,74 @@
         "tests/test_physical_camera_inventory.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-03-EXPLICIT-HELD-SOURCE-20261027",
+      "function_or_module": "shared/explorer_shared/pi_native_retarget.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/NATIVE_PI_SOURCE_RU.md",
+          "role": "Existing original native stream ABI and explicit USER hold/source ownership contract"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/native_stream03.py",
+          "role": "Unchanged original mux/lease/native publication implementation reused; no controller setting changes"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Source start/recenter CLUTCHED until first explicit neutral held edge; exact retained native/source/auth scope, no foreignGET adoption, scopedHTTPSTOP, unknownbegin, late lifecycle fences and immutable operator profile on unchanged full9D contract.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_pi_native_hold_gate.py",
+        "tests/test_pi_native_retarget.py",
+        "tests/test_native_stream03.py",
+        "tests/test_native_capture_service.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-03-OWNED-AUTH-REFERENCE-CLIENT-20261027",
+      "function_or_module": "shared/explorer_shared/native_stream03_client.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/NATIVE_PI_SOURCE_RU.md",
+          "role": "Existing original native stream ABI and explicit USER hold/source ownership contract"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/native_stream03.py",
+          "role": "Unchanged original mux/lease/native publication implementation reused; no controller setting changes"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Existing nativeHTTP ABI only; explicit perattempt authorization overrides mutable clientdefault; bounded actual reference/error reasons preserved without feedback/reset/controller changes.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_pi_native_hold_gate.py",
+        "tests/test_pi_native_retarget.py",
+        "tests/test_native_stream03.py",
+        "tests/test_native_capture_service.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

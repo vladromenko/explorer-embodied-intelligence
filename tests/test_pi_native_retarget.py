@@ -41,6 +41,7 @@ class Geometry:
 class Peer:
     def __init__(self):
         self.calls=[];self.active=False;self.epoch=None;self.serial=0
+        self.state='STOPPED';self.chassis=False;self.authorization_id='fake-original-user-grant'
         self.entered=threading.Event();self.release=threading.Event();self.block=None
     def _call(self,name,value=None):
         self.calls.append((name,deepcopy(value)))
@@ -48,7 +49,8 @@ class Peer:
             self.entered.set();assert self.release.wait(3)
     def status(self):
         self._call('status')
-        return {'execution_permission':True,'active':self.active,'stop_latched':not self.active,
+        return {'execution_permission':True,'active':self.active,'stop_latched':not self.active,'state':self.state,
+                'activation':{'authorization_id':self.authorization_id},'chassis_motion_allowed':self.chassis,
                 'boot_id':'nano-boot','control_epoch':self.epoch,'original_stream_config':{'publish_period_s':.04}}
     def reference(self):
         self._call('reference')
@@ -56,15 +58,15 @@ class Peer:
     def select_keyboard(self,**kwargs):
         self._call('select',kwargs)
     def begin(self,**kwargs):
-        self._call('begin',kwargs);self.serial+=1;self.epoch='native-'+str(self.serial);self.active=True
+        self._call('begin',kwargs);self.serial+=1;self.epoch='native-'+str(self.serial);self.active=True;self.state='CLUTCHED'
         return {'control_epoch':self.epoch}
     def resume(self,epoch,**kwargs):
-        self._call('resume',epoch);assert epoch==self.epoch
-    def recenter(self,epoch):
+        self._call('resume',epoch);assert epoch==self.epoch;self.state='ACTIVE'
+    def recenter(self,epoch,**kwargs):
         self._call('recenter',epoch);assert epoch==self.epoch
-        self.serial+=1;self.epoch='native-'+str(self.serial)
+        self.serial+=1;self.epoch='native-'+str(self.serial);self.state='CLUTCHED'
         return {'control_epoch':self.epoch}
-    def input(self,epoch,sequence,velocity,evidence):
+    def input(self,epoch,sequence,velocity,evidence,**kwargs):
         self._call('input',{'epoch':epoch,'sequence':sequence,'velocity':velocity,'evidence':evidence})
         if epoch!=self.epoch or not self.active:
             raise ValueError('Native rejects stopped/preclutch epoch')
@@ -73,7 +75,7 @@ class Peer:
         self._call('base',{'epoch':epoch,'actions':actions,**kwargs});assert epoch==self.epoch and self.active
         return {'accepted':True,'native_dispatched':False}
     def stop(self,epoch):
-        self._call('stop',epoch);assert epoch==self.epoch;self.active=False
+        self._call('stop',epoch);assert epoch==self.epoch;self.active=False;self.state='STOPPED'
     def capture_start(self,context):
         self._call('record/start',context);return {'recording_id':'e'*32,'owner':'nano'}
     def capture_stage(self,ident,phase,**metadata):
@@ -87,8 +89,10 @@ def service(tmp_path):
     return PiNativeRetargetService(Geometry(),station,tmp_path,peer,allow_synthetic=True),station,peer
 
 
-def start(service):
-    return service.start({'expected_control_epoch':service.epoch,'observing':True})
+def start(service,*,held=True,operator_profile='ARM_ONLY'):
+    state=service.start({'expected_control_epoch':service.epoch,'observing':True,'operator_profile':operator_profile})
+    if held:state=service.lease({'control_epoch':state['control_epoch'],'sequence':0,'held':True,'observing':True,'base_actions':{}})
+    return state
 
 
 def wait_for(predicate):
@@ -116,7 +120,7 @@ def test_independent_latest_loop_coalesces_cache_without_finite_queue_or_auto_na
         wait_for(lambda:source.sample_count==2)
         inputs=[value for name,value in peer.calls if name=='input']
         assert [value['velocity'] for value in inputs]==[[1.]*6,[3.]*6]
-        assert not any(name=='base' for name,_ in peer.calls)
+        assert len([name for name,_ in peer.calls if name=='base'])==1  # explicit first held only
         assert inputs[-1]['evidence']['state_source']=='measured_leader'
         assert inputs[-1]['evidence']['cross_device_clock_mapping_assumed'] is False
         assert not source.status()['last_result']['native_dispatched']
@@ -127,16 +131,16 @@ def test_independent_latest_loop_coalesces_cache_without_finite_queue_or_auto_na
 
 def test_explicit_lease_uses_same_native_base_mux_and_rejects_chassis_motion_old_epoch(tmp_path):
     source,_,peer=service(tmp_path);state=start(source);old=state['control_epoch']
-    source.lease({'control_epoch':old,'sequence':0,'held':True,'observing':True,'base_actions':{}})
-    with pytest.raises(PermissionError,match='CHASSIS'):
-        source.lease({'control_epoch':old,'sequence':1,'held':True,'observing':True,'base_actions':{'forward':1}})
+    source.lease({'control_epoch':old,'sequence':1,'held':True,'observing':True,'base_actions':{}})
+    with pytest.raises(PermissionError,match='ARM_ONLY'):
+        source.lease({'control_epoch':old,'sequence':2,'held':True,'observing':True,'base_actions':{'forward':1}})
     with pytest.raises(ValueError,match='heartbeat'):
-        source.lease({'control_epoch':old,'sequence':0,'held':True,'observing':True})
+        source.lease({'control_epoch':old,'sequence':1,'held':True,'observing':True})
     state=source.recenter({'expected_control_epoch':old,'observing':True})
     assert state['control_epoch']!=old and state['target_control_epoch']=='native-2'
     with pytest.raises(ValueError,match='epoch'):
         source.lease({'control_epoch':old,'sequence':2,'held':True,'observing':True})
-    assert len([1 for name,_ in peer.calls if name=='base'])==1
+    assert len([1 for name,_ in peer.calls if name=='base'])==2
     source.close()
 
 
@@ -145,9 +149,10 @@ def test_recenter_revokes_source_immediately_and_delayed_http_frame_is_rejected_
     try:
         peer.block='input';station.update(1);source.wake.set();assert peer.entered.wait(2)
         state=source.recenter({'expected_control_epoch':state['control_epoch'],'observing':True})
-        assert state['state']=='ACTIVE' and state['target_control_epoch']=='native-2'
+        assert state['state']=='CLUTCHED' and state['target_control_epoch']=='native-2'
         peer.block=None;peer.release.set();wait_for(lambda:not source.step_inflight)
-        assert source.sample_count==0 and source.status()['state']=='ACTIVE'
+        assert source.sample_count==0 and source.status()['state']=='CLUTCHED'
+        source.lease({'control_epoch':state['control_epoch'],'sequence':0,'held':True,'observing':True,'base_actions':{}})
         station.update(2);source.wake.set();wait_for(lambda:source.sample_count==1)
         assert source.status()['last_result']['target_receipt']['accepted']
     finally:
@@ -181,7 +186,7 @@ def test_stale_leader_interrupts_without_automatic_lease_or_restart(tmp_path):
     station.tick-=3_000_000_000;source.start_worker()
     try:
         wait_for(lambda:source.status()['state']=='INTERRUPTED')
-        assert not any(name in ('input','base','stop') for name,_ in peer.calls)
+        assert not any(name in ('input','stop') for name,_ in peer.calls)
         assert 'stale' in source.error
     finally:
         source.close()
@@ -259,5 +264,12 @@ def test_authenticated_pi_node_selects_new_service_and_exposes_native_record_pro
         request('/arm-retarget/record/finish',{'recording_id':ident,'outcome_evidence':{'operator_outcome':'unknown'}})
         assert request('/arm-retarget/recordings')=={'recordings':[]}
         assert peer.calls[-1][1]['outcome']=={'operator_outcome':'unknown'}
+        with pytest.raises(HTTPError) as stale_stop:request('/arm-retarget/stop',{})
+        assert stale_stop.value.code==400 and peer.active
+        # Existing explicit Node global Station STOP calls the INTERNAL helper,
+        # while actual devices and the real Station executor are absent here.
+        agent.station_observed=None;station.command=lambda operation,body:{'state':'MOCK_STOPPED','operation':operation}
+        assert request('/station/stop',{})['state']=='MOCK_STOPPED'
+        assert not peer.active and source.status()['state']=='STOPPED'
     finally:
         server.shutdown();server.server_close();source.close();agent.delivery.close()

@@ -26,11 +26,58 @@ native base mux. Default chassis prohibited допускает нейтраль�
 
 Start требует существующего native STOP, наблюдения, реальной cross-map и
 `execution_permission=true` исходного mount. Mount по умолчанию false до
-отдельного user-observed test. Рецентрирование немедленно меняет source epoch,
-а native recenter меняет target epoch: запоздавший pre-clutch HTTP intent не
-принимается после resume. STOP ждёт завершения уже начатого begin/recenter,
-затем отзывает и поздно созданный target epoch; новый start до этого запрещён.
+отдельного user-observed test. **Start/recenter возвращают CLUTCHED**: измерения
+leader ещё не вызывают intent, а resume и lease не генерируются worker. Сам
+явный USER start выполняет существующий native begin с настоящим neutral base0
+host request; это CONTROL, не чистый metadata preview и не измерение скорости.
+
+Статус объявляет `source_hold_gate_schema=explorer_pi_native_explicit_hold_v1`.
+Root должен требовать этот marker перед start/recenter/lease: старый Pi backend
+с немедленным ACTIVE не эквивалентен новому held gate при смешанном релизе.
+`operator_profile` выбирается в start: `ARM_ONLY` по умолчанию или
+`MOBILE_MANIPULATION`. Он закреплён до конца попытки. Первый запрещает любой
+ненулевой base intent даже при гипотетическом разрешении шасси; второй требует
+текущего native разрешения. Оба сохраняют **тот же единый action9 contract**,
+нейтральные каналы и общий Dataset/Skill/model; motor settings не меняются.
+
+Первый явный свежий `lease` с `held:true, observing:true`, текущим source epoch
+и возрастающим sequence должен содержать нейтральную базу. Он повторно проверяет
+собственный сохранённый target epoch/boot/generation/USER authorization и текущий
+measured leader owner/clock/calibration. Затем берёт свежую опорную пару
+leader/reference, вызывает original native resume для **этого** target epoch,
+передаёт нейтральный lease frame и лишь после этого переводит source в ACTIVE.
+В CLUTCHED можно переставить leader; его новая поза на held edge не эхом посылается
+на цель. Никакого resume, heartbeat или продления исходной0.45 lease от source
+sample, poll, render или таймера нет. Отпускание кнопки завершает попытку; новый
+held без нового явного start не возобновляет её автоматически.
+
+Рецентрирование немедленно меняет source epoch, а native recenter меняет target
+epoch и остаётся CLUTCHED до отдельного held edge. Запоздавший pre-clutch intent
+не принимается, source sequence lease начинается заново для нового source epoch.
+HTTP `command('stop')` требует **сохранённый своим клиентом** control_epoch или
+expected_control_epoch. Отсутствующий/устаревший epoch не отменяет новую попытку.
+Внутренний `stop()` для отдельного явного Node global STOP сохраняется, но он
+отзывает только известный собственный target epoch, никогда не выбирает чужой
+epoch из GET. Header global STOP исходного native owner — отдельное действие.
+STOP ждёт уже начатый begin/recenter/first-held, затем отзывает и поздно созданный
+собственный target epoch; новый start до этого запрещён. Потерянный begin reply
+остаётся UNKNOWN, а не ложным «STOP доставлен»: чужой active owner не отменяется;
+подтверждённый GET inactive может снять неопределённость без owner adoption.
 Закрытие observer не посылает actuator POST и не генерирует lease.
+
+`source_cache_claimed` отмечает retained target/lifecycle/step/pending/unknown
+ownership; Root Node guard должен использовать marker для блокировки конкурирующего
+personal-lab start, пока source использует общий measured cache (отдельный Node/UI
+hook). `last_proposal` и `last_lease_receipt` раздельны,
+чтобы очередной held frame не стирал FK/IK proposal. Timing ring последних64 HTTP
+RTT и source-cache age измерен только Pi monotonic clock. Это API round trip,
+**не** latency привода, контакт, stationarity или cross-device clock conversion.
+Типизированная ошибка reference сохраняет original MCU/stale reason; отсутствие
+measured target feedback само по себе не блокирует command-estimate.
+
+Для03 достаточно единственного подтверждённого target camera stream на Nano.
+Единственная Pi Logitech — необязательный отдельный вид leader/workfield,
+не silent fallback и не синхронизированный автоматически второй target stream.
 
 Private config `arm-retarget-peer.json` сохраняет прежние имена `nano_url`,
 `nano_node_token`; секрет не коммитится. Новая отдельная private cross-map:

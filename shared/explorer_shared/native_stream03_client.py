@@ -4,11 +4,25 @@ No device access or motor setting writes; a source sample does not renew the
 original native user-observation lease. This client does not run automatically.
 """
 import json
+import hashlib
 from pathlib import Path
 import re
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 from urllib.parse import urlsplit
+
+_CURRENT_AUTHORIZATION=object()
+
+
+class NativeStreamRejected(RuntimeError):
+    """Bounded authenticated Source reason, never a manufactured command state."""
+    def __init__(self,path,status,raw):
+        try:packet=json.loads(raw);reason=packet.get('detail') or packet.get('error')
+        except (ValueError,UnicodeError,AttributeError):reason=None
+        self.source_error={'status':status,'route':path,'reason':reason or 'Source HTTP'+str(status),
+            'response_sha256':hashlib.sha256(raw).hexdigest(),'measured_feedback_required':False}
+        code='NATIVE_REFERENCE_UNAVAILABLE' if status==409 and ('reference' in path or 'reference' in str(reason).lower()) else 'NATIVE_STREAM_REJECTED'
+        super().__init__(code+': '+str(self.source_error['reason']))
 
 
 class NativeStreamClient:
@@ -22,9 +36,9 @@ class NativeStreamClient:
         self.prefix='/legacy/explorer/retarget/'
         self.authorization_id=None
 
-    def _request(self, operation, body=None, *, preserve_source_bytes=False):
+    def _request(self, operation, body=None, *, preserve_source_bytes=False,authorization_id=_CURRENT_AUTHORIZATION):
         if body is not None and operation in ('begin','recenter','resume','input','base'):
-            body={**body,'authorization_id':self.authorization_id}
+            body={**body,'authorization_id':self.authorization_id if authorization_id is _CURRENT_AUTHORIZATION else authorization_id}
         return self._send(self.prefix+operation,body,preserve_source_bytes=preserve_source_bytes)
 
     def _send(self,path,body=None,*,preserve_source_bytes=False):
@@ -39,7 +53,10 @@ class NativeStreamClient:
                     raise ValueError('Native receipt page exceeds its source bound')
                 payload = json.loads(raw)
         except HTTPError as exc:
-            raise RuntimeError('Native stream request rejected with HTTP '+str(exc.code)) from exc
+            try:raw=exc.read(32*1024+1)
+            finally:exc.close()
+            if len(raw)>32*1024:raise RuntimeError('Native rejected response exceeds bounded error receipt') from exc
+            raise NativeStreamRejected(path,exc.code,raw) from exc
         if not isinstance(payload,dict):
             raise ValueError('Native owner returned an invalid receipt')
         return {'payload':payload,'source_bytes':raw} if preserve_source_bytes else payload
@@ -60,21 +77,21 @@ class NativeStreamClient:
             raise ValueError('Nonnegative bounded native dispatch cursor required')
         return self._request('dispatch?after_sequence='+str(sequence),preserve_source_bytes=True)
 
-    def begin(self, *, observing, neutral):
-        return self._request('begin',{'observing':observing,'neutral':neutral})
+    def begin(self, *, observing, neutral,authorization_id=_CURRENT_AUTHORIZATION):
+        return self._request('begin',{'observing':observing,'neutral':neutral},authorization_id=authorization_id)
 
-    def recenter(self, epoch):
-        return self._request('recenter',{'control_epoch':epoch})
+    def recenter(self, epoch,*,authorization_id=_CURRENT_AUTHORIZATION):
+        return self._request('recenter',{'control_epoch':epoch},authorization_id=authorization_id)
 
-    def resume(self, epoch, *, observing):
-        return self._request('resume',{'control_epoch':epoch,'observing':observing})
+    def resume(self, epoch, *, observing,authorization_id=_CURRENT_AUTHORIZATION):
+        return self._request('resume',{'control_epoch':epoch,'observing':observing},authorization_id=authorization_id)
 
-    def input(self, epoch, sequence, velocity, evidence):
+    def input(self, epoch, sequence, velocity, evidence,*,authorization_id=_CURRENT_AUTHORIZATION):
         return self._request('input',{'control_epoch':epoch,'source_sequence':sequence,
-                                     'joint_velocity_deg_s':velocity,'source_evidence':evidence})
+                                     'joint_velocity_deg_s':velocity,'source_evidence':evidence},authorization_id=authorization_id)
 
-    def keyboard_base(self, epoch, actions, *, observing):
-        return self._request('base',{'control_epoch':epoch,'actions':actions,'observing':observing})
+    def keyboard_base(self, epoch, actions, *, observing,authorization_id=_CURRENT_AUTHORIZATION):
+        return self._request('base',{'control_epoch':epoch,'actions':actions,'observing':observing},authorization_id=authorization_id)
 
     def stop(self, epoch):
         return self._request('stop',{'control_epoch':epoch})
