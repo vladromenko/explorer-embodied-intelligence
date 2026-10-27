@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-27T19:07:04+03:00`
-Code commit: `da58d339650e76427bdc95366ea39cff8e24fdad`
+Updated: `2026-10-27T19:30:02+03:00`
+Code commit: `974dcd4b29d1fbdcf725abfd1240d637aec9682b`
 Current task: `E04-COHORT`
 Next tasks: `E04-COHORT`, `E04-UI`, `E04-RELEASE`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
