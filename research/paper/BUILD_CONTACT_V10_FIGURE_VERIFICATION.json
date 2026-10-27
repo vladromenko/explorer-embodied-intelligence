@@ -1,0 +1,78 @@
+{
+  "schema": "explorer_contact_v10_figure_build_verification_v1",
+  "standalone_figure_compiled": true,
+  "pdf_pages": 1,
+  "pdfinfo": "Title:           V10 matched development contact diagnostics\nAuthor:          \nCreator:         Matplotlib Agg source-locked engineering plot\nProducer:        Matplotlib pdf backend v3.6.3\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       590.4 x 302.4 pts\nPage rot:        0\nFile size:       20144 bytes\nOptimized:       no\nPDF version:     1.4\n",
+  "pdffonts": "name                                 type              encoding         emb sub uni object ID\n------------------------------------ ----------------- ---------------- --- --- --- ---------\nBMQQDV+DejaVuSans                    CID TrueType      Identity-H       yes yes yes     20  0\n",
+  "fonts_embedded": true,
+  "font_type": "CID TrueType subset, not Type3",
+  "anonymous_Author_metadata": true,
+  "PNG_visually_reviewed": true,
+  "visual_review": "All16cells and matched rows aligned; signs/counts/penetration labels readable, no clipping observed.",
+  "current_full_paper_compiled": false,
+  "current_full_paper_page_count": null,
+  "reason": "No pdflatex, tectonic, lualatex, xelatex or latex executable installed on this host; none installed by this task.",
+  "current_source_sha256": {
+    "main.tex": "2b8efc2e106fc0693bc095139ec5f76cb2e3e40b5510838afa42e51f1b0d1d9f",
+    "IEEEtran.cls": "d63d4bf27f29603a733d06e27ba5fbb40488acf9d1d696354a88b886758f70a7",
+    "references.bib": "ab2dcc11587f140b55922f9f2a45ac6e36af8ac4943309adbece9bcd3762ee9f"
+  },
+  "previous_full_paper_build_receipt_sha256": "c30d59bbdb11060d6995bdb3adc4871c19a4ba7007a2e5dc0d553566bcc40344",
+  "previous_full_paper_build_is_historical": true,
+  "submission_ready": false,
+  "artifact_sha256": {
+    "contact_development_v10.pdf": "c19dc28c0ef674bbf4ef3158e51e705c804d2a8d2efc5b36e18a61393ed7d1b9",
+    "contact_development_v10.png": "defff603f8632030a2a750b4e652f53033ea2308b059e645bb49aa6ce379a9f1",
+    "contact_development_v10.csv": "cbe2d41c847e44f472f6a2e21a0e7e3939e4676b02fed562a6007e0d3dedb4da",
+    "contact_development_v10_paired_counts.csv": "fc0deedcdf87c284ebfda0d1290da498fc928d9365b224fd1295691f890f17ad",
+    "contact_development_v10_PROVENANCE.json": "a0e22f59734ae31c01e633e3c71604ef543e7dfcbd47faaf6c4f4d35e09b2f52",
+    "contact_development_v10_RESOURCES.json": "8d8a290c94779ee3f194e5a9f1d224517bc609b683f9308df2a9c057a236d9a7"
+  },
+  "original_raw_inputs_unchanged": true,
+  "plotting_unit": {
+    "name": "explorer-contact-v10-plot-20261027-a1.service",
+    "invocation_id": "36865013c2af4f4683fb3fccd2cb9e5d",
+    "exit_code": 0,
+    "unit_runtime_s": 4.784,
+    "journal_sha256": "b755b27b6a2d3fa92ae92cb3c250cbd4d87b0205541166f158a6a04b175464fd"
+  },
+  "full_task_success_claimed": false,
+  "physics_accuracy_validated": false,
+  "learned_repair_tested": false,
+  "physical_io": false,
+  "frozen_condition_parameters": [
+    {
+      "id": "captured-physics",
+      "initial_object": "captured_free_preimpact",
+      "slab_half_height_m": 0.004,
+      "timestep_s": 0.002
+    },
+    {
+      "id": "quarter-timestep",
+      "initial_object": "captured_free_preimpact",
+      "slab_half_height_m": 0.004,
+      "timestep_s": 0.0005
+    },
+    {
+      "id": "thick-bottom-same-top",
+      "initial_object": "captured_free_preimpact",
+      "slab_half_height_m": 0.02,
+      "timestep_s": 0.002
+    },
+    {
+      "id": "low-drop-rest",
+      "initial_object": "same_xy_orientation_minimum_z_top_plus_0.015_and_object_velocity_zero",
+      "slab_half_height_m": 0.004,
+      "timestep_s": 0.002
+    }
+  ],
+  "frozen_contact_acceptance": {
+    "complete_object_task_success": false,
+    "require_zero_object_robot_contacts_in_terminal_window": true,
+    "support_force_scope": "signed_world_force_separate_from_normal_magnitude",
+    "terminal_object_max_speed_m_s": 0.05,
+    "terminal_object_minimum_z_tolerance_below_slab_top_m": 0.001,
+    "terminal_window_s": 0.2
+  },
+  "frozen_protocol_sha256": "87f8c80a391f06d57263098d3da5c23007d0e811c57f62488a69006dd174ae45"
+}

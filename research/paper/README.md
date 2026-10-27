@@ -11,3 +11,19 @@ This artifact is **not submission-ready**. Required work includes selecting a ce
 The vendored class retains its original copyright and LPPL 1.3 notices. No font size, page dimensions or line spacing have been changed. The current CFP takes precedence over old example-template prose.
 
 The engineering follow-up uses byte-preserved `_registry/evidence/` snapshots under `research/experiments/nx-engineering-20261026/`. Its figure separates simulated development reach counts from synthetic numerical parity; the initial failed GPU parity check is preserved. Technical hold/recording, stationary-source fits and live CPU shadow runs establish only their explicitly recorded interfaces. Historical simulator BC included two failed episodes and does not validate the corrected success-only selector. No CPU/GPU speed ratio or physical task-success claim is made.
+
+
+The new `contact_development_v10` figure/CSV/provenance files report sixteen
+contact-only attempts on four matched, previously inspected development scenes
+per condition. These new initial-condition diagnostics do not amend the original
+V9 outcomes, validate physics, or test a learned repair. Raw trajectory/substep
+hashes were first registered after the producer exited; that distinction remains
+in the CSV and provenance. Standalone PDF/PNG renders are byte-identical across
+two renders in the same pinned process/environment. The PDF embeds its subset
+CID TrueType font and contains no Type3 font.
+
+`BUILD_CONTACT_V10_FIGURE_VERIFICATION.json` describes only this new figure and
+the updated manuscript source. The earlier `BUILD_VERIFICATION.json` remains an
+unchanged historical three-page build tied to its original source SHA. The
+updated full manuscript has **not** been compiled on Homebrain: no TeX compiler
+is installed here, and no current page-count/font/venue-compliance claim is made.

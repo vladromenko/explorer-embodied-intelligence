@@ -1,0 +1,1 @@
+{"cgroup":"/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-v10-plot-20261027-a1.service","cpu_quota_cores":1,"failure":null,"memory_events":"low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n","memory_max_bytes":536870912,"memory_peak_bytes":184815616,"swap_peak_bytes":0}

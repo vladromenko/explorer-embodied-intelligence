@@ -1,0 +1,5 @@
+condition,matched_source_cases,contact_recovered,contact_not_recovered,both_recovered,gained_contact_recovery,lost_contact_recovery,both_not_recovered
+captured-physics,4,2,2,2,0,0,2
+quarter-timestep,4,3,1,2,1,0,1
+thick-bottom-same-top,4,4,0,2,2,0,0
+low-drop-rest,4,4,0,2,2,0,0
