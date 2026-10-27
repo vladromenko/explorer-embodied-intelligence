@@ -1,0 +1,93 @@
+{
+  "schema": "explorer_so101_source_capture_adapter_software_qualification_v1",
+  "date": "2026-10-27",
+  "source_base_commit": "65ae9d0",
+  "scope": "SOFTWARE_FIXTURES_METADATA_ONLY_ORIGINAL_STATION_WRITER_NO_CONNECTED_HARDWARE",
+  "code_sha256": {
+    "shared/explorer_shared/capture_timeline.py": "b4c9e743d06ead5fde879802bce66dd7b4e4b8fa95ac725b8136004016679a4d",
+    "shared/explorer_shared/sealed_capture_review.py": "e654f4d4772f6809950b2cf111e8c5d3832e534218e7ea0597d664b0c4a97dbb",
+    "shared/explorer_shared/native_capture.py": "d62025d15c04a2c7d4b11f79d7b78def5228c8d9669782ffe341964d7d4be23d",
+    "shared/explorer_shared/so101_station.py": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+    "04-so101-source-learning/src/explorer_so101/capture_adapter.py": "348fd850e58b2189eeccd25d79345ea07b1499701d014a39b29df839a00c18b3",
+    "tests/test_capture_metadata_core.py": "14f196a44149527bf2e889422226dd06ef300db8ce3e1e67c41c495cea4868f9",
+    "tests/test_so101_capture_adapter.py": "5c38b9e1df161ff6e061d63189f6cf40fe76c9e30ae912e79dece6c081ef4b19"
+  },
+  "tests": {
+    "passed": 65,
+    "failed": 0,
+    "pytest_seconds": 4.08,
+    "command": [
+      "/home/jetsonnx/.local/share/explorer/venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_so101_capture_adapter.py",
+      "tests/test_capture_metadata_core.py",
+      "tests/test_native_capture_lifecycle.py",
+      "tests/test_native_capture_approval.py",
+      "tests/test_native_capture.py",
+      "tests/test_native_capture_service.py",
+      "tests/test_station_record_finish_identity.py"
+    ],
+    "actual_original_station_file_writer_used": true,
+    "optional_torch_absent_asserted": true,
+    "native02_native03_review_ascii_bytes_unchanged": true,
+    "raw_samples_and_original_archives_unchanged_asserted": true,
+    "cases": [
+      "short_pause_and_large_integer_source_clock",
+      "state_action_cross_resume_excluded",
+      "cancel_without_STOP",
+      "interrupted_cannot_approve",
+      "unknown_start_finish_restart_no_adoption",
+      "foreign_recording_and_native_epoch",
+      "calibration_boot_clock_context_change",
+      "delayed_archive_status_zero_source_IO",
+      "duplicate_old_ID_and_failed_second_start_preserve_previous_seal",
+      "metadata_disk_failure_and_corrupt_journal",
+      "sealed_archive_tamper",
+      "approve_reject_SHA_history",
+      "existing_native_capture_service_lifecycle_regressions"
+    ]
+  },
+  "resources": {
+    "cpu_max": "100000 100000",
+    "memory_max": 1073741824,
+    "swap_max": 0,
+    "actual_kernel_memory_peak": 76664832,
+    "actual_swap_peak": 0,
+    "last_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+    "runtime_seconds": 6.038221986003919,
+    "child_pid": 2531586,
+    "child_starttick": "14862020",
+    "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2"
+  },
+  "raw_evidence": {
+    "directory": "/mnt/explorer-data/explorer-work/04-metadata-adapter-20261027-a",
+    "final_log_sha256": "03d648b7fa747b868a30e3b5a40ddd46503d679f376ba91ab4ee9d0f40144eb7",
+    "resource_sha256": "719c065c291d04868cb570a2658a316e07c8a8d86efe40d31d7b2f2c7389db90",
+    "preliminary_negative": {
+      "file": "run.log",
+      "sha256": "c93ebf6f09cee1f88c35d113711bdebb44d4a7bf6333681617c10fa106eaccd0",
+      "result": "15 failed,20 passed",
+      "cause": "New fake fixture omitted measurements.monotonic_ns required by unchanged original Station.status; fixture corrected, negative retained"
+    },
+    "preliminary_positive_logs": {
+      "run-b.log": "923d00f96ccab129b93f4befea00ea0425eff0a171108c9308723eda8e7e242c",
+      "run-c.log": "3ac38c2d6d9bc4be464039324a57d09c196f8267fdfbfe7f722b46c9c8c06f68",
+      "run-final.log": "959b2b8a8c2aa7bee44420d38cd16267142979be34d6a4f63fba4c1c9786bf39"
+    }
+  },
+  "physical_control_requests": 0,
+  "network_requests": 0,
+  "optimizer_updates": 0,
+  "actual_sensor_data_used": false,
+  "deployed": false,
+  "source04_software_ready": false,
+  "remaining": [
+    "Root source-only Pi profile and zero-write shutdown/admission qualification",
+    "source04_demo guarded purpose and scoped UI cleanup",
+    "Node/API/Store approval-only import and common Range transfer profile",
+    "native6 Dataset adapter consuming sealed source-bound pause segments",
+    "vertical software deployment and independent physical/demo acceptance"
+  ]
+}

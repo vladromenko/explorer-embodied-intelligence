@@ -19,6 +19,8 @@ import time
 import uuid
 
 from .contracts import ACTION_NAMES,ACTION_UNITS
+from .capture_timeline import pause_intervals,resume_intervals
+from .sealed_capture_review import read_source_review,review_sealed_capture
 from .embodied_episode import (SCHEMA,ACTION_CONTRACT_ID,COMMAND_ESTIMATE_PROFILE,
                                COMMAND_ESTIMATE_REQUIRED,REQUIRED_CHANNELS,inspect_embodied_episode)
 
@@ -139,7 +141,7 @@ class NativeCaptureWriter:
         with self.lock:
             if recording_id!=self.active or self.state!='RECORDING':
                 raise ValueError('Only the current recording can be paused')
-            self.pause_intervals.append({'start_monotonic_ns':self.clock(),'end_monotonic_ns':None})
+            self.pause_intervals=pause_intervals(self.pause_intervals,self.clock(),started_ns=self.started_ns)
             self.state='PAUSED'
             _write(self.folder/'manifest.json',_bytes(self.status()))
             return self.status()
@@ -148,7 +150,7 @@ class NativeCaptureWriter:
         with self.lock:
             if recording_id!=self.active or self.state!='PAUSED':
                 raise ValueError('Only the current paused recording can resume')
-            self.pause_intervals[-1]['end_monotonic_ns']=self.clock()
+            self.pause_intervals=resume_intervals(self.pause_intervals,self.clock(),started_ns=self.started_ns)
             self.state='RECORDING'
             _write(self.folder/'manifest.json',_bytes(self.status()))
             return self.status()
@@ -273,30 +275,14 @@ class NativeCaptureWriter:
                 raise ValueError('Review only a sealed original recording')
             if decision=='approve' and manifest['state']!='completed':
                 raise ValueError('Cancelled recordings cannot be approved')
-            with (folder/'recording.tar').open('rb') as source:actual=hashlib.file_digest(source,'sha256').hexdigest()
-            if actual!=expected_archive_sha256 or info['archive_sha256']!=actual:
-                raise ValueError('Review the exact unchanged recording archive')
-            previous=self.recording_review(recording_id)
-            receipt={'schema':'explorer_native_capture_review_v1','review_id':uuid.uuid4().hex,
-                'recording_id':recording_id,'archive_sha256':actual,'decision':decision,'actor_id':actor_id,
-                'reviewed_native_ns':self.clock(),'source_boot_id':self.boot,'source_clock_domain':self.domain,
-                'raw_archive_unchanged':True,'previous_review_sha256':previous.get('review_sha256')}
-            result={'source_review':receipt,'review_sha256':_sha(_bytes(receipt)),
-                    'transfer_ready':decision=='approve'}
-            reviews=folder/'reviews';reviews.mkdir(exist_ok=True)
-            _write(reviews/(receipt['review_id']+'.json'),_bytes(result))
-            _write(folder/'review.json',_bytes(result))
-            return deepcopy(result)
+            return review_sealed_capture(folder,recording_id,decision,actor_id,expected_archive_sha256,
+                state=manifest['state'],original_recording_id=manifest['recording_id'],recorded_archive_sha256=info['archive_sha256'],
+                boot_id=self.boot,clock_domain=self.domain,clock=self.clock,write=_write)
 
     def recording_review(self,recording_id):
         if not isinstance(recording_id,str) or not re.fullmatch('[0-9a-f]{32}',recording_id):
             raise ValueError('Original server recording identity required')
-        path=self.root/recording_id/'review.json'
-        if not path.is_file():return {'source_review':None,'review_sha256':None,'transfer_ready':False}
-        result=json.loads(path.read_bytes());receipt=result.get('source_review') or {}
-        if receipt.get('recording_id')!=recording_id or _sha(_bytes(receipt))!=result.get('review_sha256'):
-            raise ValueError('Original source review hash changed')
-        return result
+        return read_source_review(self.root/recording_id,recording_id)
 
     def preview_frame(self,recording_id,jpeg_sha256):
         if not isinstance(recording_id,str) or not re.fullmatch('[0-9a-f]{32}',recording_id) or not isinstance(jpeg_sha256,str) or not re.fullmatch('[0-9a-f]{64}',jpeg_sha256):

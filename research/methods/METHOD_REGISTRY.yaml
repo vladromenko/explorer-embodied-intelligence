@@ -6533,6 +6533,54 @@
         "tests/test_native_approval_training.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SHARED-CAPTURE-TIMELINE-20261027",
+      "function_or_module": "shared/explorer_shared/capture_timeline.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [{"url": "project-file:shared/explorer_shared/native_capture.py", "role": "Existing source-clock pause interval ABI extracted without action/clock conversion"}],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Reuse one pure source timeline for native02/03 and SO10104; exact integer timestamps, open pauses and zero-duration segment cuts; no controller changes.",
+      "verification": {"code_inspected": true, "software_tested": true, "hardware_tested": false},
+      "test_evidence": ["tests/test_capture_metadata_core.py", "tests/test_so101_capture_adapter.py", "tests/test_native_capture_lifecycle.py"],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SHARED-SEALED-CAPTURE-REVIEW-20261027",
+      "function_or_module": "shared/explorer_shared/sealed_capture_review.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [{"url": "project-file:shared/explorer_shared/native_capture.py", "role": "Existing immutable Source review receipt/schema/history/ASCII JSON ABI retained"}],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "One exact archive-bound post-seal approve/reject core shared by original NativeCaptureWriter and native6 adapter; approval never creates expert outcome or motor authority.",
+      "verification": {"code_inspected": true, "software_tested": true, "hardware_tested": false},
+      "test_evidence": ["tests/test_capture_metadata_core.py", "tests/test_so101_capture_adapter.py", "tests/test_native_capture_approval.py"],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SO101-DATA-CAPTURE-ADAPTER-20261027",
+      "function_or_module": "04-so101-source-learning/src/explorer_so101/capture_adapter.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [{"url": "project-file:shared/explorer_shared/so101_station.py", "role": "Unmodified original station recording writer/callbacks/raw native6 data reused"}, {"url": "project-file:04-so101-source-learning/docs/DEPLOYMENT_BOUNDARY_REVIEW_20261027_RU.md", "role": "Unqualified deployment/control boundaries remain explicit"}],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Fixed-callback metadata-only native6 recording lifecycle; preserve raw paused samples and original archive/manifest/JPEG bytes, source-owned selection intervals, uncertain/restart fences, shared immutable approval; no serial/camera/controller/second recorder.",
+      "verification": {"code_inspected": true, "software_tested": true, "hardware_tested": false},
+      "test_evidence": ["tests/test_so101_capture_adapter.py", "tests/test_capture_metadata_core.py"],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
