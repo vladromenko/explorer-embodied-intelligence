@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T02:37:00+03:00`
-Code commit: `559e9139ad1c0beb6872792a56928c46b1ffd0a0`
+Updated: `2026-10-28T02:47:00+03:00`
+Code commit: `78ba20b3dcbfe60694336e984813dc83da78fe30`
 Current task: `E05-MANUAL`
 Next tasks: `E05-MANUAL`, `E05-LEARNING`, `E06-PIPELINE`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -172,3 +172,10 @@ one-writer/late/foreign/fsync fences and data-only UI. Frozen targeted128PASS33.
 NOTdeployed, currentE05MANUAL. Далее finish/giver recovery +whole manual/manual
 FSM/actual generated UI, затем paired learning/full release. Live pins above
 не менялись; physical/master остаются OPEN.
+
+Candidate78ba20b DATA ownership/CAS: authenticated actor stored under record-IO;
+stage/finish recheck exact recording+actor inside lock, failed concurrent start
+cannot replace owner. Shared sealed DATA identity validator tested both04/05.
+114Python +current27Python /39Node contracts PASS,
+[proof](../_registry/evidence/experiment05-data-actor-sealed-identity-20261028.json).
+NOTdeployed; finish-ACK Root integration still OPEN, E05MANUAL continues.

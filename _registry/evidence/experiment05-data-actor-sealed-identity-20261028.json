@@ -1,0 +1,53 @@
+{
+  "schema": "explorer05_data_actor_and_sealed_identity_component_v1",
+  "code_commit": "78ba20b3dcbfe60694336e984813dc83da78fe30",
+  "status": "IMPLEMENTED_SOFTWARE_TESTED_NOT_DEPLOYED",
+  "verification": [
+    {
+      "scope": "owner/CAS/shared finish identity and both consumers",
+      "passed": 114,
+      "seconds": 11.12
+    },
+    {
+      "scope": "current concurrency +sealed identity",
+      "passed": 27,
+      "seconds": 5.47
+    },
+    {
+      "scope": "UI and real temporary backend contract",
+      "Node_passed": 39,
+      "ms": 2251.685031
+    }
+  ],
+  "raw": {
+    "05-data-owner-CAS-finish-identity-20261028-b.log": {
+      "path": "/mnt/explorer-data/explorer-work/05-data-owner-CAS-finish-identity-20261028-b.log",
+      "sha256": "eb2f88744f5b94ef5927a6c8c8138a20e96edbed6457b60041c1423481c2fa52"
+    },
+    "05-data-owner-concurrency-current-20261028.log": {
+      "path": "/mnt/explorer-data/explorer-work/05-data-owner-concurrency-current-20261028.log",
+      "sha256": "0bb6677720a1c13c1dbd1defea9ffe649367247d9a6009eb3ac95f61d30e2b60"
+    },
+    "05-data-owner-current-Node-20261028.log": {
+      "path": "/mnt/explorer-data/explorer-work/05-data-owner-current-Node-20261028.log",
+      "sha256": "9c01e460762b15c2db234adada81eec0af6dd1eb18d292a8b9b5323fa5cf58a2"
+    }
+  },
+  "properties": [
+    "Authenticated record actor stored only inside existing record-IO lock",
+    "Root rejects foreign bound actor before source start and foreign stage/finish caller",
+    "Record ID and caller rechecked inside stage/finish IO lock after outer API check",
+    "Concurrent failed start cannot replace first recording actor",
+    "Shared sealed DATA validator checks known context/actor/epoch/boot/calibrations/original receipt and source manifest SHA/outcome; returns only DATA identity",
+    "04 demo and05 cooperative original-writer fixtures both pass; UNKNOWN cannot acknowledge as success"
+  ],
+  "finish_recovery_Root_integration": "OPEN; validator only, not full finish-ACK flow",
+  "live_unchanged": {
+    "HB": "9766bc3ee495a104a16303fef0c4b4d4d215eef0",
+    "Pi_Nano": "c516de71c156b1d427f367be4a0754fe1b54bb81"
+  },
+  "actual_native_commands": 0,
+  "actual_native_grants": 0,
+  "physical_acceptance": false,
+  "controller_configuration_changes": 0
+}
