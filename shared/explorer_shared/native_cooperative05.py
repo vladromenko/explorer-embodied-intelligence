@@ -359,6 +359,7 @@ class NativeReceiverHoldBoundary:
         self.activation.revoke('NATIVE_COOPERATIVE_PUBLICATION_REFERENCE_UNKNOWN')
     def status(self):
         with self.lock:return {'schema':'explorer_native_receiver_hold_boundary_v1','binding':deepcopy(self.binding),
+            'source_stamp':{'monotonic_ns':self.clock(),'clock_domain':self.mux.tap.clock_domain,'boot_id':self.mux.tap.boot_id},
             'armed':self.armed,'pending_challenge':deepcopy(self.pending),'grant':deepcopy(self.grant),
             'last_publication':deepcopy(self.last_publication),'hold_ttl_ns':self.ttl_ns,
             'recent_opening_publications':deepcopy([entry for entry in self.events if entry.get('opening') is True][-8:]),

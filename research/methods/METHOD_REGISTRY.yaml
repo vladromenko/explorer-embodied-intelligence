@@ -5766,6 +5766,39 @@
         }
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-INSTALLED-PARKED-RELEASE-GRANT-20261027",
+      "function_or_module": "shared/explorer_shared/parked_release_transport05.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/giver_parked_release05.py",
+          "role": "Original bounded challenge and actual source-installed grant"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/cooperative_transport05.py",
+          "role": "Existing native publication and model/executor correlation"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_NEW_MODEL_OR_TRAINING",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Reuse existing native transports with a literal already-installed USER parked-release grant. Fresh fixed GETs validate native clock/expiry, actor, exact owner, durable latch and consumed proofs; no second authorize, lease renewal, target or model construction during binding. Native source status adds its own literal clock stamp only.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_parked_release_transport05.py",
+        "tests/test_native_web_startup_qualification.py",
+        "tests/test_native_repin_startup_qualification.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
