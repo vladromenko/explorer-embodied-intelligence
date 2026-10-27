@@ -61,3 +61,20 @@ inference над source fixture без dispatch. Инструментация т
 показы пока отсутствуют; production cohort остаётся blocked. Старый actual
 native reference fault также остаётся отдельным live-shadow blocker до USER
 наблюдаемого reference, без агентского HOME или включения readback.
+
+27.10.2026 на неизменном `f86b4c4142949ea0d5bd554c003c26a71c32d91e`
+этот opted-in CPU путь фактически прошёл: **3PASS67.78s**, unit runtime72.007s,
+CPU65s, максимальный наблюдённый kernel cgroup `memory.peak`2200776704байт,
+swap0/OOM0. Отдельные PID2416529→2416605 выполнили4+4, independent PID2416627
+выполнил8; safetensors и losses совпали. Saved DEV10 samples и настоящий
+ACT shadow над новым source fixture прошли; shadow inference35.68ms и0 dispatch.
+Все17 исходных SHA и cleanGit перепроверены после процесса.
+
+Компактная computational квитанция:
+`shared/training/NATIVE02_LEROBOT_CPU_20261027_QUALIFICATION.json`.
+Raw логи, исходники, Dataset indexes, Source originals, checkpoints и независимые
+worker identities сохранены по указанным SHA вне Git. Это finite private compute
+worker proof; он не переименовывает старую Supervisor/bootstrap квалификацию,
+не переносит произвольные старые resume checkpoints и не доказывает настоящие
+роботные показы. Root подключает API/UI/queue и выпускает отдельно проверенный
+релиз; агент ничего не развёртывал и не вызывал реальные motor/native APIs.

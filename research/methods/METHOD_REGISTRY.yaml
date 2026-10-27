@@ -6250,14 +6250,19 @@
       "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
       "model_license": "NO_WEIGHTS_IN_MODULE",
       "data_license": "NO_DATASET_IN_MODULE",
-      "changes_and_reason": "Worker-only official local LeRobot0.6.1 target9 interchange; separate TRAIN/DEV, exact raw source times/segments and logical non-native writer timestamps; actual opt-in roundtrip/ACT proof PENDING.",
+      "changes_and_reason": "Worker-only official local LeRobot0.6.1 native target9 interchange, source-bound pause chunks and independent source clocks; actual CPU fixture qualification3PASS includes roundtrip, ACT4/pause75/newPID+4 identical to uninterrupted8, saved DEV and GET-only actual-model shadow. No real demonstration, physical Source or task-success claim.",
       "verification": {
         "code_inspected": true,
-        "software_tested": false,
+        "software_tested": true,
         "hardware_tested": false
       },
       "test_evidence": [
-        "tests/test_rosmaster_native02_e2e.py"
+        "tests/test_rosmaster_native02_e2e.py",
+        {
+          "path": "shared/training/NATIVE02_LEROBOT_CPU_20261027_QUALIFICATION.json",
+          "qualification_source_commit": "f86b4c4142949ea0d5bd554c003c26a71c32d91e",
+          "scope": "FINITE_CPU_SOFTWARE_FIXTURES_ONLY_NOT_HARDWARE_OR_FULL_TASK"
+        }
       ],
       "hardware_run_ids": []
     }

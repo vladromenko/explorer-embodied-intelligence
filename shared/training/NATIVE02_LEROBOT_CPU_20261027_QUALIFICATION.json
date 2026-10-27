@@ -1,0 +1,154 @@
+{
+  "schema": "explorer_native02_lerobot_cpu_qualification_v1",
+  "qualification_source_commit": "f86b4c4142949ea0d5bd554c003c26a71c32d91e",
+  "qualified_source_files_sha256": {
+    "00-control-center/src/explorer/native_capture_cohort.py": "b9eaf5dff48a062392853d0449a065a332fcd4c1579140bc7b05451066b6458f",
+    "00-control-center/src/explorer/rosmaster_eval_job.py": "02c1fe6650e6c96d6af6c0088e90b42ff6f0e2f7e8748020d9abebc16b53d3f7",
+    "00-control-center/src/explorer/rosmaster_learning.py": "759d2c5856ba02c0bb07c3246455d84378c5f342fc99b8270e72cfa707e488f5",
+    "00-control-center/src/explorer/rosmaster_shadow_job.py": "a810b7e61d1dc4c4e1ca66e6f2cf6342fcb3a2cf8a3aba985e4212f7eb2db3a0",
+    "00-control-center/src/explorer/skill_workflow.py": "b9bc41ac368fdf3edfb76fc5860aa1c9b3c57f39b3d7dc4be0e09e5eced33048",
+    "shared/explorer_shared/learning/act_backend.py": "4bad89f03289705570aa7e4a2c2eeea571a319e2e7dcc7a8f4bd6df96b049137",
+    "shared/explorer_shared/learning/checkpoint_control.py": "4f62174e05516718299024be500677fb17948591830153fcc811f40d77959380",
+    "shared/explorer_shared/learning/rosmaster_lerobot_dataset.py": "60a30447966fd2940bebf2a8d1f1f6cb613f4a8f759969c3d9bddb1a200b5c21",
+    "shared/explorer_shared/learning/rosmaster_skill_features.py": "2ad274e56c0ec7bd3dff98461c21f0bcad3640ccc846cc8e5c5a4acb39b0d8e8",
+    "shared/explorer_shared/learning/rosmaster_skill_hybrid.py": "d5a103865a24ac70981a5e0e648c1aafe484551a3798f0201601f40682230274",
+    "shared/explorer_shared/learning/rosmaster_skill_pipeline.py": "90543a1182b196a38aa6a2d7c24a040fd79f7d3d733180f77ff1108e850cbaa6",
+    "shared/explorer_shared/learning/rosmaster_skill_segments.py": "f9ce8d1a79dd6dcbfd5f00896f45b462861dfef41c33081ccef38b007900fa7b",
+    "shared/explorer_shared/native_capture.py": "4a5ab1ff3d275461299bd096d6396393e095bb5960761785c62bba234c296172",
+    "shared/explorer_shared/native_capture_approval.py": "eaefd2c6bf542f8cd490309423aece7b1e21529e32a011aa749580398d9e484d",
+    "shared/explorer_shared/native_capture_service.py": "b3f9fee32c5324516d7731930c434a6658c072fef6f77eebf72be8808cb6ee67",
+    "tests/fixtures/native02_learning_worker.py": "05d3882efb54de0ce8a6160430cb63a58a1090d5f60fda88f0ce78dec5d5a64e",
+    "tests/test_rosmaster_native02_e2e.py": "65171215721e5cc2d992818bf942739d1c9181b867f38b15ef8a76b2d2132537"
+  },
+  "runtime_packages": {
+    "datasets": "4.8.5",
+    "lerobot": "0.6.1",
+    "numpy": "2.2.6",
+    "pyarrow": "26.0.0",
+    "torch": "2.11.0",
+    "torchvision": "0.26.0"
+  },
+  "raw_root": "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027",
+  "raw_immutable_receipts_sha256": {
+    "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/request.json": "5620d41cfbe2c7a8c5b6c0fb0c39a00fff8b5f0505eb4d56f8a68bdeafe0d847",
+    "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/invocation.json": "2b584ff15a5273f762b0e4ffce5d8f29de744241a3910351484dceb7334a57cf",
+    "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/resource-result.json": "62b1d52992f3c84a13e57c9156576c997b89e2f4ecf5e976340528d1b560708b",
+    "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/stdout.log": "f0171b8284dc25bdbe927c2a8505c04808d00cb7c11d0ee680a695f659d970f7",
+    "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/stderr.log": "01186cfa03f973de317d0ec672264a54a7e976ee2c6f0f0078b87e395a25c2b5",
+    "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/launch.py": "e7aaccaaf3c11e4178e83d8613adf906caab5ae3c2964e9b605c3bb90925b685",
+    "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/pytest/test_actual_native02_ACT_pause0/qualification.json": "4c90e93d9ab01c5509cd28d3ca9b69a05ba1e51ce3fc9dc8c1283901c2592c6c",
+    "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/pytest/test_actual_native02_ACT_pause0/nx/jobs/6713fdc383d34dec917b4a31aa91c1d5/model_manifest.json": "48c3bdf1d1d6424c383226d5ea619d863ab18b3919d398ae10d2aaa9a411b622",
+    "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/pytest/test_actual_native02_ACT_pause0/nx/jobs/6713fdc383d34dec917b4a31aa91c1d5/act_training.json": "1925282e8478f3303c0a9d37265575b5154d778d709ed4c3a9ce50f66e9ec378",
+    "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/pytest/test_actual_native02_ACT_pause0/nx/jobs/6713fdc383d34dec917b4a31aa91c1d5/optimizer-paused.json": "7ed88fe7868c339eec5561608b47b45ab7d920fcb61532a277373e7d66339bc2",
+    "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/pytest/test_actual_native02_ACT_pause0/nx/jobs/6713fdc383d34dec917b4a31aa91c1d5/act_resume/latest.json": "fb1348f508360e78facc98f327d8ade564a2861a262b13d86d3fab31740d8b57",
+    "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/pytest/test_actual_native02_ACT_pause0/nx/jobs/6713fdc383d34dec917b4a31aa91c1d5/lerobot_native9/train/explorer-source-index.json": "090e9870ddc0fd08dda711b045106136f63cde3454d405f3d2646bee4356a815",
+    "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/pytest/test_actual_native02_ACT_pause0/nx/jobs/6713fdc383d34dec917b4a31aa91c1d5/lerobot_native9/development/explorer-source-index.json": "b09aabbaaa78b299806d437a278057d88980935564aa78f2c2af052ff3f4cff9",
+    "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/pytest/test_actual_native02_ACT_pause0/nx/jobs/6713fdc383d34dec917b4a31aa91c1d5/result.json": "c5e069fee82108e72a251c62a705ecdf0f5a1ddd773b94a44f27c6ad2400ecc0"
+  },
+  "results": {
+    "pytest": "3 passed in67.78s",
+    "unit_exit_code": 0,
+    "elapsed_s": 72.1251355560089,
+    "actual_optimizer_updates_total": 16,
+    "resumed_completed_steps": 8,
+    "durable_pause_after_finished_steps": 4,
+    "new_process_additional_steps": 4,
+    "pause_exit_code": 75,
+    "uninterrupted8_weights_and_losses_identical": true,
+    "save_reload_passed": true,
+    "official_lerobot_roundtrip_passed": true,
+    "segment_chunk_padding_passed": true,
+    "source_originals_preserved": true,
+    "source_17pins_rechecked": true,
+    "git_clean_after_compute": true,
+    "official_dataset": {
+      "development_index_sha256": "b09aabbaaa78b299806d437a278057d88980935564aa78f2c2af052ff3f4cff9",
+      "development_path": "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/pytest/test_actual_native02_ACT_pause0/nx/jobs/6713fdc383d34dec917b4a31aa91c1d5/lerobot_native9/development",
+      "lerobot_timestamp_basis": "logical_frame_index_grid_fps1_NOT_native_time_or_camera_exposure",
+      "original_train_demo_count": 3,
+      "partitions_exported_separately": true,
+      "recorded_source_times_preserved": true,
+      "schema": "explorer_official_lerobot_native9_v1",
+      "sealed_payloads_exported": false,
+      "target_dimension": 9,
+      "train_index_sha256": "090e9870ddc0fd08dda711b045106136f63cde3454d405f3d2646bee4356a815",
+      "train_path": "/mnt/explorer-data/explorer-work/qualification-native02-lerobot-20261027/pytest/test_actual_native02_ACT_pause0/nx/jobs/6713fdc383d34dec917b4a31aa91c1d5/lerobot_native9/train",
+      "train_segment_episode_count": 6
+    },
+    "saved_DEV_evaluated_samples": 10,
+    "sealed_payloads_used": false,
+    "shadow_state_dimension": 106,
+    "shadow_action_dimension": 9,
+    "shadow_inference_ms": 35.679747,
+    "shadow_dispatch_performed": false,
+    "reload_max_abs_error": 0.0
+  },
+  "processes": [
+    {
+      "job_id": "6713fdc383d34dec917b4a31aa91c1d5",
+      "phase": "pause4",
+      "returncode": 75,
+      "worker": {
+        "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2",
+        "pid": 2416529,
+        "start_ticks": 13219271
+      }
+    },
+    {
+      "job_id": "6713fdc383d34dec917b4a31aa91c1d5",
+      "phase": "resume",
+      "returncode": 0,
+      "worker": {
+        "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2",
+        "pid": 2416605,
+        "start_ticks": 13220604
+      }
+    },
+    {
+      "job_id": "1ab3ec4f24b14c98ae0bf51d74768339",
+      "phase": "uninterrupted",
+      "returncode": 0,
+      "worker": {
+        "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2",
+        "pid": 2416627,
+        "start_ticks": 13221893
+      }
+    }
+  ],
+  "model_safetensors_sha256": "c66512b6fb20bf3a9341f67ebd525a2c9e28df3bfde4203b7e833e62f6baba45",
+  "resource_limits": {
+    "cpu_quota_percent": 200,
+    "memory_max": "4G",
+    "runtime_max_s": 600,
+    "swap_max": 0
+  },
+  "max_observed_kernel_cgroup_memory_peak_bytes": 2200776704,
+  "systemd_reported_service_memory_peak": "1.7G (raw stderr retained; conservative kernel cgroup peak is used)",
+  "max_observed_swap_bytes": 0,
+  "last_memory_events": {
+    "low": "0",
+    "high": "0",
+    "max": "0",
+    "oom": "0",
+    "oom_kill": "0",
+    "oom_group_kill": "0"
+  },
+  "scope": {
+    "source_kind": "SOFTWARE_FIXTURES_THROUGH_NATIVE_PRODUCER_SCHEMA",
+    "all_inputs_are_software_fixtures": true,
+    "real_demonstrations": 0,
+    "physical_control_requests_sent": 0,
+    "production_state_used": false,
+    "live_native_reference_qualification_claimed": false,
+    "full_task_success_claimed": false,
+    "physical_autonomous_execution_qualified": false,
+    "entire_goal_complete": false,
+    "limitations": [
+      "Actual native reference fault remains unresolved by agents",
+      "Actual approved physical demos are still missing",
+      "This is a finite private compute worker proof, not a new common Supervisor/bootstrap qualification",
+      "Current schema distinguishes logical LeRobot frame timestamps from exact independent source clocks",
+      "Root API/UI/scheduler evaluation hookup and source-pinned release integration are separate"
+    ]
+  }
+}
