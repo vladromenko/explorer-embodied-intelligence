@@ -35,7 +35,9 @@ def test_actual_node_permission_display_authorize_atomic_command_and_scoped_stop
         grant=facade.authorize({'challenge_id':challenge['challenge_id'],'displayed_jpeg_sha256':challenge['frame']['jpeg_sha256'],
             'expected_control_epoch':challenge['control_epoch'],'observing':True,'robot_workspace_checked':True,
             'user_observed_test_confirmed':True,'actor_id':'forged-browser'},authenticated_actor='actual-server-owner')
-        assert grant['actor_id']=='actual-server-owner' and not station.calls and facade.status()['execution_permission']
+        status=facade.status()
+        assert grant['actor_id']=='actual-server-owner' and not station.calls and status['execution_permission']
+        assert status['source_stamp']=={'monotonic_ns':tick[0],'boot_id':station.boot,'clock_domain':station.clock_domain}
         with pytest.raises(HTTPError):request('POST','/station/policy/start',{'expected_control_epoch':grant['control_epoch'],'observing':True})
         assert not station.calls  # an old ungated client cannot borrow this observed epoch
         assert facade.check(grant['grant_id'],selected)['control_epoch']==grant['control_epoch']
