@@ -476,6 +476,7 @@ class NativeCaptureWriter:
             sample['channels']['preceding_command9']['available'] is True for sample in self.samples)
         if self.operator_evidence_gap:self.blockers.add('OPERATOR_INPUT_EVIDENCE_GAP')
         if context.get('operator_input_trace_required') is True and not self.operator_events:self.blockers.add('OPERATOR_INPUT_TRACE_MISSING')
+        if context.get('force_analysis_only') is True:self.blockers.add('EXPLICIT_OBSERVATIONS_ONLY_NO_EXPERT_LABELS')
         if self.dropped or self.blockers or not complete_signal:
             quality=False
         else:

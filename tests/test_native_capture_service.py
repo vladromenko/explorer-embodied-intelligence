@@ -190,3 +190,25 @@ def test_idle_recording_keeps_real_cached_frames_and_sensor_payloads_without_inv
         assert (writer.folder/'sources/raw-idle-ros.json').read_bytes()==b'{"fixture_sensor":true}'
         assert all(call.startswith('GET-') for call in calls)
     finally:service.close()
+
+
+def test_explicit_observation_mode_does_not_request_native_reference_or_gain_expert_labels(tmp_path):
+    old,tap,camera,clock,_,initial=setup(tmp_path/'initial');old.close()
+    writer=NativeCaptureWriter(tmp_path/'live',camera,clock_domain='nano',boot_id='boot',clock=clock);calls=[]
+    class Reader:
+        def status(self):return {'schema':'explorer_native_retarget_mux_v1'}
+        def reference(self):calls.append('reference');raise ValueError('fixture: invalid native reference, HOME forbidden')
+        def dispatch_source_packet(self,cursor):return {'source_bytes':initial,'payload':json.loads(initial)}
+    service=NativeCaptureService(writer,Reader(),clock=clock,poll_s=.1)
+    try:
+        with pytest.raises(ValueError,match='HOME forbidden'):service.start(context('02','keyboard'))
+        assert calls==['reference'] and writer.status()['state']=='IDLE'
+        started=service.start(context('02','keyboard'),observation_only=True);ident=started['recording_id']
+        assert calls==['reference']
+        packet,_=publication(tap,camera,clock,mode='keyboard');assert writer.submit(ident,packet)
+        service.finish(ident,json.loads(outcomes(ident)));assert writer.done.wait(3)
+        manifest=json.loads((writer.folder/'manifest.json').read_bytes())
+        assert manifest['analysis_only'] and manifest['skill_context']['recording_mode']=='observations_only'
+        assert not manifest['admission']['eligible_as_successful_bc_expert']
+        assert 'EXPLICIT_OBSERVATIONS_ONLY_NO_EXPERT_LABELS' in manifest['embodied_episode']['recording']['capture_blockers']
+    finally:service.close()

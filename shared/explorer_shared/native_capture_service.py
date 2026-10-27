@@ -49,6 +49,7 @@ class NativeCaptureService:
                 'projects':['02','03'],'action_dimension':9,'same_target_producer':True,
                 'native_source_method':'GET_ONLY','controller_settings_written':False,
                 'recording_operations':['start','pause','resume','cancel','finish','review'],
+                'recording_modes':['demonstration','observations_only'],
                 'physical_qualification':False}
 
     def status(self):
@@ -60,7 +61,8 @@ class NativeCaptureService:
                     'observation_error':self.observation_error,
                     'legacy_ready_recording_ids_modified':False}
 
-    def start(self,skill_context):
+    def start(self,skill_context,*,observation_only=False):
+        if type(observation_only) is not bool:raise ValueError('Explicit recording mode required')
         if not isinstance(skill_context,dict) or skill_context.get('project_id') not in ('02','03'):
             raise ValueError('Validated source project02/03 skill_context required')
         with self.lock:
@@ -70,10 +72,13 @@ class NativeCaptureService:
             raise RuntimeError('NATIVE_HOST_DISPATCH_TAP_NOT_MOUNTED')
         # GET only, through the original guarded reference reader; no prepare,
         # HOME, readback, resume, movement or recording-native kwargs are called.
-        self.client.reference()
+        if not observation_only:self.client.reference()
         packet=self.client.dispatch_source_packet(0)
         with self.lock:
-            result=self.writer.start(deepcopy(skill_context),packet['source_bytes'])
+            context=deepcopy(skill_context)
+            context['recording_mode']='observations_only' if observation_only else 'demonstration'
+            context['force_analysis_only']=observation_only
+            result=self.writer.start(context,packet['source_bytes'])
             self.active_id=result['recording_id'];self.cursor=result['cursor'];self.fetch_enabled=True
             self.failure_count=packet['payload'].get('capture_failures',0)
             self.finish_pending=None;self.last_error=None

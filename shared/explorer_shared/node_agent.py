@@ -1146,7 +1146,9 @@ def make_handler(agent):
                 elif native_capture:
                     service=agent.native_capture
                     if path=='/native-capture/record/start':
-                        result=service.start(payload.get('skill_context'))
+                        mode=payload.get('mode','demonstration')
+                        if mode not in ('demonstration','observations_only'):raise ValueError('Unknown recording mode')
+                        result=service.start(payload.get('skill_context'),observation_only=mode=='observations_only')
                     elif path=='/native-capture/record/stage':
                         result=service.stage(payload.get('recording_id'),payload.get('phase_id',payload.get('stage')),
                             reason=payload.get('reason','explicit_operator_annotation'),recovery_of=payload.get('recovery_of'))
