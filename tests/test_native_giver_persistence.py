@@ -252,3 +252,19 @@ def test_revoke_during_confirmation_validation_cannot_stamp_old_challenge_with_n
     assert not owner.guard.journal.pending and owner.guard.journal.fault is None
     with pytest.raises(ValueError,match='NO_FRESH'):arm.pub.publish(message(80))
     assert len(publisher.messages)==1
+
+
+def test_genuine_zero_stop_does_not_wait_for_an_inflight_arm_publisher_guard(tmp_path):
+    owner,mux,teleop,arm,publisher,tap,activation,tick,binding,path=armed(tmp_path)
+    challenge=owner.guard.challenge({**binding,'after_receiver_command_id':'receiver-close-actual'})
+    owner.guard.authorize(confirmed(binding,challenge));entered,release,stopped=threading.Event(),threading.Event(),threading.Event()
+    original=publisher.publish
+    def blocked(message):entered.set();assert release.wait(2);return original(message)
+    publisher.publish=blocked;worker=threading.Thread(target=lambda:arm.pub.publish(message(80)))
+    def stop():teleop.drive([0.,0.,0.]);stopped.set()
+    worker.start();assert entered.wait(1);zero=threading.Thread(target=stop);zero.start()
+    try:
+        assert stopped.wait(1) and not release.is_set()
+        assert teleop.native_drive[-1]==[0.,0.,0.] and tap.base_history[-1]['velocity']==[0.,0.,0.]
+    finally:release.set();worker.join(2);zero.join(2)
+    assert not worker.is_alive() and not zero.is_alive() and owner.guard.last_publication['opening']

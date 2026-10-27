@@ -271,7 +271,7 @@ class NativeTeleopMux:
 
     def _base_drive(self, velocity):
         values = _vector(velocity, 3).tolist()
-        if not self.chassis_permit() and any(abs(value) > 1e-12 for value in values):
+        if any(abs(value) > 1e-12 for value in values) and not self.chassis_permit():
             raise PermissionError('PHYSICAL_CHASSIS_PROHIBITED_BY_OWNER')
         started = self.tap.clock()
         with self.tap.lock:self.tap.base_pending+=1

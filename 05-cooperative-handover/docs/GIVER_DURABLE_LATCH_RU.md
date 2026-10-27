@@ -48,7 +48,8 @@ cooperative/armed/recovery/fault/pending state блокирует все nonzero
 неопределённые vector requests, даже при binding=None. Настоящий zero STOP всегда
 делегируется исходному callback и сохраняет actual Tap receipt; host request не
 объявляется достигнутой скоростью. Проверка и делегирование сериализованы с
-изменением latch. Ни один lease не обновляется wrapper-ом. Chassis permit использует
+изменением latch для nonzero/unknown. Zero STOP делегируется вне дополнительного
+arm guard lock и не ждёт уже допущенный arm Publisher. Ни один lease не обновляется wrapper-ом. Chassis permit использует
 тот же cached predicate. Это закрывает проверяемые keyboard/direct-teleop пути;
 raw external ROS publishers вне audited native ABI не объявляются устранёнными.
 

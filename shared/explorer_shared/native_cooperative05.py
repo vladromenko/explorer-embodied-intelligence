@@ -62,11 +62,14 @@ class ExistingBaseDriveBoundary:
     def __init__(self,drive,guard):self.original,self.guard=drive,guard
     def __getattr__(self,key):return getattr(self.original,key)
     def __call__(self,values):
+        zero=(isinstance(values,(list,tuple)) and len(values)==3 and all(type(value) in (int,float) and
+            math.isfinite(value) and value==0 for value in values))
+        # An original zero STOP must not wait for an in-flight arm Publisher.
+        # The existing traced drive retains its own real publication receipt.
+        if zero:return self.original(values)
         with self.guard.lock:
             if self.guard.base_motion_blocked():
-                if (not isinstance(values,(list,tuple)) or len(values)!=3 or any(type(value) not in (int,float) or
-                        not math.isfinite(value) or value!=0 for value in values)):
-                    raise PermissionError('COOPERATIVE_GIVER_LATCH_REQUIRES_STATIONARY_BASE')
+                raise PermissionError('COOPERATIVE_GIVER_LATCH_REQUIRES_STATIONARY_BASE')
             return self.original(values)
 
 
