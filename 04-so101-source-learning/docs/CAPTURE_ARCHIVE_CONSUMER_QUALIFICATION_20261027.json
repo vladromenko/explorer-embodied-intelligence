@@ -1,0 +1,70 @@
+{
+  "schema": "explorer_so101_capture_archive_software_qualification_v1",
+  "source_base_commit": "099218cd36cfb0eb4685c7142b4df9661efc5dfe",
+  "scope": "GENERATED_REAL_JPEG_ENCODING_WITH_FAKE_ORIGINAL_STATION_RECORDER_NO_ROBOT",
+  "source_sha256": {
+    "04-so101-source-learning/src/explorer_so101/capture_archive.py": "63481f871df3628681d74509319e766254ecc313b460cc65fc2e3f3f697b2dbe",
+    "tests/test_so101_capture_archive.py": "6065ceec005da7ad4a3a080b326f8d47ba1b73d4d16a803a5cd8a497c5a8401a",
+    "04-so101-source-learning/src/explorer_so101/capture_adapter.py": "0fd4f3b5ce24e301f794b88513e86d490466840c7639ecb8d3f43c8bd1ec9eb2",
+    "shared/explorer_shared/capture_timeline.py": "10c077911c7da934c84ab825b16931c445786c9e44858117f4743e88edb15912",
+    "shared/explorer_shared/native_capture_approval.py": "eaefd2c6bf542f8cd490309423aece7b1e21529e32a011aa749580398d9e484d",
+    "shared/explorer_shared/sealed_capture_review.py": "e654f4d4772f6809950b2cf111e8c5d3832e534218e7ea0597d664b0c4a97dbb",
+    "shared/explorer_shared/so101_station.py": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885"
+  },
+  "tests": {
+    "passed": 40,
+    "consumer_cases": 37,
+    "common_core_cases": 3,
+    "failed": 0,
+    "pytest_seconds": 2.45,
+    "command": [
+      "/home/jetsonnx/.local/share/explorer/venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_so101_capture_archive.py",
+      "tests/test_capture_metadata_core.py"
+    ],
+    "raw_bytes_and_review_preserved": true,
+    "default_PAX_mtime_roundtrip": true,
+    "canonical_shared_selection_used": true,
+    "unsafe_tamper_foreign_rejection_cases": true,
+    "failed_staging_retained": true,
+    "existing_originals_never_overwritten": true,
+    "atomic_empty_directory_race_verified": true,
+    "optional_torch_absent_asserted": true
+  },
+  "resources": {
+    "cpu_max": "100000 100000",
+    "memory_max": 1073741824,
+    "swap_max": 0,
+    "actual_kernel_memory_peak": 82010112,
+    "actual_swap_peak": 0,
+    "last_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+    "runtime_seconds": 4.329218458995456,
+    "exit_code": 0,
+    "child_pid": 2539540,
+    "child_starttick": "15155815",
+    "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2"
+  },
+  "raw_evidence": {
+    "directory": "/mnt/explorer-data/explorer-work/04-capture-archive-consumer-20261027-a",
+    "first_run_log_sha256": "a05baa79157c259d9141bcafc6e744dde3b512ea8ccfbb0871a2a2424e2378af",
+    "final_run_log_sha256": "e9c9f9992b9dccf6df1b9c010f1da755d8a0953d5058175b3f3dfa67a975a09c",
+    "kernel_resource_sha256": "e39aa231f0cf1360131e247b1ab76937fc2d730733b751edb7473bc1e3f785dd",
+    "launcher_sha256": "cd6d8cb26602fa73ec76f0c4891e9e2205f0f93feb87dd909133e3378307f9dc"
+  },
+  "actual_sensor_or_expert_demo_used": false,
+  "physical_commands_or_RPC": 0,
+  "optimizer_updates": 0,
+  "dataset_or_model_created": false,
+  "core_Node_Store_worker_converter_trainer_shared_files_changed": false,
+  "deployed": false,
+  "source04_software_ready": false,
+  "remaining": [
+    "Root source-approved transfer and typed worker dispatch",
+    "Root current review/cohort and existing converter integration",
+    "Pi runtime profile/shutdown admission and observed first upgrade",
+    "real demonstrations and independent physical acceptance"
+  ]
+}
