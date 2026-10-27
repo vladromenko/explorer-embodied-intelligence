@@ -105,3 +105,23 @@ test("handler installation/removal is explicit and contains only metadata client
   const cleanup = installLabSkillsHandlers(root, {}); assert.deepEqual([...listeners.keys()], ["click", "change", "submit"]);
   cleanup(); assert.equal(listeners.size, 0);
 });
+
+test("ACT and Diffusion model versions share existing job rows and show actual reload DEV and synthetic scope",()=>{
+  const state=fixture(),rendered=[];
+  state.training_jobs=["act","diffusion"].map((backend,index)=>({id:"model-"+index,status:"completed",config:{backend,skill_version:2},result:{
+    source_kind:"SIMULATION",optimizer_steps:8,loss_last:.25,save_reload_passed:true,reload_max_abs_error:0,checkpoint_content_sha256:"a".repeat(64),
+    evaluation:{available:true,independent_episode_split:true,mean_absolute_error_normalized:.125}}}));
+  const html=labSkillsPanel({state},{renderTrainingJobs:jobs=>{rendered.push(jobs);return '<div data-shared-job-rows>same queue controls</div>';}});
+  assert.equal(rendered[0],state.training_jobs);assert.match(html,/data-shared-job-rows/);
+  assert.match(html,/ACT · навык v2 · модель model-0/);assert.match(html,/Diffusion · навык v2 · модель model-1/);
+  assert.match(html,/Синтетические\/SIM данные · только офлайн/);assert.match(html,/MAE нормализованных команд 0.1250/);
+  assert.match(html,/Сохранение и reload: проверено/);assert.match(html,/не успех исполнения/);
+  assert.ok(!html.includes('data-lab-action="shadow"'));assert.match(html,/href="#source-evaluation-slot"/);
+});
+
+test("missing model facts are never promoted to measured zero, recorded origin or DEV acceptance",()=>{
+  const state=fixture();state.training_jobs=[{id:'<script>unknown</script>',status:"completed",config:{backend:"diffusion",skill_version:1},result:{evaluation:{available:true,independent_episode_split:false,mean_absolute_error_normalized:0}}}];
+  const html=labSkillsPanel({state});assert.match(html,/Происхождение данных не подтверждено/);
+  assert.match(html,/нет подтверждённой метрики/);assert.match(html,/ошибка reload: не измерено/);
+  assert.ok(!html.includes("<script>") && !html.includes("Записи source04"));
+});

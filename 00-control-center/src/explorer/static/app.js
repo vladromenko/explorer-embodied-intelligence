@@ -145,7 +145,7 @@ function refreshSourcePane(kind) {
     sourceDemonstrationUnbind();slot.innerHTML=sourceDemonstrationPanel(view,{phaseTitle:labSkillPhaseTitle});slot.dataset.sourceDemoRenderKey=key;
     sourceDemonstrationUnbind=bindSourceDemonstration(slot,sourceDemonstration,{onError:error=>toast(error.message,true)});
   }
-  else {saveSourceLabDraft();slot.innerHTML=labSkillsPanel(labSkills.snapshot());slot.dataset.sourceLabKey=sourceLabKey();restoreSourceLabDraft();}
+  else {saveSourceLabDraft();slot.innerHTML=labSkillsPanel(labSkills.snapshot(),{renderTrainingJobs:jobRows});slot.dataset.sourceLabKey=sourceLabKey();restoreSourceLabDraft();}
   if(focus){const input=[...slot.querySelectorAll("input,select,textarea")].find(node=>node.name===focus.name && Object.entries(focus.data).every(([key,value])=>node.dataset[key]===value));
     if(input){input.focus({preventScroll:true});if(typeof focus.start==="number" && input.setSelectionRange)try{input.setSelectionRange(focus.start,focus.end);}catch(_){}}}
 }
@@ -412,9 +412,10 @@ function jobTitle(job) { return text(job.title, text(job.name, { rosmaster_skill
 function jobMetrics(job) {
   const metrics = job.metrics || job.result?.metrics || {};
   const list = [];
-  const steps = defined(metrics.updates, metrics.steps, job.completed_updates);
+  const steps = defined(metrics.updates, metrics.steps, job.completed_updates, job.result?.optimizer_steps);
   if (steps !== undefined) list.push(`Шаги: ${count(steps)}`);
-  if (number(metrics.loss) !== null) list.push(`Ошибка: ${Number(metrics.loss).toPrecision(3)}`);
+  const loss=defined(metrics.loss,job.result?.loss_last);
+  if (number(loss) !== null) list.push(`Ошибка: ${Number(loss).toPrecision(3)}`);
   if (number(metrics.reward) !== null) list.push(`Награда: ${Number(metrics.reward).toFixed(2)}`);
   if (number(metrics.episodes) !== null) list.push(`Эпизоды: ${count(metrics.episodes)}`);
   return list;
