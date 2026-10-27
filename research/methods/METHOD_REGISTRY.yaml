@@ -5604,6 +5604,44 @@
         "tests/test_station_observed_http.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SOURCE-PARKED-METADATA-ARM-20261027",
+      "function_or_module": "shared/explorer_shared/cooperative_held_scopes05.py:arm_giver_parked,arm_receiver_parked",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/cooperative_held_scopes05.py",
+          "role": "Source-owned current parked scope and exact actual origin"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/giver_hold_persistence05.py",
+          "role": "Original existing giver durable fail-closed WAL"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/station_cooperative_interlock.py",
+          "role": "Original receiver WAL, sealed hold, fixed current grant and publication interlock"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_WEIGHTS_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Add separate explicit metadata arm for already parked giver/receiver sources. Use current source scope, actual original reference/hold and exact USER/CAS identity; retain frozen origin, owner, used confirmations and history, seal before admitting any future phase. Do not rebind/unpark/start, alter any controller lease/setting, infer grasp, clear pending proofs or write targets.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_cooperative_parked_arm05.py",
+        "tests/test_cooperative_held_scopes05.py",
+        "tests/test_native_web_startup_qualification.py",
+        "tests/test_native_repin_startup_qualification.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

@@ -73,7 +73,7 @@ class StationCooperativeInterlock:
         self.capture_root=self.path.parent/'cooperative-direction-captures';self.captures={};self.capture_errors={}
         self.helper=self._new_helper();self.last_transaction=None
         self.phase_prepared=None;self.phase_start_context=None
-        self.held_scope_http=False
+        self.held_scope_http=False;self.held_scope_arm_http=False
         try:
             if self.path.parent.resolve()!=Path(self.station.root).resolve() or self.path.is_symlink():
                 raise ValueError('Fixed original Station state directory required')
@@ -262,10 +262,14 @@ class StationCooperativeInterlock:
             parked_target_writes_allowed=False,parked_is_not_dispatch_authority=True)
         result.update(explicit_native_phase_activation_supported=True,phase_activation_pending=self.phase_prepared is not None)
         result['parked_observation_scope_http']=self.held_scope_http
+        result['parked_observation_arm_http']=self.held_scope_arm_http
         return result
     def held_scope(self):
         from .cooperative_held_scopes05 import receiver_held_scope
         return receiver_held_scope(self)
+    def arm_held_scope(self,body,*,authenticated_actor):
+        from .cooperative_held_scopes05 import arm_receiver_parked
+        return arm_receiver_parked(self,body,authenticated_actor=authenticated_actor)
     def require_start_admission(self,permission,operation):
         """Cached only, called by COMMON under original Station/provider locks."""
         if (self.helper.frozen or {}).get('parked_observation_only') is not True:return
@@ -579,6 +583,7 @@ class StationCooperativeInterlock:
         if not isinstance(body,dict) or not isinstance(authenticated_actor,str) or not authenticated_actor:
             raise ValueError('Authenticated typed metadata operation required')
         if operation=='phase/activate':return self.activate_phase(body,authenticated_actor=authenticated_actor)
+        if operation=='held/arm':return self.arm_held_scope(body,authenticated_actor=authenticated_actor)
         if operation=='direction/observe':return self.observe_direction(body,authenticated_actor=authenticated_actor)
         common={'grant_id','expected_control_epoch','expected_revision','interlock_id'}
         extras={'bind':{'direction_profile_id'},'arm':set(),'finish/challenge':{'giver_release_receipt'},

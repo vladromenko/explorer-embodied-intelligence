@@ -821,6 +821,7 @@ class NodeAgent:
 def make_handler(agent):
     interlock=getattr(getattr(agent,'station_observed',None),'cooperative_interlock',None)
     if interlock is not None and callable(getattr(interlock,'held_scope',None)):interlock.held_scope_http=True
+    if interlock is not None and callable(getattr(interlock,'arm_held_scope',None)):interlock.held_scope_arm_http=True
     class Handler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 

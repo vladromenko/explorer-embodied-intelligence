@@ -390,6 +390,9 @@ class NativeCooperativeOwner:
     def adopt_parked(self,body,*,authenticated_actor=None):return self.phases.adopt(body,authenticated_actor=authenticated_actor)
     def begin_parked(self,body,*,authenticated_actor=None):return self.phases.begin(body,authenticated_actor=authenticated_actor)
     def resume_parked(self,body,*,authenticated_actor=None):return self.phases.resume(body,authenticated_actor=authenticated_actor)
+    def arm_parked(self,body,*,authenticated_actor=None):
+        from .cooperative_held_scopes05 import arm_giver_parked
+        return arm_giver_parked(self,body,authenticated_actor=authenticated_actor)
     def parked_release_challenge(self,body,*,authenticated_actor=None):return self.parked_release.challenge(body,authenticated_actor=authenticated_actor)
     def resume_parked_release(self,body,*,authenticated_actor=None):return self.parked_release.resume_release(body,authenticated_actor=authenticated_actor)
     def observation(self):
@@ -587,7 +590,8 @@ class NativeCooperativeOwner:
                 'explicit_user_prepare':True,'explicit_user_manual_resume':True,'scoped_manual_stop':True,
                 'explicit_user_giver_phase_http':self.phases.http_mounted,
                 'explicit_user_parked_release_http':self.parked_release.http_mounted,
-                'parked_observation_scope_http':self.held_scope.http_mounted},
+                'parked_observation_scope_http':self.held_scope.http_mounted,
+                'parked_observation_arm_http':self.held_scope.arm_http_mounted},
             'release_boundary':self.guard.status(),'native':self.mux.status(),'same_original_stream_worker':True,
             'phase_lifecycle':self.phases.status(),
             'controller_settings_written':False,'native_dispatch_proof':'read actual correlated dispatch ring',
@@ -654,6 +658,10 @@ def mount_native_cooperative_api(app,owner,*,authenticate,allowed,operation,acti
     @app.post(prefix+'phase/adopt')
     def phase_adopt(request:Request,body:dict):
         actor=phase_actor(request,body);return operation(owner.adopt_parked,body,authenticated_actor=actor)
+    @app.post(prefix+'phase/arm')
+    def phase_arm(request:Request,body:dict):
+        actor=phase_actor(request,body);return operation(owner.arm_parked,body,authenticated_actor=actor)
+    owner.held_scope.arm_http_mounted=True
     @app.post(prefix+'phase/begin')
     def phase_begin(request:Request,body:dict):
         actor=phase_actor(request,body);return operation(owner.begin_parked,body,authenticated_actor=actor)

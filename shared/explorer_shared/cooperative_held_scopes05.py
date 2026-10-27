@@ -2,7 +2,8 @@
 
 Getters read existing camera/reference/measured caches only. Source I/O is outside
 Station/publication/provider or teleop/publication locks, followed by exact CAS.
-No target, lease, grant, phase transition or controller setting is written.
+Explicit metadata arms retain the actual sealed origin and durable safety latch.
+No native start/target, lease, grant or controller setting is written.
 """
 from copy import deepcopy
 import math
@@ -25,7 +26,7 @@ def _six(value):
 
 
 class GiverParkedObservationScope:
-    def __init__(self,owner):self.owner=owner;self.http_mounted=False
+    def __init__(self,owner):self.owner=owner;self.http_mounted=False;self.arm_http_mounted=False
     def _capture(self):
         owner=self.owner;guard=owner.guard;mux=owner.mux
         # mux.status() invokes chassis_permit/camera and is deliberately absent
@@ -160,3 +161,71 @@ def receiver_held_scope(wrapper):
                     source_stamp={'monotonic_ns':now,'boot_id':station.boot,'clock_domain':station.clock_domain})
     except (ValueError,OSError,KeyError,TypeError,AttributeError) as error:result['reason']=str(error)
     return dict(result,scope_sha256=digest(result))
+
+
+def _arm_receipt(role,scope,interlock,already):
+    return {'schema':'explorer_cooperative_parked_arm_receipt_v1','role':role,'armed':True,'already_armed':already,
+        'binding':deepcopy(scope['binding']),'native_owner':deepcopy(scope['native_owner']),
+        'source_scope_sha256':scope['scope_sha256'],'source_origin_sha256':scope['source_origin_sha256'],
+        'interlock':interlock,'native_commands_sent':0,'native_command_called':False,'native_lease_renewed':False,
+        'physical_execution_authorized':False,'hold_contact_or_stationarity_claimed':False}
+
+
+def arm_giver_parked(owner,body,*,authenticated_actor):
+    guard=owner.guard;phase=owner.phases
+    with guard.metadata_lock:
+        _,parked=phase._current(body,authenticated_actor,parked_stage={'PARKED_NEW_USER','BEGIN_CLUTCHED'})
+        scope=owner.held_scope.snapshot()
+        if not scope['ready'] or scope['actor_id']!=authenticated_actor:raise ValueError('CURRENT_EXACT_PARKED_GIVER_SCOPE_REQUIRED_TO_ARM')
+        if scope['park_request_id']!=body.get('park_request_id'):raise ValueError('EXACT_SOURCE_PARKED_ARM_TOKEN_REQUIRED')
+        def mutate():
+            with guard.lock:
+                current=owner.held_scope._capture();native=current['native'];before=scope['native_owner']
+                issued=owner.mux.tap.issued_snapshot()
+                if (guard.binding!=scope['binding'] or guard.parked!=parked or guard.revision!=body['expected_revision'] or
+                        current['reference_fault'] is not None or current['drained']['ready'] is not True or
+                        current['authorization_id']!=body['authorization_id'] or current['authorization_receipt']!=scope['authorization_receipt'] or
+                        native!=before or any(issued[key]!=scope['actual_issued'][key] for key in ('command9','arm_receipt','base_receipt')) or
+                        (owner.mux.tap.reference or {}).get('source_sha256')!=scope['source_origin']['original_reference_sha256'] or
+                        guard.pending is not None or guard.grant is not None):
+                    raise ValueError('PARKED_GIVER_OWNER_PUBLICATION_OR_PENDING_PROOF_CHANGED_BEFORE_ARM')
+                already=guard.armed
+                if not already:
+                    guard.armed=True;guard.last_pose=list(issued['command9'][:6]);guard._bump_revision()
+                    phase._retain(phase._event('PARKED_GIVER_DUAL_HOLD_ARMED',phase_id=body.get('phase_id'),
+                        source_origin_sha256=scope['source_origin_sha256'],native_command_called=False,
+                        source_state='command_estimate',old_reference_replaced=False))
+                return already
+        already=guard._durable('metadata_parked_giver_arm',mutate)
+        return _arm_receipt('giver',scope,guard.status(),already)
+
+
+def arm_receiver_parked(wrapper,body,*,authenticated_actor):
+    allowed={'grant_id','expected_control_epoch','interlock_id','expected_revision','observing','user_observed_test_confirmed'}
+    if (not isinstance(body,dict) or set(body)!=allowed or not authenticated_actor or
+            body.get('observing') is not True or body.get('user_observed_test_confirmed') is not True):
+        raise ValueError('ID_ONLY_EXPLICIT_USER_PARKED_RECEIVER_ARM_REQUIRED')
+    with wrapper.metadata_lock:
+        scope=wrapper.held_scope()
+        if not scope['ready'] or scope['actor_id']!=authenticated_actor:raise ValueError('CURRENT_EXACT_PARKED_RECEIVER_SCOPE_REQUIRED_TO_ARM')
+        def mutate(permission):
+            wrapper.helper._cas(body.get('interlock_id'),body.get('expected_revision'));state=wrapper.helper.snapshot_state()
+            origin=wrapper._hold_origin(state,permission);measured=deepcopy(wrapper.station.measurements);now=wrapper.clock()
+            if (not wrapper.helper._current(permission) or permission['grant_id']!=scope['grant']['grant_id'] or
+                    permission['control_epoch']!=scope['grant']['control_epoch'] or state['owner']!=scope['native_owner'] or
+                    state['binding']!=scope['binding'] or (state.get('frozen') or {}).get('parked_observation_only') is not True or
+                    wrapper.station.mode!='idle' or origin!=scope['source_origin'] or measured.get('follower')!=scope['measured_native6'] or
+                    measured.get('clock_domain')!=scope['source_stamp']['clock_domain'] or type(measured.get('monotonic_ns')) is not int or
+                    not origin['write_returned_native_ns']<=measured['monotonic_ns']<=now or not now-measured['monotonic_ns']<=500_000_000 or
+                    state.get('pending') is not None):raise ValueError('PARKED_RECEIVER_SOURCE_OR_PENDING_PROOF_CHANGED_BEFORE_ARM')
+            already=state['armed']
+            if not already:
+                # A new latch reuses the actual sealed hold reference. Keep the
+                # entire frozen origin/history and used proof IDs unchanged.
+                with wrapper.helper.lock:
+                    wrapper.helper.armed=True;wrapper.helper.phase='ARMED';wrapper.helper.revision+=1
+                    wrapper.helper._event('PARKED_RECEIVER_DUAL_HOLD_ARMED',source_origin_sha256=scope['source_origin_sha256'],
+                        source_scope_sha256=scope['scope_sha256'],original_frozen_reference_preserved=True)
+            return already
+        already=wrapper._transaction('held/arm',body,authenticated_actor,mutate)
+        return _arm_receipt('receiver',scope,wrapper.status(),already)

@@ -62,7 +62,28 @@ Station worker с fake buses. Reader/camera/WAL barriers доказывают, �
 proof pin расширен с9 до10 adapter modules. Original Station SHA, ROSMASTER
 контроллер, feedback OFF, limits, leases и streaming constants не изменены.
 
-Отдельная следующая интеграция: Root per-role authority/observation scopes и
-явный metadata held/arm с сохранением frozen origin/history/usedproofs. Generic
-parked arm/rebind и существующие dispatch/motion gates этим getter не ослабляются.
-Физическая cooperative квалификация остаётся незавершённой.
+Source metadata arm устанавливает только защёлку после отдельного USER
+`receiver_at_object` и независимых current stationary proofs на Root. Фиксированные
+authenticated POST: giver `cooperative/phase/arm`, Pi
+`station/observed-test/cooperative/held/arm`. Capability
+`parked_observation_arm_http` указывает на реально установленный handler.
+
+Giver принимает только прежние phase binding/CAS IDs, `park_request_id`,
+`phase_id`, observing/neutral/userTest; actor выводится из source USER grant.
+Pi принимает grant/epoch/interlock/revision и observing/userTest; server actor
+передаётся прежним fixed trusted facade. Native позиции, профиль направления,
+новый owner, SourceOrigin или tolerances в теле запрещены.
+
+Оба source сначала проверяют свежий scope вне control locks, затем после
+PREPARED WAL fsync повторяют cached owner/epoch/revision/actual state проверки.
+Новая защёлка сохраняет frozen reference/origin, owner, историю и usedproof IDs;
+already-armed case не заменяет reference. Pending release/transfer proofs не
+стираются: попытка arm при них отклоняется. Final fsync происходит вне control
+locks; ошибка после изменения оставляет armed/recovery barrier. Возвращается
+`explorer_cooperative_parked_arm_receipt_v1` с `native_commands_sent=0`,
+`native_command_called=false`, `native_lease_renewed=false`,
+`physical_execution_authorized=false`. Это safety metadata, не grasp proof.
+
+Отдельная следующая интеграция — Root per-role authority/observation scopes.
+Generic parked arm/rebind и существующие dispatch/motion gates этими endpoints
+не ослабляются. Физическая cooperative квалификация остаётся незавершённой.
