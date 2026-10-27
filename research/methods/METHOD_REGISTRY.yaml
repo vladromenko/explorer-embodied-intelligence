@@ -2084,6 +2084,11 @@
           "command": "python -m pytest tests/test_handover_adapters.py -q",
           "result": "26 passed;71 combined route/runtime tests; actual Nano GET-only observability, no actuator execution",
           "scope": "SOFTWARE_ONLY"
+        },
+        {
+          "command": "python -m pytest tests/test_operator_release_bundles.py tests/test_handover_adapters.py tests/test_giver_parked_release05.py -q",
+          "result": "89 passed in6.41s; actual durable post-source three-fact bundle, same fake original source all3modes, unchanged2s/.45s, cancel/restart/one-use/fsync failure guards; no physical IO",
+          "scope": "SOFTWARE_ONLY"
         }
       ],
       "hardware_run_ids": []

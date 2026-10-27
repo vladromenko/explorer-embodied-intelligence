@@ -72,7 +72,9 @@ class OperatorEvidenceInbox:
             raise ValueError('Attach requires the trusted current worker attempt session ID')
         self.clock, self.clock_domain, self.session_id = clock, clock_domain, session_id or uuid.uuid4().hex
         self.condition = threading.Condition(threading.RLock())
+        self.release_bundle_ready=set()  # RAM-only; fsync failures/restarts never restore proof authority.
         (self.folder/'cancelled-runs').mkdir(exist_ok=True,mode=0o700)
+        (self.folder/'release-bundles').mkdir(exist_ok=True,mode=0o700)
 
     @contextmanager
     def _disk_guard(self):
@@ -115,8 +117,153 @@ class OperatorEvidenceInbox:
         with self.condition:
             with self._disk_guard():
                 now = self.clock()
-                return [dict(row) for row in self._rows() if row['state']=='pending' and row['session_id']==self.session_id
+                ordinary = [dict(row) for row in self._rows() if row['state']=='pending' and row['session_id']==self.session_id
                     and now < row['deadline_ns'] and not self._cancelled(row['run_id']) and (run_id is None or row['run_id']==run_id)]
+                bundles = [self._bundle_projection(row) for row in self._bundles() if row['state']=='pending'
+                    and now < row['deadline_ns'] and not self._cancelled(row['run_id']) and (run_id is None or row['run_id']==run_id)]
+                return ordinary + bundles
+
+    def _bundle_path(self, identity):
+        if not isinstance(identity,str) or not re.fullmatch('[0-9a-f]{32}',identity):
+            raise ValueError('A server-issued release bundle ID is required')
+        return self.folder/'release-bundles'/(identity+'.json')
+
+    def _bundle(self, identity):
+        path=self._bundle_path(identity)
+        if not path.is_file():raise ValueError('Unknown release bundle')
+        row=json.loads(path.read_text())
+        if (row.get('schema')!='explorer_operator_parked_release_bundle_v1' or
+                row.get('bundle_id')!=identity or row.get('clock_domain')!=self.clock_domain):
+            raise ValueError('Release bundle identity or host clock differs')
+        return row
+
+    def _bundles(self):
+        rows=[]
+        for path in (self.folder/'release-bundles').glob('*.json'):
+            row=self._bundle(path.stem)
+            if row.get('session_id')==self.session_id:rows.append(row)
+        return rows
+
+    @staticmethod
+    def _bundle_projection(row):
+        # The HTTP body cannot provide any source identity, actor, clock or
+        # consumed proof. Only these server-created questions are presented.
+        return {key:row[key] for key in ('bundle_id','session_id','run_id','object_id','state',
+            'created_ns','deadline_ns','clock_domain','questions','source_challenge_sha256')} | {
+                'kind':'parked_release_bundle','challenge_id':row['bundle_id'],
+                'question':'Подтвердите все три текущих наблюдения перед отдельным отпусканием.'}
+
+    def prepare_release_bundle(self, *, run_id, object_id, after_giver_command_id,
+            source_response, authenticated_actor, request_started_ns, response_received_ns):
+        """Create fresh questions AFTER an actual trusted source reply.
+
+        This method is internal to the coordinator. It does not accept browser
+        evidence. The deadline starts conservatively at NX request start using
+        the source's original duration; clocks are never compared across hosts.
+        The literal source challenge is retained, without resetting its expiry.
+        """
+        for value in (run_id,object_id,authenticated_actor):_identity(value)
+        if after_giver_command_id is not None:_identity(after_giver_command_id)
+        if not isinstance(source_response,dict):raise ValueError('Parsed source challenge reply required')
+        challenge=source_response.get('challenge')
+        if not isinstance(challenge,dict):raise ValueError('Actual parked source challenge required')
+        for key in ('challenge_id','release_request_id','park_request_id','after_receiver_command_id'):
+            _identity(challenge.get(key))
+        issued=challenge.get('issued_native_ns');expires=challenge.get('expires_native_ns')
+        if (challenge.get('schema')!='explorer_native_parked_receiver_hold_challenge_v1' or
+                challenge.get('run_id')!=run_id or challenge.get('object_id')!=object_id or
+                challenge.get('actor_id')!=authenticated_actor or
+                not isinstance(challenge.get('native_clock_domain'),str) or not challenge['native_clock_domain'] or
+                challenge['native_clock_domain']==self.clock_domain or
+                source_response.get('native_command_called') is not False or source_response.get('execution_authority') is not False or
+                type(issued) is not int or type(expires) is not int or not 0<=issued<expires or expires-issued>2_000_000_000 or
+                type(request_started_ns) is not int or type(response_received_ns) is not int or
+                not 0<=request_started_ns<=response_received_ns<=self.clock()):
+            raise ValueError('Same actor/run/object and original bounded source challenge context required')
+        # JSON round-trip also rejects non-finite or non-serializable input and
+        # detaches the retained original from mutable caller dictionaries.
+        source=json.loads(json.dumps(source_response,allow_nan=False,sort_keys=True))
+        raw=json.dumps(challenge,allow_nan=False,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode()
+        identity=uuid.uuid4().hex;created=self.clock();deadline=request_started_ns+(expires-issued)
+        questions={statement:{'challenge_id':uuid.uuid4().hex,'statement':statement,
+            'role':'giver' if statement=='giver_stationary' else 'receiver','question':QUESTIONS[statement],
+            'after_command_id':after_giver_command_id if statement=='giver_stationary' else challenge['after_receiver_command_id']}
+            for statement in ('receiver_holds_object','giver_stationary','receiver_stationary')}
+        row={'schema':'explorer_operator_parked_release_bundle_v1','bundle_id':identity,'session_id':self.session_id,
+            'run_id':run_id,'object_id':object_id,'state':'pending','expected_actor':authenticated_actor,
+            'clock_domain':self.clock_domain,'created_ns':created,'deadline_ns':deadline,
+            'challenge_request_started_ns':request_started_ns,'challenge_received_ns':response_received_ns,
+            'source_response':source,'source_challenge_sha256':hashlib.sha256(raw).hexdigest(),'questions':questions}
+        with self.condition:
+            with self._disk_guard():
+                if self._cancelled(run_id):raise RuntimeError('Cancelled handover cannot create release questions')
+                if self.clock()>=deadline:raise TimeoutError('Source challenge elapsed before new questions could be delivered')
+                if any(old['run_id']==run_id and old['state']=='pending' and self.clock()<old['deadline_ns'] for old in self._bundles()):
+                    raise ValueError('A live release question bundle already exists for this run')
+                _write(self._bundle_path(identity),row)
+                if self.clock()>=deadline:
+                    _write(self._bundle_path(identity),dict(row,state='expired',expired_ns=self.clock()))
+                    raise TimeoutError('Source challenge elapsed while retaining new questions')
+            self.condition.notify_all()
+        return self._bundle_projection(row)
+
+    def confirm_release_bundle(self, identity, body, *, authenticated_actor):
+        """One USER event, three explicit facts, one durable consumption record.
+
+        Partial or old checkbox sets are never converted into new evidence.
+        No controller API, timer extension, native resume or motion is called.
+        """
+        _identity(authenticated_actor)
+        statements={'receiver_holds_object','giver_stationary','receiver_stationary'}
+        if (not isinstance(body,dict) or set(body)-{'affirmations','observing','note'} or
+                body.get('observing') is not True or not isinstance(body.get('affirmations'),dict) or
+                set(body['affirmations'])!=statements or any(value is not True for value in body['affirmations'].values()) or
+                not isinstance(body.get('note',''),str) or len(body.get('note',''))>1000):
+            raise ValueError('Explicit current observation and all three separate affirmative facts required')
+        with self.condition:
+            with self._disk_guard():
+                row=self._bundle(identity);now=self.clock()
+                if (row.get('session_id')!=self.session_id or row['state']!='pending' or
+                        row['expected_actor']!=authenticated_actor or self._cancelled(row['run_id']) or
+                        not row['challenge_received_ns']<=row['created_ns']<=now<row['deadline_ns']):
+                    raise ValueError('Release questions are expired, consumed, cancelled or belong to another actor/session')
+                proofs={statement:{**question,'session_id':self.session_id,'run_id':row['run_id'],'object_id':row['object_id'],
+                    'release_bundle_id':identity,'source_challenge_sha256':row['source_challenge_sha256'],
+                    'created_ns':row['created_ns'],'deadline_ns':row['deadline_ns'],'clock_domain':self.clock_domain,
+                    'state':'consumed','authenticated_actor':authenticated_actor,'received_ns':now,'consumed_ns':now,
+                    'affirmed':True,'observing':True,'note':body.get('note',''),
+                    'acquired_time_basis':'operator_confirmation_received_at_server_not_camera_exposure',
+                    'source_clock_domain':self.clock_domain} for statement,question in row['questions'].items()}
+                consumed=dict(row,state='consumed',received_ns=now,consumed_ns=now,proofs=proofs)
+                _write(self._bundle_path(identity),consumed)
+                # A slow/failed fsync must never publish expired proof authority.
+                if self.clock()>=row['deadline_ns']:raise TimeoutError('Source challenge elapsed while consuming USER facts')
+                self.release_bundle_ready.add(identity)
+            self.condition.notify_all()
+        return self._bundle_projection(consumed)
+
+    def wait_release_bundle(self, identity):
+        """Wait for this process's single-use bundle; never synthesize proof."""
+        with self.condition:
+            while True:
+                with self._disk_guard():
+                    row=self._bundle(identity);now=self.clock()
+                    if row.get('session_id')!=self.session_id or self._cancelled(row['run_id']) or row['state']=='cancelled':
+                        raise RuntimeError('Release confirmation cancelled or belongs to another process')
+                    if now>=row['deadline_ns']:
+                        if row['state']=='pending':_write(self._bundle_path(identity),dict(row,state='expired',expired_ns=now))
+                        raise TimeoutError('Source challenge expired before release proof consumption')
+                    if row['state']=='consumed':
+                        if identity not in self.release_bundle_ready:
+                            raise ValueError('Release facts were not successfully published by this process')
+                        # Claiming is also durable and one-use: a second waiter
+                        # cannot replay the three consumed facts into a request.
+                        self.release_bundle_ready.remove(identity)
+                        _write(self._bundle_path(identity),dict(row,state='claimed',claimed_ns=now))
+                        if self.clock()>=row['deadline_ns']:raise TimeoutError('Source challenge expired during release proof claim')
+                        return row
+                    if row['state']!='pending':raise ValueError('Release bundle already claimed or unavailable')
+                self.condition.wait(min(.05,(row['deadline_ns']-now)/1e9))
 
     def confirm(self, challenge_id, body, *, authenticated_actor):
         _identity(authenticated_actor)
@@ -148,6 +295,10 @@ class OperatorEvidenceInbox:
                     if row['run_id']==run_id and row['session_id']==self.session_id and row['state'] in ('pending','confirmed'):
                         cancelled=dict(row,state='cancelled',cancelled_ns=self.clock())
                         _write(self.folder/(row['challenge_id']+'.json'),cancelled)
+                for row in self._bundles():
+                    if row['run_id']==run_id and row['state'] in ('pending','consumed'):
+                        self.release_bundle_ready.discard(row['bundle_id'])
+                        _write(self._bundle_path(row['bundle_id']),dict(row,state='cancelled',cancelled_ns=self.clock()))
             self.condition.notify_all()
 
     def _wait(self, statement, run_id, object_id, role, after_command_id, timeout_s):
