@@ -10,7 +10,7 @@ from PIL import Image
 from explorer_shared.contracts import ACTION_NAMES,canonical,digest
 from explorer_shared.learning.sim_object_route import (PHASES,LOW,HIGH,ObjectRouteRejected,
     split_cases,target_split,expert_admission,complete_object_score,canonical_teacher,
-    ChunkDispatcher,stationary_endpoint,VisualObjectChunks,sha)
+    ChunkDispatcher,stationary_endpoint,VisualObjectChunks,learned_skill_card,sha)
 
 
 def plan():
@@ -147,3 +147,17 @@ def test_actual_train_view_reloads_causal_pixels_prior9_and_future_chunk_padding
     with pytest.raises(ObjectRouteRejected,match='Unique source episode'):VisualObjectChunks(path,4,8)
     manifest['episodes']=[descriptor];path.write_bytes(canonical(manifest));(tmp_path/'view.npz').write_bytes(b'tampered')
     with pytest.raises(ObjectRouteRejected,match='SHA/path differs'):VisualObjectChunks(path,4,8)
+
+
+def test_skill_card_retains_all_paired_negatives_and_rejects_checkpoint_cherry_picking(tmp_path):
+    from explorer.store import Store
+    protocol=dict(plan(),strategies=[dict(id='chunk1'),dict(id='chunk8')],skill_id='skill',source_skill_version=1,source_template_sha256='a'*64,source_commit='f'*40,settings={'image_size':64})
+    training=dict(integration_only=False,heldout_samples_optimized=0,checkpoint_sha256='b'*64)
+    results=[dict(case=case,strategy=strategy,checkpoint_sha256='b'*64,paired_policy_freeze_sha256='c'*64,teacher_query_count=0,privileged_actor_input=False,outcome='FAILURE') for case in split_cases(protocol) if case['partition']!='train' for strategy in ('chunk1','chunk8')]
+    def card(rows):return learned_skill_card(protocol,training,rows,dataset_sha256='d'*64,protocol_sha256='e'*64,paired_freeze_sha256='c'*64)
+    result=card(results);assert result['evaluation']['outcomes']['sealed_test']['chunk8']['FAILURE']==1
+    assert not result['evaluation']['whole_skill_mastered'] and result['source_type']=='simulation'
+    store=Store(tmp_path/'state');store.add_skill(result);assert len(store.skills())==1
+    with pytest.raises(ObjectRouteRejected,match='retained exactly once'):card(results[:-1])
+    changed=deepcopy(results);changed[0]['checkpoint_sha256']='0'*64
+    with pytest.raises(ObjectRouteRejected,match='Same frozen'):card(changed)
