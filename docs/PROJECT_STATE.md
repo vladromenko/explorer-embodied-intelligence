@@ -1,9 +1,9 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-27T19:42:36+03:00`
-Code commit: `3bdfb3194b82d06ad5e01d306874e03596420b96`
-Current task: `E04-UI`
-Next tasks: `E04-UI`, `E04-VISION`, `E04-RELEASE`
+Updated: `2026-10-27T21:43:03+03:00`
+Code commit: `3b6e32a01f3709ff6cd50cc483006df88f8000e4`
+Current task: `E04-VISION`
+Next tasks: `E04-VISION`, `E04-FIRST-UPGRADE`, `E04-RELEASE`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
 
 Это единственный краткий текущий статус. Commit выше — последний проверенный
@@ -63,7 +63,7 @@ actual HTTPS Firefox desktop/mobile, passiveROS20s0, source/reference/PIDs/6conf
 
 - `E04-IMPORT` DONE в software scope выше; archive/review/provenance pins обязательны.
 - `E04-COHORT` DONE: accepted cohort/officialDataset/current ACT+DP/actual queued resume/DEV/offline-shadow на labelled generated inputs.
-- `E04-UI` CURRENT: thin SourceDemo client/panel подключён к настоящим API;
+- `E04-UI` DONE в software scope: thin SourceDemo client/panel подключён к настоящим API;
   legacy04 STOP-on-blur/finish-autoimport заменены scoped flow. Actual Firefox
   desktop1440/mobile390: контекст→видимый verifiedJPEG→COMMON→same fake-bus
   Station/recorder→pause/resume/stage→finishUNKNOWN→отдельный STOP→preview→
@@ -71,8 +71,20 @@ actual HTTPS Firefox desktop/mobile, passiveROS20s0, source/reference/PIDs/6conf
   268Node/26Python PASS. JPEG обновляется без замены кнопок/сброса таймера;
   logout ждёт поздние ответы, uncertain cleanup сохраняет вход.0realIO/deploy.
   [UI proof](../_registry/evidence/experiment04-source-demo-actual-UI-20261027.json).
-- `E04-UI`: завершить проверку полного data/model UI с approved cohort;
-  затем `E04-VISION` и безопасный current release. Physical skill OPEN.
+- Approved learning actual Firefox:5/5 покрытие→original JPEG/raw8→official28frames/
+  8segments→ACT8+DP8 через UI/общую очередь, pause/resume, save/reload0 и отдельный
+  DEV. Пауза здесь SIGSTOP/memory retained, exact new-PID отдельно R7 выше.
+  Новые карточки обоих backend/версий/checkpoint/DEV проверены отдельным GET-only
+  Firefox desktop/mobile без повторного optimizer; SIM не допускается физически.
+  270Node +36targeted +3current policy pins PASS; kernelpeak2115121152B/swap0/OOM0.
+  [Learning UI proof](../_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json).
+- `E04-VISION` CURRENT: actual Pi GET camera/CV/tabletop200; одна Logitech, CV
+  instance segmentation. Один non-actuating Qwen2-VL event получил SEMANTIC_RESULT
+  за31.576s; тот же old4c PID, camera/CV восстановлены, Stationidle/configwrites0.
+  Во время native initialization был HTTP ReadTimeout6s: сохранить отрицательный
+  исход и добавить software admission, запрещающий VLM/управление одновременно
+  в source-only04. Реальная метрическая калибровка отсутствует; no grasp claim.
+  Private raw: `/mnt/explorer-data/explorer-work/04-vision-readonly-20261027-a/`.
 - Старый Pi4c имеет воспроизведённую shutdown race. Первый unattended Pi update
   OPEN: idleGET+server_close не drain. Нужен доказанный admission barrier либо
   отдельный наблюдаемый первый upgrade; пока продолжаем программную работу.

@@ -1,0 +1,337 @@
+{
+  "schema": "explorer04_approved_learning_actual_browser_v1",
+  "status": "PASS_SCOPED_SOFTWARE",
+  "code_commit": "3b6e32a01f3709ff6cd50cc483006df88f8000e4",
+  "source_sha256": {
+    "00-control-center/src/explorer/static/app.js": "249e1cab949bc1e9fcf588e12a1c5a75312ed5d37cdb87c7a2a9def71bbf06a9",
+    "00-control-center/src/explorer/static/lab-skills.js": "4a8c693e5eb8609f51fcc92ea168371347e6de0a3cb91535ce8d3a4e868bd06f",
+    "00-control-center/src/explorer/static/station.js": "6c61d3b10b80950830d5db77d706c261ef01b6b5d3ce8a0d88acb9fc500fd802",
+    "00-control-center/src/explorer/static/styles.css": "60b9edb0996ff8c02dadd0807655b34e6b17787dc9e8896c4261f15b28ae0503",
+    "tests/test_lab_skills_ui.js": "f9201ec946efb83fb98c459f69ecf64f0192052858e99f9a8aa0d3dc9566ca93"
+  },
+  "actual_browser_training": {
+    "receipt_path": "/mnt/explorer-data/explorer-work/04-learning-browser-20261027-b/fixture/browser-a/receipt.json",
+    "receipt_sha256": "379a4f766a17cbff327650ca1a85b5999530de542e63f70b7fc9aafe9810679d",
+    "scope": "Actual generated approved04 → UI official Dataset → ACT/DP enqueue → shared Queue pause/resume → official8+8 updates/reload/DEV; final DRIVER assertion failed on wrong snapshot.models shape and was separately corrected without optimizer rerun",
+    "raw_driver_status": "FAIL",
+    "approved_originals": 5,
+    "covered_variants": 5,
+    "raw_samples_per_original": 8,
+    "unpaused_samples_per_original": 7,
+    "official_unsealed_frames": 28,
+    "official_unsealed_segments": 8,
+    "steps": [
+      "Actual approved04 generated cohort: five immutable originals, five covered variants, distinct train/DEV/sealed splits",
+      "Actual saved original JPEG and all eight raw leader/requested/accepted/dispatched/follower samples displayed",
+      "Explicit UI aggregate builds actual official LeRobotDataset from approved pause-aware cohort",
+      "Actual act UI enqueue → shared Queue pause/resume → official8 updates + saved reload + DEV, SIMULATION preserved",
+      "Actual diffusion UI enqueue → shared Queue pause/resume → official8 updates + saved reload + DEV, SIMULATION preserved"
+    ],
+    "jobs": [
+      {
+        "job_id": "ee012309c4cb4d25bb78b7c7af3da336",
+        "backend": "act",
+        "execution_commit": "5145c0f66a28ce95ba8259d4d153cf0fbadbaa29",
+        "optimizer_steps": 8,
+        "source_kind": "SIMULATION",
+        "loss_first": 0.9643875360488892,
+        "loss_last": 0.2662769854068756,
+        "save_reload_passed": true,
+        "reload_max_abs_error": 0,
+        "checkpoint_content_sha256": "669779ddbef573a1a117e62f19c8bfa372c44f6d60ff76c2cc95d40a73a5e706",
+        "checkpoint_sha256": {
+          "model.safetensors": "138499079bad10ed5b14336cd51705dd5ad407c1d42254f5f09e9c78ceb8baf9",
+          "policy_postprocessor.json": "327b0b67710cf503fc04785bd7d633e5f8654742ff1fd666b070427b564edc47",
+          "explorer_preprocessing.json": "47fa9d23779c96794c4bdc74a866f55933102965d12bf595371afd999d60f311",
+          "policy_preprocessor.json": "60a2e0c1d7f3c2ff6066872f933ca128147caa1c0e70a0ca8b1b9b8efe78350a",
+          "config.json": "07d68f053bf89a518b28957c1f7b5837b946bcdc93c86abc3ba166e30172d1a5"
+        },
+        "evaluation": {
+          "domain": "offline_demonstration_chunks",
+          "independent_episode_split": true,
+          "available": true,
+          "valid_chunk_actions": 16,
+          "batches": 1,
+          "mean_absolute_error_normalized": 0.0836936350290974,
+          "action_mae": {
+            "shoulder_pan": {
+              "value": 2.1003037691116333,
+              "unit": "calibrated_normalized_-100_100"
+            },
+            "shoulder_lift": {
+              "value": 10.96455380320549,
+              "unit": "calibrated_normalized_-100_100"
+            },
+            "elbow_flex": {
+              "value": 2.046383358538151,
+              "unit": "calibrated_normalized_-100_100"
+            },
+            "wrist_flex": {
+              "value": 10.852988064289093,
+              "unit": "calibrated_normalized_-100_100"
+            },
+            "wrist_roll": {
+              "value": 3.412824124097824,
+              "unit": "calibrated_normalized_-100_100"
+            },
+            "gripper": {
+              "value": 10.419563949108124,
+              "unit": "normalized_0_100"
+            }
+          },
+          "physical_run_ids": [],
+          "rollout_success_claimed": false,
+          "sealed_test_used": false
+        },
+        "official_dataset_readback": {
+          "format": "LeRobotDataset v3.0",
+          "directory": "/mnt/explorer-data/explorer-work/04-learning-browser-20261027-b/fixture/cohort/state/datasets/lab-skills/8fed2c9e-740d-40cc-84bb-7a73f8707be4/v0001/e9946456ff7397f72d060028193ac5f3d5b51ceeb5aed2d7c2a428892d8b9e11/native-data/lerobot_v3",
+          "repo_id": "local-explorer/so101-8d810744648b1c2c5aab6c57",
+          "episodes": 8,
+          "frames": 28,
+          "fps": 10,
+          "image_only": true,
+          "finalize_called": true,
+          "official_readback_passed": true,
+          "all_frame_state_action_image_checks_passed": true,
+          "causal_alignment_checked": true,
+          "source_splits_preserved": true,
+          "source_npz_immutable": true,
+          "native_monotonic_timestamps_preserved": true,
+          "native_wall_timestamps_preserved": false,
+          "conversion_grid_preserved": true,
+          "source_manifest_sha256": "b6582175c88b48f2a411e482d41fcd6267159bb5ec5328cf714cfe33d37baa49",
+          "provenance_sha256": "d6e3aca18d954df9a429ddeb9cb47c47fdd3c77f18a961a8ccd9f00fb0e1de2d",
+          "uploaded_to_hub": false
+        },
+        "aggregate_manifest_sha256": "e5dd607ec0b2919388c9edffe1e8888a6111a8e37b7651cf1c540571dc86c43e",
+        "train_originals": 3,
+        "development_originals": 1,
+        "sealed_originals": 1,
+        "sealed_payload_used": false,
+        "pause": {
+          "status": "paused",
+          "phase": "paused_process_memory_retained",
+          "memory_retained": true,
+          "exact_optimizer_resume": false
+        },
+        "training_resume": {
+          "supported": true,
+          "checkpoint_loaded": false,
+          "resumed_from_step": 0,
+          "completed_steps": 8,
+          "optimizer_steps_executed_this_process": 8,
+          "checkpoint_interval": 8,
+          "signature": "fd568ddc70195d53b00f4133f2e6fd7e85c3f35eedf2d3e895ec481755ec466e",
+          "active_optimizer_elapsed_s": 6.109856133989524,
+          "non_durable_updates_may_be_replayed": true,
+          "retained_history_is_not_total_compute_across_failed_attempts": true,
+          "rng_sources": [
+            "python",
+            "numpy_global",
+            "torch_cpu",
+            "all_initialized_cuda",
+            "explicit_batch_sampler"
+          ]
+        },
+        "physical_io": false
+      },
+      {
+        "job_id": "43b10a7d0758428fbf93f923587e6aa7",
+        "backend": "diffusion",
+        "execution_commit": "5145c0f66a28ce95ba8259d4d153cf0fbadbaa29",
+        "optimizer_steps": 8,
+        "source_kind": "SIMULATION",
+        "loss_first": 1.20656156539917,
+        "loss_last": 1.0633410215377808,
+        "save_reload_passed": true,
+        "reload_max_abs_error": 0,
+        "checkpoint_content_sha256": "f098a6246096b6056cd313a0c66668aa18061eb37d2d14e82768f21d57946192",
+        "checkpoint_sha256": {
+          "model.safetensors": "be3468cb89e898ec62d06b72ef0cee0bf698ab321a44bef0a78e7d0d26f26555",
+          "explorer_preprocessing.json": "bb72d17e54aeba40b3a10094d293c69b54d72962e996c9ffb8e856bc30c11623",
+          "config.json": "5cfec7ddf559544e02f8066a9f108e371596430ad132c279ad6a4757dcfb7548"
+        },
+        "evaluation": {
+          "domain": "independent_development_offline_diffusion_chunks",
+          "available": true,
+          "independent_episode_split": true,
+          "valid_chunk_actions": 16,
+          "batches": 2,
+          "history_steps": 2,
+          "action_start_offset": 1,
+          "mean_absolute_error_normalized": 0.8483486821254095,
+          "action_mae": {
+            "shoulder_pan": {
+              "value": 86.12542152404785,
+              "unit": "calibrated_normalized_-100_100"
+            },
+            "shoulder_lift": {
+              "value": 82.58955776691437,
+              "unit": "calibrated_normalized_-100_100"
+            },
+            "elbow_flex": {
+              "value": 74.93166327476501,
+              "unit": "calibrated_normalized_-100_100"
+            },
+            "wrist_flex": {
+              "value": 88.70050609111786,
+              "unit": "calibrated_normalized_-100_100"
+            },
+            "wrist_roll": {
+              "value": 91.23617708683014,
+              "unit": "calibrated_normalized_-100_100"
+            },
+            "gripper": {
+              "value": 42.71294176578522,
+              "unit": "normalized_0_100"
+            }
+          },
+          "fixed_noise_seed": 0,
+          "sealed_test_used": false,
+          "rollout_success_claimed": false,
+          "physical_run_ids": [],
+          "physical_io": false
+        },
+        "official_dataset_readback": {
+          "format": "LeRobotDataset v3.0",
+          "directory": "/mnt/explorer-data/explorer-work/04-learning-browser-20261027-b/fixture/cohort/state/datasets/lab-skills/8fed2c9e-740d-40cc-84bb-7a73f8707be4/v0001/e9946456ff7397f72d060028193ac5f3d5b51ceeb5aed2d7c2a428892d8b9e11/native-data/lerobot_v3",
+          "repo_id": "local-explorer/so101-8d810744648b1c2c5aab6c57",
+          "episodes": 8,
+          "frames": 28,
+          "fps": 10,
+          "image_only": true,
+          "finalize_called": true,
+          "official_readback_passed": true,
+          "all_frame_state_action_image_checks_passed": true,
+          "causal_alignment_checked": true,
+          "source_splits_preserved": true,
+          "source_npz_immutable": true,
+          "native_monotonic_timestamps_preserved": true,
+          "native_wall_timestamps_preserved": false,
+          "conversion_grid_preserved": true,
+          "source_manifest_sha256": "b6582175c88b48f2a411e482d41fcd6267159bb5ec5328cf714cfe33d37baa49",
+          "provenance_sha256": "d6e3aca18d954df9a429ddeb9cb47c47fdd3c77f18a961a8ccd9f00fb0e1de2d",
+          "uploaded_to_hub": false
+        },
+        "aggregate_manifest_sha256": "e5dd607ec0b2919388c9edffe1e8888a6111a8e37b7651cf1c540571dc86c43e",
+        "train_originals": 3,
+        "development_originals": 1,
+        "sealed_originals": 1,
+        "sealed_payload_used": false,
+        "pause": {
+          "status": "paused",
+          "phase": "paused_process_memory_retained",
+          "memory_retained": true,
+          "exact_optimizer_resume": false
+        },
+        "training_resume": {
+          "supported": true,
+          "checkpoint_loaded": false,
+          "resumed_from_step": 0,
+          "completed_steps": 8,
+          "optimizer_steps_executed_this_process": 8,
+          "checkpoint_interval": 4,
+          "signature": "616256ec3802e9053a67d60d400d6bb9645f2f225b08312a1b647fed5e59f179",
+          "active_optimizer_elapsed_s": 7.2217704209906515,
+          "non_durable_updates_may_be_replayed": true,
+          "retained_history_is_not_total_compute_across_failed_attempts": true,
+          "rng_sources": [
+            "python",
+            "numpy_global",
+            "torch_cpu",
+            "all_initialized_cuda",
+            "explicit_batch_sampler"
+          ]
+        },
+        "physical_io": false
+      }
+    ],
+    "actual_supervisor_bootstrap_job_runner": true
+  },
+  "actual_current_UI_verification": {
+    "receipt_path": "/mnt/explorer-data/explorer-work/04-learning-ui-readonly-20261027-a/browser-final/receipt.json",
+    "receipt_sha256": "3ad3593be4c5fa7df88b41b8359e9f2028d7be6ce6d4986fa5d918655abdc850",
+    "status": "PASS",
+    "source_release": "3b6e32a01f3709ff6cd50cc483006df88f8000e4",
+    "steps": [
+      "Existing ACT/DP actual8 models:5/5 coverage, shared Queue rows, separate backend/Skill version/job IDs/checkpoints/reload/DEV shown; SIM never physical",
+      "Actual new UI GET verification desktop1440/mobile390 with SAME retained16 optimizer updates; no retraining or native calls"
+    ],
+    "javascript_errors": [],
+    "new_optimizer_updates": 0,
+    "read_only_except_private_login": true,
+    "configured_nodes": [],
+    "model_ids": [
+      "43b10a7d0758428fbf93f923587e6aa7",
+      "ee012309c4cb4d25bb78b7c7af3da336"
+    ],
+    "all_models_ineligible_for_physical": true,
+    "screenshots": {
+      "desktop": {
+        "path": "/mnt/explorer-data/explorer-work/04-learning-ui-readonly-20261027-a/browser-final/models-desktop.png",
+        "sha256": "d83a32a9b30287fbd4cadfe5218a20d83919aa2b3155335a612ec2276f0409e7"
+      },
+      "mobile": {
+        "path": "/mnt/explorer-data/explorer-work/04-learning-ui-readonly-20261027-a/browser-final/models-mobile.png",
+        "sha256": "82a064a90828b8069af28b7e5b49c416bc5c769cc9136cd8ae6026e60c687118"
+      }
+    }
+  },
+  "tests": [
+    {
+      "suite": "All Node consumers",
+      "pass_count": 270,
+      "duration_s": 3.393564999,
+      "path": "/mnt/explorer-data/explorer-work/04-learning-browser-20261027-b/all-node-model-ui-a.log",
+      "sha256": "2ba5b872d5ac9fd0ab42360d37ce1da8bb5029c85cb7fa8b6404d4f4b350851e"
+    },
+    {
+      "suite": "Final operator labels/shared rows and lab models",
+      "pass_count": 36,
+      "duration_s": 1.350454345,
+      "path": "/mnt/explorer-data/explorer-work/04-learning-browser-20261027-b/model-labels-targeted-a.log",
+      "sha256": "2c1cdcc4156aa86794616d12f2669f9040e029973d829fba82ef57802d72834c"
+    },
+    {
+      "suite": "Current exact native6 source/runtime pins",
+      "pass_count": 3,
+      "duration_s": 0.14,
+      "path": "/mnt/explorer-data/explorer-work/04-learning-browser-20261027-b/current-policy-pins-a.log",
+      "sha256": "b6c51b401d65a9c69435f8b86cecab752d65ded7188228aab3de3eb010990b60"
+    }
+  ],
+  "resource_limits": {
+    "memory.peak": "2115121152\n",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "memory.swap.peak": "0\n",
+    "memory.max": "4294967296\n",
+    "cpu.max": "200000 100000\n"
+  },
+  "kernel_memory_peak_bytes": 2115121152,
+  "swap_peak_bytes": 0,
+  "OOM_events": 0,
+  "CPU_quota_cores": 2,
+  "pause_scope": "This UI proof paused/resumed the retained processes before optimizer checkpoint phase; exact new-PID model/optimizer/RNG equality is the separate preserved R7 proof, not inferred here",
+  "separate_exact_process_resume_evidence": "_registry/evidence/experiment04-approved-capture-queued-training-20261027.json",
+  "negatives_preserved": [
+    "04-learning-browser-20261027-a: test boot-id monkeypatch leaked into scheduler lease; worker refused entry78 before optimizer",
+    "04-learning-browser-20261027-b: actual ACT/DP complete; final driver wrong SourceEvaluation snapshot shape",
+    "04-learning-ui-readonly-20261027-a: closed model details test and real mobile checkpoint/table overflow; corrected with retained inputs",
+    "Private first read-only unit setup used incorrect source path; failed before starting application"
+  ],
+  "original_outputs_not_relabelled": true,
+  "real_expert_demonstrations": 0,
+  "physical_skill_acceptance": false,
+  "production_state_used": false,
+  "production_deployed": false,
+  "native_motor_requests": 0,
+  "controller_configuration_changes": 0,
+  "frozen_station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+  "remaining": [
+    "E04-VISION: actual idle-only source runtime admission before VLM; retain actual Pi semantic/API latency evidence",
+    "E04-FIRST-UPGRADE: proved safe old4c barrier or separate observed upgrade",
+    "Current02/03 queue proof and one frozen full regression before rollout",
+    "HB/Pi deploy and actual UI/GET verification; then mandatory E03-SOFTWARE-DEPLOY"
+  ]
+}
