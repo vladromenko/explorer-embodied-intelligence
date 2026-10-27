@@ -719,7 +719,7 @@ class CooperativeWorkflow:
                 stop_current=current['epoch']==epoch
                 self._save(current)
             if stop_current:self.cancel_session(session_id,'PROTOCOL_STEP_FAILED:'+type(error).__name__)
-    def cancel_session(self,session_id,reason='explicit_operator_stop'):
+    def cancel_session(self,session_id,reason='explicit_operator_stop',*,authenticated_actor=None):
         with self.lock:
             row=self._session(session_id);previous=deepcopy(row);row.update(epoch=uuid.uuid4().hex,status='STOPPED',pending_operation=None,
                 protocol_state='SAFE_STOP',protocol_completed=False,stop_reason=reason)
@@ -734,7 +734,7 @@ class CooperativeWorkflow:
             try:return provider.stop(session_id)
             except Exception as error:return {'delivery_unknown':True,'error':type(error).__name__+': '+str(error)}
         def stop_owned():
-            try:return self.native_owned_stop(previous)
+            try:return self.native_owned_stop(previous,actor=authenticated_actor) if authenticated_actor is not None else self.native_owned_stop(previous)
             except Exception as error:return {'delivery_unknown':True,'error':type(error).__name__+': '+str(error),
                 'dual_hold_interlocks_unarmed':False}
         with ThreadPoolExecutor(max_workers=3) as pool:

@@ -72,7 +72,8 @@ class CooperativeService:
         self.observed_setup=CooperativeObservedService(self.workflow,{role:self._request(role) for role in ('giver','receiver')},
             self._observed_binary,inspect_native=self._inspect_skill,has_prior_evidence=self._prior_test_evidence,clock=clock)
         self.native_controls=CooperativeNativeSessions(self)
-        self.workflow.native_owned_stop=lambda previous:self.native_controls.cancel_owned_sessions(previous,
+        self.workflow.native_owned_stop=lambda previous,actor=None:self.native_controls.cancel_owned_sessions(previous,
+            actor=actor if actor is not None else (previous.get('observed_test_binding') or {}).get('actor_id'),
             reason='COOPERATIVE_WORKFLOW_EPOCH_REVOKED')
         self.receiver_setup=CooperativeReceiverSetup(self)
         self.native_receipts=CooperativeNativeReceipts(self)
@@ -621,7 +622,7 @@ idempotent; process restart never queues its missing half automatically.
             previous=self.workflow.snapshot(session)
             self.observed_scopes.invalidate(previous)
             self.receiver_setup.invalidate_session(previous)
-            result=self.workflow.cancel_session(session)
+            result=self.workflow.cancel_session(session,authenticated_actor=authenticated_actor)
             if 'native_owned_session_cleanup' not in result:
                 try:
                     result['native_owned_session_cleanup']=self.native_controls.cancel_owned_sessions(previous,actor=authenticated_actor)
