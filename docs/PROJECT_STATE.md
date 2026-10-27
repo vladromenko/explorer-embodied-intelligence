@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
 Updated: `2026-10-27T22:19:51+03:00`
-Code commit: `4993c6d83d97bca9a6056548b7a398c02d405ead`
+Code commit: `34c5f1053e95b4ecf0bef311f1fdb627ad7aa5da`
 Current task: `E04-FIRST-UPGRADE`
 Next tasks: `E04-FIRST-UPGRADE`, `E04-RELEASE`, `E03-SOFTWARE-DEPLOY`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -23,7 +23,7 @@ Approved cohort теперь проверен отдельно:189PASS/5SKIP42.3
 Capture/review/provenance SHA входят в binding/fingerprint/aggregate; late reject
 закрывает cached aggregate, reapproval сохраняет предыдущие artifacts.
 [Evidence](../_registry/evidence/experiment04-approved-capture-cohort-20261027.json).
-Полный operator learning UI/deploy ещё OPEN; это не готовность всего04.
+Operator learning UI квалифицирован ниже; deployment ещё OPEN, это не готовность всего04.
 Fresh frozen3b81623 ACT8/DP8 CPU qualification PASS с actual save/reload и прежними
 R2 weights exact; native6 binding теперь содержит21 исходник, actual selector PASS.
 [CPU evidence](../_registry/evidence/experiment04-current-native6-CPU-20261027.json).
@@ -55,7 +55,7 @@ actual HTTPS Firefox desktop/mobile, passiveROS20s0, source/reference/PIDs/6conf
 |01 PARKED|CAD/SIM, компоненты ACT/DP/reload; bounded8+8 smoke сохранены|Canonical PPO→demos/DAgger→ACT full-task успех не достигнут. Target C-v2=0/16; long248 не запускался. [Pause](../01-autonomous-learning/docs/audits/PARKED_AFTER_SMOKE8_20261027_RU.md)|
 |02|SOFTWARE READY в scope одной Nano camera; actual17RGB→analysis, generated Dataset/ACT/resume/DEV, UI/deploy|0принятых real experts/models; valid live-shadow/full physical skill OPEN. [02 release](../_registry/evidence/experiment02-learning-actual-722755dc-20261027.json)|
 |03|Shared data path/UI deployed65; candidate actual39RGB/0expert commands отдельно; bootstrap из исходной калибровки реализован/tested|Не SOFTWARE READY: changing real leader continuity OPEN, current reference409; новый physical path не deployed. Measured registration не блокирует bootstrap-разработку. [Bootstrap](../03-lerobot-teaching/docs/BOOTSTRAP_REGISTRATION_RU.md)|
-|04 CURRENT|Source-only/COMMON capture, approved cohort/ACT+DP resume; actual desktop/mobile SourceDemo HTTP+original recorder on labelled generated inputs|Полный learning/model UI и release OPEN; новый04 не deployed. [UI proof](../_registry/evidence/experiment04-source-demo-actual-UI-20261027.json)|
+|04 CURRENT|Source-only/COMMON capture, approved cohort/ACT+DP resume; actual desktop/mobile SourceDemo и learning/model UI на labelled generated inputs|First upgrade и release OPEN; новый04 не deployed. [UI proof](../_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json)|
 |05 NEXT|Typed two-role components, hold WAL/interlocks и shared queued shadows tested|Полный manual/manual операторский FSM→record/review/train/shadow/release ещё открыт. FSM не learned skill. [Interlock](../05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md)|
 |06 THEN|Lineage/splits/FK/IK/SIM и ACT/adaptation компоненты; отрицательные исходы сохранены|Approved04 source и полный distinct-domain zero/adapt/target-only UI/pipeline OPEN; physical transfer не доказан. [Negative trials](../research/audits/TARGET_TEMPORAL_C_V2_RESULTS_RU.md)|
 
@@ -92,6 +92,16 @@ actual HTTPS Firefox desktop/mobile, passiveROS20s0, source/reference/PIDs/6conf
   Метрическая калибровка отсутствует, actual later JPEG почти чёрный max2/255;
   exact old VLM input JPEG не сохранён. Semantic accuracy/physical skill OPEN.
 - `E04-FIRST-UPGRADE` CURRENT: проверить безопасный первый переход old4c.
+  Candidate34c5f10: same-bus startup guard до первого валидированного COMMON USER
+  start. Original idle connection-error hold блокируется до SDK sync_write;
+  metadata/foreign/stale/revoked grants/idle STOP не открывают запись. После
+  valid observed start исходные Goal/Torque/target/scoped hold без изменений.
+  Frozen Station SHA сохранён;73Python PASS8.85s, Node wiring/HTTP status и
+  default COMMON/source evaluation/cooperative consumers. Это fake-bus proof,
+  guard не deployed. [Evidence](../_registry/evidence/experiment04-cold-publication-guard-20261027.json).
+  На Pi отдельный stdlib-only fake подтвердил GDB all-stop и чтение полей без
+  inferior calls/записи памяти; actual observer43382 не затрагивался. Требуется
+  следующий exactold4c fake/partialHTTP/active/raw-owner negative proof.
   PiSSH ключ работает, sudo-n требует пароль. Read-only cold-connect SDK source:
   port open +motor identity/firmware checks; запрет actual grants/STOP сохраняется.
   Проверить возможность доказанного freeze/zero-write termination barrier на
