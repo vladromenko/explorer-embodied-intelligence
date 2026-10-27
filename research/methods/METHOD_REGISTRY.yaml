@@ -5804,6 +5804,43 @@
         "tests/test_native_repin_startup_qualification.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-ROOT-PARKED-RELEASE-CONTROL-20261027",
+      "function_or_module": "00-control-center/src/explorer/cooperative_parked_release.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/giver_parked_release05.py",
+          "role": "Bounded original source challenge and explicit resume-release CONTROL"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/handover_adapters.py",
+          "role": "One atomic post-source USER bundle and single claim"
+        },
+        {
+          "url": "project-file:00-control-center/src/explorer/cooperative_native_receipts.py",
+          "role": "Immutable authenticated source custody, including orphaned late responses"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_LOADING_OR_INFERENCE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Bind the existing parked-release Workflow bridge to an actual source challenge, three explicit USER facts and separate CONTROL operation. Preserve original deadlines/native epochs and remember actual returned owners before artifact fsync; publish completion only after immutable custody and reservation release. Unknown delivery permits only cancellation with the literal previously challenged scope; no current foreign owner is adopted. Explicit CONTROL installs a scoped adapter without a second authorize, target, automatic lease or model prediction.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_cooperative_parked_release.py",
+        "tests/test_cooperative_parked_release_bridge.py",
+        "tests/test_parked_release_transport05.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

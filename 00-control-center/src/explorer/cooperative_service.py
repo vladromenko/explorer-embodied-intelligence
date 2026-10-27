@@ -39,6 +39,7 @@ from .cooperative_native_receipts import CooperativeNativeReceipts
 from .cooperative_grant_lineage import CooperativeGrantLineage
 from .cooperative_observed_scopes import CooperativeObservedScopes
 from .cooperative_dispatch_authority import CooperativeDispatchAuthority
+from .cooperative_parked_release import CooperativeParkedRelease
 
 
 def _boot():return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
@@ -75,9 +76,7 @@ class CooperativeService:
         self.observed_setup=CooperativeObservedService(self.workflow,{role:self._request(role) for role in ('giver','receiver')},
             self._observed_binary,inspect_native=self._inspect_skill,has_prior_evidence=self._prior_test_evidence,clock=clock)
         self.native_controls=CooperativeNativeSessions(self)
-        self.workflow.native_owned_stop=lambda previous,actor=None:self.native_controls.cancel_owned_sessions(previous,
-            actor=actor if actor is not None else (previous.get('observed_test_binding') or {}).get('actor_id'),
-            reason='COOPERATIVE_WORKFLOW_EPOCH_REVOKED')
+        self.workflow.native_owned_stop=self._stop_owned_native
         self.receiver_setup=CooperativeReceiverSetup(self)
         self.native_receipts=CooperativeNativeReceipts(self)
         self.grant_lineage=CooperativeGrantLineage(self)
@@ -85,6 +84,20 @@ class CooperativeService:
         self.dispatch_admission=CooperativeDispatchAuthority(self)
         self.workflow.fresh_dispatch_authority=lambda row,role,operation:self.dispatch_admission.require(
             row,self.workflow._spec_for(row),role,operation)
+        self.parked_release=CooperativeParkedRelease(self)
+        self.workflow.prepare_parked_release=self.parked_release.prepare
+        self.workflow.wait_parked_release_control=self.parked_release.wait
+    def _stop_owned_native(self,previous,*,actor=None):
+        # All invalidation is local and precedes node I/O. Workflow calls this
+        # outside its lock, independently of source replies and artifact fsync.
+        owner=(previous.get('observed_test_binding') or {}).get('actor_id')
+        if actor is not None and owner is not None and actor!=owner:raise ValueError('Exact owned cooperative operator required for cancellation')
+        if hasattr(self,'observed_scopes'):self.observed_scopes.invalidate(previous)
+        if hasattr(self,'parked_release'):self.parked_release.invalidate(previous)
+        try:returned=self.native_controls.cancel_owned_sessions(previous,actor=actor if actor is not None else owner,reason='COOPERATIVE_WORKFLOW_EPOCH_REVOKED')
+        except Exception as error:returned={'owned_session_cleanup_delivery_unknown':True,'error':type(error).__name__+':'+str(error)}
+        if hasattr(self,'parked_release'):returned['declared_control_attempt_cleanup']=self.parked_release.cancel_owned_attempts(previous)
+        return returned
     def _prior_test_evidence(self,row):
         with self.store.connect() as db:
             jobs=list(db.execute("SELECT id,kind,config FROM jobs WHERE json_extract(config,'$.session_id')=? OR json_extract(config,'$.cooperative_shadow_binding.session_id')=?",
@@ -651,6 +664,8 @@ idempotent; process restart never queues its missing half automatically.
             result['warm_compute_jobs_cancelled']=self.warm_compute.cancel_session(self.workflow.snapshot(session))
         elif operation=='confirm_evidence':result=self.inbox.confirm(body.get('challenge_id'),
             {key:body[key] for key in ('affirmed','observing','note') if key in body},authenticated_actor=authenticated_actor)
+        elif operation=='native_parked_release_resume':
+            row=self.workflow.snapshot(session);result=self.parked_release.resume(row,body,actor=authenticated_actor)
         elif operation=='shadow':
             row=self.workflow.snapshot(session);selected=self.workflow.skill(row['skill_id'],row['skill_version'])
             if not selected['confirmed']:raise ValueError('Confirm exact cooperative native model references first')

@@ -23,8 +23,13 @@ ACTOR='trusted-owner'
 
 
 class Sources:
-    def __init__(self,tmp_path,monkeypatch):
-        self.service,self.store,_,_,_,self.client=central_fixture(tmp_path);self.row,self.spec=session(self.service)
+    def __init__(self,tmp_path,monkeypatch,*,policy=False):
+        if policy:
+            from test_cooperative_queued_shadows import configured as policy_fixture
+            self.service,self.store,_,self.client,self.spec,self.row,_=policy_fixture(tmp_path,input_policy_roles=('giver',),pin_manual_models=False)
+            def never_predict(*args,**kwargs):raise AssertionError('No inference belongs to native scope/CONTROL setup')
+            self.service.native_controls._ready_prediction=lambda row,spec,role:never_predict
+        else:self.service,self.store,_,_,_,self.client=central_fixture(tmp_path);self.row,self.spec=session(self.service)
         self.pair=NativePair(tmp_path,self.service);self.calls=[]
         folder=tmp_path/'actual-pi';folder.mkdir();binding=self.service.observed_setup.receiver_binding(self.row,self.spec)
         self.station,self.provider,_,_,self.bus,_,self.tick,self.StopAfter,_=worker_rig(folder,monkeypatch,binding_override=binding,actor=ACTOR)
@@ -59,6 +64,7 @@ class Sources:
             result=self.pair.gate.revoke(reason);self.pair.owner.guard.revoke(reason);return result
         self.pair.mux.on_invalidate=invalidate
         phase(self.service,self.row,'native_phase_park');new_permission(self.service,self.row,self.pair);phase(self.service,self.row,'native_phase_adopt')
+        if policy:phase(self.service,self.row,'native_phase_begin')
         started=execute(self.service,'native_begin',choice(self.service,self.row,'receiver','native_begin'))['native_receipt']['grant']
         self.station.stop_event=self.StopAfter();self.station._work()
         profile=observed_gripper_direction(endpoint('empty_open',80.),endpoint('empty_closed',20.))

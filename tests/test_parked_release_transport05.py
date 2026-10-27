@@ -64,7 +64,7 @@ def test_policy_uses_existing_latest_intent_and_actual_opening_receipt_with_alre
     finally:client.close()
 
 
-@pytest.mark.parametrize('changed',['missing','different_grant','descriptor','actor','expired_native','missing_source_clock','clock','boot','owner','revision','source_grant'])
+@pytest.mark.parametrize('changed',['missing','different_grant','descriptor','actor','expired_native','missing_source_clock','clock','boot','owner','revision','source_grant','unknown_fault','unknown_park'])
 def test_unknown_foreign_expired_or_tampered_grant_never_authorizes_or_posts(tmp_path,changed):
     values,transport,authorization,calls,client,grant=ready(tmp_path);owner,mux,teleop,arm,publisher,tap,activation,tick,binding,path=values
     original=transport.request
@@ -83,6 +83,8 @@ def test_unknown_foreign_expired_or_tampered_grant_never_authorizes_or_posts(tmp
             result=original(method,path,body)
             if path.endswith('/cooperative/status'):
                 if changed=='missing_source_clock':result['release_boundary'].pop('source_stamp')
+                elif changed=='unknown_fault':result['release_boundary'].pop('reference_fault')
+                elif changed=='unknown_park':result['release_boundary'].pop('parked')
                 else:result['release_boundary']['source_stamp']['clock_domain' if changed=='clock' else 'boot_id']='foreign'
             return result
         transport.request=request

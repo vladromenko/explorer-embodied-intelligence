@@ -34,6 +34,8 @@ class _InstalledGrant:
         boundary=source.get('release_boundary') or {};native=source.get('native') or {};stamp=boundary.get('source_stamp') or {}
         persistence=boundary.get('persistence') or {};actual=boundary.get('grant') or {};bound=boundary.get('binding') or {}
         if (state.get('current_native_owner_ready') is not True or actual!=installed or boundary.get('armed') is not True or
+                boundary.get('schema')!='explorer_native_receiver_hold_boundary_v1' or
+                not {'reference_fault','parked','pending_challenge','grant'}<=boundary.keys() or
                 boundary.get('parked') is not None or boundary.get('pending_challenge') is not None or boundary.get('reference_fault') is not None or
                 boundary.get('revision')!=installed.get('revision') or
                 any(bound.get(key)!=self.binding.get(key) or challenge.get(key)!=self.binding.get(key) for key in
