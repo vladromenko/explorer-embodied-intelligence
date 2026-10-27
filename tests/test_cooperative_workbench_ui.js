@@ -232,3 +232,14 @@ test('native reply history remains readable after STOP and never renders injecte
  assert.match(html,/Сохранённые действия управления/);assert.ok(html.includes(receipt.url));assert.ok(!html.includes('javascript:'));
  assert.match(html,/Сохранённая запись недоступна/);assert.equal(r.calls.length,before);
 });
+
+test('giver phase wrappers preserve server session and reject browser source CAS/model/token values',async()=>{
+ const r=await rig(),ops=['native_phase_park','native_phase_adopt','native_phase_begin','native_phase_resume'];
+ for(const op of ops){
+  const body={role:'giver',native_control_choice_id:'a'.repeat(64),observing:true,user_observed_test_confirmed:true,neutral:true};
+  await r.client.nativeOperation(op,body);assert.deepEqual(r.calls.at(-1),['POST','/api/cooperative/'+op,{...body,session_id:'server-session',expected_epoch:'epoch-one'}]);
+  for(const key of ['authorization_id','control_epoch','park_request_id','expected_revision','phase_id','actor_id','constraint','source_origin'])
+   assert.throws(()=>r.client.nativeOperation(op,{...body,[key]:'browser-value'}),/без подмены/);
+ }
+ assert.equal(r.calls.filter(([method])=>method==='POST').length,ops.length);
+});

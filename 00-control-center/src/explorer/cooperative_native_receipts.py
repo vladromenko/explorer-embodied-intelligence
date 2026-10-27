@@ -16,18 +16,33 @@ from explorer_shared.cooperative_recording05 import write_original,sha_file
 class CooperativeNativeReceipts:
     def __init__(self,service):
         self.service,self.workflow=service,service.workflow
-    def archive(self,row,spec,role,operation,result,actor):
+    def archive(self,row,spec,role,operation,result,actor,*,allow_unpublished=False,intent_evidence=None):
         if role not in ('giver','receiver') or not isinstance(result,dict):
             raise ValueError('Parsed authenticated native role reply required')
-        current=self.service.native_controls._fresh(row,spec,actor)
+        if allow_unpublished:
+            # A parsed reply can arrive after STOP, but it cannot acquire new
+            # authority. Check the saved immutable origin against the actual
+            # stored session; never replace it with the current epoch/grant.
+            current=self.workflow.snapshot(row['session_id']);bound=row.get('observed_test_binding') or {}
+            if (row.get('process_session')!=self.workflow.process or current.get('process_session')!=self.workflow.process or
+                    any(current.get(key)!=row.get(key) for key in ('session_id','skill_id','skill_version','spec_sha256')) or
+                    current.get('observed_test_binding')!=bound or bound.get('actor_id')!=actor or
+                    bound.get('context')!=self.service.observed_setup._context(row,spec) or
+                    row.get('skill_id')!=spec.get('skill_id') or row.get('skill_version')!=spec.get('version') or
+                    row.get('spec_sha256')!=spec.get('spec_sha256') or
+                    digest({key:value for key,value in spec.items() if key!='spec_sha256'})!=spec['spec_sha256']):
+                raise ValueError('Exact immutable original process/actor/context required for orphan native custody')
+        else:current=self.service.native_controls._fresh(row,spec,actor)
         prior=deepcopy((current.get('native_control_ledger') or {}).get(role))
         identity=uuid.uuid4().hex
         document={'schema':'explorer_cooperative_native_control_evidence_v1','receipt_id':identity,
             'context':self.service.observed_setup._context(row,spec),'actor_id':actor,
             'role':role,'operation':operation,'source_response':deepcopy(result),'previous':prior,
+            'intent_evidence':deepcopy(intent_evidence),
             'ordinal':1 if prior is None else prior['ordinal']+1,
             'received_nx_ns':self.service.clock(),'received_clock_domain':self.workflow.domain,
             'basis':'parsed_authenticated_source_reply_not_hardware_attainment',
+            'authority_publication_allowed':not allow_unpublished,
             'automatic_native_command_replay_allowed':False,'physical_attainment_claimed':False}
         raw=canonical(document);checksum=digest(document)
         folder=self.service.root/'native-control'/identity
@@ -36,10 +51,11 @@ class CooperativeNativeReceipts:
         registration.update(schema='explorer_cooperative_native_control_registration_v1',receipt_sha256=checksum)
         write_original(folder/'registration.json',canonical(registration));(folder/'registration.json').chmod(0o600)
         return {'receipt_id':identity,'sha256':checksum,'role':role,'operation':operation,
-            'ordinal':document['ordinal'],'previous':prior,
+            'ordinal':document['ordinal'],'previous':prior,'unpublished_only':allow_unpublished,
             'url':'/api/cooperative/artifacts/native-control/'+identity}
     def publish(self,row,spec,pointer,actor):
         # Call only after archive() has completed. No artifact read/write here.
+        if pointer.get('unpublished_only') is True:raise ValueError('Orphan native source custody cannot restore authority')
         with self.workflow.lock:
             current=self.service.native_controls._fresh(row,spec,actor)
             heads=current.setdefault('native_control_ledger',{});role=pointer['role']

@@ -209,3 +209,42 @@ test('receiver phase activation requires new neutral confirmation, uses only an 
  assert.equal(r.client.snapshot().frames.receiver,undefined);assert.deepEqual(await r.client.displayed('receiver',oldToken),{ignored:true});assert.equal(r.client.snapshot().nativeFlags.receiver.neutral,false);
  assert.equal(r.nativeCalls.length,2);assert.equal(r.calls.some(([op])=>op==='observed_observe'),false);
 });
+
+const giverPhases=['native_phase_park','native_phase_adopt','native_phase_begin','native_phase_resume'];
+async function phaseRig() {
+ const r=await nativeRig();r.row.protocol_state='ROSMASTER_HOLDING';r.controls.phase_context={protocol_state:r.row.protocol_state,pending_sha256:digest('b')};
+ r.view.data.native_controls=copy(r.controls);
+ for(const role of ['giver','receiver'])for(const op of giverPhases)r.controls.roles[role].operations[op]={implemented:true,available:true,choice_id:digest('a')};
+ return r;
+}
+for(const operation of giverPhases)test(`${operation} is a separate giver-only neutral USER action with an opaque choice and no automatic following action`,async()=>{
+ const r=await phaseRig();await r.client.nativeRefresh();r.client.nativeAffirm('giver','observing',true);r.client.nativeAffirm('giver','user_observed_test_confirmed',true);
+ await assert.rejects(r.client.nativeCommand('giver',operation),/Лично подтвердите/);assert.equal(r.nativeCalls.length,1);
+ r.client.nativeAffirm('giver','neutral',true);await r.client.nativeCommand('giver',operation);
+ assert.deepEqual(r.nativeCalls.at(-1),[operation,{role:'giver',native_control_choice_id:digest('a'),observing:true,user_observed_test_confirmed:true,neutral:true}]);
+ assert.deepEqual(r.nativeCalls.map(([op])=>op),['native_refresh',operation]);assert.equal(r.client.snapshot().nativeFlags.giver.neutral,false);
+ nativeAffirm(r.client,'receiver');await assert.rejects(r.client.nativeCommand('receiver',operation),/Лично подтвердите/);assert.equal(r.nativeCalls.length,2);
+});
+test('giver phase choices are fenced by source availability, protocol advance and checkpoint generation',async()=>{
+ for(const change of ['unavailable','phase','checkpoint']) {
+  const r=await phaseRig();if(change==='unavailable')r.controls.roles.giver.operations.native_phase_park.available=false;
+  await r.client.nativeRefresh();nativeAffirm(r.client);
+  if(change==='phase')r.row.protocol_state='OFFER_READY';
+  if(change==='checkpoint')r.view.data.native_controls.phase_context.pending_sha256=digest('c');
+  await assert.rejects(r.client.nativeCommand('giver','native_phase_park'),/недоступно/);assert.deepEqual(r.nativeCalls,[['native_refresh',{}]]);
+ }
+});
+test('late phase control reply after coordinator STOP cannot resurrect choices or displayed grant evidence',async()=>{
+ const r=await phaseRig(),pending=deferred();await authorize(r.client,'giver');await r.client.nativeRefresh();nativeAffirm(r.client);
+ r.options.invokeNative=async()=>pending.promise;const request=r.client.nativeCommand('giver','native_phase_begin');
+ r.row.status='STOPPED';r.row.epoch='actual-stop-epoch';r.view.stops[r.row.session_id]={originalEpoch:'coordinator-epoch-1'};r.client.sync();
+ pending.resolve({role:'giver',operation:'native_phase_begin',native_controls:r.controls});assert.deepEqual(await request,{ignored:true});
+ assert.equal(r.client.snapshot().nativeControls,null);assert.deepEqual(r.client.snapshot().receipts,{});assert.equal(r.client.snapshot().nativeFlags.giver.observing,false);
+});
+test('unconfirmed phase reply is not retried and normal refresh never automatically resumes it',async()=>{
+ const r=await phaseRig();await r.client.nativeRefresh();nativeAffirm(r.client);const invoke=r.options.invokeNative;
+ r.options.invokeNative=async(op,fields)=>{if(op==='native_phase_resume'){r.nativeCalls.push([op,fields]);throw new Error('uncertain source phase reply');}return invoke(op,fields);};
+ await assert.rejects(r.client.nativeCommand('giver','native_phase_resume'),/uncertain/);await r.client.nativeRefresh();nativeAffirm(r.client);
+ await assert.rejects(r.client.nativeCommand('giver','native_phase_resume'),/не подтверждён/);
+ assert.equal(r.nativeCalls.filter(([op])=>op==='native_phase_resume').length,1);assert.equal(r.nativeCalls.some(([op])=>op==='native_lease'),false);
+});

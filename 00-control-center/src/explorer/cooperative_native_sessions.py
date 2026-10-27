@@ -15,14 +15,17 @@ from explorer_shared.cooperative_transport05 import NativeGiverPolicyTransport,N
 from explorer_shared.cooperative_receiver_transport05 import NativeReceiverTransport
 from explorer_shared.station_observed_http import StationObservedHttp
 from .cooperative_native_scope import returned_giver_scope
+from .cooperative_giver_phases import CooperativeGiverPhases,OPERATIONS as GIVER_PHASE_OPERATIONS
 
-OPERATIONS=('native_begin','native_recenter','native_resume','native_attach','native_lease','native_stop','native_reset_safe','native_phase_activate')
+OPERATIONS=('native_begin','native_recenter','native_resume','native_attach','native_lease','native_stop','native_reset_safe','native_phase_activate')+GIVER_PHASE_OPERATIONS
+PHASE_OPERATIONS=('native_phase_activate','native_phase_park','native_phase_adopt','native_phase_begin','native_phase_resume')
 
 
 class CooperativeNativeSessions:
     def __init__(self,service):
         self.service=service;self.workflow=service.workflow;self.clock=service.clock
         self.lock=threading.RLock();self.choices=OrderedDict();self.cache={};self.pending=set();self.owned=OrderedDict();self.cancelled=set()
+        self.giver_phases=CooperativeGiverPhases(self)
     def _fresh(self,row,spec,actor=None):
         current=self.workflow.snapshot(row['session_id']);bound=current.get('observed_test_binding') or {}
         with self.lock:cancelled=(row['session_id'],row['epoch']) in self.cancelled
@@ -61,16 +64,18 @@ class CooperativeNativeSessions:
                     pair['source'].get('control_epoch')!=grant.get('control_epoch') or pair['source'].get('mode')!=grant.get('native_mode')):
                 raise ValueError('Exact current source-bound USER Pi permission/epoch required')
     @staticmethod
-    def _identity(role,pair):
+    def _identity(role,pair,operation=None):
         source,permission=pair['source'],pair['permission']
         if role=='giver':
             native=source.get('native') or {};boundary=source.get('release_boundary') or {}
-            return {'authorization_id':permission.get('authorization_id'),'input_mode':permission.get('input_mode'),
+            value={'authorization_id':permission.get('authorization_id'),'input_mode':permission.get('input_mode'),
                 'native':{key:native.get(key) for key in ('control_epoch','owner_generation','native_owner','active','state','stop_latched')},
                 'binding':deepcopy(boundary.get('binding')),'armed':boundary.get('armed'),
                 'constraint':deepcopy(source.get('registered_action_constraint')),
                 'persistence':deepcopy(boundary.get('persistence')),'quiescence':deepcopy(boundary.get('original_quiescence')),
                 'reference_fault':deepcopy(boundary.get('reference_fault')),'parked':deepcopy(boundary.get('parked'))}
+            if operation=='native_phase_park':value.pop('quiescence',None)
+            return value
         grant=permission.get('grant') or {}
         return {'grant':{key:deepcopy(grant.get(key)) for key in ('grant_id','binding','provider_process','control_epoch','native_mode','actor_id')},
             'native':{key:source.get(key) for key in ('available','mode','control_epoch','configuration_writes')},
@@ -87,12 +92,23 @@ class CooperativeNativeSessions:
         ready=[item for item in self.service.warm_compute.snapshots(row) if item['compute_ready'] and role in item['required_policy_roles']]
         if len(ready)!=1:raise ValueError('One exact admitted current warm worker for this policy role required')
         return self.service.warm_compute.prediction_adapter(ready[0]['job_id'],row,role)
+    @staticmethod
+    def _phase_pin(row):
+        return {'protocol_state':row.get('protocol_state'),'pending_sha256':digest(row.get('pending_operation'))}
+    def owned_scope(self,row,role):
+        with self.lock:return deepcopy(self.owned.get((row['session_id'],row['epoch'],role)))
+    @staticmethod
+    def giver_expected(pair,result,operation):
+        return returned_giver_scope(pair,result,operation)
     def refresh(self,row,spec,*,actor):
         row=self._fresh(row,spec,actor);roles={};context=self.service.observed_setup._context(row,spec)
         for role in ('giver','receiver'):
-            operations={name:{'implemented':False,'available':False,'choice_id':None} for name in OPERATIONS};reason=None
+            operations={name:{'implemented':False,'available':False,'choice_id':None} for name in OPERATIONS};reason=None;pair=None;phase_selections={}
             try:
-                pair=self._source(role);self._check_permission(role,row,spec,pair)
+                pair=self._source(role)
+                if role=='giver':
+                    phase_ops,phase_selections,_=self.giver_phases.describe(row,spec,pair,actor);operations.update(phase_ops)
+                self._check_permission(role,row,spec,pair)
                 source=pair['source'];mode=row[role+'_input_mode'];policy=mode=='policy'
                 if role=='giver':
                     caps=source.get('capabilities') or {};native=source.get('native') or {};bound=source.get('release_boundary') or {}
@@ -145,18 +161,24 @@ class CooperativeNativeSessions:
                     if policy and operations[name]['available']:
                         try:self._ready_prediction(row,spec,role)
                         except (ValueError,OSError,KeyError,TypeError) as error:operations[name].update(available=False,reason=str(error))
-                with self.lock:
-                    for name,item in operations.items():
-                        if item['available']:
-                            choice=digest({'context':context,'role':role,'operation':name,'native':self._identity(role,pair),'nonce':uuid.uuid4().hex})
-                            self.choices[choice]={'context':deepcopy(context),'role':role,'operation':name,
-                                'identity':self._identity(role,pair),'created_ns':self.clock(),'used':False}
-                            item['choice_id']=choice
-                    while len(self.choices)>128:self.choices.popitem(last=False)
             except Exception as error:reason=type(error).__name__+':'+str(error)
+            phase_window=self.workflow.native_phase_change_window(row)
+            with self.lock:
+                for name,item in operations.items():
+                    if name in PHASE_OPERATIONS and not phase_window:
+                        item.update(available=False,reason='EXPLICIT_EVIDENCE_CHECKPOINT_OR_IDLE_REQUIRED')
+                    if item['available'] and pair is not None:
+                        choice=digest({'context':context,'role':role,'operation':name,'native':self._identity(role,pair,name),'nonce':uuid.uuid4().hex})
+                        self.choices[choice]={'context':deepcopy(context),'role':role,'operation':name,
+                            'identity':self._identity(role,pair,name),'created_ns':self.clock(),'used':False,
+                            'phase_pin':self._phase_pin(row) if name in PHASE_OPERATIONS else None,
+                            'phase_selection':deepcopy(phase_selections.get(name))}
+                        item['choice_id']=choice
+                while len(self.choices)>128:self.choices.popitem(last=False)
             roles[role]={'input_mode':row[role+'_input_mode'],'operations':operations,'reason':reason,
                 'no_automatic_user_lease_renewal':True,'policy_inference_is_not_execution_authority':True}
         result={'schema':'explorer_cooperative_native_controls_v1','roles':roles,'current_received_ns':self.clock(),
+            'phase_context':self._phase_pin(row),
             'native_controls_started_by_snapshot':False,'native_operations_are_separate_USER_actions':True}
         with self.lock:
             if (row['session_id'],row['epoch']) in self.cancelled:raise ValueError('Late native controls refresh after cooperative STOP')
@@ -165,8 +187,9 @@ class CooperativeNativeSessions:
         return result
     def snapshot(self,row):
         with self.lock:cached=deepcopy(self.cache.get(row['session_id']))
-        if not cached or cached[0]!=row['epoch'] or not 0<=self.clock()-cached[1]['current_received_ns']<=2_000_000_000:
+        if not cached or cached[0]!=row['epoch'] or cached[1].get('phase_context')!=self._phase_pin(row) or not 0<=self.clock()-cached[1]['current_received_ns']<=2_000_000_000:
             return {'schema':'explorer_cooperative_native_controls_v1','roles':{},'reason':'EXPLICIT_NATIVE_REFRESH_REQUIRED',
+                'phase_context':self._phase_pin(row),
                 'native_controls_started_by_snapshot':False}
         return cached[1]
     def _choose(self,operation,row,spec,body,actor):
@@ -176,14 +199,17 @@ class CooperativeNativeSessions:
         if operation=='native_reset_safe' and (body.get('role')!='giver' or body.get('object_safe_no_dual_hold') is not True):
             raise ValueError('Separate giver safe-object confirmation required; no native movement is implied')
         current=self._fresh(row,spec,actor);role=body.get('role')
-        if current.get('pending_operation') and operation not in ('native_lease','native_stop'):
+        if current.get('pending_operation') and operation not in ('native_lease','native_stop') and not (
+                operation in PHASE_OPERATIONS+('native_attach',) and self.workflow.native_phase_change_window(current)):
             raise ValueError('Finish/cancel current protocol step before changing native control binding')
         if (role not in ('giver','receiver') or body.get('observing') is not True or body.get('user_observed_test_confirmed') is not True or
-                operation in ('native_begin','native_recenter','native_phase_activate') and body.get('neutral') is not True):raise ValueError('Separate explicit USER current role/observation/test/neutral confirmation required')
+                operation in ('native_begin','native_recenter')+PHASE_OPERATIONS and body.get('neutral') is not True):raise ValueError('Separate explicit USER current role/observation/test/neutral confirmation required')
+        if operation in GIVER_PHASE_OPERATIONS and role!='giver':raise ValueError('Giver phase action requires the server-selected giver role')
         with self.lock:
             choice=self.choices.get(body.get('native_control_choice_id'))
             if (choice is None or choice['used'] or choice['role']!=role or choice['operation']!=operation or
                     choice['context']!=self.service.observed_setup._context(row,spec) or
+                    operation in PHASE_OPERATIONS and choice.get('phase_pin')!=self._phase_pin(current) or
                     not 0<=self.clock()-choice['created_ns']<=2_000_000_000 or (row['session_id'],role) in self.pending):
                 raise ValueError('Fresh unconsumed server native control choice required')
             choice['used']=True;self.pending.add((row['session_id'],role));selected=deepcopy(choice)
@@ -193,9 +219,15 @@ class CooperativeNativeSessions:
         return self.service.native_receipts.publish(row,spec,pointer,actor)
     def _remember_owned(self,row,spec,role,operation,pair,result,actor):
         key=(row['session_id'],row['epoch'],role)
+        if role=='giver' and operation in ('native_begin','native_resume','native_recenter','native_attach','native_phase_begin','native_phase_resume'):
+            # An unknown reply cannot erase an older genuinely returned scope.
+            # In particular a malformed RESUME may still share that exact BEGIN
+            # epoch, which remains a valid scoped STOP CAS; never fetch a new one.
+            self.giver_expected(pair,result,operation)
         with self.lock:
             if operation=='native_stop':self.owned.pop(key,None)
-            elif operation in ('native_begin','native_resume','native_recenter','native_attach','native_phase_activate'):
+            elif operation in ('native_phase_park','native_phase_adopt'):self.owned.pop(key,None)
+            elif operation in ('native_begin','native_resume','native_recenter','native_attach','native_phase_activate','native_phase_begin','native_phase_resume'):
                 self.owned[key]={'row':deepcopy(row),'spec':deepcopy(spec),'role':role,'operation':operation,
                     'pair':deepcopy(pair),'result':deepcopy(result),'actor':actor}
                 self.owned.move_to_end(key)
@@ -235,13 +267,23 @@ class CooperativeNativeSessions:
         return {'session_id':row['session_id'],'coordinator_epoch':row['epoch'],'reason':str(reason)[:160],'roles':results,
             'native_lease_automatically_renewed':False,'dual_hold_interlocks_unarmed':False}
     def command(self,operation,row,spec,body,*,actor):
-        selected=self._choose(operation,row,spec,body,actor);role=selected['role'];pair=None;result={};known_reply=False
+        selected=self._choose(operation,row,spec,body,actor);role=selected['role'];pair=None;result={};known_reply=False;custody=None;intent=None;reservation=None
         request=self.service._request(role)
         try:
-            pair=self._source(role);self._check_permission(role,row,spec,pair)
-            if self._identity(role,pair)!=selected['identity']:raise ValueError('Original native owner changed after USER choice')
-            self._fresh(row,spec,actor)
-            if role=='receiver':
+            if operation in PHASE_OPERATIONS+('native_attach',):
+                reservation=self.workflow.begin_native_phase_change(row['session_id'],row['epoch'],role,operation)
+            current=self._fresh(row,spec,actor)
+            if operation in PHASE_OPERATIONS and selected.get('phase_pin')!=self._phase_pin(current):
+                raise ValueError('Protocol phase/checkpoint changed before native phase reservation')
+            pair=self._source(role)
+            if operation not in GIVER_PHASE_OPERATIONS:self._check_permission(role,row,spec,pair)
+            if self._identity(role,pair,operation)!=selected['identity']:raise ValueError('Original native owner changed after USER choice')
+            current=self._fresh(row,spec,actor)
+            if operation in PHASE_OPERATIONS and selected.get('phase_pin')!=self._phase_pin(current):
+                raise ValueError('Protocol phase/checkpoint changed before native phase command')
+            if operation in GIVER_PHASE_OPERATIONS:
+                result,intent=self.giver_phases.call(operation,row,spec,pair,selected['phase_selection'],actor)
+            elif role=='receiver':
                 grant=pair['permission']['grant'];facade=StationObservedHttp(request,grant['binding'])
                 if operation in ('native_begin','native_attach') and pair['permission'].get('native_publication_permission_gate_installed') is not True:
                     raise ValueError('USER observation permission must be checked at every original native write')
@@ -298,9 +340,13 @@ class CooperativeNativeSessions:
                 elif operation=='native_stop':result=post('stop',{**binding,'control_epoch':native['control_epoch'] if mode=='policy' else None,
                     'expected_native_generation':native['owner_generation']})
                 else:raise ValueError('Known exact native USER operation required')
-            known_reply=operation in ('native_recenter','native_resume','native_attach','native_phase_activate') or operation=='native_begin' and (role=='receiver' or 'bind' in result)
+            known_reply=operation in ('native_recenter','native_resume','native_attach','native_phase_activate','native_phase_begin','native_phase_resume') or operation=='native_begin' and (role=='receiver' or 'bind' in result)
             self._remember_owned(row,spec,role,operation,pair,result,actor)
-            receipt=self._save(row,spec,role,operation,result,actor)
+            if operation in GIVER_PHASE_OPERATIONS:self.giver_phases.validate(operation,row,spec,pair,result,intent)
+            custody=self.service.native_receipts.archive(row,spec,role,operation,result,actor,intent_evidence=intent)
+            receipt=self.service.native_receipts.publish(row,spec,custody,actor)
+            if operation=='native_phase_adopt':
+                self.service.grant_lineage.giver(row,spec,pair['permission'],result,receipt,actor=actor)
             controls=self.refresh(row,spec,actor=actor)
             return {'role':role,'operation':operation,'native_receipt':result,'automatic_lease_renewal':False,
                 'native_controls':controls,'control_receipt':receipt,'API_result_claims_hardware_attainment':False,
@@ -309,8 +355,12 @@ class CooperativeNativeSessions:
             if pair is not None and known_reply:
                 try:self._cleanup(role,row,spec,pair,result,operation)
                 except Exception:pass  # exact cleanup delivery unknown; original exception remains, no automatic replay.
+            if result and custody is None:
+                try:self.service.native_receipts.archive(row,spec,role,operation,result,actor,allow_unpublished=True,intent_evidence=intent)
+                except Exception:pass  # Original source/control error remains; custody delivery unknown, never restored authority.
             raise
         finally:
+            if reservation is not None:self.workflow.end_native_phase_change(reservation)
             with self.lock:self.pending.discard((row['session_id'],role))
     def _cleanup(self,role,row,spec,pair,result,operation):
         request=self.service._request(role)
@@ -329,7 +379,7 @@ class CooperativeNativeSessions:
         if activation.get('authorization_id') not in (None,binding['authorization_id']):return {'new_native_authorization_not_owned':True}
         source=request('GET','/legacy/explorer/cooperative/status',None)
         bound=(source.get('release_boundary') or {}).get('binding') or {};native=source.get('native') or {}
-        expected=returned_giver_scope(pair,result,operation)
+        expected=self.giver_expected(pair,result,operation)
         if any(bound.get(key)!=binding[key] for key in ('run_id','object_id','coordinator_epoch','authorization_id')):
             return {'new_native_binding_not_owned':True}
         if (native.get('owner_generation')!=expected.get('owner_generation') or native.get('control_epoch')!=expected.get('control_epoch') or

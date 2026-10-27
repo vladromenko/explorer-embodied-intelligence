@@ -83,3 +83,20 @@ def test_parallel_role_chains_are_independent_and_same_role_stale_predecessor_ca
         assert service.workflow.snapshot(row['session_id'])['native_control_ledger']['giver']['receipt_id']==a['receipt_id']
         assert service.artifact('native-control',stale['receipt_id'])[0].is_file()
     finally:service.close();client.close()
+
+
+def test_unpublished_source_reply_requires_immutable_origin_and_never_publishes_authority(tmp_path):
+    service,store,row,spec,pair,client=configured(tmp_path)
+    try:
+        ledger=service.native_receipts
+        pointer=ledger.archive(row,spec,'giver','fixture_decoded_late_reply',{'actual_parsed_reply':True},'trusted-owner',allow_unpublished=True)
+        document=json.loads(service.artifact('native-control',pointer['receipt_id'])[0].read_bytes())
+        assert document['authority_publication_allowed'] is False
+        with pytest.raises(ValueError,match='cannot restore authority'):ledger.publish(row,spec,pointer,'trusted-owner')
+        with pytest.raises(ValueError,match='immutable original process/actor/context'):
+            ledger.archive(row,spec,'giver','fixture',{'actual_parsed_reply':True},'foreign-owner',allow_unpublished=True)
+        changed=deepcopy(row);changed['observed_test_binding']['actor_id']='foreign-owner'
+        with pytest.raises(ValueError,match='immutable original process/actor/context'):
+            ledger.archive(changed,spec,'giver','fixture',{'actual_parsed_reply':True},'foreign-owner',allow_unpublished=True)
+        assert not service.workflow.snapshot(row['session_id']).get('native_control_ledger')
+    finally:service.close();pair.close();client.close()

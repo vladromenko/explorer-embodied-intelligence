@@ -5521,6 +5521,45 @@
         "tests/test_sim_temporal_data.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-ROOT-GIVER-PHASE-FACADE-20261027",
+      "function_or_module": "00-control-center/src/explorer/cooperative_giver_phases.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/giver_phase_lifecycle05.py",
+          "role": "Exact original source park/adopt/begin/resume ABI and command-estimate provenance"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/cooperative_workflow05.py",
+          "role": "Evidence-only phase reservations and STOP lifecycle"
+        },
+        {
+          "url": "project-file:05-cooperative-handover/docs/ROOT_GIVER_PHASES_RU.md",
+          "role": "Central typed USER operations and immutable native lineage contract"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_WEIGHTS_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Bind four separate one-use Root USER phase actions to the existing source executor. Pin current phase/checkpoint, require an actual same-intent NEW USER grant, preserve immutable initial binding and verified source successor custody, and keep late STOP cleanup independent of archive I/O. No model math, controller settings, autonomous lease renewal or hardware qualification.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_cooperative_giver_phases.py",
+        "tests/test_cooperative_native_receipts.py",
+        "tests/test_cooperative_observed_ui.js",
+        "tests/test_cooperative_workbench_ui.js",
+        "tests/test_cooperative_api.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

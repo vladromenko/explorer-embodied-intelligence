@@ -263,7 +263,7 @@
       return operation(name,{...copy(fields),session_id:session.session_id,expected_epoch:session.epoch},name==="observed_revoke");
     }
     function nativeOperation(name,fields={}) {
-      const operations=["native_begin","native_resume","native_recenter","native_attach","native_lease","native_stop","native_reset_safe","native_phase_activate"],allowed=["role","native_control_choice_id","observing","user_observed_test_confirmed","neutral",...(name==="native_reset_safe" ? ["object_safe_no_dual_hold"] : [])];
+      const operations=["native_begin","native_resume","native_recenter","native_attach","native_lease","native_stop","native_reset_safe","native_phase_activate","native_phase_park","native_phase_adopt","native_phase_begin","native_phase_resume"],allowed=["role","native_control_choice_id","observing","user_observed_test_confirmed","neutral",...(name==="native_reset_safe" ? ["object_safe_no_dual_hold"] : [])];
       if ((name!=="native_refresh" && !operations.includes(name)) || !fields || typeof fields!=="object" || Array.isArray(fields) || Object.keys(fields).some(key=>!(name==="native_refresh" ? [] : allowed).includes(key))) throw new Error("Нужна отдельная typed операция управления без подмены сессии или epoch");
       const session=sessionRequired();
       return operation(name,{...copy(fields),session_id:session.session_id,expected_epoch:session.epoch},name==="native_stop");
