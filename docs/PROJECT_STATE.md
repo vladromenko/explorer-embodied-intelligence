@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
 Updated: `2026-10-27T19:42:36+03:00`
-Code commit: `f96031f6771f98d0c4036a96d083c8bdfce0105c`
+Code commit: `3bdfb3194b82d06ad5e01d306874e03596420b96`
 Current task: `E04-UI`
 Next tasks: `E04-UI`, `E04-VISION`, `E04-RELEASE`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -23,7 +23,7 @@ Approved cohort теперь проверен отдельно:189PASS/5SKIP42.3
 Capture/review/provenance SHA входят в binding/fingerprint/aggregate; late reject
 закрывает cached aggregate, reapproval сохраняет предыдущие artifacts.
 [Evidence](../_registry/evidence/experiment04-approved-capture-cohort-20261027.json).
-Полный train-resume-DEV/shadow/UI/deploy ещё OPEN; это не готовность всего04.
+Полный operator learning UI/deploy ещё OPEN; это не готовность всего04.
 Fresh frozen3b81623 ACT8/DP8 CPU qualification PASS с actual save/reload и прежними
 R2 weights exact; native6 binding теперь содержит21 исходник, actual selector PASS.
 [CPU evidence](../_registry/evidence/experiment04-current-native6-CPU-20261027.json).
@@ -55,7 +55,7 @@ actual HTTPS Firefox desktop/mobile, passiveROS20s0, source/reference/PIDs/6conf
 |01 PARKED|CAD/SIM, компоненты ACT/DP/reload; bounded8+8 smoke сохранены|Canonical PPO→demos/DAgger→ACT full-task успех не достигнут. Target C-v2=0/16; long248 не запускался. [Pause](../01-autonomous-learning/docs/audits/PARKED_AFTER_SMOKE8_20261027_RU.md)|
 |02|SOFTWARE READY в scope одной Nano camera; actual17RGB→analysis, generated Dataset/ACT/resume/DEV, UI/deploy|0принятых real experts/models; valid live-shadow/full physical skill OPEN. [02 release](../_registry/evidence/experiment02-learning-actual-722755dc-20261027.json)|
 |03|Shared data path/UI deployed65; candidate actual39RGB/0expert commands отдельно; bootstrap из исходной калибровки реализован/tested|Не SOFTWARE READY: changing real leader continuity OPEN, current reference409; новый physical path не deployed. Measured registration не блокирует bootstrap-разработку. [Bootstrap](../03-lerobot-teaching/docs/BOOTSTRAP_REGISTRATION_RU.md)|
-|04 CURRENT|Source-only profile, COMMON demo permission, same Station capture/review/Range API; shared pause-aware converter tested|Approved worker+official per-import Dataset tested; accepted cohort/полный learning flow, UI и release OPEN. Existing native6 ACT/DP/resume — component proof. [Capture](../04-so101-source-learning/docs/CAPTURE_ADAPTER_CONTRACT_RU.md)|
+|04 CURRENT|Source-only/COMMON capture, approved cohort/ACT+DP resume; actual desktop/mobile SourceDemo HTTP+original recorder on labelled generated inputs|Полный learning/model UI и release OPEN; новый04 не deployed. [UI proof](../_registry/evidence/experiment04-source-demo-actual-UI-20261027.json)|
 |05 NEXT|Typed two-role components, hold WAL/interlocks и shared queued shadows tested|Полный manual/manual операторский FSM→record/review/train/shadow/release ещё открыт. FSM не learned skill. [Interlock](../05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md)|
 |06 THEN|Lineage/splits/FK/IK/SIM и ACT/adaptation компоненты; отрицательные исходы сохранены|Approved04 source и полный distinct-domain zero/adapt/target-only UI/pipeline OPEN; physical transfer не доказан. [Negative trials](../research/audits/TARGET_TEMPORAL_C_V2_RESULTS_RU.md)|
 
@@ -63,13 +63,16 @@ actual HTTPS Firefox desktop/mobile, passiveROS20s0, source/reference/PIDs/6conf
 
 - `E04-IMPORT` DONE в software scope выше; archive/review/provenance pins обязательны.
 - `E04-COHORT` DONE: accepted cohort/officialDataset/current ACT+DP/actual queued resume/DEV/offline-shadow на labelled generated inputs.
-- `E04-UI` CURRENT: data-only lost-ACK reconciliation реализован:44Python tests11.60s,
-  source start intent/one-winner/reload ack/actor-context-boot-calib fences,0realIO.
-  Shared delivered-JPEG helper извлечён из evaluator,33Node UI regressions PASS.
-  [Recovery proof](../_registry/evidence/experiment04-demo-capture-recovery-20261027.json).
-  Следующее — thin SourceDemo client/panel и замена legacy04 global STOP-on-blur/
-  finish-autoimport на scoped flow; полноценный UI ещё не проверен.
-- `E04-UI`: связать counters/coverage/review/models, actual JPEG display и scoped tab cleanup; no GET control adoption.
+- `E04-UI` CURRENT: thin SourceDemo client/panel подключён к настоящим API;
+  legacy04 STOP-on-blur/finish-autoimport заменены scoped flow. Actual Firefox
+  desktop1440/mobile390: контекст→видимый verifiedJPEG→COMMON→same fake-bus
+  Station/recorder→pause/resume/stage→finishUNKNOWN→отдельный STOP→preview→
+  approve immutable import→reject PASS,35raw/31selected и36raw/32selected;
+  268Node/26Python PASS. JPEG обновляется без замены кнопок/сброса таймера;
+  logout ждёт поздние ответы, uncertain cleanup сохраняет вход.0realIO/deploy.
+  [UI proof](../_registry/evidence/experiment04-source-demo-actual-UI-20261027.json).
+- `E04-UI`: завершить проверку полного data/model UI с approved cohort;
+  затем `E04-VISION` и безопасный current release. Physical skill OPEN.
 - Старый Pi4c имеет воспроизведённую shutdown race. Первый unattended Pi update
   OPEN: idleGET+server_close не drain. Нужен доказанный admission barrier либо
   отдельный наблюдаемый первый upgrade; пока продолжаем программную работу.
