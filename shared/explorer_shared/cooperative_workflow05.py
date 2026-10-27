@@ -452,13 +452,33 @@ class CooperativeWorkflow:
                     current['dispatch_receipts'].append(asdict(receipt));self._save(current)
             if event in STATEMENTS:
                 statement,role=STATEMENTS[event]
-                if after is None:after=self._last_command(row,role)
+                transfer_challenge=None;receiver_provider=None
+                if event=='transfer_confirmed' and row['execution_domain']=='user_observed_physical_test':
+                    if self.authority(deepcopy(row)).get('explicit_user_observed_test_current') is not True:
+                        raise ValueError('Both current USER native owners required before independent transfer proof')
+                    receiver_provider=self.registry.provider('receiver',spec['subskills']['receiver'])
+                    if receiver_provider is None or not callable(receiver_provider.prepare_receiver_finish) or not callable(receiver_provider.authorize_receiver_finish):
+                        raise ValueError('Current receiver native transfer-proof hooks required')
+                    transfer_challenge=receiver_provider.prepare_receiver_finish(deepcopy(row))
+                    after=(transfer_challenge.get('challenge') or {}).get('giver_release_receipt_id')
+                    if not isinstance(after,str) or not after:raise ValueError('Actual giver opening receipt identity required before independent confirmation')
+                    self._fresh(row,epoch)
+                    with self.lock:
+                        current=self._session(session_id)
+                        if current['epoch']!=epoch:raise ValueError('Transfer challenge superseded by STOP')
+                        current['pending_operation']['native_transfer_challenge']=deepcopy(transfer_challenge);self._save(current)
+                elif after is None:after=self._last_command(row,role)
                 result=self.inbox(statement,session_id,row['protocol_object_id'],role,after,30.)
                 self._fresh(row,epoch)
                 if (not isinstance(result,CorrelatedEvidence) or result.run_id!=session_id or result.object_id!=row['protocol_object_id'] or
                         result.role!=role or result.after_command_id!=after or not result.source_receipt):
                     raise ValueError('Current run/object/command-correlated evidence required')
                 evidence=result.evidence;observations.append(asdict(result))
+                if transfer_challenge is not None:
+                    self._fresh(row,epoch)
+                    unfreeze=receiver_provider.authorize_receiver_finish(deepcopy(row),transfer_challenge,deepcopy(result.source_receipt))
+                    self._fresh(row,epoch)
+                    observations.append({'native_receiver_independent_transfer_finish':unfreeze,'actual_giver_opening_receipt_id':after})
                 if event=='receiver_hold_confirmed':facts={'run_id':session_id,'receiver_role':'receiver'}
             elif event=='offer_ready':
                 if not row['zone_registration_id']:raise ValueError('Register current shared zone before offering')
@@ -478,7 +498,7 @@ class CooperativeWorkflow:
                 provider=self.registry.provider('giver',spec['subskills']['giver'])
                 if row['execution_domain']=='user_observed_physical_test' and provider is not None and callable(provider.arm_release_guard):
                     self._fresh(row,epoch)
-                    observations.append({'native_giver_dual_hold_guard':provider.arm_release_guard(deepcopy(row))})
+                    observations.append({'native_cooperative_dual_hold_guards':provider.arm_release_guard(deepcopy(row))})
                 elif row['execution_domain']=='user_observed_physical_test':
                     raise ValueError('Native giver dual-hold protection must be bound before an observed grasp test')
             self._fresh(row,epoch)

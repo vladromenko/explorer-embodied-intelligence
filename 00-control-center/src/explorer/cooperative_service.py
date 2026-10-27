@@ -154,6 +154,8 @@ class CooperativeService:
             'arm_release_guard':self._arm_guard if role=='giver' else None,
             'prepare_release':self._prepare_release if role=='giver' else None,
             'authorize_manual_release':self._authorize_manual_release if role=='giver' else None,
+            'prepare_receiver_finish':self._prepare_receiver_finish if role=='receiver' else None,
+            'authorize_receiver_finish':self._authorize_receiver_finish if role=='receiver' else None,
             # Capability describes this concrete binder; readiness still checks
             # current owner/model/observation and defaults authority to false.
             'native_dispatch_receipts':True,'authoritative_release_deadline':role=='giver'}
@@ -338,9 +340,48 @@ bound first; default construction cannot turn on policy execution.
         if transport is None:return {'native_session_was_not_owned':True,'no_command_sent':True}
         return transport.stop(run)
     def _arm_guard(self,row):
-        transport=self.transports.get((row['session_id'],'giver'))
-        if transport is None:raise ValueError('Current observed original giver binding required')
-        return transport.arm_release_guard(row)
+        receiver=self.transports.get((row['session_id'],'receiver'));giver=self.transports.get((row['session_id'],'giver'))
+        if receiver is None or giver is None or not callable(getattr(receiver,'arm_release_guard',None)):
+            raise ValueError('Both current original publication guards required')
+        # A failure after the first arm leaves its durable latch in place. The
+        # workflow scopes STOP to both owned transports; it never unarms them.
+        received=receiver.arm_release_guard(row)
+        offered=giver.arm_release_guard(row)
+        if (received.get('native_receiver_dual_hold_guard') or {}).get('armed') is not True or offered.get('armed') is not True:
+            raise ValueError('Both original native publication boundaries must confirm arm')
+        return {'receiver':received,'giver':offered,'both_original_publication_boundaries_armed':True,
+            'hardware_command_sent':False,'attainment_or_hold_claimed':False}
+    def _giver_opening(self,row):
+        giver=self.transports.get((row['session_id'],'giver'))
+        if giver is None:raise ValueError('Current observed giver source required')
+        state=giver.observe_state()
+        if state.get('current_native_owner_ready') is not True:raise ValueError('Current USER giver source required before transfer proof')
+        source=state.get('source_receipt') or {}
+        source=source if source.get('schema')=='explorer_native_cooperative_owner_v1' else source.get('native') or {}
+        boundary=source.get('release_boundary') or {};bound=boundary.get('binding') or {}
+        if any(bound.get(key)!=value for key,value in (('run_id',row['session_id']),('object_id',row['protocol_object_id']),('coordinator_epoch',row['epoch']))):
+            raise ValueError('Actual opening source belongs to another cooperative run')
+        candidates=[boundary.get('last_publication')]+list(boundary.get('recent_opening_publications') or [])
+        for receipt in reversed(row.get('dispatch_receipts') or []):
+            native=(receipt.get('source') or {}).get('native_receipt') or {}
+            candidates.append((native.get('original_payload') or {}).get('cooperative_publication_boundary'))
+        actual=[item for item in candidates if isinstance(item,dict) and item.get('schema')=='explorer_native_cooperative_publication_v1' and
+            item.get('opening') is True and item.get('binding')==bound and isinstance(item.get('receipt_id'),str) and
+            type(item.get('host_publication_returned_native_ns')) is int]
+        if not actual:raise ValueError('Actual current source-bound giver opening publication required; API acceptance is insufficient')
+        domains={(item.get('native_clock_domain'),item.get('native_boot_id')) for item in actual}
+        if len(domains)!=1:raise ValueError('Cannot compare opening publications across native clocks or boots')
+        return deepcopy(max(actual,key=lambda item:item['host_publication_returned_native_ns']))
+    def _prepare_receiver_finish(self,row):
+        receiver=self.transports.get((row['session_id'],'receiver'))
+        if receiver is None or not callable(getattr(receiver,'finish_challenge',None)):
+            raise ValueError('Current receiver transfer-proof boundary required')
+        return receiver.finish_challenge(row,self._giver_opening(row))
+    def _authorize_receiver_finish(self,row,challenge,confirmation):
+        receiver=self.transports.get((row['session_id'],'receiver'))
+        if receiver is None or not callable(getattr(receiver,'finish_interlock',None)):
+            raise ValueError('Current receiver transfer-proof boundary required')
+        return receiver.finish_interlock(row,(challenge.get('challenge') or {}).get('challenge_id'),confirmation)
     def _prepare_release(self,row,after):
         transport=self.transports.get((row['session_id'],'giver'))
         if transport is None:raise ValueError('Current observed original giver binding required')

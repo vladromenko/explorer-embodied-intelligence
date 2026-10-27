@@ -22,9 +22,13 @@ Nano IDLE, permission=false, STOP latched. Старый native reference нев�
 В main подключены настоящие backend/API/UI source04 наблюдаемой проверки,
 отдельный DP history2 read-only shadow, зарегистрированный Study export через
 общую очередь, два наблюдаемых cooperative05 разрешения и native transport.
-Явные native-сессии05 ещё интегрируются. Два разрешения и вычислительный warm
+Явные native-сессии05 подключены к API/UI; receiver-first/giver guard ordering
+и Pi-challenge→новое независимое подтверждение→finish связаны в coordinator
+(45 targeted tests). Наблюдаемые direction/bind/reset формы ещё подключаются. Два разрешения и вычислительный warm
 не дают полной физической готовности: receiver dual-hold interlock на самой
-публикации остаётся открытым. Новый Pi permission gate проверяет право после
+публикации реализован и проверен на исходном worker с fake buses, включая
+reboot/legacy и WAL corruption/loss. Физическая проверка и phase TTL/hold
+successor остаются открытыми. Новый Pi permission gate проверяет право после
 ожидания исходной bus lock; отзыв до admission не даёт старой команде/sample
 пройти.42 targeted tests проходят; это fake buses, без физического запуска.
 

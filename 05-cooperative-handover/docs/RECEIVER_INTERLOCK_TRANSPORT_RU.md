@@ -51,3 +51,19 @@ grant, actual durable OperatorEvidenceInbox confirm/consume и независи�
 Настоящих native RPC, моторных публикаций, USER grants или физического теста
 не выполнялось. Pi goal TTL и короткий native giver lease остаются отдельным
 software ограничением human-prompt flow; адаптер их не расширяет.
+
+Root coordinator теперь связывает обе стороны: перед grasp check сначала
+вооружается исходный receiver publication guard, затем giver. Частичная ошибка
+не снимает уже сохранённый latch; workflow запрашивает scoped STOP у владельцев.
+Transfer confirmation сначала получает новый Pi challenge, привязанный к
+реальной opening publication ROSMASTER; только затем создаётся независимый
+operator Inbox prompt с этим native receipt ID. Прежний receiver-close ID не
+подменяет событие открытия подающего. Подтверждение передаётся неизменённым
+из consumed source receipt, unfreeze завершается до перехода в SO101_FINISH.
+История максимум8 реальных opening publications сохраняет evidence, когда
+последующая same-pose publication уже заменила last_publication.
+
+Это программная связка границ, не физическая приёмка. Наблюдаемые endpoint
+captures, текущий native reference и работающий phase/hold-successor цикл
+по-прежнему необходимы. Исходные native TTL/lease не увеличены и не продлеваются
+этой интеграцией автоматически.

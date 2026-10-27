@@ -234,7 +234,8 @@ class CooperativeNativeSessions:
         if role=='receiver':
             grant=pair['permission']['grant']
             transport=NativeReceiverTransport(self.service._request(role),{'run_id':row['session_id'],'object_id':row['protocol_object_id'],
-                'coordinator_epoch':row['epoch']},grant['binding'],grant,reference,predict if policy else None,clock_domain=self.workflow.domain,clock=self.clock)
+                'coordinator_epoch':row['epoch']},grant['binding'],grant,reference,predict if policy else None,clock_domain=self.workflow.domain,clock=self.clock,
+                dual_hold_integration_ready=True)
         else:
             binding=self._binding(row,pair);native=pair['source']['native']
             if policy:

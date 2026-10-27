@@ -43,6 +43,8 @@ class NativeSkillProvider:
     native_dispatch_receipts:bool=False
     authoritative_release_deadline:bool=False
     authorize_manual_release:Callable|None=None
+    prepare_receiver_finish:Callable|None=None
+    authorize_receiver_finish:Callable|None=None
 
 
 class CooperativeProviders:
