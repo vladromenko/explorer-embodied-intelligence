@@ -1,0 +1,144 @@
+{
+  "schema": "explorer_old4c_pi_lifecycle_checkpoint_v1",
+  "source_commit": "4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4",
+  "source_sha256": {
+    "shared/explorer_shared/node_agent.py": "27af5a160d36803106aabcc48ebeecf2e55f136401fb40a8671272729efdb325",
+    "shared/explorer_shared/so101_station.py": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+    "shared/explorer_shared/station_observed_activation.py": "d328be52756037ff63f854de151955176e117bef8b8f4335c49f64a0b4f43185",
+    "shared/explorer_shared/pi_native_retarget.py": "dcc54c26817979bd1e7bb44fd8ea055f2bd41f642b03c9cbe25ba942f1477d0c"
+  },
+  "method_source_sha256": {
+    "node_agent.NodeAgent.close": "7db2990a01a5a094cb6c716d999113f40ab253610e9579a75d25cf86a5c217b3",
+    "node_agent.AgentHTTPServer.process_request": "74d9bb8f4b34f46a42304a1b9105d259418fec0e6bf7fc07b9ab6e42a27d5ace",
+    "node_agent.AgentHTTPServer.process_request_thread": "9d06f8ca6f37cab5bf83957922730247c5002f76cccd69318662a2bdf1fe46d0",
+    "so101_station.SO101Station._work": "3f7b6e75eccde0c6cf9d0b8103e6860edbaa1b7a24eecc06f8a48f75063cc35b",
+    "so101_station.SO101Station.command": "228d99fd62b099f46d32c64aedbf6f0aa068b43854366236059a94ec66d5f6b4",
+    "so101_station.SO101Station.close": "d7408254b4cc64bf09a27b00888b410e4323409aa4b3f2453d4be7dc59d47492",
+    "pi_native_retarget.PiNativeRetargetService.command": "8aee6a696f8dbb0970ef1a3bbaee8db3a6ab034d3fbb0c179d42b1c157d2b603",
+    "pi_native_retarget.PiNativeRetargetService._work": "09548eb44fcaf4eb43efb33e0dba2b49b2ec30a506cc338a1cf3632a0ca89914",
+    "pi_native_retarget.PiNativeRetargetService.close": "45a76826c2ac3f79bf178b5ff38b0948a656ff4c2325fd0512aae96ed3397c0a"
+  },
+  "scope": "EXACT_OLD_ENTRY_METHODS_WITH_FAKE_EXTERNAL_IO_HOMEbrain_NOT_PHYSICAL_QUALIFICATION",
+  "private_harness": "/mnt/explorer-data/explorer-work/04-old4c-lifecycle-20261027/harness.py",
+  "harness_sha256": "4e7fbc5b8b9e97686a854d41033c4db7c412afd85c865e55552a1a4885e865bb",
+  "launcher_sha256": "c2d4b1beaaae5d5339bbf0791a3a8dd6dab8286d0e19463e1d6265959fd00c19",
+  "raw_directory": "/mnt/explorer-data/explorer-work/04-old4c-lifecycle-20261027/run-a",
+  "raw_result_sha256": "185820c6ecd68147fb1b05d52f8382c0da8e1bb1ae1a2c81200d33c840762017",
+  "raw_resource_sha256": "3f4941691e2e309885f2eb914bcea692ad72cc13f10b22915a242c3d248da0ce",
+  "raw_log_sha256": "d55ae0f99a967174db6f7e3531accbe2b423d85c3d23ff685e43a61106a36925",
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "case_count": 6,
+  "assertions_passed": true,
+  "cases": [
+    {
+      "name": "active-close-negative",
+      "scope": "ACTIVE_CLOSE_ORIGINAL_MEASURED_HOLD_NEGATIVE_CONTROL",
+      "result_json_sha256": "2a00e4c05bdf853643ba4c3765850c7a857e8c0b167e1b055c4201802fdbd882",
+      "fake_write_attempts": {
+        "Goal_Position": 2,
+        "Torque_Enable": 1
+      },
+      "local_STOP_calls": 1,
+      "native_RPC_attempts": 0,
+      "http_status": null,
+      "worker_and_writer_exited": true
+    },
+    {
+      "name": "http-race-idle-preflight-not-enough",
+      "scope": "COUNTEREXAMPLE_UNATTENDED_IDLE_PREFLIGHT_CLOSE_IS_NOT_ZERO_WRITE",
+      "result_json_sha256": "37169eff3794e3132a3d4e2af2315f08ab5d9d482b712a80bc74a2109ef21447",
+      "fake_write_attempts": {
+        "Goal_Position": 2,
+        "Torque_Enable": 1
+      },
+      "local_STOP_calls": 1,
+      "native_RPC_attempts": 0,
+      "http_status": 200,
+      "worker_and_writer_exited": true
+    },
+    {
+      "name": "http-stale-after-close-rejected",
+      "scope": "ALREADY_COMPLETED_STATION_CLOSE_ROTATES_CAS_STALE_START_REJECTED",
+      "result_json_sha256": "7965726423a211c79c6b118d6a986905e2ac6bcc35e974da3b43da93310908e3",
+      "fake_write_attempts": {
+        "Goal_Position": 0,
+        "Torque_Enable": 0
+      },
+      "local_STOP_calls": 1,
+      "native_RPC_attempts": 0,
+      "http_status": 400,
+      "worker_and_writer_exited": true
+    },
+    {
+      "name": "idle-close",
+      "scope": "CONDITIONAL_IDLE_CLOSE_ZERO_GOAL_TORQUE_NATIVE_POST_PASS",
+      "result_json_sha256": "7be038b922a0177a9a0820ec40db74732a2ec1e6981efd40be6b4b9f31a44e83",
+      "fake_write_attempts": {
+        "Goal_Position": 0,
+        "Torque_Enable": 0
+      },
+      "local_STOP_calls": 1,
+      "native_RPC_attempts": 0,
+      "http_status": null,
+      "worker_and_writer_exited": true
+    },
+    {
+      "name": "idle-exception-hold-returned",
+      "scope": "IDLE_WORKER_EXCEPTION_ORIGINAL_HOLD_ATTEMPT_NEGATIVE_CONTROL",
+      "result_json_sha256": "13f909a57fffbe86c537ce9e7d0fbed249fa83d5750ff5bb513810a61ad0854b",
+      "fake_write_attempts": {
+        "Goal_Position": 1,
+        "Torque_Enable": 0
+      },
+      "local_STOP_calls": 1,
+      "native_RPC_attempts": 0,
+      "http_status": null,
+      "worker_and_writer_exited": true
+    },
+    {
+      "name": "idle-exception-write-rejected",
+      "scope": "IDLE_WORKER_EXCEPTION_ORIGINAL_HOLD_ATTEMPT_NEGATIVE_CONTROL",
+      "result_json_sha256": "f87060c39a3a176fc05677778cefc82c6e64fd3f27db3f2c6376db0c04412571",
+      "fake_write_attempts": {
+        "Goal_Position": 1,
+        "Torque_Enable": 0
+      },
+      "local_STOP_calls": 1,
+      "native_RPC_attempts": 0,
+      "http_status": null,
+      "worker_and_writer_exited": true
+    }
+  ],
+  "resources": {
+    "cpu_max": "100000 100000",
+    "memory_max": 1073741824,
+    "swap_max": 0,
+    "actual_kernel_memory_peak": 37806080,
+    "actual_swap_peak": 0,
+    "last_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+    "runtime_seconds": 0.46177414897829294,
+    "child_pid": 2533909,
+    "child_starttick": "14948217",
+    "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2",
+    "exit_code": 0
+  },
+  "conditional_idle_close_zero_goal_torque_native_post": true,
+  "unconditional_zero_write_upgrade_proved": false,
+  "old_http_server_close_drains_authenticated_handlers": false,
+  "first_unattended_pi_upgrade_qualified": false,
+  "real_robot_RPC_commands_or_devices_used": false,
+  "actual_TCP_transport_used": false,
+  "optional_torch_imported": false,
+  "product_source_or_controller_settings_changed": false,
+  "deployed": false,
+  "limits": [
+    "Exact old source executed with fake external buses/camera/native sinks on Homebrain Python, not Pi hardware/runtime qualification",
+    "HTTP authentication/body/route and ThreadingMixIn daemon lifecycle executed in memory; no TCP transport opened",
+    "No external admission/drain or runtime profile implemented; old source has no permanent closed admission latch",
+    "Real bus/USB errors are not bounded by fake serial behavior; original exception path can attempt a hold even from idle",
+    "Relative service helper imports resolve from current shared namespace; full4c dependency closure not claimed",
+    "No current COMMON grant/armed interlock installed in the fake precondition; legacy unowned handler path is the tested race",
+    "Exact local STOP calls are counted in fake execution; they are not hidden as zero calls",
+    "No external admission/drain implementation or live connection/permission introspection has been performed"
+  ]
+}
