@@ -1,9 +1,9 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T01:39:00+03:00`
-Code commit: `16c82a89f619e60043700f7193c7e765ac43ddd3`
-Current task: `E03-SOFTWARE-DEPLOY`
-Next tasks: `E03-SOFTWARE-DEPLOY`, `E05-MANUAL`, `E05-LEARNING`
+Updated: `2026-10-28T01:59:00+03:00`
+Code commit: `9766bc3ee495a104a16303fef0c4b4d4d215eef0`
+Current task: `E05-MANUAL`
+Next tasks: `E05-MANUAL`, `E05-LEARNING`, `E06-PIPELINE`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
 
 Это единственный краткий текущий статус. История требований/отказов и научные
@@ -41,13 +41,13 @@ originals сохранены. Подробности: [BACKLOG](BACKLOG.md),
   caused1blocked hold/0writes. Original Station SHA unchanged.
   [Cold Pi proof](../_registry/evidence/experiment04-cold-current-Pi-20261027.json).
 
-## Фактический deploy
+## Фактический deploy после03
 
 | Runtime | Actual commit / evidence |
 |---|---|
-|Homebrain central +worker|**ef3f5185c6199d93044fe54c791e2f67946a56cc**|
-|Pi OWN observer, source-only04|**9fc1fb655493a97320ce3de310dd7eb012f0cc78**, PID62031|
-|Nano OWN observer/cache|**722755dc99094fc86bab20796d2b7bc4bf56d536**|
+|Homebrain central +worker|**9766bc3ee495a104a16303fef0c4b4d4d215eef0**|
+|Pi OWN observer, shared so101_lab03/04|**c516de71c156b1d427f367be4a0754fe1b54bb81**, PID63933|
+|Nano OWN observer /existing cache|**c516de7** PID672261 /cache722 PID459153, byte-identical cache code|
 |Original Nano web import pin|**4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4**|
 
 USER явно подтвердил отключённое силовое питание обеих SO101 рук. При этом
@@ -108,38 +108,52 @@ LAN/DHCP IP, не OS/router reservation. Final Firefox PASS после изме�
   or arm motion. Original6 ROSMASTER configs/firmware/limits/watchdogs/feedbackOFF
   и frozen Station SHA2d191534…a885 сохраняются.
 
-## Следующая обязательная задача03
+## Checkpoint03 и следующий05
 
-04 checkpoint закрыт в software/deploy scope выше. **Сразу E03-SOFTWARE-DEPLOY,
-не05**: direct Pi→Nano, original existing calibration/URDF/factory servo mapping/
-current command_estimate bootstrap, endpoints и UI03, deploy/no-motor checks.
-Цель — **DEPLOYED_AWAITING_PHYSICAL_ACCEPTANCE**. Measured manual registration
-не блокирует bootstrap-разработку; derived pose не называется measured.
-[Bootstrap evidence](../_registry/evidence/experiment03-bootstrap-existing-calibration-20261027.json).
+**DEPLOYED_AWAITING_PHYSICAL_ACCEPTANCE**, не принятие physical contour/master.
+[Complete actual03 proof](../_registry/evidence/experiment03-shared-lab-actual-release-20261028.json).
 
-Текущий Pi source-only profile намеренно не создаёт03peer/client/worker. Нужен
-software integration/profile, сохраняющий04 capture/cold/semantic guards и
-единственного Station owner при добавлении gated03 capabilities. Physical path
-по-прежнему CLOSED: real changing leader continuity OPEN, current reference409,
-сцена/метрическая привязка/реальные эксперты не приняты. Static100GET не PASS.
-После03 software/deploy идут05→06→01; физический gate не причина бросать доступное ПО.
+- Thin shared lab profile поверх original03 service +one frozen Station/camera/
+  recorder; COMMON/cold/capture04 сохранены, source-claim fence для CV/VLM.
+  Existing calibration9512/URDF/factory servo mapping bootstrap реально возвращает
+  BOOTSTRAP_DERIVED/provenance/полный SHA; command_estimate не measured.
+- 93Python contracts +actualPi3.13 isolated fake-I/O/original calibration bootstrap
+  и Nano3.12 isolated existing RGB/original GET PASS. Direct Pi→configured Nano
+  status/capture/capabilities200, reference409 MCUstale сохранён. Target mux exact4c,
+  original Web/MCU/control/camera и existing cache PID не менялись.
+- Full frozen c516:2447PASS/22SKIP/891.19s; kernel4,618,862,592B/swap0/OOM0.
+ 976 UI hotfix только classname+scoped word wrap: все602Python bytes exact c516,
+ 275NodePASS2.55s. GPU16/DP21 bindings current, нового обучения не требовалось.
+- Actual HTTPS03+04 desktop/mobile PASS:0JSerror/nonGET/overflow, реальные2cameras,
+  Start/Recenter/held disabled, no owner/grant, cold forwarded0. Все4screenshots
+  просмотрены. Real Nano сейчас смотрит в потолок: scene acceptance OPEN.
+- Actual deployed data-only03:41RGB/0expert commands, pause/resume, immutable
+ 54,650,880B archive/SHA/206Range, actual supervisor import05f01e42… at976.
+  Source final separate reject retained; raw/approval chain preserved. Actual
+ 03desktop/mobile counts imported1/frames41/admitted0/analysis1. Это observations,
+  не causal RGB/action expert dataset. После проверки все original25jobs/11skills/
+  прежние17368events exact, schema unchanged, activejobs0.
+- PassiveROS90s cutover +20s UI +20s data capture, каждый0actuator messages.
+  Nano first systemctlkill returned auxiliary Invalidargument ПОСЛЕ mainSIGKILL;
+  old receipt old_killed=false сохранён и объяснён, actual stopped state проверен,
+  затем отдельный forward recoveryB. Pi main-only SIGKILL/no-child preflight.
+  No actual native grant/HOME/control/STOP. User motor powerOFF persists.
+- Actual mobile выявил1px text overflow full bootstrap SHA; fixed scoped wrap,
+  полные provenance/SHA не усечены. Bounding-rect-only diagnosis missed text
+  overflow; original negative receipts и final4pagePASS сохранены.
 
-Candidate16c82a8 реализует explicit `so101_lab`: thin wrapper existing03 service,
-COMMON/cold/capture04 на том же Station, source-claim fence для CV/VLM. Bootstrap
-status/data доступны; physical03 start/recenter/lease/challenge/authorize закрыты
-до peer entry. Global no-owner cleanup не объявляет native STOP delivered;
-original STOP method/body unchanged.93Python PASS6.75s, actual localhost Node
-HTTP оба profiles, source/evaluation/cooperative/original03 fake peer contracts.
-Candidate не deployed: actual commits выше не менялись. Actual Pi3.13 isolated bootstrap/fake-I/O и Nano3.12 existing RGB/original GET
-PASS; прямые Pi→Nano status/capture200, reference409 MCUstale retained. Immutable
-c516de7 staged1545files на3узлах, own Pi101/Nano810file backups проверены наHB.
-Полная frozen c516de7 регрессия выполняется; сервисы ещё не переключены. Далее
-scoped deploy и реальные read-only endpoints/UI checks.
-[Contract/evidence](../03-lerobot-teaching/docs/LAB_RUNTIME_CONTRACT_RU.md).
+Physical03 commands start/recenter/lease/challenge/authorize остаются CLOSED
+до real changing continuity; bootstrap не даёт authority. Reference/scene/measured
+registration/gripper/real experts/observed trials OPEN. Source04 flow сохранён,
+но моторы OFF и physical acceptance04 не повышена.
 
-01 PARKED: current C-v2=0/16, canonical full-task mastery/DAgger/ACT не достигнут;
-02 software ready в scope одной Nano camera, real experts/models/live physical
-skill OPEN;05 full manual/manual→learning flow и06 distinct-domain pipeline
-ещё открыты. Research originals/negative outcomes/protocols не переписаны.
-Исходный полный master: `~/.local/state/explorer-work/master-prompt.md`.
-AGENTS/runbook/repo skill обязательны. Mac не является runtime dependency.
+**Current E05-MANUAL**: reuse-first полный manual/manual FSM opening→hold→release
+→transfer→finish/park, обе существующие камеры/ownership/data/UI. Уже выявлен
+конкретный разрыв: cooperative receiver recorder вызывает legacy raw
+`/station/record/*`, закрытый lab profile. Подключить current shared source04
+capture/COMMON metadata без возврата raw bypass и без нового recorder/controller.
+Далее05 learning→06 pipeline/adapt→01; не останавливать работу на checkpoint03.
+
+01 PARKED: current C-v2=0/16, full-task mastery/DAgger/ACT не достигнут;02 real
+experts/models/trials OPEN;05/06 whole operator flows ещё открыты. Research
+originals/negative outcomes/protocols сохранены; весь master не выполнен.

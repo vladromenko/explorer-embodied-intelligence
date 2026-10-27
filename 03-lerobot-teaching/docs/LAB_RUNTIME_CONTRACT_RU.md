@@ -47,3 +47,11 @@ Nano target mux definitions byte-identical to4c, no original Web restart require
 Immutable source1545files staged HB/Pi/Nano, own backups verified on Homebrain:
 Pi101files63,886,493B /Nano810files316,591,772B, online SQLite snapshots. Current
 links/services unchanged. Full frozen c516de7 running; this is not deployment.
+
+Current release: **DEPLOYED_AWAITING_PHYSICAL_ACCEPTANCE**. HB9766bc3 UI only,
+Pi/Nano OWNc516de7; original Nano Web4c/controllers/camera/cache process unchanged.
+Full2447PASS22SKIP +275Node +actual03/04 desktop/mobile +actual41RGB/0expert native
+observations/import/analysis-only UI. Physical Start/Recenter/held remain CLOSED,
+reference409/real changing continuity/scene OPEN.
+[Complete release](../../_registry/evidence/experiment03-shared-lab-actual-release-20261028.json).
+Earlier candidate/not-deployed paragraphs above describe their historical checkpoint.

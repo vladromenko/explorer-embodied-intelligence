@@ -1,0 +1,464 @@
+{
+  "schema": "explorer03_actual_shared_lab_software_release_v1",
+  "status": "DEPLOYED_AWAITING_PHYSICAL_ACCEPTANCE",
+  "master_prompt_complete": false,
+  "actual_deployment": {
+    "Homebrain_central_worker": "9766bc3ee495a104a16303fef0c4b4d4d215eef0",
+    "Pi_OWN_observer": "c516de71c156b1d427f367be4a0754fe1b54bb81",
+    "Pi_profile": "so101_lab",
+    "Pi_PID": "63933",
+    "Nano_OWN_observer": "c516de71c156b1d427f367be4a0754fe1b54bb81",
+    "Nano_PID": "672261",
+    "original_Nano_web": "4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4",
+    "original_Nano_services": {
+      "explorer-web": {
+        "MainPID": "365852",
+        "ActiveState": "active"
+      },
+      "explorer-camera": {
+        "MainPID": "2347",
+        "ActiveState": "active"
+      },
+      "explorer-mcu": {
+        "MainPID": "2356",
+        "ActiveState": "active"
+      },
+      "explorer-control": {
+        "MainPID": "2413",
+        "ActiveState": "active"
+      }
+    },
+    "Nano_existing_OWN_cache_PID": 459153,
+    "Nano_existing_cache_code": "722755dc99094fc86bab20796d2b7bc4bf56d536; two files byte-identical current",
+    "central_PIDs": {
+      "explorer-control-center": "2759838",
+      "explorer-worker": "2759839"
+    }
+  },
+  "verification": {
+    "targeted_Python": 93,
+    "actual_Pi313_isolated_full_Node_bootstrap": "PASS with actual calibration bytes/fake buses/loopback only",
+    "actual_Nano312_isolated_cache_and_original_GET": "PASS",
+    "full_Python": {
+      "commit": "c516de71c156b1d427f367be4a0754fe1b54bb81",
+      "passed": 2447,
+      "skipped": 22,
+      "pytest_s": 891.19,
+      "qualifier_s": 902.5678539850051,
+      "resources": {
+        "cpu.max": "300000 100000",
+        "memory.max": "5368709120",
+        "memory.current": "1535614976",
+        "memory.peak": "4618862592",
+        "memory.swap.max": "0",
+        "memory.swap.peak": "0",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+      },
+      "scientific_originals": {
+        "jobs": {
+          "original_rows": 25,
+          "current_rows": 25,
+          "all_original_rows_identical": true
+        },
+        "skills": {
+          "original_rows": 11,
+          "current_rows": 11,
+          "all_original_rows_identical": true
+        },
+        "events": {
+          "original_rows": 17368,
+          "current_rows": 17397,
+          "all_original_rows_identical": true
+        }
+      }
+    },
+    "UI_hotfix": {
+      "changed_files": [
+        "00-control-center/src/explorer/static/direct03.js",
+        "00-control-center/src/explorer/static/styles.css"
+      ],
+      "Python_files_exact": 602,
+      "Node_tests_passed": 275,
+      "Node_ms": 2546.709657,
+      "second_full_regression": false
+    },
+    "actual_HTTPS_UI": {
+      "pages": [
+        {
+          "name": "03-desktop",
+          "overflow": false,
+          "camera": "nano-rgbd",
+          "width": 640
+        },
+        {
+          "name": "03-mobile",
+          "overflow": false,
+          "camera": "nano-rgbd",
+          "width": 640
+        },
+        {
+          "name": "04-desktop",
+          "overflow": false,
+          "camera": "pi-overview",
+          "width": 640
+        },
+        {
+          "name": "04-mobile",
+          "overflow": false,
+          "camera": "pi-overview",
+          "width": 640
+        }
+      ],
+      "javascript_errors": [],
+      "non_GET_app_requests": [],
+      "screenshots_visually_inspected": true
+    },
+    "actual_post_data_UI": [
+      {
+        "page": "03-desktop",
+        "counts": {
+          "imported": 1,
+          "pending_imports": 0,
+          "raw_frames_recorded": 41,
+          "admitted_for_training": 0,
+          "observation_or_rejected": 1,
+          "operator_labelled_success": 0,
+          "trained_RGB9D_models": 0
+        }
+      },
+      {
+        "page": "03-mobile",
+        "counts": {
+          "imported": 1,
+          "pending_imports": 0,
+          "raw_frames_recorded": 41,
+          "admitted_for_training": 0,
+          "observation_or_rejected": 1,
+          "operator_labelled_success": 0,
+          "trained_RGB9D_models": 0
+        }
+      }
+    ],
+    "post_data_scientific_originals": {
+      "status": "PASS",
+      "scientific_originals": {
+        "jobs": {
+          "original_rows": 25,
+          "current_rows": 26,
+          "all_original_rows_identical": true
+        },
+        "skills": {
+          "original_rows": 11,
+          "current_rows": 11,
+          "all_original_rows_identical": true
+        },
+        "events": {
+          "original_rows": 17368,
+          "current_rows": 17432,
+          "all_original_rows_identical": true
+        }
+      },
+      "schema_unchanged": true,
+      "active_jobs": 0,
+      "new_data": "Own technical03 observations41frames/0expert samples, analysis-only, source final review rejected"
+    }
+  },
+  "bootstrap": {
+    "physical_acceptance": false,
+    "registration": {
+      "acceptance_remaining": [
+        "small_xyz_directions",
+        "wrist_orientation",
+        "gripper_direction"
+      ],
+      "controller_configuration_writes": 0,
+      "frame_basis": "declared_URDF_base_axis_convention_installation_unverified",
+      "frame_convention": "aligned_urdf_base_axes",
+      "gripper_basis": "provisional_official_normalized_closed_open_and_original_target_command_reference",
+      "gripper_direction_physically_verified": false,
+      "leader_normalized_to_target_gripper_servo_deg": [
+        [
+          0.0,
+          170.0
+        ],
+        [
+          100.0,
+          30.0
+        ]
+      ],
+      "metric_gripper_aperture_measured": false,
+      "physical_acceptance": false,
+      "physical_commands": 0,
+      "physical_mount_verified": false,
+      "provenance": "derived_from_existing_controller_and_lerobot_calibration",
+      "schema": "explorer_native_leader_bootstrap_v1",
+      "sha256": "8149924bfc6600691b09452e0300cfe048f6680b8fbb46e33873a2af033b3ffb",
+      "source_CAD_bounds": "diagnostic_for_observed_encoder_FK_not_a_motor_limit_or_clamp",
+      "source_calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+      "source_coordinate_profile_sha256": "cb8af25acfa5177c6d162593c0348e1418eee0d93bb94fd3c73c8fb78ef4cd02",
+      "source_joint_coordinate_clipping": false,
+      "source_urdf_sha256": "bc947e2fea65dfc91b0fc40e4cff0c01c6bf426687995937e62e2b0f41122db5",
+      "target_base_from_source_rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          -0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "target_gripper_reference_sha256": "ed275d5b774814963fc855009a4f93715ffbe4657796b2ed32f9c1c9718e11cb",
+      "target_measured": false,
+      "target_servo_coordinates_sha256": "6dbfbcaa238b04e2ddb61e08d43f1ebee250e8bfd8ca273d83ff2e1008df6b2f",
+      "target_state_source": "command_estimate",
+      "target_urdf_sha256": "9ee94f15a2473ba04c84c552bae47f7dd2bd734b8b3700f3fe25d752c3eace4b",
+      "translation_basis": "each_explicit_clutch_from_current_native_command_estimate"
+    },
+    "state": "BOOTSTRAP_DERIVED"
+  },
+  "guards": {
+    "physical03_start_recenter_lease_challenge_authorize_blocked": true,
+    "COMMON_source04_retained": true,
+    "single_original_Station_camera_recorder": true,
+    "cold_forwarded_write_calls": 0,
+    "observed_grant": null,
+    "target_permission": false,
+    "semantic_source_claim_fence": true,
+    "source04_current_UI_preserved": true,
+    "original_station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+    "Pi_Nano_agent_graceful_Node_close_used": false
+  },
+  "actual_technical_data": {
+    "recording_mode": "observations_only",
+    "recording_id": "bd9032f8872f4616992bb3f284fd5dc8",
+    "skill_id": "b08a6027-e3bf-48e7-ba38-6458e47cd761",
+    "capture_id": "c6c78da4-43f1-4f63-9bc6-9b404afa2c2b",
+    "frames": 41,
+    "expert_command_samples": 0,
+    "pause_resume": true,
+    "download": {
+      "bytes": 54650880,
+      "sha256": "f8b00b9ce1ccb48f4cde2c621ad5c243580040c7fc143aa6805394d28b5ee388",
+      "Range_status": 206,
+      "Content-Range": "bytes 54646784-54650879/54650880",
+      "ETag": "\"f8b00b9ce1ccb48f4cde2c621ad5c243580040c7fc143aa6805394d28b5ee388\""
+    },
+    "actual_supervisor_import_job": "05f01e42a9b841faafb9a829eeb64761",
+    "worker_execution_commit": "9766bc3ee495a104a16303fef0c4b4d4d215eef0",
+    "admitted_for_training": false,
+    "RGB_action_causal_training_verified": false,
+    "source_final_review": "reject; own technical original retained, prior approval retained in chain",
+    "original_archive_and_review_chain_retained": true,
+    "physical_success": false
+  },
+  "passive_ROS": [
+    {
+      "scope": "shared lab cutoverB",
+      "counts": {
+        "/arm6_joints": 0,
+        "/explorer/request": 0
+      },
+      "observation_seconds": 90,
+      "passive_only": true,
+      "received_count": 0,
+      "schema": "explorer_native_forward_passive_ROS_v1",
+      "topics": [
+        "/arm6_joints",
+        "/explorer/request"
+      ]
+    },
+    {
+      "scope": "UI hotfix",
+      "counts": {
+        "/arm6_joints": 0,
+        "/explorer/request": 0
+      },
+      "observation_seconds": 20,
+      "passive_only": true,
+      "received_count": 0,
+      "schema": "explorer_native_forward_passive_ROS_v1",
+      "topics": [
+        "/arm6_joints",
+        "/explorer/request"
+      ]
+    },
+    {
+      "scope": "actual observations capture",
+      "counts": {
+        "/arm6_joints": 0,
+        "/explorer/request": 0
+      },
+      "observation_seconds": 20,
+      "passive_only": true,
+      "received_count": 0,
+      "schema": "explorer_native_forward_passive_ROS_v1",
+      "topics": [
+        "/arm6_joints",
+        "/explorer/request"
+      ]
+    }
+  ],
+  "originals": {
+    "Nano_six_controller_configs_source_reference_and_four_service_PIDs_unchanged": true,
+    "Nano_camera_cache_process_unchanged": true,
+    "Pi_original_node_env_arms_calibrations_original_unit_unchanged": true,
+    "Pi_new_own_runtime_dropin": "91-lab03.conf",
+    "Pi_only_own_peer_URI_changed": "http://192.168.0.177:8092; other fields/token unchanged",
+    "servo_feedback": "OFF unchanged",
+    "firmware_limits_watchdogs": "unchanged",
+    "backups": "Own Pi101files63,886,493B/Nano810files316,591,772B incl online SQLite; archives verified on Homebrain; selected own data/same SSD/not OS images"
+  },
+  "training": {
+    "GPU_source_files": 16,
+    "GPU_binding_sha256": "a6f6ef89a3d2e5c23281fbcee4e5bb8c67f4c4e61f33d926483af0a68903c1d8",
+    "DP_source_files": 21,
+    "DP_binding_sha256": "929e92bfeb87ef0f244f836429e4b5f3830840edabca9414a63922580dfc1758",
+    "new_training_executed": false,
+    "existing_current_03_queue_proof": "03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_R3_20261027.json",
+    "real_accepted_experts": 0
+  },
+  "failures_retained": [
+    {
+      "scope": "first Nano cutoverA",
+      "failure": "systemctl kill SIGKILL succeeded for MainPID459156, then auxiliary-cgroup signalling Invalid argument returned nonzero",
+      "receipt_correction": "original old_killed=false is an exception-path bookkeeping error; actual proc absence/systemd journal verified; no graceful Node.close occurred",
+      "recovery": "Explicit stopped-state verification then forward start under monitorB; Pi uses supported --kill-whom=main after no-child preflight",
+      "original_services_affected": false
+    },
+    {
+      "scope": "actual initial mobile03 UI",
+      "failure": "bootstrap provenance/SHA text scroll351px/client298px produced doc391px/viewport390px",
+      "diagnostic": "bounding rect alone missed text overflow; clipped horizontal navigation was unrelated",
+      "fix": "scoped direct03-provenance overflow-wrap:anywhere, full SHA retained",
+      "actual_fixed_UI": "4pagesPASS/0overflow"
+    }
+  ],
+  "open_physical_gates": {
+    "changing_real_leader_continuity": "OPEN; no static100GET substitution",
+    "native_reference": "409 MCU telemetry is stale",
+    "SO101_motor_power": "USER explicitly confirmed both OFF; not assumed restored",
+    "physical_mount_axes_gripper_workspace": "UNVERIFIED; derived registration is not measurement",
+    "Nano_task_scene": "actual camera currently sees ceiling; object/gripper/goal not accepted",
+    "Pi_task_scene": "table/part of SO101 visible; whole object/goal/shared zone not accepted",
+    "real_experts_models_independent_trials": "OPEN",
+    "chassis_motion": "PROHIBITED"
+  },
+  "actual_native_commands_by_agent": 0,
+  "actual_native_grants_by_agent": 0,
+  "controller_configuration_changes": 0,
+  "raw_evidence": {
+    "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/software-stage.json": {
+      "sha256": "571fe0be63a4e4a5c2a068a872d0d9adf6d675060b3b7c8bc4e78fc1611ac46f",
+      "bytes": 1598
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/staged-central-UI-provenance.json": {
+      "sha256": "590cb34ab09968de29393e06151175358e3a09babeffb108859ccb71c5e9aad1",
+      "bytes": 1148
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/composite-activation.json": {
+      "sha256": "32529a3bc11c9df941e723fb6352c09279de0e72fc6443e7359c1d801d7c0b83",
+      "bytes": 31678
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/composite-activation-B.json": {
+      "sha256": "3a1f584be12567bc29da888bd65175432c4a603ee3f2b87f633274ca8b2e4da6",
+      "bytes": 73931
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/nano-activation.json": {
+      "sha256": "5078b17e6bbdd06eba0df919331482574ef190f99b4187a91c321fd36a588f13",
+      "bytes": 12868
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/nano-activation-B.json": {
+      "sha256": "4dc92d71395f0e5c3bc3b133bf3e979f180a13b6d81f3d81dd1bea1788a35c31",
+      "bytes": 12242
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/pi-activation-B.json": {
+      "sha256": "a7351dc24853fa272d700c9bbdef5bf30fd6f01851d56ef5b0392c15ab43331f",
+      "bytes": 22397
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/central-activation.json": {
+      "sha256": "4a9d519422bad4627f91fb1cac113cb65e2046ac5f64ad627f670c95ab1a1697",
+      "bytes": 768
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/central-UI-provenance-activation.json": {
+      "sha256": "4e899a8b261a070ec7004cdb5f27253c59fab7660b0407efd057c09cb7db7604",
+      "bytes": 768
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/UIprovenance-activation-composite.json": {
+      "sha256": "4d9d73dd1e7332a04997e34a04cc6672d4e087887e1953c838484a017367d466",
+      "bytes": 35411
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/deployed-readonly-GETs-after-technical.json": {
+      "sha256": "43380570ff9224c63e2be141301c39d48d9c1ff23cb4479c40f2ee38a2ac2ac6",
+      "bytes": 67690
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/UI-provenance-hotfix-Node.log": {
+      "sha256": "59d80e78c3ccb7a597468439ff9fb9dfa74b10c89c038440b636bb501313d8ad",
+      "bytes": 28696
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/final-scientific-originals-audit.json": {
+      "sha256": "90dac3185c50106af1f63418e842734e3ca8a4c7e2e8d0ca7261d2da7579ed50",
+      "bytes": 575
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/negative-A-eventual-passive.json": {
+      "sha256": "2e22ffb705029a5769af3cfb3a568e841e465085aa2b5fa61c161e3ab1cc53fd",
+      "bytes": 227
+    },
+    "/mnt/explorer-data/explorer-work/experiment03-data-full-release-20261027-c516de71/result/qualification.json": {
+      "sha256": "3c96adca399130c1dcbb1e6b2efb1c5a5bbfd10366f81a7b5e4e81b3302e3867",
+      "bytes": 1519
+    },
+    "/mnt/explorer-data/explorer-work/experiment03-data-full-release-20261027-c516de71/result/pytest.log": {
+      "sha256": "622e59eeaef4f8f3fc095c32e2a6f4ece0bd9602133c7edd52e2eed04c6d2de8",
+      "bytes": 2845
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-release-live-20261028-9766bc3-a/receipt.json": {
+      "sha256": "374cd88859d4ab378d8ff1c976a1a5b361b8d5560f11aa19be51411cd4e840c9",
+      "bytes": 176878
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-live-technical-data-20261028-9766bc3-a/receipt.json": {
+      "sha256": "dfb11a57edb936c388bff40a6737aa3af0bd83995d3ae1c8199c3118f0e7802e",
+      "bytes": 361754
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-live-technical-data-20261028-9766bc3-a/actual-supervisor-import-job.json": {
+      "sha256": "117a640043a22e441cde6b74fc442bfc87a2a0abddd1181bc8e175fc8ec59eb5",
+      "bytes": 73883
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-live-technical-data-20261028-9766bc3-a/original.tar": {
+      "sha256": "f8b00b9ce1ccb48f4cde2c621ad5c243580040c7fc143aa6805394d28b5ee388",
+      "bytes": 54650880
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-live-technical-data-20261028-9766bc3-a/source-manifest.json": {
+      "sha256": "d92081a98dcabc170bd6bbdfea21a048dcf33d02c4006c7f5cdcb25fb3d5daee",
+      "bytes": 336225
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-release-technical-UI-20261028-9766bc3-a/receipt.json": {
+      "sha256": "2585cc60bb18931e3604a8a7d947101331130a0913ba23f658145217ee280774",
+      "bytes": 760922
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-release-live-20261028-9766bc3-a/03-desktop.png": {
+      "sha256": "c4657f613bd1949b9977c15dd4db6cb899181c4d2055d5658aa3b0432f6b85ef",
+      "bytes": 403004
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-release-live-20261028-9766bc3-a/03-mobile.png": {
+      "sha256": "1763dfde42542e06bfbcb1ee353d7ce7b747bae26eccc70efc090ddc1a29bdaf",
+      "bytes": 93080
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-release-live-20261028-9766bc3-a/04-desktop.png": {
+      "sha256": "f4d1457d09abeea8cfc11283bdc7e0ed3f9f899698a6dc817b7aa02f24e07b7c",
+      "bytes": 359504
+    },
+    "/mnt/explorer-data/explorer-work/03-lab-release-live-20261028-9766bc3-a/04-mobile.png": {
+      "sha256": "d7278fc658c75c5a96189b6ca589adcdf106148d5eaf25c16ca8ae2f6771c219",
+      "bytes": 59087
+    }
+  },
+  "next_task": "E05-MANUAL"
+}

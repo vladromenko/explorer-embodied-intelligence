@@ -24,8 +24,8 @@ SIM/mock/loss/один API или инфраструктурный этап не
 действия владельца — [PHYSICAL_CHECKS](docs/PHYSICAL_CHECKS.md).
 
 
-Текущая окончательная очередь:03 checkpoint →04 operator-ready →05 operator-ready
-→06 transfer/adaptation software →01 long tuning. Reuse-first: единое shared core,
+Текущая окончательная очередь:04 software/deploy →03 software/deploy
+→05 operator-ready →06 transfer/adaptation software →01 long tuning. Reuse-first: единое shared core,
 тонкие experiment adapters, contract tests и один camera owner. Software readiness
 отделяется от реальных данных/physical skill; critical03 real continuity остаётся
 обязательной до physical-path deployment.
