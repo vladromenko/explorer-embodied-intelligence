@@ -272,15 +272,18 @@
         "evidence": [
           "research/audits/NATIVE_SENSOR_CACHE_RU.md",
           "shared/training/NATIVE6_QUEUE_STATION_R3B_20261027_RU.md",
-          "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
+          "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json",
+          "_registry/evidence/experiment02-acquisition-actual-d923ea94-20261027.json",
+          "shared/training/NATIVE02_LEROBOT_CPU_20261027_QUALIFICATION.json",
+          "_registry/evidence/experiment02-learning-ui-candidate-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED",
         "priority_status": "CURRENT PRIORITY",
         "url_path": "/experiments/02",
         "software_readiness": {
-          "passed": 4,
+          "passed": 9,
           "total": 14,
-          "percent": 28.6,
+          "percent": 64.3,
           "ready_for_use": false,
           "gates": [
             {
@@ -295,8 +298,11 @@
             {
               "id": "02A-cameras",
               "title": "Real ROSMASTER streams with rendered freshness/state, frame IDs/timestamps and clear errors",
-              "status": "OPEN",
-              "evidence": [],
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/experiment02-acquisition-actual-d923ea94-20261027.json",
+                "02-demonstration-learning/docs/OPERATOR_ACQUISITION_RU.md"
+              ],
               "stage": "02A"
             },
             {
@@ -312,22 +318,31 @@
             {
               "id": "02A-gamepad",
               "title": "Mandatory gamepad detection, axes calibration/deadzone, mapping, connection status and motion-free input preview",
-              "status": "OPEN",
-              "evidence": [],
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/experiment02-acquisition-actual-d923ea94-20261027.json",
+                "02-demonstration-learning/docs/OPERATOR_ACQUISITION_RU.md"
+              ],
               "stage": "02A"
             },
             {
               "id": "02A-manual-safety",
               "title": "One arm/gripper/base browser mode; existing STOP/deadman/focus-loss/network-loss path qualified end to end",
-              "status": "OPEN",
-              "evidence": [],
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/experiment02-acquisition-actual-d923ea94-20261027.json",
+                "02-demonstration-learning/docs/OPERATOR_ACQUISITION_RU.md"
+              ],
               "stage": "02A"
             },
             {
               "id": "02A-record-ui",
               "title": "Skill/task and description; Record/start/pause/cancel/finish; success/failure/reject/retry",
-              "status": "OPEN",
-              "evidence": [],
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/experiment02-acquisition-actual-d923ea94-20261027.json",
+                "02-demonstration-learning/docs/OPERATOR_ACQUISITION_RU.md"
+              ],
               "stage": "02A"
             },
             {
@@ -340,8 +355,11 @@
             {
               "id": "02A-review",
               "title": "Approved episode count, condition coverage, quality-based next demonstration guidance, preview/download and verified dataset round-trip",
-              "status": "OPEN",
-              "evidence": [],
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/experiment02-acquisition-actual-d923ea94-20261027.json",
+                "02-demonstration-learning/docs/OPERATOR_ACQUISITION_RU.md"
+              ],
               "stage": "02A"
             },
             {
@@ -424,8 +442,8 @@
             }
           ]
         },
-        "proven_done_ru": "Страница/backend, прежний keyboard contract, scheduler, checkpoint/reload компоненты",
-        "software_remaining_ru": "02A: полноценные камеры/gamepad/запись/approve/передача; 02B: один Nano→NX→ACT→shadow→UI путь, регресс и release",
+        "proven_done_ru": "Развёрнутые камеры/gamepad/record/review/transfer02A; ACT106 official Dataset и model/DEV UI проверены на программных источниках",
+        "software_remaining_ru": "02B: итоговый current-source queue proof, настоящий Nano I/O technical smoke, регрессия и новый release; реальные demos/shadow после подготовки владельца",
         "physical_remaining_ru": "Текущий manual/gamepad/STOP тест, реальные 3–5 smoke-показов и supervised model trial",
         "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED",
         "operator_ready_acquisition": false,

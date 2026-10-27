@@ -39,3 +39,19 @@ test("explicit evaluation posts only exact server model ID and skill version", a
   assert.equal(posts[0].path,"/api/skill-workflow/chosen/evaluate");
   assert.equal(JSON.stringify(posts[0].body),JSON.stringify({version:2,model_job_id:"saved"}));
 });
+test("training uses the measured compact CPU profile and explicit optimizer budget", async () => {
+  const {run,calls,listeners} = harness();
+  run('skillWorkflowUI.state={confirmed:true,train_ready:true,spec:{skill_id:"chosen",version:2}};skillWorkflowUI.optimizerSteps=240');
+  listeners.click({target:{closest:()=>({disabled:false,dataset:{skillAction:"train"}})}});
+  await new Promise(resolve=>setImmediate(resolve));
+  const posts=calls.filter(row=>row.method==="POST"); assert.equal(posts.length,1);
+  assert.equal(posts[0].path,"/api/skill-workflow/chosen/train");
+  assert.equal(JSON.stringify(posts[0].body.settings),JSON.stringify({act_steps:240,batch_size:2,image_size:32,chunk_size:2,device:"cpu"}));
+});
+test("invalid optimizer budget cannot enqueue a model", async () => {
+  const {run,calls,listeners} = harness();
+  run('skillWorkflowUI.state={confirmed:true,train_ready:true,spec:{skill_id:"chosen",version:2}};skillWorkflowUI.optimizerSteps=0');
+  listeners.click({target:{closest:()=>({disabled:false,dataset:{skillAction:"train"}})}});
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(calls.filter(row=>row.method==="POST").length,0);
+});
