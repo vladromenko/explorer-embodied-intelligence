@@ -29,6 +29,9 @@ class Station:
 
 class Geometry:
     registration={'provenance':'synthetic','sha256':'b'*64,'source_calibration_sha256':'a'*64}
+    context=SimpleNamespace(coordinates=SimpleNamespace(sha256='a'*64,
+        calibration={'gripper':{'range_min':2035,'range_max':3274}}))
+    gripper_mapper=staticmethod(lambda value:90.)  # Explicit SOFTWARE constant-grip geometry.
     def status(self):
         return {'state':'REGISTERED_DECLARATION','physical_acceptance':False}
     def recenter(self,positions,target):
@@ -51,7 +54,7 @@ class Peer:
         self._call('status')
         return {'execution_permission':True,'active':self.active,'stop_latched':not self.active,'state':self.state,
                 'activation':{'authorization_id':self.authorization_id},'chassis_motion_allowed':self.chassis,
-                'boot_id':'nano-boot','control_epoch':self.epoch,'original_stream_config':{'publish_period_s':.04}}
+                'boot_id':'nano-boot','control_epoch':self.epoch,'arm_backend':'existing_factory_ruckig_velocity','original_stream_config':{'publish_period_s':.04}}
     def reference(self):
         self._call('reference')
         return {'boot_id':'nano-boot','servo_deg':[90.]*6,'measured':False}
@@ -73,6 +76,8 @@ class Peer:
         return {'accepted':True,'native_dispatched':False,'command_estimate':self.reference()}
     def keyboard_base(self,epoch,actions,**kwargs):
         self._call('base',{'epoch':epoch,'actions':actions,**kwargs});assert epoch==self.epoch and self.active
+        if any(float(value)!=0 for value in actions.values()) and not self.chassis:
+            raise PermissionError('PHYSICAL_CHASSIS_PROHIBITED_BY_OWNER')
         return {'accepted':True,'native_dispatched':False}
     def stop(self,epoch):
         self._call('stop',epoch);assert epoch==self.epoch;self.active=False;self.state='STOPPED'
@@ -181,13 +186,13 @@ def test_stop_waits_for_pending_lifecycle_epoch_and_no_late_reply_reactivates_so
     source.close()
 
 
-def test_stale_leader_interrupts_without_automatic_lease_or_restart(tmp_path):
+def test_stale_leader_drops_without_zero_automatic_lease_or_restart(tmp_path):
     source,station,peer=service(tmp_path);start(source)
     station.tick-=3_000_000_000;source.start_worker()
     try:
-        wait_for(lambda:source.status()['state']=='INTERRUPTED')
+        wait_for(lambda:source.packet_drops.get('SOURCE_CACHE_STALE',0)>0)
         assert not any(name in ('input','stop') for name,_ in peer.calls)
-        assert 'stale' in source.error
+        assert source.mode=='ACTIVE' and source.error is None
     finally:
         source.close()
 

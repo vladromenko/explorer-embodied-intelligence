@@ -18,9 +18,14 @@ from .native_stream03 import BASE_ACTIONS
 from .native_stream03_client import NativeStreamClient
 from .native_leader_geometry import registered_native_leader_geometry
 from .retarget_recording import identity,digest
+from .native_gripper_alignment import gripper_alignment
 
 HOLD_SCHEMA='explorer_pi_native_explicit_hold_v1'
 OPERATOR_PROFILES=('ARM_ONLY','MOBILE_MANIPULATION')
+
+
+class SourcePacketDrop(ValueError):
+    """A single unusable sample is discarded, not a lifecycle transition."""
 
 class LegacyRawView:
     """Read-only old Pi archives only; new03 target IDs are never duplicated here."""
@@ -58,6 +63,7 @@ class PiNativeRetargetService:
         self.operator_profile='ARM_ONLY';self.authorization_id=None;self.target_generation=None
         self.source_identity=None
         self.begin_outcome_unknown=False
+        self.gripper_alignment=None;self.packet_drops={};self.last_drop_reason=None
         self.last_lease_receipt=None;self.last_proposal=None;self.last_stop_receipt=None
         self.round_trips=deque(maxlen=64);self.last_source_age_ns=None;self.discarded_late_replies=0
         self.recorder=LegacyRawView(Path(state_dir)/'retarget-recordings');self.thread=None;self.calibration_wizard=None
@@ -112,6 +118,8 @@ class PiNativeRetargetService:
                 'cached_samples_consumed':self.sample_count,'last_result':deepcopy(self.last_result),'error':self.error,
                 'last_proposal':deepcopy(self.last_proposal),'last_lease_receipt':deepcopy(self.last_lease_receipt),
                 'last_stop_receipt':deepcopy(self.last_stop_receipt),
+                'gripper_alignment':deepcopy(self.gripper_alignment),
+                'packet_drops':dict(self.packet_drops),'last_drop_reason':self.last_drop_reason,
                 'timing_diagnostics':{'schema':'explorer_pi_retarget_host_timing_v1','sample_count':len(self.round_trips),
                     'input_HTTP_RTT_ns':list(self.round_trips),'last_source_cache_age_ns':self.last_source_age_ns,
                     'clock_basis':'Pi_host_monotonic_only_no_cross_device_subtraction','hardware_latency_verified':False,
@@ -122,14 +130,17 @@ class PiNativeRetargetService:
                 'chassis_requests':self.chassis_requests,'observed_chassis_grant_received':self.chassis_authorized,
                 'controller_configuration_writes':0,'physical_acceptance_confirmed':False}
 
-    def _measurement(self):
+    def _measurement(self,*,require_fresh=True):
         state=self.station.status() if self.station is not None else {}
         measured=state.get('measurements',{});tick=measured.get('monotonic_ns')
         # Reuse station's existing camera freshness source contract, no motor TTL.
         freshness=getattr(getattr(self.station,'camera',None),'stale_s',2.)
-        if (state.get('available') is not True or state.get('mode')!='idle' or type(tick) is not int or
-                not 0<=self.clock()-tick<=freshness*1e9):
-            raise ValueError('Existing measured leader cache is unavailable/stale; lab remains separate')
+        if state.get('mode')!='idle' and (state.get('available') is True or state.get('mode') is not None):
+            raise ValueError('Measured leader owner changed; lab remains separate')
+        if state.get('available') is not True or type(tick) is not int:
+            raise SourcePacketDrop('SOURCE_CACHE_UNAVAILABLE')
+        if require_fresh and not 0<=self.clock()-tick<=freshness*1e9:
+            raise SourcePacketDrop('SOURCE_CACHE_STALE')
         positions=np.asarray(measured.get('leader'),float)
         if positions.shape!=(6,) or not np.isfinite(positions).all():
             raise ValueError('Six genuine normalized leader measurements required')
@@ -239,6 +250,7 @@ class PiNativeRetargetService:
                 self.epoch=uuid.uuid4().hex;self.mode='CLUTCHED';self.error=None;self.operator_profile=profile
                 self.last_result={'recentered':True,'target_estimate_basis':basis,'native_dispatched':False}
                 self.last_proposal=None;self.last_lease_receipt=None;self.round_trips.clear();self.last_source_age_ns=None
+                self.gripper_alignment=None;self.packet_drops.clear();self.last_drop_reason=None
             self.wake.set();return self.status()
         except Exception as error:
             with self.lock:
@@ -320,10 +332,8 @@ class PiNativeRetargetService:
             if first:self.mode='ACTIVATING';self.lifecycle_inflight=True
         if first:return self._first_held(expected,target_epoch,authorization)
         try:
-            if moving:
-                native=self.client.status();self._owned_native(native)
-                if native.get('chassis_motion_allowed') is not True:
-                    raise PermissionError('PHYSICAL_CHASSIS_PROHIBITED_BY_OWNER')
+            # The ORIGINAL native base endpoint validates the current grant.
+            # Stable held frames add no permission/status round trip here.
             with self.lock:
                 if self.epoch!=expected or self.mode!='ACTIVE':raise ValueError('Held frame superseded before native lease')
             result=self.client.keyboard_base(target_epoch,actions,observing=True,authorization_id=authorization)
@@ -345,16 +355,27 @@ class PiNativeRetargetService:
         try:
             with self.lock:
                 if self.epoch!=expected or self.mode!='ACTIVATING':raise ValueError('First held superseded before native observation')
-            measured=self._measurement();native=self.client.status();self._owned_native(native,clutched=True)
-            self._same_source(measured)
+            native=self.client.status();self._owned_native(native,clutched=True)
+            if native.get('arm_backend')!='existing_factory_ruckig_velocity':
+                raise ValueError('GRIPPER_ALIGNMENT_NATIVE_SERIALIZATION_PROFILE_UNSUPPORTED')
             estimate=self.client.reference();target,basis=self._target_estimate(estimate)
-            self.geometry.recenter(measured['positions'],target)
+            measured=self._measurement();self._same_source(measured)
+            self._align_gripper(measured,target,estimate)
             with self.lock:
                 if self.epoch!=expected or self.mode!='ACTIVATING':raise ValueError('First held superseded before native resume')
             resume_started=True;self.client.resume(target_epoch,observing=True,authorization_id=authorization)
             with self.lock:
                 if self.epoch!=expected or self.mode!='ACTIVATING':raise ValueError('First held superseded after native resume')
             result=self.client.keyboard_base(target_epoch,{},observing=True,authorization_id=authorization)
+            # A previous original publication may finish during recenter. Read
+            # its CURRENT command estimate after resume/neutral; this acquire-
+            # only GET neither renews the original lease nor runs in ACTIVE.
+            estimate=self.client.reference();target,basis=self._target_estimate(estimate)
+            # All admission network I/O is now complete. Clutched movement is
+            # the NEW anchor, never replayed by the first ACTIVE frame.
+            measured=self._measurement();self._same_source(measured)
+            self._align_gripper(measured,target,estimate)
+            self.geometry.recenter(measured['positions'],target)
             with self.lock:
                 if self.epoch!=expected or self.mode!='ACTIVATING':raise ValueError('First held superseded after neutral lease')
                 self.mode='ACTIVE';self.estimate=estimate;self.last_source_stamp=measured['monotonic_ns'];self.error=None
@@ -492,49 +513,66 @@ class PiNativeRetargetService:
             with self.lock:self.lifecycle_inflight=False
             self.operation_lock.release()
 
+    def _align_gripper(self,measured,target,estimate):
+        result=gripper_alignment(self.geometry,measured['positions'],target,
+            calibration_sha256=measured['calibration_sha256'],wire_target=estimate.get('servo_deg') or [])
+        with self.lock:self.gripper_alignment=result
+        if result.get('aligned') is not True:raise ValueError(result['reason'])
+        return result
+
+    def _step_once(self):
+        """One unchanged coalesced iteration; also usable by finite fake sinks."""
+        with self.lock:
+            active=self.mode=='ACTIVE' and not self.lifecycle_inflight and not self.step_inflight
+            if active:
+                local_epoch,target_epoch=self.epoch,self.target_epoch;self.step_inflight=True
+        if active:
+            try:
+                measured=self._measurement(require_fresh=False);self._same_source(measured)
+                freshness=getattr(getattr(self.station,'camera',None),'stale_s',2.)
+                if not 0<=self.clock()-measured['monotonic_ns']<=freshness*1e9:
+                    raise SourcePacketDrop('SOURCE_CACHE_STALE')
+                if self.last_source_stamp is not None and measured['monotonic_ns']<=self.last_source_stamp:
+                    raise SourcePacketDrop('SOURCE_PACKET_DUPLICATE' if measured['monotonic_ns']==self.last_source_stamp else 'SOURCE_PACKET_OUT_OF_ORDER')
+                estimate=self.estimate or self.client.reference();target,basis=self._target_estimate(estimate)
+                proposal=self.geometry.propose(measured['positions'],target,original_native_period_s=self.native_period)
+                if proposal.get('accepted') is not True:
+                    raise ValueError('Native target IK rejected this latest measured sample')
+                with self.lock:
+                    if self.epoch!=local_epoch or self.mode!='ACTIVE':
+                        raise ValueError('Old source frame superseded before HTTP intent')
+                    self.source_sequence+=1;sequence=self.source_sequence
+                evidence={**measured,'target_estimate_basis':basis,'target_boot_id':self.target_boot,
+                          'registration_sha256':(getattr(self.geometry,'registration',None) or {}).get('sha256'),
+                          'geometric_proposal':deepcopy(proposal),'cross_device_clock_mapping_assumed':False}
+                started=self.clock()
+                receipt=self.client.input(target_epoch,sequence,proposal['joint_velocity_deg_s'],evidence,
+                    authorization_id=self.authorization_id)
+                ended=self.clock()
+                with self.lock:
+                    if self.epoch==local_epoch and self.mode=='ACTIVE':
+                        self.estimate=receipt.get('command_estimate')
+                        self.last_source_stamp=measured['monotonic_ns'];self.sample_count+=1
+                        self.last_result={'proposal':proposal,'target_receipt':receipt,'native_dispatched':False}
+                        self.last_proposal=deepcopy(self.last_result)
+                        if ended>=started:self.round_trips.append(ended-started)
+                        self.last_source_age_ns=started-measured['monotonic_ns']
+                    else:self.discarded_late_replies+=1
+            except SourcePacketDrop as error:
+                with self.lock:
+                    if self.epoch==local_epoch and self.mode=='ACTIVE':
+                        reason=str(error);self.packet_drops[reason]=self.packet_drops.get(reason,0)+1;self.last_drop_reason=reason
+            except Exception as error:
+                with self.lock:
+                    if self.epoch==local_epoch and self.mode=='ACTIVE':
+                        self.mode='INTERRUPTED';self.epoch=uuid.uuid4().hex;self.error=type(error).__name__+': '+str(error)
+            finally:
+                with self.lock:self.step_inflight=False
+
     def _work(self):
         while not self.shutdown.is_set():
             self.wake.wait(.01);self.wake.clear()
-            with self.lock:
-                active=self.mode=='ACTIVE' and not self.lifecycle_inflight and not self.step_inflight
-                if active:
-                    local_epoch,target_epoch=self.epoch,self.target_epoch;self.step_inflight=True
-            if active:
-                try:
-                    measured=self._measurement()
-                    self._same_source(measured)
-                    if measured['monotonic_ns']!=self.last_source_stamp:
-                        estimate=self.estimate or self.client.reference();target,basis=self._target_estimate(estimate)
-                        proposal=self.geometry.propose(measured['positions'],target,original_native_period_s=self.native_period)
-                        if proposal.get('accepted') is not True:
-                            raise ValueError('Native target IK rejected this latest measured sample')
-                        with self.lock:
-                            if self.epoch!=local_epoch or self.mode!='ACTIVE':
-                                raise ValueError('Old source frame superseded before HTTP intent')
-                            self.source_sequence+=1;sequence=self.source_sequence
-                        evidence={**measured,'target_estimate_basis':basis,'target_boot_id':self.target_boot,
-                                  'registration_sha256':(getattr(self.geometry,'registration',None) or {}).get('sha256'),
-                                  'geometric_proposal':deepcopy(proposal),'cross_device_clock_mapping_assumed':False}
-                        started=self.clock()
-                        receipt=self.client.input(target_epoch,sequence,proposal['joint_velocity_deg_s'],evidence,
-                            authorization_id=self.authorization_id)
-                        ended=self.clock()
-                        with self.lock:
-                            if self.epoch==local_epoch and self.mode=='ACTIVE':
-                                self.estimate=receipt.get('command_estimate')
-                                self.last_source_stamp=measured['monotonic_ns'];self.sample_count+=1
-                                self.last_result={'proposal':proposal,'target_receipt':receipt,'native_dispatched':False}
-                                self.last_proposal=deepcopy(self.last_result)
-                                if ended>=started:self.round_trips.append(ended-started)
-                                self.last_source_age_ns=started-measured['monotonic_ns']
-                            else:self.discarded_late_replies+=1
-                except Exception as error:
-                    with self.lock:
-                        if self.epoch==local_epoch and self.mode=='ACTIVE':
-                            self.mode='INTERRUPTED';self.epoch=uuid.uuid4().hex;self.error=type(error).__name__+': '+str(error)
-                finally:
-                    with self.lock:
-                        self.step_inflight=False
+            self._step_once()
 
     def close(self):
         # Observer shutdown revokes source work; it never issues a new physical

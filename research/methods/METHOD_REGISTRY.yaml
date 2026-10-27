@@ -1415,7 +1415,7 @@
       "sources": [
         {
           "url": "https://proceedings.mlr.press/v15/ross11a.html",
-          "role": "Original DAgger method; Section3 / Algorithm3.1, printed629–630"
+          "role": "Original DAgger method; Section3 / Algorithm3.1, printed629\u2013630"
         },
         {
           "url": "https://proceedings.mlr.press/v15/ross11a/ross11a.pdf",
@@ -1541,7 +1541,7 @@
           "run_id": "completed-teacher-act-resume-v2",
           "path": "research/experiments/act-resume-20261026/PILOT_RESUME_PROOF.json",
           "source_json_sha256": "02a6a481d0d1155117ec4a71123c2fd08d2a6832987fc6383ac0e945c9e7fc80",
-          "scope": "Actual CAD/MuJoCo run with completed4096-step PPO and12episodes preserved: ACT resumes25→30, executes only5 additional updates. Teacher and all13 source dataset files byte hashes unchanged; no mid-PPO restart or physical-task result."
+          "scope": "Actual CAD/MuJoCo run with completed4096-step PPO and12episodes preserved: ACT resumes25\u219230, executes only5 additional updates. Teacher and all13 source dataset files byte hashes unchanged; no mid-PPO restart or physical-task result."
         }
       ],
       "hardware_run_ids": []
@@ -1677,7 +1677,7 @@
         {
           "command": "run_skill_cycle with real DAgger480 source,64 real continuation updates,6 acceptance/6retention/2composition episodes",
           "run_id": "1a23e3f18f7d43108a114e22a7127857",
-          "result": "incumbent0/6,candidate0/6,composition0/2,retention1/6→1/6,candidate rejected;4SQLitecards;64realupdates,weightschanged,reloaderror0,source+idempotence+stored-byte checks pass",
+          "result": "incumbent0/6,candidate0/6,composition0/2,retention1/6\u21921/6,candidate rejected;4SQLitecards;64realupdates,weightschanged,reloaderror0,source+idempotence+stored-byte checks pass",
           "result_sha256": "04537958eee149be26afff146eea40cab1f50c090be8d197770d956388f39ebe"
         }
       ],
@@ -6363,6 +6363,108 @@
         "tests/test_pi_native_retarget.py",
         "tests/test_native_stream03.py",
         "tests/test_native_capture_service.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-03-CONTINUITY-ADMISSION-20261027",
+      "function_or_module": "shared/explorer_shared/pi_native_retarget.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/NATIVE_CONTINUITY_RU.md",
+          "role": "Existing source/native ABI and finite qualification scope"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/native_stream03.py",
+          "role": "Unchanged geometry/mux and exact audited original source hashes"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Acquire-only freshest anchors/gripper admission; stable stale/duplicate/order DROP and exact original native base validation without new stable status GET.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_pi_native_continuity.py",
+        "tests/test_pi_native_hold_gate.py",
+        "tests/test_pi_native_retarget.py",
+        "tests/test_retarget_continuity.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-03-GRIPPER-ALIGNMENT-20261027",
+      "function_or_module": "shared/explorer_shared/native_gripper_alignment.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/NATIVE_CONTINUITY_RU.md",
+          "role": "Existing source/native ABI and finite qualification scope"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/native_stream03.py",
+          "role": "Unchanged geometry/mux and exact audited original source hashes"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Admission-only original endpoint serialization check with actual source encoder quantization; no mapper/filter/settings change.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_pi_native_continuity.py",
+        "tests/test_pi_native_hold_gate.py",
+        "tests/test_pi_native_retarget.py",
+        "tests/test_retarget_continuity.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-03-FINITE-CONTINUITY-20261027",
+      "function_or_module": "shared/explorer_shared/retarget_continuity.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/NATIVE_CONTINUITY_RU.md",
+          "role": "Existing source/native ABI and finite qualification scope"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/native_stream03.py",
+          "role": "Unchanged geometry/mux and exact audited original source hashes"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Bounded immutable original measured-cache trace verification and finite actual source-service memory-sink comparison, no hardware or full changing-motion qualification claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_pi_native_continuity.py",
+        "tests/test_pi_native_hold_gate.py",
+        "tests/test_pi_native_retarget.py",
+        "tests/test_retarget_continuity.py"
       ],
       "hardware_run_ids": []
     }
