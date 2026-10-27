@@ -941,6 +941,26 @@ def capture_finished(store,capture_id,native_episode_id,body):
         return _append(db,'capture.finished',payload,identity=EVENT_PREFIX+'capture.finished:'+capture['capture_id'],project_id=capture.get('project_id','02'))['payload']
 
 
+def capture_reviewed(store,capture_id,native_episode_id,source_wrapper,*,authenticated_actor):
+    """Retain the authenticated Source post-seal approval; never relabel raw outcomes."""
+    from .native_capture_approval import validate_source_approval
+    if not isinstance(authenticated_actor,str) or not 1<=len(authenticated_actor)<=200:raise ValueError('Authenticated review actor required')
+    receipt=(source_wrapper or {}).get('source_review') or {}
+    checked=validate_source_approval(source_wrapper,native_episode_id,receipt.get('archive_sha256'),
+        actor=authenticated_actor,require_approved=False)
+    with store.connect() as db:
+        db.execute('BEGIN IMMEDIATE');capture=_capture(db,capture_id);capture_id=capture['capture_id']
+        started=next((row['payload'] for row in _records(db,'capture.started') if row['payload']['capture_id']==capture_id),None)
+        finished=next((row['payload'] for row in _records(db,'capture.finished') if row['payload']['capture_id']==capture_id),None)
+        if not started or not finished or started['original_episode_id']!=native_episode_id or finished['original_episode_id']!=native_episode_id:
+            raise ValueError('Post-seal review belongs to another or unfinished native recording')
+        payload=dict(capture_id=capture_id,original_episode_id=native_episode_id,source_review=checked['source_review'],
+            source_review_sha256=checked['review_sha256'],archive_sha256=checked['archive_sha256'],decision=checked['decision'],
+            actor_id=authenticated_actor,source_wrapper=deepcopy_document(source_wrapper),native_payload_modified=False,
+            approval_does_not_change_outcomes=True,automatic_training_started=False)
+        return _append(db,'capture.reviewed',payload,identity=EVENT_PREFIX+'capture.reviewed:'+capture_id+':'+checked['review_sha256'],project_id=capture.get('project_id','02'))['payload']
+
+
 def bind_import_from_capture(store,job,*,inspector=None):
     """Root import-completion hook: idempotent, even when upload finishes later."""
     if not _is_rosmaster_import(job) or job.get('status')!='completed':return None

@@ -5973,6 +5973,33 @@
         "tests/test_torch_build_identity.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-CAPTURE-APPROVAL-20261027",
+      "function_or_module": "00-control-center/src/explorer/native_capture_approval.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/native_capture.py",
+          "role": "Exact immutable Source review schema, canonical serialization and archive identity"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_OR_TRAINING",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Check an explicit authenticated Source post-seal review against one unchanged native archive and retain central immutable capture review without changing source outcomes or starting training. Source approval is separate from canonical structural admission and success labels.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_native_capture_approval.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
