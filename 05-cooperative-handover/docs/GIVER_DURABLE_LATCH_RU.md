@@ -77,6 +77,16 @@ Production дополнительно требует server-pinned `expected_sta
 `object_safe_no_dual_hold=true`. Старая форма/CAS не снимает новый latch. Ни camera,
 ни новый grant, ни web restart не снимают его автоматически.
 
+Reset также требует `original_quiescence.ready=true`: actual Tap arm/base pending
+равны0, исходный stream inactive и исходный ManualArm worker lock не занят. Это
+cached process evidence, **не** measured hold/stationarity. Проверка выполняется
+перед ожиданием publication guard и повторно на metadata boundary; `NOT_READY`
+не снимает armed и не ждёт queued Publisher. Unknown worker ABI также не admission.
+Таким образом старый native target, уже прошедший cancellation check до guard,
+не может воспользоваться новым unarmed состоянием после metadata reset. Отдельный
+finite worker учитывается даже до `Tap.publisher_begin`, пока он пишет свой
+исходный journal под original publication lock.
+
 Reset не выполняет HOLD/HOME/open/close и не очищает reference fault. После
 неизвестного/blocked publication требуется отдельный существующий наблюдаемый
 original factory reference. При смене kernel boot old fault сохраняется как

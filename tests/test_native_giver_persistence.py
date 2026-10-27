@@ -344,3 +344,42 @@ def test_tiny_revoke_admission_lock_never_covers_camera_check_or_original_publis
     monkeypatch.setattr(activation,'allowed',camera_check);monkeypatch.setattr(activation,'current_authorization_id',current_identity)
     monkeypatch.setattr(publisher,'publish',publish);arm.pub.publish(message(100))
     assert cached==[True] and not owner.guard.last_publication['opening']
+
+
+@pytest.mark.parametrize('busy',['publisher','base','stream','finite_worker','unknown_worker'])
+def test_safe_reset_requires_actual_drained_original_boundaries_before_unarming(tmp_path,busy):
+    owner,mux,teleop,arm,publisher,tap,activation,tick,binding,path=armed(tmp_path)
+    teleop.stop_latched=True;body=reset_body(owner,binding);before=path.read_bytes()
+    if busy=='publisher':tap.publisher_begin()
+    elif busy=='base':tap.base_pending=1
+    elif busy=='stream':arm.streaming_active=True
+    elif busy=='finite_worker':arm.lock.acquire()
+    else:del arm.lock
+    try:
+        with pytest.raises(ValueError,match='NOT_READY_ORIGINAL'):owner.guard.reset_safe(body)
+        assert owner.guard.armed and path.read_bytes()==before and not owner.guard.journal.pending
+    finally:
+        if busy=='publisher':tap.publisher_end()
+        elif busy=='base':tap.base_pending=0
+        elif busy=='stream':arm.streaming_active=False
+        elif busy=='finite_worker':arm.lock.release()
+        else:arm.lock=threading.Lock()
+    assert not owner.guard.reset_safe(body)['armed']
+
+
+def test_safe_reset_does_not_wait_for_or_unarm_a_publisher_queued_before_guard_admission(tmp_path):
+    owner,mux,teleop,arm,publisher,tap,activation,tick,binding,path=armed(tmp_path)
+    teleop.stop_latched=True;body=reset_body(owner,binding);before=path.read_bytes();errors=[]
+    # Model a stale ORIGINAL target that passed its cancellation check and has
+    # already reached ExistingPublisherBoundary, but is queued for guard.lock.
+    with owner.guard.lock:
+        def queued():
+            try:arm.pub.publish(message(100))
+            except ValueError as error:errors.append(error)
+        worker=threading.Thread(target=queued);worker.start();deadline=time.monotonic()+1
+        while tap.publisher_pending==0 and time.monotonic()<deadline:time.sleep(.001)
+        assert tap.publisher_pending==1
+        with pytest.raises(ValueError,match='NOT_READY_ORIGINAL'):owner.guard.reset_safe(body)
+        assert owner.guard.armed and path.read_bytes()==before and len(publisher.messages)==1
+    worker.join(2)
+    assert not worker.is_alive() and errors and len(publisher.messages)==1 and owner.guard.armed

@@ -247,13 +247,28 @@ class NativeReceiverHoldBoundary:
         # challenge revision and cannot restore opening authority.
         with self.revision_lock:self.revision+=1;self.pending=self.grant=None
         return {'revoked':True,'reason':reason,'dual_hold_protection_remains_armed':self.armed}
+    def drained(self):
+        """Cached ORIGINAL worker/publisher state, not hold or attainment."""
+        arm=self.mux.arm;lock=getattr(arm,'lock',None);locked=getattr(lock,'locked',None)
+        busy=locked() if callable(locked) else None
+        with self.mux.tap.lock:pending=self.mux.tap.publisher_pending;base=self.mux.tap.base_pending
+        stream=getattr(arm,'streaming_active',None)
+        return {'ready':busy is False and stream is False and pending==0 and base==0,
+            'original_arm_worker_busy':busy,'original_streaming_active':stream,'publisher_pending':pending,'base_pending':base,
+            'basis':'cached_original_worker_and_real_boundary_counters_not_measured_hold_or_stationarity'}
+    def require_drained(self):
+        current=self.drained()
+        if not current['ready']:raise ValueError('NOT_READY_ORIGINAL_WORKERS_OR_PUBLICATIONS_NOT_DRAINED')
+        return current
     def _check_reset(self,body):
+        self.require_drained()
         self.activation.require(body.get('authorization_id'))
         with self.mux.teleop.lock:
             if (body.get('observing') is not True or body.get('object_safe_no_dual_hold') is not True or
                     not self.mux.teleop.stop_latched or self.activation.receipt(body.get('authorization_id')) is None):
                 raise ValueError('Explicit observed safe-object reset under original STOP required')
             with self.lock:
+                self.require_drained()
                 if self.journal.path is not None and (body.get('expected_state_id')!=self.journal.state_id or
                         type(body.get('expected_revision')) is not int or body['expected_revision']!=self.revision):
                     raise ValueError('Exact durable giver state ID/revision required for USER safe reset')
@@ -326,6 +341,7 @@ class NativeReceiverHoldBoundary:
             'opening_history_basis':'actual_original_publisher_returns_not_current_hold_or_reusable_release_authority',
             'reference_fault':deepcopy(self.reference_fault),
             'persistence':self.journal.status(self.revision),'revision':self.revision,
+            'original_quiescence':self.drained(),
             'controller_settings_written':False,'new_publishers':0,'physical_qualification':False}
 
 

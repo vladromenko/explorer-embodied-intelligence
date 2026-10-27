@@ -22,7 +22,7 @@ class Publisher:
 
 class OriginalArm(Arm):
     def __init__(self):
-        super().__init__();self.pub=Publisher();self.motion_config={'streaming':{'lookahead_s':.08}}
+        super().__init__();self.pub=Publisher();self.lock=threading.Lock();self.motion_config={'streaming':{'lookahead_s':.08}}
     def model(self):return SimpleNamespace(path=lambda *args:{'valid':True})
     def _publish_command(self,pose,runtime_ms,record,phase='command_in_progress',revision=None):
         self.pub.publish(SimpleNamespace(**{'joint'+str(i+1):value for i,value in enumerate(pose)}))
