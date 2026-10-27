@@ -44,7 +44,7 @@ class Element {
   showModal() { this.open = true; }
   close() { this.open = false; }
 }
-function bootstrap(route) {
+function bootstrap(route, beforeApp) {
   const index = fs.readFileSync(path.join(STATIC, "index.html"), "utf8");
   const doc = new Element("DOCUMENT"); doc.document = doc; doc.connected = true; doc.cookie = "explorer_csrf=software-fixture-token";
   doc.hidden = false; doc.visibilityState = "visible"; doc.hasFocus = () => true; doc.createElement = tag => new Element(tag, doc);
@@ -75,9 +75,26 @@ function bootstrap(route) {
   sandbox.window = sandbox; sandbox.globalThis = sandbox;
   const context = vm.createContext(sandbox);
   const scripts = [...index.matchAll(/<script\s+src="\/static\/([^"]+)"\s+defer><\/script>/g)].map(match => match[1]);
-  for (const script of scripts) vm.runInContext(fs.readFileSync(path.join(STATIC, script), "utf8"), context, { filename: script });
+  for (const script of scripts) {
+    if (script === "app.js" && beforeApp) beforeApp(context, intervals);
+    vm.runInContext(fs.readFileSync(path.join(STATIC, script), "utf8"), context, { filename: script });
+  }
   return { context, scripts, requests, document: doc, events, intervals, timeouts, frames, assignments,
     run: source => vm.runInContext(source, context) };
+}
+for (const route of ["/", "/experiments/03", "/experiments/04"]) {
+  test(`timers stay inert while deferred app.js is still downloading on ${route}`, async () => {
+    let pending;
+    const rig = bootstrap(route, (context, intervals) => {
+      assert.equal(vm.runInContext("typeof rosmasterCameraReady", context), "undefined");
+      pending = intervals.map(({ fn }) => fn());
+    });
+    await Promise.all(pending); await flush();
+    assert.ok(rig.requests.every(row => row.method === "GET"));
+    assert.equal(rig.run("direct03.owned"), false);
+    assert.equal(rig.run("direct03.held"), false);
+    assert.equal(rig.run("direct03.error"), null);
+  });
 }
 
 for (const route of ["/", "/experiments/01", "/experiments/02", "/experiments/03", "/experiments/04", "/experiments/05", "/experiments/06", "/learning/so101", "/evening", "/queue", "/research"]) {
