@@ -6,7 +6,9 @@ check_publication reads cached state only and must precede legacy early-return.
 """
 from contextlib import contextmanager
 from copy import deepcopy
+import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -15,21 +17,34 @@ import threading
 import uuid
 
 from .contracts import canonical,digest
-from .cooperative_receiver_interlock05 import ReceiverHoldInterlock,PROFILE_SCHEMA
+from .cooperative_receiver_interlock05 import ReceiverHoldInterlock,PROFILE_SCHEMA,observed_gripper_direction
+from .so101_station import LOW,HIGH
 
 ENVELOPE='explorer_station_cooperative_interlock_wal_v1'
 LIMIT=1024*1024
 ID=re.compile('[0-9a-f]{64}')
+CAPTURE_ID=re.compile('[0-9a-f]{32}')
 
 
-def _read(path,limit=LIMIT):
+def _raw(path,limit=LIMIT):
     descriptor=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)
     with os.fdopen(descriptor,'rb') as stream:
         meta=os.fstat(stream.fileno())
         if not stat.S_ISREG(meta.st_mode) or meta.st_size>limit:raise ValueError('Bounded regular interlock metadata required')
         raw=stream.read(limit+1)
     if len(raw)>limit:raise ValueError('Interlock metadata bound exceeded')
-    return json.loads(raw)
+    return raw
+
+
+def _read(path,limit=LIMIT):return json.loads(_raw(path,limit))
+
+
+def _original(path,raw):
+    descriptor=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+    with os.fdopen(descriptor,'wb') as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
+    directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY)
+    try:os.fsync(directory)
+    finally:os.close(directory)
 
 
 def _write(path,value):
@@ -52,6 +67,7 @@ class StationCooperativeInterlock:
         self.provider=provider;self.station=provider.station;self.clock=provider.clock
         self.path=Path(state_path);self.metadata_lock=threading.RLock();self.fault=None;self.fault_id=None;self.fault_revision=0
         self.profile_root=self.path.parent/'cooperative-direction-profiles';self.profiles={}
+        self.capture_root=self.path.parent/'cooperative-direction-captures';self.captures={};self.capture_errors={}
         self.helper=self._new_helper();self.last_transaction=None
         try:
             if self.path.parent.resolve()!=Path(self.station.root).resolve() or self.path.is_symlink():
@@ -64,6 +80,7 @@ class StationCooperativeInterlock:
                     raise ValueError('Pending/failed interlock WAL must not restore an unarmed default')
                 self.helper=self._new_helper(envelope['state']);self.last_transaction=envelope.get('last_transaction')
             self._load_profiles()
+            self._load_captures()
         except (ValueError,OSError,KeyError,TypeError) as error:self._fault('INTERLOCK_PERSISTENCE_UNCERTAIN:'+str(error))
     def _new_helper(self,state=None):
         return ReceiverHoldInterlock(clock_domain=self.station.clock_domain,boot_id=self.station.boot,clock=self.clock,state=state)
@@ -79,12 +96,25 @@ class StationCooperativeInterlock:
         for path in paths:
             if not ID.fullmatch(path.stem):raise ValueError('Only source direction profile IDs are allowed')
             profile=_read(path,128*1024)
-            if (profile.get('schema')!=PROFILE_SCHEMA or not ID.fullmatch(str(profile.get('follower_calibration_sha256'))) or
+            if (not isinstance(profile,dict) or profile.get('schema')!=PROFILE_SCHEMA or not ID.fullmatch(str(profile.get('follower_calibration_sha256'))) or
                     not isinstance(profile.get('basis'),str) or profile.get('profile_sha256')!=path.stem or
                     digest({key:value for key,value in profile.items() if key!='profile_sha256'})!=path.stem):
                 raise ValueError('Original direction profile digest differs')
+            self._verify_profile_sources(profile)
             profiles[path.stem]=profile
         self.profiles=profiles
+    def _verify_profile_sources(self,profile):
+        identifiers=profile.get('source_capture_ids')
+        if identifiers is None:return  # Existing trusted source builder profiles have external original SHAs.
+        if not isinstance(identifiers,dict) or set(identifiers)!={'open','empty_closed'}:
+            raise ValueError('Exact original observed endpoint source IDs required')
+        for label,identity in identifiers.items():
+            if not isinstance(identity,str) or not CAPTURE_ID.fullmatch(identity):raise ValueError('Exact original source capture ID required')
+            raw=_raw(self.capture_root/(identity+'.json'),128*1024);source=json.loads(raw)
+            if (hashlib.sha256(raw).hexdigest()!=(profile.get('original_source_sha256') or {}).get(label) or
+                    not isinstance(source,dict) or not isinstance(source.get('frame'),dict) or
+                    hashlib.sha256(_raw(self.capture_root/(identity+'.jpg'),2*1024**2)).hexdigest()!=source['frame'].get('jpeg_sha256')):
+                raise ValueError('Original observed endpoint record/JPEG no longer matches the registered profile')
     def _cached_permission(self):
         with self.provider.lock:
             record=self.provider.grant
@@ -95,6 +125,34 @@ class StationCooperativeInterlock:
                     value.get('follower_calibration_sha256')!=follower.get('calibration_sha256') or
                     follower.get('verified_on_connected_hardware') is not True):return None
             return value
+    def _load_captures(self):
+        if not self.capture_root.exists():return
+        if self.capture_root.is_symlink():raise ValueError('Managed direction captures required')
+        paths=list(self.capture_root.glob('*.json'))
+        if len(paths)>64:raise ValueError('Direction capture inventory bound exceeded')
+        captures={};errors={}
+        for path in paths:
+            try:
+                if not CAPTURE_ID.fullmatch(path.stem):raise ValueError('Exact source capture ID required')
+                raw=_raw(path,128*1024);value=json.loads(raw);image=_raw(self.capture_root/(path.stem+'.jpg'),2*1024**2)
+                if (not isinstance(value,dict) or value.get('schema')!='explorer_so101_gripper_endpoint_observation_v1' or value.get('capture_id')!=path.stem or
+                        not isinstance(value.get('operator_confirmation'),dict) or not isinstance(value.get('frame'),dict) or
+                        not isinstance(value.get('measurement_stamp'),dict) or
+                        value.get('operator_confirmation',{}).get('label') not in ('empty_open','empty_closed') or
+                        not ID.fullmatch(str(value.get('follower_calibration_sha256'))) or
+                        type(value.get('measurement_stamp',{}).get('monotonic_ns')) is not int or
+                        not isinstance(value.get('measurement_stamp',{}).get('boot_id'),str) or
+                        not isinstance(value.get('measurement_stamp',{}).get('clock_domain'),str) or
+                        hashlib.sha256(image).hexdigest()!=value.get('frame',{}).get('jpeg_sha256')):
+                    raise ValueError('Original direction capture/frame differs')
+                captures[path.stem]={'capture_id':path.stem,'label':value['operator_confirmation']['label'],
+                    'follower_calibration_sha256':value['follower_calibration_sha256'],'source_sha256':hashlib.sha256(raw).hexdigest(),
+                    'frame_id':value['frame']['frame_id'],'jpeg_sha256':value['frame']['jpeg_sha256'],
+                    'monotonic_ns':value['measurement_stamp']['monotonic_ns'],
+                    'boot_id':value['measurement_stamp']['boot_id'],'clock_domain':value['measurement_stamp']['clock_domain'],
+                    'actor_id':value['operator_confirmation'].get('actor_id')}
+            except (ValueError,OSError,KeyError,TypeError) as error:errors[path.stem]=str(error)
+        self.captures=captures;self.capture_errors=errors
     def _current(self,body,actor):
         current=self._cached_permission()
         if (current is None or current.get('grant_id')!=body.get('grant_id') or
@@ -162,7 +220,97 @@ class StationCooperativeInterlock:
             publication_gate_required=True,original_station_methods_changed_by_wrapper=False,
             direction_profile_choices=[{'profile_id':key,'follower_calibration_sha256':value['follower_calibration_sha256'],
                 'basis':value['basis']} for key,value in self.profiles.items()])
+        result.update(direction_capture_choices=deepcopy(list(self.captures.values())),direction_capture_errors=deepcopy(self.capture_errors),
+            direction_capture_uses_existing_caches_only=True,physical_position_accuracy_known=False)
         return result
+    def _calibration_resolution(self,permission):
+        profile=(self.station.profiles.get('follower') or {});path=profile.get('calibration_path')
+        if not isinstance(path,str):raise ValueError('Original verified follower calibration file required for native normalization resolution')
+        raw=_raw(Path(path),128*1024)
+        if hashlib.sha256(raw).hexdigest()!=permission['follower_calibration_sha256']:
+            raise ValueError('Original connected follower calibration SHA changed')
+        calibration=json.loads(raw)
+        if not isinstance(calibration,dict) or not isinstance(calibration.get('gripper'),dict):
+            raise ValueError('Original typed gripper motor calibration required')
+        gripper=calibration['gripper'];minimum,maximum=gripper.get('range_min'),gripper.get('range_max')
+        if (type(minimum) is not int or type(maximum) is not int or not 0<=minimum<maximum<=4095):
+            raise ValueError('Known existing STS3215 position-mode encoder range required; no register reads/writes')
+        return 100./(maximum-minimum),hashlib.sha256(raw).hexdigest()
+    def observe_direction(self,body,*,authenticated_actor):
+        allowed={'grant_id','expected_control_epoch','label','frame_id','displayed_jpeg_sha256','observing',
+            'empty_gripper_confirmed','user_observed_test_confirmed'}
+        if (set(body)-allowed or body.get('label') not in ('open','empty_open','empty_closed') or
+                not isinstance(body.get('frame_id'),str) or not re.fullmatch('[A-Za-z0-9_.:-]{1,160}',body['frame_id']) or
+                not ID.fullmatch(str(body.get('displayed_jpeg_sha256'))) or
+                not all(body.get(key) is True for key in ('observing','empty_gripper_confirmed','user_observed_test_confirmed'))):
+            raise ValueError('Separate explicit USER empty-open/empty-closed source frame confirmation required; no numeric endpoints')
+        with self.metadata_lock:
+            current=self._current(body,authenticated_actor)
+            uncertainty,calibration_sha=self._calibration_resolution(current)
+            frame,metadata=self.provider._frame(body.get('frame_id'),body.get('displayed_jpeg_sha256'))
+            with self._locks():
+                actual=self._locked_current(current,authenticated_actor);measured=deepcopy(self.station.measurements)
+                positions=measured.get('follower');stamp=measured.get('monotonic_ns');now=self.clock()
+                if (not isinstance(positions,list) or len(positions)!=6 or any(type(value) not in (int,float) or
+                        not math.isfinite(value) or not LOW[i]<=value<=HIGH[i] for i,value in enumerate(positions)) or
+                        measured.get('clock_domain')!=self.station.clock_domain or type(stamp) is not int or
+                        not frame.monotonic_ns<=stamp<=now or not 0<=now-stamp<=500_000_000 or
+                        actual['follower_calibration_sha256']!=calibration_sha):
+                    raise ValueError('Actual fresh same-boot cached follower measurement after this frame required')
+                label='empty_open' if body['label']=='open' else body['label'];identity=uuid.uuid4().hex
+                record={'schema':'explorer_so101_gripper_endpoint_observation_v1','capture_id':identity,'role':'follower',
+                    'state_source':'measured_state','measured_native6':positions,'verified_on_connected_hardware':True,
+                    'follower_calibration_sha256':calibration_sha,'measurement_uncertainty_native':uncertainty,
+                    'uncertainty_basis':'one_encoder_tick_original_range_normalization_only','physical_accuracy_unknown':True,
+                    'measurement_stamp':{'monotonic_ns':stamp,'clock_domain':self.station.clock_domain,'boot_id':self.station.boot},
+                    'frame':{'frame_id':metadata['frame_id'],'jpeg_sha256':metadata['jpeg_sha256'],
+                        'monotonic_ns':frame.monotonic_ns,'clock_domain':self.station.clock_domain,'boot_id':self.station.boot},
+                    'operator_confirmation':{'label':label,'observing':True,'empty_gripper_confirmed':True,
+                        'user_observed_test_confirmed':True,'actor_id':authenticated_actor},
+                    'original_native_epoch':actual['control_epoch'],'source_binding':deepcopy(actual['binding']),
+                    'capture_cutoff_monotonic_ns':now,'hardware_commands_sent':0}
+                jpeg=frame.jpeg
+            if hashlib.sha256(jpeg).hexdigest()!=record['frame']['jpeg_sha256']:raise ValueError('Original cached source JPEG bytes changed')
+            if len(jpeg)>2*1024**2:raise ValueError('Retained source JPEG bound exceeded')
+            self.capture_root.mkdir(mode=0o700,exist_ok=True)
+            if self.capture_root.is_symlink():raise ValueError('Managed source capture directory required')
+            files=list(self.capture_root.iterdir())
+            if len(list(self.capture_root.glob('*.jpg')))>=64 or sum(path.stat().st_size for path in files if path.is_file())+len(jpeg)>64*1024**2:
+                raise ValueError('Retained original direction-capture budget reached; no automatic deletion')
+            _original(self.capture_root/(identity+'.jpg'),jpeg)
+            _original(self.capture_root/(identity+'.json'),canonical(record))
+            self._load_captures();profile_id,blocker=self._profile_from_captures(calibration_sha,authenticated_actor)
+            return {'capture_id':identity,'label':label,'source_sha256':self.captures[identity]['source_sha256'],
+                'frame_id':record['frame']['frame_id'],'jpeg_sha256':record['frame']['jpeg_sha256'],
+                'direction_profile_id':profile_id,'direction_profile_blocker':blocker,
+                'physical_position_accuracy_known':False,'hardware_commands_sent':0}
+    def _profile_from_captures(self,calibration_sha,actor):
+        latest={}
+        # Native monotonic stamps are comparable ONLY inside the same boot/domain.
+        eligible=[capture for capture in self.captures.values() if capture['follower_calibration_sha256']==calibration_sha and
+            capture['boot_id']==self.station.boot and capture['clock_domain']==self.station.clock_domain and capture['actor_id']==actor]
+        for capture in sorted(eligible,key=lambda row:(row['monotonic_ns'],row['capture_id'])):latest[capture['label']]=capture
+        if set(latest)!={'empty_open','empty_closed'}:return None,'EXPLICIT_EMPTY_OPEN_AND_EMPTY_CLOSED_CURRENT_BOOT_CAPTURES_REQUIRED'
+        opened=_raw(self.capture_root/(latest['empty_open']['capture_id']+'.json'),128*1024)
+        closed=_raw(self.capture_root/(latest['empty_closed']['capture_id']+'.json'),128*1024)
+        if hashlib.sha256(opened).hexdigest()!=latest['empty_open']['source_sha256'] or hashlib.sha256(closed).hexdigest()!=latest['empty_closed']['source_sha256']:
+            raise ValueError('Original measured endpoint bytes changed')
+        try:profile=observed_gripper_direction(opened,closed)
+        except ValueError as error:return None,'OBSERVED_ENDPOINT_PAIR_NOT_QUALIFIED:'+str(error)
+        profile.update(physical_position_accuracy_known=False,uncertainty_basis='encoder_quantization_only_not_physical_accuracy',
+            source_capture_ids={key:latest[label]['capture_id'] for key,label in (('open','empty_open'),('empty_closed','empty_closed'))})
+        profile['profile_sha256']=digest({key:value for key,value in profile.items() if key!='profile_sha256'})
+        identity=profile['profile_sha256']
+        self.profile_root.mkdir(mode=0o700,exist_ok=True)
+        if self.profile_root.is_symlink():raise ValueError('Managed original direction profiles required')
+        path=self.profile_root/(identity+'.json')
+        if path.exists():
+            if _read(path,128*1024)!=profile:raise ValueError('Immutable observed direction profile changed')
+        else:
+            if len(list(self.profile_root.glob('*.json')))>=64:raise ValueError('Retained direction profile budget reached')
+            _original(path,canonical(profile))
+        self.profiles={**self.profiles,identity:profile}
+        return identity,None
     def dispatch(self,operation,body,*,authenticated_actor=None):
         operation={'finish-challenge':'finish/challenge','reset-safe':'reset_safe'}.get(operation,operation)
         if isinstance(body,dict):
@@ -170,6 +318,7 @@ class StationCooperativeInterlock:
             if authenticated_actor is None:authenticated_actor=actor_field
         if not isinstance(body,dict) or not isinstance(authenticated_actor,str) or not authenticated_actor:
             raise ValueError('Authenticated typed metadata operation required')
+        if operation=='direction/observe':return self.observe_direction(body,authenticated_actor=authenticated_actor)
         common={'grant_id','expected_control_epoch','expected_revision','interlock_id'}
         extras={'bind':{'direction_profile_id'},'arm':set(),'finish/challenge':{'giver_release_receipt'},
             'finish':{'challenge_id','confirmation'},'reset_safe':{'object_safe_no_dual_hold'}}
@@ -184,6 +333,7 @@ class StationCooperativeInterlock:
             try:
                 profile=_read(self.profile_root/(identity+'.json'),128*1024)
                 if profile!=self.profiles[identity]:raise ValueError('Original direction profile changed')
+                self._verify_profile_sources(profile)
             except (ValueError,OSError,KeyError,TypeError) as error:
                 self._fault('DIRECTION_PROFILE_SOURCE_UNCERTAIN:'+str(error));raise
         def mutate(permission):

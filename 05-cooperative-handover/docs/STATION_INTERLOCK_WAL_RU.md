@@ -13,7 +13,7 @@ check_publication(epoch, mode, target, last_command=None)  # cached only
 dispatch(operation, payload, *, authenticated_actor=None)
 ```
 
-Операции: `bind`, `arm`, `finish/challenge`, `finish`, `reset_safe`.
+Операции: `bind`, `arm`, `finish/challenge`, `finish`, `reset_safe`, `direction/observe`.
 Поддержаны aliases `finish-challenge`/`reset-safe`. Source server передаёт actor
 kwarg либо trusted injected `actor_id`; он должен совпадать с actual grant.
 Payload: только `grant_id`, `expected_control_epoch`, `expected_revision`,
@@ -41,11 +41,44 @@ Recovery требует новый current authenticated USER grant в original 
 final fsync runtime fault остаётся закрытым. Повреждённые original bytes не
 публикуются как научный успех или как восстановленное управление.
 
-На этом atomic direction profiles читаются только из server-managed
-`cooperative-direction-profiles/<sha>.json`; данные должны быть сформированы
-pure observed endpoint builder. Actual cache direction-capture producer —
-следующий metadata-only этап, неподдержанная операция не угадывает знак.
-Настоящий native gate/provider/Node hook подключает интегратор отдельно.
+`direction/observe` получает только `grant_id`, `expected_control_epoch`,
+`label=empty_open|empty_closed` (`open` — alias), `frame_id`,
+`displayed_jpeg_sha256`, `observing=true`, `empty_gripper_confirmed=true`,
+`user_observed_test_confirmed=true`. Actor задаёт source server. Значения
+суставов, знак движения и uncertainty из browser не принимаются. USER должен
+отдельно получить и показать указанный исходный JPEG; endpoint ничего не двигает.
+
+Producer берёт exact JPEG из существующего camera cache и настоящие cached
+follower6 из ORIGINAL Station. Frame receive ≤ measurement ≤ cutoff в одном
+Pi boot/domain, measurement не старее существующего observation-контракта500ms.
+Camera exposure sync не заявляется. Под original locks копируются metadata;
+чтение calibration, hash и file/directory fsync выполняются после/до locks.
+Не открываются camera/serial и не обновляется native lease/USER grant.
+
+Сохраняются original JPEG и source JSON в bounded managed
+`cooperative-direction-captures/<capture_id>.{jpg,json}` с mode600, exclusive
+create и fsync; возврат содержит actual source SHA. Неудачное создание профиля
+оставляет исходные записи и явную причину. Неоднозначные/отсутствующие endpoints
+не получают direction profile. Попарное сравнение timestamp допускается только
+для одного текущего boot/domain/actor и той же verified follower calibration.
+Исторические часы разных boot не сортируются вместе.
+
+Для STS3215 в исходном position mode один encoder tick соответствует
+`100/(range_max-range_min)` native gripper units. Range берётся из exact
+SHA-bound original connected calibration, без register readback/изменения.
+Это только оценка квантования нормализации; физическая погрешность позиции,
+метрическая ширина, сила и факт удержания предмета остаются неизвестными.
+Направление выводится из двух явно помеченных USER пустых endpoint observations,
+а не из названия `close` или нормализации. Empty-closed не становится squeeze
+target для предмета.
+
+Профили находятся в `cooperative-direction-profiles/<sha>.json`, связывают SHA
+обоих исходных records и ID/JPEG каждого capture. При startup и explicit bind
+их originals перечитываются и проверяются; это не выполняется из control loop.
+Повреждённый уже зарегистрированный source закрывает глобальный latch.
+Publication/status используют только memory snapshots. Настоящий native
+gate/provider/Node hook подключает интегратор отдельно; source software tests
+не подтверждают физическое направление без настоящих USER captures.
 
 Проверки: настоящий COMMON provider с fake original owner, temporary WAL,
 cached-only hook без camera/RPC/file reads, pending/corrupt restart, injected
