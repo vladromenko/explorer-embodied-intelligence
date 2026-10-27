@@ -1,11 +1,11 @@
-"""Current R4 shared controller evidence plus explicitly historical PROFILE4 archive."""
+"""Current R5 shared controller evidence plus explicitly historical PROFILE4 archive."""
 import hashlib
 import json
 from pathlib import Path
 
 ROOT=Path(__file__).parents[1]
 PROOFS=ROOT/'shared/training'
-CURRENT='NATIVE6_QUEUE_02A_CONTROLLER_R4_20261027_'
+CURRENT='NATIVE6_QUEUE_02B_CONTROLLER_R5_20261027_'
 HISTORICAL='NATIVE6_QUEUE_PROFILE4_20261026_'
 
 
