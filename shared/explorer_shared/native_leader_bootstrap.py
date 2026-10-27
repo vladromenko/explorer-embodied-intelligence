@@ -1,4 +1,4 @@
-"""Existing calibration/URDF bootstrap, without device IO or measured-pose claims."""
+"""ENGINEERING_GLUE: Existing calibration/URDF bootstrap, without device IO or measured-pose claims."""
 import json
 
 import numpy as np

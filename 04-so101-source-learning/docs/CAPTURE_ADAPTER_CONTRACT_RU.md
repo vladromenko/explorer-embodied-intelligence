@@ -98,3 +98,25 @@ guarded source04_demo purpose; scoped auto-cleanup vs explicit global STOP.
 Эти механизмы не реализованы этим атомиком. Station SHA сохранён `2d191534…a885`.
 Нет device RPC, реальных показов, optimizer, нового runtime release или physical
 qualification. Source04 software-ready остаётся OPEN до Root vertical integration.
+
+
+## Дополнение Root: Node data plane после атомика A
+
+`capture_service.py` связывает тот же adapter с фиксированным original Station
+и COMMON `source04_demo`. Skill/version/specSHA/session, actor и exact acknowledged
+native epoch проверяются перед попыткой и ещё раз под original Station lock перед
+record/start. Session ID — hex-представление прежнего lab workflow UUID, без новой
+параллельной идентичности. Callback не начинает teleop и не вызывает STOP.
+Known denied-before-writer попытка имеет отдельный journal state и может повториться;
+unknown original writer return по-прежнему не позволяет GET-adoption/retry.
+
+`explorer_so101` добавлен в canonical package mapping. Explicit source-only Node
+создаёт capture service поверх того же Station и одной camera cache. Fixed
+`/so101-capture/*` использует общий capture GET handler и Range sender с native02/03,
+а `transfer_native_capture(..., source_prefix='/so101-capture')` — тот же bounded
+resumable transfer/approval validator. Prefix выбирает server, произвольные URL
+не принимаются. POST actor поступает от authenticated central gateway; source
+также сверяет его с COMMON grant/capture owner. Dataset/central API/UI ещё открыты.
+
+55sharedNode/capture/transfer tests PASS5.40s +1single-owner wiring PASS0.18s;
+provenance registry PASS. Source04 software-ready не повышен. Real Pi не обновлён.

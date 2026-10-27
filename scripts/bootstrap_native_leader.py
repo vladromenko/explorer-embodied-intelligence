@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export a deterministic03 registration proposal; reads files only, no devices."""
+"""ENGINEERING_GLUE: Export a deterministic03 registration proposal; reads files only, no devices."""
 import argparse
 import os
 from pathlib import Path

@@ -244,3 +244,14 @@ provenance/SHA, относительный recenter/current command-estimate, pr
 реальный changing-input trace и currentreference409/physicalacceptance OPEN.
 [Bootstrap](03-lerobot-teaching/docs/BOOTSTRAP_REGISTRATION_RU.md) ·
 [Evidence](_registry/evidence/experiment03-bootstrap-existing-calibration-20261027.json).
+
+
+04: thin StationCaptureAdapter +shared timeline/review интегрированы; Node source-only
+profile и COMMON human-demo purpose подготовлены. Fixed source04 HTTP data plane
+переиспользует native02/03 GET/Range/review/transfer.65adapter tests и59runtime/demo
+contracts ранее; текущий Node/capture/transfer group55PASS5.40s, singleowner1PASS.
+Real Pi остаётся4c; central capture API/approved import/Dataset pause view/UI пока
+не подключены. Проверка old4c shutdown воспроизвела late-request гонку на fake bus;
+unattended first Pi upgrade OPEN, не выдаётся за безопасный на основании idleGET.
+Reuse: shared capture_timeline/sealed_capture_review/native_capture_download/
+native_capture_transfer/COMMON permission; новый только thin source04 callbacks.

@@ -609,6 +609,7 @@ class NodeAgent:
             from .pi_native_retarget import PiNativeRetargetService
             self.arm_retarget=PiNativeRetargetService.from_config(self.station,self.state_dir,retarget_config_dir)
         self.station_observed=None
+        self.station_capture=None
         if self.station is not None:
             from .station_observed_activation import StationObservedPermission
             def command_guard(operation):
@@ -616,6 +617,14 @@ class NodeAgent:
                 if operation!='stop' and retarget_claims_source_cache(direct):
                     raise RuntimeError('Stop the existing direct ROSMASTER source session before using the follower controller')
             self.station_observed=StationObservedPermission(self.station,self.sources['pi-overview'],command_guard=command_guard)
+            if pi_runtime_profile=='so101_source_only':
+                # Immutable source releases also run directly via PYTHONPATH;
+                # the experiment package remains in its canonical directory.
+                import sys
+                package=Path(__file__).resolve().parents[2]/'04-so101-source-learning/src'
+                if str(package) not in sys.path:sys.path.insert(0,str(package))
+                from explorer_so101.capture_service import StationCaptureService
+                self.station_capture=StationCaptureService(self.station,self.station_observed,self.state_dir/'source04-capture')
 
     def tabletop_calibration_context(self):
         """Known hardware pair identity, not a measurement of a fixed mounting.
@@ -655,6 +664,7 @@ class NodeAgent:
 
     def close(self):
         retarget_error = None
+        if getattr(self,'station_capture',None) is not None:self.station_capture.close()
         if getattr(self,'station_observed',None) is not None:self.station_observed.revoke('NODE_AGENT_SHUTDOWN')
         if self.lab_vision:
             self.lab_vision.close()
@@ -822,6 +832,7 @@ class NodeAgent:
                 "perception": observer, "station": station,"mobile_observation":mobile,
                 "lab_vision":lab_vision,
                 "native_capture":self.native_capture.status() if self.native_capture else None,
+                "station_capture":self.station_capture.status() if self.station_capture else None,
                 "pi_runtime_profile":self.pi_runtime_profile if self.mode=='pi' else None,
                 "native_sensor_cache":self.sensor_cache.status() if self.sensor_cache else None,
                 "station_observed_permission":self.station_observed.status() if getattr(self,'station_observed',None) is not None else None,
@@ -935,16 +946,19 @@ def make_handler(agent):
                     'X-Monotonic-NS':frame.monotonic_ns,'X-Boot-ID':frame.boot_id,'X-Timestamp-Basis':frame.timestamp_basis}.items():
                     self.send_header(key,str(value))
                 self.end_headers();self.wfile.write(frame.jpeg)
-            elif path.startswith('/native-capture/'):
-                service=getattr(agent,'native_capture',None)
+            elif path.startswith(('/native-capture/','/so101-capture/')):
+                prefix=path.split('/')[1]
+                service=getattr(agent,'station_capture' if prefix=='so101-capture' else 'native_capture',None)
                 if service is None:
-                    raise LookupError('Native target capture is available only on Nano')
-                if path=='/native-capture/capabilities':
+                    raise LookupError('Requested fixed source capture profile is unavailable')
+                if urlsplit(self.path).query:raise ValueError('Fixed capture source paths take no query parameters')
+                operation=path.removeprefix('/'+prefix+'/')
+                if operation=='capabilities':
                     self._json(200,service.capabilities())
-                elif path=='/native-capture/status':
+                elif operation=='status':
                     self._json(200,service.status())
-                elif path=='/native-capture/recordings':
-                    self._json(200,{'schema':'explorer_native_capture_service_v1',
+                elif operation=='recordings':
+                    self._json(200,{'schema':getattr(service,'schema','explorer_native_capture_service_v1'),
                         'ready_recordings':service.writer.ready_recordings()})
                 elif len(parts)==5 and parts[1]=='recordings' and parts[3]=='frame':
                     content=service.writer.preview_frame(parts[2],parts[4])
@@ -957,7 +971,8 @@ def make_handler(agent):
                         send_native_capture_download(self,service.writer.archive(parts[2]),parts[2])
                     elif parts[3]=='manifest':
                         from .retarget_recording import identity
-                        self._json(200,json.loads((service.writer.root/identity(parts[2])/'manifest.json').read_bytes()))
+                        reader=getattr(service.writer,'manifest',None)
+                        self._json(200,reader(parts[2]) if reader is not None else json.loads((service.writer.root/identity(parts[2])/'manifest.json').read_bytes()))
                     elif parts[3]=='review':
                         self._json(200,service.writer.recording_review(parts[2]))
                     else:
@@ -1146,13 +1161,14 @@ def make_handler(agent):
             retarget = path.startswith('/arm-retarget/')
             lab=path.startswith('/lab/vision/') and agent.lab_vision is not None
             native_capture=path.startswith('/native-capture/') and getattr(agent,'native_capture',None) is not None
-            if path != "/recordings" and not legacy and not station and not retarget and not native_capture and not lab:
+            station_capture=path.startswith('/so101-capture/') and getattr(agent,'station_capture',None) is not None
+            if path != "/recordings" and not legacy and not station and not retarget and not native_capture and not station_capture and not lab:
                 self.close_connection = True
                 self._json(404, {"error": "Endpoint not found; no physical API is provided"})
                 return
             try:
                 length = int(self.headers.get("Content-Length", "0"))
-                body_limit=256*1024 if native_capture else MAX_BODY_BYTES
+                body_limit=256*1024 if native_capture or station_capture else MAX_BODY_BYTES
                 if not 0 < length <= body_limit:
                     raise ValueError("Invalid request body length")
                 payload = json.loads(self.rfile.read(length))
@@ -1160,7 +1176,11 @@ def make_handler(agent):
                     raise ValueError("Expected a JSON object")
                 if path.startswith('/legacy/explorer/cooperative/') and urlsplit(self.path).query:
                     raise ValueError('Fixed cooperative native interface takes no query parameters')
-                if lab:
+                if station_capture:
+                    if urlsplit(self.path).query:raise ValueError('Fixed capture source paths take no query parameters')
+                    actor=payload.pop('actor_id',None)
+                    self._json(200,agent.station_capture.command(path.removeprefix('/so101-capture/'),payload,actor))
+                elif lab:
                     self._json(200,agent.lab_vision.command(path.removeprefix('/lab/vision/'),payload))
                 elif native_capture:
                     service=agent.native_capture

@@ -29,6 +29,10 @@ MAX_MANIFEST_BYTES=64*1024**2
 MAX_ARCHIVE_BYTES=2*1024**3
 
 
+class StartRejectedBeforeWriter(ValueError):
+    """Trusted callback refused admission before entering the original writer."""
+
+
 def _sha(content):return hashlib.sha256(content).hexdigest()
 
 
@@ -89,7 +93,7 @@ a trusted local Path from the existing Station.archive, never a browser path.
                     self.recovery_required=True
             # A start may have reached the original writer without returning its ID.
             for path in self.root.glob('attempts/*.json'):
-                if json.loads(path.read_bytes()).get('state')!='RETURNED':self.recovery_required=True
+                if json.loads(path.read_bytes()).get('state') not in ('RETURNED','REJECTED_BEFORE_WRITER'):self.recovery_required=True
         except (OSError,ValueError,TypeError,AttributeError):
             self.recovery_required=True;self.error='LOCAL_CAPTURE_JOURNAL_UNREADABLE'
 
@@ -182,6 +186,11 @@ a trusted local Path from the existing Station.archive, never a browser path.
                 self._folder_owned=True
                 self._source(self.current);self._save()
                 atomic_bytes(attempts/(attempt+'.json'),source_bytes(dict(pending,state='RETURNED',recording_id=ident)))
+            except StartRejectedBeforeWriter:
+                try:atomic_bytes(attempts/(attempt+'.json'),source_bytes(dict(pending,state='REJECTED_BEFORE_WRITER')))
+                except Exception:
+                    self._uncertain('REJECTED_START_JOURNAL_PERSISTENCE_UNKNOWN');raise
+                raise
             except Exception:
                 self._uncertain('ORIGINAL_START_OR_LOCAL_PERSISTENCE_UNKNOWN');raise
             return self.status()

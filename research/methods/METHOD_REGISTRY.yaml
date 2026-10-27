@@ -5,6 +5,7 @@
     "01-autonomous-learning/src/**/*.py",
     "shared/learning/**/*.py",
     "04-cross-embodiment-transfer/src/**/*.py",
+    "04-so101-source-learning/src/**/*.py",
     "05-cooperative-handover/src/**/*.py",
     "shared/explorer_shared/kinematics.py",
     "shared/explorer_shared/handover.py",
@@ -6580,6 +6581,116 @@
       "changes_and_reason": "Fixed-callback metadata-only native6 recording lifecycle; preserve raw paused samples and original archive/manifest/JPEG bytes, source-owned selection intervals, uncertain/restart fences, shared immutable approval; no serial/camera/controller/second recorder.",
       "verification": {"code_inspected": true, "software_tested": true, "hardware_tested": false},
       "test_evidence": ["tests/test_so101_capture_adapter.py", "tests/test_capture_metadata_core.py"],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE03-BOOTSTRAP-EXISTING-20261027",
+      "function_or_module": "shared/explorer_shared/native_leader_bootstrap.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/BOOTSTRAP_REGISTRATION_RU.md",
+          "role": "Existing source contracts, reuse decisions and explicitly scoped software qualification"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Label existing calibration/URDF mapping and provisional orientation/gripper without requiring measured registration; source CAD excess is explicit, no hardware or target limits changed.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_native_leader_bootstrap.py",
+        "tests/test_native_leader_registration.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE03-BOOTSTRAP-EXPORT-20261027",
+      "function_or_module": "scripts/bootstrap_native_leader.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/BOOTSTRAP_REGISTRATION_RU.md",
+          "role": "Existing source contracts, reuse decisions and explicitly scoped software qualification"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Read original SHA-bound files and export a new reviewable bootstrap proposal without device IO or installation.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "_registry/evidence/experiment03-bootstrap-existing-calibration-20261027.json"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SOURCE04-EXPLICIT-RUNTIME-PROFILE-20261027",
+      "function_or_module": "shared/explorer_shared/source_only_runtime.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:04-so101-source-learning/docs/SOURCE_RUNTIME_BOUNDARY_RU.md",
+          "role": "Existing source contracts, reuse decisions and explicitly scoped software qualification"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Explicit source-only process profile prevents construction of direct03 physical peer/client/worker; no disabled STOP delivery claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_source_only_runtime.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SOURCE04-FIXED-STATION-CAPTURE-HTTP-20261027",
+      "function_or_module": "04-so101-source-learning/src/explorer_so101/capture_service.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:04-so101-source-learning/docs/CAPTURE_ADAPTER_CONTRACT_RU.md",
+          "role": "Existing source contracts, reuse decisions and explicitly scoped software qualification"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Thin fixed original Station callback binding and COMMON demo permission fences reuse shared capture/read/Range/review, without a second recorder or physical owner.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_so101_capture_service.py",
+        "tests/test_source_only_runtime.py"
+      ],
       "hardware_run_ids": []
     }
   ],

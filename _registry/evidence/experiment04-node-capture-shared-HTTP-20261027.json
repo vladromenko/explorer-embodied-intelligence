@@ -1,0 +1,56 @@
+{
+  "schema": "explorer04_node_capture_shared_HTTP_contract_v1",
+  "scope": "LOCALHOST_SOFTWARE_FIXTURES_ORIGINAL_STATION_FILE_WRITER_NO_PHYSICAL_NODE_RPC",
+  "tests": {
+    "shared_capture_Node_transfer_group": {
+      "passed": 55,
+      "elapsed_s": 5.4
+    },
+    "single_Station_and_camera_Node_wiring": {
+      "passed": 1,
+      "elapsed_s": 0.18
+    },
+    "provenance_registry": "PASS"
+  },
+  "requested_limits": {
+    "CPUQuota": "100%",
+    "MemoryMax": "1G",
+    "MemorySwapMax": 0
+  },
+  "measured_memory_peak_claimed": false,
+  "actual_localhost_HTTP": [
+    "capture start/pause/resume/finish UNKNOWN",
+    "foreign actor resume rejected",
+    "original JPEG SHA preview",
+    "separate approve",
+    "shared transfer actual206Range resume4096bytes",
+    "late reject refuses old review binding",
+    "manifest unchanged",
+    "control mode unchanged by data finish"
+  ],
+  "reuse": [
+    "same StationCaptureAdapter and original writer",
+    "same Node capture GET handler for native9 and native6",
+    "same native Source review validator",
+    "same Range sender",
+    "same resumable transfer, fixed source prefixes only",
+    "same COMMON source04_demo check under original Station lock"
+  ],
+  "admission": "known pre-writer rejection is separately journaled and retryable; unknown original writer return remains recovery-required",
+  "source_session_identity": "canonical hex of existing lab workflow UUID, not a parallel session namespace",
+  "implementation_sha256": {
+    "04-so101-source-learning/src/explorer_so101/capture_service.py": "d6f2e1f87fef36796d41a3438988a85e2b48eb9c00b43cdb072f8bd766912d7d",
+    "04-so101-source-learning/src/explorer_so101/capture_adapter.py": "f72745224ac1ba7a25a5ef560abf46c653e8d642476f9f7e721329e1a63079a9",
+    "shared/explorer_shared/node_agent.py": "accf538a8d729aaec7e3bcf26152cd200d5e7c7b11c0397a894118ac37dcd94b",
+    "00-control-center/src/explorer/native_capture_transfer.py": "c345e723a97a8415dc89e3105e0449a24b80bc1dc76fa519af50007eb5adf9b4",
+    "tests/test_so101_capture_service.py": "1d2a88c2ef63c1ce9f7e385bac9bb271d934dead5df944f1605a81a35e2fe81c",
+    "tests/test_source_only_runtime.py": "4410a5ca0b843e8427a496474a2181a3847c566485578d5de8e889c407c6cab0",
+    "pyproject.toml": "a5ad57572501be04f6d1edd7aca2fa174b8fa7619d5c1c021d1577669ae90111"
+  },
+  "source_Station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+  "deployed": false,
+  "central_capture_API_connected": false,
+  "source04_software_ready": false,
+  "physical_commands": 0,
+  "whole_master_complete": false
+}

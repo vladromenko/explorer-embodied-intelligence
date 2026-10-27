@@ -23,11 +23,14 @@ def _regular(path,flags):
     return descriptor
 
 
-def transfer_native_capture(client,base_url,recording_id,archive_sha256,review_sha256,artifact_root,*,guard=lambda:None):
+def transfer_native_capture(client,base_url,recording_id,archive_sha256,review_sha256,artifact_root,*,guard=lambda:None,
+                            source_prefix='/native-capture'):
     if (not isinstance(recording_id,str) or not re.fullmatch('[0-9a-f]{32}',recording_id) or
             not re.fullmatch('[0-9a-f]{64}',str(archive_sha256)) or not re.fullmatch('[0-9a-f]{64}',str(review_sha256))):
         raise ValueError('Pinned native original/archive/Source review identity required')
-    prefix=base_url+'/native-capture/recordings/'+recording_id
+    if source_prefix not in ('/native-capture','/so101-capture'):
+        raise ValueError('Fixed server-selected source capture profile required')
+    prefix=base_url+source_prefix+'/recordings/'+recording_id
     def review():
         guard();response=client.get(prefix+'/review');response.raise_for_status()
         if len(response.content)>32*1024:raise ValueError('Bounded Source approval required')

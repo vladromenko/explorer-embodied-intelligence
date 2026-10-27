@@ -61,3 +61,27 @@ def test_authenticated_localhost_source_only_route_rejects_all03_mutations_befor
 def test_invalid_profiles_fail_before_constructing_devices(tmp_path,mode,profile):
     with pytest.raises(ValueError,match='runtime profile'):
         NodeAgent('fixture',mode,tmp_path/'state','local-test-source-only-token',sources={},pi_runtime_profile=profile)
+
+
+def test_profile_wires_capture_to_the_same_single_station_and_camera_without_opening_another_owner(tmp_path,monkeypatch):
+    from explorer_shared import so101_station
+    from explorer_shared.node_agent import CameraSource
+    home=tmp_path/'home';(home/'.config/explorer').mkdir(parents=True)
+    (home/'.config/explorer/arms.json').write_text('{}');monkeypatch.setattr(Path,'home',lambda:home)
+    constructions=[]
+    class ExistingStation:
+        def __init__(self,config,state,camera):
+            constructions.append(self);self.root=state/'station';self.root.mkdir();self.camera=camera
+            self.boot='software-pi';self.clock_domain='pi:software-pi';self.lock=threading.RLock();self.mode='idle'
+        def status(self):return {'available':False,'mode':'idle','roles':{},'measurements':{},'control_epoch':'fixture-native'}
+        def command(self,*args):raise AssertionError('Constructor must not issue a station operation')
+        def archive(self,*args):raise AssertionError('Constructor must not read station archive')
+        def close(self):pass
+    monkeypatch.setattr(so101_station,'SO101Station',ExistingStation)
+    camera=CameraSource('pi-overview','single-software-cache')
+    agent=NodeAgent('pi','pi',tmp_path/'state','local-test-source-only-token',sources={'pi-overview':camera},pi_runtime_profile='so101_source_only')
+    try:
+        assert len(constructions)==1 and agent.station is constructions[0]
+        assert agent.station_capture.station is agent.station and agent.station.camera is camera
+        assert list(agent.sources)==['pi-overview'] and agent.station_capture.status()['capture'] is None
+    finally:agent.close()
