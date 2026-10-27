@@ -1,5 +1,6 @@
 """Portable qualifier guards on synthetic bytes; no CAD or native execution."""
 import importlib.util
+import os
 import json
 from pathlib import Path
 import subprocess
@@ -68,7 +69,7 @@ else:raise AssertionError('Old original opened')
 assert len(blocked)==1
 assert pathlib.Path(COPY).read_bytes()==b'EXPLICIT_PORTABLE_DATA'
 """.replace('PATH',repr(str(Path(proof.__file__)))).replace('ROOT',repr(str(original))).replace('COPY',repr(str(copied)))
-    subprocess.run([sys.executable,'-c',script],check=True)
+    subprocess.run([sys.executable,'-c',script],check=True,env={**os.environ,"PYTHONPATH":str(Path(__file__).resolve().parents[1]/"shared")})
 
 
 def test_current_trusted_loop_cannot_be_replaced_by_untrusted_archived_payload(proof,monkeypatch):

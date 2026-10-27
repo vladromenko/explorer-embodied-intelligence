@@ -1,6 +1,7 @@
 """Small exact ONE→batch lineage fixtures; no models, devices or full copies."""
 from copy import deepcopy
 import importlib.util
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -74,7 +75,7 @@ b.original_qualifier=lambda:FakeLegacy()
 b.one_proof=lambda *args:ONE
 b.coordinate(root,CHECKSUM)
 """.replace('MODULE',repr(batch.__file__)).replace('ROOT',repr(str(tmp_path))).replace('ONE',repr(one)).replace('CHECKSUM',repr(checksum))
-    run=subprocess.run([sys.executable,'-c',code],capture_output=True,text=True)
+    run=subprocess.run([sys.executable,'-c',code],capture_output=True,text=True,env={**os.environ,"PYTHONPATH":str(Path(__file__).resolve().parents[1]/"shared")})
     assert run.returncode!=0 and 'negative batch receipt retained' in run.stderr
     import json
     receipt=json.loads((tmp_path/'batch-qualification.json').read_bytes())
