@@ -67,3 +67,22 @@ operator Inbox prompt с этим native receipt ID. Прежний receiver-clo
 captures, текущий native reference и работающий phase/hold-successor цикл
 по-прежнему необходимы. Исходные native TTL/lease не увеличены и не продлеваются
 этой интеграцией автоматически.
+
+
+## Сохранность новых native USER replies
+
+Central сохраняет каждый успешно полученный и опубликованный parsed native
+reply в `cooperative05/native-control/<receipt_id>/receipt.json` и отдельной
+SHA registration. Это parsed authenticated reply, не literal HTTP bytes и не
+доказательство достижения позы. У каждой руки своя цепочка `previous` и ordinal;
+последние64 элемента в session/UI — только проекция. Все предыдущие immutable
+файлы остаются и доступны через fixed authenticated native-control artifact API
+после STOP/перезапуска. Старые pre-ledger receipts не объявляются ретроактивно
+полным архивом. Ответы, не полученные из источника, не реконструируются.
+
+Artifact fsync выполняется вне workflow/STOP lock. Если STOP или другой reply
+изменил epoch/head до публикации, архивный orphan сохраняется, но pointer и
+полномочия не восстанавливаются. Для actual completed native control действует
+прежний exact owned cleanup; автоматического повтора команды нет. Fake-source
+проверки охватывают actual native reply→download→STOP, rollover66→64 c обходом
+всех66 originals, tamper, независимые role heads и blocked fsync/STOP race.

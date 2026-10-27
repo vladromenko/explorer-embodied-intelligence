@@ -5324,6 +5324,40 @@
         "research/audits/target-visual-object-v3-results-20261027.json"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-COOPERATIVE-NATIVE-REPLY-CUSTODY-001",
+      "function_or_module": "00-control-center/src/explorer/cooperative_native_receipts.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "https://docs.python.org/3/library/os.html#os.fsync",
+          "role": "Durable immutable reply custody"
+        },
+        {
+          "url": "project-file:00-control-center/src/explorer/cooperative_native_sessions.py",
+          "role": "Existing explicit USER native controls and owned STOP cleanup"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_USER_CONTROL_METADATA",
+      "changes_and_reason": "Preserve parsed source replies in immutable role predecessor chains beyond the bounded UI projection. Archive outside workflow lock, reject late/stale publication, retain orphan replies without restoring execution.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_cooperative_native_receipts.py",
+        "tests/test_cooperative_native_sessions.py",
+        "tests/test_cooperative_unattached_stop.py",
+        "tests/test_cooperative_workbench_ui.js"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

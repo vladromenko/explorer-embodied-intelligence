@@ -978,7 +978,7 @@ async def cooperative_observed_frame(choice_id:str,request:Request):
 @app.get('/api/cooperative/artifacts/{kind}/{identity}')
 async def cooperative_artifact(kind: str,identity: str,request: Request):
     roles=request.query_params.getlist('role')
-    if (not re.fullmatch('[0-9a-f]{32}',identity) or kind not in ('zone','recording','receiver-metadata') or
+    if (not re.fullmatch('[0-9a-f]{32}',identity) or kind not in ('zone','recording','receiver-metadata','native-control') or
             set(request.query_params)-{'role'} or len(roles)>1 or roles and roles[0] not in ('giver','receiver')):
         raise HTTPException(400,'Exact managed cooperative artifact required')
     try:

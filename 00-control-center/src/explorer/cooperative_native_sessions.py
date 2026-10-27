@@ -175,12 +175,8 @@ class CooperativeNativeSessions:
             choice['used']=True;self.pending.add((row['session_id'],role));selected=deepcopy(choice)
         return selected
     def _save(self,row,spec,role,operation,result,actor):
-        with self.workflow.lock:
-            current=self._fresh(row,spec,actor)
-            current.setdefault('native_user_control_receipts',[]).append({'role':role,'operation':operation,'source_response':deepcopy(result),
-                'received_nx_ns':self.clock(),'received_clock_domain':self.workflow.domain,'actor_id':actor,
-                'basis':'parsed_authenticated_source_reply_not_hardware_attainment'})
-            current['native_user_control_receipts']=current['native_user_control_receipts'][-64:];self.workflow._save(current)
+        pointer=self.service.native_receipts.archive(row,spec,role,operation,result,actor)
+        return self.service.native_receipts.publish(row,spec,pointer,actor)
     def _remember_owned(self,row,spec,role,operation,pair,result,actor):
         key=(row['session_id'],row['epoch'],role)
         with self.lock:
@@ -268,10 +264,10 @@ class CooperativeNativeSessions:
                 else:raise ValueError('Known exact native USER operation required')
             known_reply=operation in ('native_recenter','native_resume','native_attach') or operation=='native_begin' and (role=='receiver' or 'bind' in result)
             self._remember_owned(row,spec,role,operation,pair,result,actor)
-            self._save(row,spec,role,operation,result,actor)
+            receipt=self._save(row,spec,role,operation,result,actor)
             controls=self.refresh(row,spec,actor=actor)
             return {'role':role,'operation':operation,'native_receipt':result,'automatic_lease_renewal':False,
-                'native_controls':controls,'API_result_claims_hardware_attainment':False,
+                'native_controls':controls,'control_receipt':receipt,'API_result_claims_hardware_attainment':False,
                 **({'native_command_sent':False,'native_lease_or_user_observation_renewed':False} if operation=='native_reset_safe' else {})}
         except Exception:
             if pair is not None and known_reply:

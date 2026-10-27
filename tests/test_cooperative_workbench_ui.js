@@ -223,3 +223,12 @@ test('giver reset wrapper accepts only explicit safe-object flag and opaque choi
  for(const fields of [{expected_state_id:'spoof'},{expected_revision:123},{targets:[90,90]}])assert.throws(()=>r.client.nativeOperation('native_reset_safe',fields),/без подмены/);
  assert.throws(()=>r.client.nativeOperation('native_begin',{object_safe_no_dual_hold:true}),/без подмены/);
 });
+
+
+test('native reply history remains readable after STOP and never renders injected artifact URLs',async()=>{
+ const state=fixture(),receipt={role:'giver',ordinal:66,receipt_id:'c'.repeat(32),sha256:'d'.repeat(64),url:'/api/cooperative/artifacts/native-control/'+'c'.repeat(32)};
+ state.workbench.sessions[0].status='STOPPED';state.workbench.sessions[0].native_user_control_receipts=[receipt,{...receipt,url:'javascript:move()'}];
+ const r=await rig({get:async()=>clone(state)}),before=r.calls.length,html=cooperativeWorkbenchPanel(r.client.snapshot());
+ assert.match(html,/Сохранённые действия управления/);assert.ok(html.includes(receipt.url));assert.ok(!html.includes('javascript:'));
+ assert.match(html,/Сохранённая запись недоступна/);assert.equal(r.calls.length,before);
+});

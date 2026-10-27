@@ -33,6 +33,7 @@ from .cooperative_observed_service import CooperativeObservedService
 from .cooperative_policy_job import required_policy_roles
 from .cooperative_native_sessions import CooperativeNativeSessions,OPERATIONS as NATIVE_USER_OPERATIONS
 from .cooperative_receiver_setup import CooperativeReceiverSetup,OPERATIONS as RECEIVER_SETUP_OPERATIONS
+from .cooperative_native_receipts import CooperativeNativeReceipts
 
 
 def _boot():return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
@@ -70,6 +71,7 @@ class CooperativeService:
             self._observed_binary,inspect_native=self._inspect_skill,has_prior_evidence=self._prior_test_evidence,clock=clock)
         self.native_controls=CooperativeNativeSessions(self)
         self.receiver_setup=CooperativeReceiverSetup(self)
+        self.native_receipts=CooperativeNativeReceipts(self)
     def _prior_test_evidence(self,row):
         with self.store.connect() as db:
             jobs=list(db.execute("SELECT id,kind,config FROM jobs WHERE json_extract(config,'$.session_id')=? OR json_extract(config,'$.cooperative_shadow_binding.session_id')=?",
@@ -451,6 +453,7 @@ bound first; default construction cannot turn on policy execution.
             'model_adapters_bound':{role:callable(self.models.get(role)) for role in ('giver','receiver')}}
     def artifact(self,kind,identity,role=None):
         if not isinstance(identity,str) or not re.fullmatch('[0-9a-f]{32}',identity):raise ValueError('Server-issued source artifact ID required')
+        if kind=='native-control' and role is None:return self.native_receipts.artifact(identity)
         if kind=='zone' and role in ('giver','receiver'):
             folder=self.root/'workflow/zones'/identity;metadata=json.loads((folder/'registration.json').read_bytes())
             name=role+'-original.jpg';path=folder/name
