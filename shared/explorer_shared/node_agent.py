@@ -1230,6 +1230,10 @@ def make_handler(agent):
                                 expected_control_epoch=payload['expected_control_epoch'],expected_binding=payload['binding'])
                         else:raise ValueError('Unknown observed permission operation')
                         self._json(200,result);return
+                    if (getattr(agent,'pi_runtime_profile',None)=='so101_source_only' and path in (
+                            '/station/teleop/start','/station/teleop/recenter','/station/policy/start','/station/action',
+                            '/station/record/start','/station/record/stage','/station/record/finish')):
+                        raise RuntimeError('Use the current COMMON observed permission and approved source capture workflow; legacy source04 mutation is disabled')
                     if path=='/station/record/stage':
                         self._json(200,agent.station.record_stage(payload))
                         return
@@ -1246,7 +1250,7 @@ def make_handler(agent):
                                 'direct_source_error':type(error).__name__+': '+str(error)})
                             return
                         self._json(200,{**stopped,'original_station_stop_confirmed':True,
-                            'direct_source_stop_confirmed':True,'direct_source_stop':cleanup})
+                            'direct_source_stop_confirmed':cleanup.get('native_STOP_delivered',True) is not False,'direct_source_stop':cleanup})
                         return
                     direct = agent.arm_retarget.status() if agent.mode == 'pi' else {}
                     if path in ('/station/teleop/start','/station/policy/start','/station/teleop/recenter','/station/action') and retarget_claims_source_cache(direct):

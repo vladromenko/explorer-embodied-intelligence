@@ -6692,6 +6692,117 @@
         "tests/test_source_only_runtime.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SHARED-OBSERVED-DISPLAY-RECEIPTS-20261027",
+      "function_or_module": "shared/explorer_shared/observed_display_receipts.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:04-so101-source-learning/docs/CAPTURE_ADAPTER_CONTRACT_RU.md",
+          "role": "Existing shared permission/capture/transport ABI and software scope"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "One existing bounded source-evaluation display cache reused by human demos; exact scope/actor/SHA and one-shot expiry, no permission created.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_source_demo_api.py",
+        "tests/test_source_evaluation_api.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SHARED-CAPTURE-RANGE-PROXY-20261027",
+      "function_or_module": "00-control-center/src/explorer/capture_media_proxy.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:04-so101-source-learning/docs/CAPTURE_ADAPTER_CONTRACT_RU.md",
+          "role": "Existing shared permission/capture/transport ABI and software scope"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Extract existing native02/03 streaming/Range/If-Range response proxy for source04, without whole-archive buffering.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_source_demo_api.py",
+        "tests/test_capture_transport_api.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SOURCE04-HUMAN-DEMO-INTENTS-20261027",
+      "function_or_module": "00-control-center/src/explorer/source_demo_workflow.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:04-so101-source-learning/docs/CAPTURE_ADAPTER_CONTRACT_RU.md",
+          "role": "Existing shared permission/capture/transport ABI and software scope"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Thin durable server attempts reuse confirmed lab SkillSpec/session/variant, no fake model/checkpoint or control authority.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_source_demo_api.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SOURCE04-COMMON-DEMO-API-20261027",
+      "function_or_module": "00-control-center/src/explorer/source_demo_api.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:04-so101-source-learning/docs/CAPTURE_ADAPTER_CONTRACT_RU.md",
+          "role": "Existing shared permission/capture/transport ABI and software scope"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Authenticated thin human-demo adapter reuses COMMON permission, exact JPEG delivery, fixed existing Pi transport and shared source capture; finish does not autoimport.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_source_demo_api.py",
+        "tests/test_source_evaluation_api.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

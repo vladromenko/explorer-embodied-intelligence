@@ -27,11 +27,11 @@ def bounded_request(client,method,path,body=None,*,limit=128*1024):
 
 
 @contextmanager
-def pi_connection(config,selected,*,client_factory=httpx.Client):
+def pi_connection(config,selected,*,client_factory=httpx.Client,timeout=2):
     node=next((item for item in config.get('nodes',[]) if item['id']=='pi'),None)
     if node is None:raise ValueError('The existing Pi Station is not configured')
     with client_factory(base_url='http://'+node['host']+':'+str(node['port']),
-            headers={'Authorization':'Bearer '+node['token']},timeout=2,trust_env=False,follow_redirects=False) as client:
+            headers={'Authorization':'Bearer '+node['token']},timeout=timeout,trust_env=False,follow_redirects=False) as client:
         def request(method,path,body):
             raw,_=bounded_request(client,method,path,body)
             result=json.loads(raw)

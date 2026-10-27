@@ -667,19 +667,8 @@ async def rosmaster_capture_transport(operation,request,*,project_id,native_capt
             if native_capture:
                 for key in ('Range','If-Range'):
                     if request.headers.get(key):download_headers[key]=request.headers[key]
-            upstream=await CLIENT.send(CLIENT.build_request('GET',source+operation,
-                headers=download_headers),stream=True)
-            if upstream.status_code not in (200,206,416):
-                await upstream.aclose()
-                raise HTTPException(503,'Direct recording is not ready for transfer')
-            async def data():
-                try:
-                    async for chunk in upstream.aiter_bytes():
-                        yield chunk
-                finally:
-                    await upstream.aclose()
-            retained={name:upstream.headers[name] for name in ('X-Content-SHA256','Content-Length','Content-Range','Accept-Ranges','ETag','Content-Disposition') if name in upstream.headers}
-            return StreamingResponse(data(),status_code=upstream.status_code,media_type='application/x-tar',headers=retained)
+            from .capture_media_proxy import archive_response
+            return await archive_response(CLIENT,source+operation,download_headers)
         if '/frame/' in operation:
             frame=await CLIENT.get(source+operation,headers={'Authorization':'Bearer '+node['token']})
             if not frame.is_success:raise HTTPException(503,'Original recording frame unavailable')
@@ -1016,6 +1005,8 @@ from .study_api import install_router as install_study_routes
 install_study_routes(app,lambda:STORE)
 from .source_evaluation_api import install_router as install_source_evaluation_routes
 install_source_evaluation_routes(app,lambda:STORE,lambda:CONFIG,session_actor)
+from .source_demo_api import install_router as install_source_demo_routes
+install_source_demo_routes(app,lambda:STORE,lambda:CONFIG,session_actor,lambda:CLIENT)
 
 
 @app.get('/api/cooperative')

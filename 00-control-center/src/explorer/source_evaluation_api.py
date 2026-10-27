@@ -9,9 +9,6 @@ import hashlib
 import json
 from pathlib import Path
 import re
-from collections import OrderedDict
-import threading
-import time
 import httpx
 
 from fastapi import HTTPException,Request
@@ -19,6 +16,7 @@ from fastapi.responses import Response
 
 from . import so101_source_evaluation as evaluation
 from .source_evaluation_transport import pi_connection
+from explorer_shared.observed_display_receipts import ObservedDisplayReceipts
 
 ID=re.compile('[0-9a-f]{32}')
 
@@ -79,15 +77,8 @@ def checked_jpeg(raw,headers):
 
 def install_router(app,get_store,get_config,get_actor):
     base='/api/lab/source-evaluations'
-    displays=OrderedDict();display_lock=threading.RLock()
-    def displayed(kind,job_id,identity,actor,checksum):
-        with display_lock:
-            displays[(kind,job_id,identity,actor)]=(checksum,time.monotonic())
-            while len(displays)>256:displays.popitem(last=False)
-    def consume_display(kind,job_id,identity,actor,checksum):
-        with display_lock:receipt=displays.pop((kind,job_id,identity,actor),None)
-        if receipt is None or receipt[0]!=checksum or not 0<=time.monotonic()-receipt[1]<2:
-            raise ValueError('This exact source JPEG must first be delivered to this authenticated observer for this attempt; display receipt expired or consumed')
+    displays=ObservedDisplayReceipts()
+    displayed,consume_display=displays.record,displays.consume
 
     async def safe(call):
         try:return await asyncio.to_thread(call)

@@ -1,0 +1,54 @@
+{
+  "schema": "explorer04_central_human_demo_API_software_v1",
+  "scope": "AUTHENTICATED_ASGI_TO_LOCALHOST_NODE_COMMON_FROZEN_STATION_FAKE_BUSES_ONLY",
+  "tests": {
+    "demo_existing_eval_capture_Range_transport": {
+      "passed": 23,
+      "elapsed_s": 10.75
+    },
+    "source_only_legacy_bypass_and_existing_common_contracts": {
+      "passed": 15,
+      "elapsed_s": 2.09
+    },
+    "requested_bounds": {
+      "CPUQuota": "100%",
+      "MemoryMax": "1G",
+      "MemorySwapMax": 0
+    }
+  },
+  "checks": [
+    "server-generated demo ID from confirmed existing SkillSpec/session/variant",
+    "request idempotency with exact actor/context",
+    "no fake model/checkpoint and no control upon preparation",
+    "exact JPEG delivered to same authenticated actor before separate authorize",
+    "COMMON original teleop/start then identity-fenced record/pause/resume/finish UNKNOWN",
+    "finish data does not change original control mode or write fake bus",
+    "source original manifest +actual206Range via shared archive proxy",
+    "separate approval and old epoch STOP rejected",
+    "source-only legacy control/record mutations denied; explicit global StationSTOP preserved without claiming nonexistent direct03 STOP delivery"
+  ],
+  "negative_originals": "/mnt/explorer-data/explorer-work/04-central-demo-API-20261027/retained-negative-receipts.json",
+  "implementation_sha256": {
+    "shared/explorer_shared/observed_display_receipts.py": "c65ff563afb4a0d6c60df7e4d160e3cc8bd9c12d9270b15510f2f79a30cf8f7f",
+    "00-control-center/src/explorer/capture_media_proxy.py": "f354873f097656216a5e0265a9bfbc1c3cfdd90627b59b3e4a45a68816d2591d",
+    "00-control-center/src/explorer/source_demo_workflow.py": "b208bde91570ab4ee179c0d1fc91cb63789904903f3fa8a90137371cd6215ca7",
+    "00-control-center/src/explorer/source_demo_api.py": "5b68e362340d55e4bb573452ac16c51e7e94d3e004bc0d638185aa96251b79cb",
+    "00-control-center/src/explorer/app.py": "9b107a9a9d319845da95ea94caf98f8246131ccccfa450d4e10600cd524d7d05",
+    "00-control-center/src/explorer/source_evaluation_api.py": "db9c353e1a5ff89a1a0aeeeac6fe4053a6e07334b8194878a3d97dfe76b17d4c",
+    "00-control-center/src/explorer/source_evaluation_transport.py": "427a4339ac2377c6f6db911251cc090399fdbc6de97d0b43290933f5514134ed",
+    "shared/explorer_shared/node_agent.py": "ac82dfe03d121b24c79824c0841c3647e1bd7f5ea94be0c70f475c8d253b463b",
+    "tests/test_source_demo_api.py": "08149cb23ad0529208911cc68d46286cc327f0587ecf6bf80751effda2a955ae",
+    "tests/test_source_only_runtime.py": "5f1fdc22f76cff6e508d1fd60e91de34a2821e5619db7175f48621cef872ea0d"
+  },
+  "physical_device_requests": 0,
+  "real_native_grants_created": 0,
+  "source04_software_ready": false,
+  "deployed": false,
+  "queue_import_connected": false,
+  "remaining": [
+    "approved04 worker consumer +Dataset/cohort binding",
+    "current official Dataset/ACT resume/reload/shadow and full UI",
+    "old4c first Pi upgrade requires a proven admission/drain boundary or observed user step"
+  ],
+  "whole_master_complete": false
+}

@@ -139,3 +139,26 @@ LeRobot export и optimizer в этом scope не запускались. Пе�
 (глобальная проверка Torch зависела от внешней test collection) сохранён; import
 package boundary теперь проверяется в fresh interpreter. Source04 full pipeline,
 worker/source approval binding и vertical UI/release всё ещё OPEN.
+
+
+## Дополнение Root: центральный API показа
+
+`/api/lab/demonstrations` под общей auth/CSRF создаёт server-owned attempt из
+прежних confirmed SkillSpec/session/variant. Это metadata, без model/checkpoint и
+без старта native control. Отдельные challenge/JPEG delivery/authorize/observe/
+start/recenter/scoped stop используют прежний COMMON provider и transport.
+Display receipt cache теперь один для source evaluation и human demo; scope,
+actor, exact JPEG SHA, one-shot consumption/expiry проверяются в обоих consumers.
+
+Acknowledged capture ID привязан к attempt; новый Node capture adapter сохраняет
+raw original, поддерживает pause/cancel/finish UNKNOWN и separate approve/reject.
+Архивный download использует тот же streaming Range proxy, что native02/03.
+Finish не создаёт import job. Approved worker/cohort wiring следует следующим
+атомиком. Source-only Pi profile запрещает старые неограждённые control/record
+mutations; explicit global Station STOP сохраняется и не заявляет несуществующую
+remote03 STOP delivery. Default старого profile не изменён.
+
+23actual-auth/localhost API/media contracts PASS10.75s;15source-boundary/common
+contracts PASS2.09s. В тестах только fake native buses и generated data; реальные
+USER grants, физические RPC и Pi update не выполнялись. Первые отрицательные
+harness invocations сохранены. Source04 software-ready остаётся OPEN.

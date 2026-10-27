@@ -68,13 +68,16 @@ def test_profile_wires_capture_to_the_same_single_station_and_camera_without_ope
     from explorer_shared.node_agent import CameraSource
     home=tmp_path/'home';(home/'.config/explorer').mkdir(parents=True)
     (home/'.config/explorer/arms.json').write_text('{}');monkeypatch.setattr(Path,'home',lambda:home)
-    constructions=[]
+    constructions=[];commands=[]
     class ExistingStation:
         def __init__(self,config,state,camera):
             constructions.append(self);self.root=state/'station';self.root.mkdir();self.camera=camera
             self.boot='software-pi';self.clock_domain='pi:software-pi';self.lock=threading.RLock();self.mode='idle'
         def status(self):return {'available':False,'mode':'idle','roles':{},'measurements':{},'control_epoch':'fixture-native'}
-        def command(self,*args):raise AssertionError('Constructor must not issue a station operation')
+        def command(self,operation,body):
+            commands.append((operation,body))
+            assert operation=='stop','Source-only legacy mutations must not enter the original Station'
+            return self.status()
         def archive(self,*args):raise AssertionError('Constructor must not read station archive')
         def close(self):pass
     monkeypatch.setattr(so101_station,'SO101Station',ExistingStation)
@@ -84,4 +87,17 @@ def test_profile_wires_capture_to_the_same_single_station_and_camera_without_ope
         assert len(constructions)==1 and agent.station is constructions[0]
         assert agent.station_capture.station is agent.station and agent.station.camera is camera
         assert list(agent.sources)==['pi-overview'] and agent.station_capture.status()['capture'] is None
+        server=AgentHTTPServer(('127.0.0.1',0),make_handler(agent));thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
+        try:
+            origin='http://127.0.0.1:'+str(server.server_port)
+            def post(operation):
+                return urlopen(Request(origin+'/station/'+operation,data=b'{}',headers={'Authorization':'Bearer local-test-source-only-token'}),timeout=2)
+            for operation in ('teleop/start','teleop/recenter','policy/start','action','record/start','record/stage','record/finish'):
+                with pytest.raises(HTTPError) as denied:post(operation)
+                assert denied.value.code==409
+            assert commands==[]
+            with post('stop') as response:
+                reply=json.load(response);assert reply['original_station_stop_confirmed'] is True and reply['direct_source_stop_confirmed'] is False
+            assert commands==[('stop',{})]
+        finally:server.shutdown();server.server_close();thread.join(2)
     finally:agent.close()
