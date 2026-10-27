@@ -1,0 +1,51 @@
+{
+  "schema": "explorer_durable_project_organization_v1",
+  "timestamp_utc": "2026-10-27T15:48:29.656063+00:00",
+  "product_code_baseline": "f99ff7e627639f34a17fe46f8bec635e6767fb59",
+  "inventory_evidence": "_registry/evidence/project-state-inventory-20261027.json",
+  "canonical_sources": "AGENTS +docs PROJECT_STATE/BACKLOG/ACCEPTANCE_MATRIX/PHYSICAL_CHECKS/DECISIONS/AI_OPERATIONS",
+  "legacy_root_pages": "compatibility pointers; original Git blobs and verified archive preserved",
+  "state_check": {
+    "status": "PASS",
+    "current_task": "E04-IMPORT",
+    "code_commit": "f99ff7e627639f34a17fe46f8bec635e6767fb59",
+    "required_files": 8,
+    "backlog_ids": 28,
+    "acceptance_functions": 17,
+    "local_links_checked": 67,
+    "errors": []
+  },
+  "negative_checker_probes": {
+    "duplicate_backlog_ID": "REJECTED",
+    "unknown_acceptance_level": "REJECTED",
+    "missing_local_evidence": "REJECTED",
+    "scope": "temporary owned copy only"
+  },
+  "repo_skill_validation": "official skill-creator quick_validate PASS",
+  "automatic_skill_discovery_by_current_client": "UNVERIFIED; AGENTS/runbook remain mandatory",
+  "machine_acceptance_gate_values_unchanged": true,
+  "backlog_priority_unchanged": "03 safecheckpoint then04 then05 then06 then01 PARKED",
+  "physical_controls_executed": 0,
+  "controller_configuration_changed": false,
+  "whole_master_complete": false,
+  "resumed_backlog_ID": "E04-IMPORT",
+  "file_sha256": {
+    "AGENTS.md": "f919ee0e38194e8ce56c2021d2403e690344f95a0706f6f26adae86af8fd56ff",
+    "docs/PROJECT_STATE.md": "37944d9eaa7b128ee108df8899720488b9cd6292b3a4c1edc644118f6f0eeb5a",
+    "docs/BACKLOG.md": "c7eabc596548ad66cab3cd9dcb7259ff4d14067ea8a04d0cd6b249bfe75b8cbb",
+    "docs/ACCEPTANCE_MATRIX.md": "1c6689a8c5923acb7e213d07d06861006234d7648f291b8aa15a6ceccab6e689",
+    "docs/PHYSICAL_CHECKS.md": "5506d55e5bf0ad6138f628c42f96ae5d99d5d785edece6d2821ff0fb99eaa150",
+    "docs/DECISIONS.md": "19fc07025c48db412009cee9a077f29cfe017fa0acc8af8f37c5a3c992a254ac",
+    "docs/AI_OPERATIONS.md": "ed8b1f5043f05247a5e37d70f976b3c844c464dea5ae817e20fc368069767029",
+    ".agents/skills/explorer-project-operator/SKILL.md": "914e118d956eefae4564d05269a280e76a57e6ec18105010fb7fe367b1711a56",
+    "scripts/check_project_state.py": "b9591997a205b000e353728ef990fbcfc1a2f83570a1fee8f681a5c01724c2bd",
+    "STATUS.md": "11a2e8d32a3d29c64f26a1271bae222ce9188d8f77ef012f7ae89af63d1335f9",
+    "PLAN.md": "9d9b11bed55a0c2518f87182bfe5924f9677c7c5c410f8741fbc53af8f111748",
+    "DECISIONS.md": "375f65c283462dcab287498b67960a7fea92128f0a704f2e91f8b60d4bf97467",
+    "PHYSICAL_CHECKLIST.md": "ac39eb474be2c9e0d75c5b3b5a4dcc5ba1acd1dcb2da660788df56a641d26b8b",
+    "GOALS.md": "87a1ecbc41931250a958b0309563a78fdcf4e8bcb48ad015cde6d41e870982d4",
+    "README.md": "5e21585e5e6076917b880e993f1108ec8226a713238481d977b43965ebe365c3",
+    "START_HERE_RU.md": "80901a5bb082a35c65ca6e857f9fbfb50a4be93361d1cbccb3227496a36d6c10",
+    "_registry/acceptance.json": "afdf10376de2409656232ab6e61d54a4a4c9d7802a93bd0296fd71bcbf50d6c3"
+  }
+}

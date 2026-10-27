@@ -1,0 +1,85 @@
+{
+  "schema": "explorer_project_state_inventory_v1",
+  "timestamp_utc": "2026-10-27T15:31:52.244737+00:00",
+  "source_commit": "f99ff7e627639f34a17fe46f8bec635e6767fb59",
+  "git_status_clean": true,
+  "original_documents": {
+    "DECISIONS.md": {
+      "sha256": "ad05053a590871990eb32d7535150850e5c1e3838666ef5e83cf2e389c88c2bd",
+      "bytes": 2417,
+      "git_blob": "a028215a7d2d3481ca440db44dfb871c1e939ae6"
+    },
+    "EVENING_CHECKLIST_RU.md": {
+      "sha256": "4a8f6846f4fe5195aaf35686b1fe5f7f58da0675cb8087691c673dd3594d2137",
+      "bytes": 4864,
+      "git_blob": "4d9f59bfb80ad4bfcacc777cde8cfd0801eb07a0"
+    },
+    "GOALS.md": {
+      "sha256": "58afcb857fad95174f27c1dd899ad6b499609ef8dfe3bf7b304f0ca7e2468eaa",
+      "bytes": 2599,
+      "git_blob": "f208b017d25a86ddd1fe5793ed689a7af3fc12fc"
+    },
+    "HARDWARE.md": {
+      "sha256": "cc597a030f2d763f33e526d9ad2953361e9a50a9e8eb1d962c1aeac095f5c85e",
+      "bytes": 4907,
+      "git_blob": "303053aaf41b202af641326414425ebd71dc58d8"
+    },
+    "PHYSICAL_CHECKLIST.md": {
+      "sha256": "5dea4860d6261421b31ec44cf3417a0bca9c7b6722b08d84b9e94f88eebe32fa",
+      "bytes": 9045,
+      "git_blob": "21d562a29de57d2ece5ccb0075e4da7680676d21"
+    },
+    "PLAN.md": {
+      "sha256": "e352b05132ba1a2449175d75c8ff747f11474e1cc17b2fbc5b31fca2fc82fb38",
+      "bytes": 13200,
+      "git_blob": "b206900b5c10e61e4af3ad3e1694ef44bca43ac3"
+    },
+    "README.md": {
+      "sha256": "37fa13cfbd37847efe4b42e1c90095fd373b819615e98b3124d82aeb26020587",
+      "bytes": 859,
+      "git_blob": "8e7c064732ae060d6db49b4fb190bd1040b1c9ab"
+    },
+    "START_HERE_RU.md": {
+      "sha256": "4cc11c1fb5d04bb5acd4c0a3807a8203feacc4c2cc3a72ab68bfe99589914508",
+      "bytes": 2997,
+      "git_blob": "a174671d114292031c83aa4f67ddc43fd5d312ab"
+    },
+    "STATUS.md": {
+      "sha256": "b312ca8c98a5c3f14840326b7816b344cdf019d926467edad8d1df20006e536d",
+      "bytes": 25036,
+      "git_blob": "8b116b374faf40761208c1f61325c239ca99c7b2"
+    },
+    "_registry/acceptance.json": {
+      "sha256": "5d47f6756c8172a6e05ca2e3fe13c6c636755b76e51db1b2c81d9c533c277787",
+      "bytes": 55771,
+      "git_blob": "a123ff4a149739c5b8478adc47c433f84a4e2aed"
+    },
+    "deploy/OPERATIONS_RU.md": {
+      "sha256": "802e283f5a30c30f518281b1ebc46906c4aaf671fa1ff56239da6019654f193d",
+      "bytes": 20741,
+      "git_blob": "050fc9d5faf8e35a16f7a1681cba56e8cad653b4"
+    }
+  },
+  "new_canonical_paths_preexisting": {
+    "AGENTS.md": false,
+    "docs/PROJECT_STATE.md": false,
+    "docs/BACKLOG.md": false,
+    "docs/ACCEPTANCE_MATRIX.md": false,
+    "docs/PHYSICAL_CHECKS.md": false,
+    "docs/DECISIONS.md": false,
+    "docs/AI_OPERATIONS.md": false,
+    ".agents/skills/explorer-project-operator/SKILL.md": false
+  },
+  "ancestor_AGENTS": [],
+  "backup_archive": "/home/jetsonnx/.local/state/explorer-work/project-organization-inventory-20261027T153152Z/existing-documents.tar.gz",
+  "backup_archive_sha256": "d7a4383fd8dcdb72bcaaec4e94f87daeb4de607056e96048154d151ef68eb271",
+  "backup_readback_each_member_SHA_verified": true,
+  "live_Homebrain_release": "65ae9d021796c5ec4c9cab8a129fdb827dbf36f3",
+  "live_health": {
+    "ok": true,
+    "version": "0.1.0",
+    "commit": "65ae9d021796c5ec4c9cab8a129fdb827dbf36f3"
+  },
+  "production_active_jobs": 0,
+  "merge_policy": "Current short state in docs/PROJECT_STATE; root STATUS/PLAN/DECISIONS/PHYSICAL_CHECKLIST become compatibility pointers, old content preserved by pinnedGit blobs and verified private archive; GOALS remains requirements only; machine gate acceptance remains intact."
+}

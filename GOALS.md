@@ -19,9 +19,9 @@ unknown/null/mask. Нового Python `continue` нет. Raw scientific origina
 
 Software integration, физический навык и научный claim принимаются раздельно.
 SIM/mock/loss/один API или инфраструктурный этап не завершают master-prompt.
-Текущие факты — [STATUS](STATUS.md), открытые этапы — [PLAN](PLAN.md),
-решения — [DECISIONS](DECISIONS.md), действия владельца —
-[PHYSICAL_CHECKLIST](PHYSICAL_CHECKLIST.md).
+Текущие факты — [PROJECT_STATE](docs/PROJECT_STATE.md), открытые ID —
+[BACKLOG](docs/BACKLOG.md), решения — [DECISIONS](docs/DECISIONS.md),
+действия владельца — [PHYSICAL_CHECKS](docs/PHYSICAL_CHECKS.md).
 
 
 Текущая окончательная очередь:03 checkpoint →04 operator-ready →05 operator-ready

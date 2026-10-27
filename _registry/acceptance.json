@@ -1132,11 +1132,11 @@
   },
   "state_documents": {
     "goals": "GOALS.md",
-    "plan": "PLAN.md",
-    "facts": "STATUS.md",
-    "decisions": "DECISIONS.md",
+    "plan": "docs/BACKLOG.md",
+    "facts": "docs/PROJECT_STATE.md",
+    "decisions": "docs/DECISIONS.md",
     "hardware": "HARDWARE.md",
-    "physical_actions": "PHYSICAL_CHECKLIST.md"
+    "physical_actions": "docs/PHYSICAL_CHECKS.md"
   },
   "current_physical_camera_inventory": "_registry/camera-inventory-20261027.json",
   "physical_camera_policy": {
