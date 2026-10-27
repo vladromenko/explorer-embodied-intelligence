@@ -99,9 +99,12 @@ actual HTTPS Firefox desktop/mobile, passiveROS20s0, source/reference/PIDs/6conf
   Frozen Station SHA сохранён;73Python PASS8.85s, Node wiring/HTTP status и
   default COMMON/source evaluation/cooperative consumers. Это fake-bus proof,
   guard не deployed. [Evidence](../_registry/evidence/experiment04-cold-publication-guard-20261027.json).
-  На Pi отдельный stdlib-only fake подтвердил GDB all-stop и чтение полей без
-  inferior calls/записи памяти; actual observer43382 не затрагивался. Требуется
-  следующий exactold4c fake/partialHTTP/active/raw-owner negative proof.
+  На Pi stdlib fake, затем12 exactold4c cases: idle/partialHTTP freeze→kill
+  с0fake writes PASS; active/raw/inflight rejected, missing field FAIL_UNKNOWN.
+  Но detach после unknown+expired fake serial deadline воспроизвёл1hold из idle.
+  Безопасный abort НЕ доказан: actual observer43382 не затрагивать. Запрошено
+  физически проверяемое состояние питания для отдельного первого upgrade;
+  release/recovery preparation продолжается. [Proof](../04-so101-source-learning/docs/FIRST_UPGRADE_ALLSTOP_20261027_RU.md).
   PiSSH ключ работает, sudo-n требует пароль. Read-only cold-connect SDK source:
   port open +motor identity/firmware checks; запрет actual grants/STOP сохраняется.
   Проверить возможность доказанного freeze/zero-write termination barrier на

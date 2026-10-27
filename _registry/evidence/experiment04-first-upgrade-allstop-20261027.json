@@ -1,0 +1,245 @@
+{
+  "schema": "explorer_first_pi_allstop_qualification_v1",
+  "scope": "EXACT_OLD4C_ORIGINAL_NODE_STATION_CONSTRUCTOR_HTTP_LOOPBACK_AND_FAKE_BUSES_ON_PI",
+  "old_commit": "4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4",
+  "python": "Pi servo-venv CPython3.13.5",
+  "case_count": 12,
+  "cases": [
+    {
+      "case": "active",
+      "snapshot_status": "PASS",
+      "admitted": false,
+      "terminated_without_resume": false,
+      "rejection_reasons": [
+        "station.mode",
+        "station.operator_present"
+      ],
+      "error": null,
+      "motor_write_count": 7,
+      "raw_files_sha256": {
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-active/snapshot.json": "ae73a2073757615eb8e61656bc366811d177f5c7e187f59d71c123b636d889ef",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-active/ready.json": "87517578ebdccaf392d8da4c0f2517e4926a99d472a75742173f1ef623722b2a",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-active/process.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-active/events.jsonl": "ee0644b5a685ec56a6509982cdc5fa72157662f567e5735bb342fa8bea8b3bfd",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-active/gdb.log": "bdc51a7238eb3c4955f6181f25c7f8b9fb41a5e135e71f29a96a5e78c3a7d1df"
+      }
+    },
+    {
+      "case": "camera-record",
+      "snapshot_status": "PASS",
+      "admitted": false,
+      "terminated_without_resume": false,
+      "rejection_reasons": [
+        "camera_recording_none"
+      ],
+      "error": null,
+      "motor_write_count": 0,
+      "raw_files_sha256": {
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-camera-record/snapshot.json": "ec31c3018c997ff320a6dd84fbf781c9e357c12550b8f0050a75d3a036ae6269",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-camera-record/ready.json": "f9cd1ec2c152e2a0cc1c3c02c252cc330a3096e9c3461259cd1f6825c2152755",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-camera-record/process.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-camera-record/gdb.log": "5a364961d171e1dcad57b1bc8dfc4c902b7c7b22099ff8cea7cb0c1b5fa871cd"
+      }
+    },
+    {
+      "case": "direct-active",
+      "snapshot_status": "PASS",
+      "admitted": false,
+      "terminated_without_resume": false,
+      "rejection_reasons": [
+        "direct.mode",
+        "direct.target_epoch"
+      ],
+      "error": null,
+      "motor_write_count": 0,
+      "raw_files_sha256": {
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-direct-active/snapshot.json": "b7d918de3494aa2c4b96f2011124b26ad2c4b0f328efd0f1033dc793563971b7",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-direct-active/ready.json": "ba8d1d08218c8471d17d6f4ccb00db0d8f6296bbf7d5377a450471d6ab3cf246",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-direct-active/process.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-direct-active/gdb.log": "3b74658cffaa1650c251cf7d071c0a45d698310805f78d49c9c8884be9e0754e"
+      }
+    },
+    {
+      "case": "direct-inflight",
+      "snapshot_status": "PASS",
+      "admitted": false,
+      "terminated_without_resume": false,
+      "rejection_reasons": [
+        "direct.lifecycle_inflight"
+      ],
+      "error": null,
+      "motor_write_count": 0,
+      "raw_files_sha256": {
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-direct-inflight/snapshot.json": "4b0fc54bc80af14edf1d915dabff4e965dc7d26749ceef41ea66afe4f913b85d",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-direct-inflight/ready.json": "22b8078ee5f992f2c6c7f0d1655613cee085be05f845034aa608a56fbd0e0862",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-direct-inflight/process.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-direct-inflight/gdb.log": "6f902072a3e8e9eb644f8408f6ee2bc4b04ef8e9409b5357b797c119cc1881f3"
+      }
+    },
+    {
+      "case": "finishing",
+      "snapshot_status": "PASS",
+      "admitted": false,
+      "terminated_without_resume": false,
+      "rejection_reasons": [
+        "station.finishing_record_none"
+      ],
+      "error": null,
+      "motor_write_count": 0,
+      "raw_files_sha256": {
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-finishing/snapshot.json": "45f0a9bd12202686a8133df89789e58b74ae47c9d5fb08fae5d9a3dee68e27f5",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-finishing/ready.json": "384d7bbb253cedb1a795a44913a9b65e9496ad9289e007ba733c222827a4088a",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-finishing/process.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-finishing/gdb.log": "d598a0f25e6ee8f19fab154d08fcdd4ce9bc719683df26693ca64c193bc39a7c"
+      }
+    },
+    {
+      "case": "idle",
+      "snapshot_status": "PASS",
+      "admitted": true,
+      "terminated_without_resume": true,
+      "rejection_reasons": [],
+      "error": null,
+      "motor_write_count": 0,
+      "raw_files_sha256": {
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-idle/snapshot.json": "9c90070bde18856ef00384bdd29f75cd9c1ea43d967dc901d0befa5d0b7c79d5",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-idle/ready.json": "7657e888fa7d59de5a2f9daad39b274577ec52e85d58999ec93d617a6e285202",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-idle/process.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-idle/gdb.log": "6e7692ef5a339e62a69e9d7baaa9f46da76869eaa9c8f9f3aff8134dc92124f7"
+      }
+    },
+    {
+      "case": "inflight",
+      "snapshot_status": "PASS",
+      "admitted": false,
+      "terminated_without_resume": false,
+      "rejection_reasons": [
+        "inflight:_enable_hold_locked",
+        "inflight:_enable_hold"
+      ],
+      "error": null,
+      "motor_write_count": 0,
+      "raw_files_sha256": {
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-inflight/snapshot.json": "9dc8fead1f9203eead6127f4d3fc381b6389c54a2e9299eea57cd407ad492bb0",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-inflight/ready.json": "eba92304825254cd8defe1d9573dbf4f151959d39bc6fd00061b16d6872e8248",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-inflight/process.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-inflight/gdb.log": "992ba1e0732560743535cbe665ca975e937cbc56c81f470b2b021a9ddf38986f"
+      }
+    },
+    {
+      "case": "missing-field",
+      "snapshot_status": "FAIL_UNKNOWN",
+      "admitted": false,
+      "terminated_without_resume": false,
+      "rejection_reasons": null,
+      "error": "AssertionError: missing/duplicate field finishing_record",
+      "motor_write_count": 0,
+      "raw_files_sha256": {
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-missing-field/snapshot.json": "a59602db0a995dbe642e67c6926390a330e9a860f9847a2046ae02e12b83ab86",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-missing-field/ready.json": "308b6b0e1128f5007f297c9cab57ce516dbdf909f6d963f3605b980ca52bd425",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-missing-field/process.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-missing-field/gdb.log": "4434438c21c2dbac91a2a28c26561a548baa0514423ea6d86ee872957cea700f"
+      }
+    },
+    {
+      "case": "partial",
+      "snapshot_status": "PASS",
+      "admitted": true,
+      "terminated_without_resume": true,
+      "rejection_reasons": [],
+      "error": null,
+      "motor_write_count": 0,
+      "raw_files_sha256": {
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-partial/snapshot.json": "4dcd21491bbe083477b9cc5ce486a636c4dbf68b9beaea2db12ac367d3e925bc",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-partial/ready.json": "8ff91fa60492d59f837a96406327fc9dc4e042f09cd0ffa44ae99471e62d67cb",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-partial/process.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-partial/gdb.log": "0b466108984df75864837016ed0d039b2bc5957b1528755eb9abae105165241a"
+      }
+    },
+    {
+      "case": "queue",
+      "snapshot_status": "PASS",
+      "admitted": false,
+      "terminated_without_resume": false,
+      "rejection_reasons": [
+        "station.unfinished_tasks"
+      ],
+      "error": null,
+      "motor_write_count": 0,
+      "raw_files_sha256": {
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-queue/snapshot.json": "f795d7ff074e4c6d39de175c857f08a5ff688ffd7401d552162416f81dc9adae",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-queue/ready.json": "207b201d28759ff6c55fa6c33448549fae0e2426968f4cd1cac6a7dd147d2a4f",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-queue/process.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-queue/gdb.log": "11e0ae2353f8b35988c74af4b462864feb524bcf4ad63a7fe8d5d522a75f03a0"
+      }
+    },
+    {
+      "case": "record",
+      "snapshot_status": "PASS",
+      "admitted": false,
+      "terminated_without_resume": false,
+      "rejection_reasons": [
+        "station.record_none"
+      ],
+      "error": null,
+      "motor_write_count": 0,
+      "raw_files_sha256": {
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-record/snapshot.json": "072717a641be1d452b9aa7a75787104c1819e01934a27b226a578c178dfa21c1",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-record/ready.json": "884a228c6bae81f920be34230531c0d10f88d83a6de084f400dfda237d92850f",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-record/process.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-record/gdb.log": "301de9cae19f66868213c78fa77ed1ed492e2c4e6343390b522951c53e34a442"
+      }
+    },
+    {
+      "case": "resume-timeout",
+      "snapshot_status": "FAIL_UNKNOWN",
+      "admitted": false,
+      "terminated_without_resume": false,
+      "rejection_reasons": null,
+      "error": "AssertionError: missing/duplicate field finishing_record",
+      "motor_write_count": 1,
+      "raw_files_sha256": {
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-resume-timeout/snapshot.json": "5e36907e23860ed7a5b36832a6fe1124745eacf8b87bcc0748dce80bd5a3127a",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-resume-timeout/ready.json": "b57de58121bfca2b466906882ecde7a073746557653c3d9c54319bfa285bf9a5",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-resume-timeout/process.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-resume-timeout/events.jsonl": "29421368a851034baa1e7e8533ccf32d300b008755e24670258e78ece982b871",
+        "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a/case-resume-timeout/gdb.log": "1dfecee79f1b36e3f451adf44a1049ea1aecaeeec0ccfe8ac9f7757b422e4df2"
+      }
+    }
+  ],
+  "private_root": "/mnt/explorer-data/explorer-work/04-first-upgrade-freeze-20261027-a",
+  "harness_sha256": {
+    "publish-freeze-proof.py": "856f8299d5486f03a791bd203c5f7cb858ea670586124a88f3d82dd91673b6f5",
+    "stdlib-probe.py": "af59bdb23503ea72d787a2f6eb45aa693e9d9f73b0a1b5d24f299ebffb55ee9a",
+    "run-pi-old4c-fakes.py": "f2f1ee158adcf7399f6840f9f86cd6159500180f0a32e9235c11c0335078c31f",
+    "old4c-fake-process.py": "8c164e58a42ab5e6d7a5545a16ce385f8a46d9a39821956d4e69c7a2b2ce3670",
+    "old4c-fake-process-b.py": "cebe0d71e33e7bca07623830c7839f349a36e8b713fd3e66e6b0d4a5e236782e",
+    "gdb-old4c-fake.py": "7e1108c3819205a5f14eac97e1759bf7247683f845369c9548b75ab8044c7170",
+    "run-pi-old4c-fakes-b.py": "67745fd68dc0a1a2c56fda9fb7fabc591bd6346754ee672fc2a27f69d0d53695",
+    "save-cold-evidence.py": "50154b856b5346c5bffafe68a0837ddd6943165602921f7ab934433b6614180e",
+    "gdb-stdlib-probe.py": "f9169d001001063a0bf7282572935a090ac693c1b78eca91acd7c0b7c44d761c",
+    "gdb-old4c-fake-b.py": "bdd9b2989992d7548a25a23a0d4abafe406d66f82deea985971c90a05271cacb",
+    "run-pi-stdlib-probe.py": "ffd14aadd5596ea0d32a0b312ca36b50e39ad0daee8006e77c2eca952b52b723"
+  },
+  "primary_sources": {
+    "cpython_helper": {
+      "url": "https://raw.githubusercontent.com/python/cpython/v3.13.5/Tools/gdb/libpython.py",
+      "sha256": "ca9004a8cf0e8d1308fff4fd91cdbacfa2ff57cbacf9cf80a13d930654ed9663",
+      "license": "Python Software Foundation License; primary CPython3.13.5 developer helper, private tool copy"
+    },
+    "GDB_all_stop": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Thread-Stops.html",
+    "GDB_attach_detach": "https://www.sourceware.org/gdb/current/onlinedocs/gdb.html/Attach.html"
+  },
+  "allstop_kill_idle_partialHTTP_zero_publication_proved": true,
+  "active_raw_or_inflight_snapshots_rejected": true,
+  "unknown_snapshot_fails_closed": true,
+  "detach_is_safe_abort_proved": false,
+  "unattended_upgrade_qualified": false,
+  "actual_observer_PID": 43382,
+  "actual_observer_attached_or_signalled": false,
+  "actual_native_commands": 0,
+  "actual_controller_configuration_changes": 0,
+  "deployed": false,
+  "negative_interpretation": "With elapsed fake serial deadline, rejected snapshot detach resumed exact old Station; original idle exception path attempted one measured-position hold. Never generalize positive fake termination to safe failure recovery on live old4c.",
+  "next": "Keep actual observer untouched. Require separately observed first upgrade or a never-resume barrier with fully qualified failure contingency; cold guard applies only to new process."
+}

@@ -7,7 +7,7 @@ ROOT=Path(__file__).parents[1]
 
 
 def test_actual_native03_queue_proof_keeps_source_project_and_all_current_source_pins():
-    r=json.loads((ROOT/'03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_R2_20261027.json').read_bytes())
+    r=json.loads((ROOT/'03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_R3_20261027.json').read_bytes())
     assert r['schema']=='explorer_native03_queued_cpu_qualification_v1'
     assert len(r['qualified_source_files_sha256'])==21
     for group in ('qualified_source_files_sha256','qualified_materialized_archive_sources_sha256','qualified_additional_source_files_sha256'):

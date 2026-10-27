@@ -11,7 +11,7 @@ def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def test_current_official_Dataset_source_is_exactly_bound_to_actual_direct_and_queue_proofs():
-    direct=read('NATIVE02_LEROBOT_CPU_20261027_QUALIFICATION.json');queue=read('NATIVE02_QUEUED_CPU_R4_20261027_QUALIFICATION.json')
+    direct=read('NATIVE02_LEROBOT_CPU_20261027_QUALIFICATION.json');queue=read('NATIVE02_QUEUED_CPU_R5_20261027_QUALIFICATION.json')
     assert direct['results']['official_lerobot_roundtrip_passed'] and direct['results']['segment_chunk_padding_passed']
     assert direct['results']['actual_optimizer_updates_total']==16 and direct['results']['new_process_additional_steps']==4
     assert direct['results']['uninterrupted8_weights_and_losses_identical'] and direct['results']['shadow_dispatch_performed'] is False
@@ -51,7 +51,7 @@ def test_current_official_Dataset_source_is_exactly_bound_to_actual_direct_and_q
 
 
 def test_archived_fused106_receipt_and_original_source_tree_bytes_are_preserved():
-    queue=read('NATIVE02_QUEUED_CPU_R4_20261027_QUALIFICATION.json')
+    queue=read('NATIVE02_QUEUED_CPU_R5_20261027_QUALIFICATION.json')
     original=queue['previous_original_proof'];assert sha(PROOFS/original['path'])==original['sha256']
     previous=read(original['path']);old=previous['previous_original_proof'];assert sha(PROOFS/old['path'])==old['sha256']
     assert sha(PROOFS/'ROSMASTER_ACT106_20261026_PROFILE4_CPU_QUALIFICATION.json')==queue['historical_fused106_receipt_sha256']
