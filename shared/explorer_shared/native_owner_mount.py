@@ -123,14 +123,16 @@ def mount_factory_owner(app,root,manual_arm,teleop,token,*,clock_domain,observed
     module=sys.modules.get(type(manual_arm).__module__)
     limits=getattr(module,'HARD_LIMITS',None)
     if callable(getattr(getattr(manual_arm,'pub',None),'publish',None)) and limits is not None:
-        from .native_cooperative05 import NativeCooperativeOwner
-        cooperative=NativeCooperativeOwner(mux,activation,guarded_reference,target_limits=limits)
+        from .native_cooperative05 import NativeCooperativeOwner,ExistingBaseDriveBoundary
+        cooperative=NativeCooperativeOwner(mux,activation,guarded_reference,target_limits=limits,
+            state_path=root/'data'/'explorer-cooperative-giver-hold.json')
         def invalidate(reason):
             cooperative.guard.revoke(reason);return activation.revoke(reason)
         mux.on_invalidate=invalidate
-        mux.chassis_permit=lambda:cooperative.guard.binding is None and activation.base_allowed()
+        mux.chassis_permit=lambda:not cooperative.guard.base_motion_blocked() and activation.base_allowed()
         mux.publication_evidence=lambda:deepcopy(cooperative.guard.last_publication)
     mux.install()
+    if cooperative is not None:teleop.drive=ExistingBaseDriveBoundary(teleop.drive,cooperative.guard)
     mounted=mount_native_stream_api(app,mux,token=token,
                                     observed_test_permit=observed_test_permit or activation.allowed,
                                     activation=activation,

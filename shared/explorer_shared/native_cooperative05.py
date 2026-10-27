@@ -10,11 +10,23 @@ import re
 import threading
 import uuid
 from collections import OrderedDict
+from functools import wraps
 
 from .cooperative_contract05 import digest,ROLE_CONTRACTS
 from .contracts import action_vector
 from .handover import HandoverFSM
 from .cooperative_action_constraint05 import verify_constraint,project_stationary_action
+from .giver_hold_persistence05 import GiverHoldJournal
+
+
+def durable_metadata(*,recover=False):
+    def decorate(method):
+        @wraps(method)
+        def call(self,*args,**kwargs):
+            if recover:self._check_reset(*args,**kwargs)
+            return self._durable(method.__name__,lambda:method(self,*args,**kwargs),recover=recover)
+        return call
+    return decorate
 
 
 def identity(value):
@@ -45,14 +57,98 @@ class ExistingPublisherBoundary:
         finally:tap.publisher_end()
 
 
+class ExistingBaseDriveBoundary:
+    """Same traced original teleop drive; genuine zero STOP always delegates."""
+    def __init__(self,drive,guard):self.original,self.guard=drive,guard
+    def __getattr__(self,key):return getattr(self.original,key)
+    def __call__(self,values):
+        with self.guard.lock:
+            if self.guard.base_motion_blocked():
+                if (not isinstance(values,(list,tuple)) or len(values)!=3 or any(type(value) not in (int,float) or
+                        not math.isfinite(value) or value!=0 for value in values)):
+                    raise PermissionError('COOPERATIVE_GIVER_LATCH_REQUIRES_STATIONARY_BASE')
+            return self.original(values)
+
+
 class NativeReceiverHoldBoundary:
-    def __init__(self,mux,activation,*,clock=None):
+    def __init__(self,mux,activation,*,clock=None,state_path=None):
         self.mux,self.activation=mux,activation;self.clock=clock or mux.tap.clock
-        self.lock=threading.RLock();self.binding=None;self.armed=False;self.pending=None;self.grant=None
+        self.lock=threading.RLock();self.revision_lock=threading.Lock();self.binding=None;self.armed=False;self.pending=None;self.grant=None
         self.revision=0;self.used=set();self.last_pose=None;self.last_publication=None;self.events=[]
         self.reference_fault=None
         self.ttl_ns=HandoverFSM('native-cooperative-hold').hold_ttl_ns
+        self.metadata_lock=threading.RLock();self.journal=GiverHoldJournal(state_path)
+        if self.journal.state is not None:
+            try:self._restore(self.journal.state)
+            except (ValueError,KeyError,TypeError,AttributeError) as error:self.journal.fail('GIVER_STATE_UNCERTAIN:'+str(error))
+        stored=self.journal.state if isinstance(self.journal.state,dict) else {}
+        if self.reference_fault is not None and stored.get('native_boot_id')!=self.mux.tap.boot_id:
+            self.reference_fault={'invalidated_native_ns':self.clock(),'reason':'NEW_BOOT_REFERENCE_REVALIDATION_REQUIRED',
+                'original_reference_sha256':stored.get('reference_source_sha256'),'native_boot_id':self.mux.tap.boot_id,
+                'previous_native_boot_id':stored.get('native_boot_id'),'previous_fault_sha256':digest(self.reference_fault),
+                'previous_boot_timestamps_compared_to_current_boot':False}
+        if self.armed or self.journal.fault is not None:
+            self.journal.restored_armed=self.armed;self.journal.recovery_required=True;self.armed=True
+            if self.reference_fault is None:self.reference_fault={'invalidated_native_ns':self.clock(),
+                'reason':'DURABLE_GIVER_LATCH_RESTORED_REFERENCE_UNVERIFIED',
+                'original_reference_sha256':(self.journal.state if isinstance(self.journal.state,dict) else {}).get('reference_source_sha256')}
+    def _snapshot(self):
+        return {'schema':'explorer_native_giver_hold_state_v1','binding':deepcopy(self.binding),'armed':self.armed,'revision':self.revision,
+            'used_confirmations':sorted(self.used),'last_pose':deepcopy(self.last_pose),'last_publication':deepcopy(self.last_publication),
+            'events':deepcopy(self.events[-8:]),'reference_fault':deepcopy(self.reference_fault),
+            'reference_source_sha256':(self.mux.tap.reference or {}).get('source_sha256'),
+            'native_clock_domain':self.mux.tap.clock_domain,'native_boot_id':self.mux.tap.boot_id,
+            'active_permissions_not_restored':True,'latest_pose_not_qualified_for_automatic_restart':True}
+    def _bump_revision(self):
+        # Revoke increments before waiting for an admitted Publisher. A
+        # dedicated tiny lock prevents lost increments against metadata code.
+        with self.revision_lock:self.revision+=1;return self.revision
+    def _restore(self,state):
+        if (not isinstance(state,dict) or state.get('schema')!='explorer_native_giver_hold_state_v1' or type(state.get('armed')) is not bool or
+                type(state.get('revision')) is not int or state['revision']<0 or not isinstance(state.get('used_confirmations'),list) or
+                len(state['used_confirmations'])>2048 or len(set(state['used_confirmations']))!=len(state['used_confirmations']) or
+                not isinstance(state.get('events'),list) or len(state['events'])>8 or
+                state.get('reference_fault') is not None and not isinstance(state['reference_fault'],dict)):
+            raise ValueError('Typed bounded retained giver latch required')
+        for value in state['used_confirmations']:identity(value)
+        fault=state.get('reference_fault')
+        if fault is not None and (type(fault.get('invalidated_native_ns')) is not int or fault['invalidated_native_ns']<0 or
+                not isinstance(fault.get('reason'),str) or not fault['reason']):raise ValueError('Original reference-fault identity required')
+        if state['armed']:
+            if not isinstance(state.get('binding'),dict) or not isinstance(state.get('last_pose'),list) or len(state['last_pose'])!=6 or any(
+                    type(value) not in (int,float) or not math.isfinite(value) for value in state['last_pose']):raise ValueError('Original armed giver reference required')
+            for key in ('run_id','object_id','coordinator_epoch','authorization_id'):identity(state['binding'].get(key))
+        self.binding=deepcopy(state.get('binding'));self.armed=state['armed'];self.revision=state['revision'];self.used=set(state['used_confirmations'])
+        self.last_pose=deepcopy(state.get('last_pose'));self.last_publication=deepcopy(state.get('last_publication'))
+        self.events=deepcopy(state['events']);self.reference_fault=deepcopy(state.get('reference_fault'))
+        self.pending=self.grant=None  # A disk record is never live receiver-hold authority.
+    def _durable(self,operation,callback,*,recover=False):
+        if self.journal.path is None:return callback()
+        with self.metadata_lock:
+            if (self.journal.fault is not None or self.journal.recovery_required) and not recover:
+                raise ValueError('Durable giver recovery requires explicit USER safe-object reset')
+            with self.lock:before=self._snapshot();revision=self.revision
+            self.journal.begin(operation,before,recover=recover)
+            try:
+                # File fsync is outside both publication and teleop locks.
+                with self.mux.teleop.lock:
+                    with self.lock:
+                        if self.revision!=revision:raise ValueError('Giver metadata superseded by revoke/publication failure')
+                    result=callback()
+                    with self.lock:after=self._snapshot()
+                self.journal.seal(after,recover=recover)
+                if isinstance(result,dict) and result.get('schema')=='explorer_native_receiver_hold_boundary_v1':
+                    result['persistence']=self.journal.status(self.revision)
+                return result
+            except Exception:
+                with self.lock:after=self._snapshot()
+                try:
+                    if after==before and not recover:self.journal.seal(before)
+                    else:self.journal.fail('GIVER_MUTATION_OR_SEAL_UNCERTAIN')
+                except Exception:self.journal.fail('GIVER_REJECTED_METADATA_SEAL_FAILED')
+                raise
     def _current(self):
+        if self.journal.fault is not None or self.journal.recovery_required:raise ValueError('Durable giver recovery is required')
         binding=self.binding
         if (binding is None or self.mux.teleop.owner!='keyboard' or self.mux.teleop.generation!=binding['native_generation'] or
                 self.mux.teleop.stop_latched or not self.mux.clock()<self.mux.teleop.lease or
@@ -61,6 +157,10 @@ class NativeReceiverHoldBoundary:
         if binding.get('native_control_epoch') is not None and (
                 not self.mux.active or self.mux.epoch!=binding['native_control_epoch']):raise ValueError('Native cooperative epoch changed')
         return binding
+    def base_motion_blocked(self):
+        with self.lock:return bool(self.binding is not None or self.armed or self.reference_fault is not None or
+            self.journal.pending or self.journal.fault is not None or self.journal.recovery_required)
+    @durable_metadata()
     def bind(self,body):
         self.activation.require(body.get('authorization_id'))
         for key in ('run_id','object_id','coordinator_epoch'):identity(body.get(key))
@@ -69,20 +169,21 @@ class NativeReceiverHoldBoundary:
             if not self.mux.teleop.stop_latched:raise ValueError('Original STOP required before cooperative metadata binding')
             with self.lock:
                 if self.armed:raise ValueError('Explicit observed safe-object reset required before replacing dual-hold protection')
-                self.revision+=1;self.pending=self.grant=None;self.last_pose=None
+                self._bump_revision();self.pending=self.grant=None;self.last_pose=None
                 self.binding={key:body[key] for key in ('run_id','object_id','coordinator_epoch','authorization_id')}
                 self.binding.update(native_generation=self.mux.teleop.generation,native_control_epoch=None)
         return self.status()
     def bind_control_epoch(self,epoch):
         with self.lock:
             if self.binding is None:raise ValueError('Observed cooperative binding required')
-            self.revision+=1;self.pending=self.grant=None
+            self._bump_revision();self.pending=self.grant=None
             self.binding.update(native_generation=self.mux.teleop.generation,native_control_epoch=epoch)
     def _match(self,body):
         current=self.binding
         if current is None or any(body.get(key)!=current[key] for key in ('run_id','object_id','coordinator_epoch')):
             raise ValueError('Exact current cooperative run/object/epoch required')
         return current
+    @durable_metadata()
     def arm(self,body,reference):
         self._current();self._match(body)
         values=reference.get('servo_deg') if isinstance(reference,dict) else None
@@ -90,7 +191,7 @@ class NativeReceiverHoldBoundary:
                 not isinstance(values,list) or len(values)!=6 or any(not isinstance(v,(int,float)) or not math.isfinite(v) for v in values)):
             raise ValueError('Original same-boot command estimate required; not measured feedback')
         with self.lock:
-            self._current();self._match(body);self.revision+=1;self.pending=self.grant=None
+            self._current();self._match(body);self._bump_revision();self.pending=self.grant=None
             actual=self.mux.tap.issued_snapshot()
             self.armed=True;self.last_pose=list(actual['command9'][:6])
         return self.status()
@@ -99,13 +200,14 @@ class NativeReceiverHoldBoundary:
         with self.lock:
             self._current();self._match(body)
             if not self.armed:raise ValueError('Dual-hold publication protection must be armed first')
-            self.revision+=1;self.grant=None
+            revision=self._bump_revision();self.grant=None
             self.pending={'schema':'explorer_native_receiver_hold_challenge_v1','challenge_id':uuid.uuid4().hex,
                 **deepcopy(self.binding),'after_receiver_command_id':body['after_receiver_command_id'],
                 'issued_native_ns':self.clock(),'native_clock_domain':self.mux.tap.clock_domain,
-                'native_boot_id':self.mux.tap.boot_id,'revision':self.revision}
+                'native_boot_id':self.mux.tap.boot_id,'revision':revision}
             self.pending['expires_native_ns']=self.pending['issued_native_ns']+self.ttl_ns
             return deepcopy(self.pending)
+    @durable_metadata()
     def authorize(self,body):
         self._current();self._match(body)
         with self.lock:
@@ -125,34 +227,46 @@ class NativeReceiverHoldBoundary:
                 raise ValueError('Source-bound new explicit receiver observation required')
             receipt_id=identity(proof.get('challenge_id'))
             if receipt_id in self.used:raise ValueError('Receiver holding receipt cannot be reused')
+            if len(self.used)>=2048:raise ValueError('Retained native receiver-proof budget reached')
             self.used.add(receipt_id)
             self.grant={'grant_id':uuid.uuid4().hex,'challenge':deepcopy(challenge),'operator_confirmation':deepcopy(proof),
-                'expires_native_ns':challenge['expires_native_ns'],'revision':self.revision,
+                'expires_native_ns':challenge['expires_native_ns'],'revision':challenge['revision'],
                 'clock_conversion_assumed':False,'force_or_attainment_measured':False}
             self.pending=None;return deepcopy(self.grant)
     def revoke(self,reason):
         # Increment before waiting on an already-started bounded publication.
         # This never emits HOLD/open/HOME or changes a controller constant.
-        self.revision+=1
+        self._bump_revision()
         with self.lock:self.pending=self.grant=None
         return {'revoked':True,'reason':reason,'dual_hold_protection_remains_armed':self.armed}
-    def reset_safe(self,body):
+    def _check_reset(self,body):
         self.activation.require(body.get('authorization_id'))
         with self.mux.teleop.lock:
             if (body.get('observing') is not True or body.get('object_safe_no_dual_hold') is not True or
                     not self.mux.teleop.stop_latched or self.activation.receipt(body.get('authorization_id')) is None):
                 raise ValueError('Explicit observed safe-object reset under original STOP required')
             with self.lock:
-                self.revision+=1;self.binding=self.pending=self.grant=None;self.armed=False;self.last_pose=None
+                if self.journal.path is not None and (body.get('expected_state_id')!=self.journal.state_id or
+                        type(body.get('expected_revision')) is not int or body['expected_revision']!=self.revision):
+                    raise ValueError('Exact durable giver state ID/revision required for USER safe reset')
+    @durable_metadata(recover=True)
+    def reset_safe(self,body):
+        with self.mux.teleop.lock:
+            self._check_reset(body)
+            with self.lock:
+                self._bump_revision();self.binding=self.pending=self.grant=None;self.armed=False;self.last_pose=None
         return self.status()
     def publish(self,pose,callback):
         with self.lock:
             if not self.armed:self.last_publication=None
             try:
+                if self.journal.pending or self.journal.fault is not None or self.journal.recovery_required:
+                    raise ValueError('DURABLE_GIVER_PUBLICATION_RECOVERY_REQUIRED')
                 if self.armed and self.reference_fault is not None:
                     raise ValueError('OBSERVED_FACTORY_REFERENCE_REQUIRED_AFTER_BLOCKED_PUBLICATION')
                 if self.armed and (self.last_pose is None or any(pose[index]!=self.last_pose[index] for index in range(5))):
                     raise ValueError('DUAL_HOLD_REQUIRES_STATIONARY_GIVER_ARM_NO_RELATIVE_MOTION')
+                if self.armed:self._current()  # Closing/legacy callers also require this exact current observed owner.
                 opening=self.armed and (self.last_pose is None or pose[5]<self.last_pose[5])
                 if opening:
                     self._current();grant=self.grant
@@ -194,13 +308,14 @@ class NativeReceiverHoldBoundary:
             'recent_opening_publications':deepcopy([entry for entry in self.events if entry.get('opening') is True][-8:]),
             'opening_history_basis':'actual_original_publisher_returns_not_current_hold_or_reusable_release_authority',
             'reference_fault':deepcopy(self.reference_fault),
+            'persistence':self.journal.status(self.revision),'revision':self.revision,
             'controller_settings_written':False,'new_publishers':0,'physical_qualification':False}
 
 
 class NativeCooperativeOwner:
-    def __init__(self,mux,activation,reference_reader,*,target_limits):
+    def __init__(self,mux,activation,reference_reader,*,target_limits,state_path=None):
         self.mux,self.activation,self.reference=mux,activation,reference_reader
-        self.limits=target_limits;self.guard=NativeReceiverHoldBoundary(mux,activation);self.policy=None;self.action_constraint=None
+        self.limits=target_limits;self.guard=NativeReceiverHoldBoundary(mux,activation,state_path=state_path);self.policy=None;self.action_constraint=None
         self.frames=OrderedDict();self.frame_lock=threading.Lock()
         self.original_publisher=mux.arm.pub
         mux.arm.pub=ExistingPublisherBoundary(self.original_publisher,self.guard)
@@ -232,6 +347,7 @@ class NativeCooperativeOwner:
                 raise ValueError('Native policy observation expired')
             return jpeg,deepcopy(record)
     def prepare(self,body):
+        if self.guard.journal.fault is not None or self.guard.journal.recovery_required:raise ValueError('Durable giver safe-object recovery required before native prepare')
         self.activation.require(body.get('authorization_id'))
         if body.get('observing') is not True or body.get('neutral') is not True:raise ValueError('Explicit USER observed neutral selection required')
         with self.mux.teleop.lock:
@@ -272,6 +388,7 @@ class NativeCooperativeOwner:
                 'registered_native_ns':self.mux.tap.clock(),'native_command_sent':False,'controller_settings_written':False}
             return deepcopy(self.action_constraint)
     def begin(self,body):
+        if self.guard.journal.fault is not None or self.guard.journal.recovery_required:raise ValueError('Durable giver safe-object recovery required before native begin')
         if self.activation.status().get('input_mode')!='cooperative_policy':
             raise ValueError('Separate observed cooperative_policy authorization required')
         self.guard._match(body)
@@ -293,6 +410,7 @@ class NativeCooperativeOwner:
                 self.guard.bind_control_epoch(result['control_epoch']);self.policy=deepcopy(model)
         return result
     def recenter(self,body):
+        if self.guard.journal.fault is not None or self.guard.journal.recovery_required:raise ValueError('Durable giver safe-object recovery required before native recenter')
         self.guard._match(body);result=self.mux.recenter(body.get('control_epoch'))
         self.guard.bind_control_epoch(result['control_epoch']);return result
     def lease(self,body):
