@@ -5424,6 +5424,43 @@
         "tests/test_native_giver_persistence.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GIVER-PARKED-POST-CHALLENGE-RELEASE-001",
+      "function_or_module": "shared/explorer_shared/giver_parked_release05.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/giver_phase_lifecycle05.py",
+          "role": "Same original USER native resume and WAL boundary"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/native_cooperative05.py",
+          "role": "Existing armed publication gate, original two-second challenge and consumed proof budget"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/handover_adapters.py",
+          "role": "Actual durable USER confirmations created after source challenge receipt"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_USER_CONTROL_METADATA",
+      "changes_and_reason": "Create a metadata-only challenge while parked/CLUTCHED, then consume three actual post-challenge same-actor facts in an explicit original resume. Keep original native issue/expiry unchanged, atomically install grant at the new guard revision, retain historical source context without recursive old grants, and fail closed on revoke/expiry/WAL uncertainty. No target or automatic lease renewal.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_giver_parked_release05.py",
+        "tests/test_giver_phase_lifecycle05.py",
+        "tests/test_native_giver_phase_http.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

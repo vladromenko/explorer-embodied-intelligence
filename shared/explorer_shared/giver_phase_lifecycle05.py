@@ -183,6 +183,9 @@ class GiverPhaseLifecycle:
                 if isinstance(result,dict):self._cleanup(result['control_epoch'],body['authorization_id'])
                 raise
     def resume(self,body,*,authenticated_actor):
+        return self._resume(body,authenticated_actor=authenticated_actor)
+    def _resume(self,body,*,authenticated_actor,metadata_transition=None):
+        """Private source-only metadata hook; never supplied by HTTP bodies."""
         with self.guard.metadata_lock:
             receipt,parked=self._current(body,authenticated_actor,parked_stage={'PARKED_NEW_USER','BEGIN_CLUTCHED'})
             policy=parked['previous_input_mode']=='cooperative_policy';epoch=parked.get('control_epoch') if policy else None;result=None
@@ -194,6 +197,9 @@ class GiverPhaseLifecycle:
                     self._stable_origin(origin)
                     if self.activation.current_authorization_id()!=body['authorization_id'] or self.activation.receipt(body['authorization_id'])!=receipt:
                         raise ValueError('Current USER authorization changed during parked resume persistence')
+                    previous_revision=self.guard.revision
+                    if metadata_transition is not None:
+                        metadata_transition('before_resume',origin,parked,None,previous_revision)
                     self.transition_thread=threading.get_ident()
                     try:
                         if policy:result=self.mux.resume(epoch,observing=True)
@@ -202,6 +208,8 @@ class GiverPhaseLifecycle:
                     self.guard.parked=None;self.guard._bump_revision();self.guard.pending=self.guard.grant=None
                     self._retain(self._event('EXPLICIT_USER_PHASE_RESUMED',native_result=result,native_command_called=True,
                         source_command_origin=origin,phase_id=body.get('phase_id'),native_operator_lease_automatically_renewed=False))
+                    if metadata_transition is not None:
+                        metadata_transition('after_resume',origin,parked,result,previous_revision)
                     return result
             try:
                 native=self.guard._durable('explicit_USER_parked_resume',resume);self.guard._current()

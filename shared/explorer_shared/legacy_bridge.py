@@ -25,6 +25,7 @@ POST_PATHS |= {'explorer/retarget/activation/authorize','explorer/retarget/activ
 POST_PATHS |= {'explorer/cooperative/constraint/register'}
 POST_PATHS |= {'explorer/cooperative/prepare','explorer/cooperative/manual/resume'}
 POST_PATHS |= {'explorer/cooperative/phase/'+operation for operation in ('park','adopt','begin','resume')}
+POST_PATHS |= {'explorer/cooperative/phase/release/challenge','explorer/cooperative/phase/resume-release'}
 POST_PATHS |= {'explorer/cooperative/'+operation for operation in ('bind','begin','recenter','resume','lease','input','stop',
     'guard/arm','guard/challenge','guard/authorize','guard/revoke','guard/reset')}
 

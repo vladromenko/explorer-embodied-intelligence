@@ -381,10 +381,14 @@ class NativeCooperativeOwner:
         mux.arm.pub=ExistingPublisherBoundary(self.original_publisher,self.guard)
         from .giver_phase_lifecycle05 import GiverPhaseLifecycle
         self.phases=GiverPhaseLifecycle(self)
+        from .giver_parked_release05 import GiverParkedRelease
+        self.parked_release=GiverParkedRelease(self)
     def park(self,body,*,authenticated_actor=None):return self.phases.park(body,authenticated_actor=authenticated_actor)
     def adopt_parked(self,body,*,authenticated_actor=None):return self.phases.adopt(body,authenticated_actor=authenticated_actor)
     def begin_parked(self,body,*,authenticated_actor=None):return self.phases.begin(body,authenticated_actor=authenticated_actor)
     def resume_parked(self,body,*,authenticated_actor=None):return self.phases.resume(body,authenticated_actor=authenticated_actor)
+    def parked_release_challenge(self,body,*,authenticated_actor=None):return self.parked_release.challenge(body,authenticated_actor=authenticated_actor)
+    def resume_parked_release(self,body,*,authenticated_actor=None):return self.parked_release.resume_release(body,authenticated_actor=authenticated_actor)
     def observation(self):
         frame=self.activation.camera.snapshot(with_jpeg=True);self.reference();ident=uuid.uuid4().hex
         issued=self.mux.tap.issued_snapshot()
@@ -578,7 +582,8 @@ class NativeCooperativeOwner:
             'capabilities':{'stationary_base_constraint_schema':'explorer_cooperative_stationary_base_constraint_v1',
                 'raw_policy9_projection_provenance_required_when_registered':True,
                 'explicit_user_prepare':True,'explicit_user_manual_resume':True,'scoped_manual_stop':True,
-                'explicit_user_giver_phase_http':self.phases.http_mounted},
+                'explicit_user_giver_phase_http':self.phases.http_mounted,
+                'explicit_user_parked_release_http':self.parked_release.http_mounted},
             'release_boundary':self.guard.status(),'native':self.mux.status(),'same_original_stream_worker':True,
             'phase_lifecycle':self.phases.status(),
             'controller_settings_written':False,'native_dispatch_proof':'read actual correlated dispatch ring',
@@ -649,6 +654,13 @@ def mount_native_cooperative_api(app,owner,*,authenticate,allowed,operation,acti
     def phase_resume(request:Request,body:dict):
         actor=phase_actor(request,body);return operation(owner.resume_parked,body,authenticated_actor=actor)
     owner.phases.http_mounted=True
+    @app.post(prefix+'phase/release/challenge')
+    def parked_release_challenge(request:Request,body:dict):
+        actor=phase_actor(request,body);return operation(owner.parked_release_challenge,body,authenticated_actor=actor)
+    @app.post(prefix+'phase/resume-release')
+    def resume_parked_release(request:Request,body:dict):
+        actor=phase_actor(request,body);return operation(owner.resume_parked_release,body,authenticated_actor=actor)
+    owner.parked_release.http_mounted=True
     @app.post(prefix+'lease')
     def lease(request:Request,body:dict):allowed(request,body);return operation(owner.lease,body)
     @app.post(prefix+'input')

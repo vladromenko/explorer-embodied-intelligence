@@ -26,7 +26,7 @@ def test_exact_native_web_startup_factory_and_fresh_boot_negative_control(tmp_pa
     result=subprocess.run(command,env={**os.environ,'PYTHONPATH':str(shared)},capture_output=True,text=True,timeout=40)
     assert result.returncode==0,result.stderr
     report=json.loads((tmp_path/'receipt.json').read_bytes())
-    assert len(report['adapter_source_sha256'])==8 and 'giver_phase_lifecycle05.py' in report['adapter_source_sha256']
+    assert len(report['adapter_source_sha256'])==9 and all(name in report['adapter_source_sha256'] for name in ('giver_phase_lifecycle05.py','giver_parked_release05.py'))
     assert report['physical_commands']==0 and report['original_owner_restarted'] is False
     if candidate and fresh:
         assert report['actuator_or_external_attempts']==[]

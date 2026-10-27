@@ -254,7 +254,7 @@ def run_probe(source_root,*,uptime_s,patched_web=None,cycles=3):
                      for path in sorted((source/directory).rglob('*')) if path.is_file() and
                      path.suffix in ('.json','.sql','.urdf','.srdf','.yaml','.STL')}
         adapter_files={name:_sha((pathlib.Path(__file__).parent/name).read_bytes()) for name in (
-            'native_web_startup_probe.py','native_owner_mount.py','native_stream03.py','native_stream03_api.py','native_activation.py','native_cooperative05.py','giver_hold_persistence05.py','giver_phase_lifecycle05.py')}
+            'native_web_startup_probe.py','native_owner_mount.py','native_stream03.py','native_stream03_api.py','native_activation.py','native_cooperative05.py','giver_hold_persistence05.py','giver_phase_lifecycle05.py','giver_parked_release05.py')}
         mounted=getattr(web,'_explorer_native_mount',None) if 'web' in locals() else None
         result={'schema':'explorer_native_web_startup_probe_v1','uptime_s':uptime_s,'cycles':cycles,
             'source_inventory_sha256':_sha((source/'startup-source-index.json').read_bytes()),
