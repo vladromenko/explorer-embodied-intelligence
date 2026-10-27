@@ -40,13 +40,13 @@
       "id": "full01",
       "title": "Полные предметные и мобильные задачи01",
       "status": "OPEN",
-      "evidence": "Actual B8 learned SIM trials0/8; matched C-v2 four fixed1200-update models16trials/12800dispatch: DEV0/8 SEALED0/8,16FAILURE/0UNKNOWN; grasp1/16 but lift/carry/place0. All negative raw evidence retained; learned whole-object mastery and mobile kitchen remain OPEN."
+      "evidence": "Actual B8 learned SIM trials0/8; matched C-v2 four fixed1200-update models16trials/12800dispatch: DEV0/8 SEALED0/8,16FAILURE/0UNKNOWN; grasp1/16 but lift/carry/place0. All negative raw evidence retained; learned whole-object mastery and mobile kitchen remain OPEN. THEN01 after02 and03 SOFTWARE READY. Existing TARGET/scripted-teacher diagnostics do not establish a canonical PPO teacher to ACT vertical; NOT READY."
     },
     {
       "id": "teaching",
       "title": "Полные показы02/03 и мастер охвата",
       "status": "PARTIAL",
-      "evidence": "Real recording/import and source-bound adaptive wizard; direct03 backend localhost-qualified; physical registration/new remote deployment missing"
+      "evidence": "CURRENT PRIORITY02 full02A+02B, NEXT03. Legacy mapping/gamepad software, raw sensors and training/reload components exist; canonical 3–5 completed approved Nano episodes through train/reload/live-shadow/UI and operator-ready acquisition remain OPEN. Physical validation separate."
     },
     {
       "id": "transfer",
@@ -58,7 +58,7 @@
       "id": "handover",
       "title": "Координация и подтверждённая передача05",
       "status": "PARTIAL",
-      "evidence": "Live4c disarmed scopes/phase controls; later main adds source-held observations/metadata arm, post-Source USER bundle, explicit resume-release CONTROL with immutable custody and cancel-only declared scope before reply; fresh per-role admission before final native submit, original2s/.45s retained. 100 helper and57 combined fresh/STOP cases passed on fake Sources. Actual policy Publisher/opening/transfer/finish continuous lifecycle and physical H5 remain OPEN."
+      "evidence": "PARKED. Existing live4c disarmed path; later main includes FreshDispatchAuthority, single FSM parked CONTROL to actual fake original Publisher receipt, and RAM epoch revocation/scoped cleanup before Root projection IO. 20 targeted cancellation tests and1 policy receipt integration test pass. Transfer/finish and full parked lifecycle remain OPEN; no physical motion."
     },
     {
       "id": "skill_memory",
@@ -140,9 +140,117 @@
           "research/audits/TRANSFER_CONTACT_V10_RESULTS_RU.md",
           "research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md",
           "research/audits/CONTACT_V10_FIGURE_RU.md",
-          "_registry/evidence/release-3ba5f938-actual-activation-20261027.json"
+          "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
         ],
-        "physical_skill_status": "NOT_VALIDATED"
+        "physical_skill_status": "NOT_VALIDATED",
+        "priority_status": "THEN",
+        "url_path": "/experiments/01",
+        "software_readiness": {
+          "passed": 4,
+          "total": 10,
+          "percent": 40.0,
+          "ready_for_use": false,
+          "gates": [
+            {
+              "id": "01-ui",
+              "title": "Deployed page and authenticated backend within current scoped release",
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
+              ]
+            },
+            {
+              "id": "01-sim",
+              "title": "Actual CAD/MuJoCo model loads and renders; full-task contact credibility remains a separate gate",
+              "status": "PASS",
+              "evidence": [
+                "research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md"
+              ]
+            },
+            {
+              "id": "01-ppo",
+              "title": "Canonical simple skill: PPO teacher with reproducible full-task outcomes",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "01-teacher-data",
+              "title": "PPO rollouts to admitted demonstrations/DAgger; causal deployable observations",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "01-act",
+              "title": "Actual compact ACT optimization and checkpoint reload component",
+              "status": "PASS",
+              "evidence": [
+                "shared/training/PROFILE4_ACTUAL_20261026_RU.md"
+              ]
+            },
+            {
+              "id": "01-provenance",
+              "title": "Model/data versioning, hashes and separate declared development/sealed evidence",
+              "status": "PASS",
+              "evidence": [
+                "research/audits/TARGET_TEMPORAL_C_V2_RESULTS_RU.md"
+              ]
+            },
+            {
+              "id": "01-ui-cycle",
+              "title": "Choose/start/workers/progress/pause/stop/evaluate/prepare-deploy complete UI flow",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "01-closed-loop",
+              "title": "Predeclared full-task success threshold on independent trials and reproduction after reload",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "01-cause-repair",
+              "title": "Localize geometry/contact/reward/observation/action/data failure and demonstrate targeted repair",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "01-release",
+              "title": "Canonical PPO to ACT vertical qualified, deployed disarmed and honest UI result",
+              "status": "OPEN",
+              "evidence": []
+            }
+          ]
+        },
+        "physical_validation": {
+          "passed": 0,
+          "total": 3,
+          "percent": 0.0,
+          "ready_for_use": false,
+          "gates": [
+            {
+              "id": "01-physical-1",
+              "title": "Separate user observed deployment setup/preflight",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "01-physical-2",
+              "title": "Supervised whole-task trial of the prepared model",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "01-physical-3",
+              "title": "Measured physical STOP/network-loss acceptance",
+              "status": "OPEN",
+              "evidence": []
+            }
+          ]
+        },
+        "proven_done_ru": "CAD/MuJoCo render, ACT updates/reload, версии/splits; scoped UI",
+        "software_remaining_ru": "Канонический PPO→demos/DAgger→ACT; исправить причину отказа, пройти full-task threshold и UI/release",
+        "physical_remaining_ru": "Отдельный deploy/preflight и наблюдаемый тест; SIM не требует движения",
+        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED"
       },
       {
         "experiment_id": "02",
@@ -164,9 +272,166 @@
         "evidence": [
           "research/audits/NATIVE_SENSOR_CACHE_RU.md",
           "shared/training/NATIVE6_QUEUE_STATION_R3B_20261027_RU.md",
-          "_registry/evidence/release-3ba5f938-actual-activation-20261027.json"
+          "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
         ],
-        "physical_skill_status": "NOT_VALIDATED"
+        "physical_skill_status": "NOT_VALIDATED",
+        "priority_status": "CURRENT PRIORITY",
+        "url_path": "/experiments/02",
+        "software_readiness": {
+          "passed": 4,
+          "total": 14,
+          "percent": 28.6,
+          "ready_for_use": false,
+          "gates": [
+            {
+              "id": "02A-access",
+              "title": "Homebrain page and authenticated backend reachable from browser",
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
+              ],
+              "stage": "02A"
+            },
+            {
+              "id": "02A-cameras",
+              "title": "Real ROSMASTER streams with rendered freshness/state, frame IDs/timestamps and clear errors",
+              "status": "OPEN",
+              "evidence": [],
+              "stage": "02A"
+            },
+            {
+              "id": "02A-legacy",
+              "title": "Audited authorized Nano gateway and original keyboard mapping preserved in software",
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/browser-gamepad-readonly-controls.json",
+                "02-demonstration-learning/docs/BROWSER_GAMEPAD_RU.md"
+              ],
+              "stage": "02A"
+            },
+            {
+              "id": "02A-gamepad",
+              "title": "Mandatory gamepad detection, axes calibration/deadzone, mapping, connection status and motion-free input preview",
+              "status": "OPEN",
+              "evidence": [],
+              "stage": "02A"
+            },
+            {
+              "id": "02A-manual-safety",
+              "title": "One arm/gripper/base browser mode; existing STOP/deadman/focus-loss/network-loss path qualified end to end",
+              "status": "OPEN",
+              "evidence": [],
+              "stage": "02A"
+            },
+            {
+              "id": "02A-record-ui",
+              "title": "Skill/task and description; Record/start/pause/cancel/finish; success/failure/reject/retry",
+              "status": "OPEN",
+              "evidence": [],
+              "stage": "02A"
+            },
+            {
+              "id": "02A-nano-record",
+              "title": "Nano-local synchronized frames/input/requested/accepted/dispatched/estimate/measured-if-real/odom/sensors/outcome/provenance; integrity and completed/approved transfer only",
+              "status": "OPEN",
+              "evidence": [],
+              "stage": "02A"
+            },
+            {
+              "id": "02A-review",
+              "title": "Approved episode count, condition coverage, quality-based next demonstration guidance, preview/download and verified dataset round-trip",
+              "status": "OPEN",
+              "evidence": [],
+              "stage": "02A"
+            },
+            {
+              "id": "02B-dataset-train",
+              "title": "Canonical Nano episodes to LeRobotDataset on NX and ACT train/resume",
+              "status": "OPEN",
+              "evidence": [],
+              "stage": "02B"
+            },
+            {
+              "id": "02B-resources",
+              "title": "Shared resource scheduler and real separate-process pause/resume component",
+              "status": "PASS",
+              "evidence": [
+                "shared/training/NATIVE6_QUEUE_STATION_R3B_20261027_RU.md"
+              ],
+              "stage": "02B"
+            },
+            {
+              "id": "02B-checkpoint",
+              "title": "Versioned checkpoint provenance and actual save/reload component; canonical 02 data path still open",
+              "status": "PASS",
+              "evidence": [
+                "shared/training/PROFILE4_ACTUAL_20261026_RU.md"
+              ],
+              "stage": "02B"
+            },
+            {
+              "id": "02B-shadow",
+              "title": "Offline evaluation then live-observation shadow without motion dispatch",
+              "status": "OPEN",
+              "evidence": [],
+              "stage": "02B"
+            },
+            {
+              "id": "02B-ui-training",
+              "title": "Train/progress/logs/errors/Evaluate/version selection and honest metrics/provenance in UI",
+              "status": "OPEN",
+              "evidence": [],
+              "stage": "02B"
+            },
+            {
+              "id": "02B-canonical-release",
+              "title": "Canonical 3–5 demo technical smoke record/approve/transfer/dataset/train/reload/shadow/UI evidence, full targeted 02 regression, deployed release and short operator instructions",
+              "status": "OPEN",
+              "evidence": [],
+              "stage": "02B"
+            }
+          ]
+        },
+        "physical_validation": {
+          "passed": 0,
+          "total": 4,
+          "percent": 0.0,
+          "ready_for_use": false,
+          "gates": [
+            {
+              "id": "02-physical-1",
+              "title": "Current observed camera/reference/manual keyboard and gamepad validation",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "02-physical-2",
+              "title": "3–5 complete user demonstrations with approved outcomes",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "02-physical-3",
+              "title": "Supervised learned model validation with predeclared outcome",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "02-physical-4",
+              "title": "Physical STOP/deadman/focus/network-loss measurements",
+              "status": "OPEN",
+              "evidence": []
+            }
+          ]
+        },
+        "proven_done_ru": "Страница/backend, прежний keyboard contract, scheduler, checkpoint/reload компоненты",
+        "software_remaining_ru": "02A: полноценные камеры/gamepad/запись/approve/передача; 02B: один Nano→NX→ACT→shadow→UI путь, регресс и release",
+        "physical_remaining_ru": "Текущий manual/gamepad/STOP тест, реальные 3–5 smoke-показов и supervised model trial",
+        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED",
+        "operator_ready_acquisition": false,
+        "software_ready": false,
+        "canonical_real_smoke_dataset": null,
+        "canonical_real_smoke_model": null
       },
       {
         "experiment_id": "03",
@@ -188,13 +453,136 @@
         "evidence": [
           "research/audits/EXPERIMENT_NUMBERING_V2_RU.md",
           "03-lerobot-teaching/docs/NATIVE_STREAM_RU.md",
-          "_registry/evidence/release-3ba5f938-actual-activation-20261027.json"
+          "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
         ],
-        "physical_skill_status": "NOT_VALIDATED"
+        "physical_skill_status": "NOT_VALIDATED",
+        "priority_status": "NEXT",
+        "url_path": "/experiments/03",
+        "software_readiness": {
+          "passed": 5,
+          "total": 12,
+          "percent": 41.7,
+          "ready_for_use": false,
+          "gates": [
+            {
+              "id": "03-ui",
+              "title": "Current page and authenticated backend deployed within scope",
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
+              ]
+            },
+            {
+              "id": "03-calibration",
+              "title": "Original leader calibration retained and normalization arithmetic audited",
+              "status": "PASS",
+              "evidence": [
+                "03-lerobot-teaching/docs/NATIVE_LEADER_WEB_WIZARD_RU.md",
+                "03-lerobot-teaching/docs/NATIVE_LEADER_MAPPING_A_20261026.json"
+              ]
+            },
+            {
+              "id": "03-direct",
+              "title": "Direct Pi to Nano native stream software path; NX outside motor loop",
+              "status": "PASS",
+              "evidence": [
+                "03-lerobot-teaching/docs/NATIVE_STREAM_RU.md"
+              ]
+            },
+            {
+              "id": "03-contract",
+              "title": "Typed ROSMASTER 9D target action and source provenance remain separate",
+              "status": "PASS",
+              "evidence": [
+                "03-lerobot-teaching/docs/NATIVE_CAPTURE_RU.md"
+              ]
+            },
+            {
+              "id": "03-registration",
+              "title": "FK/IK retargeting, clutch/recenter, gripper registration and truthful command-estimate UI fully qualified",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "03-modes",
+              "title": "ARM_ONLY and MOBILE_MANIPULATION operator workflows sharing existing typed target contract",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "03-mirror",
+              "title": "Simple leader to ROSMASTER mirror workflow without learning, latency/jitter and safe preview",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "03-record",
+              "title": "Approved complete episodes of actual accepted ROSMASTER actions plus leader/retargeting/cameras/base/odom",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "03-learning",
+              "title": "Reuse completed 02 dataset/train/resume/reload/offline/shadow pipeline without copying",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "03-guide",
+              "title": "Same episode counter, coverage and operator instructions as 02",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "03-stop",
+              "title": "Software epoch/cancel/process-restart fences in existing native stream",
+              "status": "PASS",
+              "evidence": [
+                "03-lerobot-teaching/docs/NATIVE_STREAM_RU.md"
+              ]
+            },
+            {
+              "id": "03-release",
+              "title": "Canonical UI vertical, full targeted regression and deployed release with physical calibration checklist",
+              "status": "OPEN",
+              "evidence": []
+            }
+          ]
+        },
+        "physical_validation": {
+          "passed": 0,
+          "total": 3,
+          "percent": 0.0,
+          "ready_for_use": false,
+          "gates": [
+            {
+              "id": "03-physical-1",
+              "title": "Observed original calibration/task-frame/gripper registration",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "03-physical-2",
+              "title": "Observed direct mirror/latency/STOP checks",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "03-physical-3",
+              "title": "Complete approved demonstrations and supervised learned task validation",
+              "status": "OPEN",
+              "evidence": []
+            }
+          ]
+        },
+        "proven_done_ru": "Pi→Nano software stream, исходная calibration arithmetic, typed9D запись, epoch/STOP компоненты",
+        "software_remaining_ru": "Переиспользовать полный02; mirror, два режима, FK/IK/clutch/gripper, latency, один полный UI цикл",
+        "physical_remaining_ru": "Наблюдаемая регистрация/калибровка, direct mirror, показы и learned task",
+        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED"
       },
       {
         "experiment_id": "04",
-        "status": "IN_PROGRESS",
+        "status": "PARKED_INCOMPLETE",
         "checks": {
           "interface_and_instructions": "LIVE_3BA5F938_DESKTOP_MOBILE_TESTED_WITHIN_SCOPE",
           "required_cameras": "PI_CAMERA_LIVE_STATION_AVAILABLE_READ_ONLY_PHYSICAL_TASK_OPEN",
@@ -213,13 +601,126 @@
           "shared/training/STATION_CPU_20261027_STATION_R3B_RU.md",
           "tests/test_source_evaluation_api.py",
           "tests/test_source_evaluation_ui.js",
-          "_registry/evidence/release-3ba5f938-actual-activation-20261027.json"
+          "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
         ],
-        "physical_skill_status": "NOT_VALIDATED"
+        "physical_skill_status": "NOT_VALIDATED",
+        "priority_status": "PARKED",
+        "url_path": "/experiments/04",
+        "software_readiness": {
+          "passed": 6,
+          "total": 10,
+          "percent": 60.0,
+          "ready_for_use": false,
+          "gates": [
+            {
+              "id": "04-ui",
+              "title": "Deployed source04 page and authenticated backend within scope",
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
+              ]
+            },
+            {
+              "id": "04-camera-source",
+              "title": "Complete browser flow with two actual SO101 source states and fresh selected cameras",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "04-cohort",
+              "title": "Typed native6 recording/cohort and dataset component",
+              "status": "PASS",
+              "evidence": [
+                "shared/training/NATIVE6_QUEUE_STATION_R3B_20261027_RU.md"
+              ]
+            },
+            {
+              "id": "04-train",
+              "title": "Actual ACT/DP CPU optimization, process pause/resume and reload",
+              "status": "PASS",
+              "evidence": [
+                "shared/training/NATIVE6_QUEUE_STATION_R3B_20261027_RU.md"
+              ]
+            },
+            {
+              "id": "04-version",
+              "title": "Model/optimizer/RNG/source contract provenance and hashes",
+              "status": "PASS",
+              "evidence": [
+                "shared/training/NATIVE6_QUEUE_STATION_R3B_20261027_RU.md"
+              ]
+            },
+            {
+              "id": "04-shadow",
+              "title": "Scoped observed evaluation API and pure ACT/DP shadow processor tests",
+              "status": "PASS",
+              "evidence": [
+                "tests/test_source_evaluation_api.py",
+                "tests/test_source_evaluation_ui.js"
+              ]
+            },
+            {
+              "id": "04-episodes",
+              "title": "Canonical approved complete source demonstrations through operator UI",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "04-full-task",
+              "title": "Independent accepted learned full object source skill and honest outcome UI",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "04-stop",
+              "title": "Software observed-owner cancellation/epoch boundaries",
+              "status": "PASS",
+              "evidence": [
+                "tests/test_source_evaluation_api.py"
+              ]
+            },
+            {
+              "id": "04-release",
+              "title": "Canonical record/train/reload/shadow/evaluate vertical in final qualified release",
+              "status": "OPEN",
+              "evidence": []
+            }
+          ]
+        },
+        "physical_validation": {
+          "passed": 0,
+          "total": 3,
+          "percent": 0.0,
+          "ready_for_use": false,
+          "gates": [
+            {
+              "id": "04-physical-1",
+              "title": "Observed existing two-arm power/reference/calibration setup",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "04-physical-2",
+              "title": "Complete approved source demonstrations",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "04-physical-3",
+              "title": "Independent supervised source learned object task",
+              "status": "OPEN",
+              "evidence": []
+            }
+          ]
+        },
+        "proven_done_ru": "Scoped UI, native6 cohort, ACT/DP train/resume/reload, shadow/owner tests",
+        "software_remaining_ru": "Полный source recording→approved dataset→train→independent object evaluation и release",
+        "physical_remaining_ru": "Питание/reference, полные показы и независимая source-проверка",
+        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED"
       },
       {
         "experiment_id": "05",
-        "status": "IN_PROGRESS",
+        "status": "PARKED_INCOMPLETE",
         "checks": {
           "interface_and_instructions": "LIVE_3BA5_RECOVERY_RECEIPT_UI_MAIN_ROOT_PHASE_CONTROL_TESTED",
           "required_cameras": "BOTH_CAMERA_PATHS_TESTED_SHARED_VIEW_OPEN",
@@ -230,7 +731,7 @@
           "training_launch": "ROLE_WARM_TRAIN_PATH_TESTED",
           "model_version_provenance": "TESTED",
           "skill_replay": "FULL_HANDOVER_OPEN",
-          "STOP_cancel": "EXACT_NEW_PHASE_EPOCH_DURING_DELAYED_ARCHIVE_TESTED_PHYSICAL_OPEN",
+          "STOP_cancel": "RAM_EPOCH_REVOKED_SCOPED_STOP_BEFORE_PROJECTION_IO_FAKE_SOURCES_TESTED_PHYSICAL_OPEN",
           "restart_recovery": "RECEIVER_AND_GIVER_WAL_TESTED_PARKED_COORDINATOR_OPEN",
           "user_physical_actions": "USER_SCENE_ENDPOINTS_HOLD_OUTCOMES"
         },
@@ -238,14 +739,127 @@
           "05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md",
           "tests/test_cooperative_interlock_coordinator.py",
           "tests/test_station_cooperative_http.py",
-          "_registry/evidence/release-3ba5f938-actual-activation-20261027.json",
-          "tests/test_cooperative_phase_controls.py"
+          "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json",
+          "tests/test_cooperative_phase_controls.py",
+          "_registry/evidence/cooperative-stop-projection-20261027.json",
+          "05-cooperative-handover/docs/RELEASE_PUBLISHER_LIFECYCLE_RU.md"
         ],
-        "physical_skill_status": "NOT_VALIDATED"
+        "physical_skill_status": "NOT_VALIDATED",
+        "priority_status": "PARKED",
+        "url_path": "/experiments/05",
+        "software_readiness": {
+          "passed": 5,
+          "total": 10,
+          "percent": 50.0,
+          "ready_for_use": false,
+          "gates": [
+            {
+              "id": "05-ui",
+              "title": "Deployed handover page and authenticated backend within scope",
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
+              ]
+            },
+            {
+              "id": "05-record",
+              "title": "Typed dual-source recording and separate native datasets component",
+              "status": "PASS",
+              "evidence": [
+                "tests/test_cooperative_workflow05.py"
+              ]
+            },
+            {
+              "id": "05-training",
+              "title": "Pinned role-specific native training/model provenance component",
+              "status": "PASS",
+              "evidence": [
+                "tests/test_cooperative_workflow05.py"
+              ]
+            },
+            {
+              "id": "05-guards",
+              "title": "Source WAL/interlock and exact scoped cancellation despite Root projection IO failures",
+              "status": "PASS",
+              "evidence": [
+                "05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md",
+                "_registry/evidence/cooperative-stop-projection-20261027.json"
+              ]
+            },
+            {
+              "id": "05-release-receipt",
+              "title": "One FSM parked CONTROL to actual original fake Publisher opening receipt, no physical attainment claim",
+              "status": "PASS",
+              "evidence": [
+                "05-cooperative-handover/docs/RELEASE_PUBLISHER_LIFECYCLE_RU.md"
+              ]
+            },
+            {
+              "id": "05-cameras",
+              "title": "Fresh shared two-camera browser scene with actual evidence",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "05-modes",
+              "title": "All four manual/policy modes complete end to end",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "05-transfer-finish",
+              "title": "Observed opening to new independent transfer proof and receiver finish lifecycle",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "05-park-recovery",
+              "title": "Complete parked phase/successor/restart lifecycle without lease extension",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "05-release",
+              "title": "Final scoped regression, deployed qualified release and honest complete task outcome",
+              "status": "OPEN",
+              "evidence": []
+            }
+          ]
+        },
+        "physical_validation": {
+          "passed": 0,
+          "total": 3,
+          "percent": 0.0,
+          "ready_for_use": false,
+          "gates": [
+            {
+              "id": "05-physical-1",
+              "title": "Observed shared scene/reachability and independent STOP setup",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "05-physical-2",
+              "title": "Independent receiver custody confirmation after opening",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "05-physical-3",
+              "title": "Complete supervised transfer and receiver finish",
+              "status": "OPEN",
+              "evidence": []
+            }
+          ]
+        },
+        "proven_done_ru": "Dual typed record/train, WAL/interlocks, cancellation IO fence, fake Publisher receipt в одной FSM",
+        "software_remaining_ru": "Полный opening→independent transfer→finish/park lifecycle, камеры/режимы/recovery и release",
+        "physical_remaining_ru": "Общая сцена, независимое удержание и полный наблюдаемый handover",
+        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED"
       },
       {
         "experiment_id": "06",
-        "status": "IN_PROGRESS",
+        "status": "PARKED_INCOMPLETE",
         "checks": {
           "interface_and_instructions": "LIVE_CATALOG_MAIN_NEW_TESTED",
           "required_cameras": "SOURCE_TARGET_CAMERA_SEPARATE_TESTED",
@@ -255,7 +869,7 @@
           "dataset_composition": "EXPLICIT_TARGET_SPLIT_TESTED",
           "training_launch": "TARGET_LEARNED_FULL_TASK_OPEN",
           "model_version_provenance": "TYPED_VERSIONS_TESTED",
-          "skill_replay": "ACTUAL_LEARNED_TARGET_FULL0_OF8_SOURCE04_LEARNED_TRANSFER_OPEN",
+          "skill_replay": "LEARNED_FULL_TASK_OPEN_B0_OF8_CV2_DEV0_OF8_SEALED0_OF8",
           "STOP_cancel": "TESTED",
           "restart_recovery": "PROCESS_TESTED_DEVICE_OPEN",
           "user_physical_actions": "USER_SOURCE_SKILL_AND_MAPPING"
@@ -266,12 +880,150 @@
           "tests/test_transfer_target_split.py",
           "research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md",
           "research/audits/CONTACT_V10_FIGURE_RU.md",
-          "_registry/evidence/release-3ba5f938-actual-activation-20261027.json",
+          "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json",
           "research/audits/target-visual-object-v3-results-20261027.json"
         ],
-        "physical_skill_status": "NOT_VALIDATED"
+        "physical_skill_status": "NOT_VALIDATED",
+        "priority_status": "PARKED",
+        "url_path": "/experiments/06",
+        "software_readiness": {
+          "passed": 4,
+          "total": 10,
+          "percent": 40.0,
+          "ready_for_use": false,
+          "gates": [
+            {
+              "id": "06-ui",
+              "title": "Current transfer page and authenticated backend deployed within scope",
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
+              ]
+            },
+            {
+              "id": "06-lineage",
+              "title": "Separate source and target split/version/action lineage",
+              "status": "PASS",
+              "evidence": [
+                "tests/test_transfer_target_split.py"
+              ]
+            },
+            {
+              "id": "06-train",
+              "title": "Actual visual target ACT optimization and checkpoint reload component",
+              "status": "PASS",
+              "evidence": [
+                "research/audits/target-visual-object-v3-results-20261027.json"
+              ]
+            },
+            {
+              "id": "06-replay",
+              "title": "Portable SIM replay and retained independent negative outcomes",
+              "status": "PASS",
+              "evidence": [
+                "research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md",
+                "research/audits/TARGET_TEMPORAL_C_V2_RESULTS_RU.md"
+              ]
+            },
+            {
+              "id": "06-source",
+              "title": "Accepted learned source04 full task with preserved original dataset/checkpoint",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "06-mapping",
+              "title": "Qualified source-to-target geometry/observations and compatible representation adaptation",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "06-success",
+              "title": "Learned transferred full-task target success on independent frozen trials",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "06-comparison",
+              "title": "H2 transfer comparison against appropriate target-only and retargeting baselines",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "06-ui-cycle",
+              "title": "Complete import/train/reload/evaluate/prepare-deploy browser flow",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "06-release",
+              "title": "Final qualified software release and truthful physical preflight",
+              "status": "OPEN",
+              "evidence": []
+            }
+          ]
+        },
+        "physical_validation": {
+          "passed": 0,
+          "total": 3,
+          "percent": 0.0,
+          "ready_for_use": false,
+          "gates": [
+            {
+              "id": "06-physical-1",
+              "title": "Physically accepted source04 skill",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "06-physical-2",
+              "title": "Observed target mapping and preflight",
+              "status": "OPEN",
+              "evidence": []
+            },
+            {
+              "id": "06-physical-3",
+              "title": "Supervised target transferred whole-task validation",
+              "status": "OPEN",
+              "evidence": []
+            }
+          ]
+        },
+        "proven_done_ru": "Typed lineage/splits, target ACT optimizer/reload, portable SIM и отрицательные исходы",
+        "software_remaining_ru": "Принятый source04, mapping/адаптация, успешный full-task transfer, H2 comparison и UI/release",
+        "physical_remaining_ru": "Принятый физический source, target mapping и наблюдаемый transfer",
+        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED"
       }
-    ]
+    ],
+    "work_queue": {
+      "order": [
+        "02",
+        "03",
+        "01",
+        "04",
+        "05",
+        "06"
+      ],
+      "current_priority": "02",
+      "next": "03",
+      "then": "01",
+      "parked": [
+        "04",
+        "05",
+        "06"
+      ],
+      "source": "Latest user priority correction, 2026-10-27; supersedes previous 01-first queue",
+      "advance_when": "02 SOFTWARE READY including both 02A and 02B, then 03 SOFTWARE READY; physical validation reported separately",
+      "exception": "Shared fixes necessary for current 02/03 only; preserve prior work without expanding parked experiments."
+    },
+    "readiness_policy": {
+      "formula": "round(100 * count(status == PASS) / count(applicable gates), 1)",
+      "meaning": "Equal-weight acceptance-gate completion, not lines of code, time remaining, probability of success or demonstrated task mastery. Different experiments have different applicable gates.",
+      "partial_credit": false,
+      "ready_for_use_rule": "All applicable software gates must PASS, including canonical vertical path and current release qualification. Component tests never alone imply SOFTWARE READY. Physical readiness requires its separate observed tests.",
+      "evidence_scope": "Existing scoped evidence only; no new broad audit of parked 04/05/06. Historical live release and later main remain distinct.",
+      "physical_01_scope": "Optional physical deployment only; autonomous SIM use does not require movement of a real robot."
+    }
   },
   "state_documents": {
     "goals": "GOALS.md",

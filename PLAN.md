@@ -1,29 +1,108 @@
 # Открытый план Explorer
 
-Исходная цель и ограничения: [GOALS](GOALS.md). Текущие факты: [STATUS](STATUS.md).
-Единственная матрица приёмки01–06: [_registry/acceptance.json](_registry/acceptance.json).
-Работы не перезапускаются из-за новых сообщений; добавления входят в этот backlog.
+Исходная цель и ограничения: [GOALS](GOALS.md). Факты: [STATUS](STATUS.md).
+Единственная матрица приёмки01–06, gates и проценты SOFTWARE/PHYSICAL:
+[_registry/acceptance.json](_registry/acceptance.json).
 
-| Этап | Проверяемое условие завершения |
-|---|---|
-| Текущая интеграция05 | Direction/bind/reset проходят через настоящий authenticated API/UI, оба publication guard вооружаются до grasp, transfer proof создан после actual giver opening; epoch/STOP/WAL/restart negatives проходят. Phase TTL/hold-successor решён без скрытого продления. |
-| Общая регрессия и выпуск | Новый frozen полный pytest/Node/provenance без необъяснённых failures; DP18 и GPU16 source binding совпадают; immutable release развёрнут в собственных службах, реальные Firefox/API и старые scientific bytes проверены. |
-| Источники02–04 | Все нужные входы, камеры и сырые сенсоры записываются синхронно; мастер показов объясняет пробелы; dataset/train/model/replay/STOP/restart проходят с честными source contracts. Физические действия отдельно. |
-| Обучение01 и06 | Полная предметная цель и независимый learned rollout, раздельные source/target splits/versions; ни hold, ни SCRIPTED_SIM не подменяют trained object skill. |
-| Исследования | Новые contact probes воспроизводятся в новом PID/корне; selective repair сравнивается с baselines на новых зафиксированных условиях. H1–H5, повторы/ablation/retention имеют raw evidence и честные ограничения. |
-| Recovery | Backup/restore и rollback проверены; новые сетевые/процессные/OOM сценарии не переигрывают команды. Реальные device reboot/Wi-Fi проверки только после отдельного checkpoint и применимых физических условий. |
+**CURRENT PRIORITY=02 → NEXT=03 → THEN=01 → 04 → 05 → 06.**
+04/05/06 — PARKED: сохранять существующие изменения и evidence; не расширять
+их до программной готовности02. Общие исправления текущего02/03 допустимы.
+Последнее указание пользователя заменяет прежнюю очередь01→02.
 
-Root интегрирует, выпускает и запускает общую регрессию. По умолчанию0–2
-субагента; третий только для трёх крупных независимых потоков. Отдельные worktree
-и непересекающееся владение файлами; короткие проверки выполняет root.
-Сейчас: direct03 — продолжение полного05 lifecycle: fresh Source scope,
-actual policy Publisher, observed opening→новое transfer proof→finish. Root —
-сквозная интеграция и регрессия, затем следующий безопасный immutable release.
-Live4c5f4f5b уже прошёл полный регресс/cutover/Firefox/scientific audit; позднейший
-main автоматически работающим релизом не считается. Root session storage
-cancellation recovery остаётся отдельным открытым пунктом.
-Wizard — обновляет draft-статью и стандартные figures из настоящих отрицательных
-B/C-v2 и TRAIN-only B результатов, проверяет настоящий LaTeX build на Homebrain.
-C-v2:16FAILURE/0UNKNOWN, DEV0/8 иSEALED0/8; TRAIN-only1756forward не заменяет
-независимый rollout. Нового обучения или выбора модели по тестам нет.
-C-v1 UNKNOWN1/NOT_STARTED15, A pre-model guard failure0queries и все raw сохранены.
+## 02A: пригодная оператору запись
+
+Первый результат — пользователь открывает `/experiments/02` с Mac через
+Homebrain и самостоятельно собирает пригодные показы. После02A продолжить02B;
+готовность записи не завершает весь02.
+
+- Настоящие ROSMASTER камеры: состояние потока, показанный frame ID/timestamp,
+  свежесть и понятная ошибка. Использовать существующий владелец камер.
+- Авторизованное подключение к проверенному gateway Nano. Сохранить исправный
+  controller/manual path и старую привычную keyboard-раскладку; на странице
+  постоянно видна краткая таблица клавиш.
+- Gamepad обязателен: обнаружение, калибровка осей/deadzone, раскладка, статус
+  подключения и проверка входов без движения. Учесть HTTPS Gamepad API.
+- Один manual flow arm+gripper+base с существующими STOP/deadman/focus-loss/
+  network-loss. Проверить mapping/input preview/mock/shadow без движения.
+- «Записать демонстрацию», skill/task name и описание; start/pause/cancel/
+  finish; success/failure/reject/retry. Неудачи сохраняются отдельно от BC experts.
+- Nano пишет рядом с камерами синхронные кадры/video, IDs/timestamps, operator
+  input, requested/accepted/dispatched, command estimate, measured только если
+  реально доступен, odom/доступные сенсоры, outcome и provenance. Сохранить
+  clock domains и честную uncertainty, не подменять callback экспозицией.
+- Проверка целостности; на NX отправлять только completed/approved episodes
+  с resumable/hash verification, сохраняя оригинал. Проверить dataset round-trip,
+  просмотр и скачивание записи.
+- UI показывает число approved показов, покрытие условий и рекомендации
+  следующего показа/ориентировочного дополнительного количества по качеству.
+  Начать со smoke3–5; фиксированное число не обещает освоение навыка.
+
+## 02B: законченный программный цикл
+
+- Канонический Nano→NX LeRobotDataset→ACT train/resume→versioned checkpoint→
+  save/reload. Единая очередь не конфликтует с другими тренировками.
+- Offline evaluation, затем shadow на живых наблюдениях без dispatch движения.
+- UI «Обучить», фактический прогресс/логи/ошибка; «Проверить», выбор версии,
+  честные метрики и dataset/model/version/provenance.
+- Один полный record→approve→transfer→dataset→train→reload→shadow→UI result
+  с immutable evidence. Real episodes не заменять SIM/mock и не маркировать
+  неподвижную техническую запись как успешную экспертную демонстрацию.
+- Физическая supervised validation вынесена в точную checklist пользователя.
+  Отсутствие человека не блокирует независимые программные исправления, но
+  недостающие реальные demos/validation остаются явными OPEN gates.
+- Полная адресная регрессия02, frozen полный прогон перед deploy, новый
+  развёрнутый release. После deploy: краткая инструкция с проверенным URL —
+  камера/gamepad→skill→первый episode→исход→STOP.
+
+02 допускает статус SOFTWARE READY / PHYSICAL VALIDATION REQUIRED только
+после всего программного объёма02A+02B. Одни зелёные mock tests этого не дают.
+
+## 03 после программной готовности02
+
+Переиспользовать pipeline02 без копирования. SO101 leader на Pi управляет рукой
+ROSMASTER, шасси — keyboard через Nano; direct Pi→Nano, NX вне realtime loop.
+Нужны ARM_ONLY и MOBILE_MANIPULATION operator workflows, clutch/recenter,
+FK/IK retargeting, gripper calibration, latency/jitter. Сохранять исходную
+калибровку и реальный open-loop/command-estimate ROSMASTER; не добавлять
+недостоверный measured feedback, не перепрошивать контроллер.
+
+Предоставить простое mirror leader→ROSMASTER без обучения и режим записи.
+Actions — фактически принятые команды ROSMASTER; сохранять leader/retargeting,
+камеры/base/odom. Тот же episode counter, инструкции, approve/train/reload/
+shadow/UI, что02. Physical calibration/validation — точные шаги пользователя.
+После полного программного03 — интеграционные проверки и release.
+
+## 01, затем PARKED04–06
+
+После02/03 добиться одного канонического простого curriculum skill на
+достоверной ROSMASTER MuJoCo модели: PPO teacher→пригодные demos/DAgger→
+компактный ACT/LeRobot student. До новой оценки объявить threshold полной
+closed-loop задачи, independent DEV/SEALED trials и правило reload reproduction.
+Нынешний TARGET0/16 — NOT READY; локализовать geometry/contact/reward/obs/
+action/data причину и исправить целевой путь. UI01 choose/start/workers/
+progress/pause/stop/evaluate/prepare-deploy обязан отражать настоящий backend.
+Физический deploy — только подготовка/preflight до отдельного теста владельца.
+
+Затем04→05→06 по numbering v2 и незакрытым gates канонической матрицы;
+отрицательные результаты, научные оригиналы и подготовленные ветки сохранены.
+Полные transfer/retention/H1–H5/recovery критерии не сняты.
+
+## Организация и текущий checkpoint
+
+Текущая атомарная интеграция сохранена: отмена до projection IO `29e8570`
+(20PASS/8.68s), заключительный fake Publisher lifecycle test `61fe798`
+(1PASS/7.17s). Live остаётся4c5f4f5b; новый deploy сейчас не выполнялся.
+Paper checkpoint `a5865cc` сохранён отдельно на work/temporal-numeric-admission;
+полный offline rebuild/visual review остаются OPEN, submission_ready=false.
+
+После checkpoint завершить текущий длинный turn. Следующий рабочий turn вести
+на High; root+максимум1 независимый субагент, effort повышать только для
+конкретного трудного вопроса. Документ не меняет фактическую настройку модели.
+Адресные тесты при правках, интеграционные в конце эксперимента, полный прогон
+только перед deploy. Не повторять широкие04–06/2102-file аудиты без причины.
+Подробные логи — в артефактах; в контексте только нужная текущему этапу сводка.
+
+Шасси и руки агент не двигает; actual USER grants/HOME/native control через
+agent tools запрещены. Исходные ROSMASTER configs/firmware/limits/watchdogs/
+readbackOFF и Station.py остаются неизменными. Real GET и disarmed software
+release допустимы; физические команды — только отдельный наблюдаемый тест.

@@ -3,12 +3,56 @@
 **IN_PROGRESS. Весь master-prompt не завершён.** Canonical Git:
 `/home/jetsonnx/work/Explorer`; работающие службы не зависят от Mac/чата.
 
+
+**CURRENT PRIORITY=02, NEXT=03, THEN=01; PARKED=04/05/06.**
+Очередь: **02 полностью → 03 полностью → 01 → 04 → 05 → 06**.
+Сначала02A — пригодная оператору запись показов, затем без смены приоритета02B —
+полный цикл обучения.03 переиспользует02. Новые широкие работы04–06 отложены;
+разрешены общие исправления, необходимые текущему02/03.
+
+Ни один опыт сейчас не SOFTWARE READY. Проценты ниже — число полностью
+подтверждённых применимых acceptance gates; частичный gate даёт0, веса равны.
+Это не вероятность успеха, не объём кода и не оценка оставшегося времени.
+Разные опыты имеют разные критерии. Scoped mock/SIM компоненты учитываются
+только в собственном scope; весь вертикальный путь и актуальный release —
+обязательные отдельные gates. Физическая приёмка посчитана отдельно и не скрывает
+программный остаток. Для01 physical относится только к опциональному deploy.
+Определения gates и evidence — в единственной канонической матрице
+[_registry/acceptance.json](_registry/acceptance.json); таблица — её представление.
+
+<!-- READINESS_TABLE_FROM_ACCEPTANCE:BEGIN -->
+| Опыт / очередь | SOFTWARE | PHYSICAL | Доказано в указанном scope | Программный остаток | Физический остаток |
+|---|---:|---:|---|---|---|
+| 01 — THEN | 40% (4/10) | 0% (0/3) | CAD/MuJoCo render, ACT updates/reload, версии/splits; scoped UI | Канонический PPO→demos/DAgger→ACT; исправить причину отказа, пройти full-task threshold и UI/release | Отдельный deploy/preflight и наблюдаемый тест; SIM не требует движения |
+| 02 — CURRENT PRIORITY | 28.6% (4/14) | 0% (0/4) | Страница/backend, прежний keyboard contract, scheduler, checkpoint/reload компоненты | 02A: полноценные камеры/gamepad/запись/approve/передача; 02B: один Nano→NX→ACT→shadow→UI путь, регресс и release | Текущий manual/gamepad/STOP тест, реальные 3–5 smoke-показов и supervised model trial |
+| 03 — NEXT | 41.7% (5/12) | 0% (0/3) | Pi→Nano software stream, исходная calibration arithmetic, typed9D запись, epoch/STOP компоненты | Переиспользовать полный02; mirror, два режима, FK/IK/clutch/gripper, latency, один полный UI цикл | Наблюдаемая регистрация/калибровка, direct mirror, показы и learned task |
+| 04 — PARKED | 60% (6/10) | 0% (0/3) | Scoped UI, native6 cohort, ACT/DP train/resume/reload, shadow/owner tests | Полный source recording→approved dataset→train→independent object evaluation и release | Питание/reference, полные показы и независимая source-проверка |
+| 05 — PARKED | 50% (5/10) | 0% (0/3) | Dual typed record/train, WAL/interlocks, cancellation IO fence, fake Publisher receipt в одной FSM | Полный opening→independent transfer→finish/park lifecycle, камеры/режимы/recovery и release | Общая сцена, независимое удержание и полный наблюдаемый handover |
+| 06 — PARKED | 40% (4/10) | 0% (0/3) | Typed lineage/splits, target ACT optimizer/reload, portable SIM и отрицательные исходы | Принятый source04, mapping/адаптация, успешный full-task transfer, H2 comparison и UI/release | Принятый физический source, target mapping и наблюдаемый transfer |
+<!-- READINESS_TABLE_FROM_ACCEPTANCE:END -->
+
+
 Live central+worker, собственные Pi/Nano observers и import pin оригинального
 Nano web — **4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4**. Durable giver WAL,
 zero STOP, source phase activation, fixed reset UI и source receipts развёрнуты.
 Giver journal installed/healthy, ещё initialized=false до отдельной USER setup;
 Root не выдаёт это за физическую готовность.
 [Фактический выпуск4c5f4f5b](_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json).
+
+Сохранённый позднейший main checkpoint: `61fe798a106ae4612112fe608d262db023b821b8`.
+`29e8570` отзывает Root epoch в памяти и запускает scoped cleanup до Root
+projection/Inbox IO.20 targeted tests прошли за8.68s, включая настоящий отказ
+final directory fsync; initial18PASS/2fixtureFAIL сохранены.
+[Evidence](_registry/evidence/cooperative-stop-projection-20261027.json).
+`61fe798` добавляет один тест существующей FSM до actual fake Publisher opening
+receipt:1PASS/7.17s на main. Transfer/finish остаётся OPEN.
+Это не новый развёрнутый release; текущий live по-прежнему4c5f4f5b.
+
+Подготовленная статья отдельно сохранена в `work/temporal-numeric-admission`,
+`a5865cc22b973a5e1a1c6a988042f4c3668b129a`: настоящий TeX PDF6pages,
+8light tests PASS. В main этот последний paper checkpoint не интегрирован;
+повторный offline build и полный visual review не выполнены,
+`submission_ready=false`. Ветка сохранена, работа PARKED вместе с04–06.
 
 Подтверждено:
 
@@ -85,12 +129,20 @@ Nano native reference невалиден после сохранённого tel
 firmware/limits/watchdogs/readbackOFF. Unknown и command-estimate не становятся
 measured. Source/target splits раздельны; development/sealed/unknown не optimizer.
 
-Открытый программный объём: phase/hold-successor lifecycle
-без скрытого TTL/lease продления (source successor и phase CONTROL уже live);
-per-role parked scopes/metadata arm и полный root release coordinator; полный learned
-object/transfer/retention цикл,
-независимые H1–H5
-comparisons/ablations и broad recovery. Физическая подготовка отдельно.
+Текущий программный остаток02: operator-ready камеры/gamepad/запись рядом с
+камерами на Nano и completed/approved transfer; затем канонический
+record→approve→transfer→LeRobotDataset→ACT→save/reload→offline→live-shadow→UI
+с реальным dataset/model evidence, адресной регрессией и новым release.
+3–5 показов — технический smoke, не обещание освоенного навыка. Готовность02A
+не завершает02. Для03 далее нужны полный mirror/retargeting/record/train flow,
+два режима и конкретная наблюдаемая calibration checklist.
+
+01 ждёт полной программной готовности02/03: нужен один воспроизводимый
+PPO teacher→пригодные demos/DAgger→ACT путь. TARGET C-v2 full success0/16 —
+NOT READY; это не доказательство канонического01 PPO pipeline. Причина отказа
+и фактический full-task threshold остаются OPEN. Для04–06 сохранены
+phase/hold-successor/transfer/retention/recovery и H1–H5 остатки; они PARKED,
+не отменены и не объявлены выполненными.
 
 Единственная матрица01–06: [_registry/acceptance.json](_registry/acceptance.json).
 [GOALS](GOALS.md) · [PLAN](PLAN.md) · [DECISIONS](DECISIONS.md) ·
@@ -98,14 +150,12 @@ comparisons/ablations и broad recovery. Физическая подготовк
 
 ## USAGE_POLICY
 
-Root — единственный координатор; по умолчанию0–2 субагента. Третий допустим
-только для трёх крупных независимых потоков; короткие проверки root делает сам.
-Новые рутинные агенты — Sol Medium/High при доступном выборе, сложная интеграция/
-финальный audit могут требовать Ultra; активный чат/модель не переключаются.
-Проверки: static→адресные→интеграционные→один полный прогон перед release;
-критические motion/STOP/interlock/data/provenance проверки не сокращаются.
-Исключение: полный d52-прогон понадобился после сквозной04/05/queue интеграции;
-после исправлений и новых publication guards нужен релизный прогон. Повтор883
-потребовался из-за отсутствовавших во frozen environment внешних CAD/headless EGL;
-код не менялся, оба адресных actual MuJoCo tests прошли перед повтором.
-Повторный внешний сбой без новых фактов после2–3 попыток фиксируется как блокер.
+Root — единственный координатор и интегратор; максимум1 независимый субагент.
+Все прежние активные агенты завершили безопасные checkpoints и idle.
+После этого checkpoint текущий длинный turn заканчивается по указанию
+пользователя. Следующий рабочий turn:02, High; повышать effort только для
+конкретного трудного вопроса. Этот документ не переключает модель/effort.
+Проверки: адресные при редактировании, интеграционные в конце эксперимента,
+один полный прогон перед deploy. Повторные широкие04–06 и2102-file аудиты
+не запускать без новой причины. Подробные логи остаются в артефактах.
+Критические motion/STOP/interlock/data/provenance инварианты сохраняются.
