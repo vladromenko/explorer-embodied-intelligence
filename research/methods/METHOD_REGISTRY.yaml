@@ -5229,6 +5229,70 @@
         "tests/test_cooperative_api.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-FRESH-TARGET-VISUAL-OBJECT-ROUTE-20261027",
+      "function_or_module": "shared/explorer_shared/learning/sim_object_route.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/learning/SIM_OBJECT_ROUTE_RU.md",
+          "role": "Fresh TARGET SIM route and strict independent evaluation scope"
+        },
+        {
+          "url": "https://github.com/huggingface/lerobot",
+          "role": "Official ACT used through unchanged maintained shared backend; no copied optimizer implementation"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "PROJECT_LOCAL_SIM_CHECKPOINT_NOT_RELEASED",
+      "data_license": "PRIVATE_EXPLICIT_SIMULATION",
+      "changes_and_reason": "Fresh train-only canonical target RGB/literal-prior9/action9 datasets, observation boundary, declared chunk dispatch and measured full-object terminal guard. Actual1200 official ACT updates plus all8 independent rollouts retained: full0/8; no learned-source04/H2 or physical/mastery claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_sim_object_route.py",
+        "research/audits/target-visual-object-v3-results-20261027.json"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-TARGET-SIM-CARD-PROJECTION-20261027",
+      "function_or_module": "shared/explorer_shared/learning/sim_object_route_report.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/learning/SIM_OBJECT_ROUTE_RU.md",
+          "role": "Fresh TARGET SIM route and strict independent evaluation scope"
+        },
+        {
+          "url": "https://github.com/huggingface/lerobot",
+          "role": "Official ACT used through unchanged maintained shared backend; no copied optimizer implementation"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "PROJECT_LOCAL_SIM_CHECKPOINT_NOT_RELEASED",
+      "data_license": "PRIVATE_EXPLICIT_SIMULATION",
+      "changes_and_reason": "Bounded compact registry projection preserves every paired negative and exact original result SHA; raw26MB card and all native/RGB/trajectory evidence remain immutable. Reporting only, no policy/evaluator changes.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_sim_object_route_report.py",
+        "research/audits/target-visual-object-v3-results-20261027.json"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
