@@ -45,3 +45,9 @@ NX request start + literal remaining duration — консервативный d
 без сравнения абсолютных часов Nano и NX.2 tests/10.03s проверили истечение
 lease при чтении партнёра и между последним status и activation reply.
 Свежий на момент первого GET статус не продлевает native lease.
+
+Для Pi используется отдельный native source_stamp статуса permission. Разница
+между исходным observation_deadline_ns и native read time переводится только
+в длительность окна NX, без сравнения абсолютных часов.3 tests/14.44s проверили
+оба положительных role scope и истечение остатка наблюдения во втором GET.
+Исходный срок наблюдения не обновляется и не превращается в motor lease.
