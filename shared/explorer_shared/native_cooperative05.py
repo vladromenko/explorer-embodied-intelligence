@@ -191,6 +191,8 @@ class NativeReceiverHoldBoundary:
         with self.lock:return {'schema':'explorer_native_receiver_hold_boundary_v1','binding':deepcopy(self.binding),
             'armed':self.armed,'pending_challenge':deepcopy(self.pending),'grant':deepcopy(self.grant),
             'last_publication':deepcopy(self.last_publication),'hold_ttl_ns':self.ttl_ns,
+            'recent_opening_publications':deepcopy([entry for entry in self.events if entry.get('opening') is True][-8:]),
+            'opening_history_basis':'actual_original_publisher_returns_not_current_hold_or_reusable_release_authority',
             'reference_fault':deepcopy(self.reference_fault),
             'controller_settings_written':False,'new_publishers':0,'physical_qualification':False}
 

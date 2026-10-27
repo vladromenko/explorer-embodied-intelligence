@@ -133,6 +133,24 @@ def test_opening_requires_new_native_clock_challenge_no_nx_timestamp_conversion_
     with pytest.raises(ValueError):arm.pub.publish(message(70))
 
 
+def test_readonly_opening_history_retains_last_eight_actual_returns_after_nonopening_overwrites_latest():
+    source,mux,teleop,arm,publisher,tap,activation,now,binding=fixture();start(source,mux,binding)
+    source.guard.arm(binding,{'servo_deg':[90]*6,'boot_id':'boot','measured':False})
+    challenge=source.guard.challenge({**binding,'after_receiver_command_id':'receiver-close-actual'})
+    source.guard.authorize(confirmed(binding,challenge));actual=[]
+    for grip in range(89,77,-1):
+        arm.pub.publish(message(grip));actual.append(deepcopy(source.guard.last_publication))
+    arm.pub.publish(message(78))
+    before=len(publisher.messages);lease=teleop.lease;state=source.guard.status()
+    assert not state['last_publication']['opening']
+    assert state['recent_opening_publications']==actual[-8:] and len(state['recent_opening_publications'])==8
+    assert all(row['opening'] and row['semantics']=='original_publisher_returned_not_MCU_ack_or_attainment' for row in state['recent_opening_publications'])
+    state['recent_opening_publications'][0]['opening']=False
+    assert source.guard.status()['recent_opening_publications']==actual[-8:]
+    assert len(publisher.messages)==before and teleop.lease==lease
+    assert 'not_current_hold_or_reusable_release_authority' in state['opening_history_basis']
+
+
 def test_stop_or_new_native_authorization_blocks_old_opening_and_reset_requires_observed_safe_object():
     source,mux,teleop,arm,publisher,tap,activation,now,binding=fixture();start(source,mux,binding)
     source.guard.arm(binding,{'servo_deg':[90]*6,'boot_id':'boot','measured':False})
