@@ -1,0 +1,44 @@
+{
+  "schema": "explorer_pi_shared_lab_profile_contract_v1",
+  "scope": "ACTUAL_NODE_LOCALHOST_HTTP_FROZEN_STATION_FAKE_BUS_AND_EXISTING03_FAKE_PEER",
+  "baseline_commit": "2347c6ccf58b5734ea9f66495dd4ec05fc5d2fd4",
+  "source_sha256": {
+    "shared/explorer_shared/pi_lab_runtime.py": "cf5e32f3294f86e764f260539543ca6a0cc57dc6b92f096fbc22799a5c768333",
+    "shared/explorer_shared/lab_vision_service.py": "c38713e77600a4e25c26b7570a5474021f63d455a15134c8dde2f9868ad37521",
+    "shared/explorer_shared/node_agent.py": "abdfbbd5e9e247f9a79ab0aea7f83601b59dcead6e475f896d939c0134629bf5",
+    "tests/test_pi_lab_runtime.py": "e032f3409a03bafdb5f7b8686ef00f7198c289f33d928a69ff24562e634017a6",
+    "tests/test_source_only_runtime.py": "0317b660045658f4c260e0891cb54ef2a438458718cc6faa21f536c735d288b0",
+    "tests/test_source_semantic_admission.py": "2e32fdf810f92489a6242eee1060299d6c1e69475eea42f709cea9f5a1b9084e"
+  },
+  "frozen_station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+  "tests": {
+    "passed": 93,
+    "seconds": 6.75,
+    "raw_log": "/mnt/explorer-data/explorer-work/root03-lab-profile-targeted-20261028-d.log",
+    "raw_sha256": "4b4d8ee0d3cedc0e8ab89f9f1b55984ab0737f92b17854a439f4fff55fa6879e"
+  },
+  "negative_logs_sha256": {
+    "/mnt/explorer-data/explorer-work/root03-lab-profile-targeted-20261028-b.log": "4f860c136b08ff19e75445b4c63adb0be8197e85ce9ec72b14568ae144d56fda"
+  },
+  "negative_interpretation": "New lab global STOP test exposed default success marker despite no retained native epoch. Thin wrapper now derives native_STOP_delivered from original owned-stop receipt; original method/bytes unchanged.",
+  "reused": [
+    "PiNativeRetargetService",
+    "NativeStreamClient",
+    "original calibration/URDF bootstrap",
+    "single SO101Station/cache",
+    "StationObservedPermission",
+    "SourceColdStartGuard",
+    "StationCaptureService",
+    "Nano common02/03 producer"
+  ],
+  "physical03_admission": {
+    "state": "OPEN",
+    "allowed": false
+  },
+  "actual_native_commands": 0,
+  "controller_configuration_changes": 0,
+  "new_serial_or_camera_owners": 0,
+  "deployed": false,
+  "physical_acceptance": false,
+  "next": "Current actual Pi3.13 isolated fake-I/O/bootstrap/runtime proof, endpoints and whole03 software/deploy; do not stop at this component"
+}

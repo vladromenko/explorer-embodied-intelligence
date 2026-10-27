@@ -538,7 +538,7 @@ class NodeAgent:
                  pi_runtime_profile='native_retarget'):
         if mode not in ("pi", "nano"):
             raise ValueError("mode must be pi or nano")
-        if pi_runtime_profile not in ('native_retarget','so101_source_only') or mode!='pi' and pi_runtime_profile!='native_retarget':
+        if pi_runtime_profile not in ('native_retarget','so101_source_only','so101_lab') or mode!='pi' and pi_runtime_profile!='native_retarget':
             raise ValueError('Choose an explicit supported Pi runtime profile')
         self.pi_runtime_profile=pi_runtime_profile
         if not token or len(token) < 16:
@@ -609,6 +609,9 @@ class NodeAgent:
         else:
             from .pi_native_retarget import PiNativeRetargetService
             self.arm_retarget=PiNativeRetargetService.from_config(self.station,self.state_dir,retarget_config_dir)
+            if pi_runtime_profile=='so101_lab':
+                from .pi_lab_runtime import LabRetargetRuntime
+                self.arm_retarget=LabRetargetRuntime(self.arm_retarget)
         self.station_observed=None
         self.station_capture=None
         if self.station is not None:
@@ -618,19 +621,20 @@ class NodeAgent:
                 if operation!='stop' and retarget_claims_source_cache(direct):
                     raise RuntimeError('Stop the existing direct ROSMASTER source session before using the follower controller')
             semantic_admission=None
-            if pi_runtime_profile=='so101_source_only':
+            if pi_runtime_profile in ('so101_source_only','so101_lab'):
                 from .source_only_runtime import SourceColdStartGuard
                 self.station_startup_guard=SourceColdStartGuard()
                 self.station_startup_guard.install(self.station)
                 from .lab_vision_service import SourceSemanticAdmission
-                semantic_admission=SourceSemanticAdmission(self.station,self.lab_vision)
+                semantic_admission=SourceSemanticAdmission(self.station,self.lab_vision,
+                    source_claimed=lambda:retarget_claims_source_cache(self.arm_retarget.status()))
                 self.lab_vision.semantic_admission=semantic_admission.semantic
                 self.lab_vision.runtime_admission_status=semantic_admission.status
             self.station_observed=StationObservedPermission(self.station,self.sources['pi-overview'],command_guard=command_guard,
                 command_admission=semantic_admission.control if semantic_admission else None,
                 command_admission_status=semantic_admission.status if semantic_admission else None,
                 validated_start=self.station_startup_guard.validated_start if self.station_startup_guard else None)
-            if pi_runtime_profile=='so101_source_only':
+            if pi_runtime_profile in ('so101_source_only','so101_lab'):
                 # Immutable source releases also run directly via PYTHONPATH;
                 # the experiment package remains in its canonical directory.
                 import sys
@@ -1246,7 +1250,7 @@ def make_handler(agent):
                                 expected_control_epoch=payload['expected_control_epoch'],expected_binding=payload['binding'])
                         else:raise ValueError('Unknown observed permission operation')
                         self._json(200,result);return
-                    if (getattr(agent,'pi_runtime_profile',None)=='so101_source_only' and path in (
+                    if (getattr(agent,'pi_runtime_profile',None) in ('so101_source_only','so101_lab') and path in (
                             '/station/teleop/start','/station/teleop/recenter','/station/policy/start','/station/action',
                             '/station/record/start','/station/record/stage','/station/record/finish')):
                         raise RuntimeError('Use the current COMMON observed permission and approved source capture workflow; legacy source04 mutation is disabled')
@@ -1350,7 +1354,7 @@ def main(argv=None):
     parser.add_argument("--state-dir", type=Path, default=Path.home() / ".local/share/explorer-node")
     parser.add_argument("--legacy-dir", type=Path, default=Path("/home/vlad/Explorer/data"))
     parser.add_argument("--camera-device")
-    parser.add_argument('--pi-runtime-profile',choices=('native_retarget','so101_source_only'),default='native_retarget')
+    parser.add_argument('--pi-runtime-profile',choices=('native_retarget','so101_source_only','so101_lab'),default='native_retarget')
     parser.add_argument("--calibration-dir", action="append", type=Path, default=[])
     parser.add_argument("--central-url", default=os.environ.get("EXPLORER_CENTRAL_URL"))
     parser.add_argument("--hailo-model", default=os.environ.get('EXPLORER_HAILO_MODEL',"/usr/share/hailo-models/yolov8m_h10.hef"))

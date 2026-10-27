@@ -125,6 +125,22 @@ def test_unknown_accelerator_release_remains_blocked_after_no_active_request():
         with guard.control('teleop/start'):raise AssertionError('Unknown release must not permit native entry')
 
 
+def test_direct03_source_claim_blocks_semantic_and_source04_entry_but_never_blocks_owned_STOP():
+    claimed=[True];calls=[]
+    guard=SourceSemanticAdmission(SimpleNamespace(status=lambda:{'mode':'idle','recording':None}),
+        SimpleNamespace(worker=None),source_claimed=lambda:claimed[0])
+    assert not guard.status()['semantic_admission_allowed'] and guard.status()['native_commands_blocked']
+    for entry in (guard.semantic(),guard.control('teleop/start')):
+        with pytest.raises(RuntimeError,match='[Dd]irect03'):
+            with entry:calls.append('FORBIDDEN')
+    with guard.control('stop'):calls.append('EXPLICIT_OWNED_STOP_ALLOWED')
+    assert calls==['EXPLICIT_OWNED_STOP_ALLOWED']
+    claimed[0]=False
+    with guard.semantic():calls.append('SEMANTIC_METADATA_ENTRY')
+    with guard.control('teleop/start'):calls.append('NATIVE_METADATA_ENTRY')
+    assert guard.status()['semantic_admission_allowed']
+
+
 def test_status_under_original_station_lock_does_not_invert_native_admission_lock(tmp_path,monkeypatch):
     station,_,_,_,_,admission,_=rig(tmp_path,monkeypatch)
     owner,control_entered,allow_status,done=threading.Event(),threading.Event(),threading.Event(),threading.Event();results=[]

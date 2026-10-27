@@ -25,8 +25,9 @@ class SourceSemanticAdmission:
     VLM starts only while idle; native commands cannot enter until its actual
     backend returns/releases, including after a cancelled result.
     """
-    def __init__(self,station,vision):
+    def __init__(self,station,vision,*,source_claimed=None):
         self.station,self.vision=station,vision;self.lock=threading.RLock()
+        self.source_claimed=source_claimed or (lambda:False)
 
     def _busy(self):
         worker=self.vision.worker
@@ -37,6 +38,7 @@ class SourceSemanticAdmission:
     @contextmanager
     def semantic(self):
         with self.lock:
+            if self.source_claimed():raise RuntimeError('Stop the direct03 source owner before semantic inference')
             native=self.station.status()
             if native.get('mode')!='idle' or native.get('recording') is not None:
                 raise RuntimeError('Finish recording and explicitly stop source control before semantic inference')
@@ -49,17 +51,19 @@ class SourceSemanticAdmission:
             yield
         else:
             with self.lock:
+                if self.source_claimed():raise RuntimeError('Direct03 owns the source cache; explicitly stop it before source04 control')
                 if self._busy():raise RuntimeError('Semantic inference is active or release is unconfirmed; request fresh observation after it finishes')
                 yield
 
     def status(self):
         # This read grants nothing and must not invert Station→admission locks
         # in existing caller-owned status snapshots. Mutations recheck above.
-        native=self.station.status();busy=self._busy()
-        return dict(schema='explorer_source04_semantic_admission_v1',native_commands_blocked=busy,
-            semantic_requires_idle=True,semantic_admission_allowed=not busy and native.get('mode')=='idle' and native.get('recording') is None,
+        native=self.station.status();busy=self._busy();claimed=self.source_claimed()
+        return dict(schema='explorer_source04_semantic_admission_v1',native_commands_blocked=busy or claimed,
+            semantic_requires_idle=True,semantic_admission_allowed=not busy and not claimed and native.get('mode')=='idle' and native.get('recording') is None,
+            direct_source_claimed=claimed,
             native_mode=native.get('mode'),physical_actions_emitted=False,
-            reason='SEMANTIC_INFERENCE_OR_RELEASE_PENDING' if busy else None)
+            reason='SEMANTIC_INFERENCE_OR_RELEASE_PENDING' if busy else 'DIRECT03_SOURCE_OWNER_ACTIVE' if claimed else None)
 
 
 class LabVisionService:

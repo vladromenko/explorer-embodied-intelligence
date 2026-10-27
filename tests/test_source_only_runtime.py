@@ -57,13 +57,14 @@ def test_authenticated_localhost_source_only_route_rejects_all03_mutations_befor
     finally:server.shutdown();server.server_close();thread.join(2);agent.close()
 
 
-@pytest.mark.parametrize('mode,profile',[('pi','unknown'),('nano','so101_source_only')])
+@pytest.mark.parametrize('mode,profile',[('pi','unknown'),('nano','so101_source_only'),('nano','so101_lab')])
 def test_invalid_profiles_fail_before_constructing_devices(tmp_path,mode,profile):
     with pytest.raises(ValueError,match='runtime profile'):
         NodeAgent('fixture',mode,tmp_path/'state','local-test-source-only-token',sources={},pi_runtime_profile=profile)
 
 
-def test_profile_wires_capture_to_the_same_single_station_and_camera_without_opening_another_owner(tmp_path,monkeypatch):
+@pytest.mark.parametrize('profile',['so101_source_only','so101_lab'])
+def test_profile_wires_capture_to_the_same_single_station_and_camera_without_opening_another_owner(tmp_path,monkeypatch,profile):
     from explorer_shared import so101_station
     from explorer_shared.node_agent import CameraSource
     home=tmp_path/'home';(home/'.config/explorer').mkdir(parents=True)
@@ -81,8 +82,16 @@ def test_profile_wires_capture_to_the_same_single_station_and_camera_without_ope
         def archive(self,*args):raise AssertionError('Constructor must not read station archive')
         def close(self):pass
     monkeypatch.setattr(so101_station,'SO101Station',ExistingStation)
+    if profile=='so101_lab':
+        from types import SimpleNamespace
+        from explorer_shared.pi_native_retarget import PiNativeRetargetService
+        def existing_direct(station,state,config):
+            assert station is constructions[0]
+            geometry=SimpleNamespace(status=lambda:{'state':'BOOTSTRAP_DERIVED','physical_acceptance':False})
+            return PiNativeRetargetService(geometry,station,state,client=None)
+        monkeypatch.setattr(PiNativeRetargetService,'from_config',existing_direct)
     camera=CameraSource('pi-overview','single-software-cache')
-    agent=NodeAgent('pi','pi',tmp_path/'state','local-test-source-only-token',sources={'pi-overview':camera},pi_runtime_profile='so101_source_only')
+    agent=NodeAgent('pi','pi',tmp_path/'state','local-test-source-only-token',sources={'pi-overview':camera},pi_runtime_profile=profile)
     try:
         assert len(constructions)==1 and agent.station is constructions[0]
         assert agent.station_startup_guard.buses is agent.station.buses
@@ -97,6 +106,15 @@ def test_profile_wires_capture_to_the_same_single_station_and_camera_without_ope
                 status=json.load(response)
                 assert status['startup_safety']['disarmed_until_observed_start']
                 assert status['startup_safety']['forwarded_write_calls']==0
+            if profile=='so101_lab':
+                with urlopen(Request(origin+'/arm-retarget/status',headers={'Authorization':'Bearer local-test-source-only-token'}),timeout=2) as response:
+                    direct=json.load(response)
+                    assert direct['registration']['state']=='BOOTSTRAP_DERIVED'
+                    assert not direct['physical_path_admission']['allowed'] and direct['source04_capture_supported']
+                for operation in ('start','recenter','lease','activation/challenge','activation/authorize'):
+                    with pytest.raises(HTTPError) as denied:
+                        urlopen(Request(origin+'/arm-retarget/'+operation,data=b'{}',headers={'Authorization':'Bearer local-test-source-only-token'}),timeout=2)
+                    assert denied.value.code==409 and b'CONTINUITY_QUALIFICATION_REQUIRED' in denied.value.read()
             def post(operation):
                 return urlopen(Request(origin+'/station/'+operation,data=b'{}',headers={'Authorization':'Bearer local-test-source-only-token'}),timeout=2)
             for operation in ('teleop/start','teleop/recenter','policy/start','action','record/start','record/stage','record/finish'):
