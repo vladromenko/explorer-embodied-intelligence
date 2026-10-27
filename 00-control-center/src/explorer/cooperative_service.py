@@ -5,6 +5,7 @@ bootstrap. All physical execution defaults disabled. Existing public source
 workflows own admission/training; clients address only configured private nodes.
 """
 from copy import deepcopy
+from dataclasses import replace
 import hashlib
 import json
 from pathlib import Path
@@ -24,6 +25,7 @@ from explorer_shared.cooperative_transport05 import NativeGiverPolicyTransport
 from explorer_shared.cooperative_action_constraint05 import stationary_constraint
 from explorer_shared.cooperative_workflow05 import CooperativeWorkflow,LEGAL_STATES
 from explorer_shared.handover_adapters import OperatorEvidenceInbox
+from explorer_shared.handover_runtime import DispatchReceipt
 from . import skill_workflow as mobile
 from . import lab_skill_workflow as lab
 from .mobile_dataset_evidence import inspect_mobile_import
@@ -36,6 +38,7 @@ from .cooperative_receiver_setup import CooperativeReceiverSetup,OPERATIONS as R
 from .cooperative_native_receipts import CooperativeNativeReceipts
 from .cooperative_grant_lineage import CooperativeGrantLineage
 from .cooperative_observed_scopes import CooperativeObservedScopes
+from .cooperative_dispatch_authority import CooperativeDispatchAuthority
 
 
 def _boot():return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
@@ -79,6 +82,9 @@ class CooperativeService:
         self.native_receipts=CooperativeNativeReceipts(self)
         self.grant_lineage=CooperativeGrantLineage(self)
         self.observed_scopes=CooperativeObservedScopes(self)
+        self.dispatch_admission=CooperativeDispatchAuthority(self)
+        self.workflow.fresh_dispatch_authority=lambda row,role,operation:self.dispatch_admission.require(
+            row,self.workflow._spec_for(row),role,operation)
     def _prior_test_evidence(self,row):
         with self.store.connect() as db:
             jobs=list(db.execute("SELECT id,kind,config FROM jobs WHERE json_extract(config,'$.session_id')=? OR json_extract(config,'$.cooperative_shadow_binding.session_id')=?",
@@ -385,7 +391,19 @@ bound first; default construction cannot turn on policy execution.
     def _submit(self,role,command,authorization):
         transport=self.transports.get((command['run_id'],role))
         if transport is None:raise ValueError('CURRENT_NATIVE_'+role.upper()+'_OBSERVED_TRANSPORT_NOT_BOUND')
-        return transport.submit_observed(command,authorization)
+        row=self.workflow.snapshot(command['run_id']);spec=self.workflow._spec_for(row)
+        if (role not in ('giver','receiver') or command.get('role')!=role or command.get('coordinator_epoch')!=row['epoch'] or
+                command.get('object_id')!=row['protocol_object_id'] or command.get('reference')!=spec['subskills'][role] or
+                not self.workflow._policy_role(row,role)):
+            raise ValueError('Exact current policy-role command/context required before native submission')
+        proof=self.dispatch_admission.require(row,spec,role,command.get('operation'),expected_transport=transport)
+        self.native_controls._fresh(row,spec,(row.get('observed_test_binding') or {}).get('actor_id'))
+        with self.lock:
+            if self.transports.get((row['session_id'],role)) is not transport:raise ValueError('Native transport changed before submission')
+        receipt=transport.submit_observed(command,authorization)
+        if isinstance(receipt,DispatchReceipt):
+            return replace(receipt,source={**deepcopy(receipt.source),'root_fresh_dispatch_scope':proof})
+        return receipt  # Workflow retains and rejects a non-publication response.
     def _stop_native(self,role,run):
         transport=self.transports.get((run,role))
         if transport is None:return {'native_session_was_not_owned':True,'no_command_sent':True}

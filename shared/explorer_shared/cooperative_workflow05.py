@@ -53,6 +53,7 @@ class CooperativeWorkflow:
         self.domain,self.clock,self.authority=clock_domain,clock,authority
         self.native_owned_stop=native_owned_stop
         self.prepare_parked_release=None;self.wait_parked_release_control=None
+        self.fresh_dispatch_authority=None
         self.managed=Path(managed_root or root).resolve()
         self.lock=threading.RLock();self.record_io=threading.Lock()
         self.native_phase_condition=threading.Condition(self.lock);self.native_phase_changes={};self.native_phase_checkpoints={}
@@ -465,6 +466,33 @@ class CooperativeWorkflow:
     def _phase_current(self,fsm):
         if fsm.phase_started_ns is not None and self.clock()-fsm.phase_started_ns>fsm.phase_timeout_ns:
             raise ValueError('Original protocol phase deadline expired; no automatic release or movement')
+    def _dispatch_authority(self,row,role,operation):
+        if not callable(self.fresh_dispatch_authority):
+            legacy=self.authority(deepcopy(row))
+            if legacy.get('explicit_user_observed_test_current') is not True:
+                raise ValueError('Fresh separate observed execution authorization required')
+            return legacy
+        current=self._fresh(row,row['epoch'])
+        proof=self.fresh_dispatch_authority(deepcopy(current),role,operation);now=self.clock()
+        current=self._fresh(row,row['epoch']);pin=(proof.get('root_pin') or {}) if isinstance(proof,dict) else {}
+        if (not isinstance(proof,dict) or proof.get('schema')!='explorer_cooperative_fresh_dispatch_scope_v1' or
+                any(proof.get(key)!=value for key,value in (('run_id',row['session_id']),('object_id',row['protocol_object_id']),
+                    ('epoch',row['epoch']),('role',role),('operation',operation))) or
+                (proof.get('dispatch_authority_by_role') or {}).get(role) is not True or
+                proof.get('per_role_authority_is_metadata_preview') is not False or
+                proof.get('source_revalidation_required_before_native_dispatch') is not False or
+                proof.get('original_native_boundary_validation_still_required') is not True or
+                not (current.get('observed_test_binding') or {}).get('actor_id') or
+                proof.get('actor_id')!=(current.get('observed_test_binding') or {}).get('actor_id') or
+                pin.get('original_binding_sha256')!=digest(current.get('observed_test_binding')) or
+                pin.get('lineage_sha256')!=digest(current.get('native_grant_successors')) or
+                pin.get('ledger_sha256')!=digest(current.get('native_control_ledger')) or
+                pin.get('phase')!={'protocol_state':current.get('protocol_state'),'pending_sha256':digest(current.get('pending_operation'))} or
+                proof.get('received_clock_domain')!=self.domain or type(proof.get('received_nx_ns')) is not int or
+                not 0<=now-proof['received_nx_ns']<=2_000_000_000):
+            raise ValueError('Fresh exact role/source dispatch receipt required; cached preview cannot authorize motion')
+        self._fresh(row,row['epoch'])
+        return proof
     def _receiver_hold(self,row,after):
         result=self.inbox('receiver_holds_object',row['session_id'],row['protocol_object_id'],'receiver',after,30.)
         if (not isinstance(result,CorrelatedEvidence) or result.run_id!=row['session_id'] or
@@ -602,9 +630,7 @@ class CooperativeWorkflow:
                     raise ValueError('Policy transport is disabled outside a separate user-observed physical test; use shadow')
                 role,op=command;readiness=self.readiness(session_id)
                 if readiness['observed_execution_blockers']:raise ValueError(';'.join(readiness['observed_execution_blockers']))
-                authority=self.authority(deepcopy(row))
-                if authority.get('explicit_user_observed_test_current') is not True:
-                    raise ValueError('Fresh separate observed execution authorization required')
+                authority=self._dispatch_authority(row,role,op)
                 provider=self.registry.provider(role,spec['subskills'][role])
                 native_state=provider.observe_state()
                 self._fresh(row,epoch);self._phase_current(fsm)

@@ -58,6 +58,10 @@ class CooperativeDispatchAuthority:
                 'source':receipt.get('native') or {},'permission':receipt.get('permission') or {}}
         native._check_permission(role,row,spec,latest)
         first=native._identity(role,pair);last=native._identity(role,latest)
+        if role=='giver':
+            for key in ('grant','pending_challenge'):
+                first[key]=deepcopy((pair['source'].get('release_boundary') or {}).get(key))
+                last[key]=deepcopy((latest['source'].get('release_boundary') or {}).get(key))
         # Original stream quiescence changes during active policy execution. It
         # is a phase-park barrier, not an ordinary latest-intent admission gate.
         first.pop('quiescence',None);last.pop('quiescence',None)

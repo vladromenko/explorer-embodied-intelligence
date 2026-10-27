@@ -25,3 +25,17 @@ Source GET, поздний ответ после STOP и каждая отсут
 прошли28.40s, lease-case отдельно4.92s, обе armed negatives9.80s. Первые две
 ошибки lease-test были неверной единицей fake clock и слишком узким regex;
 сами причины сохранены. На реальные устройства команды не отправлялись.
+
+Проверка подключена к Workflow и непосредственно к `Service._submit`.
+Workflow требует отдельную fresh schema, requested role/operation, Root actor,
+epoch, исходные grant/lineage/ledger/phase pins и часы NX. Metadata preview
+не может заменить этот receipt даже при legacy global=true. Перед native RPC
+Service повторяет actual Source GET, сверяет exact command/reference/transport;
+receipt сохраняет original native fields и добавляет derived Root admission.
+Конструктор по-прежнему ничего не включает и не запрашивает.
+
+57 combined tests/49.03s прошли; после добавления phase pin —18 wiring
+tests/1.71s. Проверены cached/wrong/stale/foreign contexts, изменение ledger
+во время проверки, повторная проверка перед submit и неизменность raw native
+receipt. Explicit STOP сохраняет authenticated actor; internal STOP использует
+исходного bound actor, не выдавая повторную cleanup команду.

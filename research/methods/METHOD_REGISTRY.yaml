@@ -5763,6 +5763,11 @@
           "command": "python -m pytest tests/test_cooperative_dispatch_authority.py -q",
           "result": "Eight cases verified in targeted runs:5passed28.40s, corrected lease case1passed4.92s, two armed negatives2passed9.80s. Actual Root/Node/COMMON/source wrappers with fake buses only; no real hardware IO. Initial fake-clock unit and regex failures retained.",
           "scope": "SOFTWARE_ONLY_NO_HARDWARE_VALIDATION"
+        },
+        {
+          "command": "python -m pytest tests/test_cooperative_dispatch_authority.py tests/test_cooperative_dispatch_wiring.py tests/test_cooperative_service.py tests/test_cooperative_workflow_owned_stop.py tests/test_parked_release_transport05.py -q",
+          "result": "57 combinedPASS49.03s; final18wiringPASS1.71s after exact phase pin check. Fresh GET gate wired in Workflow and immediately before Service native submit; wrong/cached/foreign/current-ledger mutations blocked and original nested native receipt preserved. No real device IO.",
+          "scope": "SOFTWARE_ONLY_NO_HARDWARE_VALIDATION"
         }
       ],
       "hardware_run_ids": []
