@@ -277,6 +277,19 @@ class CooperativeService:
                         'timeline_url':'/api/lab/skills/imports/'+job['id']+'/timeline' if role=='receiver' else None}
                     value['choice_id']=digest({'role':role,**value});choices[role].append(value)
         return choices
+    @staticmethod
+    def _giver_source(state):
+        source=(state or {}).get('source_receipt') or {}
+        if isinstance(source,dict) and source.get('schema')!='explorer_native_cooperative_owner_v1':source=source.get('native') or {}
+        return source if isinstance(source,dict) and source.get('schema')=='explorer_native_cooperative_owner_v1' else {}
+    @staticmethod
+    def _durable_giver(boundary):
+        proof=(boundary or {}).get('persistence') or {}
+        return bool(isinstance(proof,dict) and all(proof.get(key) is True for key in
+            ('installed','healthy','initialized','fail_closed_publication_gate')) and
+            proof.get('recovery_required') is False and proof.get('pending') is False and proof.get('fault') is None and
+            re.fullmatch('[0-9a-f]{32}',str(proof.get('state_id'))) and type(proof.get('revision')) is int and proof['revision']>=0 and
+            re.fullmatch('[0-9a-f]{64}',str(proof.get('last_sealed_sha256'))))
     def _authority(self,row):
         transport=self.transports.get((row['session_id'],'giver'));authority=self.native_bindings.get(row['session_id'])
         receiver=self.transports.get((row['session_id'],'receiver'))
@@ -288,10 +301,14 @@ class CooperativeService:
         current=bool(row.get('observed_test_binding') and row['execution_domain']=='user_observed_physical_test' and
             row['status'] not in ('STOPPED','INTERRUPTED','COMPLETED') and authority and authority['epoch']==row['epoch'] and
             giver_state.get('current_native_owner_ready') is True and receiver_state.get('current_native_owner_ready') is True)
+        durable=self._durable_giver(self._giver_source(giver_state).get('release_boundary'))
         interlock=receiver_state.get('cooperative_dual_hold_publication_interlock_current') is True
-        return {'explicit_user_observed_test_current':current and interlock,'source_receipt':deepcopy(authority),
+        return {'explicit_user_observed_test_current':current and interlock and durable,'source_receipt':deepcopy(authority),
             'both_current_user_grants_and_native_owners':current,'receiver_dual_hold_publication_interlock_current':interlock,
-            'reason':None if current and interlock else 'NATIVE_RECEIVER_DUAL_HOLD_PUBLICATION_INTERLOCK_REQUIRED' if current else
+            'giver_durable_dual_hold_publication_interlock_current':durable,
+            'reason':None if current and interlock and durable else
+                'NATIVE_GIVER_DURABLE_DUAL_HOLD_PUBLICATION_INTERLOCK_REQUIRED' if current and interlock and not durable else
+                'NATIVE_RECEIVER_DUAL_HOLD_PUBLICATION_INTERLOCK_REQUIRED' if current else
                 'BOTH_EXACT_SCOPED_NATIVE_TRANSPORTS_AND_CURRENT_USER_LEASES_REQUIRED'}
     def _observed_state(self,role):
         with self.lock:candidates=[transport for (session,kind),transport in self.transports.items() if kind==role]
@@ -347,9 +364,12 @@ bound first; default construction cannot turn on policy execution.
             raise ValueError('Both current original publication guards required')
         # A failure after the first arm leaves its durable latch in place. The
         # workflow scopes STOP to both owned transports; it never unarms them.
+        state=giver.observe_state() if callable(getattr(giver,'observe_state',None)) else {}
+        if state.get('current_native_owner_ready') is not True or not self._durable_giver(self._giver_source(state).get('release_boundary')):
+            raise ValueError('Current durable giver publication latch required before either guard arm')
         received=receiver.arm_release_guard(row)
         offered=giver.arm_release_guard(row)
-        if (received.get('native_receiver_dual_hold_guard') or {}).get('armed') is not True or offered.get('armed') is not True:
+        if (received.get('native_receiver_dual_hold_guard') or {}).get('armed') is not True or offered.get('armed') is not True or not self._durable_giver(offered):
             raise ValueError('Both original native publication boundaries must confirm arm')
         return {'receiver':received,'giver':offered,'both_original_publication_boundaries_armed':True,
             'hardware_command_sent':False,'attainment_or_hold_claimed':False}
@@ -436,6 +456,14 @@ bound first; default construction cannot turn on policy execution.
             name=role+'-original.jpg';path=folder/name
             if metadata['zone_id']!=identity or sha_file(path)!=metadata['source_files_sha256'][name]:raise ValueError('Original zone JPEG changed')
             media='image/jpeg'
+        elif kind=='receiver-metadata' and role is None:
+            folder=self.root/'receiver-metadata'/identity;metadata=json.loads((folder/'registration.json').read_bytes());path=folder/'receipt.json'
+            document=json.loads(path.read_bytes())
+            if (metadata.get('receipt_id')!=identity or sha_file(path)!=metadata.get('receipt_sha256') or
+                    document.get('schema')!='explorer_cooperative_receiver_metadata_evidence_v1' or document.get('receipt_id')!=identity or
+                    document.get('context')!=metadata.get('context')):
+                raise ValueError('Original receiver metadata receipt changed')
+            media='application/json'
         elif kind=='recording' and role is None:
             folder=self.root/'recordings'/identity;metadata=json.loads((folder/'archive-info.json').read_bytes());path=folder/'recording.tar'
             if metadata['recording_id']!=identity or sha_file(path)!=metadata['archive_sha256']:raise ValueError('Original cooperative archive changed')

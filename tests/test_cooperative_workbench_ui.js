@@ -206,3 +206,12 @@ test('receiver metadata wrapper pins epoch, uses operation-specific fields and f
   await client.receiverSetupOperation('receiver_setup_capture_empty_open',{receiver_setup_choice_id:'a'.repeat(64),observation_choice_id:'b'.repeat(32),displayed_jpeg_sha256:'c'.repeat(64),observing:true,user_observed_test_confirmed:true,empty_gripper_confirmed:true});
   assert.equal(calls.at(-1)[2].expected_epoch,'epoch-one');await client.stop();assert.throws(()=>client.receiverSetupOperation('receiver_setup_refresh',{}),/После STOP/);
 });
+
+
+test('source metadata artifacts survive a stopped session and page recreation with fixed same-origin links',async()=>{
+ const state=fixture(),receipt={receipt_id:'a'.repeat(32),sha256:'b'.repeat(64),operation:'adopt_hold',url:'/api/cooperative/artifacts/receiver-metadata/'+'a'.repeat(32)};
+ state.workbench.sessions[0].status='STOPPED';state.workbench.sessions[0].receiver_metadata_receipts=[receipt,{...receipt,url:'javascript:move()'}];
+ const r=await rig({get:async()=>clone(state)}),before=r.calls.length,html=cooperativeWorkbenchPanel(r.client.snapshot());
+ assert.match(html,/Сохранённые проверки SO101/);assert.ok(html.includes(receipt.url));assert.ok(!html.includes('javascript:'));
+ assert.match(html,/Сохранённая запись недоступна/);assert.equal(r.calls.length,before);
+});

@@ -1,6 +1,7 @@
 """Real temp workflow/observed cache/COMMON/WAL; fake native owners, no motors."""
 from copy import deepcopy
 import hashlib
+import json
 import threading
 
 import pytest
@@ -227,6 +228,39 @@ def test_real_root_helper_adopts_original_worker_hold_with_server_owned_ids_and_
             'observing':True,'user_observed_test_confirmed':True,'actor_id':'trusted-owner'}]
         assert result['source_receipt']['schema']=='explorer_station_cooperative_successor_receipt_v1'
         assert result['physical_execution_authorized'] is False and bus.writes==writes
+        receipt=result['metadata_receipt'];path,mime=service.artifact('receiver-metadata',receipt['receipt_id'])
+        assert mime=='application/json' and hashlib.sha256(path.read_bytes()).hexdigest()==receipt['sha256']
+        recorded=json.loads(path.read_bytes());assert recorded['source_receipt']==result['source_receipt']
+        assert service.workflow.snapshot(row['session_id'])['receiver_metadata_receipts'][-1]==receipt
+        assert not recorded['physical_execution_authorized'] and not service.transports
+        path.write_bytes(b'CHANGED_RECEIPT')
+        with pytest.raises(ValueError,match='receipt changed'):service.artifact('receiver-metadata',receipt['receipt_id'])
         assert wrapper.status()['armed'] and wrapper.status()['parked_observation_only']
         assert not helper.refresh(row,spec,actor='trusted-owner')['operations']['adopt_hold']['available']
     finally:service.close();client.close()
+
+
+def test_metadata_artifact_io_never_holds_workflow_stop_and_late_pointer_cannot_revive_session(tmp_path,monkeypatch):
+    import explorer.cooperative_receiver_setup as module
+    helper,service,row,spec,pair,wrapper,client=rig(tmp_path);entered,release,stopped=threading.Event(),threading.Event(),threading.Event();errors=[]
+    try:
+        capture(helper,service,row,spec,pair,'empty_open',80.);capture(helper,service,row,spec,pair,'empty_closed',20.)
+        body=choose(helper,row,spec,'bind_guard');before=service.workflow.snapshot(row['session_id'])['receiver_metadata_receipts']
+        write=module.write_original
+        def blocked(path,raw):
+            if path.name=='receipt.json':entered.set();assert release.wait(3)
+            return write(path,raw)
+        monkeypatch.setattr(module,'write_original',blocked)
+        def save():
+            try:helper.execute('bind_guard',row,spec,body,actor='trusted-owner')
+            except ValueError as error:errors.append(error)
+        thread=threading.Thread(target=save);thread.start();assert entered.wait(1)
+        def cancel():
+            try:service.command('stop',{'session_id':row['session_id'],'expected_epoch':row['epoch']},authenticated_actor='trusted-owner')
+            finally:stopped.set()
+        stop=threading.Thread(target=cancel);stop.start();assert stopped.wait(1),'Artifact writer blocked workflow STOP'
+        release.set();thread.join(2);stop.join(2)
+        current=service.workflow.snapshot(row['session_id'])
+        assert current['status']=='STOPPED' and current['receiver_metadata_receipts']==before and errors
+        assert pair.station.calls==[] and not thread.is_alive() and not stop.is_alive()
+    finally:release.set();close(service,pair,client)

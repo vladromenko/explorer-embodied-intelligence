@@ -56,4 +56,6 @@ def test_cooperative_routes_pin_session_scope_actor_and_managed_artifact(tmp_pat
         media=client.get('/api/cooperative/artifacts/zone/'+ident+'?role=giver')
         assert media.status_code==200 and media.content==raw and media.headers['cache-control']=='no-store'
         assert client.get('/api/cooperative/artifacts/zone/'+ident+'?file=/etc/passwd').status_code==400
+        assert client.get('/api/cooperative/artifacts/receiver-metadata/'+ident).status_code==200
+        assert client.get('/api/cooperative/artifacts/receiver-metadata/'+ident+'?path=/etc/passwd').status_code==400
         assert client.post('/api/cooperative/step',json=[],headers=headers).status_code==409

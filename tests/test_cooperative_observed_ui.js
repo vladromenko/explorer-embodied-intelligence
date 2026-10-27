@@ -181,3 +181,13 @@ test('held observation adoption uses only opaque choice and flags and never star
  assert.deepEqual(r.receiverCalls,[['receiver_setup_refresh',{}],['receiver_setup_adopt_hold',{receiver_setup_choice_id:digest('a'),observing:true,user_observed_test_confirmed:true}]]);
  assert.equal(r.client.snapshot().watching,false);assert.equal(r.client.snapshot().receiverSetup,null);
 });
+
+
+test('metadata receipt uses exact authenticated artifact link and SHA, fenced on context loss',async()=>{
+ const r=await receiverRig(),invoke=r.options.invokeReceiverSetup,receipt={receipt_id:id('a'),sha256:digest('b'),url:'/api/cooperative/artifacts/receiver-metadata/'+id('a')};
+ r.options.invokeReceiverSetup=async(op,fields)=>{const result=await invoke(op,fields);return op==='receiver_setup_refresh'?result:{...result,metadata_receipt:receipt};};
+ await r.client.receiverRefresh();receiverAffirm(r.client);await r.client.receiverCommand('adopt_hold',digest('a'));
+ assert.deepEqual(r.client.snapshot().receiverReceipt,receipt);assert.match(cooperativeObservedPanel(r.client.snapshot()),/Сохранённая проверка SO101/);
+ const forged=r.client.snapshot();forged.receiverReceipt.url='javascript:move()';assert.ok(!cooperativeObservedPanel(forged).includes('javascript:'));
+ r.client.setVisible(false);assert.equal(r.client.snapshot().receiverReceipt,null);
+});

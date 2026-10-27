@@ -11,16 +11,22 @@ from test_cooperative_workflow05 import fixture,zone,run_step
 def test_root_arms_receiver_before_giver_and_never_implicitly_unarms_after_partial_failure():
     order=[];latched={'receiver':False}
     def receiver(row):order.append('receiver');latched['receiver']=True;return {'native_receiver_dual_hold_guard':{'armed':True}}
-    def giver(row):order.append('giver');return {'armed':True}
+    durability={'installed':True,'healthy':True,'initialized':True,'fail_closed_publication_gate':True,'recovery_required':False,
+        'pending':False,'fault':None,'state_id':'a'*32,'revision':1,'last_sealed_sha256':'b'*64}
+    source=lambda:{'current_native_owner_ready':True,'source_receipt':{'schema':'explorer_native_cooperative_owner_v1','release_boundary':{'persistence':durability}}}
+    def giver(row):order.append('giver');return {'armed':True,'persistence':durability}
     service=CooperativeService.__new__(CooperativeService)
-    service.transports={('run','receiver'):SimpleNamespace(arm_release_guard=receiver),('run','giver'):SimpleNamespace(arm_release_guard=giver)}
+    service.transports={('run','receiver'):SimpleNamespace(arm_release_guard=receiver),('run','giver'):SimpleNamespace(arm_release_guard=giver,observe_state=source)}
     result=service._arm_guard({'session_id':'run'})
     assert order==['receiver','giver'] and result['both_original_publication_boundaries_armed']
     order.clear()
     def failed(row):order.append('giver');raise ValueError('unknown giver arm return')
-    service.transports[('run','giver')]=SimpleNamespace(arm_release_guard=failed)
+    service.transports[('run','giver')]=SimpleNamespace(arm_release_guard=failed,observe_state=source)
     with pytest.raises(ValueError,match='unknown giver'):service._arm_guard({'session_id':'run'})
     assert order==['receiver','giver'] and latched['receiver']
+    order.clear();durability['initialized']=False
+    with pytest.raises(ValueError,match='durable giver'):service._arm_guard({'session_id':'run'})
+    assert order==[]
 
 
 @pytest.mark.parametrize('manual',[False,True])
@@ -81,3 +87,22 @@ def test_missing_receiver_finish_boundary_stops_protocol_without_claiming_transf
     assert current['status']=='STOPPED' and current['protocol_state']=='SAFE_STOP'
     assert not any(item[0]=='object_transferred_to_receiver' for item in inbox.calls)
     assert len(calls)==2
+
+
+def test_root_full_authority_requires_actual_durable_giver_not_only_two_live_owners(tmp_path):
+    from test_native_giver_persistence import fixture as actual_giver
+    owner,*_=actual_giver(tmp_path)
+    row={'session_id':'run','epoch':'epoch','status':'ACTIVE','observed_test_binding':{},'execution_domain':'user_observed_physical_test'}
+    row['observed_test_binding']={'actor_id':'SOFTWARE-FIXTURE'}
+    service=CooperativeService.__new__(CooperativeService);service.native_bindings={'run':{'epoch':'epoch'}}
+    state={'current_native_owner_ready':True,'source_receipt':owner.status()}
+    def observed():
+        state['source_receipt']=owner.status();return state
+    service.transports={('run','giver'):SimpleNamespace(observe_state=observed),('run','receiver'):SimpleNamespace(observe_state=lambda:{'current_native_owner_ready':True,'cooperative_dual_hold_publication_interlock_current':True})}
+    assert service._authority(row)['explicit_user_observed_test_current']
+    owner.guard.journal.fail('EXPLICIT_SOFTWARE_WAL_FAILURE')
+    blocked=service._authority(row);assert not blocked['explicit_user_observed_test_current'] and not blocked['giver_durable_dual_hold_publication_interlock_current']
+    assert blocked['reason']=='NATIVE_GIVER_DURABLE_DUAL_HOLD_PUBLICATION_INTERLOCK_REQUIRED'
+    state['source_receipt']['release_boundary'].pop('persistence')
+    service.transports[('run','giver')]=SimpleNamespace(observe_state=lambda:state)
+    assert not service._authority(row)['explicit_user_observed_test_current']

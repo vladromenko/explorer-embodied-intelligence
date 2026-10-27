@@ -5231,6 +5231,35 @@
         "tests/test_cooperative_api.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-GIVER-HOLD-JOURNAL-20261027",
+      "function_or_module": "shared/explorer_shared/giver_hold_persistence05.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/CODE_ARCHITECTURE_AUDIT_20261026.md",
+          "role": "Typed repository adapters and evidence scopes"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_OR_EXPLICIT_SOFTWARE_FIXTURES",
+      "changes_and_reason": "Source-owned initialized WAL retains the giver dual-hold barrier across restart/loss/corruption; publication and zero STOP use cached gates, without controller settings or fabricated feedback.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_native_giver_persistence.py",
+        "tests/test_cooperative_interlock_coordinator.py",
+        "tests/test_native_web_startup_qualification.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

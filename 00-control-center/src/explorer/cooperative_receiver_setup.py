@@ -10,7 +10,8 @@ import re
 import threading
 import uuid
 
-from explorer_shared.contracts import digest
+from explorer_shared.contracts import digest,canonical
+from explorer_shared.cooperative_recording05 import write_original
 from explorer_shared.station_observed_http import StationObservedHttp
 
 OPERATIONS=('bind_guard','capture_empty_open','capture_empty_closed','reset_safe','adopt_hold')
@@ -133,6 +134,29 @@ class CooperativeReceiverSetup:
                 frame.get('frame_boot_id')!=grant['boot_id'] or frame.get('frame_clock_domain')!=grant['clock_domain']):
             raise ValueError('Exact served existing observed-setup JPEG/current actor/grant/calibration required')
         return frame
+    def _record_receipt(self,operation,row,spec,actor,source_receipt,selected):
+        """Immutable custody outside workflow locks; never promotes authority."""
+        self._fresh(row,spec,actor);self._current_choice(selected,row)
+        identity=uuid.uuid4().hex
+        document={'schema':'explorer_cooperative_receiver_metadata_evidence_v1','receipt_id':identity,
+            'operation':operation,'context':self.observed._context(row,spec),'actor_id':actor,
+            'source_receipt':deepcopy(source_receipt),'received_nx_ns':self.clock(),
+            'received_clock_domain':self.workflow.domain,'native_command_sent':False,
+            'native_lease_or_user_observation_renewed':False,'physical_execution_authorized':False}
+        raw=canonical(document);checksum=digest(document);folder=self.service.root/'receiver-metadata'/identity
+        write_original(folder/'receipt.json',raw);(folder/'receipt.json').chmod(0o600)
+        registration={'schema':'explorer_cooperative_receiver_metadata_registration_v1','receipt_id':identity,
+            'receipt_sha256':checksum,'context':document['context'],'operation':operation}
+        write_original(folder/'registration.json',canonical(registration));(folder/'registration.json').chmod(0o600)
+        with self.workflow.lock:
+            current=self._fresh(row,spec,actor);self._current_choice(selected,row)
+            record={'receipt_id':identity,'sha256':checksum,'operation':operation,
+                'url':'/api/cooperative/artifacts/receiver-metadata/'+identity}
+            history=current.setdefault('receiver_metadata_receipts',[])
+            if not isinstance(history,list) or len(history)>=128:raise ValueError('Explicit receiver metadata receipt inventory bound reached')
+            history.append(deepcopy(record));self.workflow._save(current)
+            return record
+
     def execute(self,operation,row,spec,body,*,actor):
         common={'receiver_setup_choice_id','observing','user_observed_test_confirmed','session_id','expected_epoch'}
         extra={'bind_guard':set(),'capture_empty_open':{'observation_choice_id','displayed_jpeg_sha256','empty_gripper_confirmed'},
@@ -173,7 +197,8 @@ class CooperativeReceiverSetup:
             result=facade.cooperative(native_op,payload,authenticated_actor=actor)
             self._fresh(row,spec,actor);self._current_choice(selected,row)
             if operation.startswith('capture_'):self._displayed(body.get('observation_choice_id'),row,spec,body,actor,grant)
-            return {'operation':operation,'source_receipt':deepcopy(result),'native_command_sent':False,
+            receipt=self._record_receipt(operation,row,spec,actor,result,selected)
+            return {'operation':operation,'source_receipt':deepcopy(result),'metadata_receipt':receipt,'native_command_sent':False,
                 'native_lease_or_user_observation_renewed':False,'physical_execution_authorized':False}
         finally:
             with self.lock:self.pending.discard(row['session_id']);self.cache.pop(row['session_id'],None)
