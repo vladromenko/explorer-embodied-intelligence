@@ -6000,6 +6000,68 @@
         "tests/test_native_capture_approval.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-CAPTURE-RANGE-20261027",
+      "function_or_module": "shared/explorer_shared/native_capture_download.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:00-control-center/src/explorer/native_capture_approval.py",
+          "role": "Exact Source archive/review identity gates"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/native_capture.py",
+          "role": "Immutable sealed native archive producer"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_OR_TRAINING",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Bounded Source read-only single-range HTTP serving of one server-selected sealed archive; full SHA/ETag, exact206, old-byte preservation, no device IO.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_native_capture_transfer.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-CAPTURE-TRANSFER-20261027",
+      "function_or_module": "00-control-center/src/explorer/native_capture_transfer.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:00-control-center/src/explorer/native_capture_approval.py",
+          "role": "Exact Source archive/review identity gates"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/native_capture.py",
+          "role": "Immutable sealed native archive producer"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_OR_TRAINING",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Fixed authenticated Source approval before/after streaming transfer, durable partial bytes, explicit206 resume, full archiveSHA, cancellation and unchanged Source originals; failed transfer is never admitted.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_native_capture_transfer.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
