@@ -1,0 +1,1 @@
+{"cgroup":"/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-recorded-initial-export-20261027-a1.service","failure":null,"limits":{"cpu.max":"100000 100000","memory.max":"2147483648","memory.swap.max":"0"},"memory_events":"low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n","memory_peak_bytes":1326534656,"pid":2072023,"swap_peak_bytes":0}

@@ -1,0 +1,1 @@
+{"cgroup":"/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-recorded-initial-capture-20261027-a1.service","failure":null,"limits":{"cpu.max":"100000 100000","memory.max":"3221225472","memory.swap.max":"0"},"memory_events":"low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n","memory_peak_bytes":1463365632,"pid":2070437,"swap_peak_bytes":0}
