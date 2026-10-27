@@ -352,7 +352,9 @@
               "status": "PASS",
               "evidence": [
                 "_registry/evidence/experiment02-learning-actual-722755dc-20261027.json",
-                "shared/training/NATIVE02_QUEUED_CPU_20261027_QUALIFICATION.json"
+                "shared/training/NATIVE02_QUEUED_CPU_20261027_QUALIFICATION.json",
+                "shared/training/NATIVE02_QUEUED_CPU_R3_20261027_QUALIFICATION.json",
+                "shared/training/NATIVE6_QUEUE_03_SHARED_CONTROLLER_R6_20261027_RU.md"
               ],
               "stage": "02A",
               "validation_scope": "Real Nano observations-only acquisition/import and immutable actual CPU computational generated-source proof are distinct. Real expert demonstrations remain open, never replaced by technical observations."
@@ -373,7 +375,9 @@
               "status": "PASS",
               "evidence": [
                 "_registry/evidence/experiment02-learning-actual-722755dc-20261027.json",
-                "shared/training/NATIVE02_QUEUED_CPU_20261027_QUALIFICATION.json"
+                "shared/training/NATIVE02_QUEUED_CPU_20261027_QUALIFICATION.json",
+                "shared/training/NATIVE02_QUEUED_CPU_R3_20261027_QUALIFICATION.json",
+                "shared/training/NATIVE6_QUEUE_03_SHARED_CONTROLLER_R6_20261027_RU.md"
               ],
               "stage": "02B",
               "validation_scope": "Real Nano observations-only acquisition/import and immutable actual CPU computational generated-source proof are distinct. Real expert demonstrations remain open, never replaced by technical observations."
@@ -414,7 +418,9 @@
               "status": "PASS",
               "evidence": [
                 "_registry/evidence/experiment02-learning-actual-722755dc-20261027.json",
-                "shared/training/NATIVE02_QUEUED_CPU_20261027_QUALIFICATION.json"
+                "shared/training/NATIVE02_QUEUED_CPU_20261027_QUALIFICATION.json",
+                "shared/training/NATIVE02_QUEUED_CPU_R3_20261027_QUALIFICATION.json",
+                "shared/training/NATIVE6_QUEUE_03_SHARED_CONTROLLER_R6_20261027_RU.md"
               ],
               "stage": "02B",
               "validation_scope": "Real Nano observations-only acquisition/import and immutable actual CPU computational generated-source proof are distinct. Real expert demonstrations remain open, never replaced by technical observations."
@@ -519,9 +525,9 @@
         "priority_status": "CURRENT PRIORITY",
         "url_path": "/experiments/03",
         "software_readiness": {
-          "passed": 5,
+          "passed": 6,
           "total": 13,
-          "percent": 38.5,
+          "percent": 46.2,
           "ready_for_use": false,
           "gates": [
             {
@@ -584,8 +590,13 @@
             {
               "id": "03-learning",
               "title": "Reuse completed 02 dataset/train/resume/reload/offline/shadow pipeline without copying",
-              "status": "OPEN",
-              "evidence": []
+              "status": "PASS",
+              "evidence": [
+                "03-lerobot-teaching/docs/NATIVE03_DATA_CONSUMER_RU.md",
+                "03-lerobot-teaching/docs/NATIVE03_DATASET_FIXTURE_20261027.json",
+                "03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_20261027.json"
+              ],
+              "validation_scope": "Shared native producer/approved import and exact official Dataset106/9; actual CPU ACT4/save-reload and separate DEV10 under source03 metadata on generated input originals. Real expert demonstrations, live source shadow and continuity remain OPEN."
             },
             {
               "id": "03-guide",
@@ -612,7 +623,8 @@
               "title": "Real leader recorded-command continuity qualification before physical path deployment; stable ACTIVE preserves original shaping and frequency, no chatter/substituted zeros/clutch jump",
               "status": "OPEN",
               "evidence": [
-                "03-lerobot-teaching/docs/CONTINUITY_ACCEPTANCE_RU.md"
+                "03-lerobot-teaching/docs/CONTINUITY_ACCEPTANCE_RU.md",
+                "03-lerobot-teaching/docs/CONTINUITY_20261027.json"
               ],
               "mandatory_before_physical_command_path_deploy": true,
               "synthetic_or_static_inputs_alone_are_not_full_pass": true
@@ -645,13 +657,14 @@
             }
           ]
         },
-        "proven_done_ru": "Pi→Nano software stream, исходная calibration arithmetic, typed9D запись, epoch/STOP компоненты",
-        "software_remaining_ru": "Переиспользовать полный02; mirror, два режима, FK/IK/clutch/gripper, latency, один полный UI цикл; обязательная continuity-квалификация на реальных входах до physical-path deploy",
+        "proven_done_ru": "Pi→Nano software stream/epoch fences, calibration arithmetic, общий Nano capture/import, Dataset106/9 и actual generated-source03 ACT4→reload→DEV10",
+        "software_remaining_ru": "Реальный continuity PASS до physical-path deploy; registration/mirror/два режима и actual UI/data cycle/release; экспертные показы отдельно",
         "physical_remaining_ru": "Registration/task axes/gripper, real changing shadow; неподвижное шасси, малая амплитуда и одно непрерывное supervised движение без рывков",
         "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED",
         "camera_requirement": "Nano primary task scene; sole Pi Logitech optional named leader/workfield auxiliary, never fallback or implicitly synchronized",
         "new_physical_command_path_deployment_allowed": false,
-        "continuity_qualification_status": "OPEN"
+        "continuity_qualification_status": "OPEN",
+        "software_ready": false
       },
       {
         "experiment_id": "04",

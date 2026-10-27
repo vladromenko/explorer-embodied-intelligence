@@ -1,0 +1,238 @@
+{
+  "schema": "explorer_native02_queued_cpu_qualification_v1",
+  "qualification_source_commit": "f69b7d4efc3a03e70410222f9e6292d560a54fce",
+  "qualified_source_files_sha256": {
+    "00-control-center/src/explorer/app.py": "f1976760749b947318dd6837b177f8540618adeb89813b12b87e802839efe0bd",
+    "00-control-center/src/explorer/config.py": "1bc8205f1c50d42beb52e4008c4553f91e7013f6d75c8d6fc4bd2824479d06d7",
+    "00-control-center/src/explorer/job_runner.py": "fd3391fa71b03a706a948e70286bc29a577190ff2f1814e1e786c46515ff1c7c",
+    "00-control-center/src/explorer/qualification_bindings.py": "4a18a316b6ada238c23915670dd0e60fa04c2cd6a1556b897b8df65a03a0d400",
+    "00-control-center/src/explorer/queue_policy.py": "04498ff40ee988cff08e5ee8d14b641ed6bdb0f6f04f4229f3e63a8d3e281f5d",
+    "00-control-center/src/explorer/rosmaster_eval_job.py": "633421c99cf667688aea7af90fe3ab75ea85e0d91b6f248f540fd9c4b1f1762e",
+    "00-control-center/src/explorer/rosmaster_learning.py": "86c3bdca4f258c331157e14e94f57ed854699102d3c23ac763716ede5b6c0c07",
+    "00-control-center/src/explorer/scheduler.py": "8f219f6257e3c967443e682801a1afb9674cd7135d43637788407007100901d3",
+    "00-control-center/src/explorer/skill_workflow.py": "b9bc41ac368fdf3edfb76fc5860aa1c9b3c57f39b3d7dc4be0e09e5eced33048",
+    "00-control-center/src/explorer/skill_workflow_api.py": "5cde64ca15652a5a02c35ddd784cf519b801c92edfe4974ee65a3e6e488726ae",
+    "00-control-center/src/explorer/store.py": "613c33e35865427bcb748455e0869ba9cc489366022889f267120468c2747b47",
+    "00-control-center/src/explorer/worker_bootstrap.py": "2855c8757a5574a03001db091090acff54421d1fc453dc89a63e493f4e9c3306",
+    "shared/explorer_shared/learning/act_backend.py": "4bad89f03289705570aa7e4a2c2eeea571a319e2e7dcc7a8f4bd6df96b049137",
+    "shared/explorer_shared/learning/rosmaster_lerobot_dataset.py": "60a30447966fd2940bebf2a8d1f1f6cb613f4a8f759969c3d9bddb1a200b5c21",
+    "shared/explorer_shared/learning/rosmaster_skill_pipeline.py": "90543a1182b196a38aa6a2d7c24a040fd79f7d3d733180f77ff1108e850cbaa6",
+    "shared/explorer_shared/learning/rosmaster_skill_segments.py": "f9ce8d1a79dd6dcbfd5f00896f45b462861dfef41c33081ccef38b007900fa7b",
+    "tests/native02_queue_helpers.py": "a00628d52ab3082892c342f0008495cf8f92b29526fe7cc70fa8b1bb2e911e71",
+    "tests/test_native02_queue_contract.py": "050ad7f19384b72df0ad078dc3751a12870b5270c3538d76047f786becc918c8",
+    "tests/test_native02_queued_learning.py": "3fcb24facaca5e5a93f64bb8170760dd2a6e99eb5aca3480fdb3003137d9396a"
+  },
+  "qualified_materialized_archive_sources_sha256": {
+    "00-control-center/src/explorer/scheduler.py": "8f219f6257e3c967443e682801a1afb9674cd7135d43637788407007100901d3",
+    "00-control-center/src/explorer/worker_bootstrap.py": "2855c8757a5574a03001db091090acff54421d1fc453dc89a63e493f4e9c3306",
+    "00-control-center/src/explorer/job_runner.py": "fd3391fa71b03a706a948e70286bc29a577190ff2f1814e1e786c46515ff1c7c",
+    "00-control-center/src/explorer/queue_policy.py": "04498ff40ee988cff08e5ee8d14b641ed6bdb0f6f04f4229f3e63a8d3e281f5d",
+    "00-control-center/src/explorer/store.py": "613c33e35865427bcb748455e0869ba9cc489366022889f267120468c2747b47",
+    "00-control-center/src/explorer/rosmaster_eval_job.py": "633421c99cf667688aea7af90fe3ab75ea85e0d91b6f248f540fd9c4b1f1762e",
+    "00-control-center/src/explorer/rosmaster_learning.py": "86c3bdca4f258c331157e14e94f57ed854699102d3c23ac763716ede5b6c0c07",
+    "shared/explorer_shared/learning/rosmaster_skill_pipeline.py": "90543a1182b196a38aa6a2d7c24a040fd79f7d3d733180f77ff1108e850cbaa6",
+    "shared/explorer_shared/learning/rosmaster_lerobot_dataset.py": "60a30447966fd2940bebf2a8d1f1f6cb613f4a8f759969c3d9bddb1a200b5c21",
+    "shared/explorer_shared/learning/rosmaster_skill_segments.py": "f9ce8d1a79dd6dcbfd5f00896f45b462861dfef41c33081ccef38b007900fa7b",
+    "shared/explorer_shared/learning/act_backend.py": "4bad89f03289705570aa7e4a2c2eeea571a319e2e7dcc7a8f4bd6df96b049137",
+    "shared/explorer_shared/learning/rosmaster_skill_features.py": "2ad274e56c0ec7bd3dff98461c21f0bcad3640ccc846cc8e5c5a4acb39b0d8e8",
+    "shared/explorer_shared/learning/rosmaster_skill_hybrid.py": "d5a103865a24ac70981a5e0e648c1aafe484551a3798f0201601f40682230274",
+    "shared/explorer_shared/learning/checkpoint_control.py": "4f62174e05516718299024be500677fb17948591830153fcc811f40d77959380",
+    "shared/explorer_shared/learning/artifacts.py": "c218abfc061878c85fdc7651df1de95beb2727d2afc4de193ba4b6d284d8d626",
+    "shared/explorer_shared/learning/runtime_profiles.py": "9cf18d5a9855cb7ea6d47acc3bd93f85cf1a2f0b7f32d4c3c3c0572cd17a7fa9",
+    "shared/explorer_shared/native_capture_approval.py": "eaefd2c6bf542f8cd490309423aece7b1e21529e32a011aa749580398d9e484d",
+    "00-control-center/src/explorer/native_capture_cohort.py": "b9eaf5dff48a062392853d0449a065a332fcd4c1579140bc7b05451066b6458f"
+  },
+  "runtime_packages": {
+    "datasets": "4.8.5",
+    "lerobot": "0.6.1",
+    "numpy": "2.2.6",
+    "pyarrow": "26.0.0",
+    "torch": "2.11.0",
+    "torchvision": "0.26.0"
+  },
+  "raw_root": "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e",
+  "raw_immutable_receipts_sha256": {
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/request.json": "3c4a8ab346972871ab60265e7a4deeb2afe72e879826f2d635618a715cf77ce0",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/invocation.json": "7132a84fd9d45c5edd9d716f30b0c6bd5abf75d1a014c98149d94337b543c75f",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/resource-result.json": "914beac051cba9d1293d87f2ca1da6a76bcffd70bb832f33a5ee4121865817cf",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/stdout.log": "601aed16a918cdc0b64fa719a9910be3d03f195e0d08d58c62810344a51c1a4f",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/stderr.log": "810c4ea383bb849f61bd1165df456999d7526bc0667e5c404f3424d760b132bd",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/launch.py": "6fa54150f620a290fc63fb2f0ff1d14e672265ac67f0422d139017c071a98320",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/queue-qualification.json": "07fd93b856fa8f9f2e95dfcd6aa3cfbf1d7552df6445ad7acda3c5a72ae11995",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/frozen/source.tar": "911f1509d0737a8d178131b9f8e8b4eaae3b6f9b16da49d3f76cd3ad33b35c44",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/nx/jobs/dab50b35e011450abaa3b239ace467ab/result.json": "58f058f66be44d218fdcaa1687bc96b80e82765a4a333e73b4761466421f8192",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/nx/jobs/dab50b35e011450abaa3b239ace467ab/worker.log": "b8b508b4d790f215523e2123d183b5487d1bdf9d65c5a4093ae4fd7cd8d5ca61",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/nx/jobs/cb94301efa1f419f9156276124d5be7e/result.json": "84093c3c8128a013ab015f28f78a3f74a827d2db9456e22ebe13cd66a09aa2e4",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/nx/jobs/cb94301efa1f419f9156276124d5be7e/worker.log": "f63207b58c3fce8475f4b830ad545bb803ff04c3bd40d573b4f06b0e5daddc78",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/nx/jobs/dab50b35e011450abaa3b239ace467ab/model_manifest.json": "bc368598a71ece363dfa816398cdbf8d11ecb04faac43d4bf04fcffbd0625853",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/nx/jobs/dab50b35e011450abaa3b239ace467ab/act_training.json": "20b0b3949b6ba332df3b8d688fd3ccc81e8aebc0eb1bddf5d41ee80249e027e6",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/nx/jobs/cb94301efa1f419f9156276124d5be7e/offline-evaluation.json": "af8be18a4cf2d96ae763225715931bbd89824e96443b5a15b0485126c5ebf17d"
+  },
+  "frozen_source": {
+    "source_commit": "f69b7d4efc3a03e70410222f9e6292d560a54fce",
+    "archive_sha256": "911f1509d0737a8d178131b9f8e8b4eaae3b6f9b16da49d3f76cd3ad33b35c44",
+    "frozen_source_files_sha256": {
+      "00-control-center/src/explorer/scheduler.py": "8f219f6257e3c967443e682801a1afb9674cd7135d43637788407007100901d3",
+      "00-control-center/src/explorer/worker_bootstrap.py": "2855c8757a5574a03001db091090acff54421d1fc453dc89a63e493f4e9c3306",
+      "00-control-center/src/explorer/job_runner.py": "fd3391fa71b03a706a948e70286bc29a577190ff2f1814e1e786c46515ff1c7c",
+      "00-control-center/src/explorer/queue_policy.py": "04498ff40ee988cff08e5ee8d14b641ed6bdb0f6f04f4229f3e63a8d3e281f5d",
+      "00-control-center/src/explorer/store.py": "613c33e35865427bcb748455e0869ba9cc489366022889f267120468c2747b47",
+      "00-control-center/src/explorer/rosmaster_eval_job.py": "633421c99cf667688aea7af90fe3ab75ea85e0d91b6f248f540fd9c4b1f1762e",
+      "00-control-center/src/explorer/rosmaster_learning.py": "86c3bdca4f258c331157e14e94f57ed854699102d3c23ac763716ede5b6c0c07",
+      "shared/explorer_shared/learning/rosmaster_skill_pipeline.py": "90543a1182b196a38aa6a2d7c24a040fd79f7d3d733180f77ff1108e850cbaa6",
+      "shared/explorer_shared/learning/rosmaster_lerobot_dataset.py": "60a30447966fd2940bebf2a8d1f1f6cb613f4a8f759969c3d9bddb1a200b5c21",
+      "shared/explorer_shared/learning/rosmaster_skill_segments.py": "f9ce8d1a79dd6dcbfd5f00896f45b462861dfef41c33081ccef38b007900fa7b",
+      "shared/explorer_shared/learning/act_backend.py": "4bad89f03289705570aa7e4a2c2eeea571a319e2e7dcc7a8f4bd6df96b049137"
+    },
+    "release_path": "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/frozen/releases/f69b7d4efc3a03e70410222f9e6292d560a54fce"
+  },
+  "launches": [
+    {
+      "job_id": "dab50b35e011450abaa3b239ace467ab",
+      "command": [
+        "/home/jetsonnx/.local/share/explorer/venv/bin/python",
+        "-m",
+        "explorer.worker_bootstrap",
+        "dab50b35e011450abaa3b239ace467ab",
+        "e21e2203c24d414f8a4191dbc2ea622e"
+      ],
+      "worker": {
+        "pid": 2485839,
+        "start_ticks": 14185943,
+        "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2"
+      },
+      "pythonpath": "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/frozen/releases/f69b7d4efc3a03e70410222f9e6292d560a54fce/00-control-center/src:/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/frozen/releases/f69b7d4efc3a03e70410222f9e6292d560a54fce/shared",
+      "lease_nonce": "e21e2203c24d414f8a4191dbc2ea622e"
+    },
+    {
+      "job_id": "cb94301efa1f419f9156276124d5be7e",
+      "command": [
+        "/home/jetsonnx/.local/share/explorer/venv/bin/python",
+        "-m",
+        "explorer.worker_bootstrap",
+        "cb94301efa1f419f9156276124d5be7e",
+        "d78e1aac4b0a4d6e8aa9f9b9fe06e97a"
+      ],
+      "worker": {
+        "pid": 2485876,
+        "start_ticks": 14187438,
+        "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2"
+      },
+      "pythonpath": "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/frozen/releases/f69b7d4efc3a03e70410222f9e6292d560a54fce/00-control-center/src:/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/frozen/releases/f69b7d4efc3a03e70410222f9e6292d560a54fce/shared",
+      "lease_nonce": "d78e1aac4b0a4d6e8aa9f9b9fe06e97a"
+    }
+  ],
+  "runtime_admissions": {
+    "train": {
+      "resources": {
+        "cpu_cores": 2,
+        "memory_bytes": 4294967296,
+        "disk_bytes": 2147483648,
+        "gpu_slots": 0
+      },
+      "preemptible": true,
+      "worker": {
+        "pid": 2485839,
+        "start_ticks": 14185943,
+        "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2"
+      },
+      "launch_nonce": "e21e2203c24d414f8a4191dbc2ea622e",
+      "bootstrap_admitted": true,
+      "worker_cpus": [
+        2,
+        3
+      ]
+    },
+    "evaluation": {
+      "resources": {
+        "cpu_cores": 2,
+        "memory_bytes": 2147483648,
+        "disk_bytes": 268435456,
+        "gpu_slots": 0
+      },
+      "preemptible": false,
+      "worker": {
+        "pid": 2485876,
+        "start_ticks": 14187438,
+        "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2"
+      },
+      "launch_nonce": "d78e1aac4b0a4d6e8aa9f9b9fe06e97a",
+      "bootstrap_admitted": true,
+      "worker_cpus": [
+        2,
+        3
+      ]
+    }
+  },
+  "results": {
+    "pytest": "3 passed in34.37s",
+    "unit_exit_code": 0,
+    "elapsed_s": 36.51352801299072,
+    "authenticated_ASGI_queue_and_models": true,
+    "actual_popen_bootstrap_job_runner": true,
+    "actual_optimizer_updates": 4,
+    "weights_changed": true,
+    "save_reload_passed": true,
+    "reload_max_abs_error": 0.0,
+    "official_dataset": {
+      "schema": "explorer_official_lerobot_native9_v1",
+      "train_path": "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/nx/jobs/dab50b35e011450abaa3b239ace467ab/lerobot_native9/train",
+      "development_path": "/mnt/explorer-data/explorer-work/experiment03-shared-native02-20261027-f69b7d4e/pytest/test_real_supervisor_bootstrap0/nx/jobs/dab50b35e011450abaa3b239ace467ab/lerobot_native9/development",
+      "train_index_sha256": "07697408abc4b1f168b9b75314516d5351d1fe4cff34395ca21ec709660d9333",
+      "development_index_sha256": "115a4577e049c88eda4696829cb18149924d9143fa5c8a098c1d5e989a8d9551",
+      "original_train_demo_count": 3,
+      "train_segment_episode_count": 6,
+      "partitions_exported_separately": true,
+      "sealed_payloads_exported": false,
+      "target_dimension": 9,
+      "recorded_source_times_preserved": true,
+      "lerobot_timestamp_basis": "logical_frame_index_grid_fps1_NOT_native_time_or_camera_exposure"
+    },
+    "feature_dimension": 106,
+    "action_dimension": 9,
+    "queued_DEV_optimizer_updates": 0,
+    "queued_DEV_samples": 10,
+    "eval_execution_source_commit": "f69b7d4efc3a03e70410222f9e6292d560a54fce",
+    "eval_weights_unchanged": true,
+    "eval_source_network_requests": 0,
+    "eval_dispatch_performed": false,
+    "all_workers_exited_and_reservations_released": true,
+    "source_19pins_rechecked": true,
+    "git_clean_after_compute": true
+  },
+  "resource_limits": {
+    "core_limit": 0,
+    "cpu_quota_percent": 200,
+    "memory_max": 4294967296,
+    "runtime_max_s": 600,
+    "swap_max": 0
+  },
+  "max_observed_kernel_cgroup_memory_peak_bytes": 1323405312,
+  "max_observed_swap_bytes": 0,
+  "last_memory_events": {
+    "low": "0",
+    "high": "0",
+    "max": "0",
+    "oom": "0",
+    "oom_kill": "0",
+    "oom_group_kill": "0"
+  },
+  "historical_fused106_receipt_sha256": "57b1045d22ebd2ee719f685661bbfdc5636bf88b8dfc2e7f5fdd866738afad3c",
+  "historical_profile4_source_tree_sha256": "1ce4f13e8596d5fa0ad82723cbdbbd12c0b1d46d727da9419c71ab5dcf44d965",
+  "scope": {
+    "all_inputs_are_software_fixtures": true,
+    "real_demonstrations": 0,
+    "production_state_used": false,
+    "public_production_queue_tested": false,
+    "physical_control_requests_sent": 0,
+    "independent_full_task_success": false,
+    "GPU_qualified": false,
+    "parity_proof_repeated": false,
+    "direct_pause_parity_proof_preserved": true
+  },
+  "previous_original_proof": {
+    "path": "NATIVE02_QUEUED_CPU_R2_20261027_QUALIFICATION.json",
+    "sha256": "a1961b02c71531b934b016c3e32fb06b7b37870006c25f5e284c03379472e6c8"
+  },
+  "memory_measurement_basis": "actual_kernel_cgroup_sampler_not_stale_systemd_MemoryPeak"
+}

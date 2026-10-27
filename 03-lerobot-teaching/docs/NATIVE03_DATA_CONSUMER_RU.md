@@ -69,9 +69,8 @@ kind retarget_import/project03. Capture namespace `/api/retarget/capture/*`
 Изменённый job_runner означает новую executor source identity. Старые02
 actual CPU train/resume/queue receipts остаются историческими exact-source
 доказательствами, их SHA/результаты не переписываются. ACT/106/officialDataset
-math/runtime leaf bytes этим атомиком не меняются. CURRENT queued03 execution
-proof требует отдельного согласованного будущего запуска; этот тест не выдаёт
-source metadata/fixture за такой запуск.
+math/runtime leaf bytes этим атомиком не меняются. Dataset-only тест не квалифицирует очередь. Отдельный фактический CPU queue
+proof приведён ниже; исходная Dataset receipt сохраняет свой прежний scope.
 
 Continuity03 с меняющимся реальным leader остаётся OPEN; observed task axes,
 два endpoint гриппера и действительная Native reference отдельно не выдуманы.
@@ -86,3 +85,17 @@ measurement. Предыдущие launch127 и test wrong-index-key FAIL сох�
 не менялись во время этой проверки; весь test module не объявлен frozen.
 Итоговая лёгкая группа:41PASS/1 optinSKIP25.83s; provenance/NoContinue/StationSHA
 PASS. Вынесенная Dataset-only optin проверка прошла отдельно, не подменяет skip.
+
+
+## Отдельная фактическая очередь03
+
+`NATIVE03_QUEUE_CPU_20261027.json`: frozen f69b7d4e,1PASS33.30s;
+5generated NativeSource03→approved Nano import→3TRAIN/1DEV/1sealed→реальный
+ASGI/Supervisor/bootstrap/job_runner ACT4 updates/save-reload0→новый PID DEV10
+с0optimizer. State106/action9,3originaltrain→6pause segments. Исходный общий
+harness используется без копии training math; отдельный binding устанавливает
+actual source/project03. First negative harness attempt использовал raw source
+adapter вместо существующего workflow adapter; API отказал до train job/model.
+Оба исхода сохранены. CPU2/4GiB/swap0/core0, kernel peak1336369152B/events0.
+Это actual CPU execution на generated source data,0real expert demonstrations,
+0physical requests. Реальный moving-leader continuity gate остаётся OPEN.
