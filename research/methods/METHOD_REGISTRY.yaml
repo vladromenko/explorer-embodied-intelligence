@@ -5293,6 +5293,38 @@
         "research/audits/target-visual-object-v3-results-20261027.json"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-TARGET-TEMPORAL-INCREMENT-FACTORIAL-20261027",
+      "function_or_module": "shared/explorer_shared/learning/sim_temporal_route.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/target-visual-object-v3-results-20261027.json",
+          "role": "Observed source-only alias and retained actual independent negative outcomes motivate the next preregistered2x2"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/skill_transfer_mujoco.py",
+          "role": "Actual native observation clocks and original velocity/period dispatch provenance"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "SEPARATE_FUTURE_CHECKPOINT_RECEIPTS_REQUIRED",
+      "data_license": "PRIVATE_EXPLICIT_SIMULATION",
+      "changes_and_reason": "Causal elapsed native clock versus explicit ZERO model-value ablation and actual dispatched-increment versus absolute9 targets under identical state10 architecture. Raw sensor availability remains true in ablation; all9 actions are decoded with unchanged actual source rates. Pure software source/causality gates tested; no learned mastery or physical/H2/vision causality claim.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_sim_temporal_route.py",
+        "tests/test_sim_temporal_data.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
