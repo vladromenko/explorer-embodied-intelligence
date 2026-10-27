@@ -54,11 +54,39 @@ class CooperativeParkedRelease:
         expected=self.service.grant_lineage.expected('receiver',row,spec);grant=getattr(transport,'grant',{})
         state=transport.observe_state()
         if (state.get('current_native_owner_ready') is not True or state.get('cooperative_dual_hold_publication_interlock_current') is not True or
+                (state.get('receiver_interlock') or {}).get('source_armed') is not True or
                 grant.get('grant_id')!=expected['grant_id'] or grant.get('provider_process')!=expected['provider_process'] or
                 grant.get('actor_id')!=actor or grant.get('binding')!=self.service.observed_setup.receiver_binding(row,spec) or
                 getattr(transport,'binding',{})!={'run_id':row['session_id'],'object_id':row['protocol_object_id'],'coordinator_epoch':row['epoch']}):
             raise ValueError('CURRENT_ROOT_OWNED_RECEIVER_GRANT_BINDING_AND_INTERLOCK_REQUIRED')
         return state
+    @staticmethod
+    def _held_receiver_command(support):
+        scope=support.get('source_scope') or {};origin=scope.get('source_origin') or {};raw=origin.get('raw_receipt') or {}
+        held=origin.get('held_native6')
+        if (support.get('current') is not True or origin.get('schema')!='explorer_station_source_measured_hold_origin_v1' or
+                not isinstance(held,list) or len(held)!=6 or not _same_vector(held,held) or
+                origin.get('origin_sha256')!=digest({key:value for key,value in origin.items() if key!='origin_sha256'}) or
+                origin.get('physical_attainment_or_contact_claimed') is not False or
+                scope.get('measured_native6')!=origin.get('held_native6')):
+            raise ValueError('EXACT_CURRENT_SOURCE_SEALED_MEASURED_HOLD_RECEIPT_REQUIRED')
+        if origin.get('basis')=='original_denial_measured_hold':
+            valid=(raw.get('schema')=='explorer_station_observed_denial_measured_hold_v1' and
+                raw.get('original_position_write_returned') is True and raw.get('MCU_attainment_verified') is False and
+                raw.get('old_target_sample_emitted') is False and raw.get('ended_native_epoch')==origin.get('held_native_epoch') and
+                raw.get('boot_id')==origin.get('boot_id') and raw.get('clock_domain')==origin.get('clock_domain') and
+                raw.get('write_returned_monotonic_ns')==origin.get('write_returned_native_ns') and
+                _same_vector(raw.get('requested_and_dispatched'),origin['held_native6']))
+        elif origin.get('basis')=='original_scoped_stop_measured_hold':
+            valid=(raw.get('operation')=='hold_current_position' and type(raw.get('sequence')) is int and raw['sequence']==-1 and
+                raw.get('control_epoch')==origin.get('held_native_epoch') and raw.get('clock_domain')==origin.get('clock_domain') and
+                raw.get('monotonic_ns')==origin.get('write_returned_native_ns') and
+                _same_vector(raw.get('requested'),origin['held_native6']) and _same_vector(raw.get('dispatched'),origin['held_native6']))
+        else:valid=False
+        if not valid:raise ValueError('ACTUAL_ORIGINAL_RETURNED_HOLD_WRITE_NOT_IDLE_OR_CLOSED_ACK_REQUIRED')
+        return {'command_id':'receiver-held-native-'+digest(raw),'source_receipt':deepcopy(raw),'source_hold_origin':deepcopy(origin),
+            'basis':origin['basis'],'actual_original_native_hold_write_returned':True,'actual_native_host_dispatch':False,
+            'host_publication_receipt_invented':False,'object_hold_or_closed_grasp_inferred':False,'MCU_attainment_verified':False}
     @staticmethod
     def _base(row,scope):
         body={key:scope['binding'][key] for key in ('run_id','object_id','coordinator_epoch','authorization_id')}
@@ -109,11 +137,13 @@ class CooperativeParkedRelease:
         scoped=self.service.observed_scopes.require_current(row,spec,('giver',),actor=actor)['roles']['giver'];scope=scoped['source_scope']
         if not scoped['facts'].get('armed') or pair['source'].get('capabilities',{}).get('explicit_user_parked_release_http') is not True:
             raise ValueError('ACTUAL_ARMED_PARKED_RELEASE_SOURCE_HTTP_REQUIRED')
-        self._receiver_support(row,spec,actor)
+        receiver_support=self._receiver_support(row,spec,actor)
         after=after_receiver_command_id
         receiver_source=None
         if after is None:
-            receiver_source=self.service._receiver_command();after=receiver_source['command_id']
+            receiver_source=(self._held_receiver_command(receiver_support) if receiver_support.get('source_scope') is not None
+                else self.service._receiver_command())
+            after=receiver_source['command_id']
         body=self._base(row,scope);body.update(release_request_id=uuid.uuid4().hex,after_receiver_command_id=after)
         intent=self._intent(row,spec);started=self.clock();reply=None;pointer=None
         try:
