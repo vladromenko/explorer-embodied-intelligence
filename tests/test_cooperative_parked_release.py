@@ -10,10 +10,11 @@ import pytest
 from explorer_shared.contracts import digest
 from test_cooperative_observed_scopes import Sources,ACTOR
 from test_cooperative_giver_phases import real_node
+from test_cooperative_native_sessions import execute,choice
 
 
-def prepared(tmp_path,monkeypatch,*,policy=False):
-    sources=Sources(tmp_path,monkeypatch,policy=policy);service=sources.service
+def prepared(tmp_path,monkeypatch,*,policy=False,sources=None):
+    sources=sources or Sources(tmp_path,monkeypatch,policy=policy);service=sources.service
     service._arm_guard(sources.row)
     with service.workflow.lock:
         row=service.workflow.snapshot(sources.row['session_id'])
@@ -34,6 +35,38 @@ def body(row,descriptor):
     return {'session_id':row['session_id'],'expected_epoch':row['epoch'],'release_bundle_id':descriptor['release_bundle_id'],
         'affirmations':{'receiver_holds_object':True,'giver_stationary':True,'receiver_stationary':True},
         'observing':True,'neutral':True,'user_observed_test_confirmed':True}
+
+
+def test_active_receiver_interlock_capability_without_armed_latch_cannot_support_parked_release(tmp_path,monkeypatch):
+    sources=Sources(tmp_path,monkeypatch);service=sources.service
+    try:
+        execute(service,'native_phase_activate',{**choice(service,sources.row,'receiver','native_phase_activate'),'neutral':True})
+        execute(service,'native_attach',choice(service,sources.row,'receiver','native_attach'))
+        row=service.workflow.snapshot(sources.row['session_id']);state=service.transports[(row['session_id'],'receiver')].observe_state()
+        assert state['current_native_owner_ready'] and state['cooperative_dual_hold_publication_interlock_current']
+        assert not state['receiver_interlock']['source_armed']
+        before=len(sources.pair.calls)
+        with pytest.raises(ValueError,match='CURRENT_ROOT_OWNED_RECEIVER'):service.parked_release._receiver_support(row,sources.spec,ACTOR)
+        assert not any(method=='POST' for _,method,_,_ in sources.pair.calls[before:])
+    finally:sources.close()
+
+
+def test_no_transport_receiver_after_command_is_literal_sealed_returned_hold_not_legacy_last_command_or_closed_ack(tmp_path,monkeypatch):
+    sources=Sources(tmp_path,monkeypatch);service=sources.service
+    def no_legacy():raise AssertionError('A detached receiver does not need the legacy last-command path')
+    monkeypatch.setattr(service,'_receiver_command',no_legacy)
+    try:
+        sources,descriptor=prepared(tmp_path,monkeypatch,sources=sources)
+        assert not service.transports
+        pointer=descriptor['source_challenge_receipt'];path,_=service.artifact('native-control',pointer['receipt_id'])
+        evidence=json.loads(path.read_bytes())['intent_evidence']['receiver_source'];origin=evidence['source_hold_origin']
+        assert evidence['actual_original_native_hold_write_returned'] and not evidence['actual_native_host_dispatch']
+        assert not evidence['object_hold_or_closed_grasp_inferred'] and origin['origin_sha256']==digest({key:value for key,value in origin.items() if key!='origin_sha256'})
+        assert descriptor['after_receiver_command_id']=='receiver-held-native-'+digest(origin['raw_receipt'])
+        assert descriptor['challenge']['after_receiver_command_id']==descriptor['after_receiver_command_id']
+        result=service.command('native_parked_release_resume',body(sources.row,descriptor),authenticated_actor=ACTOR)['result']
+        assert result['completion']['source_control_validated']
+    finally:sources.close()
 
 
 @pytest.mark.parametrize('policy',[False,True])

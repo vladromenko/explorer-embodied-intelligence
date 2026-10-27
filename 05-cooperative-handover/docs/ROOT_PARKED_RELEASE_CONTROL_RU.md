@@ -64,3 +64,14 @@ Station/numbering). Отдельные шесть exact original factory/forward
 сбой закрыт отдельным Root ABI `fa140b5`, два setup-assertion negatives поправлены
 в тестах. Эти проверки не доказывают общую восстановимость Root session `_save`
 при любом отказе storage; это отдельная открытая граница.
+
+После дополнительного review active receiver обязан иметь не только current
+interlock capability, но и literal `receiver_interlock.source_armed=True`.
+Для parked receiver без transport `after_receiver_command_id` строится из
+Source-sealed `source_origin.raw_receipt`: original scoped STOP hold либо
+original gate-denial measured hold с подтверждённым возвратом native write.
+Это отдельный `receiver-held-native-<SHA>`; он не обозначает закрытый захват,
+MCU attainment или выдуманную host-publication. Original raw/origin сохраняются
+в challenge custody. Legacy last-command callback при этом не требуется.
+27 Root transaction tests прошли, включая actual active-but-unarmed negative
+и no-transport Source receipt → challenge → explicit CONTROL positive.
