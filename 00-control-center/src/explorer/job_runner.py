@@ -249,6 +249,9 @@ def main(job_id):
         elif job['kind'] == 'rosmaster_skill_train':
             from explorer_shared.learning.rosmaster_skill_pipeline import train_rosmaster_skill
             result = train_rosmaster_skill(store,job)
+        elif job['kind']=='rosmaster_skill_eval':
+            from .rosmaster_eval_job import run_rosmaster_evaluation
+            result=run_rosmaster_evaluation(store,job)
         elif job['kind']=='so101_skill_shadow':
             from .so101_shadow_job import run_so101_shadow
             result=run_so101_shadow(store,job,config)

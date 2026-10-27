@@ -101,9 +101,9 @@ def admission(job, resources):
 
 
 def executable_for(job,release=None,store=None):
-    if job['kind']=='so101_skill_eval':
-        if job.get('config',{}).get('device','cpu')!='cpu':raise ValueError('SO101 source evaluation requires CPU-only resource profile')
-        if job.get('config',{}).get('backend','act') not in ('act','diffusion'):raise ValueError('Unknown SO101 source evaluation backend')
+    if job['kind'] in ('so101_skill_eval','rosmaster_skill_eval'):
+        if job.get('config',{}).get('device','cpu')!='cpu':raise ValueError('Source evaluation requires CPU-only resource profile')
+        if job.get('config',{}).get('backend','act') not in ('act','diffusion'):raise ValueError('Unknown source evaluation backend')
     if job['kind'] in ('so101_skill_train','so101_skill_eval','so101_skill_shadow') and job.get('config',{}).get('backend','act')=='diffusion':
         from .policy_runtime import qualified_diffusion_runtime
         selection=qualified_diffusion_runtime(release)

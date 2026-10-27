@@ -188,3 +188,19 @@ def test_warm_actor_uses_one_CPU_inference_lease_and_cannot_enable_GPU_or_preemp
     other=job('shadow',role='04',kind='so101_skill_shadow',status='running')
     lease=dict(job_id=other['id'],resources=default_metadata(other)['resources'],resident_memory_bytes=2*GIB)
     assert 'single_interactive_inference_budget_occupied' in plan([warm,other],active=[lease])['waiting']['warm']['reasons']
+
+
+def test_native9_offline_evaluation_is_cpu_bounded_serial_inference_and_never_physical():
+    from explorer.queue_policy import INFERENCE_JOBS,PHYSICAL_JOBS
+    from explorer.scheduler import executable_for
+    selected=job('native-eval',role='02',kind='rosmaster_skill_eval',device='cpu')
+    metadata=default_metadata(selected)
+    assert selected['kind'] in INFERENCE_JOBS and selected['kind'] not in PHYSICAL_JOBS
+    assert metadata['resources']['cpu_cores']==2 and metadata['resources']['memory_bytes']==2*GIB
+    assert metadata['resources']['gpu_slots']==0 and not metadata['preemptible']
+    assert executable_for(selected)
+    busy=job('shadow',role='03',kind='rosmaster_skill_shadow',device='cpu',status='running')
+    active=[dict(job_id=busy['id'],resources=default_metadata(busy)['resources'],resident_memory_bytes=GIB)]
+    assert plan([selected,busy],active=active)['start']==[]
+    selected['config']['device']='cuda'
+    with pytest.raises(ValueError,match='CPU-only'):executable_for(selected)
