@@ -221,7 +221,7 @@
         "experiment_id": "05",
         "status": "IN_PROGRESS",
         "checks": {
-          "interface_and_instructions": "LIVE_883478FE_DESKTOP_MOBILE_TESTED_WITHIN_SCOPE",
+          "interface_and_instructions": "LIVE_883_TESTED_MAIN_RECOVERY_AND_RECEIPT_UI_TESTED",
           "required_cameras": "BOTH_CAMERA_PATHS_TESTED_SHARED_VIEW_OPEN",
           "manual_control": "FOUR_MODES_SOFTWARE_PARTIAL",
           "keyboard_gamepad_leader": "NATIVE_INPUTS_TESTED_PHASE_LOOP_OPEN",
@@ -231,7 +231,7 @@
           "model_version_provenance": "TESTED",
           "skill_replay": "FULL_HANDOVER_OPEN",
           "STOP_cancel": "EXACT_UNATTACHED_NATIVE_EPOCH_TESTED_PHYSICAL_OPEN",
-          "restart_recovery": "RECEIVER_WAL_TESTED_GIVER_DURABLE_LATCH_OPEN",
+          "restart_recovery": "RECEIVER_AND_GIVER_WAL_TESTED_PARKED_COORDINATOR_OPEN",
           "user_physical_actions": "USER_SCENE_ENDPOINTS_HOLD_OUTCOMES"
         },
         "evidence": [
@@ -254,7 +254,7 @@
           "dataset_composition": "EXPLICIT_TARGET_SPLIT_TESTED",
           "training_launch": "TARGET_LEARNED_FULL_TASK_OPEN",
           "model_version_provenance": "TYPED_VERSIONS_TESTED",
-          "skill_replay": "SCRIPTED_SIM_ONLY_LEARNED_TRANSFER_OPEN",
+          "skill_replay": "ACTUAL_LEARNED_TARGET_FULL0_OF8_SOURCE04_LEARNED_TRANSFER_OPEN",
           "STOP_cancel": "TESTED",
           "restart_recovery": "PROCESS_TESTED_DEVICE_OPEN",
           "user_physical_actions": "USER_SOURCE_SKILL_AND_MAPPING"
@@ -265,7 +265,8 @@
           "tests/test_transfer_target_split.py",
           "research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md",
           "research/audits/CONTACT_V10_FIGURE_RU.md",
-          "_registry/evidence/release-883478fe-actual-activation-20261027.json"
+          "_registry/evidence/release-883478fe-actual-activation-20261027.json",
+          "research/audits/target-visual-object-v3-results-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED"
       }

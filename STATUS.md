@@ -3,11 +3,11 @@
 **IN_PROGRESS. Весь master-prompt не завершён.** Canonical Git:
 `/home/jetsonnx/work/Explorer`; работающие службы не зависят от Mac/чата.
 
-Receiver setup05 подключён к service/API/UI. Live central+worker, собственные
-Pi/Nano observers и import pin оригинального Nano web —
-**883478fe2411b83eface304af5f2a1607c344058**. Проверены actual Firefox desktop/mobile,
-API и scientific bytes. Поздние source commits отдельно не считаются live.
-[Фактический выпуск](_registry/evidence/release-883478fe-actual-activation-20261027.json).
+Live central+worker, собственные Pi/Nano observers и import pin оригинального
+Nano web — **883478fe2411b83eface304af5f2a1607c344058**. Поздний main добавляет
+durable giver WAL/zero STOP, source phase activation, fixed reset UI и сохранённые
+source receipts. Его новый полный прогон/выпуск ещё предстоят.
+[Фактический выпуск883](_registry/evidence/release-883478fe-actual-activation-20261027.json).
 
 Подтверждено:
 
@@ -23,7 +23,10 @@ API и scientific bytes. Поздние source commits отдельно не с�
   opening→новое независимое подтверждение→finish. Native STOP также охватывает
   завершённый begin до attach по exact returned epoch; end-to-end fake-source
   проверка прошла.45 interlock targeted tests прошли;
-  loss/corruption/restart/legacy/fault race проверены на fake owners.
+  Pi и giver loss/corruption/restart/legacy/fault race проверены на fake owners;
+  source global/base zero STOP не ждёт задержанного arm Publisher. Root требует
+  фактический healthy/initialized durable giver proof; metadata receipts и reset
+  с source CAS доступны в main. Полный parked phase coordinator ещё открыт.
   [Границы](05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md).
 - Настоящий future initial capture→authenticated API→Supervisor/bootstrap→worker→
   download→новый PID восстановил все33 исходных файла:153859356B MJB,20CAD,
@@ -39,6 +42,12 @@ API и scientific bytes. Поздние source commits отдельно не с�
   14016×769 float64, contacts/solver/score bytes exact,0diff. Python old-path
   ban проверен; C opens UNMEASURED, OS closure PARTIAL. Отрицательные исходы
   сохранены. [Receipt](research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md).
+- Новый TARGET ACT9:1/4полных SCRIPTED TRAIN показов допущен (439RGB/prior9),
+  3отрицательных сохранены отдельно.1200настоящих CPU updates/reload0;
+  8самостоятельных dev/sealed rollout/6400dispatch дали полный успех0/8.
+  Chunk8:grasp4/4,lift+carry2/4, measured-open0/4; это не полный навык.
+  [Результат](research/audits/target-visual-object-v3-results-20261027.json).
+  Новый опыт C2×2 clock×absolute/increment готов, тяжёлые запуски ещё не начаты.
 - Frozen883478fe с20 проверенными CAD/headless EGL:1597passed/15skipped,
   0failed за361.87s; CPU3/5GiB, peak4.07GiB, swap/OOM0.198 Node tests прошли.
   Настоящий Firefox:9desktop/mobile pages,0overflow,0non-GET requests;
@@ -55,7 +64,8 @@ measured. Source/target splits раздельны; development/sealed/unknown н
 
 Открытый программный объём: phase/hold-successor lifecycle
 без скрытого TTL/lease продления (новый source successor проверен, ещё не live);
-durable giver latch/restart recovery; полный learned object/transfer/retention цикл,
+root giver parked scope/phase activation/continuous lifecycle; полный learned
+object/transfer/retention цикл,
 независимые H1–H5
 comparisons/ablations и broad recovery. Физическая подготовка отдельно.
 
