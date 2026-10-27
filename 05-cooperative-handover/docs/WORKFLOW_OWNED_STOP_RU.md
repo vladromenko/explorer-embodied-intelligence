@@ -19,8 +19,27 @@ epoch, задержка/ошибка cleanup, ошибка Inbox fsync, один
 40passed/1failed из-за лишнего `['result']` в test fixture, оригинал сохранён.
 Это software evidence; команды на реальные устройства не отправлялись.
 
-Отдельный более широкий recovery-аудит всех ошибок Root session storage не
-подменяется этим тестом Inbox и остаётся в общей матрице recovery.
+Позднейшее исправление закрывает отдельную ошибку до первого Source STOP:
+отзыв epoch и STOPPED теперь сначала публикуются в памяти под Workflow lock.
+Known-owned cleanup и оба transport STOP запускаются до записи Root projection
+и Inbox. Ошибка чтения skill spec не пропускает cleanup ранее полученного
+Source scope. Старый worker не может записать прежний epoch поверх отзыва.
+
+STOP projection пишется через отдельный уникальный временный файл, atomic
+replace и directory fsync вне Workflow lock. UI читает действующий RAM STOP
+даже при отказе диска; `coordinator_cancellation_projection_persisted=false`
+и ошибки записи сохраняют неопределённость durability. При рестарте старая
+активная disk projection становится INTERRUPTED без replay и Source RPC.
+При неуспешном final fsync disk bytes могут уже содержать STOPPED, но RAM
+receipt не объявляет запись гарантированно устойчивой.
+
+20 адресных tests прошли за8.68s: блокировка/отказ первоначальной записи,
+реальный отказ directory fsync после atomic replace, stale epoch, unreadable
+spec и restart без replay. Первый run18PASS/2FAIL содержал ошибки fixtures;
+исправленные прогоны20PASS/8.92s и20PASS/8.68s сохранены отдельно.
+[Квитанция](../../_registry/evidence/cooperative-stop-projection-20261027.json).
+Все Source buses тестовые; более широкий device/storage recovery остаётся
+открытым и этим исправлением не объявляется завершённым.
 
 После фактической metadata-установки обеих защит `receiver_at_object` повторно
 проверяет свежесть обоих USER stationary facts. Сетевые GET, WAL и custody

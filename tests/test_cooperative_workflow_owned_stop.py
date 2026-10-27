@@ -1,5 +1,6 @@
 """Internal protocol cancellation must clean actual returned fake native owners."""
 import threading
+import time
 
 import pytest
 
@@ -66,6 +67,8 @@ def test_epoch_revokes_before_delayed_owned_cleanup_and_both_transport_stops_run
     try:
         worker.start();assert entered.wait(2)
         assert saved[0]['epoch']==row['epoch'] and saved[0]['process_session']==workflow.process
+        end=time.monotonic()+1
+        while {item[1] for item in calls if item[0]=='stop'}!={'giver','receiver'} and time.monotonic()<end:time.sleep(.005)
         assert {item[1] for item in calls if item[0]=='stop'}=={'giver','receiver'}
         assert workflow.snapshot(row['session_id'])['status']=='STOPPED'
     finally:release.set();worker.join(3);workflow.close()

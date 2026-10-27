@@ -1,0 +1,57 @@
+{
+  "schema": "explorer_scoped_cancellation_projection_evidence_v1",
+  "date": "2026-10-27",
+  "source_parent_commit": "3253941",
+  "status": "SOFTWARE_TESTED_NOT_DEPLOYED",
+  "physical_IO": false,
+  "chassis_commands": 0,
+  "source_files_sha256": {
+    "shared/explorer_shared/cooperative_workflow05.py": "7b856e34da461e19fb2d2108e579e43295f8ba6f5c7ef6348abb2d9f7f61a5cc",
+    "tests/test_cooperative_stop_projection_failure.py": "c43f49dd8df5cf9f1e105441b241ac23982618dafec6cd509ae7367af23cdaca",
+    "tests/test_cooperative_workflow_owned_stop.py": "b36315b4602c6c5f1c7b31cc9e9494182b5f79f43f9b4ddbe73f59c0c9c0b4c9"
+  },
+  "test_command": "python -m pytest -q tests/test_cooperative_stop_projection_failure.py tests/test_cooperative_workflow_owned_stop.py tests/test_cooperative_phase_checkpoints.py",
+  "runs": [
+    {
+      "run": "a",
+      "junit_sha256": "376438f11b114d04af42e456aafc49e38e033aa848806ed9fbb60edf5b5b42ab",
+      "tests": 20,
+      "failures": 2,
+      "errors": 0,
+      "elapsed_junit_s": 9.665
+    },
+    {
+      "run": "b",
+      "junit_sha256": "fcfdfd908ed40c115e7a484ae9159da4e58386418a433dfbcb27b229e883197b",
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "elapsed_junit_s": 9.819
+    },
+    {
+      "run": "c",
+      "junit_sha256": "62e8f71dbadebba23e99d76edcf90413713a293971207b8ba05d143c20fb4dd0",
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "elapsed_junit_s": 9.599
+    }
+  ],
+  "final_stdout": "20 passed in 8.68s",
+  "negative_originals_retained": true,
+  "initial_failures": "Two fixture errors: replace hook fired at intermediate rename; concurrency assertion ran before both independent transport tasks were scheduled. Product contract was not relaxed.",
+  "scope": [
+    "RAM epoch revocation before root projection IO",
+    "Known owned Source cleanup and both transport STOP futures submitted before projection persistence",
+    "Workflow lock remains available during blocked cancellation projection",
+    "Failed final directory fsync after atomic replace does not restore permission",
+    "Unreadable spec does not skip known owned scope cleanup",
+    "Restart interrupts old active disk projection without Source replay"
+  ],
+  "limitations": [
+    "Fake Source buses only; no physical qualification.",
+    "A failed final fsync leaves durability unknown even if replaced disk bytes already read STOPPED.",
+    "Not a complete device, storage, power-loss or network recovery acceptance.",
+    "Main checkpoint is not the deployed release."
+  ]
+}

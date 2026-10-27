@@ -3824,7 +3824,7 @@
       "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
       "verification": {
         "code_inspected": true,
-        "software_tested": false,
+        "software_tested": true,
         "hardware_tested": false
       },
       "test_evidence": [
@@ -3837,6 +3837,12 @@
           "command": "python -m pytest tests/test_cooperative_parked_release_bridge.py tests/test_cooperative_workflow05.py tests/test_cooperative_phase_checkpoints.py tests/test_cooperative_workflow_owned_stop.py -q",
           "result": "53combinedPASS10.38s; final22bridgePASS3.82s after immutable descriptor copy and self-consistent foreign Source epoch negative. Real Inbox/FSM with explicit SourceControl fixtures only; no source RPC/motion. Separate CONTROL completion and custody required, one reservation, late STOP cannot advance, old ACTIVE path preserved. Full Source helper integration remains open.",
           "scope": "SOFTWARE_ONLY_NO_DEVICE_IO"
+        },
+        {
+          "command": "python -m pytest -q tests/test_cooperative_stop_projection_failure.py tests/test_cooperative_workflow_owned_stop.py tests/test_cooperative_phase_checkpoints.py",
+          "result": "20passed8.68s; cancellation revokes in RAM and submits fake scoped cleanup before blocked or failed projection persistence; actual directory fsync failure, stale epoch, unreadable spec, restart no replay. Original18PASS/2fixtureFAIL and intermediate20PASS retained.",
+          "scope": "SOFTWARE_ONLY_NO_DEVICE_IO",
+          "receipt": "_registry/evidence/cooperative-stop-projection-20261027.json"
         }
       ],
       "hardware_run_ids": []

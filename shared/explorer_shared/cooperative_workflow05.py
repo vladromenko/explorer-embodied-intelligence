@@ -11,6 +11,7 @@ from dataclasses import asdict
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 import re
 import threading
@@ -56,6 +57,7 @@ class CooperativeWorkflow:
         self.fresh_dispatch_authority=None
         self.managed=Path(managed_root or root).resolve()
         self.lock=threading.RLock();self.record_io=threading.Lock()
+        self.revoked_sessions={}
         self.native_phase_condition=threading.Condition(self.lock);self.native_phase_changes={};self.native_phase_checkpoints={}
         self.process=uuid.uuid4().hex;self.threads={};self.closed=False
         for name in ('skills','sessions','zones','reviews','aggregates','shadows'):(self.root/name).mkdir(exist_ok=True)
@@ -140,8 +142,15 @@ class CooperativeWorkflow:
             self._save(row)
         return deepcopy(row)
     def _path(self,session_id):return self.root/'sessions'/_id(session_id)/'session.json'
-    def _session(self,session_id):return json.loads(self._path(session_id).read_bytes())
+    def _session(self,session_id):
+        if session_id in self.revoked_sessions:return deepcopy(self.revoked_sessions[session_id])
+        return json.loads(self._path(session_id).read_bytes())
     def _save(self,row):
+        stopped=self.revoked_sessions.get(row['session_id'])
+        if stopped is not None:
+            if row['epoch']!=stopped['epoch'] or row['status']!='STOPPED':
+                raise ValueError('A revoked session cannot be restored by an old projection write')
+            self.revoked_sessions[row['session_id']]=deepcopy(row)
         path=self._path(row['session_id']);path.parent.mkdir(exist_ok=True)
         projection=deepcopy(row)
         if isinstance(projection.get('pending_operation'),dict):
@@ -152,9 +161,10 @@ class CooperativeWorkflow:
             with self.lock:row=self._project_native_checkpoint(self._session(session_id))
             return row
         with self.lock:
+            session_ids=sorted({path.parent.name for path in (self.root/'sessions').glob('*/session.json')}|set(self.revoked_sessions))
             return {'schema':'explorer_cooperative_workbench_v1',
                 'skills':[json.loads(path.read_bytes()) for path in sorted((self.root/'skills').glob('*/*.json'))],
-                'sessions':[self._project_native_checkpoint(json.loads(path.read_bytes())) for path in sorted((self.root/'sessions').glob('*/session.json'))],
+                'sessions':[self._project_native_checkpoint(self._session(identity)) for identity in session_ids],
                 'model_input_plan':model_input_plan(),'physical_execution_authorized':False}
     def _spec_for(self,row):return self.skill(row['skill_id'],row['skill_version'])['spec']
     def readiness(self,session_id):
@@ -745,27 +755,49 @@ class CooperativeWorkflow:
                 stop_current=current['epoch']==epoch
                 self._save(current)
             if stop_current:self.cancel_session(session_id,'PROTOCOL_STEP_FAILED:'+type(error).__name__)
+    def _persist_stopped(self,session_id):
+        # A unique projection temporary cannot collide with a late worker's
+        # ordinary .pending writer. No workflow or source lock spans fsync.
+        with self.lock:
+            row=deepcopy(self.revoked_sessions[session_id]);row['coordinator_cancellation_projection_persisted']=True
+        path=self._path(session_id);temporary=path.with_name('.session-stop-'+uuid.uuid4().hex+'.json')
+        error=None
+        try:
+            write_projection(temporary,row);os.replace(temporary,path)
+            descriptor=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY)
+            try:os.fsync(descriptor)
+            finally:os.close(descriptor)
+        except Exception as caught:error=type(caught).__name__+': '+str(caught)
+        with self.lock:
+            current=self.revoked_sessions[session_id]
+            if current['epoch']==row['epoch']:
+                current['coordinator_cancellation_projection_persisted']=error is None
+                if error is not None:current.setdefault('coordinator_cancellation_projection_errors',[]).append(error)
+        return error is None
     def cancel_session(self,session_id,reason='explicit_operator_stop',*,authenticated_actor=None):
         with self.lock:
             row=self._session(session_id);previous=deepcopy(row);row.update(epoch=uuid.uuid4().hex,status='STOPPED',pending_operation=None,
                 protocol_state='SAFE_STOP',protocol_completed=False,stop_reason=reason)
-            self._save(row)
+            row['coordinator_cancellation_projection_persisted']=False
+            self.revoked_sessions[session_id]=deepcopy(row)
             for key in tuple(self.native_phase_checkpoints):
                 if key[0]==session_id:self.native_phase_checkpoints.pop(key,None)
             self.native_phase_condition.notify_all()
-        spec=self._spec_for(row);stops={}
-        def stop_role(role,ref):
-            provider=self.registry.provider(role,ref)
-            if provider is None or not callable(provider.stop):return {'delivery_unknown':True,'reason':'EXISTING_STOP_NOT_BOUND'}
-            try:return provider.stop(session_id)
+        stops={}
+        def stop_role(role):
+            try:
+                spec=self._spec_for(previous);provider=self.registry.provider(role,spec['subskills'][role])
+                if provider is None or not callable(provider.stop):return {'delivery_unknown':True,'reason':'EXISTING_STOP_NOT_BOUND'}
+                return provider.stop(session_id)
             except Exception as error:return {'delivery_unknown':True,'error':type(error).__name__+': '+str(error)}
         def stop_owned():
             try:return self.native_owned_stop(previous,actor=authenticated_actor) if authenticated_actor is not None else self.native_owned_stop(previous)
             except Exception as error:return {'delivery_unknown':True,'error':type(error).__name__+': '+str(error),
                 'dual_hold_interlocks_unarmed':False}
         with ThreadPoolExecutor(max_workers=3) as pool:
-            calls={role:pool.submit(stop_role,role,ref) for role,ref in spec['subskills'].items()}
             owned=pool.submit(stop_owned) if callable(self.native_owned_stop) else None
+            calls={role:pool.submit(stop_role,role) for role in ('giver','receiver')}
+            self._persist_stopped(session_id)
             evidence_cancellation_error=None
             try:
                 if self.inbox is not None:self.inbox.cancel_run(session_id)
@@ -779,7 +811,8 @@ class CooperativeWorkflow:
                 current['native_owned_session_cleanup']=deepcopy(native_owned)
             if evidence_cancellation_error is not None:
                 current['evidence_cancellation_error']=evidence_cancellation_error
-            self._save(current)
+            self.revoked_sessions[session_id]=deepcopy(current)
+        self._persist_stopped(session_id)
         def finish_recording():
             # Cancellation revokes the epoch before any file/network work. A
             # delayed native record/start is cleaned by its own epoch fence.
