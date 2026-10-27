@@ -1,0 +1,2045 @@
+{
+  "all_16_children_exit_zero_and_reaped": true,
+  "all_16_failures_and_negatives_retained": true,
+  "freeze_A_status": "NOT_STARTED_preserved",
+  "independent_report": {
+    "H4_test": false,
+    "attempts": [
+      {
+        "analysis": {
+          "first_downward_bottom_force": {
+            "bottom_contacts": [
+              {
+                "distance_m": -0.01203490309728382,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              },
+              {
+                "distance_m": -0.013654564791503256,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.1136538415486852,
+                  -0.08519754035568686,
+                  3.630748747255382
+                ]
+              },
+              {
+                "distance_m": -0.015356724301946744,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.1721562720102196,
+                  -0.10907170152747539,
+                  3.987826573667388
+                ]
+              },
+              {
+                "distance_m": -0.013737062607727307,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              },
+              {
+                "distance_m": -0.0092602693418602,
+                "geom_names": [
+                  "candy_wrapper_-1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  1.2074523130997835e-10,
+                  2.080321793236887e-09,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  1.6189869531854386,
+                  1.2819895746546723,
+                  -8.108364852143554
+                ]
+              },
+              {
+                "distance_m": -0.008718690112587513,
+                "geom_names": [
+                  "candy_wrapper_1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -2.50430494809694e-06,
+                  2.9018364046504364e-06,
+                  0.999999999992654
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              }
+            ],
+            "bottom_force_N": [
+              1.3331768396265338,
+              1.0877203327715101,
+              -0.48978953122078384
+            ],
+            "floor_force_N": [
+              -1.2733224788324355,
+              -1.1074282756418063,
+              1.6882576362372546
+            ],
+            "index": 63,
+            "object": {
+              "bounds_basis": "same_oriented_geom_bounding_corners_as_original_evaluator_not_exact_ellipsoid_surface",
+              "maximum_point_z_m": 0.015949366236689216,
+              "maximum_xy_m": [
+                0.26091741408307634,
+                0.2099592025326433
+              ],
+              "mean_point_xyz_m": [
+                0.23344042395595874,
+                0.1832959573927383,
+                0.003988106671089273
+              ],
+              "minimum_point_z_m": -0.007973152894510675,
+              "minimum_xy_m": [
+                0.20596343382884108,
+                0.1566327122528333
+              ]
+            },
+            "time_s": 0.12800000000000009
+          },
+          "first_large_opposing_floor_bottom": {
+            "bottom_contacts": [
+              {
+                "distance_m": -0.01203490309728382,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              },
+              {
+                "distance_m": -0.013654564791503256,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.1136538415486852,
+                  -0.08519754035568686,
+                  3.630748747255382
+                ]
+              },
+              {
+                "distance_m": -0.015356724301946744,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.1721562720102196,
+                  -0.10907170152747539,
+                  3.987826573667388
+                ]
+              },
+              {
+                "distance_m": -0.013737062607727307,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              },
+              {
+                "distance_m": -0.0092602693418602,
+                "geom_names": [
+                  "candy_wrapper_-1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  1.2074523130997835e-10,
+                  2.080321793236887e-09,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  1.6189869531854386,
+                  1.2819895746546723,
+                  -8.108364852143554
+                ]
+              },
+              {
+                "distance_m": -0.008718690112587513,
+                "geom_names": [
+                  "candy_wrapper_1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -2.50430494809694e-06,
+                  2.9018364046504364e-06,
+                  0.999999999992654
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              }
+            ],
+            "bottom_force_N": [
+              1.3331768396265338,
+              1.0877203327715101,
+              -0.48978953122078384
+            ],
+            "floor_force_N": [
+              -1.2733224788324355,
+              -1.1074282756418063,
+              1.6882576362372546
+            ],
+            "index": 63,
+            "object": {
+              "bounds_basis": "same_oriented_geom_bounding_corners_as_original_evaluator_not_exact_ellipsoid_surface",
+              "maximum_point_z_m": 0.015949366236689216,
+              "maximum_xy_m": [
+                0.26091741408307634,
+                0.2099592025326433
+              ],
+              "mean_point_xyz_m": [
+                0.23344042395595874,
+                0.1832959573927383,
+                0.003988106671089273
+              ],
+              "minimum_point_z_m": -0.007973152894510675,
+              "minimum_xy_m": [
+                0.20596343382884108,
+                0.1566327122528333
+              ]
+            },
+            "time_s": 0.12800000000000009
+          },
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 6,
+          "minimum_pair_signed_distance_m": -0.0159699787140556,
+          "recomputed_contact_recovered": false,
+          "terminal_mean_bottom_world_Z_N": -26.275998152289144,
+          "terminal_mean_floor_world_Z_N": 26.399604152239096,
+          "terminal_net_world_Z_contact_N": 0.1236059999499517,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": false
+          },
+          "verified_substeps": 500,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-in-yawminus-7334-captured-physics",
+        "condition": "captured-physics",
+        "initial_snapshot": {
+          "manifest_sha256": "8f7ca3ed65762c7934fb7584b3f608314819b866f76c20f1d012999233a49349",
+          "payload_bytes_verified": 197086187,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 501,
+          "state_size": 769
+        },
+        "original_case": "v9-in-yawminus-7334",
+        "original_case_success": false,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55101,
+            "sha256": "9bf03ce96df54a9bb05f025d24b102364b5aa7c582b5881a2f9f0a78a3e148a1"
+          },
+          "native-states.npy": {
+            "bytes": 3082280,
+            "sha256": "c414e1a3ff6d782845d51fb0819f145533ce657ad4ce32ce577b630f75e408e5"
+          },
+          "substeps.jsonl": {
+            "bytes": 4218806,
+            "sha256": "a4773886c9665b41b27f1805ce4070ee365a0115f72ada83e9669f2bc97fdb16"
+          }
+        },
+        "result_sha256": "5a743f38c914ec7c1c0722149f69732d7ade4ae6b534b1ed7303f165a263d660"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": null,
+          "first_large_opposing_floor_bottom": null,
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 4,
+          "minimum_pair_signed_distance_m": -0.004561937479710606,
+          "recomputed_contact_recovered": true,
+          "terminal_mean_bottom_world_Z_N": 0.12360599997246217,
+          "terminal_mean_floor_world_Z_N": 0.0,
+          "terminal_net_world_Z_contact_N": 0.12360599997246217,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": true
+          },
+          "verified_substeps": 500,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-in-yawminus-7334-low-drop-rest",
+        "condition": "low-drop-rest",
+        "initial_snapshot": {
+          "manifest_sha256": "1d700b1bbbf1a0e745e587f10d0126df34e03281b5b44035cca1a494904086f6",
+          "payload_bytes_verified": 197086187,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 501,
+          "state_size": 769
+        },
+        "original_case": "v9-in-yawminus-7334",
+        "original_case_success": false,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55101,
+            "sha256": "9bf03ce96df54a9bb05f025d24b102364b5aa7c582b5881a2f9f0a78a3e148a1"
+          },
+          "native-states.npy": {
+            "bytes": 3082280,
+            "sha256": "f5612b36a179bbcd6aded099d47a38d77352614fef3eccb376be0ba62893a8af"
+          },
+          "substeps.jsonl": {
+            "bytes": 2048506,
+            "sha256": "80fa11072236df45cb1dbe7cc4b902e0d2c3e32a63d4334a482eab470ea41b5d"
+          }
+        },
+        "result_sha256": "7012418c3e6bd09080330e88e949d40c8db020e238c448d58aefab0c18db1770"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": {
+            "bottom_contacts": [
+              {
+                "distance_m": -0.013134032844678737,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              },
+              {
+                "distance_m": -0.013290531568743609,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.15208518835611373,
+                  -0.1251441292076457,
+                  3.6747458258468124
+                ]
+              },
+              {
+                "distance_m": -0.014651840300062773,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.20398282098300402,
+                  -0.15251313670376648,
+                  3.966209197987729
+                ]
+              },
+              {
+                "distance_m": -0.0144953415759979,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              },
+              {
+                "distance_m": -0.009993091969293167,
+                "geom_names": [
+                  "candy_wrapper_-1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  9.3535123460964e-10,
+                  3.2631263055467474e-09,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  1.6555038681472412,
+                  1.3555093919824301,
+                  -8.312955413815303
+                ]
+              },
+              {
+                "distance_m": -0.009811317468364214,
+                "geom_names": [
+                  "candy_wrapper_1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -2.6501572640844037e-09,
+                  1.724699593779226e-09,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              }
+            ],
+            "bottom_force_N": [
+              1.2994358588081234,
+              1.077852126071018,
+              -0.6720003899807612
+            ],
+            "floor_force_N": [
+              -1.2808660842671744,
+              -1.120815437391791,
+              1.702323305480773
+            ],
+            "index": 260,
+            "object": {
+              "bounds_basis": "same_oriented_geom_bounding_corners_as_original_evaluator_not_exact_ellipsoid_surface",
+              "maximum_point_z_m": 0.014861359956716837,
+              "maximum_xy_m": [
+                0.26158778739499383,
+                0.21023546815902
+              ],
+              "mean_point_xyz_m": [
+                0.23393756983959946,
+                0.18372031324462748,
+                0.004082648803680099
+              ],
+              "minimum_point_z_m": -0.006696062349356638,
+              "minimum_xy_m": [
+                0.20628735228420503,
+                0.15720515833023496
+              ]
+            },
+            "time_s": 0.1305000000000001
+          },
+          "first_large_opposing_floor_bottom": {
+            "bottom_contacts": [
+              {
+                "distance_m": -0.013134032844678737,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              },
+              {
+                "distance_m": -0.013290531568743609,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.15208518835611373,
+                  -0.1251441292076457,
+                  3.6747458258468124
+                ]
+              },
+              {
+                "distance_m": -0.014651840300062773,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.20398282098300402,
+                  -0.15251313670376648,
+                  3.966209197987729
+                ]
+              },
+              {
+                "distance_m": -0.0144953415759979,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              },
+              {
+                "distance_m": -0.009993091969293167,
+                "geom_names": [
+                  "candy_wrapper_-1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  9.3535123460964e-10,
+                  3.2631263055467474e-09,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  1.6555038681472412,
+                  1.3555093919824301,
+                  -8.312955413815303
+                ]
+              },
+              {
+                "distance_m": -0.009811317468364214,
+                "geom_names": [
+                  "candy_wrapper_1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -2.6501572640844037e-09,
+                  1.724699593779226e-09,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              }
+            ],
+            "bottom_force_N": [
+              1.2994358588081234,
+              1.077852126071018,
+              -0.6720003899807612
+            ],
+            "floor_force_N": [
+              -1.2808660842671744,
+              -1.120815437391791,
+              1.702323305480773
+            ],
+            "index": 260,
+            "object": {
+              "bounds_basis": "same_oriented_geom_bounding_corners_as_original_evaluator_not_exact_ellipsoid_surface",
+              "maximum_point_z_m": 0.014861359956716837,
+              "maximum_xy_m": [
+                0.26158778739499383,
+                0.21023546815902
+              ],
+              "mean_point_xyz_m": [
+                0.23393756983959946,
+                0.18372031324462748,
+                0.004082648803680099
+              ],
+              "minimum_point_z_m": -0.006696062349356638,
+              "minimum_xy_m": [
+                0.20628735228420503,
+                0.15720515833023496
+              ]
+            },
+            "time_s": 0.1305000000000001
+          },
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 6,
+          "minimum_pair_signed_distance_m": -0.014809703048005052,
+          "recomputed_contact_recovered": false,
+          "terminal_mean_bottom_world_Z_N": 0.12360599995440816,
+          "terminal_mean_floor_world_Z_N": 0.0,
+          "terminal_net_world_Z_contact_N": 0.12360599995440816,
+          "terminal_predicates": {
+            "inside": false,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": true
+          },
+          "verified_substeps": 2000,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-in-yawminus-7334-quarter-timestep",
+        "condition": "quarter-timestep",
+        "initial_snapshot": {
+          "manifest_sha256": "6de63df23d8b63c93cfc4b9e98155a63dd6373a24b70c321e53d2e75f7d523ae",
+          "payload_bytes_verified": 197086190,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 2001,
+          "state_size": 769
+        },
+        "original_case": "v9-in-yawminus-7334",
+        "original_case_success": false,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55102,
+            "sha256": "19aa7e37e8c3bcd54e7444446a45bb183ef76fdd54931cc248551e525948fbdc"
+          },
+          "native-states.npy": {
+            "bytes": 12310280,
+            "sha256": "94db7b862cf500aae97e2b5a51b85a9f105ecbaecaa65dcbc25ae75ad100a388"
+          },
+          "substeps.jsonl": {
+            "bytes": 7710241,
+            "sha256": "8433d67a7e7f923f66c679c479966dccf196e29eed23bc15e9cfa93c48d6a7a2"
+          }
+        },
+        "result_sha256": "19d161024350f7417bd1c3df3c919d36d35b5552426ffd7a6b03a869857a64ff"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": null,
+          "first_large_opposing_floor_bottom": null,
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 7,
+          "minimum_pair_signed_distance_m": -0.016382285657392647,
+          "recomputed_contact_recovered": true,
+          "terminal_mean_bottom_world_Z_N": 0.1236059999803136,
+          "terminal_mean_floor_world_Z_N": 0.0,
+          "terminal_net_world_Z_contact_N": 0.1236059999803136,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": true
+          },
+          "verified_substeps": 500,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-in-yawminus-7334-thick-bottom-same-top",
+        "condition": "thick-bottom-same-top",
+        "initial_snapshot": {
+          "manifest_sha256": "08d0295c7bcfb370c5ae8e7a7e230d7bd608a41c29adae78af91eddf19ff122a",
+          "payload_bytes_verified": 197086195,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 501,
+          "state_size": 769
+        },
+        "original_case": "v9-in-yawminus-7334",
+        "original_case_success": false,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55105,
+            "sha256": "004f90cd6c4170aedd59e6ac72d75a26f743551bb44eeaf04a35d420e39a09ef"
+          },
+          "native-states.npy": {
+            "bytes": 3082280,
+            "sha256": "0be34c71abeaba81071d5f8900867e4f9eb5bd6ab20381173c4ce7fd2438bde4"
+          },
+          "substeps.jsonl": {
+            "bytes": 2080528,
+            "sha256": "f4c7a4d3f9d1780c936fa13a83d28fda6dbb4f01a7f80ed15bfba758b6a3506c"
+          }
+        },
+        "result_sha256": "039e1d519f9deb87c641c07b0c3f14c787538f92e65cab41a3dd6b059918a8e0"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": {
+            "bottom_contacts": [
+              {
+                "distance_m": -0.014505039500686101,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -0.0,
+                  -0.0,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.058870021146329055,
+                  -0.22977263719976698,
+                  -6.882249928375099
+                ]
+              },
+              {
+                "distance_m": -0.0159749035033608,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -0.0,
+                  -0.0,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.07512285108533473,
+                  -0.2540262426245077,
+                  -9.140699924567903
+                ]
+              },
+              {
+                "distance_m": -0.012751042203104794,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -0.0,
+                  -0.0,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.058348439075587614,
+                  -0.19053823361100924,
+                  -7.635482985179149
+                ]
+              },
+              {
+                "distance_m": -0.011281178200430095,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -0.0,
+                  -0.0,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.042095609136582265,
+                  -0.16628462818626846,
+                  -5.377032988986334
+                ]
+              },
+              {
+                "distance_m": -0.00935731091013637,
+                "geom_names": [
+                  "candy_wrapper_-1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -2.426878520472749e-10,
+                  6.562342639912367e-10,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.017888338965889025,
+                  -0.05947807487350393,
+                  6.409154821541068
+                ]
+              },
+              {
+                "distance_m": -0.008808283786531297,
+                "geom_names": [
+                  "candy_wrapper_1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -6.915226336845971e-10,
+                  6.600364475684588e-09,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.02328041807659196,
+                  -0.1129811451595528,
+                  -3.375017236944626
+                ]
+              }
+            ],
+            "bottom_force_N": [
+              -0.2756056774863147,
+              -1.013080961654609,
+              -26.001328242512038
+            ],
+            "floor_force_N": [
+              0.3622435139633054,
+              1.0675687229502024,
+              26.57362196122666
+            ],
+            "index": 62,
+            "object": {
+              "bounds_basis": "same_oriented_geom_bounding_corners_as_original_evaluator_not_exact_ellipsoid_surface",
+              "maximum_point_z_m": 0.0150186300063604,
+              "maximum_xy_m": [
+                0.23945444362358742,
+                0.21305822130172017
+              ],
+              "mean_point_xyz_m": [
+                0.2123525380039284,
+                0.1854182036161914,
+                0.002979513546358071
+              ],
+              "minimum_point_z_m": -0.009059602913644257,
+              "minimum_xy_m": [
+                0.18525063238426936,
+                0.1577781859306626
+              ]
+            },
+            "time_s": 0.12600000000000008
+          },
+          "first_large_opposing_floor_bottom": {
+            "bottom_contacts": [
+              {
+                "distance_m": -0.014505039500686101,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -0.0,
+                  -0.0,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.058870021146329055,
+                  -0.22977263719976698,
+                  -6.882249928375099
+                ]
+              },
+              {
+                "distance_m": -0.0159749035033608,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -0.0,
+                  -0.0,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.07512285108533473,
+                  -0.2540262426245077,
+                  -9.140699924567903
+                ]
+              },
+              {
+                "distance_m": -0.012751042203104794,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -0.0,
+                  -0.0,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.058348439075587614,
+                  -0.19053823361100924,
+                  -7.635482985179149
+                ]
+              },
+              {
+                "distance_m": -0.011281178200430095,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -0.0,
+                  -0.0,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.042095609136582265,
+                  -0.16628462818626846,
+                  -5.377032988986334
+                ]
+              },
+              {
+                "distance_m": -0.00935731091013637,
+                "geom_names": [
+                  "candy_wrapper_-1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -2.426878520472749e-10,
+                  6.562342639912367e-10,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.017888338965889025,
+                  -0.05947807487350393,
+                  6.409154821541068
+                ]
+              },
+              {
+                "distance_m": -0.008808283786531297,
+                "geom_names": [
+                  "candy_wrapper_1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -6.915226336845971e-10,
+                  6.600364475684588e-09,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.02328041807659196,
+                  -0.1129811451595528,
+                  -3.375017236944626
+                ]
+              }
+            ],
+            "bottom_force_N": [
+              -0.2756056774863147,
+              -1.013080961654609,
+              -26.001328242512038
+            ],
+            "floor_force_N": [
+              0.3622435139633054,
+              1.0675687229502024,
+              26.57362196122666
+            ],
+            "index": 62,
+            "object": {
+              "bounds_basis": "same_oriented_geom_bounding_corners_as_original_evaluator_not_exact_ellipsoid_surface",
+              "maximum_point_z_m": 0.0150186300063604,
+              "maximum_xy_m": [
+                0.23945444362358742,
+                0.21305822130172017
+              ],
+              "mean_point_xyz_m": [
+                0.2123525380039284,
+                0.1854182036161914,
+                0.002979513546358071
+              ],
+              "minimum_point_z_m": -0.009059602913644257,
+              "minimum_xy_m": [
+                0.18525063238426936,
+                0.1577781859306626
+              ]
+            },
+            "time_s": 0.12600000000000008
+          },
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 6,
+          "minimum_pair_signed_distance_m": -0.0159749035033608,
+          "recomputed_contact_recovered": false,
+          "terminal_mean_bottom_world_Z_N": -32.69819025401672,
+          "terminal_mean_floor_world_Z_N": 32.821796254017684,
+          "terminal_net_world_Z_contact_N": 0.12360600000096156,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": false
+          },
+          "verified_substeps": 500,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-near-left-7332-captured-physics",
+        "condition": "captured-physics",
+        "initial_snapshot": {
+          "manifest_sha256": "e34fe8ff3596545da8b45b06ad64f5a5b28dfb58c4d24dc7865d5df5380cb6b4",
+          "payload_bytes_verified": 197086085,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 501,
+          "state_size": 769
+        },
+        "original_case": "v9-near-left-7332",
+        "original_case_success": false,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55065,
+            "sha256": "3f15897391e21fb4906ed0f6336d73ee52940b48e6b27b20bf9d45107e58ac11"
+          },
+          "native-states.npy": {
+            "bytes": 3082280,
+            "sha256": "1493455891ed0664e72666483ab3996725f080711917383abdea8f6a5ff3c260"
+          },
+          "substeps.jsonl": {
+            "bytes": 4208889,
+            "sha256": "b8b53bf5b5c8c886187b4907090e8ec290090551055e83f3f644128eea82bf9e"
+          }
+        },
+        "result_sha256": "7ca231cf030348e24f4f707931b308663dd15c080c21c9b2f79df715a4259800"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": null,
+          "first_large_opposing_floor_bottom": null,
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 4,
+          "minimum_pair_signed_distance_m": -0.005448440120035125,
+          "recomputed_contact_recovered": true,
+          "terminal_mean_bottom_world_Z_N": 0.12360600007746304,
+          "terminal_mean_floor_world_Z_N": 0.0,
+          "terminal_net_world_Z_contact_N": 0.12360600007746304,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": true
+          },
+          "verified_substeps": 500,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-near-left-7332-low-drop-rest",
+        "condition": "low-drop-rest",
+        "initial_snapshot": {
+          "manifest_sha256": "41e4bb72aeee3654d6361fba2ccda53285943241915c8f4281b4adcbcc28b7e7",
+          "payload_bytes_verified": 197086086,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 501,
+          "state_size": 769
+        },
+        "original_case": "v9-near-left-7332",
+        "original_case_success": false,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55065,
+            "sha256": "3f15897391e21fb4906ed0f6336d73ee52940b48e6b27b20bf9d45107e58ac11"
+          },
+          "native-states.npy": {
+            "bytes": 3082280,
+            "sha256": "9405a26bb33755c39bde9a3a94e6ae9cc6aa312747a7a8cd362b0a752ba07232"
+          },
+          "substeps.jsonl": {
+            "bytes": 2044336,
+            "sha256": "658a67a9423d62fbd9b46426fce09359e480e4a7793deb75d3fb822e9eaec06a"
+          }
+        },
+        "result_sha256": "2f7eee492765abf34683e49d5e03e50c8504a4754ceccde00a34d4c176c03468"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": {
+            "bottom_contacts": [
+              {
+                "distance_m": -0.012921250686862975,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              },
+              {
+                "distance_m": -0.01339334817274393,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.15534291902983433,
+                  -0.14657899887029424,
+                  3.5621140021943134
+                ]
+              },
+              {
+                "distance_m": -0.014482479934237718,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.1971360196811218,
+                  -0.1764719500076608,
+                  3.785482675363438
+                ]
+              },
+              {
+                "distance_m": -0.014010382448356763,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              },
+              {
+                "distance_m": -0.00999222472394395,
+                "geom_names": [
+                  "candy_wrapper_-1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  7.570807423686373e-10,
+                  7.294746766205994e-09,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  1.619316679143414,
+                  1.5621553397647707,
+                  -8.221076977289606
+                ]
+              },
+              {
+                "distance_m": -0.00941795469538472,
+                "geom_names": [
+                  "candy_wrapper_1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -2.0915597832289235e-09,
+                  1.189077802317716e-09,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              }
+            ],
+            "bottom_force_N": [
+              1.2668377404324578,
+              1.2391043908868156,
+              -0.8734802997318543
+            ],
+            "floor_force_N": [
+              -1.270496221263508,
+              -1.2939235711154833,
+              1.8136351665550827
+            ],
+            "index": 266,
+            "object": {
+              "bounds_basis": "same_oriented_geom_bounding_corners_as_original_evaluator_not_exact_ellipsoid_surface",
+              "maximum_point_z_m": 0.015125328109452815,
+              "maximum_xy_m": [
+                0.23769029125664173,
+                0.2131513317613094
+              ],
+              "mean_point_xyz_m": [
+                0.21131796553647708,
+                0.18544720917166624,
+                0.004327376554741407
+              ],
+              "minimum_point_z_m": -0.0064705749999700015,
+              "minimum_xy_m": [
+                0.18494563981631254,
+                0.15774308658202318
+              ]
+            },
+            "time_s": 0.1335000000000001
+          },
+          "first_large_opposing_floor_bottom": {
+            "bottom_contacts": [
+              {
+                "distance_m": -0.012921250686862975,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              },
+              {
+                "distance_m": -0.01339334817274393,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.15534291902983433,
+                  -0.14657899887029424,
+                  3.5621140021943134
+                ]
+              },
+              {
+                "distance_m": -0.014482479934237718,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.1971360196811218,
+                  -0.1764719500076608,
+                  3.785482675363438
+                ]
+              },
+              {
+                "distance_m": -0.014010382448356763,
+                "geom_names": [
+                  "candy_contact",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              },
+              {
+                "distance_m": -0.00999222472394395,
+                "geom_names": [
+                  "candy_wrapper_-1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  7.570807423686373e-10,
+                  7.294746766205994e-09,
+                  -1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  1.619316679143414,
+                  1.5621553397647707,
+                  -8.221076977289606
+                ]
+              },
+              {
+                "distance_m": -0.00941795469538472,
+                "geom_names": [
+                  "candy_wrapper_1",
+                  "bin_bottom"
+                ],
+                "object_normal_world": [
+                  -2.0915597832289235e-09,
+                  1.189077802317716e-09,
+                  1.0
+                ],
+                "object_side": 0,
+                "world_force_on_object_N": [
+                  -0.0,
+                  -0.0,
+                  -0.0
+                ]
+              }
+            ],
+            "bottom_force_N": [
+              1.2668377404324578,
+              1.2391043908868156,
+              -0.8734802997318543
+            ],
+            "floor_force_N": [
+              -1.270496221263508,
+              -1.2939235711154833,
+              1.8136351665550827
+            ],
+            "index": 266,
+            "object": {
+              "bounds_basis": "same_oriented_geom_bounding_corners_as_original_evaluator_not_exact_ellipsoid_surface",
+              "maximum_point_z_m": 0.015125328109452815,
+              "maximum_xy_m": [
+                0.23769029125664173,
+                0.2131513317613094
+              ],
+              "mean_point_xyz_m": [
+                0.21131796553647708,
+                0.18544720917166624,
+                0.004327376554741407
+              ],
+              "minimum_point_z_m": -0.0064705749999700015,
+              "minimum_xy_m": [
+                0.18494563981631254,
+                0.15774308658202318
+              ]
+            },
+            "time_s": 0.1335000000000001
+          },
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 5,
+          "minimum_pair_signed_distance_m": -0.014489392187957794,
+          "recomputed_contact_recovered": true,
+          "terminal_mean_bottom_world_Z_N": 0.12360600002290598,
+          "terminal_mean_floor_world_Z_N": 0.0,
+          "terminal_net_world_Z_contact_N": 0.12360600002290598,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": true
+          },
+          "verified_substeps": 2000,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-near-left-7332-quarter-timestep",
+        "condition": "quarter-timestep",
+        "initial_snapshot": {
+          "manifest_sha256": "bea6ecf6d706ab76eb703860cf984bfa5a649b37a8c22012e3fd7abb8646e277",
+          "payload_bytes_verified": 197086088,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 2001,
+          "state_size": 769
+        },
+        "original_case": "v9-near-left-7332",
+        "original_case_success": false,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55066,
+            "sha256": "7efd4a6736e9fcfa410351e7d26f6c4e8b4583d44cf743205902a1f396f5e798"
+          },
+          "native-states.npy": {
+            "bytes": 12310280,
+            "sha256": "9b93944581ad4fd7a9d9fe34b6e3686423da800e789c7f3eb3bc935d1cfc7bdc"
+          },
+          "substeps.jsonl": {
+            "bytes": 7964543,
+            "sha256": "50ab0c46448c208a6065f867c279b20c395457830c0dd68951901c295d9c8bc0"
+          }
+        },
+        "result_sha256": "f8091fd74e95b553c46ca0a4e8c9f03faa9ab327f4c836e1aae4b4a07c412a15"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": null,
+          "first_large_opposing_floor_bottom": null,
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 5,
+          "minimum_pair_signed_distance_m": -0.017209457046877992,
+          "recomputed_contact_recovered": true,
+          "terminal_mean_bottom_world_Z_N": 0.12360599998641683,
+          "terminal_mean_floor_world_Z_N": 0.0,
+          "terminal_net_world_Z_contact_N": 0.12360599998641683,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": true
+          },
+          "verified_substeps": 500,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-near-left-7332-thick-bottom-same-top",
+        "condition": "thick-bottom-same-top",
+        "initial_snapshot": {
+          "manifest_sha256": "dd13a331eec04789b08894c9b1fa029fb95e3bc59dee99deff3d3aaa0ccc21b9",
+          "payload_bytes_verified": 197086093,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 501,
+          "state_size": 769
+        },
+        "original_case": "v9-near-left-7332",
+        "original_case_success": false,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55069,
+            "sha256": "c170e0528b31527c4e6a85beee83b24ac86346ae887ee9ff84e23d1d2b97ae65"
+          },
+          "native-states.npy": {
+            "bytes": 3082280,
+            "sha256": "d0966142d42418cb2786da94e3942c09cc852cad68f441759fee4162ab14b477"
+          },
+          "substeps.jsonl": {
+            "bytes": 2085697,
+            "sha256": "1886d108658b129ae265a85916aed3b72e5ae910818c6c67edcc5d5f3bbdda90"
+          }
+        },
+        "result_sha256": "5219e8747a2e4f7d4e172e617eeba509546f55609b372f745d7f06856482a1f0"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": null,
+          "first_large_opposing_floor_bottom": null,
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 7,
+          "minimum_pair_signed_distance_m": -0.014798815278696146,
+          "recomputed_contact_recovered": true,
+          "terminal_mean_bottom_world_Z_N": 0.12360600005332924,
+          "terminal_mean_floor_world_Z_N": 0.0,
+          "terminal_net_world_Z_contact_N": 0.12360600005332924,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": true
+          },
+          "verified_substeps": 500,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-newjitter-7331-captured-physics",
+        "condition": "captured-physics",
+        "initial_snapshot": {
+          "manifest_sha256": "3f10bc412eacab44e704ce167faad8178f95fcde38b94ad784e65b544067e035",
+          "payload_bytes_verified": 197086038,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 501,
+          "state_size": 769
+        },
+        "original_case": "v9-newjitter-7331",
+        "original_case_success": true,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55062,
+            "sha256": "e601bdb04928768ffff42e14566795a4b85d11b588c3ca85d27ca33a258398f1"
+          },
+          "native-states.npy": {
+            "bytes": 3082280,
+            "sha256": "91cf92307869a159ad648a8edca24f4421bc52c39e4596a90629dd4695db60f1"
+          },
+          "substeps.jsonl": {
+            "bytes": 2051370,
+            "sha256": "f25431179b471c4864a6029449cce348063dfaf9a9518f26fa5778d7696fd8fa"
+          }
+        },
+        "result_sha256": "e177687fd0777f6d77789a9bde320ec09d50964baa097c04f2f03ad360208bbb"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": null,
+          "first_large_opposing_floor_bottom": null,
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 4,
+          "minimum_pair_signed_distance_m": -0.004250417506092439,
+          "recomputed_contact_recovered": true,
+          "terminal_mean_bottom_world_Z_N": 0.12360600004454576,
+          "terminal_mean_floor_world_Z_N": 0.0,
+          "terminal_net_world_Z_contact_N": 0.12360600004454576,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": true
+          },
+          "verified_substeps": 500,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-newjitter-7331-low-drop-rest",
+        "condition": "low-drop-rest",
+        "initial_snapshot": {
+          "manifest_sha256": "acdbcbb122e5f9491c954e08106dbe61549bc5e4754952a11e3770bb8e3ee07e",
+          "payload_bytes_verified": 197086040,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 501,
+          "state_size": 769
+        },
+        "original_case": "v9-newjitter-7331",
+        "original_case_success": true,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55062,
+            "sha256": "e601bdb04928768ffff42e14566795a4b85d11b588c3ca85d27ca33a258398f1"
+          },
+          "native-states.npy": {
+            "bytes": 3082280,
+            "sha256": "a7603cb0b1cd7edf7787d04f8645af54b784fd3e8764f3b41b021ebc8af25d10"
+          },
+          "substeps.jsonl": {
+            "bytes": 2033633,
+            "sha256": "cfdd7d1edac987346609d6deffe818a3ec2fbaa5a9c8585602154763528438c1"
+          }
+        },
+        "result_sha256": "cae9df6fb1fcb38bc41f27922efb07185e982eb4923cff92abe76d5617d4d930"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": null,
+          "first_large_opposing_floor_bottom": null,
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 6,
+          "minimum_pair_signed_distance_m": -0.013838040535026179,
+          "recomputed_contact_recovered": true,
+          "terminal_mean_bottom_world_Z_N": 0.12360599996041761,
+          "terminal_mean_floor_world_Z_N": 0.0,
+          "terminal_net_world_Z_contact_N": 0.12360599996041761,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": true
+          },
+          "verified_substeps": 2000,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-newjitter-7331-quarter-timestep",
+        "condition": "quarter-timestep",
+        "initial_snapshot": {
+          "manifest_sha256": "beecf080aac936f1fd18991ba6a2e38d84a90342d879d9b7278a84a888acc1ca",
+          "payload_bytes_verified": 197086041,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 2001,
+          "state_size": 769
+        },
+        "original_case": "v9-newjitter-7331",
+        "original_case_success": true,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55063,
+            "sha256": "a9d4842ad4a02a7612ae29481fb501b7460c0d7ffb181fd151d0e024d579cd88"
+          },
+          "native-states.npy": {
+            "bytes": 12310280,
+            "sha256": "75629260384f4d5641348dc1f0efb2a6eaf3e4ba7ad13d6f9604a0e4400fd793"
+          },
+          "substeps.jsonl": {
+            "bytes": 8113173,
+            "sha256": "6fdea3dd16c84f04c76a4898208b9704c548b609f2115c7b470e8da239379ee7"
+          }
+        },
+        "result_sha256": "5d34383bb1883c6f9cfade39bd427daacb32b874de3025a4c16c2ec58ba838b3"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": null,
+          "first_large_opposing_floor_bottom": null,
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 7,
+          "minimum_pair_signed_distance_m": -0.014798815278613146,
+          "recomputed_contact_recovered": true,
+          "terminal_mean_bottom_world_Z_N": 0.12360600005332975,
+          "terminal_mean_floor_world_Z_N": 0.0,
+          "terminal_net_world_Z_contact_N": 0.12360600005332975,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": true
+          },
+          "verified_substeps": 500,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-newjitter-7331-thick-bottom-same-top",
+        "condition": "thick-bottom-same-top",
+        "initial_snapshot": {
+          "manifest_sha256": "b65c016942250b036ce4b8735403458c5b0076b8d9be5f550ec6da4c85b00741",
+          "payload_bytes_verified": 197086046,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 501,
+          "state_size": 769
+        },
+        "original_case": "v9-newjitter-7331",
+        "original_case_success": true,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55066,
+            "sha256": "ac35bb024a2a913e6ce87a8fd4dccf808e1c025a36d846fcfc5d45ea4ccbe714"
+          },
+          "native-states.npy": {
+            "bytes": 3082280,
+            "sha256": "bcbb37b6af5af229362e257f8dab26e9ea8f39216f461244f851c0935e5821a4"
+          },
+          "substeps.jsonl": {
+            "bytes": 2053761,
+            "sha256": "cd4b1be873ae3a5495944f34a1937e9c589e05e8128b52a27a647c88e4617774"
+          }
+        },
+        "result_sha256": "31ab562774eb824eca378f20f52f1d0af71cf09c0ec16f467ec7b8a7cdbce552"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": null,
+          "first_large_opposing_floor_bottom": null,
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 6,
+          "minimum_pair_signed_distance_m": -0.014893563771054164,
+          "recomputed_contact_recovered": true,
+          "terminal_mean_bottom_world_Z_N": 0.12360599998355437,
+          "terminal_mean_floor_world_Z_N": 0.0,
+          "terminal_net_world_Z_contact_N": 0.12360599998355437,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": true
+          },
+          "verified_substeps": 500,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-out-yawplus-7333-captured-physics",
+        "condition": "captured-physics",
+        "initial_snapshot": {
+          "manifest_sha256": "bd6b97b3fd35e0a06cf269eabb26eeb336776e3f6b4e98b9071c1568d7b7cb53",
+          "payload_bytes_verified": 197086156,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 501,
+          "state_size": 769
+        },
+        "original_case": "v9-out-yawplus-7333",
+        "original_case_success": true,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55114,
+            "sha256": "d28ea8e2d7967c1ad5e7a03f7003e3b576cea113465ad1a683a41a3beb21872b"
+          },
+          "native-states.npy": {
+            "bytes": 3082280,
+            "sha256": "787b6ee4aaaa130b1636c86cc6bb7abaf8f43271350e7d4de6093add24060a91"
+          },
+          "substeps.jsonl": {
+            "bytes": 2022192,
+            "sha256": "5638667a6e4836877c0861595cb17523015a53634d7500f1d5c7100ad08a9000"
+          }
+        },
+        "result_sha256": "4c534985b485b29459db22e775a2b43e76178cb8edee966cfac9be7cbe9308a1"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": null,
+          "first_large_opposing_floor_bottom": null,
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 5,
+          "minimum_pair_signed_distance_m": -0.004313377412533549,
+          "recomputed_contact_recovered": true,
+          "terminal_mean_bottom_world_Z_N": 0.12360599997242516,
+          "terminal_mean_floor_world_Z_N": 0.0,
+          "terminal_net_world_Z_contact_N": 0.12360599997242516,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": true
+          },
+          "verified_substeps": 500,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-out-yawplus-7333-low-drop-rest",
+        "condition": "low-drop-rest",
+        "initial_snapshot": {
+          "manifest_sha256": "165cdfcdd3bbfbe8027fc57ba1232591099fbf07a8353a48a34bc9546547f578",
+          "payload_bytes_verified": 197086156,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 501,
+          "state_size": 769
+        },
+        "original_case": "v9-out-yawplus-7333",
+        "original_case_success": true,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55114,
+            "sha256": "d28ea8e2d7967c1ad5e7a03f7003e3b576cea113465ad1a683a41a3beb21872b"
+          },
+          "native-states.npy": {
+            "bytes": 3082280,
+            "sha256": "c57755bca74aa4411754f51605d6d332418933e20b8651568e8bdffbf117dd6b"
+          },
+          "substeps.jsonl": {
+            "bytes": 2030946,
+            "sha256": "ad90b5211b1a6e12784624fafecd84ff87349011721ab54c237bb7744a64920b"
+          }
+        },
+        "result_sha256": "8df666b9123f0c918f7892d025e3fae1f1074c4be3ffbf3ff36b059834e84866"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": null,
+          "first_large_opposing_floor_bottom": null,
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 5,
+          "minimum_pair_signed_distance_m": -0.014907716669387847,
+          "recomputed_contact_recovered": true,
+          "terminal_mean_bottom_world_Z_N": 0.12360599998180767,
+          "terminal_mean_floor_world_Z_N": 0.0,
+          "terminal_net_world_Z_contact_N": 0.12360599998180767,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": true
+          },
+          "verified_substeps": 2000,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-out-yawplus-7333-quarter-timestep",
+        "condition": "quarter-timestep",
+        "initial_snapshot": {
+          "manifest_sha256": "42a411931fbd3260342eca6a10571c637a09bd289420709d5f03f0bea33093a5",
+          "payload_bytes_verified": 197086159,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 2001,
+          "state_size": 769
+        },
+        "original_case": "v9-out-yawplus-7333",
+        "original_case_success": true,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55115,
+            "sha256": "f69fff09334f7ad3d93e0a35312c1d4539b5b7babc5d6df2666133d55199ffcd"
+          },
+          "native-states.npy": {
+            "bytes": 12310280,
+            "sha256": "d961015e3f29dcf8b103d22ada9267468fe4166176f0716538514b412bdc62a7"
+          },
+          "substeps.jsonl": {
+            "bytes": 8014576,
+            "sha256": "8cf350664ff82cb6c3cea47b6a12cee3ea819682f0e1a61e0d6ad6355f2398bb"
+          }
+        },
+        "result_sha256": "ed48eb5f628ebcd49c6b0aa91d1aa75c92a0c1a8868e9daa29e75a53d14b14c7"
+      },
+      {
+        "analysis": {
+          "first_downward_bottom_force": null,
+          "first_large_opposing_floor_bottom": null,
+          "maximum_force_conversion_error": 0.0,
+          "maximum_other_object_contact_count": 0,
+          "maximum_solver_iterations": 6,
+          "minimum_pair_signed_distance_m": -0.014893524827861443,
+          "recomputed_contact_recovered": true,
+          "terminal_mean_bottom_world_Z_N": 0.12360599998353208,
+          "terminal_mean_floor_world_Z_N": 0.0,
+          "terminal_net_world_Z_contact_N": 0.12360599998353208,
+          "terminal_predicates": {
+            "inside": true,
+            "other_contact_free": true,
+            "settled": true,
+            "supported": true
+          },
+          "verified_substeps": 500,
+          "weight_N": 0.12360600000000001
+        },
+        "attempt_id": "v10-v9-out-yawplus-7333-thick-bottom-same-top",
+        "condition": "thick-bottom-same-top",
+        "initial_snapshot": {
+          "manifest_sha256": "67a43ffa09287b582b840c286db5e6ffa56b2f2f05dff3db592d152ffa2dedca",
+          "payload_bytes_verified": 197086164,
+          "payloads_verified": 42
+        },
+        "native": {
+          "clock_verified": true,
+          "initial_native_bytes_equal": true,
+          "rows": 501,
+          "state_size": 769
+        },
+        "original_case": "v9-out-yawplus-7333",
+        "original_case_success": true,
+        "raw_SHA_binding_basis": "first_independent_registration_after_unit_exit_no_prior_producer_raw_hash_claim",
+        "raw_artifacts": {
+          "compiled-input-model.xml": {
+            "bytes": 55118,
+            "sha256": "870e07c060d2a7c552bb67bbd88aa9be1d90eb8191f949f93bff4e4f37e03f07"
+          },
+          "native-states.npy": {
+            "bytes": 3082280,
+            "sha256": "180bbd843a8e1139001bf1a21c57115b40813a1e874cbdfd917d62ffeee9268a"
+          },
+          "substeps.jsonl": {
+            "bytes": 2023966,
+            "sha256": "f08285fec80d991e2bbf0bd92ac876d3fcf6270be38f8fb512b87d1f1ebf3c1e"
+          }
+        },
+        "result_sha256": "11282969f5bcc1ad047d89a3a7128cc6637b5a5e5282e0269e52a1517f98a90b"
+      }
+    ],
+    "by_condition": {
+      "captured-physics": {
+        "attempts": 4,
+        "recovered": 2
+      },
+      "low-drop-rest": {
+        "attempts": 4,
+        "recovered": 4
+      },
+      "quarter-timestep": {
+        "attempts": 4,
+        "recovered": 3
+      },
+      "thick-bottom-same-top": {
+        "attempts": 4,
+        "recovered": 4
+      }
+    },
+    "elapsed_s": 109.5761285930057,
+    "full_task_success_claimed": false,
+    "initial_restore_reexecution": "UNQUALIFIED",
+    "learned_policy_executed": false,
+    "new_initial_conditions_not_original_reexecution": true,
+    "optimizer_admission": false,
+    "original_V9_outcomes_unchanged": true,
+    "physical_io": false,
+    "physics_accuracy_validated": false,
+    "producer_campaign_results_sha256": "f18297d7e761542fd9e8fc69b380fc7e30829331b1f1776fbf210859ef7688ef",
+    "protocol_sha256": "87f8c80a391f06d57263098d3da5c23007d0e811c57f62488a69006dd174ae45",
+    "report_driver_sha256": "eb1e53ec6d98323ba1305ee728107c9380a9146496c0b405f152d14c510b680e",
+    "resources": {
+      "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-probe-v10-wizard-20261027.service",
+      "pid": 2070568,
+      "values": {
+        "cpu.max": "100000 100000",
+        "memory.current": "719458304",
+        "memory.events": "low 0\nhigh 0\nmax 16910\noom 0\noom_kill 0\noom_group_kill 0",
+        "memory.max": "2147483648",
+        "memory.peak": "2147483648",
+        "memory.swap.max": "0"
+      }
+    },
+    "schema": "explorer_controlled_contact_independent_report_v1",
+    "signed_opposing_contact_mechanism": "OBSERVED_IN_NEW_BASELINE_RAW_CONTACTS_not_retroactively_measured_V9",
+    "source_domain": "SIMULATION",
+    "unique_solver_cause": "AMBIGUOUS"
+  },
+  "independent_report_sha256": "d0556fae852031a8673ff0de0a90f8ff0430f401494753dbe9465e32bd5ba4b8",
+  "master_prompt_completed": false,
+  "old_V9_originals_untouched": true,
+  "physics_defaults_unchanged": true,
+  "physics_driver_sha256": "5c36678c9883835ea78017834c789a66bec3ad9a6417e127009aa8bac81757e6",
+  "private_artifact_locator": "/mnt/explorer-data/explorer-work/transfer-contact-probe-v10-20261027-b",
+  "schema": "explorer_transfer_contact_probe_public_receipt_v1",
+  "scope": "16_new_copied_CAD_contact_initial_conditions_not_full_V9_reexecution_or_task_success",
+  "source_commit": "21dd9e9",
+  "source_initial_helper_sha256": "e01b78cd5fb9e5fa878f97d3f19702cbf88e5906b620c7ff532da581feac6a12",
+  "unit": "explorer-contact-probe-v10-wizard-20261027.service",
+  "unit_exit_status": 0,
+  "unit_invocation": "9d861915492a45bba12b47bcffe38d13"
+}
