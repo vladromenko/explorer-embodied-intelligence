@@ -21,6 +21,12 @@ checkpoint SHA до/после оценки. Отмена до загрузки 
 публикует успешный результат. Отдельный immutable `offline-evaluation.json`
 содержит ошибки предсказаний; они не означают успешный rollout или мастерство.
 
+Evaluator принимает server runtime pin `_execution_commit` только если это40hex
+и он точно совпадает с текущим архивным каталогом и `RELEASE_COMMIT`. Этот pin
+не меняет исходный queued config; остальные лишние поля запрещены. Project02/03
+должен совпадать с project исходного завершённого model job. Direct-worker proof
+и настоящий Supervisor→bootstrap→job_runner proof различаются в квитанциях.
+
 `enqueue_shadow(...)` использует существующий `rosmaster_skill_shadow`: CPU,
 сначала загрузка модели, затем только authenticated GET свежего Source packet
 и точно закреплённого кадра. Новый `skill_reference` дополнительно проверяется

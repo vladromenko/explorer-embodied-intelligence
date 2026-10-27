@@ -6132,7 +6132,8 @@
         "hardware_tested": false
       },
       "test_evidence": [
-        "tests/test_rosmaster_learning.py"
+        "tests/test_rosmaster_learning.py",
+        "tests/test_rosmaster_eval_execution.py"
       ],
       "hardware_run_ids": []
     },
