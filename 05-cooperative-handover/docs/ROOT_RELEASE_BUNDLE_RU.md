@@ -37,3 +37,29 @@ Source/actor/control IDs в body отсутствуют. Все галочки R
 Поздний ответ не отменяет STOP; автоматического запроса/повтора нет. HTTP allowlist
 подключён, серверная SourceControl orchestration остаётся отдельным незавершённым
 шагом. Обычная metadata confirmation не превращается в resume.
+
+Workflow bridge использует одну существующую HandoverFSM. Optional hooks:
+`prepare_parked_release(row, after_receiver_command_id)` возвращает descriptor
+или None для прежнего ACTIVE path; `wait_parked_release_control(row, descriptor)`
+ждёт проверенный CONTROL completion, не выполняет Source RPC и не забирает Inbox
+proof второй раз. Descriptor копируется и сохраняется в исходном pending step.
+Completion обязан содержать exact bundle/run/object/epoch/operation, три literal
+consumed records, immutable source-control pointer и исходный installed grant.
+Проверяются исходные issue/expiry, отдельный source clock/boot и Root receive
+times, actor, команды, SHA, provenance всех трёх фактов и их буквальное сохранение
+в grant. Одного source ACK или validated-флага недостаточно.
+
+`begin_parked_release_control(session_id, expected_epoch, bundle_id)` резервирует
+только эту отдельную USER-команду внутри закрытого epoch-bound checkpoint.
+Обычные phase/attach операции там по-прежнему запрещены. После успешного CONTROL
+worker ждёт завершения reservation, заново проверяет epoch/phase/freshness и
+применяет существующие FSM transitions. STOP reservation не ждёт; late completion
+не восстанавливает состояние. Повторный `guard/authorize` после установленного
+parked grant не вызывается. Policy path передаёт literal grant отдельному strict
+transport adapter; его Source validation и per-role authority ещё интегрируются.
+
+Фактически53 combined tests/10.38s и22 final bridge tests/3.82s прошли. Это real
+Inbox/FSM на explicit SourceControl fixtures: metadata facts без CONTROL не
+продвигают FSM, changed contexts блокируются, Source epoch проверяется семантически
+даже при согласованных SHA, STOP и исходный ACTIVE path ограждены. Полный
+Root→Source integration остаётся отдельным незавершённым шагом.

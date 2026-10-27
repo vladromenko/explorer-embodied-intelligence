@@ -52,6 +52,7 @@ class CooperativeWorkflow:
         self.registry,self.recorder,self.inbox=registry,recorder,evidence_inbox
         self.domain,self.clock,self.authority=clock_domain,clock,authority
         self.native_owned_stop=native_owned_stop
+        self.prepare_parked_release=None;self.wait_parked_release_control=None
         self.managed=Path(managed_root or root).resolve()
         self.lock=threading.RLock();self.record_io=threading.Lock()
         self.native_phase_condition=threading.Condition(self.lock);self.native_phase_changes={};self.native_phase_checkpoints={}
@@ -383,6 +384,31 @@ class CooperativeWorkflow:
         with self.native_phase_condition:
             if self.native_phase_changes.get(key)!=token:return False
             self.native_phase_changes.pop(key);self.native_phase_condition.notify_all();return True
+    def begin_parked_release_control(self,session_id,expected_epoch,release_bundle_id):
+        """Reserve only the USER control matching this actual source challenge.
+
+        This is not a general phase-change window. Other scope changes remain
+        blocked while an epoch-bound source challenge is pending. STOP never
+        waits for the control reply or its immutable custody.
+        """
+        _id(release_bundle_id)
+        with self.native_phase_condition:
+            row=self._session(session_id);self._fresh(row,expected_epoch)
+            pending=row.get('pending_operation') or {};descriptor=pending.get('native_release_challenge') or {}
+            checkpoint=self.native_phase_checkpoints.get((session_id,expected_epoch,pending.get('operation_id'))) or {}
+            if (row['execution_domain']!='user_observed_physical_test' or pending.get('event')!='release_requested' or
+                    descriptor.get('release_bundle_id')!=release_bundle_id or descriptor.get('operation_id')!=pending.get('operation_id') or
+                    descriptor.get('epoch')!=expected_epoch or not checkpoint.get('checkpoint_id') or
+                    checkpoint.get('accepting') is not False or checkpoint.get('binding_change_blocker')!='SOURCE_CHALLENGE_IS_EPOCH_BOUND' or
+                    type(descriptor.get('deadline_nx_ns')) is not int or self.clock()>=descriptor['deadline_nx_ns'] or
+                    self._native_phase_inflight(session_id,expected_epoch)):
+                raise ValueError('Exact live parked release question and original protocol checkpoint required')
+            token={'token_id':uuid.uuid4().hex,'session_id':session_id,'epoch':expected_epoch,'role':'giver',
+                'operation':'native_parked_release_resume','process_session':self.process,'protocol_state':row['protocol_state'],
+                'pending_operation_id':pending['operation_id'],'checkpoint_id':checkpoint['checkpoint_id'],
+                'release_bundle_id':release_bundle_id,'started_nx_ns':self.clock()}
+            self.native_phase_changes[(session_id,expected_epoch,'giver')]=deepcopy(token)
+            return deepcopy(token)
     @contextmanager
     def _native_evidence_checkpoint(self,row,operation,fsm):
         """Quiesce source-binding mutations before any post-evidence action.
@@ -449,6 +475,65 @@ class CooperativeWorkflow:
     @staticmethod
     def _last_command(row,role):
         return next((item['command_id'] for item in reversed(row['dispatch_receipts']) if item['role']==role),None)
+    def _parked_release_evidence(self,row,operation,descriptor,completion,after):
+        """Validate consumed Root facts; a CONTROL ACK alone is never holding."""
+        if not isinstance(completion,dict):raise ValueError('Validated explicit parked release completion required')
+        challenge=descriptor.get('challenge') or {};grant=completion.get('release_grant') or {}
+        expected={'release_bundle_id':descriptor.get('release_bundle_id'),'run_id':row['session_id'],
+            'object_id':row['protocol_object_id'],'epoch':row['epoch'],'operation_id':operation}
+        actor=(row.get('observed_test_binding') or {}).get('actor_id');received=descriptor.get('received_coordinator_ns')
+        issued=challenge.get('issued_native_ns');expires=challenge.get('expires_native_ns')
+        now=self.clock()
+        if (completion.get('schema')!='explorer_cooperative_parked_release_control_completion_v1' or
+                any(descriptor.get(key)!=value or completion.get(key)!=value for key,value in expected.items()) or
+                completion.get('source_control_validated') is not True or not completion.get('source_control_receipt') or
+                not actor or descriptor.get('actor_id')!=actor or challenge.get('actor_id')!=actor or
+                challenge.get('schema')!='explorer_native_parked_receiver_hold_challenge_v1' or
+                challenge.get('run_id')!=row['session_id'] or challenge.get('object_id')!=row['protocol_object_id'] or
+                challenge.get('coordinator_epoch')!=row['epoch'] or
+                not isinstance(challenge.get('native_clock_domain'),str) or not challenge['native_clock_domain'] or
+                challenge['native_clock_domain']==self.domain or not isinstance(challenge.get('native_boot_id'),str) or not challenge['native_boot_id'] or
+                type(issued) is not int or type(expires) is not int or not 0<=issued<expires<=issued+2_000_000_000 or
+                challenge.get('after_receiver_command_id')!=after or descriptor.get('after_receiver_command_id')!=after or
+                descriptor.get('source_challenge_sha256')!=digest(challenge) or
+                descriptor.get('received_clock_domain')!=self.domain or type(received) is not int or
+                type(descriptor.get('deadline_nx_ns')) is not int or not 0<=received<=now<descriptor['deadline_nx_ns']<=received+(expires-issued) or
+                grant.get('challenge')!=challenge or grant.get('expires_native_ns')!=challenge.get('expires_native_ns')):
+            raise ValueError('Exact source challenge, immutable CONTROL custody and original expiry required')
+        proofs=completion.get('operator_confirmations');statements={'receiver_holds_object','giver_stationary','receiver_stationary'}
+        if not isinstance(proofs,dict) or set(proofs)!=statements:raise ValueError('Three actual consumed post-challenge facts required')
+        identities=set()
+        for statement,proof in proofs.items():
+            role='giver' if statement=='giver_stationary' else 'receiver'
+            command=self._last_command(row,'giver') if role=='giver' else after
+            if (not isinstance(proof,dict) or proof.get('statement')!=statement or proof.get('role')!=role or
+                    proof.get('state')!='consumed' or proof.get('run_id')!=row['session_id'] or
+                    proof.get('object_id')!=row['protocol_object_id'] or proof.get('authenticated_actor')!=actor or
+                    proof.get('affirmed') is not True or proof.get('observing') is not True or
+                    proof.get('clock_domain')!=self.domain or proof.get('after_command_id')!=command or
+                    proof.get('release_bundle_id')!=descriptor['release_bundle_id'] or
+                    proof.get('source_challenge_sha256')!=descriptor['source_challenge_sha256'] or
+                    any(type(proof.get(key)) is not int for key in ('created_ns','received_ns','consumed_ns')) or
+                    not received<=proof['created_ns']<=proof['received_ns']<=proof['consumed_ns']<=now or
+                    not 0<=now-proof['received_ns']<=2_000_000_000):
+                raise ValueError('Fresh same-actor/run/command post-source consumed observation required')
+            identity=_id(proof.get('challenge_id'))
+            if identity in identities:raise ValueError('Release facts require separate question identities')
+            identities.add(identity)
+        if (grant.get('operator_confirmation')!=proofs['receiver_holds_object'] or
+                grant.get('stationary_confirmations')!={key:proofs[key] for key in ('giver_stationary','receiver_stationary')}):
+            raise ValueError('Actual installed native grant must retain these exact three consumed facts')
+        hold=proofs['receiver_holds_object']
+        held=CorrelatedEvidence(row['session_id'],row['protocol_object_id'],'receiver',after,
+            HoldEvidence(hold['challenge_id'],row['protocol_object_id'],'operator','operator_confirmation',
+                'receiver_holds_object',False,hold['received_ns'],self.domain,hold['received_ns'],self.domain,True),
+            {'kind':'authenticated_operator_confirmation','confirmation':deepcopy(hold)})
+        def stationary(role):
+            proof=proofs[role+'_stationary']
+            return ArmObservation(role,True,proof['received_ns'],self.domain,
+                {'kind':'explicit_authenticated_operator_stationary_confirmation','confirmation':deepcopy(proof),
+                 'measured_joint_feedback_claimed':False},proof['after_command_id'])
+        return held,stationary('giver'),stationary('receiver')
     def _step(self,session_id,event,epoch,operation):
         try:
             row=self._session(session_id);fsm=self._fsm(row);facts={};evidence=None;observations=[]
@@ -456,12 +541,17 @@ class CooperativeWorkflow:
             self._phase_current(fsm)
             if fsm.state not in LEGAL_STATES[event]:raise ValueError('Protocol changed before this step')
             command=POLICY_OPERATION.get(event);after=None
-            already_applied=False;release_challenge=None
+            already_applied=False;release_challenge=None;parked_release_completion=None
             if event=='release_requested':
                 receiver_after=self._last_command(row,'receiver')
                 giver_provider=self.registry.provider('giver',spec['subskills']['giver'])
-                if row['execution_domain']=='user_observed_physical_test' and giver_provider is not None and callable(giver_provider.prepare_release):
+                if row['execution_domain']=='user_observed_physical_test' and callable(self.prepare_parked_release):
+                    if not callable(self.wait_parked_release_control):raise ValueError('Explicit parked CONTROL completion binder required')
+                    release_challenge=deepcopy(self.prepare_parked_release(deepcopy(row),receiver_after))
+                parked_release=release_challenge is not None
+                if not parked_release and row['execution_domain']=='user_observed_physical_test' and giver_provider is not None and callable(giver_provider.prepare_release):
                     release_challenge=giver_provider.prepare_release(deepcopy(row),receiver_after)
+                if release_challenge is not None:
                     if receiver_after is None:receiver_after=release_challenge.get('after_receiver_command_id')
                     self._fresh(row,epoch)
                     with self.lock:
@@ -472,11 +562,16 @@ class CooperativeWorkflow:
                 # from servo closure or time passing. Check freshness again only
                 # AFTER all responses, before any physical transport call.
                 with self._native_evidence_checkpoint(row,operation,fsm):
-                    with ThreadPoolExecutor(max_workers=3) as pool:
-                        hold=pool.submit(self._receiver_hold,row,receiver_after)
-                        giver=pool.submit(self._stationary,row,'giver',self._last_command(row,'giver'))
-                        receiver=pool.submit(self._stationary,row,'receiver',self._last_command(row,'receiver'))
-                        held,giver_still,receiver_still=hold.result(),giver.result(),receiver.result()
+                    if parked_release:
+                        parked_release_completion=self.wait_parked_release_control(deepcopy(row),deepcopy(release_challenge))
+                        self._fresh(row,epoch);self._phase_current(fsm)
+                        held,giver_still,receiver_still=self._parked_release_evidence(row,operation,release_challenge,parked_release_completion,receiver_after)
+                    else:
+                        with ThreadPoolExecutor(max_workers=3) as pool:
+                            hold=pool.submit(self._receiver_hold,row,receiver_after)
+                            giver=pool.submit(self._stationary,row,'giver',self._last_command(row,'giver'))
+                            receiver=pool.submit(self._stationary,row,'receiver',self._last_command(row,'receiver'))
+                            held,giver_still,receiver_still=hold.result(),giver.result(),receiver.result()
                 self._fresh(row,epoch)
                 self._phase_current(fsm)
                 if any(not 0<=self.clock()-item.received_ns<=fsm.hold_ttl_ns for item in (giver_still,receiver_still)):
@@ -485,8 +580,11 @@ class CooperativeWorkflow:
                 fsm.apply('receiver_hold_confirmed',event_id=operation+':fresh-hold',now_ns=self.clock(),evidence=held.evidence,**facts)
                 fsm.apply(event,event_id=operation,now_ns=self.clock(),both_stationary=True)
                 observations.extend((asdict(held),asdict(giver_still),asdict(receiver_still)))
+                if parked_release_completion is not None:
+                    observations.append({'explicit_parked_release_control':deepcopy(parked_release_completion),
+                        'actual_arm_opening_command_claimed':False})
                 already_applied=True
-                if row['execution_domain']=='user_observed_physical_test' and not self._policy_role(row,'giver'):
+                if row['execution_domain']=='user_observed_physical_test' and not self._policy_role(row,'giver') and parked_release_completion is None:
                     authority=self.authority(deepcopy(row))
                     if (authority.get('explicit_user_observed_test_current') is not True or giver_provider is None or
                             not callable(giver_provider.authorize_manual_release)):
@@ -521,6 +619,8 @@ class CooperativeWorkflow:
                                    'received_clock_domain':self.domain,'must_validate_at_native_publication':True,
                                    'operator_confirmation_receipt':deepcopy(held.source_receipt),
                                    'native_release_challenge':deepcopy(release_challenge)}
+                    if parked_release_completion is not None:
+                        authorization['preinstalled_parked_release_grant']=deepcopy(parked_release_completion['release_grant'])
                 command_id=uuid.uuid4().hex;submitted_ns=self.clock()
                 command_body={'command_id':command_id,'run_id':session_id,
                     'object_id':row['protocol_object_id'],'role':role,'operation':op,'reference':deepcopy(spec['subskills'][role]),

@@ -3832,6 +3832,11 @@
           "command": "python -m pytest tests/test_cooperative_workflow_owned_stop.py tests/test_cooperative_unattached_stop.py tests/test_cooperative_workflow05.py tests/test_cooperative_phase_checkpoints.py -q",
           "result": "42passed16.16s; internal protocol cancellation cleans exact fake Source owners before attach, foreign epoch not adopted, delayed cleanup outside Workflow lock, Inbox marker error does not skip STOP, explicit API cleanup called once",
           "scope": "SOFTWARE_ONLY_NO_DEVICE_IO"
+        },
+        {
+          "command": "python -m pytest tests/test_cooperative_parked_release_bridge.py tests/test_cooperative_workflow05.py tests/test_cooperative_phase_checkpoints.py tests/test_cooperative_workflow_owned_stop.py -q",
+          "result": "53combinedPASS10.38s; final22bridgePASS3.82s after immutable descriptor copy and self-consistent foreign Source epoch negative. Real Inbox/FSM with explicit SourceControl fixtures only; no source RPC/motion. Separate CONTROL completion and custody required, one reservation, late STOP cannot advance, old ACTIVE path preserved. Full Source helper integration remains open.",
+          "scope": "SOFTWARE_ONLY_NO_DEVICE_IO"
         }
       ],
       "hardware_run_ids": []
