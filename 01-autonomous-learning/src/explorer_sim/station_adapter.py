@@ -17,6 +17,34 @@ from PIL import Image
 from .pilot import sha, utc, write_json
 
 
+def validate_station_capture(source,source_digest,capture_manifest_path,expected_capture_sha256):
+    """Pure original/timeline verification shared by conversion and qualification.
+
+    This validates data identity and pause selection, not Source operator approval.
+    """
+    from explorer_shared.capture_timeline import select_source_samples
+    episode_id=source.get('episode_id');samples=source.get('samples')
+    path=Path(capture_manifest_path).resolve();checksum=sha(path)
+    if not isinstance(expected_capture_sha256,str) or checksum!=expected_capture_sha256:
+        raise ValueError('Exact immutable source capture envelope SHA required')
+    if path.stat().st_size>64*1024**2:raise ValueError('Source capture envelope exceeds metadata budget')
+    envelope=json.loads(path.read_bytes());lifecycle=envelope.get('lifecycle') or {}
+    original_context=dict(source.get('source_context') or {});original_context.pop('native_phase_annotation',None)
+    if (envelope.get('schema')!='explorer_so101_source_capture_v1' or envelope.get('recording_id')!=episode_id or envelope.get('state')!='completed' or lifecycle.get('state')!='completed' or
+            (envelope.get('original_manifest') or {}).get('sha256')!=source_digest or
+            envelope.get('source_clock_domain')!=source.get('clock_domain') or envelope.get('source_boot_id')!=source.get('boot_id') or
+            lifecycle.get('source_clock_domain')!=source.get('clock_domain') or lifecycle.get('source_boot_id')!=source.get('boot_id') or
+            envelope.get('source_context')!=original_context or lifecycle.get('source_context')!=original_context):
+        raise ValueError('Source capture timeline/original identity changed')
+    selection=select_source_samples(samples,lifecycle.get('pause_intervals'),
+        started_ns=lifecycle.get('started_monotonic_ns'),ended_ns=lifecycle.get('ended_monotonic_ns'),
+        clock_domain=source.get('clock_domain'),boot_id=source.get('boot_id'))
+    from explorer_shared.native_capture_approval import source_bytes
+    if source_bytes(selection)!=source_bytes(envelope.get('sample_selection')):
+        raise ValueError('Source capture sample selection changed or crossed a pause')
+    return {'path':path,'sha256':checksum,'envelope':envelope,'selection':selection}
+
+
 def convert_station_episode(source_manifest_path, target_dir, *, capture_manifest_path=None, expected_capture_sha256=None):
     source_path, target = Path(source_manifest_path).resolve(), Path(target_dir).resolve()
     source_digest = sha(source_path)
@@ -78,25 +106,7 @@ def convert_station_episode(source_manifest_path, target_dir, *, capture_manifes
              "action_monotonic_ns": np.asarray(action_times, np.int64)}
     capture=None
     if capture_manifest_path is not None:
-        from explorer_shared.capture_timeline import select_source_samples
-        path=Path(capture_manifest_path).resolve();checksum=sha(path)
-        if not isinstance(expected_capture_sha256,str) or checksum!=expected_capture_sha256:
-            raise ValueError('Exact immutable source capture envelope SHA required')
-        if path.stat().st_size>64*1024**2:raise ValueError('Source capture envelope exceeds metadata budget')
-        envelope=json.loads(path.read_bytes());lifecycle=envelope.get('lifecycle') or {}
-        original_context=dict(source.get('source_context') or {});original_context.pop('native_phase_annotation',None)
-        if (envelope.get('recording_id')!=episode_id or envelope.get('state')!='completed' or lifecycle.get('state')!='completed' or
-                (envelope.get('original_manifest') or {}).get('sha256')!=source_digest or
-                envelope.get('source_clock_domain')!=source.get('clock_domain') or envelope.get('source_boot_id')!=source.get('boot_id') or
-                lifecycle.get('source_clock_domain')!=source.get('clock_domain') or lifecycle.get('source_boot_id')!=source.get('boot_id') or
-                envelope.get('source_context')!=original_context or lifecycle.get('source_context')!=original_context):
-            raise ValueError('Source capture timeline/original identity changed')
-        selection=select_source_samples(samples,lifecycle.get('pause_intervals'),
-            started_ns=lifecycle.get('started_monotonic_ns'),ended_ns=lifecycle.get('ended_monotonic_ns'),
-            clock_domain=source.get('clock_domain'),boot_id=source.get('boot_id'))
-        if selection!=envelope.get('sample_selection'):
-            raise ValueError('Source capture sample selection changed or crossed a pause')
-        capture={'path':path,'sha256':checksum,'envelope':envelope,'selection':selection}
+        capture=validate_station_capture(source,source_digest,capture_manifest_path,expected_capture_sha256)
     elif expected_capture_sha256 is not None:
         raise ValueError('Source capture SHA requires its original envelope')
     segments, gaps = _causal_segments(times["action_monotonic_ns"], fps,

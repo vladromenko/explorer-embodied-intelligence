@@ -37,12 +37,21 @@ def admission_sources():
     """Pin reused rules as well as this adapter in durable optimizer context."""
     root=Path(__file__).resolve().parents[3]
     return [Path(__file__),Path(__file__).with_name('lab_skill_workflow.py'),
+        Path(__file__).with_name('source_demo_workflow.py'),
         Path(__file__).with_name('skill_catalogue.py'),
         root/'01-autonomous-learning/src/explorer_sim/so101_dataset_qualification.py',
         root/'01-autonomous-learning/src/explorer_sim/station_adapter.py',
         root/'01-autonomous-learning/src/explorer_sim/dataset_export.py',
         root/'shared/explorer_shared/so101_station.py',root/'shared/explorer_shared/contracts.py',
-        root/'shared/explorer_shared/experiments.py']
+        root/'shared/explorer_shared/experiments.py',root/'shared/explorer_shared/native_capture_approval.py',
+        root/'shared/explorer_shared/capture_timeline.py']
+
+
+def verify_current_source_reviews(store,outer):
+    """Cheap data-only revocation check at existing optimizer progress boundaries."""
+    from .source_demo_workflow import current_source_review
+    for identity,pins in (outer.get('receipt',{}).get('source_capture_bindings') or {}).items():
+        current_source_review(store,identity,pins['source_archive_sha256'],pins['source_review_sha256'])
 
 
 def verify_so101_aggregate(store,config):
@@ -90,7 +99,7 @@ def verify_so101_aggregate(store,config):
             split=decision['binding']['split']
             if content in decoded_splits and decoded_splits[content]!=split:raise ValueError('Decoded original RGB content crosses dataset splits')
             decoded_splits[content]=split
-    current=[dict(binding=row['binding'],review=row['review']) for row in accepted]
+    current=[flow._source_snapshot(row) for row in accepted]
     order=lambda row:row['binding']['original_episode_id']
     if not isinstance(snapshots,list) or sorted(snapshots,key=order)!=sorted(current,key=order):
         raise ValueError('Original source/binding/review admission changed; rebuild the accepted cohort')

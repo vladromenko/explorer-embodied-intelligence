@@ -18,7 +18,15 @@ LeRobotDataset0.6.1 native6 с точным readback; UNKNOWN не promoted. П�
 закрывает admission; renewed approval создаёт отдельные immutable job/paths,
 старые originals/review сохраняются. Негативные прогоны и generated fixtures retained.
 [Evidence](../_registry/evidence/experiment04-approved-import-worker-20261027.json).
-Cohort/полный train-resume-DEV/shadow/UI/deploy ещё OPEN; это не готовность всего04.
+Approved cohort теперь проверен отдельно:189PASS/5SKIP42.33s,5generated originals
+(3train/1DEV/1sealed),8raw→7selected, official28frames/8segments,0sealed payload.
+Capture/review/provenance SHA входят в binding/fingerprint/aggregate; late reject
+закрывает cached aggregate, reapproval сохраняет предыдущие artifacts.
+[Evidence](../_registry/evidence/experiment04-approved-capture-cohort-20261027.json).
+Полный train-resume-DEV/shadow/UI/deploy ещё OPEN; это не готовность всего04.
+В undeployed main после этих code changes текущий старый native6 Diffusion binding
+не переименовывается в PASS: следующий атомик — fresh bounded qualification.
+
 
 ## Фактический deploy
 
@@ -45,8 +53,8 @@ actual HTTPS Firefox desktop/mobile, passiveROS20s0, source/reference/PIDs/6conf
 ## Блокеры и ближайшие действия
 
 - `E04-IMPORT` DONE в software scope выше; archive/review/provenance pins обязательны.
-- `E04-COHORT`: провести sealed pause envelope через accepted cohort и настоящий
-  LeRobotDataset→ACT/resume/reload→independent DEV/shadow на labelled software inputs.
+- `E04-COHORT`: accepted cohort+officialDataset PASS; теперь fresh current-source ACT/DP
+  qualification и queued resume/reload/new-PID/DEV/offline-shadow на labelled software inputs.
 - `E04-UI`: связать новый flow, counters/coverage/review/models и scoped tab cleanup.
 - Старый Pi4c имеет воспроизведённую shutdown race. Первый unattended Pi update
   OPEN: idleGET+server_close не drain. Нужен доказанный admission barrier либо

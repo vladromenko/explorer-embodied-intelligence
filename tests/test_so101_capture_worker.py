@@ -8,7 +8,10 @@ from contextlib import suppress
 import hashlib
 import importlib
 import json
+import os
 from pathlib import Path
+import subprocess
+import sys
 
 import httpx
 import numpy as np
@@ -132,9 +135,36 @@ def test_source04_renewed_approval_preserves_completed_job_and_old_review(captur
         source_format='so101_source_capture_v1',source_review_sha256=approved['review_sha256'])
 
 
+def test_latest_source_review_event_tamper_is_detected_before_admission_or_poll_reuse(captured,tmp_path):
+    store=Store(tmp_path/'state');flow.queue_source_review(store,captured['id'],captured['sha'],captured['review'])
+    with store.connect() as db:
+        row=db.execute("SELECT event_id,body FROM events WHERE event_id LIKE 'lab.skill.source_review_observed:%'").fetchone()
+        envelope=json.loads(row['body']);envelope['payload']['wrapper']['source_review']['actor_id']='TAMPERED_ACTOR'
+        db.execute('UPDATE events SET body=? WHERE event_id=?',(json.dumps(envelope),row['event_id']))
+    with pytest.raises(ValueError,match='event SHA'):flow.current_source_review(store,captured['id'],captured['sha'],captured['review']['review_sha256'])
+    with pytest.raises(ValueError,match='event SHA'):flow.observe_source_review(store,captured['id'],captured['sha'],captured['review'])
+
+
 @pytest.mark.parametrize('kind,project,format',[('mobile_import','02','so101_source_capture_v1'),('station_import','04','native_capture_v1'),('station_import','04','unknown')])
 def test_source04_typed_queue_rejects_cross_producer(tmp_path,kind,project,format):
     with pytest.raises(ValueError):Store(tmp_path).create_import_job(kind,project,'a'*32,'b'*64,source_format=format,source_review_sha256='c'*64)
+
+
+def test_fresh_worker_imports_source04_consumer_from_its_pinned_release_not_editable_checkout(tmp_path):
+    package=tmp_path/'release'/'04-so101-source-learning/src/explorer_so101';package.mkdir(parents=True)
+    (package/'__init__.py').write_text('')
+    (package/'capture_archive.py').write_text("raise RuntimeError('PINNED_RELEASE04_CONSUMER_SELECTED_BEFORE_IO')\n")
+    root=Path(__file__).parents[1]
+    environment=dict(os.environ,PYTHONPATH=os.pathsep.join([str(root/'00-control-center/src'),str(root/'shared')]))
+    program="""import sys
+from explorer.job_runner import station_import
+job={'kind':'station_import','project_id':'04','config':{'source_format':'so101_source_capture_v1'}}
+try:station_import(None,job,{'root':sys.argv[1],'nodes':[]})
+except RuntimeError as error:
+    assert str(error)=='PINNED_RELEASE04_CONSUMER_SELECTED_BEFORE_IO',str(error)
+else:raise AssertionError('Pinned release consumer was not imported')
+"""
+    subprocess.run([sys.executable,'-c',program,str(tmp_path/'release')],env=environment,check=True,timeout=10)
 
 
 @pytest.mark.parametrize('format',[None,'unknown'])

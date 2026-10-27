@@ -26,9 +26,11 @@ DP_PYTHON=Path.home()/'.local/share/explorer/policy-runtimes/diffusion-0.38.0-cp
 STATION='shared/explorer_shared/so101_station.py'
 GATE='shared/explorer_shared/station_publication_gate.py'
 ADMISSION=('00-control-center/src/explorer/so101_dataset_admission.py','00-control-center/src/explorer/lab_skill_workflow.py',
+    '00-control-center/src/explorer/source_demo_workflow.py',
     '00-control-center/src/explorer/skill_catalogue.py','01-autonomous-learning/src/explorer_sim/so101_dataset_qualification.py',
     '01-autonomous-learning/src/explorer_sim/station_adapter.py','01-autonomous-learning/src/explorer_sim/dataset_export.py',
-    STATION,'shared/explorer_shared/contracts.py','shared/explorer_shared/experiments.py')
+    STATION,'shared/explorer_shared/contracts.py','shared/explorer_shared/experiments.py',
+    'shared/explorer_shared/native_capture_approval.py','shared/explorer_shared/capture_timeline.py')
 COMMON=('shared/explorer_shared/learning/act_backend.py','shared/explorer_shared/learning/artifacts.py',
     'shared/explorer_shared/learning/checkpoint_control.py','shared/explorer_shared/learning/runtime_profiles.py')
 EXTRA_ACT=('01-autonomous-learning/src/explorer_sim/so101_skill_training.py','01-autonomous-learning/src/explorer_sim/recorded_training.py',
@@ -104,7 +106,7 @@ def prepare_plan(root,output,*,commit,station_sha256,gate_sha256,label):
     graphs=dict(act=ADMISSION+COMMON+EXTRA_ACT,diffusion=ADMISSION+COMMON+EXTRA_DP,fused106=FUSED)
     sources={mode:file_hashes(root,names) for mode,names in graphs.items()}
     harness=tuple(test.split('::',1)[0] for test in TESTS.values())+('conftest.py','tests/test_skill_workflow.py','tests/test_embodied_episode.py')
-    if len(sources['diffusion'])!=18 or STATION not in sources['diffusion']:raise QualificationRejected('Expected full native6 18-source graph including Station')
+    if len(sources['diffusion'])!=21 or STATION not in sources['diffusion']:raise QualificationRejected('Expected full native6 21-source graph including Station and source04 review/timeline admission')
     references={}
     for mode,name in REFERENCE_NAMES.items():
         path=root/'shared/training'/name;result=read(path)
@@ -249,7 +251,7 @@ def run_phase(plan_path,phase):
     os.environ.update(EXPLORER_CONFIG=str(private_config),HF_HUB_OFFLINE='1',HF_DATASETS_OFFLINE='1',TRANSFORMERS_OFFLINE='1',OMP_NUM_THREADS='2',MKL_NUM_THREADS='2',OPENBLAS_NUM_THREADS='2')
     if phase=='act':os.environ['EXPLORER_RUN_06_OPTIMIZER']='1'
     if phase=='diffusion':os.environ['EXPLORER_RUN_SO101_DIFFUSION_QUAL']='1'
-    sys.path[:0]=[str(root/name) for name in ('shared','00-control-center/src','01-autonomous-learning/src','tests','01-autonomous-learning/tests')]
+    sys.path[:0]=[str(root/name) for name in ('shared','00-control-center/src','01-autonomous-learning/src','04-so101-source-learning/src','tests','01-autonomous-learning/tests')]
     before=runtime(phase);write(output/'runtime-before.json',dict(runtime=before,limits=bound,implementation_sha256=before_code,auxiliary_source_sha256=aux,source_commit=plan['source_commit'],launcher_sha256=sha(__file__)))
     import pytest
     started=time.monotonic();status=None;failure=None;result_path=None

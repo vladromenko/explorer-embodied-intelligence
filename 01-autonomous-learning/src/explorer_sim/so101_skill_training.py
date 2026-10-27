@@ -42,7 +42,7 @@ def run_so101_skill_train(store,job):
     config=job.get('config') or {}
     identity=experiment_identity('so101_source_learning')
     if job.get('kind')!='so101_skill_train' or not _source_job_identity(job)['verified'] or config.get('device','cpu')!='cpu':raise ValueError('This learner owns the CPU SO101 source role ACT6 only; legacy06 requires explicit v1')
-    from explorer.so101_dataset_admission import verify_so101_aggregate,admission_sources
+    from explorer.so101_dataset_admission import verify_so101_aggregate,verify_current_source_reviews,admission_sources
     source,outer,view_path,view=verify_so101_aggregate(store,config)
     official=source.parent/outer['official_dataset'];provenance=json.loads((official/'explorer_provenance.json').read_text())
     official_readback=verify_lerobot_v3(official,provenance['repo_id'],view_path)
@@ -61,6 +61,7 @@ def run_so101_skill_train(store,job):
     def update(progress,phase):
         current=store.job(job['id'])
         if current and current['status'] in ('cancelled','cancel_requested'):raise InterruptedError('SO101 source training cancelled')
+        verify_current_source_reviews(store,outer)
         store.update_job(job['id'],progress=progress,result={'phase':phase,'physical_io':False,'skill_id':outer['skill_id']})
     samples=RecordedChunks(view_path,view,train,settings['chunk_size'],settings['image_size'])
     samples.resume_context.update(source_signature=sha(source),skill_id=outer['skill_id'],skill_version=outer['skill_version'],spec_sha256=outer['spec_sha256'])
@@ -95,6 +96,7 @@ def run_so101_skill_train(store,job):
     evaluation=offline_evaluation(reloaded,validation,'cpu',list(NAMES),UNITS,np.asarray(LOW),np.asarray(HIGH))
     for name,expected in outer['source_files_sha256'].items():_verify(store,source.parent/name,expected)
     if sha(source)!=config['aggregate_manifest_sha256']:raise ValueError('Whole-skill source changed during optimizer run')
+    verify_so101_aggregate(store,config)  # A late Source rejection cannot publish a newly trained model card.
     weights_changed=state_digest(policy)!=initial
     if not weights_changed:raise RuntimeError('No optimizer weight change; no trained card registered')
     hashes={path.name:sha(path) for path in checkpoint.iterdir() if path.is_file()};kind=outer['source_kind'];simulation=kind=='SIMULATION'

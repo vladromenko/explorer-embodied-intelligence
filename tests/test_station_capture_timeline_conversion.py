@@ -66,3 +66,20 @@ def test_missing_or_wrong_timeline_SHA_is_not_an_implicit_legacy_fallback(captur
         convert_station_episode(original,tmp_path/'wrong',capture_manifest_path=envelope,expected_capture_sha256='0'*64)
     with pytest.raises(ValueError,match='requires its original envelope'):
         convert_station_episode(original,tmp_path/'missing',expected_capture_sha256=checksum)
+
+
+@pytest.mark.parametrize('consumer',['conversion','qualification'])
+def test_rehashed_numeric_bool_selection_is_not_equal_to_the_original_typed_timeline(capture,tmp_path,consumer):
+    _,original,envelope,_,_=seal_real_RGB(capture)
+    forged=json.loads(envelope.read_bytes());forged['sample_selection'][0]['included_after_pause_filter']=1
+    path=tmp_path/'numeric-bool.json';path.write_text(json.dumps(forged));checksum=hashlib.sha256(path.read_bytes()).hexdigest()
+    with pytest.raises(ValueError,match='sample selection changed'):
+        if consumer=='conversion':convert_station_episode(original,tmp_path/'invalid',capture_manifest_path=path,expected_capture_sha256=checksum)
+        else:
+            from explorer_sim.so101_dataset_qualification import qualify_station_dataset
+            raw=json.loads(original.read_bytes())
+            binding=dict(manifest_path=str(original),manifest_sha256=hashlib.sha256(original.read_bytes()).hexdigest(),
+                capture_manifest_path=str(path),capture_manifest_sha256=checksum,source_review_sha256='a'*64,
+                source_archive_sha256='b'*64,import_provenance_sha256='c'*64,accepted=True,skill_id=raw['skill_id'],skill_version=1,split='train')
+            qualify_station_dataset([binding],tmp_path/'invalid',skill_id=raw['skill_id'],skill_version=1)
+    assert not (tmp_path/'invalid').exists()

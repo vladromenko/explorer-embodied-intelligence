@@ -1,0 +1,162 @@
+{
+  "schema": "explorer_source04_approved_capture_cohort_software_qualification_v1",
+  "tested_worktree_base_commit": "e85819219f280fbdd32050083ce5614f9dc7037d",
+  "scope": "GENERATED_INPUTS_AND_SYNTHETIC_LABELS_ONLY_NO_ROBOT_OR_NATIVE_GRANTS",
+  "source_sha256": {
+    "00-control-center/src/explorer/job_runner.py": "07dc847a474b0daeac3cdc40bb76996efbeab7c8c93a486233f0bb83af994149",
+    "00-control-center/src/explorer/lab_skill_workflow.py": "41980e9878394ff4bd4630181312898d63e201709d043042abe5297c5c6d8ea2",
+    "00-control-center/src/explorer/so101_dataset_admission.py": "c84377f5014568adfc84e93143e86fd2f625c8a519f7408689922cc9b9964506",
+    "00-control-center/src/explorer/so101_diffusion_training.py": "dc7c3d627a83cc51cbf67ad810dee0bce87314772a011c63b9eb3ee9c7fa82ba",
+    "00-control-center/src/explorer/source_demo_workflow.py": "7a8bb242aa43ec4cda4dc798ecabb47755c22a23119f26dee43dc088f5b13302",
+    "01-autonomous-learning/src/explorer_sim/so101_dataset_qualification.py": "5d3d1d464deba6a3988e455784376c0c5c24ac4993a14140e6e2be0626af3b19",
+    "01-autonomous-learning/src/explorer_sim/so101_skill_training.py": "9a962caba16561beab39d0be421389f12e294b2d6e48ccc1e77b8ecfbcc7465b",
+    "01-autonomous-learning/src/explorer_sim/station_adapter.py": "e689d0b8e405c02bed7a61e4477f5af49cc4a88d4a18be34f541959e8a98e651",
+    "scripts/qualify_current_cpu_controller.py": "68d8583886130b7c8706ddb3a9aa7f968e138eabf129cac5c4c8d9748b0738cc",
+    "scripts/qualify_current_cpu_sources.py": "912a40634d34f329d4efb1f3cbbc4b3d53e2c92da762ba48f7d08e77db041081",
+    "tests/test_current_cpu_controller.py": "261bae3fe12279190da4ba8ce97c2d248cc21ef3cd95e79bb37d0d957e976f2f",
+    "tests/test_current_cpu_orchestrator.py": "64a65dfd8983d3776f182275abba28acd480df17d6bcbc5acc33f89b3e89a025",
+    "tests/test_official_queue_worker_pause.py": "35a2480ce49aaf088caffe38aa428cb1bbf75877c7def5a8d48b7685182549fd",
+    "tests/test_so101_capture_worker.py": "4184240cac9bcbde15a9c98d8e836927459d325a52f80da8edf97ccbfda00043",
+    "tests/test_station_capture_timeline_conversion.py": "3bcf62ce5d9785eed5a94bac631c2116ea17ed05f5d70669946dffdfd2a3d1bb",
+    "tests/test_so101_approved_capture_cohort.py": "c51fb2f922f2052e5ea167d526f9bae8cfbd4e14e11d329046973364ebb58b9e",
+    "tests/test_so101_approved_capture_queue.py": "ac3397fbbaaa1a3e3fa439411d3bb3ca13a7570ca73a00a2dc04eac4fde46604"
+  },
+  "tests": {
+    "passed": 189,
+    "skipped": 5,
+    "failed": 0,
+    "pytest_seconds": 42.33,
+    "command": [
+      "/home/jetsonnx/.local/share/explorer/venv/bin/python",
+      "-m",
+      "pytest",
+      "-x",
+      "-q",
+      "--basetemp=/mnt/explorer-data/explorer-work/04-approved-capture-cohort-final-20261027-b/pytest",
+      "tests/test_so101_approved_capture_cohort.py",
+      "tests/test_so101_capture_worker.py",
+      "tests/test_source_demo_api.py",
+      "tests/test_lab_skill_workflow.py",
+      "tests/test_station_capture_timeline_conversion.py",
+      "tests/test_native_capture_worker.py",
+      "tests/test_current_cpu_orchestrator.py",
+      "tests/test_current_cpu_controller.py",
+      "tests/test_mobile_import_review_queue.py",
+      "tests/test_native_capture_transfer.py",
+      "tests/test_so101_capture_service.py",
+      "tests/test_so101_capture_archive.py",
+      "tests/test_so101_dataset_qualification.py",
+      "tests/test_so101_dataset_admission.py",
+      "tests/test_so101_diffusion_consumer.py",
+      "01-autonomous-learning/tests/test_station_adapter.py",
+      "01-autonomous-learning/tests/test_mobile_adapter.py",
+      "01-autonomous-learning/tests/test_mobile_observation_adapter.py"
+    ],
+    "dataset_proof": {
+      "schema": "explorer_approved_source04_cohort_dataset_fixture_v1",
+      "source_kind": "SIMULATION",
+      "originals": 5,
+      "raw_samples_each": 8,
+      "selected_train_dev_samples_each": 7,
+      "official_frames": 28,
+      "official_episodes": 8,
+      "sealed_original_id": "753dd0aeafde417d90c0c08643bcea7e",
+      "sealed_payload_excluded": true,
+      "initial_fingerprint": "1cb948be095a468d771a7e199a7fc87e849d0ad149557bfe88e2117f3ab82a1f",
+      "renewed_fingerprint": "15d313fa7c920ff5419dab523267de03eae72a5978dba3e4cb9833d436d9c54f",
+      "source_capture_bindings": {
+        "e275a8188316496bb3cde5b8f0a85cf4": {
+          "capture_manifest_sha256": "680376a29d5ed3fc98e920b7bda48524b6a19246522ed493cada7a9f127a30df",
+          "source_review_sha256": "85c17dc537940e304e64f37cb29d7aaab0c73d0b43305906e0e99ed1cbc6c73d",
+          "source_archive_sha256": "4bd4a69aa3003e38082a3415a325bafa3480a81db243257f68477237d8704bb0",
+          "import_provenance_sha256": "45ab3860cd59ad6fc41b835de965b587b0d9c942923feeec9003a5cca3b65398"
+        },
+        "c69ee4f40d1f476caab851416c832f7a": {
+          "capture_manifest_sha256": "5b391a8f62f8ea93dd786f445f3a66612a43a00f6da6ee73ca1e78e26f3bbecf",
+          "source_review_sha256": "2be9b41db1e7e8361c04061a5b5d48a29e4962db41383657166594e9d7b6ad67",
+          "source_archive_sha256": "264acf6a9a0df0fce3f2ac3d184ff579e34b2ea3723d330b03e2ef4615b0eae4",
+          "import_provenance_sha256": "a35a00e5d206e8dae2c688fac5a3c6c74dd584e1db11e78a81cdd984eafb40b5"
+        },
+        "b4b76a97e5b14ceba88cd79f1f269ed7": {
+          "capture_manifest_sha256": "6331ea731af8ee73610088f0ab876c2df0cc156e018d03beb9394a36c1180c6c",
+          "source_review_sha256": "b1dd80dba00bd3e386120fa8e63aebcd8a89bffd1974ce4101f50d89d6425dd8",
+          "source_archive_sha256": "65f859fa91a7076708d67c1a8748bc47f94ad5abfbf02d40edd856737f5fb478",
+          "import_provenance_sha256": "b66066fb9aa9695bc212a63df67817c18d22d8f3c79cae2f588563e4ac038de5"
+        },
+        "6a508769287f4a5fabbbfd2821dd1d04": {
+          "capture_manifest_sha256": "f19630ec7a4b2416d868fa01d6a471958ce3610b04d0fed3227d04b403f8d161",
+          "source_review_sha256": "a5bdf3c8134afaaa3c26ffa582924f4c2dba8e729535ca7d63c89e1607a4083e",
+          "source_archive_sha256": "3457a4a3109584edc296d26038272f6774c4d81b9d3ebd63f52522e293f9d948",
+          "import_provenance_sha256": "b6250012da77e51b7e20751bd155efb7081c7eba6156e670003477a206440fdc"
+        },
+        "753dd0aeafde417d90c0c08643bcea7e": {
+          "capture_manifest_sha256": "6ffcbc03e62a4c736fbe390eeed3bc3e676197994201d97d29aadedbe6d97ef7",
+          "source_review_sha256": "2aa319cfd8768e0fdb546f3153848607c8037e0baba69383674ff16ce1054243",
+          "source_archive_sha256": "0473f5b5964c8e8516910d5c7d71afa06e903c2fb2db18ad7c02c38e662b3fd6",
+          "import_provenance_sha256": "5ceb01648d746f761d3e4fc672be02d5e92f834847faa60dc3bed769c302372c"
+        }
+      },
+      "late_reject_closed_cached_aggregate": true,
+      "reapproval_preserved_old_artifacts": true,
+      "optimizer_updates": 0,
+      "network_or_robot_commands": 0,
+      "physical_success_claimed": false
+    },
+    "metadata_pinned_release_and_recipe_checks": {
+      "passed": 18,
+      "skipped": 2,
+      "pytest_seconds": 3.67,
+      "raw_log": "/mnt/explorer-data/explorer-work/04-approved-cohort-20261027-a/orchestrator-source-profile-final.log",
+      "log_sha256": "17a99143becc5ca129c2349d73fcbcbd5d90cda0b6aa6119a5258732f6b5903b",
+      "new_actual_queue_test_skipped_until_separate_frozen_qualification": true
+    },
+    "real_official_LerobotDataset_0_6_1_reader": true,
+    "native02_native03_transfer_and_worker_regression_included": true
+  },
+  "negative_runs": [
+    {
+      "directory": "/mnt/explorer-data/explorer-work/04-approved-capture-cohort-baseline22-20261027",
+      "scope": "Agent baseline22: expected missing binding source_capture_pins, one run, no Dataset/optimizer"
+    },
+    {
+      "directory": "/mnt/explorer-data/explorer-work/04-approved-capture-cohort-final-20261027-a",
+      "scope": "Root first integration1FAIL5.29s: public assignment projection omitted source_capture although internal evidence/binding correct; fixed projection, fixture unchanged"
+    },
+    {
+      "directory": "/mnt/explorer-data/explorer-work/04-approved-cohort-20261027-a",
+      "scope": "Initial orchestrator metadata9FAIL7PASS: stale18-file cardinality; one narrower reproduction retained; exact21 source graph plus equality to actual admission_sources now checked"
+    }
+  ],
+  "resources": {
+    "cpu_max": "200000 100000",
+    "memory_max": "5368709120",
+    "swap_max": "0",
+    "actual_kernel_memory_peak": 613507072,
+    "actual_swap_peak": 0,
+    "last_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+    "exit_code": 0,
+    "runtime_s": 46.87731782600167
+  },
+  "raw_evidence": {
+    "directory": "/mnt/explorer-data/explorer-work/04-approved-capture-cohort-final-20261027-b",
+    "files_sha256": {
+      "resource-a.json": "793b46583bc639e797512556123bf43ea39e3915a3ea007da05dd7822f4922b4",
+      "run-a.py": "f3d7eb36f405c0841754fd690f924df8cf6ad69f65789d02222d962c4a79f373",
+      "run-a.log": "89f5d8f14eaacf35040d21583ee95d8d58ed86b34e24c538756808abc21495f0"
+    },
+    "dataset_proof_path": "/mnt/explorer-data/explorer-work/04-approved-capture-cohort-final-20261027-b/pytest/test_full_approved_cohort_offi0/approved-capture-cohort-dataset.json",
+    "dataset_proof_sha256": "67dc0081fbe8d3de6e469bbcaf3f65f5be5203e339474ecb5b4296db042a3c6d",
+    "pytest_data_retained_in_place": true
+  },
+  "physical_commands_or_RPC": 0,
+  "real_expert_demonstrations": 0,
+  "optimizer_updates": 0,
+  "deployed": false,
+  "source04_software_ready": false,
+  "remaining": [
+    "current-source official ACT/DP optimizer + real queued checkpoint pause/process-exit/new-PID/resume + independent DEV/offline shadow",
+    "new operator UI and source recovery",
+    "safe oldPi first upgrade/scoped deployment",
+    "real observed demonstrations and physical acceptance"
+  ]
+}

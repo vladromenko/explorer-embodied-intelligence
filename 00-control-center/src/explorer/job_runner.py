@@ -116,6 +116,7 @@ def approved_source_capture_import(store,job,config):
     """
     if (job.get('kind'),job.get('project_id'),job['config'].get('source_format'))!=('station_import','04','so101_source_capture_v1'):
         raise ValueError('Exact approved source04 producer identity required')
+    sys.path.insert(0,str(Path(config['root'])/'04-so101-source-learning/src'))
     from explorer_so101.capture_archive import import_source_capture,MAX_OUTER
     from .native_capture_transfer import transfer_native_capture
     from .native_capture_approval import validate_source_approval

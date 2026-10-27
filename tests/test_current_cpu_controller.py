@@ -26,3 +26,10 @@ def test_invalid_cgroup_cannot_reach_source_or_model_allocation(tmp_path,monkeyp
     with pytest.raises(module.q.QualificationRejected,match='cgroup'):
         module.run(tmp_path,tmp_path/'no-output','0'*40,'0'*64,'0'*64,'declared')
     assert not (tmp_path/'no-output').exists()
+
+
+def test_unknown_source_profile_is_rejected_before_cgroup_source_or_policy_work(tmp_path,monkeypatch):
+    def unexpected():raise AssertionError('Invalid caller profile cannot reach qualification work')
+    monkeypatch.setattr(module.q,'limits',unexpected)
+    with pytest.raises(module.q.QualificationRejected,match='source qualification profile'):
+        module.run(tmp_path,tmp_path/'output','0'*40,'0'*64,'0'*64,'fixture','unknown')

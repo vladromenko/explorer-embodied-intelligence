@@ -37,9 +37,11 @@ def plan(frozen):
     return module.prepare_plan(root,output,commit=commit,station_sha256=station,gate_sha256=gate,label='20261027_STATION_SOURCE')
 
 
-def test_plan_exact_original_shapes_18_sources_station_and_oldweights_without_importing_policies(frozen):
+def test_plan_exact_original_shapes_21_sources_station_and_oldweights_without_importing_policies(frozen):
     document=plan(frozen);output=frozen[-1]
-    assert len(document['source_sha256']['diffusion'])==18 and module.STATION in document['source_sha256']['diffusion']
+    assert len(document['source_sha256']['diffusion'])==21 and module.STATION in document['source_sha256']['diffusion']
+    assert {'00-control-center/src/explorer/source_demo_workflow.py','shared/explorer_shared/native_capture_approval.py',
+        'shared/explorer_shared/capture_timeline.py'}<=set(document['source_sha256']['diffusion'])
     assert set(document['formal_DP_changes_from_R2'])=={module.STATION}
     assert document['stages']['act']['parameters']==dict(device='cpu',state_dim=6,action_dim=6,act_steps=8,image_size=32,batch_size=2,chunk_size=4)
     assert document['stages']['diffusion']['parameters']['resumed_from_step']==4
@@ -47,6 +49,12 @@ def test_plan_exact_original_shapes_18_sources_station_and_oldweights_without_im
     assert document['actual_model_or_optimizer_executed'] is False and not document['hardware_io']
     assert module.read_plan(output/'plan.json')==document
     assert not (output/'act').exists() and not (output/'diffusion').exists()
+
+
+def test_recipe_admission_graph_pins_exactly_the_rules_used_by_actual_consumers():
+    from explorer.so101_dataset_admission import admission_sources
+    root=PATH.parents[1]
+    assert set(module.ADMISSION)=={path.relative_to(root).as_posix() for path in admission_sources()}
 
 
 def test_missing_final_hash_dirty_source_or_reused_output_cannot_prepare(frozen):

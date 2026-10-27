@@ -1,12 +1,24 @@
 """ENGINEERING_GLUE: thin human-demo intents over the existing04 skill workflow."""
 from copy import deepcopy
 from explorer_shared.native_capture_approval import validate_source_approval
+import json
 import re
 import uuid
 
 from . import lab_skill_workflow as lab
 
 ID=re.compile('[0-9a-f]{32}')
+
+
+def _review_records(db,recording_id):
+    rows=db.execute("SELECT event_id,sha256,body FROM events WHERE event_id LIKE 'lab.skill.source_review_observed:%' AND json_extract(body,'$.payload.recording_id')=? ORDER BY rowid",(recording_id,))
+    result=[]
+    for row in rows:
+        envelope=json.loads(row['body']);payload=envelope['payload']
+        if envelope.get('event_id')!=row['event_id'] or envelope.get('sha256')!=row['sha256'] or lab.digest(payload)!=row['sha256']:
+            raise ValueError('Source review event SHA changed')
+        result.append(payload)
+    return result
 
 
 def prepare(store,body,actor):
@@ -72,7 +84,8 @@ def observe_source_review(store,recording_id,archive_sha256,wrapper):
     exact={key:deepcopy(wrapper[key]) for key in ('source_review','review_sha256','transfer_ready')}
     with store.connect() as db:
         db.execute('BEGIN IMMEDIATE')
-        old=lab._latest(lab._records(db),'source_review_observed','recording_id').get(recording_id)
+        records=_review_records(db,recording_id)
+        old=lab._latest(records,'source_review_observed','recording_id').get(recording_id)
         if old:
             prior=old['wrapper'];a,b=prior['source_review'],exact['source_review']
             if old['archive_sha256']!=archive_sha256:raise ValueError('Immutable source04 archive changed')
@@ -83,7 +96,7 @@ def observe_source_review(store,recording_id,archive_sha256,wrapper):
                 raise ValueError('Stale source04 review cannot replace the current decision')
             # A previously observed revision cannot become latest again.
             if any(row.get('type')==lab.PREFIX+'source_review_observed' and row.get('recording_id')==recording_id and
-                   row['wrapper']['review_sha256']==exact['review_sha256'] for row in lab._records(db)):
+                   row['wrapper']['review_sha256']==exact['review_sha256'] for row in records):
                 raise ValueError('Stale source04 review revision cannot be replayed')
         lab._append(db,'source_review_observed',dict(recording_id=recording_id,archive_sha256=archive_sha256,wrapper=exact),recording_id+':'+exact['review_sha256'])
     return checked
@@ -91,7 +104,7 @@ def observe_source_review(store,recording_id,archive_sha256,wrapper):
 
 def current_source_review(store,recording_id,archive_sha256,review_sha256):
     with store.connect() as db:
-        row=lab._latest(lab._records(db),'source_review_observed','recording_id').get(recording_id)
+        row=lab._latest(_review_records(db,recording_id),'source_review_observed','recording_id').get(recording_id)
     if row is None or row['archive_sha256']!=archive_sha256:raise ValueError('Current source04 review unavailable')
     return validate_source_approval(row['wrapper'],recording_id,archive_sha256,expected_review_sha256=review_sha256)
 
@@ -105,11 +118,16 @@ def queue_source_review(store,recording_id,archive_sha256,wrapper):
 
 def source_capture_evidence(store,job):
     """Reverify immutable import pins AND latest known Source decision for admission."""
-    import json
     config=job['config'];result=job.get('result') or {}
     if (job['kind'],job['project_id'],config.get('source_format'))!=('station_import','04','so101_source_capture_v1'):
         raise ValueError('Exact source04 import required')
     current=current_source_review(store,config['episode_id'],config['archive_sha256'],config['source_review_sha256'])
+    with store.connect() as db:finalized=db.execute('SELECT event_id,sha256,body FROM events WHERE event_id=?',('job.completed:'+job['id'],)).fetchone()
+    if finalized is None:raise ValueError('Source04 immutable finalized import event required')
+    envelope=json.loads(finalized['body']);payload=envelope['payload']
+    if (envelope.get('event_id')!=finalized['event_id'] or envelope.get('sha256')!=finalized['sha256'] or
+            lab.digest(payload)!=finalized['sha256'] or lab.canonical(payload.get('result'))!=lab.canonical(result) or payload.get('status')!='completed'):
+        raise ValueError('Source04 finalized import event/result SHA changed')
     expected={'source_manifest_path':'source_manifest_sha256','capture_manifest_path':'capture_manifest_sha256',
         'source_archive_path':'source_archive_sha256','source_approval_path':'source_approval_file_sha256',
         'provenance_path':'provenance_sha256'}

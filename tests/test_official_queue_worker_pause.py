@@ -39,8 +39,15 @@ def pump(supervisor,predicate,timeout=80):
 @pytest.mark.skipif(os.environ.get('EXPLORER_RUN_OFFICIAL_QUEUE_PAUSE')!='1',reason='Explicit private Store/official ACT8 workers, not repeated broad-suite work')
 @pytest.mark.parametrize('backend', ['act', 'diffusion'])
 def test_actual_official_native6_supervisor_bootstrap_pause_process_exit_restart_and_full_equality(tmp_path,monkeypatch,backend):
-    from test_lab_skill_workflow import full_cohort
-    store,chosen,sources=full_cohort(tmp_path);spec=chosen['spec'];identity=spec['skill_id']
+    run_official_queue_pause(tmp_path,monkeypatch,backend)
+
+
+def run_official_queue_pause(tmp_path,monkeypatch,backend,*,cohort_factory=None):
+    """One real process/resume proof, reusable with an approved source producer."""
+    if cohort_factory is None:
+        from test_lab_skill_workflow import full_cohort
+        cohort_factory=full_cohort
+    store,chosen,sources=cohort_factory(tmp_path);spec=chosen['spec'];identity=spec['skill_id']
     aggregate=flow.build_aggregate(store,identity,1)
     original_bytes={str(path):hashlib.sha256(path.read_bytes()).hexdigest() for _,manifest,*_ in sources for path in manifest.parent.iterdir() if path.is_file()}
     commit=subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD'],text=True).strip();release=tmp_path/'releases'/commit;release.mkdir(parents=True)

@@ -182,14 +182,14 @@ def qualify_station_dataset(bindings,target,*,skill_id,skill_version,task_type='
     Bindings are immutable operator/server decisions tied to exact original SHA.
     The caller supplies an isolated destination. No fitting, replay or rollout.
     """
-    from .station_adapter import convert_station_episode
+    from .station_adapter import convert_station_episode,validate_station_capture
     from .dataset_export import export_lerobot_v3,validate_splits
     if importlib.metadata.version('lerobot')!='0.6.1':raise RuntimeError('Official LeRobot0.6.1 required')
     if not isinstance(skill_id,str) or not skill_id or type(skill_version) is not int or skill_version<1:raise ValueError('Explicit selected skill/version required')
     if not isinstance(bindings,list) or not bindings:raise ValueError('Accepted original episode bindings required')
     target=Path(target).resolve()
     if target.exists():raise ValueError('Immutable qualification destination already exists')
-    selected=[];seen={};groups={};sealed=[];calibration_signature=None
+    selected=[];seen={};groups={};sealed=[];calibration_signature=None;capture_bindings={}
     for binding in bindings:
         if binding.get('accepted') is not True:raise ValueError('Only explicitly accepted bindings belong in this aggregate')
         if binding.get('skill_id')!=skill_id or binding.get('skill_version')!=skill_version:raise ValueError('Source bound to a different skill/version')
@@ -199,6 +199,14 @@ def qualify_station_dataset(bindings,target,*,skill_id,skill_version,task_type='
         if split not in SPLITS or split!=evidence['split']:raise ValueError('Original source split cannot be reassigned')
         if evidence.get('source_skill_id') is not None and (evidence['source_skill_id']!=skill_id or evidence['source_skill_version']!=skill_version):raise ValueError('Recorded source skill/version differs from selected aggregate')
         if evidence['source_manifest_sha256']!=binding.get('manifest_sha256'):raise ValueError('Bound station source SHA changed')
+        pins=('capture_manifest_sha256','source_review_sha256','source_archive_sha256','import_provenance_sha256')
+        if binding.get('capture_manifest_path') is not None:
+            if any(not isinstance(binding.get(key),str) or len(binding[key])!=64 or any(char not in '0123456789abcdef' for char in binding[key]) for key in pins):
+                raise ValueError('Exact source capture/archive/review/provenance pins required')
+            validate_station_capture(_json(source),evidence['source_manifest_sha256'],binding['capture_manifest_path'],binding['capture_manifest_sha256'])
+            capture_bindings[evidence['episode_id']]={key:binding[key] for key in pins}
+        elif any(binding.get(key) is not None for key in pins) or ((evidence.get('source_context') or {}).get('context') or {}).get('source04_demo_permission') is not None:
+            raise ValueError('Approved source04 capture envelope required; no legacy qualification fallback')
         if not evidence['technical_dataset_ready'] or not evidence['operator_success']:raise ValueError('Only completed successful source-labelled technical demonstrations may be aggregated')
         if task_type!='joint_trajectory':raise ValueError('Object/custom expert qualification is unavailable; legacy holds are not object experts')
         identity=evidence['episode_id']
@@ -227,7 +235,8 @@ def qualify_station_dataset(bindings,target,*,skill_id,skill_version,task_type='
         for index,(binding,evidence) in enumerate(selected):
             if evidence['split']!='sealed_test':
                 namespace='originals/'+hashlib.sha256(evidence['episode_id'].encode()).hexdigest()[:24]
-                converted=convert_station_episode(binding['manifest_path'],stage/namespace)
+                options=dict(capture_manifest_path=binding['capture_manifest_path'],expected_capture_sha256=binding['capture_manifest_sha256']) if binding.get('capture_manifest_path') else {}
+                converted=convert_station_episode(binding['manifest_path'],stage/namespace,**options)
                 current={key:converted[key] for key in ('action_names','action_units','action_normalization','state_basis','action_basis','fps')}
                 if signature is not None and current!=signature:raise ValueError('Source station data contracts differ')
                 signature=current
@@ -236,10 +245,13 @@ def qualify_station_dataset(bindings,target,*,skill_id,skill_version,task_type='
                 files[namespace+'/manifest.json']=_sha(stage/namespace/'manifest.json')
                 records.append({'original_episode_id':evidence['episode_id'],'split':evidence['split'],'source_manifest_sha256':evidence['source_manifest_sha256'],
                     'saved_original_manifest':namespace+'/source_originals/manifest.json','source_evidence':evidence})
+        kinds={e['source_kind'] for _,e in selected};simulation_kinds={'software_fixture','simulation','SIMULATION'}
+        physical_kinds={'physical','PHYSICAL','SO101_RECORDED_DEMONSTRATIONS'}
+        contains_physical=bool(kinds&physical_kinds) if kinds<=simulation_kinds|physical_kinds else None
         manifest=dict(signature,schema_version=1,format='explorer_robot_episode_v1',source='so101_skill_qualification',
             dataset_id='so101-'+hashlib.sha256((skill_id+str(skill_version)).encode()).hexdigest()[:24],task='SO101 recorded joint trajectory software qualification',
             skill_id=skill_id,skill_version=skill_version,action_contract_id=ACTION_CONTRACT_ID,episodes=episodes,
-            clock_domain='PER_EPISODE_SOURCE_CLOCKS_NOT_MERGED',contains_physical_recordings=True,
+            clock_domain='PER_EPISODE_SOURCE_CLOCKS_NOT_MERGED',contains_physical_recordings=contains_physical,
             source_files_sha256=files,source_records=records,sealed_sources_excluded=sealed,
             resampling={'method':'causal_previous_sample_hold'},source_calibration_metadata={'calibration_metadata':_json(selected[0][0]['manifest_path']).get('calibration_metadata',{}),'per_original':[r['source_evidence']['calibration'] for r in records]},
             physical_success_inferred=False,object_expert_eligible=False)
@@ -264,6 +276,9 @@ def qualify_station_dataset(bindings,target,*,skill_id,skill_version,task_type='
         'technical_dataset_ready':True,'object_expert_eligible':False,'physical_task_success_verified':False,
         'physical_io':False,'replay_executed':False,'learned_rollout_executed':False,'uploaded_to_hub':False,
         'originals_unchanged':all(_sha(b['manifest_path'])==e['source_manifest_sha256'] and all(_sha(item['path'])==item['sha256'] for item in e['source_files']) for b,e in selected)}
+    if capture_bindings:receipt['source_capture_bindings']=capture_bindings
+    if any(_sha(b['capture_manifest_path'])!=b['capture_manifest_sha256'] for b,_ in selected if b.get('capture_manifest_path')):
+        raise ValueError('Source capture envelope changed during official export')
     if not receipt['originals_unchanged']:raise ValueError('Original source changed during official export')
     (target/'qualification.json').write_text(json.dumps(receipt,indent=2,allow_nan=False))
     return receipt

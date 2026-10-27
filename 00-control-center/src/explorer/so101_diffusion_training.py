@@ -35,7 +35,7 @@ def _data_tools():
     return load_episode,verify_lerobot_v3
 
 
-from .so101_dataset_admission import verify_so101_aggregate as _aggregate,admission_sources
+from .so101_dataset_admission import verify_so101_aggregate as _aggregate,verify_current_source_reviews,admission_sources
 
 
 def run_so101_diffusion_train(store,job):
@@ -65,6 +65,7 @@ def run_so101_diffusion_train(store,job):
     def progress(value,phase):
         current=store.job(job['id'])
         if current and current['status'] in ('cancelled','cancel_requested'):raise InterruptedError('SO101 Diffusion training cancelled')
+        verify_current_source_reviews(store,outer)
         store.update_job(job['id'],progress=value,result=dict(phase=phase,backend='diffusion',physical_io=False,**identity))
     samples=HistoryWindows(view_path,view,training,episode_loader=load_episode,partition='train')
     samples.resume_context.update(source_signature=sha(path),skill_id=outer['skill_id'],skill_version=outer['skill_version'],spec_sha256=outer['spec_sha256'],
@@ -88,6 +89,7 @@ def run_so101_diffusion_train(store,job):
     evaluation=offline_evaluation(reloaded,heldout,NAMES,UNITS,seed=seed)
     for name,expected in outer['source_files_sha256'].items():_file(store,path.parent/name,expected)
     if sha(path)!=config['aggregate_manifest_sha256'] or state_digest(policy)==initial:raise ValueError('Source changed or optimizer did not change weights')
+    _aggregate(store,config)  # Recheck current Source review before publishing a trained model card.
     hashes={file.name:sha(file) for file in checkpoint.iterdir() if file.is_file()};simulation=outer['source_kind']=='SIMULATION'
     result=dict(trained=True,backend='diffusion',profile_id=PROFILE_ID,framework='LeRobot',framework_version='0.6.1',algorithm='official Diffusion RGB_history2+measured_follower6→issued_native_follower6',
         source_kind=outer['source_kind'],source_type='SIMULATION' if simulation else 'SO101_RECORDED_DEMONSTRATIONS',status='trained_offline_only',
