@@ -4,7 +4,11 @@
 Единственная матрица приёмки01–06, gates и проценты SOFTWARE/PHYSICAL:
 [_registry/acceptance.json](_registry/acceptance.json).
 
-**CURRENT PRIORITY=02 → NEXT=03 → THEN=01 → 04 → 05 → 06.**
+**CURRENT PROGRAMMATIC PRIORITY=03 → NEXT=01 → 04 → 05 → 06.**
+02A+02B scoped release722755dc развёрнут и независимо доступная программная
+работа выполнена. Строгие real expert dataset/model/live-shadow gates02 остаются
+OPEN до наблюдаемой подготовки владельца; они не заменены technical17frame case.
+Продолжаем03, сохраняя эти незакрытые критерии и физический запрет.
 04/05/06 — PARKED: сохранять существующие изменения и evidence; не расширять
 их до программной готовности02. Общие исправления текущего02/03 допустимы.
 Последнее указание пользователя заменяет прежнюю очередь01→02.
@@ -89,14 +93,15 @@ progress/pause/stop/evaluate/prepare-deploy обязан отражать нас
 
 ## Организация и текущий checkpoint
 
-Текущая атомарная интеграция сохранена: отмена до projection IO `29e8570`
-(20PASS/8.68s), заключительный fake Publisher lifecycle test `61fe798`
-(1PASS/7.17s). Live остаётся4c5f4f5b; новый deploy сейчас не выполнялся.
+Фактический scoped02B live: `722755dc99094fc86bab20796d2b7bc4bf56d536`
+на central/worker/NanoOWN; Pi и оригинальный Nano web остаются4c5f4f5b.
+2191PASS/18SKIP,231Node, actual17frame Nano analysis-only transfer,
+passiveROS0 и прежние научные prefixes сохранены. Независимая работа03 продолжается.
 Paper checkpoint `a5865cc` сохранён отдельно на work/temporal-numeric-admission;
 полный offline rebuild/visual review остаются OPEN, submission_ready=false.
 
-После checkpoint завершить текущий длинный turn. Следующий рабочий turn вести
-на High; root+максимум1 независимый субагент, effort повышать только для
+Продолжать текущий turn по последнему указанию пользователя, не завершать
+его после этапа02. Рабочий режим High; root+максимум1 независимый субагент, effort повышать только для
 конкретного трудного вопроса. Документ не меняет фактическую настройку модели.
 Адресные тесты при правках, интеграционные в конце эксперимента, полный прогон
 только перед deploy. Не повторять широкие04–06/2102-file аудиты без причины.

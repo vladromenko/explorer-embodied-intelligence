@@ -54,10 +54,10 @@ Gamepad в browser qualification — явно программный fixture:50 
 
 Артефакты: `/mnt/explorer-data/explorer-work/experiment02-operator-20261027/`.
 Эти результаты не означают завершения02B или физически освоенного навыка.
-02A развёрнут scoped commit d923ea94: central/worker и собственные Nano observer/cache.
+02A+02B развёрнуты scoped commit722755dc: central/worker и собственные Nano observer/cache.
 Pi и оригинальный Nano web остаются4c5f4f5b; их исходники/настройки/PIDs сохранены.
-Полная frozen регрессия2154PASS/15SKIP,226Node;02B ещё открыт.
-В следующем кандидате добавлен отдельный режим технической записи наблюдений:
+Полная frozen регрессия2191PASS/18SKIP,231Node. Строгие real expert/model/live-shadow
+gates остаются OPEN. Добавлен отдельный режим технической записи наблюдений:
 он не требует HOME, всегда analysis-only и не создаёт экспертных меток.
 
 ## Требуется наблюдаемая подготовка владельца
@@ -80,3 +80,8 @@ Pi и оригинальный Nano web остаются4c5f4f5b; их исхо�
    с3–5 smoke-показов; дальнейший объём определяют охват и качество, не магическое число.
 7. Физическую проверку обученной модели проводить только после software
    offline/shadow результатов и отдельного supervised preflight.
+
+Actual17-frame observations-only Nano→NX проверка прошла без движения:0expert
+actions, UNKNOWN outcome, raw TAR/preview/Range/SHA, отдельное analysis approve
+и реальный import worker. Этот материал не является успешным демонстрационным
+датасетом. MCU telemetry stale блокирует настоящий model shadow до подготовки владельца.

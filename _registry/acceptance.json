@@ -46,7 +46,7 @@
       "id": "teaching",
       "title": "Полные показы02/03 и мастер охвата",
       "status": "PARTIAL",
-      "evidence": "CURRENT PRIORITY02 full02A+02B, NEXT03. Legacy mapping/gamepad software, raw sensors and training/reload components exist; canonical 3–5 completed approved Nano episodes through train/reload/live-shadow/UI and operator-ready acquisition remain OPEN. Physical validation separate."
+      "evidence": "02A+02B scoped release722755dc is live; actual17-frame Nano observations-only import and actual generated-source ACT/DEV/queue proofs are distinct. Real expert3–5 smoke and valid live-shadow remain OPEN; next independent software work03, then01. No whole-master completion."
     },
     {
       "id": "transfer",
@@ -143,7 +143,7 @@
           "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED",
-        "priority_status": "THEN",
+        "priority_status": "NEXT",
         "url_path": "/experiments/01",
         "software_readiness": {
           "passed": 4,
@@ -275,15 +275,16 @@
           "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json",
           "_registry/evidence/experiment02-acquisition-actual-d923ea94-20261027.json",
           "shared/training/NATIVE02_LEROBOT_CPU_20261027_QUALIFICATION.json",
-          "_registry/evidence/experiment02-learning-ui-candidate-20261027.json"
+          "_registry/evidence/experiment02-learning-ui-candidate-20261027.json",
+          "_registry/evidence/experiment02-learning-actual-722755dc-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED",
-        "priority_status": "CURRENT PRIORITY",
+        "priority_status": "REAL DATA / PHYSICAL OPEN",
         "url_path": "/experiments/02",
         "software_readiness": {
-          "passed": 9,
+          "passed": 12,
           "total": 14,
-          "percent": 64.3,
+          "percent": 85.7,
           "ready_for_use": false,
           "gates": [
             {
@@ -348,9 +349,13 @@
             {
               "id": "02A-nano-record",
               "title": "Nano-local synchronized frames/input/requested/accepted/dispatched/estimate/measured-if-real/odom/sensors/outcome/provenance; integrity and completed/approved transfer only",
-              "status": "OPEN",
-              "evidence": [],
-              "stage": "02A"
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/experiment02-learning-actual-722755dc-20261027.json",
+                "shared/training/NATIVE02_QUEUED_CPU_20261027_QUALIFICATION.json"
+              ],
+              "stage": "02A",
+              "validation_scope": "Real Nano observations-only acquisition/import and immutable actual CPU computational generated-source proof are distinct. Real expert demonstrations remain open, never replaced by technical observations."
             },
             {
               "id": "02A-review",
@@ -365,9 +370,13 @@
             {
               "id": "02B-dataset-train",
               "title": "Canonical Nano episodes to LeRobotDataset on NX and ACT train/resume",
-              "status": "OPEN",
-              "evidence": [],
-              "stage": "02B"
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/experiment02-learning-actual-722755dc-20261027.json",
+                "shared/training/NATIVE02_QUEUED_CPU_20261027_QUALIFICATION.json"
+              ],
+              "stage": "02B",
+              "validation_scope": "Real Nano observations-only acquisition/import and immutable actual CPU computational generated-source proof are distinct. Real expert demonstrations remain open, never replaced by technical observations."
             },
             {
               "id": "02B-resources",
@@ -391,22 +400,32 @@
               "id": "02B-shadow",
               "title": "Offline evaluation then live-observation shadow without motion dispatch",
               "status": "OPEN",
-              "evidence": [],
-              "stage": "02B"
+              "evidence": [
+                "_registry/evidence/experiment02-learning-actual-722755dc-20261027.json"
+              ],
+              "stage": "02B",
+              "remaining": "Real expert demonstrations/model and actual valid live observation required. Native GET currently rejects stale MCU telemetry. Software fixture shadow and real technical observations do not close this gate."
             },
             {
               "id": "02B-ui-training",
               "title": "Train/progress/logs/errors/Evaluate/version selection and honest metrics/provenance in UI",
-              "status": "OPEN",
-              "evidence": [],
-              "stage": "02B"
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/experiment02-learning-actual-722755dc-20261027.json",
+                "shared/training/NATIVE02_QUEUED_CPU_20261027_QUALIFICATION.json"
+              ],
+              "stage": "02B",
+              "validation_scope": "Real Nano observations-only acquisition/import and immutable actual CPU computational generated-source proof are distinct. Real expert demonstrations remain open, never replaced by technical observations."
             },
             {
               "id": "02B-canonical-release",
               "title": "Canonical 3–5 demo technical smoke record/approve/transfer/dataset/train/reload/shadow/UI evidence, full targeted 02 regression, deployed release and short operator instructions",
               "status": "OPEN",
-              "evidence": [],
-              "stage": "02B"
+              "evidence": [
+                "_registry/evidence/experiment02-learning-actual-722755dc-20261027.json"
+              ],
+              "stage": "02B",
+              "remaining": "Real expert demonstrations/model and actual valid live observation required. Native GET currently rejects stale MCU telemetry. Software fixture shadow and real technical observations do not close this gate."
             }
           ]
         },
@@ -442,14 +461,16 @@
             }
           ]
         },
-        "proven_done_ru": "Развёрнутые камеры/gamepad/record/review/transfer02A; ACT106 official Dataset и model/DEV UI проверены на программных источниках",
-        "software_remaining_ru": "02B: итоговый current-source queue proof, настоящий Nano I/O technical smoke, регрессия и новый release; реальные demos/shadow после подготовки владельца",
-        "physical_remaining_ru": "Текущий manual/gamepad/STOP тест, реальные 3–5 smoke-показов и supervised model trial",
+        "proven_done_ru": "Развёрнуты02A+02B, actual Nano17frames→analysis import, official Dataset/ACT/resume и очередной DEV на generated inputs, model UI и регрессия",
+        "software_remaining_ru": "Полный gate реальных expert demos→модель→valid live-shadow остаётся OPEN; независимые программные работы02 выполнены",
+        "physical_remaining_ru": "Свежая MCU-телеметрия/reference и ракурс; physical gamepad/manual/STOP, полные реальные показы и supervised model trial",
         "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED",
-        "operator_ready_acquisition": false,
+        "operator_ready_acquisition": true,
         "software_ready": false,
         "canonical_real_smoke_dataset": null,
-        "canonical_real_smoke_model": null
+        "canonical_real_smoke_model": null,
+        "operator_acquisition_scope": "SOFTWARE_AVAILABLE_PHYSICAL_PREFLIGHT_REQUIRED",
+        "independently_possible_software_work_completed": true
       },
       {
         "experiment_id": "03",
@@ -474,7 +495,7 @@
           "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED",
-        "priority_status": "NEXT",
+        "priority_status": "CURRENT PRIORITY",
         "url_path": "/experiments/03",
         "software_readiness": {
           "passed": 5,

@@ -1,0 +1,219 @@
+{
+  "schema": "explorer_experiment02B_actual_scoped_release_v1",
+  "commit": "722755dc99094fc86bab20796d2b7bc4bf56d536",
+  "status": "DEPLOYED_DISARMED_REAL_EXPERT_DEMOS_AND_LIVE_SHADOW_OPEN",
+  "whole_master_complete": false,
+  "scope": "CENTRAL_WORKER_AND_NANO_OWN_OBSERVER_CACHE",
+  "original_native_web_commit": "4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4",
+  "pi_own_commit": "4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4",
+  "central_cutover_s": 2.5179633969964925,
+  "original_services_PIDs_source_reference_unchanged": true,
+  "six_original_controller_configs_unchanged": true,
+  "private_env_configs_units_unchanged": true,
+  "cutover_passive_ROS": {
+    "counts": {
+      "/arm6_joints": 0,
+      "/explorer/request": 0
+    },
+    "observation_seconds": 20,
+    "passive_only": true,
+    "received_count": 0,
+    "schema": "explorer_02B_own_cutover_passive_ROS_v1",
+    "topics": [
+      "/arm6_joints",
+      "/explorer/request"
+    ]
+  },
+  "physical_control_requests_sent": 0,
+  "full_regression": {
+    "passed": 2191,
+    "skipped": 18,
+    "failed": 0,
+    "pytest_s": 823.5,
+    "launcher_s": 835.0213120650151,
+    "resources": {
+      "cpu.max": "300000 100000",
+      "memory.max": "5368709120",
+      "memory.current": "1406980096",
+      "memory.peak": "4695658496",
+      "memory.swap.max": "0",
+      "memory.swap.peak": "0",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    "qualification_sha256": "9ca8464e2ed9e51757546d5cf23d107cd685c653693976cf1f4ef576c6064373"
+  },
+  "Node_tests": {
+    "passed": 231,
+    "failed": 0,
+    "elapsed_ms": 2443.547878
+  },
+  "cutover_receipt_sha256": "e3f98411b02015bdbb3b43275fb8bfab47bfc159a87f384a606966206fffe313",
+  "scientific_originals_after_real_IO": {
+    "jobs": {
+      "original_rows": 24,
+      "current_rows": 25,
+      "all_original_rows_identical": true
+    },
+    "skills": {
+      "original_rows": 11,
+      "current_rows": 11,
+      "all_original_rows_identical": true
+    },
+    "events": {
+      "original_rows": 15948,
+      "current_rows": 16002,
+      "all_original_rows_identical": true
+    }
+  },
+  "schema_unchanged": true,
+  "production_active_jobs": 0,
+  "actual_real_Nano_IO": {
+    "recording_id": "cab1a20bd9b9497598b66b3ed28e38d3",
+    "skill_id": "70a3d074-0f7a-4ee6-abcf-5239505d36b8",
+    "skill_version": 2,
+    "scope": "OBSERVATIONS_ONLY_NO_EXPERT_DEMONSTRATION",
+    "source_archive_sha256": "9d7c8e181578c47c3653efc0b15698cbade9f9c4b8eec382e80ce3ef9ab8206d",
+    "source_archive_bytes": 26859520,
+    "original_frames": 17,
+    "expert_action_samples": 0,
+    "sensor_channels_with_valid_masks": {
+      "base_velocity": 17,
+      "camera_calibration": 17,
+      "imu": 17,
+      "lidar": 17,
+      "odometry_pose": 17,
+      "power_context": 7,
+      "camera_depth": 11
+    },
+    "exposure_timestamp_verified": false,
+    "pause_intervals": [
+      {
+        "end_monotonic_ns": 92225752199039,
+        "start_monotonic_ns": 92224868160404
+      }
+    ],
+    "analysis_only": true,
+    "analysis_block_reasons": [
+      "EXPLICIT_OBSERVATIONS_ONLY_NO_EXPERT_LABELS",
+      "OPERATOR_INPUT_TRACE_MISSING"
+    ],
+    "original_preview_SHA_and_bytes_verified": true,
+    "actual_range_GET": {
+      "status": 206,
+      "bytes": 1024,
+      "content_range": "bytes 26858496-26859519/26859520"
+    },
+    "approved_analysis_import_job_id": "f25efd2e039b4f1a972ac5cd90e31fea",
+    "actual_production_worker_imported": true,
+    "transfer": {
+      "resumed_bytes": 0,
+      "downloaded_bytes": 26859520,
+      "existing_archive_reverified": false
+    },
+    "accepted_expert_originals": 0,
+    "training_not_queued": true,
+    "passive_ROS": {
+      "counts": {
+        "/arm6_joints": 0,
+        "/explorer/request": 0
+      },
+      "observation_seconds": 20,
+      "passive_only": true,
+      "received_count": 0,
+      "schema": "explorer_native_forward_passive_ROS_v1",
+      "topics": [
+        "/arm6_joints",
+        "/explorer/request"
+      ]
+    },
+    "original_sources_PIDs_reference_and_six_configs_unchanged": true,
+    "source_receipt_sha256": "2d426ceff03505aa5b9ed108300070c4cf8d1c319fd163a7bb7dbd499a6ab40b",
+    "private_artifacts": "/mnt/explorer-data/explorer-work/experiment02-actual-observations-20261027-722755dc"
+  },
+  "actual_HTTPS_UI": {
+    "source_receipt_sha256": "11ebb4eb75cb4f98a566ac5a73d9fa581b28bf030bcf2d24d3e7776bbdde539d",
+    "pages": [
+      {
+        "name": "desktop",
+        "decoded_width": 640,
+        "overflow": false,
+        "advancing_frame_ids": [
+          "nano-rgbd:34ccf0e4f3ab:1634",
+          "nano-rgbd:34ccf0e4f3ab:1636"
+        ],
+        "technical_skill_title": "Технические наблюдения02 — НЕ экспертный показ",
+        "accepted_expert_originals": 0,
+        "real_models_shown": 0
+      },
+      {
+        "name": "mobile",
+        "decoded_width": 640,
+        "overflow": false,
+        "advancing_frame_ids": [
+          "nano-rgbd:34ccf0e4f3ab:1663",
+          "nano-rgbd:34ccf0e4f3ab:1666"
+        ],
+        "technical_skill_title": "Технические наблюдения02 — НЕ экспертный показ",
+        "accepted_expert_originals": 0,
+        "real_models_shown": 0
+      }
+    ],
+    "non_GET_requests": 0,
+    "physical_gamepad_qualified": false,
+    "gamepad_calibration_source": "EXPLICIT_BROWSER_FIXTURE_DISCONNECTED",
+    "fixture_samples": 47
+  },
+  "computational_qualifications": [
+    "shared/training/NATIVE02_LEROBOT_CPU_20261027_QUALIFICATION.json",
+    "shared/training/NATIVE02_QUEUED_CPU_20261027_QUALIFICATION.json",
+    "shared/training/NATIVE6_QUEUE_02B_CONTROLLER_R5_20261027_SUMMARY.json"
+  ],
+  "source_binding_preflight": {
+    "schema": "explorer_release_qualified_sources_preflight_v1",
+    "commit": "722755dc99094fc86bab20796d2b7bc4bf56d536",
+    "gpu_binding_sha256": "8c26f989db2204c8cf9e69440cf332d028383f8282d8ace68681d3da05cc6346",
+    "gpu_source_files": 16,
+    "diffusion_binding_sha256": "8bc7bd625702da22a3074c5640e118ec6a83b096e81da6b9d5ff710704f2ac0b",
+    "diffusion_source_files": 18,
+    "actual_sources_verified": true,
+    "new_GPU_execution_claimed": false,
+    "active_source_switched": false,
+    "physical_IO": false,
+    "scope": "CENTRAL_AND_NANO_OWN_ONLY_NATIVE_WEB_AND_PI_REMAIN_4C"
+  },
+  "actual_native_shadow_preflight": {
+    "schema": "explorer_actual_native02_GET_shadow_preflight_v1",
+    "request_method": "GET",
+    "path": "/native-policy/observation",
+    "http_status": 409,
+    "raw_response_sha256": "68853a3432c18aaa91e1efef149d108131c17ee71eda582246cdeba778b5d9b1",
+    "source_response": {
+      "available": false,
+      "code": "NATIVE_SOURCE_REJECTED",
+      "joint_feedback_required": false,
+      "measured_feedback_claimed": false,
+      "physical_commands_sent": 0,
+      "reason": "MCU telemetry is stale",
+      "schema": "explorer_native_observation_unavailable_v1",
+      "source_http_response_received": true,
+      "source_http_status": 409,
+      "source_response_base64": "eyJkZXRhaWwiOiJNQ1UgdGVsZW1ldHJ5IGlzIHN0YWxlIn0=",
+      "source_response_sha256": "ef2614dc6c32894cb138e452a6c36e58caffd5455674e5606f808d00baa58548",
+      "source_route": "/api/explorer/cooperative/observation",
+      "state": "SOURCE_UNAVAILABLE"
+    },
+    "physical_control_requests": 0,
+    "native_reference_modified": false,
+    "model_inference_attempted": false
+  },
+  "real_expert_smoke_dataset": null,
+  "real_expert_model": null,
+  "physical_skill_validated": false,
+  "full_task_success_claimed": false,
+  "remaining_physical_gates": [
+    "fresh_MCU_telemetry_and_original_native_reference_under_owner_observation",
+    "camera_workspace_view_and_physical_gamepad_manual_STOP_validation",
+    "complete_approved_real_expert_demonstrations",
+    "real_expert_model_live_shadow_and_supervised_full_task_trials"
+  ]
+}

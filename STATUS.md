@@ -4,11 +4,11 @@
 `/home/jetsonnx/work/Explorer`; работающие службы не зависят от Mac/чата.
 
 
-**CURRENT PRIORITY=02, NEXT=03, THEN=01; PARKED=04/05/06.**
-Очередь: **02 полностью → 03 полностью → 01 → 04 → 05 → 06**.
-Сначала02A — пригодная оператору запись показов, затем без смены приоритета02B —
-полный цикл обучения.03 переиспользует02. Новые широкие работы04–06 отложены;
-разрешены общие исправления, необходимые текущему02/03.
+**CURRENT PROGRAMMATIC PRIORITY=03 → NEXT=01 → 04 → 05 → 06.**
+02A+02B развёрнуты и независимо доступная программная работа выполнена.
+Строгие02 gates реальных expert demos и valid live-shadow остаются OPEN до
+наблюдаемой подготовки владельца. Они не подменяются технической записью или
+fixtures. Продолжаем03 по исходной очереди, не ожидая человека и не снимая02 gates.
 
 Ни один опыт сейчас не SOFTWARE READY. Проценты ниже — число полностью
 подтверждённых применимых acceptance gates; частичный gate даёт0, веса равны.
@@ -23,34 +23,47 @@
 <!-- READINESS_TABLE_FROM_ACCEPTANCE:BEGIN -->
 | Опыт / очередь | SOFTWARE | PHYSICAL | Доказано в указанном scope | Программный остаток | Физический остаток |
 |---|---:|---:|---|---|---|
-| 01 — THEN | 40% (4/10) | 0% (0/3) | CAD/MuJoCo render, ACT updates/reload, версии/splits; scoped UI | Канонический PPO→demos/DAgger→ACT; исправить причину отказа, пройти full-task threshold и UI/release | Отдельный deploy/preflight и наблюдаемый тест; SIM не требует движения |
-| 02 — CURRENT PRIORITY | 64.3% (9/14) | 0% (0/4) | Развёрнутые камеры/gamepad/record/review/transfer02A; ACT106 official Dataset и model/DEV UI проверены на программных источниках | 02B: итоговый current-source queue proof, настоящий Nano I/O technical smoke, регрессия и новый release; реальные demos/shadow после подготовки владельца | Текущий manual/gamepad/STOP тест, реальные 3–5 smoke-показов и supervised model trial |
-| 03 — NEXT | 41.7% (5/12) | 0% (0/3) | Pi→Nano software stream, исходная calibration arithmetic, typed9D запись, epoch/STOP компоненты | Переиспользовать полный02; mirror, два режима, FK/IK/clutch/gripper, latency, один полный UI цикл | Наблюдаемая регистрация/калибровка, direct mirror, показы и learned task |
+| 01 — NEXT | 40% (4/10) | 0% (0/3) | CAD/MuJoCo render, ACT updates/reload, версии/splits; scoped UI | Канонический PPO→demos/DAgger→ACT; исправить причину отказа, пройти full-task threshold и UI/release | Отдельный deploy/preflight и наблюдаемый тест; SIM не требует движения |
+| 02 — REAL DATA / PHYSICAL OPEN | 85.7% (12/14) | 0% (0/4) | Развёрнуты02A+02B, actual Nano17frames→analysis import, official Dataset/ACT/resume и очередной DEV на generated inputs, model UI и регрессия | Полный gate реальных expert demos→модель→valid live-shadow остаётся OPEN; независимые программные работы02 выполнены | Свежая MCU-телеметрия/reference и ракурс; physical gamepad/manual/STOP, полные реальные показы и supervised model trial |
+| 03 — CURRENT PRIORITY | 41.7% (5/12) | 0% (0/3) | Pi→Nano software stream, исходная calibration arithmetic, typed9D запись, epoch/STOP компоненты | Переиспользовать полный02; mirror, два режима, FK/IK/clutch/gripper, latency, один полный UI цикл | Наблюдаемая регистрация/калибровка, direct mirror, показы и learned task |
 | 04 — PARKED | 60% (6/10) | 0% (0/3) | Scoped UI, native6 cohort, ACT/DP train/resume/reload, shadow/owner tests | Полный source recording→approved dataset→train→independent object evaluation и release | Питание/reference, полные показы и независимая source-проверка |
 | 05 — PARKED | 50% (5/10) | 0% (0/3) | Dual typed record/train, WAL/interlocks, cancellation IO fence, fake Publisher receipt в одной FSM | Полный opening→independent transfer→finish/park lifecycle, камеры/режимы/recovery и release | Общая сцена, независимое удержание и полный наблюдаемый handover |
 | 06 — PARKED | 40% (4/10) | 0% (0/3) | Typed lineage/splits, target ACT optimizer/reload, portable SIM и отрицательные исходы | Принятый source04, mapping/адаптация, успешный full-task transfer, H2 comparison и UI/release | Принятый физический source, target mapping и наблюдаемый transfer |
 <!-- READINESS_TABLE_FROM_ACCEPTANCE:END -->
 
 
-Live central+worker и собственные Nano observer/cache — **d923ea94becb68e3d540ba523b635483e2758689**.
+Live central+worker и собственные Nano observer/cache — **722755dc99094fc86bab20796d2b7bc4bf56d536**.
 Pi observer и import pin оригинального Nano web остаются **4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4**.
 Оригинальные Nano camera/MCU/control/web не перезапускались; PIDs/source/reference
-и6 исходных configs совпали до/после. Cutover central2.478s, passiveROS20s:0сообщений.
-[Фактический scoped02A выпуск](_registry/evidence/experiment02-acquisition-actual-d923ea94-20261027.json).
-Полная frozen регрессия:2154PASS/15SKIP/0FAIL;226Node. Настоящий HTTPS Firefox
-на desktop/mobile декодировал кадры Nano; калибровка gamepad проверена только
-явным software fixture, физический Mac gamepad ещё не квалифицирован.
+и6 исходных configs совпали до/после. Central cutover2.518s; passiveROS20s:0сообщений.
+[Фактический scoped02B выпуск](_registry/evidence/experiment02-learning-actual-722755dc-20261027.json).
+Frozen полный прогон:2191PASS/18SKIP/0FAIL за823.50s;231Node. CPU3/5GiB,
+peak4695658496B, swap/OOM0.24старых jobs/11cards/15948старых events byte-exact
+после реального I/O; добавлен только новый analysis import, activejobs0/schema same.
 
-02A содержит запись/паузы/отмену, независимые кадры/сенсоры, input journal,
-просмотр/скачивание и отдельное Source approve→hash-bound resumable transfer.
-02B ещё **IN_PROGRESS**: новые исходники связывают official LeRobotDataset,
-source-bound сегменты без склейки пауз, ACT106, saved versions, DEV и GET-only
-shadow с API/UI. Реальная вычислительная fixture квалификация:3PASS/67.78s,
-ACT4→новыйPID+4 совпал с uninterrupted8; реальные физические demos0.
-Supervisor→bootstrap→job_runner106, актуальный общий controller, итоговая
-UI/регрессия и новый02B release проверяются отдельно. Неподвижная техническая
-запись сохраняется только для анализа и не заменяет успешный экспертный показ.
-Durable giver healthy/uninitialized; это не физическая готовность.
+Actual Nano observations-only:17реальных кадров,11depth,17IMU/LiDAR/odom/velocity,
+7valid power records; masks и исходные clocks сохранены, exposure не подтверждена.
+Start/pause/resume/finish UNKNOWN→исходный TAR/SHA/JPEG preview→actual206 Range→
+отдельное approve FOR ANALYSIS→настоящий production worker import прошли.
+Ни одной экспертной команды; принятых expert originals0; обучение не запускалось.
+Ещё один passiveROS20s:0сообщений, исходные files/reference/PIDs/6configs exact.
+HTTPS Firefox desktop/mobile: меняющиеся реальные frame IDs,0overflow/0nonGET,
+точная техническая SkillSpec,0expert originals/0моделей. Gamepad calibration —
+только явный disconnected browser fixture47samples; физический Mac gamepad OPEN.
+Первый browser attempt предполагал auto-selection новой SkillSpec, но существовал
+отдельный старый draft; он сохранён, повтор выбрал точную technical version явно.
+
+Official LeRobotDataset106/9 и source-bound chunks без склейки пауз реально
+проверены на generated source inputs: ACT4→новыйPID+4 exact uninterrupted8;
+actual authenticated ASGI→Supervisor→bootstrap→job_runner ACT4/save-reload→
+отдельный DEV worker с0optimizer тоже прошёл. Это не реальные expert demos.
+UI: budget/train/progress/logs/pause/resume/cancel, saved versions, DEV и shadow,
+метрики и SHA provenance. Все computational/physical scopes раздельны.
+Current native GET409: MCU telemetry is stale; reference после прежнего fault
+невалиден. Агент не делает HOME, grants, STOP или реальное движение.
+Реальный expert model/live-shadow/full-task trial остаётся OPEN; master не завершён.
+[Порядок работы02](02-demonstration-learning/docs/MODEL_CHECKS_RU.md).
+Durable giver healthy/uninitialized — не физическая готовность.
 
 Подготовленная статья отдельно сохранена в `work/temporal-numeric-admission`,
 `a5865cc22b973a5e1a1c6a988042f4c3668b129a`: настоящий TeX PDF6pages,
@@ -133,9 +146,10 @@ Nano native reference невалиден после сохранённого tel
 firmware/limits/watchdogs/readbackOFF. Unknown и command-estimate не становятся
 measured. Source/target splits раздельны; development/sealed/unknown не optimizer.
 
-Текущий программный остаток02B: итоговый канонический
+Остаток строгой приёмки02: канонический
 record→approve→transfer→LeRobotDataset→ACT→save/reload→offline→live-shadow→UI
-с реальным dataset/model evidence, адресной регрессией и новым release.
+с реальным expert dataset/model evidence. Адресная/полная регрессия и выпуск02B
+уже выполнены; новые проверки/исправления нужны только по фактическим новым данным.
 3–5 показов — технический smoke, не обещание освоенного навыка. Готовность02A
 не завершает02. Для03 далее нужны полный mirror/retargeting/record/train flow,
 два режима и конкретная наблюдаемая calibration checklist.
@@ -154,7 +168,7 @@ phase/hold-successor/transfer/retention/recovery и H1–H5 остатки; он
 ## USAGE_POLICY
 
 Root — единственный координатор и интегратор; максимум1 независимый субагент.
-Все прежние активные агенты завершили безопасные checkpoints и idle.
+Прежние checkpoints сохранены; единственный независимый агент делает review03.
 Последнее указание пользователя: продолжать текущую работу автономно
 через02→03→01→04→05→06; не завершать turn после одного этапа. Повышать effort
 только для конкретного трудного вопроса. Этот документ не переключает модель/effort.
