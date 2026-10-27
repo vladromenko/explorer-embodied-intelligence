@@ -16,10 +16,14 @@
 Root интегрирует, выпускает и запускает общую регрессию. По умолчанию0–2
 субагента; третий только для трёх крупных независимых потоков. Отдельные worktree
 и непересекающееся владение файлами; короткие проверки выполняет root.
-Сейчас: direct03 — source-held scopes/metadata arm и per-role authority05;
-Root — source-challenge→новые USER facts→parked release coordinator/API/UI.
-Фактический4c5f4f5b release прошёл полный регресс/cutover/Firefox/scientific audit.
-Wizard — C-v2 завершён:16FAILURE/0UNKNOWN, DEV0/8 иSEALED0/8; все
-исходы сохранены, полного learned навыка нет. Готовится только отдельный frozen
-TRAIN-only forward audit для проверки inference/fit; новых heavy запусков до
-review нет. C-v1 UNKNOWN1/NOT_STARTED15 и B0/8 остаются отдельными оригиналами.
+Сейчас: direct03 — продолжение полного05 lifecycle: fresh Source scope,
+actual policy Publisher, observed opening→новое transfer proof→finish. Root —
+сквозная интеграция и регрессия, затем следующий безопасный immutable release.
+Live4c5f4f5b уже прошёл полный регресс/cutover/Firefox/scientific audit; позднейший
+main автоматически работающим релизом не считается. Root session storage
+cancellation recovery остаётся отдельным открытым пунктом.
+Wizard — обновляет draft-статью и стандартные figures из настоящих отрицательных
+B/C-v2 и TRAIN-only B результатов, проверяет настоящий LaTeX build на Homebrain.
+C-v2:16FAILURE/0UNKNOWN, DEV0/8 иSEALED0/8; TRAIN-only1756forward не заменяет
+независимый rollout. Нового обучения или выбора модели по тестам нет.
+C-v1 UNKNOWN1/NOT_STARTED15, A pre-model guard failure0queries и все raw сохранены.

@@ -34,7 +34,7 @@
       "id": "training",
       "title": "Forward/backward, processors, checkpoint/reload/resume",
       "status": "VERIFIED_WITHIN_SCOPE",
-      "evidence": "Current R3B real ACT6/DP6/106 updates/reload and actual ACT/DP new-PID resume exact; GPU profile4 only pinned native9 shape. Learned full object skills remain unvalidated."
+      "evidence": "R3B actual ACT6/DP6/106 updates/reload and new-PID resume exact, GPU profile4 only native9 pinned shape. Separate TRAIN-only B1756 prior-zero CPU forward on4fixed1200 checkpoints: posterior/optimizer/physics/dispatch0, model/RNG unchanged, all2102pins and raw/scorer verified. Residual errors do not establish learned whole-object skill or a unique cause."
     },
     {
       "id": "full01",
@@ -58,7 +58,7 @@
       "id": "handover",
       "title": "Координация и подтверждённая передача05",
       "status": "PARTIAL",
-      "evidence": "Live4c5f4f5b: immutable source reply custody, Pi hold-successor and explicit giver park/adopt/begin/resume UI/API, typed exact STOP scopes, Source parked release challenge+resume within original2s/0.45s deadlines. Per-role parked scopes/metadata arm and complete release coordinator still open; physical H5 unvalidated."
+      "evidence": "Live4c disarmed scopes/phase controls; later main adds source-held observations/metadata arm, post-Source USER bundle, explicit resume-release CONTROL with immutable custody and cancel-only declared scope before reply; fresh per-role admission before final native submit, original2s/.45s retained. 100 helper and57 combined fresh/STOP cases passed on fake Sources. Actual policy Publisher/opening/transfer/finish continuous lifecycle and physical H5 remain OPEN."
     },
     {
       "id": "skill_memory",

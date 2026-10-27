@@ -29,11 +29,13 @@ Root не выдаёт это за физическую готовность.
   фактический healthy/initialized durable giver proof; metadata receipts и reset
   с source CAS доступны в main. Полный parked phase coordinator ещё открыт.
   [Границы](05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md).
-  Позднейший main (ещё не live): source-owned parked scopes/metadata arm и
-  post-source USER bundle; internal Workflow STOP очищает returned native
-  owners до attach. Root bridge ждёт validated explicit CONTROL,22 адресных
-  tests прошли;53 combined/42 cancellation tests прошли. SourceControl helper,
-  per-role dispatch и полный сквозной coordinator ещё интегрируются.
+  Позднейший main (ещё не live): source-held scopes/metadata arm, новые USER
+  facts после actual Source challenge и отдельный parked CONTROL уже связаны
+  с существующей FSM/API/UI. Fresh per-role admission повторяется перед native
+  submit; cached preview не разрешает команды. STOP охватывает returned owner
+  и отдельный declared cancel-only scope до ответа.100 helper cases и57 combined
+  fresh/STOP cases прошли; истечение lease/наблюдения в парных GET блокируется.
+  Полный policy Publisher→observed opening→transfer/finish lifecycle ещё открыт.
 - Настоящий future initial capture→authenticated API→Supervisor/bootstrap→worker→
   download→новый PID восстановил все33 исходных файла:153859356B MJB,20CAD,
   один RGB,0target advances. Literal failed diagnostic trial сохранён; export
@@ -61,6 +63,12 @@ Root не выдаёт это за физическую готовность.
   исправил только доказанный roundoff. Все исходы и2073pins сохранены;
   модели не выбраны и не повышены до освоенного навыка.
   [C-v2](research/audits/TARGET_TEMPORAL_C_V2_RESULTS_RU.md).
+  Отдельный TRAIN-only audit B завершил1756 prior-zero forward на тех же4
+  checkpoint:0posterior/optimizer/physics/dispatch, модель/RNG неизменны;
+  все2102pins/input/output и NumPy scorer перепроверены. Остаточные ошибки
+  сохраняются; normalized ABS/INCR MAE между representations не ранжируются.
+  Это не closed-loop gain и не уникальное причинное объяснение.
+  [TRAIN audit](research/audits/TARGET_TRAIN_FORWARD_AUDIT_B_RESULTS_RU.md).
 - Frozen4c5f4f5b с20 проверенными CAD/headless EGL:1835passed/15skipped,
   0failed за458.79s; CPU3/5GiB, peak4.20GB, swap/OOM0.215 Node tests прошли.
   Firefox:9desktop/mobile pages,0overflow,0non-GET;12authenticated live GETs.
