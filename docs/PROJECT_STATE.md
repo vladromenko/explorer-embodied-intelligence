@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
 Updated: `2026-10-28T00:58:00+03:00`
-Code commit: `ef3f5185c6199d93044fe54c791e2f67946a56cc`
+Code commit: `16c82a89f619e60043700f7193c7e765ac43ddd3`
 Current task: `E03-SOFTWARE-DEPLOY`
 Next tasks: `E03-SOFTWARE-DEPLOY`, `E05-MANUAL`, `E05-LEARNING`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -123,6 +123,16 @@ software integration/profile, сохраняющий04 capture/cold/semantic gua
 по-прежнему CLOSED: real changing leader continuity OPEN, current reference409,
 сцена/метрическая привязка/реальные эксперты не приняты. Static100GET не PASS.
 После03 software/deploy идут05→06→01; физический gate не причина бросать доступное ПО.
+
+Candidate16c82a8 реализует explicit `so101_lab`: thin wrapper existing03 service,
+COMMON/cold/capture04 на том же Station, source-claim fence для CV/VLM. Bootstrap
+status/data доступны; physical03 start/recenter/lease/challenge/authorize закрыты
+до peer entry. Global no-owner cleanup не объявляет native STOP delivered;
+original STOP method/body unchanged.93Python PASS6.75s, actual localhost Node
+HTTP оба profiles, source/evaluation/cooperative/original03 fake peer contracts.
+Candidate не deployed: actual commits выше не менялись. Далее actual Pi3.13
+isolated fake-I/O/bootstrap proof, endpoint/UI integration, frozen scoped release.
+[Contract/evidence](../03-lerobot-teaching/docs/LAB_RUNTIME_CONTRACT_RU.md).
 
 01 PARKED: current C-v2=0/16, canonical full-task mastery/DAgger/ACT не достигнут;
 02 software ready в scope одной Nano camera, real experts/models/live physical
