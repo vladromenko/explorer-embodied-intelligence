@@ -72,6 +72,16 @@ def test_metadata_authorization_is_exact_displayed_frame_and_never_native_comman
     assert station.calls==[] and provider.status()['grant']['grant_id']==grant['grant_id']
 
 
+def test_status_exposes_actual_native_clock_boot_after_metadata_reads_without_renewing_permission():
+    provider,station,camera,tick,selected=rig()
+    idle=provider.status();assert idle['source_stamp']=={'monotonic_ns':tick[0],'boot_id':station.boot,'clock_domain':station.clock_domain}
+    grant,_=authorize(provider,selected);deadline=grant['observation_deadline_ns'];tick[0]+=100_000_000
+    first=provider.status();assert first['source_stamp']['monotonic_ns']==tick[0] and first['grant']['observation_deadline_ns']==deadline
+    tick[0]=deadline+1;camera.publish()
+    expired=provider.status();assert expired['source_stamp']['monotonic_ns']==tick[0] and not expired['execution_permission'] and expired['grant'] is None
+    assert not station.calls and not first['native_command_called'] and not expired['controller_settings_written']
+
+
 def test_native_start_rotates_grant_epoch_and_old_stop_or_revoke_never_clears_current_epoch():
     provider,station,camera,tick,selected=rig();grant,_=authorize(provider,selected);old=grant['control_epoch']
     reply=provider.command(grant['grant_id'],selected,'policy/start',{'expected_control_epoch':old})

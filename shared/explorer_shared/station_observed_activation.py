@@ -263,7 +263,7 @@ class StationObservedPermission:
             valid=bool(valid and self.grant is current and current and not current['revoked'].is_set() and
                 self.clock()<current['data']['observation_deadline_ns'])
             grant=self._data(current) if valid else None
-        return {'schema':'explorer_station_observed_permission_status_v1','execution_permission':valid,
+        result={'schema':'explorer_station_observed_permission_status_v1','execution_permission':valid,
             'grant':grant,
             'native_publication_permission_gate_installed':self.publication_gate is not None,
             'publication_gate':self.publication_gate.status() if self.publication_gate is not None else None,
@@ -271,6 +271,8 @@ class StationObservedPermission:
             'provider_process':self.process,'reason':reason,'native_command_called':False,
             'freshness_basis':'existing_camera_stale_s_not_motor_lease','controller_settings_written':False,
             'permission_is_not_grasp_stationarity_or_physical_success':True}
+        result['source_stamp']={'monotonic_ns':self.clock(),'boot_id':self.station.boot,'clock_domain':self.station.clock_domain}
+        return result
 
     def owns_native_epoch(self):
         """Metadata ownership, including revoked tests awaiting original STOP.
