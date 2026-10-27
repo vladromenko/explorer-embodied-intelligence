@@ -79,6 +79,7 @@ class NativeReceiverHoldBoundary:
         self.lock=threading.RLock();self.revision_lock=threading.Lock();self.binding=None;self.armed=False;self.pending=None;self.grant=None
         self.revision=0;self.used=set();self.last_pose=None;self.last_publication=None;self.events=[]
         self.reference_fault=None
+        self.parked=None;self.phase_history=[];self.phase_event_count=0;self.phase_event_chain_sha256=None
         self.ttl_ns=HandoverFSM('native-cooperative-hold').hold_ttl_ns
         self.metadata_lock=threading.RLock();self.journal=GiverHoldJournal(state_path)
         if self.journal.state is not None:
@@ -95,10 +96,13 @@ class NativeReceiverHoldBoundary:
             if self.reference_fault is None:self.reference_fault={'invalidated_native_ns':self.clock(),
                 'reason':'DURABLE_GIVER_LATCH_RESTORED_REFERENCE_UNVERIFIED',
                 'original_reference_sha256':(self.journal.state if isinstance(self.journal.state,dict) else {}).get('reference_source_sha256')}
+        if self.parked is not None:self.journal.recovery_required=True
     def _snapshot(self):
         return {'schema':'explorer_native_giver_hold_state_v1','binding':deepcopy(self.binding),'armed':self.armed,'revision':self.revision,
             'used_confirmations':sorted(self.used),'last_pose':deepcopy(self.last_pose),'last_publication':deepcopy(self.last_publication),
             'events':deepcopy(self.events[-8:]),'reference_fault':deepcopy(self.reference_fault),
+            'parked':deepcopy(self.parked),'phase_history':deepcopy(self.phase_history),
+            'phase_event_count':self.phase_event_count,'phase_event_chain_sha256':self.phase_event_chain_sha256,
             'reference_source_sha256':(self.mux.tap.reference or {}).get('source_sha256'),
             'native_clock_domain':self.mux.tap.clock_domain,'native_boot_id':self.mux.tap.boot_id,
             'active_permissions_not_restored':True,'latest_pose_not_qualified_for_automatic_restart':True}
@@ -124,6 +128,21 @@ class NativeReceiverHoldBoundary:
         self.binding=deepcopy(state.get('binding'));self.armed=state['armed'];self.revision=state['revision'];self.used=set(state['used_confirmations'])
         self.last_pose=deepcopy(state.get('last_pose'));self.last_publication=deepcopy(state.get('last_publication'))
         self.events=deepcopy(state['events']);self.reference_fault=deepcopy(state.get('reference_fault'))
+        if (state.get('parked') is not None and not isinstance(state['parked'],dict) or
+                not isinstance(state.get('phase_history',[]),list) or len(state.get('phase_history',[]))>32):
+            raise ValueError('Bounded retained giver phase lineage required')
+        self.parked=deepcopy(state.get('parked'));self.phase_history=deepcopy(state.get('phase_history',[]))
+        count=state.get('phase_event_count',0);chain=state.get('phase_event_chain_sha256')
+        if (type(count) is not int or count<len(self.phase_history) or chain is not None and
+                (not isinstance(chain,str) or not re.fullmatch('[0-9a-f]{64}',chain))):raise ValueError('Exact retained source phase-history chain required')
+        if (count==0)!=(chain is None) or count>0 and not self.phase_history:raise ValueError('Retained source phase chain is incomplete')
+        for index,event in enumerate(self.phase_history):
+            if (not isinstance(event,dict) or event.get('source_event_ordinal')!=count-len(self.phase_history)+index+1 or
+                    event.get('source_event_sha256')!=digest({key:value for key,value in event.items() if key!='source_event_sha256'}) or
+                    index>0 and event.get('prior_event_chain_sha256')!=self.phase_history[index-1]['source_event_sha256']):
+                raise ValueError('Retained source control-history digest/order differs')
+        if self.phase_history and self.phase_history[-1]['source_event_sha256']!=chain:raise ValueError('Source phase-history tail digest differs')
+        self.phase_event_count=count;self.phase_event_chain_sha256=chain
         self.pending=self.grant=None  # A disk record is never live receiver-hold authority.
     def _durable(self,operation,callback,*,recover=False):
         if self.journal.path is None:return callback()
@@ -152,6 +171,7 @@ class NativeReceiverHoldBoundary:
                 raise
     def _current(self,*,cached=False):
         if self.journal.fault is not None or self.journal.recovery_required:raise ValueError('Durable giver recovery is required')
+        if self.parked is not None:raise ValueError('Explicit USER parked-phase transition required')
         binding=self.binding
         if (binding is None or self.mux.teleop.owner!='keyboard' or self.mux.teleop.generation!=binding['native_generation'] or
                 self.mux.teleop.stop_latched or not self.mux.clock()<self.mux.teleop.lease or
@@ -162,7 +182,7 @@ class NativeReceiverHoldBoundary:
                 not self.mux.active or self.mux.epoch!=binding['native_control_epoch']):raise ValueError('Native cooperative epoch changed')
         return binding
     def base_motion_blocked(self):
-        with self.lock:return bool(self.binding is not None or self.armed or self.reference_fault is not None or
+        with self.lock:return bool(self.binding is not None or self.armed or self.parked is not None or self.reference_fault is not None or
             self.journal.pending or self.journal.fault is not None or self.journal.recovery_required)
     @durable_metadata()
     def bind(self,body):
@@ -172,10 +192,11 @@ class NativeReceiverHoldBoundary:
         with self.mux.teleop.lock:
             if not self.mux.teleop.stop_latched:raise ValueError('Original STOP required before cooperative metadata binding')
             with self.lock:
-                if self.armed:raise ValueError('Explicit observed safe-object reset required before replacing dual-hold protection')
+                if self.armed or self.parked is not None:raise ValueError('Explicit observed safe-object reset required before replacing dual-hold protection')
                 self._bump_revision();self.pending=self.grant=None;self.last_pose=None
                 self.binding={key:body[key] for key in ('run_id','object_id','coordinator_epoch','authorization_id')}
                 self.binding.update(native_generation=self.mux.teleop.generation,native_control_epoch=None)
+                self.binding['observed_source_authorization']=self.activation.receipt(body['authorization_id'])
         return self.status()
     def bind_control_epoch(self,epoch):
         with self.lock:
@@ -278,6 +299,7 @@ class NativeReceiverHoldBoundary:
             self._check_reset(body)
             with self.lock:
                 self._bump_revision();self.binding=self.pending=self.grant=None;self.armed=False;self.last_pose=None
+                self.parked=None
         return self.status()
     def publish(self,pose,callback):
         with self.lock:
@@ -285,6 +307,7 @@ class NativeReceiverHoldBoundary:
             try:
                 if self.journal.pending or self.journal.fault is not None or self.journal.recovery_required:
                     raise ValueError('DURABLE_GIVER_PUBLICATION_RECOVERY_REQUIRED')
+                if self.parked is not None:raise ValueError('PARKED_GIVER_REQUIRES_EXPLICIT_USER_PHASE_RESUME')
                 if self.armed and self.reference_fault is not None:
                     raise ValueError('OBSERVED_FACTORY_REFERENCE_REQUIRED_AFTER_BLOCKED_PUBLICATION')
                 if self.armed and (self.last_pose is None or any(pose[index]!=self.last_pose[index] for index in range(5))):
@@ -342,6 +365,9 @@ class NativeReceiverHoldBoundary:
             'reference_fault':deepcopy(self.reference_fault),
             'persistence':self.journal.status(self.revision),'revision':self.revision,
             'original_quiescence':self.drained(),
+            'parked':deepcopy(self.parked),'phase_history':deepcopy(self.phase_history),
+            'phase_event_count':self.phase_event_count,'phase_event_chain_sha256':self.phase_event_chain_sha256,
+            'complete_phase_event_bytes_retained':self.phase_event_count==len(self.phase_history),
             'controller_settings_written':False,'new_publishers':0,'physical_qualification':False}
 
 
@@ -352,6 +378,12 @@ class NativeCooperativeOwner:
         self.frames=OrderedDict();self.frame_lock=threading.Lock()
         self.original_publisher=mux.arm.pub
         mux.arm.pub=ExistingPublisherBoundary(self.original_publisher,self.guard)
+        from .giver_phase_lifecycle05 import GiverPhaseLifecycle
+        self.phases=GiverPhaseLifecycle(self)
+    def park(self,body,*,authenticated_actor=None):return self.phases.park(body,authenticated_actor=authenticated_actor)
+    def adopt_parked(self,body,*,authenticated_actor=None):return self.phases.adopt(body,authenticated_actor=authenticated_actor)
+    def begin_parked(self,body,*,authenticated_actor=None):return self.phases.begin(body,authenticated_actor=authenticated_actor)
+    def resume_parked(self,body,*,authenticated_actor=None):return self.phases.resume(body,authenticated_actor=authenticated_actor)
     def observation(self):
         frame=self.activation.camera.snapshot(with_jpeg=True);self.reference();ident=uuid.uuid4().hex
         issued=self.mux.tap.issued_snapshot()
@@ -385,12 +417,13 @@ class NativeCooperativeOwner:
         if body.get('observing') is not True or body.get('neutral') is not True:raise ValueError('Explicit USER observed neutral selection required')
         with self.mux.teleop.lock:
             if (self.mux.active or not self.mux.teleop.stop_latched or any(abs(value)>1e-8 for value in self.mux.teleop.inputs.values()) or
-                    self.guard.armed or self.activation.receipt(body.get('authorization_id')) is None):
+                    self.guard.armed or self.guard.parked is not None or self.activation.receipt(body.get('authorization_id')) is None):
                 raise ValueError('Exact current observed STOP and neutral owner required before preparation')
             # Exact audited original ManualTeleop ABI. No new input driver.
             result=self.mux.teleop.select_source('keyboard',True,True)
             return {'source_selection':result,'native':self.mux.status(),'native_begin_performed':False}
     def manual_resume(self,body):
+        if self.guard.parked is not None and not self.phases.in_transition():raise ValueError('Explicit parked-phase resume required')
         self.activation.require(body.get('authorization_id'))
         if self.activation.status().get('input_mode') not in ('keyboard','browser_gamepad') or body.get('observing') is not True:
             raise ValueError('Exact separately USER-observed keyboard/gamepad input required')
@@ -409,6 +442,7 @@ class NativeCooperativeOwner:
             return {'source_resume':result,'native':self.mux.status(),'manual_generation':self.mux.teleop.generation,
                 'neutral_base_host_request_returned':True,'native_operator_lease_automatically_renewed':False}
     def register_constraint(self,body):
+        if self.guard.parked is not None:raise ValueError('Parked phase preserves its existing exact constraint')
         self.activation.require(body.get('authorization_id'))
         selected=verify_constraint(body.get('constraint'),binding=body)
         with self.mux.teleop.lock:
@@ -421,6 +455,7 @@ class NativeCooperativeOwner:
                 'registered_native_ns':self.mux.tap.clock(),'native_command_sent':False,'controller_settings_written':False}
             return deepcopy(self.action_constraint)
     def begin(self,body):
+        if self.guard.parked is not None and not self.phases.in_transition():raise ValueError('Explicit parked-phase begin required')
         if self.guard.journal.fault is not None or self.guard.journal.recovery_required:raise ValueError('Durable giver safe-object recovery required before native begin')
         if self.activation.status().get('input_mode')!='cooperative_policy':
             raise ValueError('Separate observed cooperative_policy authorization required')
@@ -443,6 +478,7 @@ class NativeCooperativeOwner:
                 self.guard.bind_control_epoch(result['control_epoch']);self.policy=deepcopy(model)
         return result
     def recenter(self,body):
+        if self.guard.parked is not None:raise ValueError('Explicit parked-phase transition required')
         if self.guard.journal.fault is not None or self.guard.journal.recovery_required:raise ValueError('Durable giver safe-object recovery required before native recenter')
         self.guard._match(body);result=self.mux.recenter(body.get('control_epoch'))
         self.guard.bind_control_epoch(result['control_epoch']);return result
@@ -467,6 +503,7 @@ class NativeCooperativeOwner:
             self.guard.revoke('EXPLICIT_SCOPED_MANUAL_COOPERATIVE_STOP')
             return self.mux.teleop.stop()
     def input(self,body):
+        if self.guard.parked is not None or self.guard.journal.pending:raise ValueError('NOT_READY_GIVER_PHASE_PARKED_OR_SEAL_PENDING')
         if not isinstance(body.get('action9'),list) or any(type(value) not in (int,float) for value in body['action9']):
             raise ValueError('Explicit finite numeric native action9 required')
         action=action_vector(body.get('action9',[]));mux=self.mux;epoch=body.get('control_epoch');projection=None
@@ -541,6 +578,7 @@ class NativeCooperativeOwner:
                 'raw_policy9_projection_provenance_required_when_registered':True,
                 'explicit_user_prepare':True,'explicit_user_manual_resume':True,'scoped_manual_stop':True},
             'release_boundary':self.guard.status(),'native':self.mux.status(),'same_original_stream_worker':True,
+            'phase_lifecycle':self.phases.status(),
             'controller_settings_written':False,'native_dispatch_proof':'read actual correlated dispatch ring',
             'automatic_lease_heartbeat':False,'physical_qualification':False}
 
