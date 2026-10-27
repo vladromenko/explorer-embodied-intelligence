@@ -67,3 +67,34 @@ def test_skill_capture_context_is_durable_and_never_changes_native_payload(monke
         assert refused.status_code==409 and not any(job['kind']=='train_act' for job in store.jobs())
         assert c.get('/api/mobile/evidence').json()['counts']['admitted_for_training']==0
         assert c.get('/api/skill-workflow').json()['imports'][0]['assigned_to']['skill_id']==skill
+
+
+def test_native_model_api_is_authenticated_exact_version_dev_or_shadow_only(monkeypatch,tmp_path):
+    from test_rosmaster_learning import model_fixture
+    module=importlib.import_module('explorer.app')
+    store,trained,path,model,corpus=model_fixture(tmp_path)
+    config=dict(module.CONFIG,password_salt='model-test',
+        password_hash=hashlib.pbkdf2_hmac('sha256',b'test-code',b'model-test',310000).hex(),nodes=[])
+    monkeypatch.setattr(module,'STORE',store);monkeypatch.setattr(module,'CONFIG',config)
+    base='/api/skill-workflow/'+corpus.skill_id
+    with TestClient(module.app) as client:
+        assert client.get(base+'/models?version=1').status_code==401
+        assert client.post('/api/login',json={'password':'test-code'}).status_code==200
+        headers={'X-Explorer-CSRF':client.cookies['explorer_csrf']}
+        result=client.get(base+'/models?version=1');assert result.status_code==200,result.text
+        assert result.json()['models'][0]['model_job_id']==trained['id']
+        assert result.json()['checks']==[] and not result.json()['model_loaded']
+        chosen={'version':1,'model_job_id':trained['id']}
+        assert client.post(base+'/evaluate',json=chosen).status_code==403
+        for key,value in [('actor','owner'),('checkpoint_dir','/tmp/forged'),('partition','sealed_test'),('authority',True)]:
+            assert client.post(base+'/evaluate',json=dict(chosen,**{key:value}),headers=headers).status_code==400
+        evaluated=client.post(base+'/evaluate',json=chosen,headers=headers)
+        assert evaluated.status_code==200,evaluated.text
+        assert evaluated.json()['kind']=='rosmaster_skill_eval' and evaluated.json()['config']['partition']=='development'
+        shadow=client.post(base+'/shadow',json=chosen,headers=headers)
+        assert shadow.status_code==200,shadow.text
+        assert shadow.json()['config']['execution_scope']=='shadow_without_dispatch'
+        saved=client.get(base+'/models?version=1').json()
+        assert {item['id'] for item in saved['checks']}=={evaluated.json()['id'],shadow.json()['id']}
+        assert client.get(base+'/models?version=2').status_code==400
+        assert not any(job['status']=='running' for job in store.jobs())

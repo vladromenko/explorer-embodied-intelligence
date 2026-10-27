@@ -12,6 +12,7 @@ from fastapi import APIRouter, HTTPException
 
 def install_skill_workflow_routes(app, store_provider):
     from . import skill_workflow as service
+    from . import rosmaster_learning as learning
     router = APIRouter(prefix='/api/skill-workflow')
 
     async def call(function, *args, **kwargs):
@@ -73,5 +74,24 @@ def install_skill_workflow_routes(app, store_provider):
     async def train(skill_id: str, body: dict):
         # Admission, aggregate reservation, queue entry and lineage commit together.
         return await call(service.enqueue_training, skill_id, version(body), body.get('settings'),**context(body.get('project_id','02'),body.get('input_mode')))
+
+    @router.get('/{skill_id}/models')
+    async def models(skill_id: str, version: int):
+        return await call(learning.model_versions, skill_id, version)
+
+    def selected_model(body):
+        if set(body) != {'version', 'model_job_id'}:
+            raise HTTPException(400, 'Only exact skill version and server model job ID are accepted')
+        return version(body), body['model_job_id']
+
+    @router.post('/{skill_id}/evaluate')
+    async def evaluate(skill_id: str, body: dict):
+        chosen_version, model_id = selected_model(body)
+        return await call(learning.enqueue_evaluation, skill_id, chosen_version, model_id)
+
+    @router.post('/{skill_id}/shadow')
+    async def shadow(skill_id: str, body: dict):
+        chosen_version, model_id = selected_model(body)
+        return await call(learning.enqueue_shadow, skill_id, chosen_version, model_id)
 
     app.include_router(router)

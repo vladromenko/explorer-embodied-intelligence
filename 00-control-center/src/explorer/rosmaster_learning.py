@@ -38,9 +38,12 @@ def model_versions(store,skill_id,version):
                 result.get('output_action_dimension')==9 and result.get('feature_dimension')==106 and lineage.get('spec_sha256')==chosen['spec_sha256'])
             items.append({'model_job_id':job['id'],'status':job['status'],'created':job['created'],'compatible_native9_106':compatible,
                 'optimizer_steps':result.get('optimizer_steps'),'save_reload_passed':result.get('save_reload_passed'),
-                'model_manifest_sha256':result.get('model_manifest_sha256'),'checkpoint_content_sha256':digest(result.get('checkpoint_sha256') or {}),
+                'model_manifest_sha256':result.get('model_manifest_sha256'),'aggregate_sha256':lineage.get('aggregate_sha256'),'checkpoint_content_sha256':digest(result.get('checkpoint_sha256') or {}),
                 'offline_evaluation':result.get('evaluation'),'revalidate_before_compute':True,'physical_execution_authorized':False})
-    return {'skill_id':skill_id,'skill_version':version,'spec_sha256':chosen['spec_sha256'],'models':items,
+    model_ids={item['model_job_id'] for item in items}
+    checks=[{key:job.get(key) for key in ('id','kind','project_id','status','progress','created','error','result','config')}
+        for job in store.jobs(10000) if job['kind'] in (EVAL_KIND,'rosmaster_skill_shadow') and job.get('config',{}).get('model_job_id') in model_ids]
+    return {'skill_id':skill_id,'skill_version':version,'spec_sha256':chosen['spec_sha256'],'models':items,'checks':checks,
         'network_requests_sent':0,'model_loaded':False,'physical_execution_authorized':False}
 
 
@@ -102,9 +105,10 @@ def _enqueue(store,kind,settings):
             saved=store.decode_job(previous)
             if saved['config']!=settings:raise ValueError('Active compute request has a different immutable model binding')
             return saved
+        project_id=store.job(settings['model_job_id'])['project_id']
         identity=uuid.uuid4().hex;now=time.time()
         db.execute('INSERT INTO jobs(id,kind,project_id,status,created,updated,config) VALUES(?,?,?,?,?,?,?)',
-            (identity,kind,'02','queued',now,now,json.dumps(settings,allow_nan=False)))
+            (identity,kind,project_id,'queued',now,now,json.dumps(settings,allow_nan=False)))
         from .experiment_projection import record_runtime_identity
-        record_runtime_identity(db,'job',identity,'02')
+        record_runtime_identity(db,'job',identity,project_id)
     return store.job(identity)
