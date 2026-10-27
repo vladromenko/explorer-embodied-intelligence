@@ -40,13 +40,13 @@
       "id": "full01",
       "title": "Полные предметные и мобильные задачи01",
       "status": "OPEN",
-      "evidence": "Actual B8 learned SIM trials0/8; matched C-v2 four fixed1200-update models16trials/12800dispatch: DEV0/8 SEALED0/8,16FAILURE/0UNKNOWN; grasp1/16 but lift/carry/place0. All negative raw evidence retained; learned whole-object mastery and mobile kitchen remain OPEN. THEN01 after02 and03 SOFTWARE READY. Existing TARGET/scripted-teacher diagnostics do not establish a canonical PPO teacher to ACT vertical; NOT READY."
+      "evidence": "Actual B8 learned SIM trials0/8; matched C-v2 four fixed1200-update models16trials/12800dispatch: DEV0/8 SEALED0/8,16FAILURE/0UNKNOWN; grasp1/16 but lift/carry/place0. All negative raw evidence retained; learned whole-object mastery and mobile kitchen remain OPEN. 01 PARKED after bounded audit until04–06 software/operator pipelines are ready. Existing TARGET/scripted-teacher diagnostics do not establish a canonical PPO teacher to ACT vertical; NOT READY."
     },
     {
       "id": "teaching",
       "title": "Полные показы02/03 и мастер охвата",
       "status": "PARTIAL",
-      "evidence": "02A+02B scoped release722755dc is live; actual17-frame Nano observations-only import and actual generated-source ACT/DEV/queue proofs are distinct. Real expert3–5 smoke and valid live-shadow remain OPEN; next independent software work03, then01. No whole-master completion."
+      "evidence": "02A+02B scoped release722755dc is live; actual17-frame Nano observations-only import and actual generated-source ACT/DEV/queue proofs are distinct. Real expert3–5 smoke and valid live-shadow remain OPEN; current03 checkpoint, then04→05→06→01; physical and real continuity requirements remain OPEN. No whole-master completion."
     },
     {
       "id": "transfer",
@@ -143,7 +143,7 @@
           "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED",
-        "priority_status": "NEXT",
+        "priority_status": "PARKED",
         "url_path": "/experiments/01",
         "software_readiness": {
           "passed": 4,
@@ -354,7 +354,8 @@
                 "_registry/evidence/experiment02-learning-actual-722755dc-20261027.json",
                 "shared/training/NATIVE02_QUEUED_CPU_20261027_QUALIFICATION.json",
                 "shared/training/NATIVE02_QUEUED_CPU_R3_20261027_QUALIFICATION.json",
-                "shared/training/NATIVE6_QUEUE_03_SHARED_CONTROLLER_R6_20261027_RU.md"
+                "shared/training/NATIVE6_QUEUE_03_SHARED_CONTROLLER_R6_20261027_RU.md",
+                "shared/training/NATIVE02_QUEUED_CPU_R4_20261027_QUALIFICATION.json"
               ],
               "stage": "02A",
               "validation_scope": "Real Nano observations-only acquisition/import and immutable actual CPU computational generated-source proof are distinct. Real expert demonstrations remain open, never replaced by technical observations."
@@ -377,7 +378,8 @@
                 "_registry/evidence/experiment02-learning-actual-722755dc-20261027.json",
                 "shared/training/NATIVE02_QUEUED_CPU_20261027_QUALIFICATION.json",
                 "shared/training/NATIVE02_QUEUED_CPU_R3_20261027_QUALIFICATION.json",
-                "shared/training/NATIVE6_QUEUE_03_SHARED_CONTROLLER_R6_20261027_RU.md"
+                "shared/training/NATIVE6_QUEUE_03_SHARED_CONTROLLER_R6_20261027_RU.md",
+                "shared/training/NATIVE02_QUEUED_CPU_R4_20261027_QUALIFICATION.json"
               ],
               "stage": "02B",
               "validation_scope": "Real Nano observations-only acquisition/import and immutable actual CPU computational generated-source proof are distinct. Real expert demonstrations remain open, never replaced by technical observations."
@@ -420,7 +422,8 @@
                 "_registry/evidence/experiment02-learning-actual-722755dc-20261027.json",
                 "shared/training/NATIVE02_QUEUED_CPU_20261027_QUALIFICATION.json",
                 "shared/training/NATIVE02_QUEUED_CPU_R3_20261027_QUALIFICATION.json",
-                "shared/training/NATIVE6_QUEUE_03_SHARED_CONTROLLER_R6_20261027_RU.md"
+                "shared/training/NATIVE6_QUEUE_03_SHARED_CONTROLLER_R6_20261027_RU.md",
+                "shared/training/NATIVE02_QUEUED_CPU_R4_20261027_QUALIFICATION.json"
               ],
               "stage": "02B",
               "validation_scope": "Real Nano observations-only acquisition/import and immutable actual CPU computational generated-source proof are distinct. Real expert demonstrations remain open, never replaced by technical observations."
@@ -525,9 +528,9 @@
         "priority_status": "CURRENT PRIORITY",
         "url_path": "/experiments/03",
         "software_readiness": {
-          "passed": 6,
+          "passed": 7,
           "total": 13,
-          "percent": 46.2,
+          "percent": 53.8,
           "ready_for_use": false,
           "gates": [
             {
@@ -585,7 +588,10 @@
               "id": "03-record",
               "title": "Approved complete episodes of actual accepted ROSMASTER actions plus leader/retargeting/cameras/base/odom",
               "status": "OPEN",
-              "evidence": []
+              "evidence": [
+                "_registry/evidence/experiment03-native-capture-candidate-0d91dff2-20261027.json"
+              ],
+              "validation_scope": "Actual39frame observations-only data/UI candidate is qualified; zero accepted expert commands/demos. Full actual leader episode and new physical path/release are not qualified."
             },
             {
               "id": "03-learning",
@@ -594,15 +600,20 @@
               "evidence": [
                 "03-lerobot-teaching/docs/NATIVE03_DATA_CONSUMER_RU.md",
                 "03-lerobot-teaching/docs/NATIVE03_DATASET_FIXTURE_20261027.json",
-                "03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_20261027.json"
+                "03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_20261027.json",
+                "03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_R2_20261027.json"
               ],
               "validation_scope": "Shared native producer/approved import and exact official Dataset106/9; actual CPU ACT4/save-reload and separate DEV10 under source03 metadata on generated input originals. Real expert demonstrations, live source shadow and continuity remain OPEN."
             },
             {
               "id": "03-guide",
               "title": "Same episode counter, coverage and operator instructions as 02",
-              "status": "OPEN",
-              "evidence": []
+              "status": "PASS",
+              "evidence": [
+                "_registry/evidence/experiment03-native-capture-candidate-0d91dff2-20261027.json",
+                "03-lerobot-teaching/docs/NATIVE03_DATA_CONSUMER_RU.md"
+              ],
+              "validation_scope": "Actual desktop/mobile candidate shared workflow with exact SkillSpec, zero expert count,39verified raw RGB, approval/reject/preview; physical mirror stays disabled."
             },
             {
               "id": "03-stop",
@@ -616,7 +627,10 @@
               "id": "03-release",
               "title": "Canonical UI vertical, full targeted regression and deployed release with physical calibration checklist",
               "status": "OPEN",
-              "evidence": []
+              "evidence": [
+                "_registry/evidence/experiment03-native-capture-candidate-0d91dff2-20261027.json"
+              ],
+              "validation_scope": "Actual39frame observations-only data/UI candidate is qualified; zero accepted expert commands/demos. Full actual leader episode and new physical path/release are not qualified."
             },
             {
               "id": "03-continuity",
@@ -657,8 +671,8 @@
             }
           ]
         },
-        "proven_done_ru": "Pi→Nano software stream/epoch fences, calibration arithmetic, общий Nano capture/import, Dataset106/9 и actual generated-source03 ACT4→reload→DEV10",
-        "software_remaining_ru": "Реальный continuity PASS до physical-path deploy; registration/mirror/два режима и actual UI/data cycle/release; экспертные показы отдельно",
+        "proven_done_ru": "Pi→Nano software/epoch fences, common capture/import, Dataset106/9+actual generated03 ACT4→DEV10; real Nano39RGB→analysis import и desktop/mobile data UI",
+        "software_remaining_ru": "Real continuity PASS до physical path; registration/mirror/два режима и полный release; реальные expert demos/model/live-shadow отдельно",
         "physical_remaining_ru": "Registration/task axes/gripper, real changing shadow; неподвижное шасси, малая амплитуда и одно непрерывное supervised движение без рывков",
         "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED",
         "camera_requirement": "Nano primary task scene; sole Pi Logitech optional named leader/workfield auxiliary, never fallback or implicitly synchronized",
@@ -690,7 +704,7 @@
           "_registry/evidence/release-4c5f4f5b-actual-activation-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED",
-        "priority_status": "PARKED",
+        "priority_status": "NEXT",
         "url_path": "/experiments/04",
         "software_readiness": {
           "passed": 6,
@@ -832,7 +846,7 @@
           "05-cooperative-handover/docs/RELEASE_PUBLISHER_LIFECYCLE_RU.md"
         ],
         "physical_skill_status": "NOT_VALIDATED",
-        "priority_status": "PARKED",
+        "priority_status": "THEN",
         "url_path": "/experiments/05",
         "software_readiness": {
           "passed": 5,
@@ -972,7 +986,7 @@
           "research/audits/target-visual-object-v3-results-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED",
-        "priority_status": "PARKED",
+        "priority_status": "THEN",
         "url_path": "/experiments/06",
         "software_readiness": {
           "passed": 4,
@@ -1088,22 +1102,24 @@
       "order": [
         "02",
         "03",
-        "01",
         "04",
         "05",
-        "06"
+        "06",
+        "01"
       ],
-      "current_priority": "02",
-      "next": "03",
-      "then": "01",
+      "current_priority": "03",
+      "next": "04",
+      "then": [
+        "05",
+        "06",
+        "01"
+      ],
       "parked": [
-        "04",
-        "05",
-        "06"
+        "01"
       ],
-      "source": "Latest user priority correction, 2026-10-27; supersedes previous 01-first queue",
-      "advance_when": "02 SOFTWARE READY including both 02A and 02B, then 03 SOFTWARE READY; physical validation reported separately",
-      "exception": "Shared fixes necessary for current 02/03 only; preserve prior work without expanding parked experiments."
+      "source": "Final user priority correction 2026-10-27: prepare operator-ready04/05 and06 adaptation before long01 tuning",
+      "advance_when": "Checkpoint current03 safely; keep mandatory real continuity OPEN until genuine PASS. Complete independently possible04→05→06 software/operator pipelines with physical gates separate.",
+      "exception": "Do not start new long01 training; preserve completed bounded audit/smokes. No code copying or large refactor of deployed02; stable shared contracts plus thin experiment adapters."
     },
     "readiness_policy": {
       "formula": "round(100 * count(status == PASS) / count(applicable gates), 1)",
@@ -1133,5 +1149,29 @@
     "separate_Pi_overview_camera_exists": false,
     "05_shared_zone_coverage_verified": false,
     "06_source_target_viewpoints_equal": false
+  },
+  "reuse_architecture": {
+    "policy": "Incremental shared contracts and thin experiment adapters; no wholeAPI/recorder/converter/trainer/UI copies; do not break deployed02 for broad refactoring",
+    "shared_core": [
+      "camera owner/cache/fanout/frame identity",
+      "episode lifecycle and post-seal review",
+      "immutable SHA/Range/TAR transfer and recovery",
+      "time domains/segments/outcome",
+      "LeRobotDataset/splits",
+      "Supervisor resources and ACT/DP resume",
+      "model registry/checkpoint provenance",
+      "offline/DEV/sealed/shadow evaluation",
+      "shared UI/authentication/ownership/STOP/research evidence"
+    ],
+    "adapter_scope": {
+      "02": "native9 keyboard/gamepad producer",
+      "03": "leader-to-ROSMASTER retarget producer plus keyboard base",
+      "04": "SO101 leader/follower native6 producer and solePiLogitech",
+      "05": "cooperative FSM, two producers/clocks and handover evidence",
+      "06": "source-to-target kinematics/registration/adaptation/comparisons",
+      "01": "simulation/teacher producer"
+    },
+    "new_shared_function_requires": "Contract tests and compatible adapters for both consumers before removing a duplicate",
+    "physical_camera_owners": "One existing physical owner per camera; cache/fanout only"
   }
 }

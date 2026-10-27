@@ -4,14 +4,14 @@
 Единственная матрица приёмки01–06, gates и проценты SOFTWARE/PHYSICAL:
 [_registry/acceptance.json](_registry/acceptance.json).
 
-**CURRENT PROGRAMMATIC PRIORITY=03 → NEXT=01 → 04 → 05 → 06.**
+**CURRENT=03 → NEXT=04 → THEN=05→06→01.**
 02A+02B scoped release722755dc развёрнут и независимо доступная программная
 работа выполнена. Строгие real expert dataset/model/live-shadow gates02 остаются
 OPEN до наблюдаемой подготовки владельца; они не заменены technical17frame case.
 Продолжаем03, сохраняя эти незакрытые критерии и физический запрет.
-04/05/06 — PARKED: сохранять существующие изменения и evidence; не расширять
-их до программной готовности02. Общие исправления текущего02/03 допустимы.
-Последнее указание пользователя заменяет прежнюю очередь01→02.
+Последнее окончательное указание пользователя: после безопасного checkpoint03
+подготовить04 полностью software/operator-ready, затем05, затем06;01 PARKED
+после текущего bounded audit. Новые долгие01 тренировки до04–06 не запускать.
 
 ## 02A: пригодная оператору запись
 
@@ -76,20 +76,41 @@ Actions — фактически принятые команды ROSMASTER; со
 shadow/UI, что02. Physical calibration/validation — точные шаги пользователя.
 После полного программного03 — интеграционные проверки и release.
 
-## 01, затем PARKED04–06
+## 04 → 05 → 06 → отложенный01
 
-После02/03 добиться одного канонического простого curriculum skill на
-достоверной ROSMASTER MuJoCo модели: PPO teacher→пригодные demos/DAgger→
-компактный ACT/LeRobot student. До новой оценки объявить threshold полной
-closed-loop задачи, independent DEV/SEALED trials и правило reload reproduction.
-Нынешний TARGET0/16 — NOT READY; локализовать geometry/contact/reward/obs/
-action/data причину и исправить целевой путь. UI01 choose/start/workers/
-progress/pause/stop/evaluate/prepare-deploy обязан отражать настоящий backend.
-Физический deploy — только подготовка/preflight до отдельного теста владельца.
+Перед каждым пунктом — короткий reuse check. Общие camera/cache/capture lifecycle,
+immutable archives/SHA/Range/recovery, time/splits, Dataset, Supervisor/ACT/DP,
+model registry/reload/evaluation и UI имеют единую реализацию и project ownership.
+Новые общие функции — incremental shared core + contract tests; отличия — тонкие
+experiment adapters. Не копировать целые API/recorder/converter/trainer/UI и не
+проводить массовый рефакторинг работающего02. Один physical camera owner + fanout.
 
-Затем04→05→06 по numbering v2 и незакрытым gates канонической матрицы;
-отрицательные результаты, научные оригиналы и подготовленные ветки сохранены.
-Полные transfer/retention/H1–H5/recovery критерии не сняты.
+04: реальная Pi station leader+follower и единственная Logitech; remote connect/
+preflight/teleop/task/record/pause/cancel/review/approve/reject; native6+leader/RGB/
+clocks/outcome/calibration→officialDataset→ACT resume→save/reload→shadow/replay UI.
+Калибровка,3–5 smoke показов и continuity/pass-through перед физическим движением —
+явная checklist. VLM/grid/click остаются отдельными проверяемыми capabilities.
+Software-ready означает развёрнутый полный pipeline, ожидающий реальные данные;
+не физический grasp/mastery.
+
+05: reused02/04 recording/learning, manual/manual сначала; два существующих
+camera views (Nano и PiLogitech), общая зона требует проверки. UI FSM, два робота,
+STOP, skill/record/review, failure; два clocks/actions, handshake/grasp/release/
+outcome→dataset/train/reload/shadow. FSM не называется обученным навыком.
+Пользователь должен собрать и отправить показы без новых изменений кода;
+реальный transfer/hold — отдельные physical gates.
+
+06: только approved immutable source04/checkpoint с provenance; отдельные
+camera/action/state/kinematics domains. FK/spatial/object-relative representations,
+workspace registration→ROSMASTER IK/reachable preflight/SIMdryrun. UI source model,
+target calibration и5/10/25target demos; zero-shot/adaptation/target-only comparisons,
+metrics→save/reload/offline/shadow→physical checklist. Маркированный fixture/smoke
+проверяет код до появления успешного source; transfer success этим не присваивается.
+
+После04–06 вернуться к01 PPO→demos/DAgger→ACT, закрытому full-task threshold,
+causal repair и UI. Существующие bounded probes/smoke сохраняются; новые долгие
+01 продолжения пока запрещены. Sock/kitchen не заменяются reach curriculum.
+Все старые transfer/retention/H1–H5/recovery критерии и отрицательные исходы сохранены.
 
 ## Организация и текущий checkpoint
 

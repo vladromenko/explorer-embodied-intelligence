@@ -22,3 +22,10 @@ SIM/mock/loss/один API или инфраструктурный этап не
 Текущие факты — [STATUS](STATUS.md), открытые этапы — [PLAN](PLAN.md),
 решения — [DECISIONS](DECISIONS.md), действия владельца —
 [PHYSICAL_CHECKLIST](PHYSICAL_CHECKLIST.md).
+
+
+Текущая окончательная очередь:03 checkpoint →04 operator-ready →05 operator-ready
+→06 transfer/adaptation software →01 long tuning. Reuse-first: единое shared core,
+тонкие experiment adapters, contract tests и один camera owner. Software readiness
+отделяется от реальных данных/physical skill; critical03 real continuity остаётся
+обязательной до physical-path deployment.

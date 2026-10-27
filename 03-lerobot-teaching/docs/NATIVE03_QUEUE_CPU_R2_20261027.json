@@ -1,0 +1,2700 @@
+{
+  "schema": "explorer_native03_queued_cpu_qualification_v1",
+  "source_commit": "0d91dff2b3599159888ce82edb738f38cd1a4167",
+  "qualified_source_files_sha256": {
+    "00-control-center/src/explorer/app.py": "7c065f37131b339bd9831ffa627c0fb61f0dfd32fa08f8146dd7f71519de7ca7",
+    "00-control-center/src/explorer/config.py": "1bc8205f1c50d42beb52e4008c4553f91e7013f6d75c8d6fc4bd2824479d06d7",
+    "00-control-center/src/explorer/job_runner.py": "fd3391fa71b03a706a948e70286bc29a577190ff2f1814e1e786c46515ff1c7c",
+    "00-control-center/src/explorer/qualification_bindings.py": "4a18a316b6ada238c23915670dd0e60fa04c2cd6a1556b897b8df65a03a0d400",
+    "00-control-center/src/explorer/queue_policy.py": "04498ff40ee988cff08e5ee8d14b641ed6bdb0f6f04f4229f3e63a8d3e281f5d",
+    "00-control-center/src/explorer/rosmaster_eval_job.py": "633421c99cf667688aea7af90fe3ab75ea85e0d91b6f248f540fd9c4b1f1762e",
+    "00-control-center/src/explorer/rosmaster_learning.py": "86c3bdca4f258c331157e14e94f57ed854699102d3c23ac763716ede5b6c0c07",
+    "00-control-center/src/explorer/scheduler.py": "8f219f6257e3c967443e682801a1afb9674cd7135d43637788407007100901d3",
+    "00-control-center/src/explorer/skill_workflow.py": "b9bc41ac368fdf3edfb76fc5860aa1c9b3c57f39b3d7dc4be0e09e5eced33048",
+    "00-control-center/src/explorer/skill_workflow_api.py": "5cde64ca15652a5a02c35ddd784cf519b801c92edfe4974ee65a3e6e488726ae",
+    "00-control-center/src/explorer/store.py": "613c33e35865427bcb748455e0869ba9cc489366022889f267120468c2747b47",
+    "00-control-center/src/explorer/worker_bootstrap.py": "2855c8757a5574a03001db091090acff54421d1fc453dc89a63e493f4e9c3306",
+    "shared/explorer_shared/learning/act_backend.py": "4bad89f03289705570aa7e4a2c2eeea571a319e2e7dcc7a8f4bd6df96b049137",
+    "shared/explorer_shared/learning/rosmaster_lerobot_dataset.py": "60a30447966fd2940bebf2a8d1f1f6cb613f4a8f759969c3d9bddb1a200b5c21",
+    "shared/explorer_shared/learning/rosmaster_skill_pipeline.py": "90543a1182b196a38aa6a2d7c24a040fd79f7d3d733180f77ff1108e850cbaa6",
+    "shared/explorer_shared/learning/rosmaster_skill_segments.py": "f9ce8d1a79dd6dcbfd5f00896f45b462861dfef41c33081ccef38b007900fa7b",
+    "tests/native02_queue_helpers.py": "a00628d52ab3082892c342f0008495cf8f92b29526fe7cc70fa8b1bb2e911e71",
+    "tests/test_native02_queue_contract.py": "050ad7f19384b72df0ad078dc3751a12870b5270c3538d76047f786becc918c8",
+    "tests/test_native02_queued_learning.py": "3fcb24facaca5e5a93f64bb8170760dd2a6e99eb5aca3480fdb3003137d9396a",
+    "tests/test_native03_queued_learning.py": "df624ee3b11424fa2ffe42f94571c33d8e72f77d47283c472abf6ccc4295318f",
+    "tests/native03_consumer_helpers.py": "6e1976bf57a7795dd585fa62fbe317489a19578f5164e21082d2faffa845ed15"
+  },
+  "qualified_additional_source_files_sha256": {
+    "00-control-center/src/explorer/mobile_dataset_evidence.py": "ebddf7fde55b3ed45dca391b798a03dc1618d5664e6a623422fcdf31523336a3"
+  },
+  "previous_original_proof": {
+    "path": "03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_20261027.json",
+    "sha256": "002585d60ba9b66d61cae958480a2dfd447a2ec0b6aaa42c852656b95aab42ac"
+  },
+  "qualified_materialized_archive_sources_sha256": {
+    "00-control-center/src/explorer/scheduler.py": "8f219f6257e3c967443e682801a1afb9674cd7135d43637788407007100901d3",
+    "00-control-center/src/explorer/worker_bootstrap.py": "2855c8757a5574a03001db091090acff54421d1fc453dc89a63e493f4e9c3306",
+    "00-control-center/src/explorer/job_runner.py": "fd3391fa71b03a706a948e70286bc29a577190ff2f1814e1e786c46515ff1c7c",
+    "00-control-center/src/explorer/queue_policy.py": "04498ff40ee988cff08e5ee8d14b641ed6bdb0f6f04f4229f3e63a8d3e281f5d",
+    "00-control-center/src/explorer/store.py": "613c33e35865427bcb748455e0869ba9cc489366022889f267120468c2747b47",
+    "00-control-center/src/explorer/rosmaster_eval_job.py": "633421c99cf667688aea7af90fe3ab75ea85e0d91b6f248f540fd9c4b1f1762e",
+    "00-control-center/src/explorer/rosmaster_learning.py": "86c3bdca4f258c331157e14e94f57ed854699102d3c23ac763716ede5b6c0c07",
+    "shared/explorer_shared/learning/rosmaster_skill_pipeline.py": "90543a1182b196a38aa6a2d7c24a040fd79f7d3d733180f77ff1108e850cbaa6",
+    "shared/explorer_shared/learning/rosmaster_lerobot_dataset.py": "60a30447966fd2940bebf2a8d1f1f6cb613f4a8f759969c3d9bddb1a200b5c21",
+    "shared/explorer_shared/learning/rosmaster_skill_segments.py": "f9ce8d1a79dd6dcbfd5f00896f45b462861dfef41c33081ccef38b007900fa7b",
+    "shared/explorer_shared/learning/act_backend.py": "4bad89f03289705570aa7e4a2c2eeea571a319e2e7dcc7a8f4bd6df96b049137",
+    "shared/explorer_shared/learning/rosmaster_skill_features.py": "2ad274e56c0ec7bd3dff98461c21f0bcad3640ccc846cc8e5c5a4acb39b0d8e8",
+    "shared/explorer_shared/learning/rosmaster_skill_hybrid.py": "d5a103865a24ac70981a5e0e648c1aafe484551a3798f0201601f40682230274",
+    "shared/explorer_shared/learning/checkpoint_control.py": "4f62174e05516718299024be500677fb17948591830153fcc811f40d77959380",
+    "shared/explorer_shared/learning/artifacts.py": "c218abfc061878c85fdc7651df1de95beb2727d2afc4de193ba4b6d284d8d626",
+    "shared/explorer_shared/learning/runtime_profiles.py": "9cf18d5a9855cb7ea6d47acc3bd93f85cf1a2f0b7f32d4c3c3c0572cd17a7fa9",
+    "shared/explorer_shared/native_capture_approval.py": "eaefd2c6bf542f8cd490309423aece7b1e21529e32a011aa749580398d9e484d",
+    "00-control-center/src/explorer/native_capture_cohort.py": "b9eaf5dff48a062392853d0449a065a332fcd4c1579140bc7b05451066b6458f"
+  },
+  "raw_originals_sha256": {
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/request.json": "ad871137f6c4bb773b4b8d45a99508a29c0a3dd593d7a1f6fe958bdaa9b376d1",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/invocation.json": "c5b66b77e48cadc9bff45ffbddf49b7d3ce8106da8c98bdc2c519552e7a4a44b",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/resource-result.json": "90e155d80f81026e72c80c45cffb2f87631c10ff0f23cc4d71cb8a15efd93aff",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/stdout.log": "383d8b16fe77935c57401845b21eb62ff70f02761b61cf23ccb4419c1e99eba5",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/stderr.log": "c5c7f2a14bf9f4c64e0f5d119733c7844e6c1ce3727a1d1512ef9053f1b3a1c2",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/native03-queue-qualification.json": "76ef59d0bde7664b01a436be5b052d73538eaae4c88c49ce49a14c437679991c",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/queue-qualification.json": "8585098717ba7e0f992fe7059f7a9ef7f0a0f86edebad4123a56a21ad9584aa6",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/frozen/source.tar": "74943d9ce908ef962b906d8ee390d9f11f144b4edcb9bf5d419f0bbfe838ce12",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/nx/jobs/9c42cac7e0ee491daded0f5b4a814ced/result.json": "37a788f36ae5e2fa0e3e44751448da46f75575497f1c68643031615320b34d88",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/nx/jobs/9c42cac7e0ee491daded0f5b4a814ced/worker.log": "e6253ff022f08c402012bc9a76fcdd2647510e6ec7ac5f4f47b254a926d78b2b",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/nx/jobs/ab4251464751434aba0cd767d891a681/result.json": "aba308fb5b4cf61599b0673a08345b9f1022886ff1113a46cf0fefa1e853239f",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/nx/jobs/ab4251464751434aba0cd767d891a681/worker.log": "f63207b58c3fce8475f4b830ad545bb803ff04c3bd40d573b4f06b0e5daddc78",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/nx/jobs/9c42cac7e0ee491daded0f5b4a814ced/model_manifest.json": "68d08ed78e125c04b6ac10922f60aeada9bb92ad9951b79fa863a93913886833",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/nx/jobs/9c42cac7e0ee491daded0f5b4a814ced/act_training.json": "27620e624f9360209f21b9e121e5a259325b4fd33f404d2d202855120933a8c3",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/nx/jobs/ab4251464751434aba0cd767d891a681/offline-evaluation.json": "5e21d093602465926f3ea6e319790e52b67910f525b49050f75ecec21de70d42"
+  },
+  "common_harness_legacy02_schema_is_not_source_identity": "explorer_native02_queued_official_learning_qualification_v1",
+  "actual_source_binding": {
+    "schema": "explorer_native03_queued_common_executor_qualification_v1",
+    "project_id": "03",
+    "original_common_harness_receipt": "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/queue-qualification.json",
+    "original_common_harness_receipt_sha256": "8585098717ba7e0f992fe7059f7a9ef7f0a0f86edebad4123a56a21ad9584aa6",
+    "common_harness_legacy_schema_name_not_source_identity": "explorer_native02_queued_official_learning_qualification_v1",
+    "frozen_source": {
+      "source_commit": "0d91dff2b3599159888ce82edb738f38cd1a4167",
+      "archive_sha256": "74943d9ce908ef962b906d8ee390d9f11f144b4edcb9bf5d419f0bbfe838ce12",
+      "frozen_source_files_sha256": {
+        "00-control-center/src/explorer/scheduler.py": "8f219f6257e3c967443e682801a1afb9674cd7135d43637788407007100901d3",
+        "00-control-center/src/explorer/worker_bootstrap.py": "2855c8757a5574a03001db091090acff54421d1fc453dc89a63e493f4e9c3306",
+        "00-control-center/src/explorer/job_runner.py": "fd3391fa71b03a706a948e70286bc29a577190ff2f1814e1e786c46515ff1c7c",
+        "00-control-center/src/explorer/queue_policy.py": "04498ff40ee988cff08e5ee8d14b641ed6bdb0f6f04f4229f3e63a8d3e281f5d",
+        "00-control-center/src/explorer/store.py": "613c33e35865427bcb748455e0869ba9cc489366022889f267120468c2747b47",
+        "00-control-center/src/explorer/rosmaster_eval_job.py": "633421c99cf667688aea7af90fe3ab75ea85e0d91b6f248f540fd9c4b1f1762e",
+        "00-control-center/src/explorer/rosmaster_learning.py": "86c3bdca4f258c331157e14e94f57ed854699102d3c23ac763716ede5b6c0c07",
+        "shared/explorer_shared/learning/rosmaster_skill_pipeline.py": "90543a1182b196a38aa6a2d7c24a040fd79f7d3d733180f77ff1108e850cbaa6",
+        "shared/explorer_shared/learning/rosmaster_lerobot_dataset.py": "60a30447966fd2940bebf2a8d1f1f6cb613f4a8f759969c3d9bddb1a200b5c21",
+        "shared/explorer_shared/learning/rosmaster_skill_segments.py": "f9ce8d1a79dd6dcbfd5f00896f45b462861dfef41c33081ccef38b007900fa7b",
+        "shared/explorer_shared/learning/act_backend.py": "4bad89f03289705570aa7e4a2c2eeea571a319e2e7dcc7a8f4bd6df96b049137"
+      },
+      "release_path": "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/frozen/releases/0d91dff2b3599159888ce82edb738f38cd1a4167"
+    },
+    "train_job_id": "9c42cac7e0ee491daded0f5b4a814ced",
+    "evaluation_job_id": "ab4251464751434aba0cd767d891a681",
+    "actual_optimizer_updates": 4,
+    "queued_DEV_optimizer_updates": 0,
+    "queued_DEV_samples": 10,
+    "same_shared_ASGI_Supervisor_bootstrap_job_runner_used": true,
+    "source_native_imports": 5,
+    "source_project_ids": [
+      "03"
+    ],
+    "physical_requests_sent": 0,
+    "real_demonstrations": 0,
+    "all_inputs_are_software_fixtures": true,
+    "production_state_used": false,
+    "independent_full_task_success": false,
+    "source_requests": [
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/bd57c5167da045ca8a90ddbc095903cd/review"
+      ],
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/bd57c5167da045ca8a90ddbc095903cd/download"
+      ],
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/bd57c5167da045ca8a90ddbc095903cd/review"
+      ],
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/2cccb08a91ef40b59f61fc440c5bfcf2/review"
+      ],
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/2cccb08a91ef40b59f61fc440c5bfcf2/download"
+      ],
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/2cccb08a91ef40b59f61fc440c5bfcf2/review"
+      ],
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/7cdfaef20c30411b9742ae4d85aa61e5/review"
+      ],
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/7cdfaef20c30411b9742ae4d85aa61e5/download"
+      ],
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/7cdfaef20c30411b9742ae4d85aa61e5/review"
+      ],
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/1ea10028cbd44b2e9ccfe3efffcd472a/review"
+      ],
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/1ea10028cbd44b2e9ccfe3efffcd472a/download"
+      ],
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/1ea10028cbd44b2e9ccfe3efffcd472a/review"
+      ],
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/fb6e89e333cd40e2964003c0a2dd2b87/review"
+      ],
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/fb6e89e333cd40e2964003c0a2dd2b87/download"
+      ],
+      [
+        "GET",
+        "software-nano.invalid",
+        "/native-capture/recordings/fb6e89e333cd40e2964003c0a2dd2b87/review"
+      ]
+    ]
+  },
+  "train_result": {
+    "trained": true,
+    "optimizer_steps": 4,
+    "weights_changed": true,
+    "save_reload_passed": true,
+    "reload_max_abs_error": 0.0,
+    "algorithm": "official LeRobot compact ACT9 available-sensor fusion plus separately composed hybrid candidate",
+    "job_kind": "rosmaster_skill_train",
+    "feature_dimension": 106,
+    "output_action_dimension": 9,
+    "device": "cpu",
+    "checkpoint_dir": "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/nx/jobs/9c42cac7e0ee491daded0f5b4a814ced/student_act",
+    "checkpoint_sha256": {
+      "config.json": "98709dd1d8a9a7b8042b516c8da05c6e7bd850052d110e9bdb4ae2db6ce03d9b",
+      "explorer_preprocessing.json": "0af6df97a9c18619fc1368f4661cba98e3a167928bf7d4968572e7a885171c40",
+      "model.safetensors": "ff0fe3b336ea661afb2d85e25a455594421678adea5b871d0b5e734c8cc4ebde"
+    },
+    "model_manifest": "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/nx/jobs/9c42cac7e0ee491daded0f5b4a814ced/model_manifest.json",
+    "model_manifest_sha256": "68d08ed78e125c04b6ac10922f60aeada9bb92ad9951b79fa863a93913886833",
+    "source_manifest_path": "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/nx/datasets/skill-workflows/84b5e043-2cbf-4ca8-a89a-ac09701cdb1d/v0001/d1ff3cd35baf66c60fe5ca6f8ae64a1d9b4ab16d543649c584f951331c998e54/manifest.json",
+    "source_manifest_sha256": "600590ad959e2bcba8d0f3785572625b87877955c02d96903296782a0984e934",
+    "training_resume": {
+      "supported": true,
+      "checkpoint_loaded": false,
+      "resumed_from_step": 0,
+      "completed_steps": 4,
+      "optimizer_steps_executed_this_process": 4,
+      "checkpoint_interval": 4,
+      "signature": "90864c585a76b04c739b95da09cccdd0d04c3dea148013d1cd6674092c9e5fa2",
+      "active_optimizer_elapsed_s": 2.484005017002346,
+      "non_durable_updates_may_be_replayed": true,
+      "retained_history_is_not_total_compute_across_failed_attempts": true,
+      "rng_sources": [
+        "python",
+        "numpy_global",
+        "torch_cpu",
+        "all_initialized_cuda",
+        "explicit_batch_sampler"
+      ]
+    },
+    "evaluation": {
+      "domain": "independent_development_offline_next_action_and_observation_phase_diagnostics",
+      "same_matched_development_samples": true,
+      "ACT9": {
+        "evaluated_samples": 10,
+        "action_error": {
+          "base": {
+            "mae_native": 2.2123719760356266,
+            "unit": "deg"
+          },
+          "shoulder": {
+            "mae_native": 2.904320276178764,
+            "unit": "deg"
+          },
+          "elbow": {
+            "mae_native": 2.495923611634299,
+            "unit": "deg"
+          },
+          "wrist_pitch": {
+            "mae_native": 2.974553661833265,
+            "unit": "deg"
+          },
+          "wrist_roll": {
+            "mae_native": 2.5330577146167728,
+            "unit": "deg"
+          },
+          "gripper": {
+            "mae_native": 2.446957401055181,
+            "unit": "deg"
+          },
+          "vx": {
+            "mae_native": 0.5172300100326538,
+            "unit": "m/s"
+          },
+          "vy": {
+            "mae_native": 0.13330539586022497,
+            "unit": "m/s"
+          },
+          "wz": {
+            "mae_native": 0.19537099972367286,
+            "unit": "rad/s"
+          }
+        }
+      },
+      "hybrid": {
+        "evaluated_samples": 4,
+        "blocked_samples": 6,
+        "blocked_reasons": {
+          "GOAL_CAMERA_CALIBRATION_MISSING": 6
+        },
+        "action_error": {
+          "base": {
+            "mae_native": 2.208952780931778,
+            "unit": "deg"
+          },
+          "shoulder": {
+            "mae_native": 2.558396419103527,
+            "unit": "deg"
+          },
+          "elbow": {
+            "mae_native": 2.695675574266758,
+            "unit": "deg"
+          },
+          "wrist_pitch": {
+            "mae_native": 3.4919993907362716,
+            "unit": "deg"
+          },
+          "wrist_roll": {
+            "mae_native": 2.544513315195534,
+            "unit": "deg"
+          },
+          "gripper": {
+            "mae_native": 2.428512530556013,
+            "unit": "deg"
+          },
+          "vx": {
+            "mae_native": 0.5714340358972549,
+            "unit": "m/s"
+          },
+          "vy": {
+            "mae_native": 0.17048215307295322,
+            "unit": "m/s"
+          },
+          "wz": {
+            "mae_native": 0.17162098363041878,
+            "unit": "rad/s"
+          }
+        },
+        "phase_accuracy_on_executed_predictions": 1.0
+      },
+      "raw_predictions": [
+        {
+          "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+          "sample_index": 0,
+          "actual_target9": [
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            90.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            92.00469710882517,
+            93.72833201809968,
+            91.95243003430764,
+            91.47320744187377,
+            92.41968137528181,
+            92.39260229319913,
+            0.2837955355644226,
+            0.008584579452872276,
+            -0.3035219609737396
+          ],
+          "hybrid_blocked": {
+            "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+            "detail": "",
+            "episode_id": null
+          }
+        },
+        {
+          "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+          "sample_index": 1,
+          "actual_target9": [
+            91.0,
+            91.0,
+            91.0,
+            91.0,
+            91.0,
+            91.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            92.2635072621203,
+            93.61888618913966,
+            92.0304043548271,
+            91.47002035832463,
+            92.4598107906683,
+            92.44372848220036,
+            0.29791194200515747,
+            -0.0056469375267624855,
+            -0.2889558672904968
+          ],
+          "hybrid_blocked": {
+            "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+            "detail": "",
+            "episode_id": null
+          }
+        },
+        {
+          "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+          "sample_index": 2,
+          "actual_target9": [
+            92.0,
+            92.0,
+            92.0,
+            92.0,
+            92.0,
+            92.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            92.56041124725017,
+            93.48292958083876,
+            92.12776670987006,
+            91.4620379261393,
+            92.51458716275673,
+            92.56776896586273,
+            0.3262394666671753,
+            -0.02254045568406582,
+            -0.2754979431629181
+          ],
+          "hybrid_blocked": {
+            "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+            "detail": "",
+            "episode_id": null
+          }
+        },
+        {
+          "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+          "sample_index": 3,
+          "actual_target9": [
+            93.0,
+            93.0,
+            93.0,
+            93.0,
+            93.0,
+            93.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            92.85662803032986,
+            93.34867419993515,
+            92.23266072405447,
+            91.52694273880844,
+            92.57427512916945,
+            92.74415767346261,
+            0.38878655433654785,
+            -0.05050152540206909,
+            -0.257480263710022
+          ],
+          "hybrid9": [
+            92.85662803032986,
+            93.34867419993515,
+            92.23266072405447,
+            91.52694273880844,
+            92.57427512916945,
+            92.74415767346261,
+            0.38878655433654785,
+            -0.05050152540206909,
+            -0.257480263710022
+          ],
+          "predicted_phase": "coordinated_reach",
+          "component": "ACT9_contact_or_coordinated_motion",
+          "simultaneous_9d": true
+        },
+        {
+          "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+          "sample_index": 4,
+          "actual_target9": [
+            94.0,
+            94.0,
+            94.0,
+            94.0,
+            94.0,
+            94.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            93.11784227799214,
+            93.27966440790418,
+            92.43410833830299,
+            91.66484042753909,
+            92.71014528080984,
+            92.89188950772558,
+            0.47045183181762695,
+            -0.09612850099802017,
+            -0.22349625825881958
+          ],
+          "hybrid9": [
+            93.11784227799214,
+            93.27966440790418,
+            92.43410833830299,
+            91.66484042753909,
+            92.71014528080984,
+            92.89188950772558,
+            0.47045183181762695,
+            -0.09612850099802017,
+            -0.22349625825881958
+          ],
+          "predicted_phase": "grasp_confirm",
+          "component": "ACT9_contact_or_coordinated_motion",
+          "simultaneous_9d": true
+        },
+        {
+          "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+          "sample_index": 5,
+          "actual_target9": [
+            95.0,
+            95.0,
+            95.0,
+            95.0,
+            95.0,
+            95.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            93.40934811468047,
+            93.15245789845355,
+            92.63270562197516,
+            91.91171459684396,
+            92.81005100248397,
+            93.0037276181625,
+            0.5685863494873047,
+            -0.14481912553310394,
+            -0.18334843218326569
+          ],
+          "hybrid_blocked": {
+            "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+            "detail": "",
+            "episode_id": null
+          }
+        },
+        {
+          "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+          "sample_index": 6,
+          "actual_target9": [
+            96.0,
+            96.0,
+            96.0,
+            96.0,
+            96.0,
+            96.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            93.50602292527061,
+            93.10932655373249,
+            92.84315003615875,
+            92.12405780473422,
+            93.01968392246778,
+            93.17991901625496,
+            0.6528851985931396,
+            -0.21373793482780457,
+            -0.14859887957572937
+          ],
+          "hybrid_blocked": {
+            "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+            "detail": "",
+            "episode_id": null
+          }
+        },
+        {
+          "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+          "sample_index": 7,
+          "actual_target9": [
+            97.0,
+            97.0,
+            97.0,
+            97.0,
+            97.0,
+            97.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            93.55622282959509,
+            92.99277552808915,
+            93.17617578525687,
+            92.32001824586106,
+            93.19528938408371,
+            93.2903224597311,
+            0.6939705610275269,
+            -0.2624102532863617,
+            -0.1173347756266594
+          ],
+          "hybrid9": [
+            93.55622282959509,
+            92.99277552808915,
+            93.17617578525687,
+            92.32001824586106,
+            93.19528938408371,
+            93.2903224597311,
+            0.6939705610275269,
+            -0.2624102532863617,
+            -0.1173347756266594
+          ],
+          "predicted_phase": "align_release",
+          "component": "ACT9_contact_or_coordinated_motion",
+          "simultaneous_9d": true
+        },
+        {
+          "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+          "sample_index": 8,
+          "actual_target9": [
+            98.0,
+            98.0,
+            98.0,
+            98.0,
+            98.0,
+            98.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            93.6334957383558,
+            92.8426485875277,
+            93.37435285531863,
+            92.52020102484632,
+            93.34223694515487,
+            93.35958023685666,
+            0.7325271964073181,
+            -0.27288833260536194,
+            -0.08817263692617416
+          ],
+          "hybrid9": [
+            93.6334957383558,
+            92.8426485875277,
+            93.37435285531863,
+            92.52020102484632,
+            93.34223694515487,
+            93.35958023685666,
+            0.7325271964073181,
+            -0.27288833260536194,
+            -0.08817263692617416
+          ],
+          "predicted_phase": "verify_placement",
+          "component": "ACT9_contact_or_coordinated_motion",
+          "simultaneous_9d": true
+        },
+        {
+          "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+          "sample_index": 9,
+          "actual_target9": [
+            99.0,
+            99.0,
+            99.0,
+            99.0,
+            99.0,
+            99.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ACT9": [
+            93.6253359416154,
+            92.75874625051853,
+            93.45821162159493,
+            92.66787841709335,
+            93.4118205183695,
+            93.464929218517,
+            0.7571454644203186,
+            -0.25579631328582764,
+            -0.06730297952890396
+          ],
+          "hybrid_blocked": {
+            "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+            "detail": "",
+            "episode_id": null
+          }
+        }
+      ],
+      "sealed_test_used": false,
+      "learned_policy_rollout_executed": false,
+      "whole_task_success": "NOT_EVALUATED",
+      "physical_success": false
+    },
+    "official_dataset": {
+      "schema": "explorer_official_lerobot_native9_v1",
+      "train_path": "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/nx/jobs/9c42cac7e0ee491daded0f5b4a814ced/lerobot_native9/train",
+      "development_path": "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/nx/jobs/9c42cac7e0ee491daded0f5b4a814ced/lerobot_native9/development",
+      "train_index_sha256": "0fbbe8ce20fc640cf88aba63dbf425f1dc89e1d513faebcfce68849224f5ea99",
+      "development_index_sha256": "45d8ef7f6ccd8607235c12f623e3bf7bc0898aa34ffd2bc6ed6ea550b8dcad70",
+      "original_train_demo_count": 3,
+      "train_segment_episode_count": 6,
+      "partitions_exported_separately": true,
+      "sealed_payloads_exported": false,
+      "target_dimension": 9,
+      "recorded_source_times_preserved": true,
+      "lerobot_timestamp_basis": "logical_frame_index_grid_fps1_NOT_native_time_or_camera_exposure"
+    },
+    "skill_card": {
+      "id": "rosmaster-skill-68d08ed78e125c04b6ac1092",
+      "task": "Носок → корзина",
+      "source_type": "physical_demonstrations",
+      "status": "trained_offline_candidate_only",
+      "action_contract": {
+        "id": "rosmaster_joint9_position6_velocity3_v1",
+        "names": [
+          "base",
+          "shoulder",
+          "elbow",
+          "wrist_pitch",
+          "wrist_roll",
+          "gripper",
+          "vx",
+          "vy",
+          "wz"
+        ],
+        "units": [
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "m/s",
+          "m/s",
+          "rad/s"
+        ],
+        "dimension": 9,
+        "neutral_channels_retained": true
+      },
+      "lineage": {
+        "skill_id": "84b5e043-2cbf-4ca8-a89a-ac09701cdb1d",
+        "skill_version": 1,
+        "aggregate_sha256": "600590ad959e2bcba8d0f3785572625b87877955c02d96903296782a0984e934",
+        "model_manifest_sha256": "68d08ed78e125c04b6ac10922f60aeada9bb92ad9951b79fa863a93913886833",
+        "workflow_family": "rosmaster_shared_demonstration_pipeline_v1",
+        "compatible_source_projects": [
+          "02",
+          "03"
+        ],
+        "job_id": "9c42cac7e0ee491daded0f5b4a814ced"
+      },
+      "model_input_schema": {
+        "schema": "rosmaster_fused_ACT_preprocessing_v1",
+        "normalizer": {
+          "schema": "rosmaster_train_only_sensor_normalization_v1",
+          "feature_names": [
+            "preceding_command9.0",
+            "preceding_command9.1",
+            "preceding_command9.2",
+            "preceding_command9.3",
+            "preceding_command9.4",
+            "preceding_command9.5",
+            "preceding_command9.6",
+            "preceding_command9.7",
+            "preceding_command9.8",
+            "joint_feedback.0",
+            "joint_feedback.1",
+            "joint_feedback.2",
+            "joint_feedback.3",
+            "joint_feedback.4",
+            "joint_feedback.5",
+            "joint_command.0",
+            "joint_command.1",
+            "joint_command.2",
+            "joint_command.3",
+            "joint_command.4",
+            "joint_command.5",
+            "odometry_pose.0",
+            "odometry_pose.1",
+            "odometry_pose.2",
+            "odometry_pose.3",
+            "odometry_pose.4",
+            "odometry_pose.5",
+            "odometry_pose.6",
+            "base_velocity.0",
+            "base_velocity.1",
+            "base_velocity.2",
+            "imu.0",
+            "imu.1",
+            "imu.2",
+            "imu.3",
+            "imu.4",
+            "imu.5",
+            "lidar.0",
+            "lidar.1",
+            "lidar.2",
+            "lidar.3",
+            "lidar.4",
+            "lidar.5",
+            "lidar.6",
+            "lidar.7",
+            "goal.0",
+            "goal.1",
+            "goal.2",
+            "gripper.0",
+            "camera_depth.0",
+            "camera_depth.1",
+            "camera_depth.2",
+            "camera_depth.3"
+          ],
+          "feature_units": [
+            "deg",
+            "deg",
+            "deg",
+            "deg",
+            "deg",
+            "deg",
+            "m/s",
+            "m/s",
+            "rad/s",
+            "deg",
+            "deg",
+            "deg",
+            "deg",
+            "deg",
+            "deg",
+            "deg",
+            "deg",
+            "deg",
+            "deg",
+            "deg",
+            "deg",
+            "m",
+            "m",
+            "m",
+            "1",
+            "1",
+            "1",
+            "1",
+            "m/s",
+            "m/s",
+            "rad/s",
+            "m/s^2",
+            "m/s^2",
+            "m/s^2",
+            "rad/s",
+            "rad/s",
+            "rad/s",
+            "m",
+            "m",
+            "m",
+            "m",
+            "m",
+            "m",
+            "m",
+            "m",
+            "m",
+            "m",
+            "m",
+            "m",
+            "m",
+            "m",
+            "m",
+            "m"
+          ],
+          "mask_names": [
+            "preceding_command9.0.valid",
+            "preceding_command9.1.valid",
+            "preceding_command9.2.valid",
+            "preceding_command9.3.valid",
+            "preceding_command9.4.valid",
+            "preceding_command9.5.valid",
+            "preceding_command9.6.valid",
+            "preceding_command9.7.valid",
+            "preceding_command9.8.valid",
+            "joint_feedback.0.valid",
+            "joint_feedback.1.valid",
+            "joint_feedback.2.valid",
+            "joint_feedback.3.valid",
+            "joint_feedback.4.valid",
+            "joint_feedback.5.valid",
+            "joint_command.0.valid",
+            "joint_command.1.valid",
+            "joint_command.2.valid",
+            "joint_command.3.valid",
+            "joint_command.4.valid",
+            "joint_command.5.valid",
+            "odometry_pose.0.valid",
+            "odometry_pose.1.valid",
+            "odometry_pose.2.valid",
+            "odometry_pose.3.valid",
+            "odometry_pose.4.valid",
+            "odometry_pose.5.valid",
+            "odometry_pose.6.valid",
+            "base_velocity.0.valid",
+            "base_velocity.1.valid",
+            "base_velocity.2.valid",
+            "imu.0.valid",
+            "imu.1.valid",
+            "imu.2.valid",
+            "imu.3.valid",
+            "imu.4.valid",
+            "imu.5.valid",
+            "lidar.0.valid",
+            "lidar.1.valid",
+            "lidar.2.valid",
+            "lidar.3.valid",
+            "lidar.4.valid",
+            "lidar.5.valid",
+            "lidar.6.valid",
+            "lidar.7.valid",
+            "goal.0.valid",
+            "goal.1.valid",
+            "goal.2.valid",
+            "gripper.0.valid",
+            "camera_depth.0.valid",
+            "camera_depth.1.valid",
+            "camera_depth.2.valid",
+            "camera_depth.3.valid"
+          ],
+          "means": [
+            94.5,
+            94.5,
+            94.5,
+            94.5,
+            94.5,
+            94.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            94.5,
+            94.5,
+            94.5,
+            94.5,
+            94.5,
+            94.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scales": [
+            2.8722813232690143,
+            2.8722813232690143,
+            2.8722813232690143,
+            2.8722813232690143,
+            2.8722813232690143,
+            2.8722813232690143,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            2.8722813232690143,
+            2.8722813232690143,
+            2.8722813232690143,
+            2.8722813232690143,
+            2.8722813232690143,
+            2.8722813232690143,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "valid_training_counts": [
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "action_mean": [
+            94.5,
+            94.5,
+            94.5,
+            94.5,
+            94.5,
+            94.5,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "action_scale": [
+            2.8722813232690143,
+            2.8722813232690143,
+            2.8722813232690143,
+            2.8722813232690143,
+            2.8722813232690143,
+            2.8722813232690143,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "fit_partition": "train",
+          "masks_normalized": false,
+          "missing_numeric_placeholders_are_not_measurements": true,
+          "prior9_manufactured": false
+        },
+        "image_key": "observation.images.overview",
+        "RGB": "actual_source_RGB_UINT8_resize_bilinear_to_declared_size_once_ImageNet_normalization",
+        "image_size": 32,
+        "actor_state_dimension": 106,
+        "action_names": [
+          "base",
+          "shoulder",
+          "elbow",
+          "wrist_pitch",
+          "wrist_roll",
+          "gripper",
+          "vx",
+          "vy",
+          "wz"
+        ],
+        "action_units": [
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "deg",
+          "m/s",
+          "m/s",
+          "rad/s"
+        ],
+        "action_contract_id": "rosmaster_joint9_position6_velocity3_v1",
+        "source_phase_labels_or_privileged_object_truth_in_actor": false,
+        "phase_is_not_actor_input": true,
+        "neutral_channels_retained": true
+      },
+      "recorded_channels": [
+        "base_velocity",
+        "camera_calibration",
+        "camera_depth",
+        "camera_rgb",
+        "clocks",
+        "detections",
+        "goal",
+        "gripper",
+        "imu",
+        "joint_command",
+        "joint_feedback",
+        "lidar",
+        "odometry_pose",
+        "power_context",
+        "preceding_command9"
+      ],
+      "admitted_channels": [
+        "camera_rgb",
+        "clocks",
+        "joint_command",
+        "preceding_command9"
+      ],
+      "model_used_channels": [
+        "camera_rgb",
+        "joint_command",
+        "preceding_command9"
+      ],
+      "checkpoint_sha256": {
+        "config.json": "98709dd1d8a9a7b8042b516c8da05c6e7bd850052d110e9bdb4ae2db6ce03d9b",
+        "explorer_preprocessing.json": "0af6df97a9c18619fc1368f4661cba98e3a167928bf7d4968572e7a885171c40",
+        "model.safetensors": "ff0fe3b336ea661afb2d85e25a455594421678adea5b871d0b5e734c8cc4ebde"
+      },
+      "evaluation": {
+        "domain": "independent_development_offline_next_action_and_observation_phase_diagnostics",
+        "same_matched_development_samples": true,
+        "ACT9": {
+          "evaluated_samples": 10,
+          "action_error": {
+            "base": {
+              "mae_native": 2.2123719760356266,
+              "unit": "deg"
+            },
+            "shoulder": {
+              "mae_native": 2.904320276178764,
+              "unit": "deg"
+            },
+            "elbow": {
+              "mae_native": 2.495923611634299,
+              "unit": "deg"
+            },
+            "wrist_pitch": {
+              "mae_native": 2.974553661833265,
+              "unit": "deg"
+            },
+            "wrist_roll": {
+              "mae_native": 2.5330577146167728,
+              "unit": "deg"
+            },
+            "gripper": {
+              "mae_native": 2.446957401055181,
+              "unit": "deg"
+            },
+            "vx": {
+              "mae_native": 0.5172300100326538,
+              "unit": "m/s"
+            },
+            "vy": {
+              "mae_native": 0.13330539586022497,
+              "unit": "m/s"
+            },
+            "wz": {
+              "mae_native": 0.19537099972367286,
+              "unit": "rad/s"
+            }
+          }
+        },
+        "hybrid": {
+          "evaluated_samples": 4,
+          "blocked_samples": 6,
+          "blocked_reasons": {
+            "GOAL_CAMERA_CALIBRATION_MISSING": 6
+          },
+          "action_error": {
+            "base": {
+              "mae_native": 2.208952780931778,
+              "unit": "deg"
+            },
+            "shoulder": {
+              "mae_native": 2.558396419103527,
+              "unit": "deg"
+            },
+            "elbow": {
+              "mae_native": 2.695675574266758,
+              "unit": "deg"
+            },
+            "wrist_pitch": {
+              "mae_native": 3.4919993907362716,
+              "unit": "deg"
+            },
+            "wrist_roll": {
+              "mae_native": 2.544513315195534,
+              "unit": "deg"
+            },
+            "gripper": {
+              "mae_native": 2.428512530556013,
+              "unit": "deg"
+            },
+            "vx": {
+              "mae_native": 0.5714340358972549,
+              "unit": "m/s"
+            },
+            "vy": {
+              "mae_native": 0.17048215307295322,
+              "unit": "m/s"
+            },
+            "wz": {
+              "mae_native": 0.17162098363041878,
+              "unit": "rad/s"
+            }
+          },
+          "phase_accuracy_on_executed_predictions": 1.0
+        },
+        "raw_predictions": [
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 0,
+            "actual_target9": [
+              90.0,
+              90.0,
+              90.0,
+              90.0,
+              90.0,
+              90.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              92.00469710882517,
+              93.72833201809968,
+              91.95243003430764,
+              91.47320744187377,
+              92.41968137528181,
+              92.39260229319913,
+              0.2837955355644226,
+              0.008584579452872276,
+              -0.3035219609737396
+            ],
+            "hybrid_blocked": {
+              "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+              "detail": "",
+              "episode_id": null
+            }
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 1,
+            "actual_target9": [
+              91.0,
+              91.0,
+              91.0,
+              91.0,
+              91.0,
+              91.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              92.2635072621203,
+              93.61888618913966,
+              92.0304043548271,
+              91.47002035832463,
+              92.4598107906683,
+              92.44372848220036,
+              0.29791194200515747,
+              -0.0056469375267624855,
+              -0.2889558672904968
+            ],
+            "hybrid_blocked": {
+              "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+              "detail": "",
+              "episode_id": null
+            }
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 2,
+            "actual_target9": [
+              92.0,
+              92.0,
+              92.0,
+              92.0,
+              92.0,
+              92.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              92.56041124725017,
+              93.48292958083876,
+              92.12776670987006,
+              91.4620379261393,
+              92.51458716275673,
+              92.56776896586273,
+              0.3262394666671753,
+              -0.02254045568406582,
+              -0.2754979431629181
+            ],
+            "hybrid_blocked": {
+              "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+              "detail": "",
+              "episode_id": null
+            }
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 3,
+            "actual_target9": [
+              93.0,
+              93.0,
+              93.0,
+              93.0,
+              93.0,
+              93.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              92.85662803032986,
+              93.34867419993515,
+              92.23266072405447,
+              91.52694273880844,
+              92.57427512916945,
+              92.74415767346261,
+              0.38878655433654785,
+              -0.05050152540206909,
+              -0.257480263710022
+            ],
+            "hybrid9": [
+              92.85662803032986,
+              93.34867419993515,
+              92.23266072405447,
+              91.52694273880844,
+              92.57427512916945,
+              92.74415767346261,
+              0.38878655433654785,
+              -0.05050152540206909,
+              -0.257480263710022
+            ],
+            "predicted_phase": "coordinated_reach",
+            "component": "ACT9_contact_or_coordinated_motion",
+            "simultaneous_9d": true
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 4,
+            "actual_target9": [
+              94.0,
+              94.0,
+              94.0,
+              94.0,
+              94.0,
+              94.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              93.11784227799214,
+              93.27966440790418,
+              92.43410833830299,
+              91.66484042753909,
+              92.71014528080984,
+              92.89188950772558,
+              0.47045183181762695,
+              -0.09612850099802017,
+              -0.22349625825881958
+            ],
+            "hybrid9": [
+              93.11784227799214,
+              93.27966440790418,
+              92.43410833830299,
+              91.66484042753909,
+              92.71014528080984,
+              92.89188950772558,
+              0.47045183181762695,
+              -0.09612850099802017,
+              -0.22349625825881958
+            ],
+            "predicted_phase": "grasp_confirm",
+            "component": "ACT9_contact_or_coordinated_motion",
+            "simultaneous_9d": true
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 5,
+            "actual_target9": [
+              95.0,
+              95.0,
+              95.0,
+              95.0,
+              95.0,
+              95.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              93.40934811468047,
+              93.15245789845355,
+              92.63270562197516,
+              91.91171459684396,
+              92.81005100248397,
+              93.0037276181625,
+              0.5685863494873047,
+              -0.14481912553310394,
+              -0.18334843218326569
+            ],
+            "hybrid_blocked": {
+              "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+              "detail": "",
+              "episode_id": null
+            }
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 6,
+            "actual_target9": [
+              96.0,
+              96.0,
+              96.0,
+              96.0,
+              96.0,
+              96.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              93.50602292527061,
+              93.10932655373249,
+              92.84315003615875,
+              92.12405780473422,
+              93.01968392246778,
+              93.17991901625496,
+              0.6528851985931396,
+              -0.21373793482780457,
+              -0.14859887957572937
+            ],
+            "hybrid_blocked": {
+              "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+              "detail": "",
+              "episode_id": null
+            }
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 7,
+            "actual_target9": [
+              97.0,
+              97.0,
+              97.0,
+              97.0,
+              97.0,
+              97.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              93.55622282959509,
+              92.99277552808915,
+              93.17617578525687,
+              92.32001824586106,
+              93.19528938408371,
+              93.2903224597311,
+              0.6939705610275269,
+              -0.2624102532863617,
+              -0.1173347756266594
+            ],
+            "hybrid9": [
+              93.55622282959509,
+              92.99277552808915,
+              93.17617578525687,
+              92.32001824586106,
+              93.19528938408371,
+              93.2903224597311,
+              0.6939705610275269,
+              -0.2624102532863617,
+              -0.1173347756266594
+            ],
+            "predicted_phase": "align_release",
+            "component": "ACT9_contact_or_coordinated_motion",
+            "simultaneous_9d": true
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 8,
+            "actual_target9": [
+              98.0,
+              98.0,
+              98.0,
+              98.0,
+              98.0,
+              98.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              93.6334957383558,
+              92.8426485875277,
+              93.37435285531863,
+              92.52020102484632,
+              93.34223694515487,
+              93.35958023685666,
+              0.7325271964073181,
+              -0.27288833260536194,
+              -0.08817263692617416
+            ],
+            "hybrid9": [
+              93.6334957383558,
+              92.8426485875277,
+              93.37435285531863,
+              92.52020102484632,
+              93.34223694515487,
+              93.35958023685666,
+              0.7325271964073181,
+              -0.27288833260536194,
+              -0.08817263692617416
+            ],
+            "predicted_phase": "verify_placement",
+            "component": "ACT9_contact_or_coordinated_motion",
+            "simultaneous_9d": true
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 9,
+            "actual_target9": [
+              99.0,
+              99.0,
+              99.0,
+              99.0,
+              99.0,
+              99.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              93.6253359416154,
+              92.75874625051853,
+              93.45821162159493,
+              92.66787841709335,
+              93.4118205183695,
+              93.464929218517,
+              0.7571454644203186,
+              -0.25579631328582764,
+              -0.06730297952890396
+            ],
+            "hybrid_blocked": {
+              "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+              "detail": "",
+              "episode_id": null
+            }
+          }
+        ],
+        "sealed_test_used": false,
+        "learned_policy_rollout_executed": false,
+        "whole_task_success": "NOT_EVALUATED",
+        "physical_success": false
+      },
+      "limitations": [
+        "No learned-policy rollout or physical trial from this offline job",
+        "Hybrid blocks absent essential navigation/geometry/transition evidence",
+        "Phase labels are supervised targets, never actor observations",
+        "Sealed payloads excluded from optimization and development metrics"
+      ]
+    },
+    "physical_io": false,
+    "simulator_executed": false,
+    "learned_rollout_executed": false,
+    "elapsed_s": 10.111664347990882,
+    "framework_versions": {
+      "torch": "2.11.0",
+      "torchvision": "0.26.0"
+    },
+    "framework_compatibility_note": "Torch/torchvision versions lie within LeRobot 0.6.1 declared bounds",
+    "execution_commit": "0d91dff2b3599159888ce82edb738f38cd1a4167"
+  },
+  "evaluation_job": {
+    "id": "ab4251464751434aba0cd767d891a681",
+    "kind": "rosmaster_skill_eval",
+    "project_id": "03",
+    "status": "completed",
+    "created": 1793108025.4927719,
+    "updated": 1793108035.4969525,
+    "config": {
+      "model_job_id": "9c42cac7e0ee491daded0f5b4a814ced",
+      "skill_id": "84b5e043-2cbf-4ca8-a89a-ac09701cdb1d",
+      "skill_version": 1,
+      "spec_sha256": "f35abb39cbb524741d65f7848c2ba69b730a8eec662717afe7b866e5b4f24b07",
+      "model_manifest_sha256": "68d08ed78e125c04b6ac10922f60aeada9bb92ad9951b79fa863a93913886833",
+      "checkpoint_content_sha256": "aeb6b5de94d3c56c32beae9c5d3d774cda2b177a5e2108308d623d1fb9556f7e",
+      "aggregate_sha256": "600590ad959e2bcba8d0f3785572625b87877955c02d96903296782a0984e934",
+      "device": "cpu",
+      "state_dimension": 106,
+      "action_dimension": 9,
+      "hardware_commands_dispatched": false,
+      "physical_execution_authorized": false,
+      "partition": "development",
+      "evaluation_scope": "offline_action_prediction_diagnostics_only",
+      "sealed_test_used": false,
+      "_execution_commit": "0d91dff2b3599159888ce82edb738f38cd1a4167"
+    },
+    "result": {
+      "schema": "explorer_rosmaster_saved_model_evaluation_v1",
+      "model_job_id": "9c42cac7e0ee491daded0f5b4a814ced",
+      "skill_id": "84b5e043-2cbf-4ca8-a89a-ac09701cdb1d",
+      "skill_version": 1,
+      "spec_sha256": "f35abb39cbb524741d65f7848c2ba69b730a8eec662717afe7b866e5b4f24b07",
+      "model_manifest_sha256": "68d08ed78e125c04b6ac10922f60aeada9bb92ad9951b79fa863a93913886833",
+      "checkpoint_content_sha256": "aeb6b5de94d3c56c32beae9c5d3d774cda2b177a5e2108308d623d1fb9556f7e",
+      "aggregate_sha256": "600590ad959e2bcba8d0f3785572625b87877955c02d96903296782a0984e934",
+      "device": "cpu",
+      "state_dimension": 106,
+      "action_dimension": 9,
+      "hardware_commands_dispatched": false,
+      "physical_execution_authorized": false,
+      "partition": "development",
+      "evaluation_scope": "offline_action_prediction_diagnostics_only",
+      "sealed_test_used": false,
+      "evaluation": {
+        "domain": "independent_development_offline_next_action_and_observation_phase_diagnostics",
+        "same_matched_development_samples": true,
+        "ACT9": {
+          "evaluated_samples": 10,
+          "action_error": {
+            "base": {
+              "mae_native": 2.2123719760356266,
+              "unit": "deg"
+            },
+            "shoulder": {
+              "mae_native": 2.904320276178764,
+              "unit": "deg"
+            },
+            "elbow": {
+              "mae_native": 2.495923611634299,
+              "unit": "deg"
+            },
+            "wrist_pitch": {
+              "mae_native": 2.974553661833265,
+              "unit": "deg"
+            },
+            "wrist_roll": {
+              "mae_native": 2.5330577146167728,
+              "unit": "deg"
+            },
+            "gripper": {
+              "mae_native": 2.446957401055181,
+              "unit": "deg"
+            },
+            "vx": {
+              "mae_native": 0.5172300100326538,
+              "unit": "m/s"
+            },
+            "vy": {
+              "mae_native": 0.13330539586022497,
+              "unit": "m/s"
+            },
+            "wz": {
+              "mae_native": 0.19537099972367286,
+              "unit": "rad/s"
+            }
+          }
+        },
+        "hybrid": {
+          "evaluated_samples": 4,
+          "blocked_samples": 6,
+          "blocked_reasons": {
+            "GOAL_CAMERA_CALIBRATION_MISSING": 6
+          },
+          "action_error": {
+            "base": {
+              "mae_native": 2.208952780931778,
+              "unit": "deg"
+            },
+            "shoulder": {
+              "mae_native": 2.558396419103527,
+              "unit": "deg"
+            },
+            "elbow": {
+              "mae_native": 2.695675574266758,
+              "unit": "deg"
+            },
+            "wrist_pitch": {
+              "mae_native": 3.4919993907362716,
+              "unit": "deg"
+            },
+            "wrist_roll": {
+              "mae_native": 2.544513315195534,
+              "unit": "deg"
+            },
+            "gripper": {
+              "mae_native": 2.428512530556013,
+              "unit": "deg"
+            },
+            "vx": {
+              "mae_native": 0.5714340358972549,
+              "unit": "m/s"
+            },
+            "vy": {
+              "mae_native": 0.17048215307295322,
+              "unit": "m/s"
+            },
+            "wz": {
+              "mae_native": 0.17162098363041878,
+              "unit": "rad/s"
+            }
+          },
+          "phase_accuracy_on_executed_predictions": 1.0
+        },
+        "raw_predictions": [
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 0,
+            "actual_target9": [
+              90.0,
+              90.0,
+              90.0,
+              90.0,
+              90.0,
+              90.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              92.00469710882517,
+              93.72833201809968,
+              91.95243003430764,
+              91.47320744187377,
+              92.41968137528181,
+              92.39260229319913,
+              0.2837955355644226,
+              0.008584579452872276,
+              -0.3035219609737396
+            ],
+            "hybrid_blocked": {
+              "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+              "detail": "",
+              "episode_id": null
+            }
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 1,
+            "actual_target9": [
+              91.0,
+              91.0,
+              91.0,
+              91.0,
+              91.0,
+              91.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              92.2635072621203,
+              93.61888618913966,
+              92.0304043548271,
+              91.47002035832463,
+              92.4598107906683,
+              92.44372848220036,
+              0.29791194200515747,
+              -0.0056469375267624855,
+              -0.2889558672904968
+            ],
+            "hybrid_blocked": {
+              "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+              "detail": "",
+              "episode_id": null
+            }
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 2,
+            "actual_target9": [
+              92.0,
+              92.0,
+              92.0,
+              92.0,
+              92.0,
+              92.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              92.56041124725017,
+              93.48292958083876,
+              92.12776670987006,
+              91.4620379261393,
+              92.51458716275673,
+              92.56776896586273,
+              0.3262394666671753,
+              -0.02254045568406582,
+              -0.2754979431629181
+            ],
+            "hybrid_blocked": {
+              "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+              "detail": "",
+              "episode_id": null
+            }
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 3,
+            "actual_target9": [
+              93.0,
+              93.0,
+              93.0,
+              93.0,
+              93.0,
+              93.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              92.85662803032986,
+              93.34867419993515,
+              92.23266072405447,
+              91.52694273880844,
+              92.57427512916945,
+              92.74415767346261,
+              0.38878655433654785,
+              -0.05050152540206909,
+              -0.257480263710022
+            ],
+            "hybrid9": [
+              92.85662803032986,
+              93.34867419993515,
+              92.23266072405447,
+              91.52694273880844,
+              92.57427512916945,
+              92.74415767346261,
+              0.38878655433654785,
+              -0.05050152540206909,
+              -0.257480263710022
+            ],
+            "predicted_phase": "coordinated_reach",
+            "component": "ACT9_contact_or_coordinated_motion",
+            "simultaneous_9d": true
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 4,
+            "actual_target9": [
+              94.0,
+              94.0,
+              94.0,
+              94.0,
+              94.0,
+              94.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              93.11784227799214,
+              93.27966440790418,
+              92.43410833830299,
+              91.66484042753909,
+              92.71014528080984,
+              92.89188950772558,
+              0.47045183181762695,
+              -0.09612850099802017,
+              -0.22349625825881958
+            ],
+            "hybrid9": [
+              93.11784227799214,
+              93.27966440790418,
+              92.43410833830299,
+              91.66484042753909,
+              92.71014528080984,
+              92.89188950772558,
+              0.47045183181762695,
+              -0.09612850099802017,
+              -0.22349625825881958
+            ],
+            "predicted_phase": "grasp_confirm",
+            "component": "ACT9_contact_or_coordinated_motion",
+            "simultaneous_9d": true
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 5,
+            "actual_target9": [
+              95.0,
+              95.0,
+              95.0,
+              95.0,
+              95.0,
+              95.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              93.40934811468047,
+              93.15245789845355,
+              92.63270562197516,
+              91.91171459684396,
+              92.81005100248397,
+              93.0037276181625,
+              0.5685863494873047,
+              -0.14481912553310394,
+              -0.18334843218326569
+            ],
+            "hybrid_blocked": {
+              "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+              "detail": "",
+              "episode_id": null
+            }
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 6,
+            "actual_target9": [
+              96.0,
+              96.0,
+              96.0,
+              96.0,
+              96.0,
+              96.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              93.50602292527061,
+              93.10932655373249,
+              92.84315003615875,
+              92.12405780473422,
+              93.01968392246778,
+              93.17991901625496,
+              0.6528851985931396,
+              -0.21373793482780457,
+              -0.14859887957572937
+            ],
+            "hybrid_blocked": {
+              "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+              "detail": "",
+              "episode_id": null
+            }
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 7,
+            "actual_target9": [
+              97.0,
+              97.0,
+              97.0,
+              97.0,
+              97.0,
+              97.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              93.55622282959509,
+              92.99277552808915,
+              93.17617578525687,
+              92.32001824586106,
+              93.19528938408371,
+              93.2903224597311,
+              0.6939705610275269,
+              -0.2624102532863617,
+              -0.1173347756266594
+            ],
+            "hybrid9": [
+              93.55622282959509,
+              92.99277552808915,
+              93.17617578525687,
+              92.32001824586106,
+              93.19528938408371,
+              93.2903224597311,
+              0.6939705610275269,
+              -0.2624102532863617,
+              -0.1173347756266594
+            ],
+            "predicted_phase": "align_release",
+            "component": "ACT9_contact_or_coordinated_motion",
+            "simultaneous_9d": true
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 8,
+            "actual_target9": [
+              98.0,
+              98.0,
+              98.0,
+              98.0,
+              98.0,
+              98.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              93.6334957383558,
+              92.8426485875277,
+              93.37435285531863,
+              92.52020102484632,
+              93.34223694515487,
+              93.35958023685666,
+              0.7325271964073181,
+              -0.27288833260536194,
+              -0.08817263692617416
+            ],
+            "hybrid9": [
+              93.6334957383558,
+              92.8426485875277,
+              93.37435285531863,
+              92.52020102484632,
+              93.34223694515487,
+              93.35958023685666,
+              0.7325271964073181,
+              -0.27288833260536194,
+              -0.08817263692617416
+            ],
+            "predicted_phase": "verify_placement",
+            "component": "ACT9_contact_or_coordinated_motion",
+            "simultaneous_9d": true
+          },
+          {
+            "episode_id": "1ea10028cbd44b2e9ccfe3efffcd472a",
+            "sample_index": 9,
+            "actual_target9": [
+              99.0,
+              99.0,
+              99.0,
+              99.0,
+              99.0,
+              99.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ACT9": [
+              93.6253359416154,
+              92.75874625051853,
+              93.45821162159493,
+              92.66787841709335,
+              93.4118205183695,
+              93.464929218517,
+              0.7571454644203186,
+              -0.25579631328582764,
+              -0.06730297952890396
+            ],
+            "hybrid_blocked": {
+              "code": "GOAL_CAMERA_CALIBRATION_MISSING",
+              "detail": "",
+              "episode_id": null
+            }
+          }
+        ],
+        "sealed_test_used": false,
+        "learned_policy_rollout_executed": false,
+        "whole_task_success": "NOT_EVALUATED",
+        "physical_success": false
+      },
+      "execution_source_commit": "0d91dff2b3599159888ce82edb738f38cd1a4167",
+      "project_id": "03",
+      "evaluated_original_episode_ids": [
+        "1ea10028cbd44b2e9ccfe3efffcd472a"
+      ],
+      "weights_unchanged": true,
+      "optimizer_steps_executed": 0,
+      "source_network_requests_sent": 0,
+      "physical_control_requests_sent": 0,
+      "dispatch_performed": false,
+      "independent_full_task_success": false,
+      "evaluation_artifact": "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/nx/jobs/ab4251464751434aba0cd767d891a681/offline-evaluation.json",
+      "evaluation_artifact_sha256": "5e21d093602465926f3ea6e319790e52b67910f525b49050f75ecec21de70d42",
+      "execution_commit": "0d91dff2b3599159888ce82edb738f38cd1a4167"
+    },
+    "progress": 1.0,
+    "error": null,
+    "experiment_slug": "rosmaster_leader_learning",
+    "experiment_numbering_version": 2,
+    "original_numbering_version": 2,
+    "scheduling": {
+      "metadata": {
+        "schema": "explorer_job_scheduling_v1",
+        "job_id": "ab4251464751434aba0cd767d891a681",
+        "experiment_slug": "rosmaster_leader_learning",
+        "project_id": "03",
+        "experiment_numbering_version": 2,
+        "skill_id": "84b5e043-2cbf-4ca8-a89a-ac09701cdb1d",
+        "skill_version": 1,
+        "backend": "act",
+        "dataset_sha256": null,
+        "priority": 0,
+        "preemptible": false,
+        "dependencies": [],
+        "not_before": null,
+        "resources": {
+          "cpu_cores": 2,
+          "memory_bytes": 2147483648,
+          "disk_bytes": 268435456,
+          "gpu_slots": 0
+        },
+        "resource_budget_basis": "conservative_reservation_not_measured_peak",
+        "physical_execution_authorized": false
+      },
+      "revision": "5e26c74dcf6819788641786ac9f737fb2fb199605231b231e2e24e570a3d7995",
+      "runtime": {
+        "waited_seconds": 0,
+        "phase": "worker_exited",
+        "worker": null,
+        "worker_cpus": [
+          2,
+          3
+        ],
+        "launch_nonce": "5c0b6832c328471f8f3583aa337c0ad5",
+        "bootstrap_admitted": true,
+        "pause_request": null,
+        "memory_retained": false,
+        "started_wall_utc": 1793108025.563015,
+        "last_start_monotonic": 144528.174243268,
+        "exact_optimizer_resume": null,
+        "worker_entry_admitted": true,
+        "process_exit_code": 0
+      },
+      "persisted": true
+    },
+    "frame_available": false
+  },
+  "launches": [
+    {
+      "job_id": "9c42cac7e0ee491daded0f5b4a814ced",
+      "command": [
+        "/home/jetsonnx/.local/share/explorer/venv/bin/python",
+        "-m",
+        "explorer.worker_bootstrap",
+        "9c42cac7e0ee491daded0f5b4a814ced",
+        "47958ad999384360adade8492c127076"
+      ],
+      "worker": {
+        "pid": 2493963,
+        "start_ticks": 14451322,
+        "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2"
+      },
+      "pythonpath": "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/frozen/releases/0d91dff2b3599159888ce82edb738f38cd1a4167/00-control-center/src:/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/frozen/releases/0d91dff2b3599159888ce82edb738f38cd1a4167/shared",
+      "lease_nonce": "47958ad999384360adade8492c127076"
+    },
+    {
+      "job_id": "ab4251464751434aba0cd767d891a681",
+      "command": [
+        "/home/jetsonnx/.local/share/explorer/venv/bin/python",
+        "-m",
+        "explorer.worker_bootstrap",
+        "ab4251464751434aba0cd767d891a681",
+        "5c0b6832c328471f8f3583aa337c0ad5"
+      ],
+      "worker": {
+        "pid": 2494059,
+        "start_ticks": 14452816,
+        "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2"
+      },
+      "pythonpath": "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/frozen/releases/0d91dff2b3599159888ce82edb738f38cd1a4167/00-control-center/src:/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/frozen/releases/0d91dff2b3599159888ce82edb738f38cd1a4167/shared",
+      "lease_nonce": "5c0b6832c328471f8f3583aa337c0ad5"
+    }
+  ],
+  "runtime_admissions": {
+    "train": {
+      "admitted": {
+        "metadata": {
+          "schema": "explorer_job_scheduling_v1",
+          "job_id": "9c42cac7e0ee491daded0f5b4a814ced",
+          "experiment_slug": "rosmaster_leader_learning",
+          "project_id": "03",
+          "experiment_numbering_version": 2,
+          "skill_id": null,
+          "skill_version": null,
+          "backend": "act",
+          "dataset_sha256": null,
+          "priority": 0,
+          "preemptible": true,
+          "dependencies": [],
+          "not_before": null,
+          "resources": {
+            "cpu_cores": 2,
+            "memory_bytes": 4294967296,
+            "disk_bytes": 2147483648,
+            "gpu_slots": 0
+          },
+          "resource_budget_basis": "conservative_reservation_not_measured_peak",
+          "physical_execution_authorized": false
+        },
+        "revision": "b87308c73f04a9a00c0b735a342571744bb74f4d8627c22d744b9c513921451a",
+        "runtime": {
+          "waited_seconds": 0,
+          "phase": "running",
+          "worker": {
+            "pid": 2493963,
+            "start_ticks": 14451322,
+            "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2"
+          },
+          "worker_cpus": [
+            2,
+            3
+          ],
+          "launch_nonce": "47958ad999384360adade8492c127076",
+          "bootstrap_admitted": true,
+          "pause_request": null,
+          "memory_retained": true,
+          "started_wall_utc": 1793108010.618728,
+          "last_start_monotonic": 144513.229956173,
+          "exact_optimizer_resume": null,
+          "worker_entry_admitted": true
+        },
+        "persisted": true,
+        "minimum_resources": {
+          "cpu_cores": 2,
+          "memory_bytes": 4294967296,
+          "disk_bytes": 2147483648,
+          "gpu_slots": 0
+        }
+      },
+      "queue_preview": {
+        "schema": "explorer_shared_durable_queue_v1",
+        "owner": "shared_training_platform",
+        "authoritative_table": "jobs",
+        "experiments": [
+          "01",
+          "02",
+          "03",
+          "04",
+          "05",
+          "06"
+        ],
+        "jobs": [
+          {
+            "id": "9c42cac7e0ee491daded0f5b4a814ced",
+            "kind": "rosmaster_skill_train",
+            "project_id": "03",
+            "experiment_slug": "rosmaster_leader_learning",
+            "status": "running",
+            "progress": 0.0,
+            "scheduling": {
+              "metadata": {
+                "schema": "explorer_job_scheduling_v1",
+                "job_id": "9c42cac7e0ee491daded0f5b4a814ced",
+                "experiment_slug": "rosmaster_leader_learning",
+                "project_id": "03",
+                "experiment_numbering_version": 2,
+                "skill_id": null,
+                "skill_version": null,
+                "backend": "act",
+                "dataset_sha256": null,
+                "priority": 0,
+                "preemptible": true,
+                "dependencies": [],
+                "not_before": null,
+                "resources": {
+                  "cpu_cores": 2,
+                  "memory_bytes": 4294967296,
+                  "disk_bytes": 2147483648,
+                  "gpu_slots": 0
+                },
+                "resource_budget_basis": "conservative_reservation_not_measured_peak",
+                "physical_execution_authorized": false
+              },
+              "revision": "b87308c73f04a9a00c0b735a342571744bb74f4d8627c22d744b9c513921451a",
+              "runtime": {
+                "waited_seconds": 0,
+                "phase": "running",
+                "worker": {
+                  "pid": 2493963,
+                  "start_ticks": 14451322,
+                  "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2"
+                },
+                "worker_cpus": [
+                  2,
+                  3
+                ],
+                "launch_nonce": "47958ad999384360adade8492c127076",
+                "bootstrap_admitted": true,
+                "pause_request": null,
+                "memory_retained": true,
+                "started_wall_utc": 1793108010.618728,
+                "last_start_monotonic": 144513.229956173,
+                "exact_optimizer_resume": null,
+                "worker_entry_admitted": true
+              },
+              "persisted": true,
+              "minimum_resources": {
+                "cpu_cores": 2,
+                "memory_bytes": 4294967296,
+                "disk_bytes": 2147483648,
+                "gpu_slots": 0
+              }
+            },
+            "minimum_resources": {
+              "cpu_cores": 2,
+              "memory_bytes": 4294967296,
+              "disk_bytes": 2147483648,
+              "gpu_slots": 0
+            }
+          }
+        ],
+        "resources": {
+          "available_memory_bytes": 10473783296,
+          "total_memory_bytes": 16291913728,
+          "free_disk_bytes": 882429661184,
+          "total_disk_bytes": 983350071296,
+          "cpu_count": 8,
+          "load_1m": 1.0498046875,
+          "thermal": [
+            {
+              "name": "cpu-thermal",
+              "temperature_c": 60.437,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "gpu-thermal",
+              "temperature_c": 58.625,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "cv0-thermal",
+              "temperature_c": 56.343,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "cv1-thermal",
+              "temperature_c": 56.062,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "cv2-thermal",
+              "temperature_c": 53.125,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "soc0-thermal",
+              "temperature_c": 56.562,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "soc1-thermal",
+              "temperature_c": 58.0,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "soc2-thermal",
+              "temperature_c": 55.093,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "tj-thermal",
+              "temperature_c": 60.5,
+              "existing_hot_critical_trip_c": 104.5
+            }
+          ],
+          "power_state": "UNKNOWN_no_external_power_measurement",
+          "controller_settings_writes": 0
+        },
+        "plan_preview": {
+          "schema": "explorer_shared_queue_plan_v1",
+          "start": [],
+          "waiting": {},
+          "ranked": [],
+          "cpu_capacity": 6,
+          "cpu_reserved_or_selected": 2,
+          "gpu_reserved_or_selected": 0,
+          "UMA_runtime_reserve_bytes": 2684354560,
+          "remaining_memory_budget_bytes": 3520151552,
+          "resources_are_reservations_not_OS_limits": true,
+          "controller_settings_writes": 0
+        },
+        "service_budget_seconds": {
+          "rosmaster_leader_learning": 0.41076770797371864
+        },
+        "read_only_preview": true,
+        "physical_execution_authorized": false,
+        "controller_settings_writes": 0
+      }
+    },
+    "evaluation": {
+      "admitted": {
+        "metadata": {
+          "schema": "explorer_job_scheduling_v1",
+          "job_id": "ab4251464751434aba0cd767d891a681",
+          "experiment_slug": "rosmaster_leader_learning",
+          "project_id": "03",
+          "experiment_numbering_version": 2,
+          "skill_id": "84b5e043-2cbf-4ca8-a89a-ac09701cdb1d",
+          "skill_version": 1,
+          "backend": "act",
+          "dataset_sha256": null,
+          "priority": 0,
+          "preemptible": false,
+          "dependencies": [],
+          "not_before": null,
+          "resources": {
+            "cpu_cores": 2,
+            "memory_bytes": 2147483648,
+            "disk_bytes": 268435456,
+            "gpu_slots": 0
+          },
+          "resource_budget_basis": "conservative_reservation_not_measured_peak",
+          "physical_execution_authorized": false
+        },
+        "revision": "5e26c74dcf6819788641786ac9f737fb2fb199605231b231e2e24e570a3d7995",
+        "runtime": {
+          "waited_seconds": 0,
+          "phase": "running",
+          "worker": {
+            "pid": 2494059,
+            "start_ticks": 14452816,
+            "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2"
+          },
+          "worker_cpus": [
+            2,
+            3
+          ],
+          "launch_nonce": "5c0b6832c328471f8f3583aa337c0ad5",
+          "bootstrap_admitted": true,
+          "pause_request": null,
+          "memory_retained": true,
+          "started_wall_utc": 1793108025.563015,
+          "last_start_monotonic": 144528.174243268,
+          "exact_optimizer_resume": null,
+          "worker_entry_admitted": true
+        },
+        "persisted": true,
+        "minimum_resources": {
+          "cpu_cores": 2,
+          "memory_bytes": 2147483648,
+          "disk_bytes": 268435456,
+          "gpu_slots": 0
+        }
+      },
+      "queue_preview": {
+        "schema": "explorer_shared_durable_queue_v1",
+        "owner": "shared_training_platform",
+        "authoritative_table": "jobs",
+        "experiments": [
+          "01",
+          "02",
+          "03",
+          "04",
+          "05",
+          "06"
+        ],
+        "jobs": [
+          {
+            "id": "ab4251464751434aba0cd767d891a681",
+            "kind": "rosmaster_skill_eval",
+            "project_id": "03",
+            "experiment_slug": "rosmaster_leader_learning",
+            "status": "running",
+            "progress": 0.0,
+            "scheduling": {
+              "metadata": {
+                "schema": "explorer_job_scheduling_v1",
+                "job_id": "ab4251464751434aba0cd767d891a681",
+                "experiment_slug": "rosmaster_leader_learning",
+                "project_id": "03",
+                "experiment_numbering_version": 2,
+                "skill_id": "84b5e043-2cbf-4ca8-a89a-ac09701cdb1d",
+                "skill_version": 1,
+                "backend": "act",
+                "dataset_sha256": null,
+                "priority": 0,
+                "preemptible": false,
+                "dependencies": [],
+                "not_before": null,
+                "resources": {
+                  "cpu_cores": 2,
+                  "memory_bytes": 2147483648,
+                  "disk_bytes": 268435456,
+                  "gpu_slots": 0
+                },
+                "resource_budget_basis": "conservative_reservation_not_measured_peak",
+                "physical_execution_authorized": false
+              },
+              "revision": "5e26c74dcf6819788641786ac9f737fb2fb199605231b231e2e24e570a3d7995",
+              "runtime": {
+                "waited_seconds": 0,
+                "phase": "running",
+                "worker": {
+                  "pid": 2494059,
+                  "start_ticks": 14452816,
+                  "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2"
+                },
+                "worker_cpus": [
+                  2,
+                  3
+                ],
+                "launch_nonce": "5c0b6832c328471f8f3583aa337c0ad5",
+                "bootstrap_admitted": true,
+                "pause_request": null,
+                "memory_retained": true,
+                "started_wall_utc": 1793108025.563015,
+                "last_start_monotonic": 144528.174243268,
+                "exact_optimizer_resume": null,
+                "worker_entry_admitted": true
+              },
+              "persisted": true,
+              "minimum_resources": {
+                "cpu_cores": 2,
+                "memory_bytes": 2147483648,
+                "disk_bytes": 268435456,
+                "gpu_slots": 0
+              }
+            },
+            "minimum_resources": {
+              "cpu_cores": 2,
+              "memory_bytes": 2147483648,
+              "disk_bytes": 268435456,
+              "gpu_slots": 0
+            }
+          }
+        ],
+        "resources": {
+          "available_memory_bytes": 10513657856,
+          "total_memory_bytes": 16291913728,
+          "free_disk_bytes": 882081259520,
+          "total_disk_bytes": 983350071296,
+          "cpu_count": 8,
+          "load_1m": 1.42626953125,
+          "thermal": [
+            {
+              "name": "cpu-thermal",
+              "temperature_c": 60.968,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "gpu-thermal",
+              "temperature_c": 59.031,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "cv0-thermal",
+              "temperature_c": 56.843,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "cv1-thermal",
+              "temperature_c": 56.312,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "cv2-thermal",
+              "temperature_c": 53.562,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "soc0-thermal",
+              "temperature_c": 57.125,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "soc1-thermal",
+              "temperature_c": 58.5,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "soc2-thermal",
+              "temperature_c": 55.625,
+              "existing_hot_critical_trip_c": 104.5
+            },
+            {
+              "name": "tj-thermal",
+              "temperature_c": 60.937,
+              "existing_hot_critical_trip_c": 104.5
+            }
+          ],
+          "power_state": "UNKNOWN_no_external_power_measurement",
+          "controller_settings_writes": 0
+        },
+        "plan_preview": {
+          "schema": "explorer_shared_queue_plan_v1",
+          "start": [],
+          "waiting": {},
+          "ranked": [],
+          "cpu_capacity": 6,
+          "cpu_reserved_or_selected": 2,
+          "gpu_reserved_or_selected": 0,
+          "UMA_runtime_reserve_bytes": 2684354560,
+          "remaining_memory_budget_bytes": 5706719232,
+          "resources_are_reservations_not_OS_limits": true,
+          "controller_settings_writes": 0
+        },
+        "service_budget_seconds": {
+          "rosmaster_leader_learning": 29.482934470113833
+        },
+        "read_only_preview": true,
+        "physical_execution_authorized": false,
+        "controller_settings_writes": 0
+      }
+    }
+  },
+  "source_originals_sha256": {
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/source/bd57c5167da045ca8a90ddbc095903cd/manifest.json": "2d8a9ef11cc5043e9fb0bf304520165dabf4dc36419c3260ad02b0da918d5b6d",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/source/bd57c5167da045ca8a90ddbc095903cd/recording.tar": "a8dbc7a37fa76d8783745f7e27be1d5847c14d42fc9e0cfd358fa0fc172a240c",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/source/2cccb08a91ef40b59f61fc440c5bfcf2/manifest.json": "3381f73e555772add818146029d57c855f2be48158f5f743ddab2ab0bbe3c9be",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/source/2cccb08a91ef40b59f61fc440c5bfcf2/recording.tar": "7d7c274fdea530ae213fe749c36eadeb444bf6306a8b652dcd00808a9fed355b",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/source/7cdfaef20c30411b9742ae4d85aa61e5/manifest.json": "309b9355ed7cb84e6719c9ca53c74238311d5d9cd0966eead5aeb912e6469479",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/source/7cdfaef20c30411b9742ae4d85aa61e5/recording.tar": "72d7d849d4597030cd54af4d271ae0725b27a6ace389e4d8f9b3ad81ad6dca3f",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/source/1ea10028cbd44b2e9ccfe3efffcd472a/manifest.json": "0deb6abc3ad3ce2004eaf672804d7ca7660773259a3d1830b8ba18fffe8bfc29",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/source/1ea10028cbd44b2e9ccfe3efffcd472a/recording.tar": "05f92f466e0adcde42a5529dac03a20ad76747a0683bca4b7044e85d3b60d0ce",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/source/fb6e89e333cd40e2964003c0a2dd2b87/manifest.json": "d1a6f1089403d9b5d76148d7a7cffa7a2ec1df4d8e2f4a19e2aa89444c07fef7",
+    "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-0d91dff2/pytest/test_real_native03_source_to_c0/source/fb6e89e333cd40e2964003c0a2dd2b87/recording.tar": "43df937e82ecf82fe04b5e7b5bae1f25b8c775c92949f9950ac535803b2e9dc5"
+  },
+  "source_native_imports": 5,
+  "resource_result_sha256": "90e155d80f81026e72c80c45cffb2f87631c10ff0f23cc4d71cb8a15efd93aff",
+  "resource_limits": {
+    "cpu_cores": 2,
+    "memory_max": 4294967296,
+    "swap_max": 0,
+    "runtime_max_s": 600,
+    "core_limit": 0
+  },
+  "max_observed_kernel_cgroup_memory_peak_bytes": 1307172864,
+  "max_observed_swap_bytes": 0,
+  "last_memory_events": {
+    "low": "0",
+    "high": "0",
+    "max": "0",
+    "oom": "0",
+    "oom_kill": "0",
+    "oom_group_kill": "0"
+  },
+  "result": {
+    "pytest": "1 passed in35.49s",
+    "actual_optimizer_updates": 4,
+    "queued_DEV_optimizer_updates": 0,
+    "queued_DEV_samples": 10,
+    "save_reload_passed": true,
+    "reload_max_abs_error": 0,
+    "weights_unchanged_in_DEV": true,
+    "actual_ASGI_Supervisor_bootstrap_job_runner": true,
+    "actual_train_and_eval_project_id": "03",
+    "different_processes": true
+  },
+  "negative_original_retained": {
+    "path": "/mnt/explorer-data/explorer-work/experiment03-shared-native03-20261027-3f9042e0",
+    "raw_sha256": {
+      "request.json": "7a1ebfeb65f5754e43cf179e983605bfabb940ce71592642e5c777ddb54c5d66",
+      "invocation.json": "b6e5f6dee17fd28c2dca8f20af116e0f67d0649841605e68de68ebdc69948d24",
+      "resource-result.json": "3288988ec7dd4b856afc389a5d2173175ef28094159cc1d5a162b7fc76f59a3f",
+      "stdout.log": "a473a14209025c2568086131f2491c7cf89f89a24b56307faed205297b62c919",
+      "stderr.log": "2f6554b304474dee3e2c7dc9d3bb319b8eb9bb0e971447dff51747f41fbb4326"
+    },
+    "reason": "qualification harness used raw source adapter instead of existing workflow adapter; API rejected before any train job or model process"
+  },
+  "scope": {
+    "all_inputs_are_software_fixtures": true,
+    "real_demonstrations": 0,
+    "production_state_used": false,
+    "physical_control_requests_sent": 0,
+    "GPU_qualified": false,
+    "independent_full_task_success": false,
+    "real_leader_continuity": "OPEN",
+    "new_physical_path_deployed": false
+  }
+}

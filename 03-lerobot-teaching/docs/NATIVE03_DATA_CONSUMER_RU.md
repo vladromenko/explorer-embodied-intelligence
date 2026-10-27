@@ -111,3 +111,10 @@ Evidence API/UI scoped по project02/03; ожидающий перенос job 
 перенесённым. Раздельные browser clients сохраняют контекст при смене страниц.
 Фактический candidate original39RGB проверен:39decoded/0expert/0admitted;
 повторная запись или изменение source originals для проверки счётчика не нужны.
+
+Final raw-evidence inspector+app frozen0d91dff2 отдельно прошли native03
+actualSource→ACT4/save-reload0→новыйDEV10:1PASS35.49s, CPU2/4GiB/swap0/core0.
+Новая `NATIVE03_QUEUE_CPU_R2_20261027.json` включает дополнительный whole
+inspector SHA; прежняя receiptR1 сохранена. Actual technical39frame/UI proof
+в `_registry/evidence/experiment03-native-capture-candidate-0d91dff2-20261027.json`.
+Ни один такой proof не закрывает real moving-leader continuity или physical skill.

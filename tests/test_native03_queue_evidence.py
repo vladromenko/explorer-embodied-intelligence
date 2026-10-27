@@ -7,11 +7,13 @@ ROOT=Path(__file__).parents[1]
 
 
 def test_actual_native03_queue_proof_keeps_source_project_and_all_current_source_pins():
-    r=json.loads((ROOT/'03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_20261027.json').read_bytes())
+    r=json.loads((ROOT/'03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_R2_20261027.json').read_bytes())
     assert r['schema']=='explorer_native03_queued_cpu_qualification_v1'
     assert len(r['qualified_source_files_sha256'])==21
-    for group in ('qualified_source_files_sha256','qualified_materialized_archive_sources_sha256'):
+    for group in ('qualified_source_files_sha256','qualified_materialized_archive_sources_sha256','qualified_additional_source_files_sha256'):
         for name,checksum in r[group].items():assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==checksum
+    assert set(r['qualified_additional_source_files_sha256'])=={'00-control-center/src/explorer/mobile_dataset_evidence.py'}
+    old=r['previous_original_proof'];assert hashlib.sha256((ROOT/old['path']).read_bytes()).hexdigest()==old['sha256']
     result=r['result'];assert result['actual_train_and_eval_project_id']=='03' and result['actual_optimizer_updates']==4
     assert result['save_reload_passed'] and result['reload_max_abs_error']==0 and result['different_processes']
     assert result['queued_DEV_optimizer_updates']==0 and result['queued_DEV_samples']==10 and result['weights_unchanged_in_DEV']

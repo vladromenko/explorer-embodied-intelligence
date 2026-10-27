@@ -1,0 +1,141 @@
+{
+  "schema": "explorer03_native_capture_actual_candidate_v1",
+  "candidate_recording_commit": "d124ae7fc641344519f0750da152d98071bd2fa0",
+  "final_readonly_UI_commit": "0d91dff2b3599159888ce82edb738f38cd1a4167",
+  "qualified_source_files_sha256": {
+    "00-control-center/src/explorer/app.py": "7c065f37131b339bd9831ffa627c0fb61f0dfd32fa08f8146dd7f71519de7ca7",
+    "00-control-center/src/explorer/mobile_dataset_evidence.py": "ebddf7fde55b3ed45dca391b798a03dc1618d5664e6a623422fcdf31523336a3",
+    "00-control-center/src/explorer/static/app.js": "bfd6b89a86778d94c341e2b647eabfb32eca318e846f6a9f9ed05fc07b32d40d",
+    "00-control-center/src/explorer/static/direct03.js": "b41a452d2cc224ab30cc6fad71fa333c796f92e3a579dc75ac161bf165d91cc7",
+    "00-control-center/src/explorer/static/mobile-evidence.js": "647ffcffda520406ecf984028eafef918e09d09b1f579968d9a2f6a262d5ebab"
+  },
+  "deployed": false,
+  "live_central_release_unchanged": "722755dc99094fc86bab20796d2b7bc4bf56d536",
+  "Pi_and_original_native_web_unchanged": "4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4",
+  "actual_data": {
+    "project_id": "03",
+    "producer": "existing Nano native_capture observations_only",
+    "frames": 39,
+    "expert_command_samples": 0,
+    "archive": {
+      "bytes": 53831680,
+      "sha256": "be2df62824e2e30ab16f049104be8d4ce7874bdb19dae538a6cff61497cf8b6b",
+      "Range_status": 206,
+      "Content-Range": "bytes 53827584-53831679/53831680",
+      "ETag": "\"be2df62824e2e30ab16f049104be8d4ce7874bdb19dae538a6cff61497cf8b6b\""
+    },
+    "actual_original_frame_preview_verified": true,
+    "start_pause_resume_finish_unknown": true,
+    "separate_approve_then_actual_Nano_GET_worker_import": true,
+    "worker_function_scope": "actual retarget_import network/data IO; Supervisor execution separately qualified with generated source03",
+    "imported_to_native_retarget": true,
+    "admitted_for_training": false,
+    "source_final_review": "reject own technical archive after candidate copy; raw archive/prior approval chain retained",
+    "raw_observation_evidence": {
+      "schema": "explorer_raw_RGB_observation_evidence_v1",
+      "frame_count": 39,
+      "verified_RGB_count": 39,
+      "observation_packet_count": 39,
+      "all_RGB_payloads_verified": true,
+      "available_source_channel_counts": {
+        "base_velocity": 32,
+        "imu": 33,
+        "odometry_pose": 32,
+        "power_context": 14,
+        "camera_depth": 22,
+        "camera_rgb": 39
+      },
+      "errors": [],
+      "basis": "hash_bound_original_observation_packets_and_RGB_payloads_not_causal_command_pairs",
+      "training_admission_inferred": false,
+      "camera_exposure_alignment_inferred": false
+    },
+    "physical_task_scene_visibility_qualified": false,
+    "auxiliary_Pi_Logitech_JPEG_capture_claimed": false
+  },
+  "actual_UI": {
+    "browser": "Firefox headless actual DOM/JPEG/network",
+    "viewports": [
+      {
+        "name": "desktop",
+        "horizontal_overflow": false,
+        "advancing_frame_ids": [
+          "nano-rgbd:34ccf0e4f3ab:68691",
+          "nano-rgbd:34ccf0e4f3ab:68694"
+        ],
+        "original_preview_loaded": true,
+        "accepted_expert_originals": 0,
+        "models": 0,
+        "raw_RGB_frames": 39
+      },
+      {
+        "name": "mobile",
+        "horizontal_overflow": false,
+        "advancing_frame_ids": [
+          "nano-rgbd:34ccf0e4f3ab:68728",
+          "nano-rgbd:34ccf0e4f3ab:68731"
+        ],
+        "original_preview_loaded": true,
+        "accepted_expert_originals": 0,
+        "models": 0,
+        "raw_RGB_frames": 39
+      }
+    ],
+    "product_non_GET_requests": [],
+    "physical_path_admission": "OPEN_AND_DISABLED",
+    "camera_count": 2,
+    "cameras": "one Nano RGBD unit (RGB plus optional same-device depth), one Pi Logitech; no third view"
+  },
+  "safety": {
+    "physical_control_POSTs": 0,
+    "native_authorizations_created": 0,
+    "passive_ROS": {
+      "counts": {
+        "/arm6_joints": 0,
+        "/explorer/request": 0
+      },
+      "observation_seconds": 20,
+      "passive_only": true,
+      "received_count": 0,
+      "schema": "explorer_native_forward_passive_ROS_v1",
+      "topics": [
+        "/arm6_joints",
+        "/explorer/request"
+      ]
+    },
+    "source_reference_PIDs_six_original_configs_unchanged": true,
+    "controller_or_camera_settings_changed": false
+  },
+  "raw_originals_sha256": {
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/candidate.json": "df56735bef7792ad1d1929cca26e344138484b55a5e6d175bca7440c6c1e6d11",
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/candidate-rawfix.json": "6c9644dc48c240142e1d285c15e784a8cbbc77b37b55d5a6fafcd9aaa8aff1b5",
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/actual-data-b/receipt.json": "f8f1307145ca6d3e7590978ce2f6f6e128ed8e25a93c9c8d755e40e2efefc596",
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/actual-data-b/source-manifest.json": "823314a7cba6e57ddb03445fc3339f372ff9b67abc4a3e23debd2532bf05c967",
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/actual-data-b/original.tar": "be2df62824e2e30ab16f049104be8d4ce7874bdb19dae538a6cff61497cf8b6b",
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/actual-data-b/original-preview.jpg": "f9c206f9e08724e009e8bd4910c74558023db7e439dfd3deaab59436bf9645c9",
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/actual-data-b/verified-raw-evidence-after-fix.json": "a5ad671c4ea8511cb1a9f20892a223845771e257fc5f1b8ac0050c24be160f96",
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/browser-d-rawfix/receipt.json": "8dca8fc81fc8e62170138c83ffd4e882370339888dfa9bf78de70112d24bf090",
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/browser-d-rawfix/desktop.png": "f69ffb6f892a04a7a4c2a7fa078b9946ea97b3f106c9dc3a5b186bde82f8666c",
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/browser-d-rawfix/mobile.png": "e4e92a94590d42d6bebe010ba337c9abb6fdb6f18bfe2d808f272e40cf61103b",
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/browser-d-rawfix/desktop-original.png": "6c29aa0d8ca0d4238f97539985c1e52c78a2b8beef67e17d2cdeb0346e6c2098",
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/browser-d-rawfix/mobile-original.png": "4617e85100cb486731d8829c5ddce8de91e2a30f4880f0586878139eda408ebc"
+  },
+  "negative_originals_sha256": {
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/actual-data/receipt.json": "c3f666b877335aaee55e25cc5c301c9bb47e933783b48d7ec6041f534e82241b",
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/browser/receipt.json": "2dd9b7e9396bc18d3ddf9c9090593171a28901aa8230d7f7a18988b0b78b1e29",
+    "/mnt/explorer-data/explorer-work/experiment03-candidate-20261027-d124ae7f/browser-b/receipt.json": "9c34c7d6c627206049e1b3d7420f2ee64b79778dac865ae099a39a4f2feb68f0"
+  },
+  "retained_negative_interpretations": [
+    "Technical harness revision supplied unsupported description field; rejected before recording; exact original retained.",
+    "BrowserA selector-string syntax error; product not changed.",
+    "BrowserB waited for lazy offscreen JPEG before scrolling; original retained. BrowserC established lazy behavior, final D scrolls then checks decoded real JPEG."
+  ],
+  "scope": {
+    "real_expert_demonstrations": 0,
+    "real_leader_motion_continuity": "OPEN",
+    "physical_skill_success_claimed": false,
+    "new_physical_command_path_deployed": false,
+    "production_central_state_used": false,
+    "whole_master_complete": false
+  }
+}
