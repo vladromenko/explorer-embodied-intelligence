@@ -1,114 +1,73 @@
-# Explorer — выполняется на Homebrain, 27 октября 2026
+# Explorer — Homebrain, 27 октября 2026
 
-Текущая операция: завершаются observed receiver setup API/UI и последующая
-общая регрессия/развёртывание. Root checkpoint receiver/giver guards:45 targeted
-passed; WAL loss/corrupt/concurrent-fault и native reference checks также
-проверены на fake owners. Новые версии main ещё не равны live release.
+**IN_PROGRESS. Весь master-prompt не завершён.** Canonical Git:
+`/home/jetsonnx/work/Explorer`; работающие службы не зависят от Mac/чата.
 
-Состояние проекта нормализовано: [GOALS](GOALS.md), [PLAN](PLAN.md),
-[DECISIONS](DECISIONS.md), [HARDWARE](HARDWARE.md),
-[PHYSICAL_CHECKLIST](PHYSICAL_CHECKLIST.md). Матрица01–06 с12 измерениями
-хранится единожды в [_registry/acceptance.json](_registry/acceptance.json);
-исторический snapshot сохранён. Это индекс оригинального master-prompt.
+Сейчас root подключает receiver setup05 к service/API/UI, затем выполняет
+релизную регрессию и guarded cutover. Подготовленные ветки и stash сохранены;
+изменения интегрируются отдельными commits с адресными проверками.
 
-Новая фактическая контактная диагностика:16 фиксированных matched probes,
-контактное восстановление2/4,3/4,4/4,4/4; signed opposing floor/bottom forces
-измерены в новых неудачах. Уникальная причина AMBIGUOUS, проникновение в
-геометрию сохраняется. Learned/full-object/physical success не заявляются.
-[Все исходы](research/audits/TRANSFER_CONTACT_V10_RESULTS_RU.md).
+В production central+worker активен **36a2d6c72295b8bf0598e1af953ade06cf217752**;
+собственные Pi/Nano observers и import pin оригинального Nano web —
+**f4cc5c37096698633aba313dbc67b2769a647dd7**. Поздний main ещё не считается live.
+[Фактический cutover](_registry/evidence/central-profile4-actual-activation-20261027.json).
 
-Новый реальный future-hook snapshot→API→Supervisor/bootstrap→worker→download→
-отдельный PID byte-restore прошёл:153859356B MJB,20 CAD,1 реальный RGB,0 target
-advances; все33 исходных файла совпали. Преднамеренный последующий diagnostic
-stop сохранён как literal failed trial; export PARTIAL, без numerical/RGB
-reexecution claim. [Receipt](research/audits/recorded-initial-capture-export-a1-20261027-RU.md).
+Подтверждено:
 
+- Новые native6 ACT/DP и fused106 CPU updates/reload совпали с R2. Настоящий
+  Supervisor→pause2→exit→новый PID→ещё6 прошёл2tests/112.60s, exact typed
+  model/optimizer/loss/RNG/sampler; peak3.33GiB, swap/OOM0.
+  [R3B](shared/training/NATIVE6_QUEUE_STATION_R3B_20261027_RU.md).
+- Source04 observed evaluation и ACT/DP read-only shadow подключены в main;
+  точный доставленный/показанный JPEG, actor/model/epoch, cancel/logout/STOP
+  ограждены. Физическая object evaluation не выдана за пройденную.
+- 05: одноразовые native choices; original Pi publication gate и durable
+  double-hold WAL; receiver-first/giver arm и Pi challenge после actual giver
+  opening→новое независимое подтверждение→finish.45 targeted tests прошли;
+  loss/corruption/restart/legacy/fault race проверены на fake owners.
+  [Границы](05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md).
+- Настоящий future initial capture→authenticated API→Supervisor/bootstrap→worker→
+  download→новый PID восстановил все33 исходных файла:153859356B MJB,20CAD,
+  один RGB,0target advances. Literal failed diagnostic trial сохранён; export
+  PARTIAL, numerical/RGB reexecution не заявлены.
+  [Receipt](research/audits/recorded-initial-capture-export-a1-20261027-RU.md).
+- V10:16 заранее frozen matched contact probes дали2/4,3/4,4/4,4/4. Signed
+  opposing floor/bottom forces измерены; unique cause AMBIGUOUS, penetration
+  сохраняется. Это contact diagnostics, не learned/full task/physical mastery.
+  [Все исходы](research/audits/TRANSFER_CONTACT_V10_RESULTS_RU.md).
+- Immutable SIM helper V7b дал новый PID/native/RNG/report bit-exact replay.
+  Отдельный portable V10 near-left baseline также воспроизведён в новом PID:
+  native501×769 и contacts/solver bytes exact; Python old-path ban проверен,
+  C opens/full OS не измерены. Полная16-case portable серия ещё не завершена.
+- Последний полный frozen d52d13d:1401passed/21skipped/7failed за308.28s.
+  Stale proof ожидания и общий login budget тестов исправлены,11 targeted
+  passed; новый полный релизный прогон ещё нужен.194 Node tests прошли.
+  Все24jobs/11cards/11892старыхevents и production schema совпали.
+  [Отрицательный первый прогон](_registry/evidence/full-regression-first-current-20261027.json).
 
-Весь исходный мастер-промпт **не завершён**. Канонический Git находится в
-`/home/jetsonnx/work/Explorer`; Mac не нужен для работающих служб.
-Предыдущий статус сохранён [побайтно](research/audits/status-snapshots/STATUS-before-20261027-0210.md).
+Блокеры: Pi station idle с sync-read error при двух присутствующих USB-адаптерах;
+Nano native reference невалиден после сохранённого telemetry fault. Агент не
+делает HOME, не двигает шасси/руки и не меняет6 исходных ROSMASTER configs,
+firmware/limits/watchdogs/readbackOFF. Unknown и command-estimate не становятся
+measured. Source/target splits раздельны; development/sealed/unknown не optimizer.
 
-В работающем Control Center и его worker активен release
-`36a2d6c72295b8bf0598e1af953ade06cf217752`. Собственные Pi/Nano observers и
-import pin оригинального Nano web — `f4cc5c37096698633aba313dbc67b2769a647dd7`.
-Последующие коммиты main ещё не считаются развёрнутыми. При прошлом cutover
-сохранены все24 jobs,11 cards и10922 старых events;
-[проверка](_registry/evidence/central-profile4-actual-activation-20261027.json).
+Открытый программный объём: receiver metadata UI, phase/hold-successor lifecycle
+без скрытого TTL/lease продления; final regression/deploy/Firefox/live scientific
+byte audit; полный learned object/transfer/retention цикл, независимые H1–H5
+comparisons/ablations и broad recovery. Физическая подготовка отдельно.
 
-Агент не двигает шасси или руки, не выполняет HOME и не выдаёт физические
-разрешения. Все6 исходных ROSMASTER controller config SHA, firmware, limits,
-watchdogs и отключённый readback сохраняются. Command estimate и возврат записи
-не подменяют измерение или подтверждение удержания объекта. Последняя GET
-проверка: Pi idle, available=false из-за sync-read, last_command=null;
-Nano IDLE, permission=false, STOP latched. Старый native reference невалиден
-после сохранённого telemetry fault; нового HOME агент не выполняет.
+Единственная матрица01–06: [_registry/acceptance.json](_registry/acceptance.json).
+[GOALS](GOALS.md) · [PLAN](PLAN.md) · [DECISIONS](DECISIONS.md) ·
+[HARDWARE](HARDWARE.md) · [PHYSICAL_CHECKLIST](PHYSICAL_CHECKLIST.md).
 
-В main подключены настоящие backend/API/UI source04 наблюдаемой проверки,
-отдельный DP history2 read-only shadow, зарегистрированный Study export через
-общую очередь, два наблюдаемых cooperative05 разрешения и native transport.
-Явные native-сессии05 подключены к API/UI; receiver-first/giver guard ordering
-и Pi-challenge→новое независимое подтверждение→finish связаны в coordinator
-(45 targeted tests). Наблюдаемые direction/bind/reset формы ещё подключаются. Два разрешения и вычислительный warm
-не дают полной физической готовности: receiver dual-hold interlock на самой
-публикации реализован и проверен на исходном worker с fake buses, включая
-reboot/legacy и WAL corruption/loss. Физическая проверка и phase TTL/hold
-successor остаются открытыми. Новый Pi permission gate проверяет право после
-ожидания исходной bus lock; отзыв до admission не даёт старой команде/sample
-пройти.42 targeted tests проходят; это fake buses, без физического запуска.
+## USAGE_POLICY
 
-Настоящий Study V9 API→Supervisor/bootstrap→worker→download→независимый новый
-PID restore выполнен:7640 files,150620160 bytes TAR, все4 исходные попытки
-сохранены (2 успеха,2 неудачи). Статус **PARTIAL**: старый полный initial/RNG
-не записан; это SCRIPTED_SIM, не learned skill.
-[Свидетельство](_registry/evidence/study-v9-public-queue-20261027.json).
-Новый frozen SIM initial-state профиль отдельно дал побитно одинаковые
-13×769 native float64 состояний после12 команд, RNG и отчёты нового PID;
-4 resealed malformed profiles отклонены до native setter.
-[Точная область](_registry/evidence/sim-initial-state-preflight-new-pid-20261027.json).
-Позднее ревью выявило mutable-bundle TOCTOU; он исправлен,30 регрессий прошли.
-Новый producer→exit→новый PID прогон исправленного helper прошёл13.30s,
-native/RNG/report побитно равны;20 CAD assets восстановлены из прежнего
-portable bundle с проверкой каждого SHA. Первый ошибочный путь assets сохранён
-как setup failure до построения сцены.
-[Новый receipt](_registry/evidence/sim-initial-state-immutable-new-pid-20261027.json).
-Будущий record_target_trial теперь может явно сохранить snapshot сразу после
-reset;53 focused tests прошли. Этот hook ещё не выдаётся за реально пройденный
-полный CAD/RGB trial.
-RGB, полная OS closure и learned outcome этим не квалифицированы.
-
-Настоящие ACT6/DP6/106 CPU и ограниченный ACT9 CUDA profile4 уже проверялись;
-original negative GPU resume и все неудачные object trials сохранены.
-Последняя правка Station меняет один из18 DP source hashes, поэтому для новой
-версии выполнены новые настоящие ACT6/DP6/106 CPU обновления и reload;
-все веса точно равны R2. Новая DP18 binding проверена реальным selector и
-отказом при изменении Station. Ошибки поиска pytest artifacts сохранены
-отдельно и исправлены без повторного optimizer или подмены math result.
-Новая настоящая Supervisor/new-PID qualification завершена:2 tests/112.60s,
-pause2→старый PID завершён→новый PID ещё6, строгая model/optimizer/loss/RNG/
-sampler parity, пик3.33GiB/4GiB, swap0.
-[Receipt](shared/training/NATIVE6_QUEUE_STATION_R3B_20261027_RU.md).
-[Точная область](shared/training/STATION_CPU_20261027_STATION_R3B_RU.md).
-Предыдущие веса/доказательства не заменяются результатами новой версии.
-[Профили](shared/training/PROFILE4_ACTUAL_20261026_RU.md).
-Проверка original Nano factory/startup:6 tests, fake ROS/драйверы,
-[receipt](_registry/evidence/native-current-source-startup-20261027.json).
-
-Полная регрессия frozen d52d13d:1401 passed,21 skipped,7 failed за308.28s.
-Два ожидания прежних датированных proofs и общий login budget между API-тестами
-исправлены;11 targeted tests проходят, реальный лимит входа отдельно проверен.
-Полный повтор текущего main ещё нужен. Все24 jobs,11 cards,11892 прежних events
-и production schema после прогона совпали; добавилась только telemetry.
-[Первый новый прогон](_registry/evidence/full-regression-first-current-20261027.json).
-Методологический provenance проверяется автоматически; нет новых Python
-`continue`. Все28 worktrees и сохранённый cooperative stash инвентаризированы,
-прежние агенты продолжили работу; исходники не удалялись и не сбрасывались.
-
-Далее: исправления ревью, native05 API/UI и dual-hold publication interlock,
-новые текущие CPU proofs, полная регрессия, проверенный immutable release,
-реальный браузер/API и audit старых scientific bytes после cutover. Затем
-новая SIM initial capture в будущих trial, contact repair и независимые
-learned object trials; source04→target06 lineage/student/eval; H1–H5,
-сравнения/ablations/retention и recovery campaign.102 full texts и35 deep
-reviews, инфраструктура и отдельный успешный этап не означают научную новизну
-или исполнение всего задания. Физические навыки остаются NOT_VALIDATED до
-отдельных текущих пользовательских наблюдаемых испытаний.
+Root — единственный координатор; по умолчанию0–2 субагента. Третий допустим
+только для трёх крупных независимых потоков; короткие проверки root делает сам.
+Новые рутинные агенты — Sol Medium/High при доступном выборе, сложная интеграция/
+финальный audit могут требовать Ultra; активный чат/модель не переключаются.
+Проверки: static→адресные→интеграционные→один полный прогон перед release;
+критические motion/STOP/interlock/data/provenance проверки не сокращаются.
+Исключение: полный d52-прогон понадобился после сквозной04/05/queue интеграции;
+после исправлений и новых publication guards требуется финальный релизный повтор.
+Повторный внешний сбой без новых фактов после2–3 попыток фиксируется как блокер.
