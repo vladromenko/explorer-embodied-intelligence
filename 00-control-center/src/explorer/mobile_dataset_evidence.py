@@ -458,9 +458,12 @@ def inspect_rosmaster_import(job,*,managed_root=None,include_manifest=False,max_
         common.append('embodied_evidence_inspection_failed:'+type(error).__name__+':'+str(error))
         canonical={'admitted_for_training':False,'reasons':list(common),'channels':{},'source_integrity':False}
     report['mobile_embodied']=canonical
-    native_approval_required=(job.get('project_id')=='02' and
-        ((job.get('config') or {}).get('source_format')=='native_capture_v1' or result.get('schema')=='explorer_native_capture_import_v1'))
+    native_approval_required=((job.get('config') or {}).get('source_format')=='native_capture_v1' or
+        result.get('schema')=='explorer_native_capture_import_v1')
     report['source_approval']={'required':native_approval_required,'verified':False,'decision':None}
+    if native_approval_required and (canonical.get('source_project_id')!=job.get('project_id') or
+            (job.get('kind'),job.get('project_id')) not in (('mobile_import','02'),('retarget_import','03'))):
+        common.append('native_source_project_or_kind_differs_from_import')
     if native_approval_required:
         try:
             from .native_capture_approval import validate_source_approval
@@ -481,6 +484,9 @@ def inspect_rosmaster_import(job,*,managed_root=None,include_manifest=False,max_
     report['demonstration_input_provenance']=adapter
     if isinstance(adapter,dict) and adapter.get('verified') is True:
         report.update(input_mode=adapter.get('input_mode'),input_mode_verified=True)
+    if native_approval_required and job.get('project_id')=='03' and (not isinstance(adapter,dict) or
+            adapter.get('verified') is not True or adapter.get('input_mode')!='so101_leader'):
+        common.append('native03_measured_leader_input_adapter_not_verified')
     report['native_dispatch_receipts_verified']=canonical.get('source_kind')=='physical' and canonical.get('action9_verified') is True
     report['simulated_dispatch_receipts_verified']=canonical.get('source_kind')=='simulation' and canonical.get('action9_verified') is True
     report['canonical_samples_recorded']=canonical.get('sample_count')

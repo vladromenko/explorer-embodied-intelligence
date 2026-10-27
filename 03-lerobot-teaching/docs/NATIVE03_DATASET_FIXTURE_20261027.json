@@ -1,0 +1,100 @@
+{
+  "schema": "explorer_native03_dataset_fixture_receipt_v1",
+  "scope": {
+    "all_inputs_are_software_fixtures": true,
+    "real_demonstrations": 0,
+    "optimizer_updates": 0,
+    "physical_control_requests": 0,
+    "source_hardware_requests": 0,
+    "new_native_or_controller_qualification": false,
+    "current_queued_executor_qualified": false
+  },
+  "result": {
+    "pytest_passed": true,
+    "pytest_seconds": 13.75,
+    "runtime_ns": 18256428289,
+    "official_lerobot_version": "0.6.1",
+    "action_dimension": 9,
+    "state_dimension": 106,
+    "tensor_rows_compared": 30,
+    "original_train_demonstrations": 3,
+    "segment_episodes": 6,
+    "development_originals": 1,
+    "sealed_originals": 1,
+    "sealed_payloads_exported": false,
+    "cross_segment_chunks": false,
+    "exact_common_FusedChunks_tensor_equality": true,
+    "measured_joint_feedback_invented": false
+  },
+  "limits": {
+    "cpu_quota_percent": 100,
+    "memory_max_bytes": 2147483648,
+    "memory_swap_max_bytes": 0,
+    "runtime_max_seconds": 180,
+    "LimitCORE": 0,
+    "CUDA_VISIBLE_DEVICES": "",
+    "HFoffline": true,
+    "threads": 1
+  },
+  "resources": {
+    "unit": "explorer03-dataset-fixture-20261027-c.service",
+    "invocation_id": "b6a6d6f0f390445db9f899f28c36b7a1",
+    "child_pid": 2479161,
+    "child_start_ticks": 14079705,
+    "boot_id": "b2b7a225-25b1-4cfb-a903-9e07cc2543d2",
+    "observed_cgroup_memory_peak_bytes": 526401536,
+    "max_child_ru_maxrss_kib": 744572,
+    "swap_bytes": 0,
+    "last_memory_events": {
+      "low": "0",
+      "high": "0",
+      "max": "0",
+      "oom": "0",
+      "oom_kill": "0",
+      "oom_group_kill": "0"
+    },
+    "systemd_340KiB_memory_peak_not_used_as_Torch_measurement": true
+  },
+  "original_evidence_sha256": {
+    "raw.log": "d9d542b52ea63f819f0459b9b9b809a927dfe880e56e32b680756ff235a455cb",
+    "raw-b.log": "ea8a8e21ebb2f279db387aee22f14d2043aa875cc0d2b8c03bde25a3252ae28b",
+    "raw-c.log": "8feba9b986ebcaec6349f14f3daeaf04abf83f4a2c452d0a03ebe3bf1314bd04",
+    "resource-c.json": "6f98966dc0a7dc0b76610934417e302d18737d963484d1541b4ffa5c0bdac853",
+    "resource_wrapper.py": "4b9bc3a3f833f1a41c049f470ebd3b72e369658b90d8cba758c660bffef6856c"
+  },
+  "preserved_negative_attempts": [
+    {
+      "name": "initial launcher",
+      "outcome": "exit127 /usr/bin/time absent beforePython/test",
+      "file": "raw.log"
+    },
+    {
+      "name": "dataset-b",
+      "outcome": "all tensor comparisons reached, test wrong index key target_dimension instead of existing action_dimension; overallFAIL preserved",
+      "file": "raw-b.log"
+    }
+  ],
+  "source_files_sha256": {
+    "00-control-center/src/explorer/job_runner.py": "fd3391fa71b03a706a948e70286bc29a577190ff2f1814e1e786c46515ff1c7c",
+    "00-control-center/src/explorer/mobile_dataset_evidence.py": "df399cf3e6e038e87a9dcdaf0db9854b2a86d187be391a1357812c48015f9745",
+    "00-control-center/src/explorer/native_capture_transfer.py": "10a2316a27c8ea090ff9b88ac8df4553d39e7c2e9db92faaa0654edeb4a0accc",
+    "tests/native03_consumer_helpers.py": "6e1976bf57a7795dd585fa62fbe317489a19578f5164e21082d2faffa845ed15",
+    "shared/explorer_shared/learning/rosmaster_skill_pipeline.py": "90543a1182b196a38aa6a2d7c24a040fd79f7d3d733180f77ff1108e850cbaa6",
+    "shared/explorer_shared/learning/rosmaster_lerobot_dataset.py": "60a30447966fd2940bebf2a8d1f1f6cb613f4a8f759969c3d9bddb1a200b5c21",
+    "shared/explorer_shared/learning/rosmaster_skill_segments.py": "f9ce8d1a79dd6dcbfd5f00896f45b462861dfef41c33081ccef38b007900fa7b",
+    "shared/explorer_shared/learning/rosmaster_skill_features.py": "2ad274e56c0ec7bd3dff98461c21f0bcad3640ccc846cc8e5c5a4acb39b0d8e8"
+  },
+  "executed_test_function": {
+    "path": "tests/test_native03_consumer.py",
+    "name": "test_native03_common_official_LeRobotDataset_target9_roundtrip_no_optimizer",
+    "source_sha256": "1cd4a606b88a6612699b1bc4f359aaccf71091669c8c4ed66f1e731d1e212eaa",
+    "whole_test_module_frozen_claimed": false,
+    "note": "Other metadata test asserts were extended after the run; this executed function and product/helper bytes were unchanged."
+  },
+  "open_facts": [
+    "REAL_EXPERT_DEMONSTRATIONS_NOT_COLLECTED",
+    "REAL_CHANGING_LEADER_CONTINUITY_OPEN",
+    "VALID_OBSERVED_NATIVE_REFERENCE_REQUIRED_FOR_PHYSICAL_PATH",
+    "CURRENT_QUEUE_EXECUTOR_NEEDS_FRESH_QUALIFICATION_AFTER_WHOLEFILE_CHANGE"
+  ]
+}

@@ -1,4 +1,4 @@
-"""ENGINEERING_GLUE: approved, bounded, resumable native02 archive transfer.
+"""ENGINEERING_GLUE: approved, bounded, resumable common native02/03 archive transfer.
 
 Fixed authenticated GETs only. Partial bytes survive a network/process failure;
 full hash and unchanged latest Source approval are mandatory before admission.

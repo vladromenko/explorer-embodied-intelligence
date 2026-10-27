@@ -6467,6 +6467,72 @@
         "tests/test_retarget_continuity.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-03-COMMON-NATIVE-CONSUMER-20261027",
+      "function_or_module": "00-control-center/src/explorer/job_runner.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/NATIVE03_DATA_CONSUMER_RU.md",
+          "role": "Shared native source approval/transfer and canonical03 import ABI"
+        },
+        {
+          "url": "project-file:00-control-center/src/explorer/native_capture_transfer.py",
+          "role": "Unchanged authenticated bounded GET/Range/review transfer reused"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Reuse existing approved bounded Nano native transfer for exact native02/03 job/project pairs, source project checks and distinct immutable destinations; preserve legacy raw Pi path.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_native03_consumer.py",
+        "tests/test_native_capture_worker.py",
+        "tests/test_native_approval_training.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-03-NATIVE-APPROVAL-INSPECTION-20261027",
+      "function_or_module": "00-control-center/src/explorer/mobile_dataset_evidence.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:03-lerobot-teaching/docs/NATIVE03_DATA_CONSUMER_RU.md",
+          "role": "Shared native source approval/transfer and canonical03 import ABI"
+        },
+        {
+          "url": "project-file:00-control-center/src/explorer/native_capture_transfer.py",
+          "role": "Unchanged authenticated bounded GET/Range/review transfer reused"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Require immutable native Source approval and exact project/kind for native03 as for02; verify actual leader adapter rather than browser input declaration.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_native03_consumer.py",
+        "tests/test_native_capture_worker.py",
+        "tests/test_native_approval_training.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

@@ -16,7 +16,7 @@ from .config import load
 from .store import Store
 
 
-def native_capture_import(artifact,destination,checksum,episode_id,*,required=False):
+def native_capture_import(artifact,destination,checksum,episode_id,*,required=False,expected_project=None):
     """Dispatch the immutable format before either legacy converter touches it."""
     with tarfile.open(artifact) as archive:
         try:member=archive.getmember('manifest.json')
@@ -28,6 +28,9 @@ def native_capture_import(artifact,destination,checksum,episode_id,*,required=Fa
         if required:raise ValueError('Native producer returned a different immutable source format')
         return None
     if manifest.get('recording_id')!=episode_id:raise ValueError('Native source recording identity changed in transfer')
+    if expected_project is not None and (expected_project not in ('02','03') or
+            manifest.get('project_id')!=expected_project or (manifest.get('embodied_episode') or {}).get('project_id')!=expected_project):
+        raise ValueError('Native source project differs from the exact queued import project')
     from explorer_shared.native_capture import import_native_capture
     result=import_native_capture(artifact,checksum,destination)
     return dict(result,episode_id=episode_id,source_archive_sha256=checksum,artifact=str(artifact),
@@ -76,7 +79,37 @@ def recording(store, job, config):
             local_original_retained=True, result_scope='Observation recording; not a trained physical skill')
 
 
+def approved_native_capture_import(store,job,config):
+    """One Nano source data plane for native02/03; Pi control is separate."""
+    if (job.get('kind'),job.get('project_id')) not in (('mobile_import','02'),('retarget_import','03')):
+        raise ValueError('Exact native ROSMASTER import kind/project required')
+    if job['config'].get('source_format')!='native_capture_v1':raise ValueError('Explicit native source format required')
+    episode_id=job['config']['episode_id']
+    node=next(node for node in config['nodes'] if node['id']=='nano')
+    from .native_capture_transfer import transfer_native_capture
+    from .native_capture_approval import source_bytes
+    from explorer_shared.cooperative_recording05 import write_original
+    def cancelled():
+        current=store.job(job['id'])
+        if current and current['status'] in ('cancel_requested','cancelled'):raise RuntimeError('Native source transfer cancelled; partial retained, no import admission')
+    with httpx.Client(timeout=60,trust_env=False,headers={'Authorization':'Bearer '+node['token']}) as client:
+        artifact,approval,transfer=transfer_native_capture(client,'http://'+node['host']+':'+str(node['port']),episode_id,
+            job['config'].get('archive_sha256'),job['config'].get('source_review_sha256'),store.root/'artifacts',guard=cancelled)
+    cancelled();checksum=job['config']['archive_sha256']
+    destination='native-mobile' if job['project_id']=='02' else 'native-retarget'
+    result=native_capture_import(artifact,store.root/'episodes'/destination,checksum,episode_id,required=True,expected_project=job['project_id'])
+    cancelled()
+    receipt=Path(result['embodied_manifest']).parent/'operator-reviews'/(approval['review_sha256']+'.json');raw=source_bytes(approval)
+    if receipt.exists():
+        if receipt.read_bytes()!=raw:raise ValueError('Immutable Source approval original changed')
+    else:write_original(receipt,raw)
+    cancelled()
+    return dict(result,source_format='native_capture_v1',source_approval=approval,source_review_sha256=approval['review_sha256'],
+        source_approval_path=str(receipt),source_approval_file_sha256=hashlib.sha256(raw).hexdigest(),transfer_evidence=transfer)
+
+
 def station_import(store, job, config):
+    if job['config'].get('source_format')=='native_capture_v1':return approved_native_capture_import(store,job,config)
     episode_id = job['config']['episode_id']
     import re
     mobile=job['kind']=='mobile_import'
@@ -84,27 +117,7 @@ def station_import(store, job, config):
         raise ValueError('Invalid station episode ID')
     node = next(node for node in config['nodes'] if node['id']==('nano' if mobile else 'pi'))
     source='mobile' if mobile else 'station'
-    native=mobile and job['config'].get('source_format')=='native_capture_v1'
-    if native:source='native-capture'
     with httpx.Client(timeout=60,trust_env=False) as client:
-        if native:
-            from .native_capture_transfer import transfer_native_capture
-            from .native_capture_approval import source_bytes
-            from explorer_shared.cooperative_recording05 import write_original
-            def cancelled():
-                current=store.job(job['id'])
-                if current and current['status'] in ('cancel_requested','cancelled'):raise RuntimeError('Native source transfer cancelled; partial retained, no import admission')
-            client.headers['Authorization']='Bearer '+node['token']
-            artifact,approval,transfer=transfer_native_capture(client,'http://'+node['host']+':'+str(node['port']),episode_id,
-                job['config'].get('archive_sha256'),job['config'].get('source_review_sha256'),store.root/'artifacts',guard=cancelled)
-            cancelled();checksum=job['config']['archive_sha256']
-            result=native_capture_import(artifact,store.root/'episodes'/'native-mobile',checksum,episode_id,required=True)
-            receipt=Path(result['embodied_manifest']).parent/'operator-reviews'/(approval['review_sha256']+'.json');raw=source_bytes(approval)
-            if receipt.exists():
-                if receipt.read_bytes()!=raw:raise ValueError('Immutable Source approval original changed')
-            else:write_original(receipt,raw)
-            return dict(result,source_format='native_capture_v1',source_approval=approval,source_review_sha256=approval['review_sha256'],
-                source_approval_path=str(receipt),source_approval_file_sha256=hashlib.sha256(raw).hexdigest(),transfer_evidence=transfer)
         response = client.get('http://'+node['host']+':'+str(node['port'])+'/'+source+'/recordings/'+episode_id+'/download',
             headers={'Authorization':'Bearer '+node['token']})
         response.raise_for_status()
@@ -177,7 +190,10 @@ def station_import(store, job, config):
 
 
 def retarget_import(store,job,config):
-    """Stream immutable raw evidence, preserving missing 9D labels as missing."""
+    """Native03 uses Nano; explicit historical raw Pi archives remain separate."""
+    source_format=job['config'].get('source_format')
+    if source_format=='native_capture_v1':return approved_native_capture_import(store,job,config)
+    if source_format not in (None,'retarget_raw_v1'):raise ValueError('Unknown retarget source format; no implicit Pi fallback')
     from explorer_shared.retarget_recording import import_retarget_recording,identity
     ident=identity(job['config']['episode_id'])
     expected=job['config']['archive_sha256']
