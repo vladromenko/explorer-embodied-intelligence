@@ -927,12 +927,20 @@ def make_handler(agent):
                 elif path=='/native-capture/recordings':
                     self._json(200,{'schema':'explorer_native_capture_service_v1',
                         'ready_recordings':service.writer.ready_recordings()})
+                elif len(parts)==5 and parts[1]=='recordings' and parts[3]=='frame':
+                    content=service.writer.preview_frame(parts[2],parts[4])
+                    self.send_response(200);self.send_header('Content-Type','image/jpeg')
+                    self.send_header('Content-Length',str(len(content)));self.send_header('Cache-Control','no-store')
+                    self.end_headers();self.wfile.write(content)
                 elif len(parts)==4 and parts[1]=='recordings':
                     if parts[3]=='download':
-                        self._download(service.writer.archive(parts[2]),parts[2])
+                        from .native_capture_download import send_native_capture_download
+                        send_native_capture_download(self,service.writer.archive(parts[2]),parts[2])
                     elif parts[3]=='manifest':
                         from .retarget_recording import identity
                         self._json(200,json.loads((service.writer.root/identity(parts[2])/'manifest.json').read_bytes()))
+                    elif parts[3]=='review':
+                        self._json(200,service.writer.recording_review(parts[2]))
                     else:
                         raise LookupError('Unknown native capture recording operation')
                 else:
@@ -1144,6 +1152,15 @@ def make_handler(agent):
                             reason=payload.get('reason','explicit_operator_annotation'),recovery_of=payload.get('recovery_of'))
                     elif path=='/native-capture/record/finish':
                         result=service.finish(payload.get('recording_id'),payload.get('outcome_evidence'))
+                    elif path=='/native-capture/record/pause':
+                        result=service.pause(payload.get('recording_id'))
+                    elif path=='/native-capture/record/resume':
+                        result=service.resume(payload.get('recording_id'))
+                    elif path=='/native-capture/record/cancel':
+                        result=service.cancel(payload.get('recording_id'),payload.get('actor_id'))
+                    elif path=='/native-capture/record/review':
+                        result=service.review(payload.get('recording_id'),payload.get('decision'),
+                            payload.get('actor_id'),payload.get('expected_archive_sha256'))
                     else:
                         raise ValueError('Unknown native capture operation')
                     self._json(200,result)
@@ -1190,10 +1207,20 @@ def make_handler(agent):
                     else:result=agent.station.command(path.removeprefix('/station/'),payload)
                     self._json(200,result)
                 elif legacy:
-                    if path.startswith('/legacy/teaching/mobile/') and agent.mobile_capture is not None:
-                        code,result=agent.teaching_command(path.rsplit('/',1)[1],payload)
-                    else:
-                        code, result = agent.legacy_request(path.removeprefix("/legacy/"), payload)
+                    capture=getattr(agent,'native_capture',None)
+                    input_started=capture.clock() if capture is not None and path=='/legacy/teleop/input' else None
+                    declared=self.headers.get('X-Explorer-Operator-Input','')
+                    try:metadata=json.loads(declared) if declared and len(declared)<=8192 else None
+                    except ValueError:metadata={'invalid_client_metadata':True}
+                    try:
+                        if path.startswith('/legacy/teaching/mobile/') and agent.mobile_capture is not None:
+                            code,result=agent.teaching_command(path.rsplit('/',1)[1],payload)
+                        else:
+                            code,result=agent.legacy_request(path.removeprefix("/legacy/"),payload)
+                    except Exception as error:
+                        if input_started is not None:capture.observe_operator_input(payload,{'error_type':type(error).__name__},None,input_started,metadata)
+                        raise
+                    if input_started is not None:capture.observe_operator_input(payload,result,code,input_started,metadata)
                     self._json(code, result)
                 else:
                     manifest = agent.recordings.start(payload.get("camera_id"), payload.get("duration_s"),

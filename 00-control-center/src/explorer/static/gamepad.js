@@ -29,13 +29,15 @@
     return { supported: true, reason: "" };
   }
   function deviceIdentity(pad) { return `${pad.index}:${pad.id}:${pad.mapping}`; }
-  function snapshot(pad, deadzone = .18) {
+  function snapshot(pad, deadzone = .18, centers = [0, 0, 0, 0]) {
     if (!pad || pad.connected !== true || pad.mapping !== "standard") throw new Error("Нужен подключённый геймпад со стандартной раскладкой браузера.");
     if (!Array.isArray(pad.axes) || pad.axes.length < 4 || !Array.isArray(pad.buttons) || pad.buttons.length < 16) throw new Error("Браузер не передал четыре оси и стандартный набор кнопок.");
     if (!Number.isFinite(deadzone) || deadzone < .05 || deadzone > .4) throw new Error("Некорректная зона покоя стиков.");
-    const axes = pad.axes.slice(0, 4).map((value) => {
+    if (!Array.isArray(centers) || centers.length !== 4 || centers.some(value => !Number.isFinite(value) || Math.abs(value) > .25)) throw new Error("Некорректная калибровка центра стиков.");
+    const axes = pad.axes.slice(0, 4).map((value, index) => {
       if (!Number.isFinite(value) || value < -1 || value > 1) throw new Error("Некорректное значение оси геймпада.");
-      return Math.abs(value) <= deadzone ? 0 : value;
+      const adjusted = Math.max(-1, Math.min(1, (value - centers[index]) / (1 - Math.abs(centers[index]))));
+      return Math.abs(adjusted) <= deadzone ? 0 : adjusted;
     });
     const buttons = pad.buttons.map((button, index) => {
       if (!button || !Number.isFinite(button.value) || button.value < 0 || button.value > 1 || typeof button.pressed !== "boolean") throw new Error("Некорректное значение кнопки геймпада.");
@@ -71,6 +73,7 @@
       this.epoch = 0; this.busy = false; this.stopping = null; this.stopUnconfirmed = false; this.previousButtons = [];
       this.pending = []; this.nextSend = 0; this.neutralRequired = false; this.canResumeFromStart = false;
       this.lastKeys = []; this.lastFrame = null; this.devices = []; this.preview = false;
+      this.calibration = null; this.calibrating = null; this.rawAxes = [];
     }
     notify() { if (this.options.onChange) this.options.onChange(this.status()); }
     status() {
@@ -79,6 +82,8 @@
         keys: [...this.lastKeys], preview: this.preview, capability: capability(this.options),
         wireSource: "keyboard", inputOrigin: "browser_gamepad_digitized_directions", scheme: SCHEME,
         neutralRequired: this.neutralRequired, busy: this.busy,
+        rawAxes: [...this.rawAxes], axes: [...(this.lastFrame?.axes || [])], calibration: this.calibration ? { ...this.calibration, centers: [...this.calibration.centers] } : null,
+        calibrationSamples: this.calibrating?.samples.length || 0, calibrating: Boolean(this.calibrating),
         chassisProhibited: typeof this.options.chassisProhibited === "function" && this.options.chassisProhibited() === true };
     }
     scan() {
@@ -95,6 +100,8 @@
       const pad = this.scan().find((item) => item && item.index === Number(index) && item.connected);
       if (!pad) throw new Error("Выбранный геймпад больше не подключён.");
       this.selected = { index: pad.index, id: pad.id, mapping: pad.mapping, identity: deviceIdentity(pad) };
+      if (this.calibration?.identity !== this.selected.identity) this.calibration = null;
+      this.calibrating = null;
       this.previousButtons = []; this.reason = "Отпустите стики и кнопки, затем подключите управление."; this.notify();
     }
     frame() {
@@ -102,7 +109,30 @@
       if (!support.supported) throw new Error(support.reason);
       const pad = this.scan().find((item) => item && this.selected && item.index === this.selected.index);
       if (!pad || deviceIdentity(pad) !== this.selected.identity) throw new Error("Выбранный геймпад отключён или заменён. Подключите нужный контроллер заново.");
-      return snapshot(pad, this.deadzone);
+      this.rawAxes = pad.axes.slice(0, 4);
+      return snapshot(pad, this.deadzone, this.calibration?.identity === this.selected.identity ? this.calibration.centers : undefined);
+    }
+    async calibrate() {
+      if (["active", "connecting", "paused"].includes(this.state) || this.busy || this.stopping || this.stopUnconfirmed) throw new Error("Сначала явно отключите управление; калибровка выполняется без движения.");
+      this.frame(); this.preview = true;
+      this.calibrating = { identity: this.selected.identity, samples: [], started: this.options.now() };
+      this.reason = "Отпустите стики и кнопки на 1 секунду: измеряем центр четырёх осей без управления."; this.notify();
+    }
+    sampleCalibration() {
+      const run = this.calibrating; if (!run) return;
+      if (!this.options.visible() || !this.options.focused() || !this.options.routeActive()) throw new Error("Калибровка отменена при уходе из окна.");
+      const pad = this.scan().find(item => item && deviceIdentity(item) === run.identity);
+      const raw = snapshot(pad, .05);
+      if (raw.buttons.some(Boolean) || pad.axes.slice(0, 4).some(value => Math.abs(value) > .25)) throw new Error("Калибровка отменена: отпустите стики и кнопки и начните снова.");
+      run.samples.push(pad.axes.slice(0, 4));
+      if (run.samples.length >= 30 && this.options.now() - run.started >= 800) {
+        const centers = [0, 1, 2, 3].map(index => run.samples.reduce((sum, values) => sum + values[index], 0) / run.samples.length);
+        const noise = Math.max(...run.samples.flatMap(values => values.map((value, index) => Math.abs(value - centers[index]))));
+        if (noise > .08) throw new Error("Стики нестабильны. Повторите калибровку, не касаясь контроллера.");
+        this.calibration = { identity: run.identity, centers, samples: run.samples.length, browser_monotonic_ms: this.options.now(), basis: "browser_resting_axis_samples_not_robot_calibration" };
+        this.deadzone = Math.max(.05, Math.min(.4, noise + .04)); this.calibrating = null;
+        this.reason = "Центры осей и зона покоя настроены. Проверьте направления в предпросмотре; управление остаётся отключённым.";
+      }
     }
     context(requireNeutral = false, ignoreStart = false) {
       if (!this.options.visible() || !this.options.focused() || !this.options.routeActive()) throw new Error("Управление остановлено при уходе из окна опыта.");
@@ -186,10 +216,10 @@
     async poll() {
       let frame;
       try {
-        if (this.preview) { this.lastFrame = this.frame(); this.lastKeys = directionKeys(this.lastFrame, this.mode); this.notify(); return; }
+        if (this.preview) { this.sampleCalibration(); this.lastFrame = this.frame(); this.lastKeys = directionKeys(this.lastFrame, this.mode); this.notify(); return; }
         if (!["active", "connecting", "paused"].includes(this.state)) { this.scan(); return; }
         frame = this.context(); this.lastFrame = frame;
-      } catch (error) { await this.disconnect(error.message); return; }
+      } catch (error) { this.calibrating = null; await this.disconnect(error.message); return; }
       const rising = (index) => frame.buttons[index] && !this.previousButtons[index];
       const start = rising(9), mode = rising(8), speed = rising(11);
       this.previousButtons = [...frame.buttons];
@@ -223,7 +253,7 @@
       } catch (error) { await this.disconnect(error.message); }
       finally { this.busy = false; }
     }
-    inputProvenance() { return { input_origin: "Browser Gamepad API", native_source: "keyboard", scheme: SCHEME, axes_encoding: "digitized_directions_native_speed_and_smoothing", mapping: "standard" }; }
+    inputProvenance() { return { input_origin: "Browser Gamepad API", native_source: "keyboard", scheme: SCHEME, axes_encoding: "digitized_directions_native_speed_and_smoothing", mapping: "standard", raw_axes: [...this.rawAxes], buttons: [...(this.lastFrame?.buttons || [])], axis_calibration: this.calibration ? { ...this.calibration, centers: [...this.calibration.centers] } : null, deadzone: this.deadzone }; }
   }
 
   function keyboardGuide(controls = {}) {
@@ -233,7 +263,7 @@
   function panel(status) {
     const supported = status.capability.supported;
     const label = { active: "Управление включено", connecting: "Подключаем управление", paused: "STOP", disconnected: "Управление отключено" }[status.state] || "Ожидание";
-    return `<section class="panel spaced-section" data-browser-gamepad-panel><div class="panel-heading"><div><h2>Геймпад на Mac</h2><p>USB или Bluetooth подключён к Mac · Browser Gamepad API</p></div><span class="badge neutral" data-gamepad-state>${escape(label)}</span></div><div class="panel-body">${!supported ? `<p class="form-description">${escape(status.capability.reason)}</p>` : ""}${status.chassisProhibited ? `<p class="form-description"><strong>Движение шасси сейчас запрещено владельцем.</strong> Направления шасси не отправляются; команды руки используют прежний исполнитель.</p>` : ""}<div class="form-field"><label for="browser-gamepad-device">Контроллер</label><select id="browser-gamepad-device" data-gamepad-device><option value="">Выберите конкретный геймпад</option>${status.devices.map((device) => `<option value="${device.index}" ${status.selected?.identity === device.identity ? "selected" : ""}>${escape(device.id)} · №${device.index}${device.mapping !== "standard" ? " · нестандартная раскладка" : ""}</option>`).join("")}</select></div><div class="teleop-actions"><button type="button" class="button secondary" data-gamepad-action="scan">Найти контроллеры</button><button type="button" class="button primary" data-gamepad-action="connect" ${!supported || !status.selected || status.state === "active" || status.preview ? "disabled" : ""}>Наблюдаю ROSMASTER · подключить</button><button type="button" class="button danger" data-gamepad-action="disconnect">STOP · отключить</button></div><p data-gamepad-message role="status">${escape(status.reason)}</p><p>Режим: <strong data-gamepad-mode>${escape(MODE[status.mode])}</strong> · скорость руки: <strong data-gamepad-speed>${status.speed === "fast" ? "быстрая" : "обычная"}</strong>.</p><p class="form-description">Стики задают направления с обычной штатной скоростью; плавность сохраняет исполнитель ROSMASTER. Непрерывная аналоговая скорость этим адаптером не передаётся.</p><div class="keyboard-guide"><p><strong>Левый стик:</strong> ход и mecanum. <strong>L1/R1:</strong> поворот. <strong>L2/R2:</strong> открыть/закрыть захват.</p><p><strong>Правый стик:</strong> X/Y либо J1/J2. <strong>Y/A:</strong> Z вверх/вниз либо J3+/−. <strong>Крестовина:</strong> J4/J5 в суставном режиме.</p><p><strong>X:</strong> точно. <strong>Select:</strong> сменить режим. <strong>Start:</strong> явное продолжение после B. <strong>B:</strong> STOP. <strong>Нажатие правого стика:</strong> скорость руки.</p></div><details><summary>Проверка входов без движения и зона покоя</summary><label><input type="checkbox" data-gamepad-preview ${status.preview ? "checked" : ""}> Только смотреть входы, без управления</label><label for="browser-gamepad-deadzone">Зона покоя стиков</label><input id="browser-gamepad-deadzone" data-gamepad-deadzone type="number" min="0.05" max="0.4" step="0.01" value="${status.deadzone}"><p data-gamepad-inputs>Направления пока не нажаты.</p><p class="form-hint">Если контроллер не появился, нажмите и отпустите его кнопку, затем обновите список. Нестандартная раскладка не угадывается.</p></details></div></section>`;
+    return `<section class="panel spaced-section" data-browser-gamepad-panel><div class="panel-heading"><div><h2>Геймпад на Mac</h2><p>USB или Bluetooth подключён к Mac · Browser Gamepad API</p></div><span class="badge neutral" data-gamepad-state>${escape(label)}</span></div><div class="panel-body">${!supported ? `<p class="form-description">${escape(status.capability.reason)}</p>` : ""}${status.chassisProhibited ? `<p class="form-description"><strong>Движение шасси сейчас запрещено владельцем.</strong> Направления шасси не отправляются; команды руки используют прежний исполнитель.</p>` : ""}<div class="form-field"><label for="browser-gamepad-device">Контроллер</label><select id="browser-gamepad-device" data-gamepad-device><option value="">Выберите конкретный геймпад</option>${status.devices.map((device) => `<option value="${device.index}" ${status.selected?.identity === device.identity ? "selected" : ""}>${escape(device.id)} · №${device.index}${device.mapping !== "standard" ? " · нестандартная раскладка" : ""}</option>`).join("")}</select></div><div class="teleop-actions"><button type="button" class="button secondary" data-gamepad-action="scan">Найти контроллеры</button><button type="button" class="button primary" data-gamepad-action="connect" ${!supported || !status.selected || status.state === "active" || status.preview ? "disabled" : ""}>Наблюдаю ROSMASTER · подключить</button><button type="button" class="button danger" data-gamepad-action="disconnect">STOP · отключить</button></div><p data-gamepad-message role="status">${escape(status.reason)}</p><p>Режим: <strong data-gamepad-mode>${escape(MODE[status.mode])}</strong> · скорость руки: <strong data-gamepad-speed>${status.speed === "fast" ? "быстрая" : "обычная"}</strong>.</p><p class="form-description">Стики задают направления с обычной штатной скоростью; плавность сохраняет исполнитель ROSMASTER. Непрерывная аналоговая скорость этим адаптером не передаётся.</p><div class="keyboard-guide"><p><strong>Левый стик:</strong> ход и mecanum. <strong>L1/R1:</strong> поворот. <strong>L2/R2:</strong> открыть/закрыть захват.</p><p><strong>Правый стик:</strong> X/Y либо J1/J2. <strong>Y/A:</strong> Z вверх/вниз либо J3+/−. <strong>Крестовина:</strong> J4/J5 в суставном режиме.</p><p><strong>X:</strong> точно. <strong>Select:</strong> сменить режим. <strong>Start:</strong> явное продолжение после B. <strong>B:</strong> STOP. <strong>Нажатие правого стика:</strong> скорость руки.</p></div><details><summary>Проверка входов без движения и калибровка осей</summary><button type="button" class="button secondary small" data-gamepad-action="calibrate">Калибровать центры осей</button><p>Отпустите стики и кнопки на секунду. Калибровка меняет только браузерное чтение входов; после неё управление остаётся отключённым.</p><label><input type="checkbox" data-gamepad-preview ${status.preview ? "checked" : ""}> Только смотреть входы, без управления</label><label for="browser-gamepad-deadzone">Зона покоя стиков</label><input id="browser-gamepad-deadzone" data-gamepad-deadzone type="number" min="0.05" max="0.4" step="0.01" value="${status.deadzone}"><p data-gamepad-inputs>Направления пока не нажаты.</p><p class="form-hint">Если контроллер не появился, нажмите и отпустите его кнопку, затем обновите список. Нестандартная раскладка не угадывается.</p></details></div></section>`;
   }
 
   function install(options) {
@@ -243,9 +273,10 @@
     function patch() {
       const node = doc.querySelector("[data-browser-gamepad-panel]"); if (!node) return;
       const status = controller.status();
-      const messages = { "[data-gamepad-state]": { active: "Управление включено", connecting: "Подключаем", paused: "STOP", disconnected: "Отключено" }[status.state], "[data-gamepad-message]": status.reason, "[data-gamepad-mode]": MODE[status.mode], "[data-gamepad-speed]": status.speed === "fast" ? "быстрая" : "обычная", "[data-gamepad-inputs]": status.keys.length ? `Направления через штатные клавиши: ${status.keys.join(" · ")}` : "Направления не нажаты." };
+      const messages = { "[data-gamepad-state]": { active: "Управление включено", connecting: "Подключаем", paused: "STOP", disconnected: "Отключено" }[status.state], "[data-gamepad-message]": status.reason, "[data-gamepad-mode]": MODE[status.mode], "[data-gamepad-speed]": status.speed === "fast" ? "быстрая" : "обычная", "[data-gamepad-inputs]": `${status.keys.length ? `Направления: ${status.keys.join(" · ")}` : "Направления не нажаты."} Оси: ${status.rawAxes.map(value => value.toFixed(3)).join(" / ") || "нет данных"}. ${status.calibrating ? `Калибровка: ${status.calibrationSamples} отсчётов` : status.calibration ? "Центры осей настроены" : "Центры осей: исходные"}.` };
       Object.entries(messages).forEach(([selector, value]) => { const target = node.querySelector(selector); if (target) target.textContent = value; });
       const connect = node.querySelector('[data-gamepad-action="connect"]'); if (connect) connect.disabled = !status.capability.supported || !status.selected || status.state === "active" || status.state === "connecting" || status.preview || status.busy;
+      const deadzone = node.querySelector('[data-gamepad-deadzone]'); if (deadzone && doc.activeElement !== deadzone) deadzone.value = status.deadzone;
     }
     function interrupt(reason) { if (["active", "connecting", "paused"].includes(controller.state) || controller.busy) controller.disconnect(reason).catch(() => {}); }
     win.addEventListener("blur", () => interrupt("Окно потеряло фокус. Подключите управление явно."));
@@ -266,6 +297,7 @@
       try {
         if (button.dataset.gamepadAction === "scan") { controller.scan(); if (options.render) options.render(); }
         else if (button.dataset.gamepadAction === "connect") await controller.connect();
+        else if (button.dataset.gamepadAction === "calibrate") await controller.calibrate();
         else await controller.disconnect("STOP: геймпад отключён пользователем.");
       } catch (error) { controller.reason = error.message; patch(); if (options.error) options.error(error.message); }
     });

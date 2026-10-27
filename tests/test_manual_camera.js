@@ -77,3 +77,17 @@ test("HTTP/auth/decode errors and a lost visible preview notify unavailability",
   await hidden.preview.start(); visible = false; await hidden.advance(50);
   assert.equal(hidden.preview.ready(), false); assert.equal(hidden.unavailable[0].reason, "preview_not_visible"); hidden.preview.stop();
 });
+
+test("source timestamp metadata is shown without converting its clock into browser freshness", async () => {
+  const r = rig(async () => {
+    const value = response("source-1"), get = value.headers.get;
+    value.headers.get = name => ({ "x-wall-utc": "2026-10-27T09:00:00Z", "x-monotonic-ns": "9007199254740993", "x-clock-domain": "nano:boot", "x-timestamp-basis": "node_cache_read_completed_not_exposure" }[name] ?? get(name));
+    return value;
+  });
+  assert.equal(await r.preview.start(), true);
+  assert.equal(r.frames[0].source_monotonic_ns, "9007199254740993");
+  assert.equal(r.frames[0].source_clock_domain, "nano:boot");
+  assert.equal(r.frames[0].exposure_timestamp_verified, false);
+  assert.equal(r.preview.state().source_metadata.timestamp_basis, "node_cache_read_completed_not_exposure");
+  await r.advance(2100); assert.equal(r.preview.ready(), false); r.preview.stop();
+});

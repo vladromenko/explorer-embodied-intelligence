@@ -197,6 +197,30 @@ test('an uncertain gamepad STOP blocks another acquisition and requires explicit
   f.options.post = original; await f.controller.connect(); assert.equal(f.controller.state, 'active');
 });
 
+test('axis centers calibrate from resting samples without any transport call or ownership', async () => {
+  const f = fixture(); f.device.axes = [.12, -.08, .03, -.04]; await f.controller.select(0);
+  await f.controller.calibrate();
+  for (let index = 0; index < 32; index++) { f.state.now += 30; await f.controller.poll(); }
+  assert.equal(f.calls.length, 0); assert.equal(f.controller.state, 'disconnected');
+  assert(f.controller.calibration && !f.controller.calibrating);
+  assert(f.controller.frame().neutral); assert.equal(f.controller.deadzone, .05);
+  f.device.axes[0] = .8; await f.controller.poll(); assert(f.controller.lastKeys.includes('KeyD'));
+  assert.equal(f.controller.inputProvenance().raw_axes[0], .8);
+});
+
+test('held or unstable inputs cannot be calibrated into neutral and cannot acquire control', async () => {
+  const f = fixture(); await f.controller.select(0); f.device.axes[0] = .8;
+  await f.controller.calibrate(); await f.controller.poll();
+  assert.equal(f.controller.calibration, null); assert.equal(f.controller.calibrating, null);
+  assert.equal(f.calls.length, 0); assert.match(f.controller.reason, /отпустите/);
+});
+
+test('calibration refuses to change an active manual mapping', async () => {
+  const f = fixture(); await connected(f); const before = f.calls.length;
+  await assert.rejects(f.controller.calibrate(), /отключите/); assert.equal(f.calls.length, before);
+  assert.equal(f.controller.state, 'active');
+});
+
 (async () => {
   let passed = 0;
   for (const entry of tests) { await entry.callback(); ++passed; process.stdout.write(`PASS ${entry.name}\n`); }

@@ -76,7 +76,7 @@ function reasonText(value) {
 }
 
 const rosmasterDemonstrationRoute = () => ["02", "03"].includes(activeProject()?.id);
-const model = { state: null, jobs: [], skills: [], research: {}, recordings: [], actions: [], lastUpdate: null, lastExtras: 0, error: null, refreshing: false, simDraft: { task: "reach", updates: 256, seed: 0 }, robot: { teleop: null, controls: null, teaching: null, error: null, episodeName: "Первый показ" } };
+const model = { state: null, jobs: [], skills: [], research: {}, recordings: [], actions: [], lastUpdate: null, lastExtras: 0, error: null, refreshing: false, simDraft: { task: "reach", updates: 256, seed: 0 }, robot: { teleop: null, controls: null, teaching: null, error: null, episodeName: "Первый показ", episodeDescription: "", capturePreview: null } };
 const labVision = createLabVisionClient({get: api,post: (...args) => post(...args),onChange: () => { model.forceRender = true; render(); }});
 const tabletopCalibration = createTabletopCalibrationClient({get:api,post:(...args) => post(...args),onChange:() => { model.forceRender = true; render(); }});
 const cooperativeWorkbench = createCooperativeWorkbenchClient({get:api,post:(...args) => post(...args),onChange:() => { model.forceRender = true; render(); }});
@@ -288,7 +288,7 @@ const manualPreview = createManualCameraPreview({
     cameraCard.querySelector("#camera-dot").className = "status-dot good";
     cameraCard.querySelector("#camera-mode").textContent = "ROSMASTER · JPEG ≈ 5 КАДРОВ/С";
     const time = cameraCard.querySelector("#camera-time"); time.style.display = "block"; time.textContent = `Получено ${clockTime()}`;
-    const status = document.querySelector("#manual-camera-status"); if (status) status.textContent = `Кадр ${frame.frame_id} · камера на связи`;
+    const status = document.querySelector("#manual-camera-status"); if (status) status.textContent = `Кадр ${frame.frame_id} · ${frame.source_wall_utc ? `кэш ${clockTime(dateValue(frame.source_wall_utc))}` : "время источника не получено"} · камера на связи`;
   },
   onUnavailable: () => {
     cameraUnavailable("Нет свежих кадров ROSMASTER", "Проверяем камеру повторно. Управление требует нового явного подключения.");
@@ -315,7 +315,8 @@ const browserGamepad = ExplorerBrowserGamepad.install({
   window, document, secure: window.isSecureContext,
   getGamepads: typeof navigator.getGamepads === "function" ? () => navigator.getGamepads() : undefined,
   visible: () => !document.hidden, focused: () => document.hasFocus(), routeActive: () => activeProject()?.id === "02" && !dialog.open,
-  cameraReady: rosmasterCameraReady, now: () => performance.now(), post,
+  cameraReady: rosmasterCameraReady, now: () => performance.now(),
+  post: (url, body, options) => post(url, url.endsWith("/input") ? { ...body, operator_input_metadata: browserGamepad.inputProvenance() } : body, options),
   controls: async () => { await loadRobot(); return model.robot.controls; }, nativeState: () => model.robot.teleop || {},
   claim: () => claimManualInput("gamepad"), ownershipCurrent: ownsManualInput,
   beforeConnect: async token => { await stopKeyboard(true); await waitManualIdle(keyboard, token); if (keyboard.stopUnconfirmed) throw new Error("STOP клавиатуры не подтверждён."); await observedNative.requirePermission("browser_gamepad"); },
@@ -435,7 +436,7 @@ function demonstrationTeaching() {
   if (activeProject()?.id !== "03") {
     const capture = model.robot.nativeCapture, activeId = capture?.active_recording_id;
     const legacy = model.robot.teaching || {};
-    if (activeId) return {active:{...(capture.capture || {}),id:activeId,source:"canonical",samples:capture.capture?.samples_written},last:array(capture.ready_recordings).at(-1)};
+    if (activeId) return {active:{...(capture.capture || {}),id:activeId,source:"canonical",samples:capture.capture?.samples_written,frames:capture.capture?.frames_recorded},last:array(capture.ready_recordings).at(-1)};
     return {...legacy,active:legacy.active ? {...legacy.active,source:"legacy"} : null};
   }
   const recording = direct03.status?.recording;
@@ -461,9 +462,14 @@ function experiment02Page(project) {
   const recordPanel = !leader || direct03.demoMode === "record" ? `<div class="spaced-section">${episodePanel()}${episodeStagePanel()}</div>` : notice("Зеркало без обучения", "Включение ручного контура не создаёт эпизод. Для демонстраций выберите режим записи и подтверждённую версию навыка.");
   return heading("Обучение ROSMASTER", "Единый мобильный манипулятор: восприятие, база, рука и захват. Общие 9D данные, охват показов, обучение и версии навыка.", `Исследовательский опыт / ${project.id}`) +
     notice(observedNative.chassisAllowed()?"Наблюдаемый тест шасси разрешён":"Шасси по умолчанию заблокировано", "Любое движение — только в отдельной проверке под текущим наблюдением пользователя. Исходные настройки штатного исполнителя сохранены.") + '<a class="button secondary" href="/evening" data-link>Открыть мастер наблюдаемой сессии</a>' +
-    `<div class="experiment02-layout"><aside class="experiment02-aside"><div id="camera-slot"></div><div class="manual-session-status" role="status"><strong>${esc(status)}</strong><span id="manual-camera-status">${rosmasterCameraReady() ? "Свежие кадры ROSMASTER получены" : "Ожидаем свежий кадр ROSMASTER"}</span><span>Предпросмотр ≈ 5 кадров/с; исходная запись сохраняет свою частоту.</span></div>${guide}${leader ? `<section class="panel spaced-section"><div class="panel-heading"><h3>Измерения leader</h3></div><div class="panel-body">${stationMeasurements(true)}</div></section>` : ""}</aside><div class="experiment02-workflow">` +
+    `<div class="experiment02-layout"><aside class="experiment02-aside"><div id="camera-slot"></div><div class="manual-session-status" role="status"><strong>${esc(status)}</strong><span id="manual-camera-status">${rosmasterCameraReady() ? "Свежие кадры ROSMASTER получены" : "Ожидаем свежий кадр ROSMASTER"}</span><span>Предпросмотр ≈ 5 кадров/с; исходная запись сохраняет свою частоту.</span></div>${rosmasterCameraInventoryPanel()}${guide}${leader ? `<section class="panel spaced-section"><div class="panel-heading"><h3>Измерения leader</h3></div><div class="panel-body">${stationMeasurements(true)}</div></section>` : ""}</aside><div class="experiment02-workflow">` +
     controls + skillWorkflowPanel() + recordPanel +
     `<div class="spaced-section">${mobileEvidencePanel(mobileEvidence.snapshot(), {preview: manualPreview.state(), teaching})}</div><div class="spaced-section">${jobsPanel(jobs, "Обучение и проверка ROSMASTER")}</div><div class="spaced-section">${recordingsPanel(project.id)}</div></div></div>`;
+}
+
+function rosmasterCameraInventoryPanel() {
+  const sources = cameras().filter(camera => camera.id?.startsWith("nano-"));
+  return `<section class="panel spaced-section"><div class="panel-heading"><h3>Камеры ROSMASTER</h3></div><div class="panel-body">${sources.map(camera => `<p><strong>${esc(cameraLabel(camera))}</strong> · ${camera.available !== false && camera.node_online !== false ? "источник доступен" : "недоступна"}${camera.error ? ` · ${esc(camera.error === "not_found_in_audited_live_sources" ? "не найдена среди действующих источников" : camera.error)}` : ""}</p>`).join("") || "Проверяем камеры Nano…"}<p class="form-hint">Перед показом предмет, захват и цель должны быть видны. Время кэша кадра не является подтверждённым временем экспозиции. Если USB-камера недоступна, проверьте подключение; исходная запись и предпросмотр используют существующего владельца камеры.</p></div></section>`;
 }
 
 function episodeStagePanel() {
@@ -472,9 +478,24 @@ function episodeStagePanel() {
   const phases = skillWorkflowUI.captureContext?.spec?.stages || skillWorkflowUI.state?.spec?.stages || [];
   return `<section class="panel spaced-section"><div class="panel-heading"><h3>Фаза текущего показа</h3></div><div class="panel-body"><p>Отмечайте переход в момент начала фазы. Это отметка оператора, а не автоматическое подтверждение контакта или успеха.</p><div class="teleop-actions">${phases.map(phase => `<button class="button secondary small" type="button" data-episode-stage="${esc(phase.id)}" data-episode-id="${esc(active.id)}">${esc(phase.title)}</button>`).join("")}</div></div></section>`;
 }
+function episodeReviewPanel() {
+  if (activeProject()?.id !== "02") return "";
+  const originals = array(model.robot.nativeCapture?.ready_recordings).slice(-12).reverse();
+  if (!originals.length) return "";
+  return `<section class="panel spaced-section"><div class="panel-heading"><h3>Сохранённые показы на ROSMASTER</h3></div><div class="panel-body"><p>Просмотрите запись и явно одобрите перенос на Homebrain. Отметка успеха и одобрение переноса — отдельные действия; качество для обучения проверяется после импорта.</p>${originals.map(row => `<article class="recording-row"><h4>${esc(row.task_name || row.recording_id)}</h4><p>${count(row.frames_recorded)} кадров · ${count(row.samples_written)} командных отсчётов · ${esc({success:"успех по отметке оператора",failure:"неудача",unknown:"неясный исход",rejected:"отменён"}[row.outcome] || "исход не указан")} · ${row.transfer_ready ? "перенос одобрен" : row.source_review?.decision === "reject" ? "отклонён" : "ожидает одобрения"}</p><div class="teleop-actions"><button class="button secondary small" type="button" data-action="episode-preview" data-episode-id="${esc(row.recording_id)}">Просмотреть</button><a class="button secondary small" href="/api/mobile/capture/recordings/${encodeURIComponent(row.recording_id)}/download">Скачать оригинал</a>${row.skill_capture_id ? `<button class="button primary small" type="button" data-action="episode-review" data-decision="approve" data-episode-id="${esc(row.recording_id)}" ${row.state !== "completed" || row.transfer_ready ? "disabled" : ""}>Одобрить перенос</button><button class="button secondary small" type="button" data-action="episode-review" data-decision="reject" data-episode-id="${esc(row.recording_id)}">Отклонить</button>` : ""}</div></article>`).join("")}${episodePreviewPanel()}</div></section>`;
+}
+function episodePreviewPanel() {
+  const preview = model.robot.capturePreview;
+  if (!preview) return "";
+  const samples = array(preview.embodied_episode?.samples), seen = new Set();
+  const frames = [...array(preview.embodied_episode?.observation_stream).map(item => item.camera_rgb), ...samples.map(sample => sample.channels?.camera_rgb?.value)].filter(frame => frame?.sha256 && !seen.has(frame.sha256) && seen.add(frame.sha256));
+  const stride = Math.max(1, Math.ceil(frames.length / 12));
+  return `<details open><summary>Показ ${esc(preview.recording_id)} · ${count(samples.length)} отсчётов</summary><p>Исходные кадры с их ID. Паузы и отметки оператора сохранены; это не независимая оценка успеха.</p><div class="episode-preview-frames">${frames.filter((_, index) => index % stride === 0).map(frame => `<figure><img loading="lazy" src="/api/mobile/capture/recordings/${encodeURIComponent(preview.recording_id)}/frame/${encodeURIComponent(frame.sha256)}" alt="Исходный кадр ${esc(frame.frame_id)}"><figcaption>${esc(frame.frame_id)}</figcaption></figure>`).join("") || "Кадры в записи не подтверждены."}</div></details>`;
+}
 function episodePanel() {
-  const teaching = demonstrationTeaching(); const active = teaching.active; const last = teaching.last;
-  return `<section class="panel"><div class="panel-heading"><div><h2>Запись ROSMASTER</h2><p>Камера, датчики и доступные команды</p></div>${badge(active ? "running" : "not_started")}</div><div class="panel-body">${active ? `<p class="form-description">Идёт запись: ${esc(text(active.name, active.id || "показ"))}. Завершите показ и отметьте наблюдавшийся результат.</p><div class="episode-outcomes"><button class="button primary" data-episode-outcome="success" data-episode-id="${esc(active.id)}" type="button">Задача выполнена</button><button class="button secondary" data-episode-outcome="failure" data-episode-id="${esc(active.id)}" type="button">Не получилось</button><button class="button secondary" data-episode-outcome="unknown" data-episode-id="${esc(active.id)}" type="button">Результат неясен</button></div><p class="form-hint">Оценка оператора сохраняется отдельно от независимой проверки навыка.</p>` : `<form id="episode-form"><div class="form-field"><label for="episode-name">Название задачи</label><input id="episode-name" name="name" value="${esc(model.robot.episodeName)}" maxlength="80" required placeholder="Например: подвести захват к предмету"></div><button type="submit" class="button primary" style="margin-top:16px">${icon("record")}Начать запись</button><p class="form-hint">При неизвестных положениях руки сохраняются кадры и датчики. Полный показ с командами сохраняется, когда их история доступна.</p></form>`}${last ? `<div class="episode-last"><span class="status-dot good"></span>Последний показ сохранён${last.outcome ? ` · ${esc({ success: "отмечен успех", failure: "отмечена неудача", unknown: "результат неясен" }[last.outcome] || last.outcome)}` : ""}</div>` : ""}${array(teaching.record_errors).length ? `<p class="form-error">${esc(teaching.record_errors.map(reasonText).join(". "))}</p>` : ""}</div></section>`;
+  const teaching = demonstrationTeaching(), active = teaching.active, last = teaching.last;
+  const canonical = active?.source === "canonical", paused = active?.state === "PAUSED";
+  return `<section class="panel"><div class="panel-heading"><div><h2>Запись ROSMASTER</h2><p>Камера, датчики и доступные команды</p></div>${badge(active ? paused ? "paused" : "running" : "not_started")}</div><div class="panel-body">${active ? `<p class="form-description">${paused ? "Запись на паузе" : "Идёт запись"}: ${esc(text(active.name, active.id || "показ"))}. ${count(active.frames)} кадров · ${count(active.samples)} командных отсчётов. Завершите показ и отметьте наблюдавшийся результат.</p>${canonical ? `<div class="teleop-actions"><button class="button secondary" data-action="episode-lifecycle" data-operation="${paused ? "resume" : "pause"}" data-episode-id="${esc(active.id)}" type="button">${paused ? "Продолжить запись" : "Пауза записи"}</button><button class="button secondary" data-action="episode-lifecycle" data-operation="cancel" data-episode-id="${esc(active.id)}" type="button">Отменить показ</button></div><p class="form-hint">Пауза относится к записи. Для остановки робота используйте отдельную кнопку STOP. Паузы не склеиваются в одну обучающую последовательность.</p>` : ""}<div class="episode-outcomes"><button class="button primary" data-episode-outcome="success" data-episode-id="${esc(active.id)}" type="button">Задача выполнена</button><button class="button secondary" data-episode-outcome="failure" data-episode-id="${esc(active.id)}" type="button">Не получилось</button><button class="button secondary" data-episode-outcome="unknown" data-episode-id="${esc(active.id)}" type="button">Результат неясен</button></div><p class="form-hint">Оценка оператора сохраняется отдельно от независимой проверки навыка.</p>` : `<form id="episode-form"><div class="form-field"><label for="episode-name">Название задачи</label><input id="episode-name" name="name" value="${esc(model.robot.episodeName)}" maxlength="80" required placeholder="Например: подвести захват к предмету"></div><div class="form-field"><label for="episode-description">Что и как показать</label><textarea id="episode-description" maxlength="2000" rows="3" placeholder="Начальная сцена, движение и видимый признак завершения">${esc(model.robot.episodeDescription)}</textarea></div><button type="submit" class="button primary" style="margin-top:16px">${icon("record")}Записать демонстрацию</button><p class="form-hint">Выберите подтверждённый навык и сессию выше. История команд и кадры сохраняются на Nano; неизвестные измерения остаются неизвестными.</p></form>`}${last ? `<div class="episode-last">Последний показ сохранён · ${esc(last.recording_id || last.id || "")}</div>` : ""}${model.robot.nativeCapture?.capture?.state === "SEALING" ? '<p role="status">Сохраняем и проверяем исходные файлы. Одобрение станет доступно после завершения.</p>' : ""}${model.robot.nativeCapture?.source_error || model.robot.nativeCapture?.observation_error || model.robot.nativeCapture?.capture?.error ? `<p class="form-error">Ошибка записи: ${esc(model.robot.nativeCapture?.source_error || model.robot.nativeCapture?.observation_error || model.robot.nativeCapture?.capture?.error)}. Исходные файлы сохраняются; успех не подтверждён.</p>` : ""}${array(teaching.record_errors).length ? `<p class="form-error">${esc(teaching.record_errors.map(reasonText).join(". "))}</p>` : ""}</div></section>${episodeReviewPanel()}`;
 }
 
 // ENGINEERING_GLUE: explicit whole-episode holdout and offline scene prediction only.
@@ -836,6 +857,28 @@ document.addEventListener("click", async (event) => {
   }
   if (action === "robot-stop") { await stopKeyboard(false); return; }
   if (button.dataset.armMode) { try { await setArmMode(button.dataset.armMode); } catch (error) { toast(error.message, true); } return; }
+  if (["episode-lifecycle", "episode-review", "episode-preview"].includes(action)) {
+    button.disabled = true;
+    try {
+      const identity = button.dataset.episodeId;
+      if (action === "episode-preview") model.robot.capturePreview = await api(`/api/mobile/capture/recordings/${encodeURIComponent(identity)}/manifest`);
+      else if (action === "episode-review") {
+        const row = array(model.robot.nativeCapture?.ready_recordings).find(item => item.recording_id === identity);
+        if (!row?.archive_sha256 || !row.skill_capture_id) throw new Error("Обновите исходную запись и её контекст перед одобрением.");
+        await post("/api/mobile/capture/record/review", {expected_id: identity, skill_capture_id: row.skill_capture_id, decision: button.dataset.decision, expected_archive_sha256: row.archive_sha256});
+        toast(button.dataset.decision === "approve" ? "Перенос одобрен. Целостность и пригодность проверяются отдельно." : "Показ отклонён; оригинал сохранён на Nano.");
+      } else {
+        const current = demonstrationTeaching().active;
+        if (!current || current.id !== identity || current.source !== "canonical" || !skillWorkflowUI.capture) throw new Error("Текущая запись изменилась. Обновите страницу.");
+        const operation = button.dataset.operation;
+        if (!["pause", "resume", "cancel"].includes(operation)) throw new Error("Неизвестное действие записи.");
+        await post(demonstrationRecordPath(operation), {expected_id: identity, skill_capture_id: skillWorkflowUI.capture});
+        if (operation === "cancel") skillWorkflowCaptureFinished();
+      }
+      await loadRobot(); model.forceRender = true; render();
+    } catch (error) { toast(error.message, true); button.disabled = false; }
+    return;
+  }
   if (button.dataset.episodeOutcome) {
     button.disabled = true;
     try {
@@ -869,6 +912,7 @@ document.addEventListener("input", (event) => {
   if (event.target.id === "sim-updates") model.simDraft.updates = Number(event.target.value);
   if (event.target.id === "sim-seed") model.simDraft.seed = Number(event.target.value);
   if (event.target.id === "episode-name") model.robot.episodeName = event.target.value;
+  if (event.target.id === "episode-description") model.robot.episodeDescription = event.target.value;
 });
 document.addEventListener("change", (event) => {
   if (event.target.id === "world-dataset") { worldLearning.manifest = event.target.value; worldLearning.signature = ""; worldLearning.development = null; model.forceRender = true; render(); }
@@ -886,7 +930,7 @@ document.addEventListener("submit", async (event) => {
       const context = skillWorkflowRecordingContext();
       if (model.robot.captureCapabilities?.native_owner_ready !== true) throw new Error("Запись с подтверждёнными командами пока недоступна. Её активация требует отдельной наблюдаемой проверки; видео наблюдения доступно отдельно.");
       if (activeProject()?.id === "03" && direct03.status?.state !== "ACTIVE") throw new Error("Сначала включите наблюдаемое зеркало ROSMASTER.");
-      const started = await post(demonstrationRecordPath("start"), { expected_control_epoch: activeProject()?.id === "03" ? direct03.status?.control_epoch : undefined, name: model.robot.episodeName, observing: true, object_label: "", object_class: "unknown", size_class: "medium", destination: "", skill_context: context });
+      const started = await post(demonstrationRecordPath("start"), { expected_control_epoch: activeProject()?.id === "03" ? direct03.status?.control_epoch : undefined, name: model.robot.episodeName, description: model.robot.episodeDescription, observing: true, object_label: "", object_class: "unknown", size_class: "medium", destination: "", skill_context: context });
       if (activeProject()?.id === "03") direct03.recordId = started.recording_id || started.skill_capture?.original_episode_id || "";
       if (started.skill_capture?.capture_id) skillWorkflowCaptureStarted(started.skill_capture.capture_id, started.skill_capture);
       if (started.skill_workflow_error) toast(started.skill_workflow_error, true);

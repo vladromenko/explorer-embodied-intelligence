@@ -87,7 +87,7 @@ class Store:
             record_runtime_identity(db,'job',job_id,project_id)
         return self.job(job_id)
 
-    def create_import_job(self,kind,project_id,episode_id,source_sha256=None,*,source_format=None):
+    def create_import_job(self,kind,project_id,episode_id,source_sha256=None,*,source_format=None,source_review_sha256=None):
         from explorer_shared.experiments import canonical_experiment
         project_id=canonical_experiment(project_id,numbering_version=2)
         if kind not in ('station_import','mobile_import','retarget_import'):
@@ -100,6 +100,10 @@ class Store:
         if source_format=='native_capture_v1':
             if kind!='mobile_import' or project_id!='02':raise ValueError('Native mobile import is the direct02 producer; leader03 retains its own proxy import')
             settings['source_format']=source_format
+        if source_review_sha256 is not None:
+            if source_format!='native_capture_v1' or not isinstance(source_review_sha256,str) or not re.fullmatch('[0-9a-f]{64}',source_review_sha256):
+                raise ValueError('Pinned native Source review SHA256 required')
+            settings['source_review_sha256']=source_review_sha256
         if kind=='retarget_import' or source_format=='native_capture_v1':
             if not isinstance(source_sha256,str) or not re.fullmatch('[0-9a-f]{64}',source_sha256):
                 raise ValueError('Direct teaching import requires the immutable source archive SHA256')
@@ -108,12 +112,15 @@ class Store:
         now=time.time()
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')
-            previous=db.execute("SELECT * FROM jobs WHERE kind=? AND json_extract(config,'$.episode_id')=? ORDER BY created DESC LIMIT 1",(kind,episode_id)).fetchone()
+            previous=db.execute("SELECT * FROM jobs WHERE kind=? AND json_extract(config,'$.episode_id')=? ORDER BY (status='completed') DESC,created DESC LIMIT 1",(kind,episode_id)).fetchone()
             if previous:
                 if (kind=='retarget_import' or source_format=='native_capture_v1') and json.loads(previous['config']).get('archive_sha256')!=source_sha256:
                     raise ValueError('Conflicting direct teaching archive for the same original recording')
                 if source_format and json.loads(previous['config']).get('source_format')!=source_format:raise ValueError('Original recording producer identity changed')
-                return self.decode_job(previous)
+                renewed_review=(source_format=='native_capture_v1' and source_review_sha256 is not None and
+                    previous['status'] in ('failed','cancelled') and json.loads(previous['config']).get('source_review_sha256')!=source_review_sha256)
+                if not renewed_review:return self.decode_job(previous)
+                settings['retry_of_job_id']=previous['id']
             db.execute('INSERT INTO jobs(id,kind,project_id,status,created,updated,config) VALUES (?,?,?,?,?,?,?)',
                 (job_id,kind,project_id,'queued',now,now,json.dumps(settings)))
             from .experiment_projection import record_runtime_identity

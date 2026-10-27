@@ -11,7 +11,7 @@
     const win = options.window || surface;
     const periodMs = 200, staleMs = 2000, timeoutMs = 1200;
     let active = false, epoch = 0, timer = null, inflight = null;
-    let lastAttempt = -Infinity, lastUniqueRx = null, lastFrameId = null;
+    let lastAttempt = -Infinity, lastUniqueRx = null, lastFrameId = null, lastMetadata = null;
     let unavailableNotified = false, reason = "not_started", displayedUrl = null;
     const urls = options.urls || surface.URL;
     const onUnavailable = options.onUnavailable || (() => {});
@@ -33,7 +33,7 @@
     }
     function state() {
       return { camera_id: cameraId, active, request_inflight: inflight !== null, ready: ready(),
-        frame_id: lastFrameId, last_unique_received_browser_monotonic_ms: lastUniqueRx,
+        frame_id: lastFrameId, source_metadata: lastMetadata ? { ...lastMetadata } : null, last_unique_received_browser_monotonic_ms: lastUniqueRx,
         age_ms: lastUniqueRx === null ? null : Math.max(0, clock() - lastUniqueRx),
         freshness_clock: "browser_receive_monotonic_only", reason, max_stale_ms: staleMs, preview_period_ms: periodMs };
     }
@@ -76,13 +76,16 @@
           if (!valid(entry)) return;
           if (!blob || blob.size < 4 || blob.size > 10 * 1024 * 1024) throw new Error("snapshot_size_invalid");
           const metadata = { camera_id: cameraId, frame_id: frameId, received_browser_monotonic_ms: received,
+            source_wall_utc: response.headers.get("x-wall-utc"), source_monotonic_ns: response.headers.get("x-monotonic-ns"),
+            source_clock_domain: response.headers.get("x-clock-domain"), timestamp_basis: response.headers.get("x-timestamp-basis"),
+            exposure_timestamp_verified: false,
             freshness_clock: "browser_receive_monotonic_only", new_source_frame: frameId !== lastFrameId };
           await showFrame(blob, metadata);
           frameUrl = metadata.objectUrl || null;
           if (!valid(entry)) return;
           if (frameUrl) { if (displayedUrl && displayedUrl !== frameUrl) urls.revokeObjectURL(displayedUrl); displayedUrl = frameUrl; frameUrl = null; }
           if (options.image) options.image.hidden = false;
-          if (metadata.new_source_frame) { lastFrameId = frameId; lastUniqueRx = received; }
+          if (metadata.new_source_frame) { lastFrameId = frameId; lastUniqueRx = received; lastMetadata = { ...metadata }; delete lastMetadata.objectUrl; }
           if (!ready()) { unavailable("source_frame_not_advancing", false); entry.finish(false); return; }
           reason = null; unavailableNotified = false;
           if (options.image) options.image.hidden = false;

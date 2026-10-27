@@ -1,0 +1,109 @@
+{
+  "schema": "explorer_02_acquisition_candidate_evidence_v1",
+  "status": "IMPLEMENTED_CANDIDATE_NOT_DEPLOYED_02B_OPEN",
+  "physical_commands": 0,
+  "controller_settings_changed": false,
+  "read_only_live": {
+    "live_commit": "4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4",
+    "native_control_requests": 0,
+    "gets": {
+      "/api/state": {
+        "status": 200,
+        "bytes": 403816,
+        "sha256": "54a3efe84cd3393d5fd224fb5f316e05802a24a7fe8c70165ae59f8c0593d7a3"
+      },
+      "/api/jobs": {
+        "status": 200,
+        "bytes": 245931,
+        "sha256": "74e54870a9d15123a479d2a86687026f352f5a60523774f59be37332c1803828"
+      },
+      "/api/mobile/capture/capabilities": {
+        "status": 200,
+        "bytes": 313,
+        "sha256": "405e7e9c40836038d8c1d60dd4fc14a1d783de08c3cc67f72327c2bac86c3b05"
+      },
+      "/api/mobile/capture/status": {
+        "status": 200,
+        "bytes": 557,
+        "sha256": "f2fdd1a064430a770fde810cf619bd8ea2e5d35974f50f02c1fd81b2f14931c3"
+      },
+      "/api/robot/teleop": {
+        "status": 200,
+        "bytes": 346,
+        "sha256": "d24a0cd026df61d6ad91ac311bb3f3c8c1358d2574052debefca9981bf3ca226"
+      },
+      "/api/robot/teleop/controls": {
+        "status": 200,
+        "bytes": 2489,
+        "sha256": "bc3a62c851625f11b707e48dc45d58c905933c2d7edad22461f6c28098e4989d"
+      },
+      "/api/cameras/nano-rgbd/snapshot": {
+        "status": 200,
+        "bytes": 18445,
+        "sha256": "7c8263b5680efa0325d8fb9e6cd7098965dfbdf09b8fe1dbb389cf0f74cb906c"
+      }
+    },
+    "active_jobs": 0,
+    "capture": {
+      "action_dimension": 9,
+      "controller_settings_written": false,
+      "metadata_skill_context_supported": true,
+      "native_owner_ready": true,
+      "native_source_error": null,
+      "native_source_method": "GET_ONLY",
+      "physical_qualification": false,
+      "projects": [
+        "02",
+        "03"
+      ],
+      "same_target_producer": true,
+      "schema": "explorer_native_capture_service_v1"
+    },
+    "camera_headers": {
+      "x-frame-id": "nano-rgbd:b005196058bf:73788",
+      "x-clock-domain": "nano:1a7adeb3-896b-443d-803b-8f7da50d40a9",
+      "x-content-type-options": "nosniff"
+    }
+  },
+  "tests": [
+    {
+      "junit": "acquisition-integrated-k.xml",
+      "sha256": "152de3c35eb9cc1e4ac49a2ebed2b89e43e105f52686ff2818e088aeaff0c736",
+      "tests": 59,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "junit": "continuous-observation-j.xml",
+      "sha256": "7f77ba999e77288752db5c5f8b479974397521be8a8d8f717a630cd8e1b05dde",
+      "tests": 42,
+      "failures": 0,
+      "errors": 0
+    }
+  ],
+  "browser_receipt_sha256": "02e0a234b0b9ced5e2685452797dbddf6a3c8ce9b568f1ad23d5a2b5fd2d400d",
+  "physical_validation": "REQUIRED",
+  "limitations": [
+    "No real Mac gamepad hardware qualification",
+    "Logitech not present among audited sources; USB video inventory empty",
+    "DaBai image currently points upper room; owner must frame work scene",
+    "Native reference fault retained; no HOME/grant/motion by agent",
+    "Real completed task demonstrations and complete02B remain open"
+  ],
+  "source_sha256": {
+    "00-control-center/src/explorer/app.py": "ed8ae5268f0ca7cabda0f2e51ec22e258c120a87fcd705f4e224f476f2ed5218",
+    "00-control-center/src/explorer/static/app.js": "78134e025ec5bbd45129686ae85c9422b392b3864c51f86a7f6a9ebb2b96905b",
+    "00-control-center/src/explorer/static/gamepad.js": "0e80bb6977643dd61fa5cb6899a6ab547920a8ec5e0311dbc4783cc3a872a1ea",
+    "00-control-center/src/explorer/static/manual-camera.js": "5e54d525fb4a74a1802fb3abd561a681fd6bea79fc4220ca2422fc49f15ae9df",
+    "00-control-center/src/explorer/static/styles.css": "5efa01876eb9423f79a2b638d75c45912b05186a647dd818fa3bb34c21f62815",
+    "00-control-center/src/explorer/store.py": "bd09ee4cb564023d5076b5e90c25c9b0b1d28e932b210ba8e26460e36ece11bb",
+    "shared/explorer_shared/native_capture.py": "4a5ab1ff3d275461299bd096d6396393e095bb5960761785c62bba234c296172",
+    "shared/explorer_shared/native_capture_service.py": "b3f9fee32c5324516d7731930c434a6658c072fef6f77eebf72be8808cb6ee67",
+    "shared/explorer_shared/native_sensor_cache.py": "30b0f0bdd32921ece687be97e07f4e4ed1035ebfcf2539be540669eecd265bcb",
+    "shared/explorer_shared/node_agent.py": "1946d15f01c996b51f9d66c43dd8ef173b40901ee9b417da5abc5d6d7d9db828",
+    "tests/test_camera_proxy_security.py": "063b2f3e2fcd35a6cb9e484936caaedc35143d665f96882afce267e8c6ae0a6f",
+    "tests/test_capture_transport_api.py": "cb803fd0d2876a0230c54375178d0a6417ec5843133cb1615283d2e1ecb9bc19",
+    "tests/test_manual_camera.js": "159a9da51c221a0eadb8a536b902da76cef0dbe13206ed0cf001e9a3a6fe2fe9",
+    "tests/test_native_capture_service.py": "d319a9f368c014b5911bed5b107c52bca5f417ecaed298519f13ce02b9bb2b20"
+  }
+}

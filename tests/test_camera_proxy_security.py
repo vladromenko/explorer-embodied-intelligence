@@ -27,6 +27,7 @@ def isolated_camera_api(tmp_path,monkeypatch):
         assert request.headers['authorization']=='Bearer software-node-secret'
         return httpx.Response(200,content=b'\xff\xd8software-jpeg-fixture\xff\xd9',headers={
             'Content-Type':'image/jpeg','X-Frame-ID':'source-frame-17','X-Frame-Clock':'nano-boot-source',
+            'X-Wall-UTC':'2026-10-27T09:00:00Z','X-Monotonic-NS':'9007199254740993','X-Timestamp-Basis':'cache_not_exposure',
             'Authorization':'must-never-be-forwarded','X-Unrelated-Internal':'not-public'})
     client=httpx.AsyncClient(transport=httpx.MockTransport(upstream),trust_env=False)
     monkeypatch.setattr(module,'CLIENT',client)
@@ -50,6 +51,7 @@ def test_camera_GET_requires_owner_session_before_any_upstream_access(isolated_c
     assert response.headers['content-type']=='image/jpeg'
     assert response.headers['x-frame-id']=='source-frame-17'
     assert response.headers['x-frame-clock']=='nano-boot-source'
+    assert response.headers['x-monotonic-ns']=='9007199254740993' and response.headers['x-timestamp-basis']=='cache_not_exposure'
     assert 'authorization' not in response.headers and 'x-unrelated-internal' not in response.headers
     assert response.headers['cache-control']=='no-store' and response.headers['x-content-type-options']=='nosniff'
     assert len(calls)==1 and calls[0].url.path=='/cameras/nano-rgbd/snapshot'

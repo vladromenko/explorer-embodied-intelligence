@@ -203,6 +203,10 @@ class NativeSensorCache:
     def observation_provider(self,native_receipt,frame=None):
         stamp=native_receipt.get('stamp') or {};cutoff=native_receipt.get('call_started_monotonic_ns')
         if stamp.get('clock_domain')!=self.domain or stamp.get('boot_id')!=self.boot:raise ValueError('Native receipt source boot/clock mismatch')
+        return self.observation_at(cutoff,frame)
+
+    def observation_at(self,cutoff,frame=None):
+        """Read cached sensors at an actual local observation cutoff; no command required."""
         snapshot=self.snapshot(cutoff);channels={};diagnostics=dict(missing=snapshot['missing'],index_error=snapshot['index_error'],source_clock_alignment_verified=False,
             localization_verified=False,imu_absolute_heading_verified=False,lidar_extrinsics_verified=False,full_scans={},physical_io=False)
         odom=(snapshot['sources'].get('/odom_raw') or {}).get('record',{}).get('ros_message',{})

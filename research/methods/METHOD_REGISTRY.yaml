@@ -2876,6 +2876,12 @@
         {
           "result": "Targeted source/API/dataset/optimizer and preservation tests; physical tasks unvalidated",
           "scope": "SOFTWARE_ONLY"
+        },
+        {
+          "command": "python -m pytest tests/test_native_capture.py tests/test_native_capture_service.py tests/test_native_capture_lifecycle.py tests/test_native_sensor_cache.py -q",
+          "result": "42PASS4.43s: source-only pause boundaries, raw independent observation frames/sensors without actions, exact immutable archive approval/reject/cancel, nonblocking passive operator journal; no actual device control",
+          "scope": "SOFTWARE_FIXTURES_WITH_LOCAL_HTTP_NO_PHYSICAL_IO",
+          "details": "02-demonstration-learning/docs/OPERATOR_ACQUISITION_RU.md"
         }
       ],
       "hardware_run_ids": []
@@ -2906,6 +2912,12 @@
         {
           "result": "Targeted source/API/dataset/optimizer and preservation tests; physical tasks unvalidated",
           "scope": "SOFTWARE_ONLY"
+        },
+        {
+          "command": "python -m pytest tests/test_native_capture.py tests/test_native_capture_service.py tests/test_native_capture_lifecycle.py tests/test_native_sensor_cache.py -q",
+          "result": "42PASS4.43s: source-only pause boundaries, raw independent observation frames/sensors without actions, exact immutable archive approval/reject/cancel, nonblocking passive operator journal; no actual device control",
+          "scope": "SOFTWARE_FIXTURES_WITH_LOCAL_HTTP_NO_PHYSICAL_IO",
+          "details": "02-demonstration-learning/docs/OPERATOR_ACQUISITION_RU.md"
         }
       ],
       "hardware_run_ids": []
@@ -3891,10 +3903,17 @@
       "changes_and_reason": "Integrate explicit experiment identities, immutable evidence, cached-source providers and offline or observed-session workflow; no new scientific-method or physical-success claim.",
       "verification": {
         "code_inspected": true,
-        "software_tested": false,
+        "software_tested": true,
         "hardware_tested": false
       },
-      "test_evidence": [],
+      "test_evidence": [
+        {
+          "command": "python -m pytest tests/test_native_capture.py tests/test_native_capture_service.py tests/test_native_capture_lifecycle.py tests/test_native_sensor_cache.py -q",
+          "result": "42PASS4.43s: source-only pause boundaries, raw independent observation frames/sensors without actions, exact immutable archive approval/reject/cancel, nonblocking passive operator journal; no actual device control",
+          "scope": "SOFTWARE_FIXTURES_WITH_LOCAL_HTTP_NO_PHYSICAL_IO",
+          "details": "02-demonstration-learning/docs/OPERATOR_ACQUISITION_RU.md"
+        }
+      ],
       "hardware_run_ids": []
     },
     {

@@ -106,3 +106,8 @@ label.form-field { display:flex; flex-direction:column; gap:8px; min-width:0; co
 .cooperative-observed-workbench figcaption { margin-top:8px; font-size:11px; line-height:1.6; }
 .cooperative-observed-workbench fieldset { min-width:0; padding:14px; border:1px solid var(--line); border-radius:9px; }
 @media(max-width:700px) { .cooperative-observed-workbench .form-grid { grid-template-columns:minmax(0,1fr); } }
+
+.episode-preview-frames { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; }
+.episode-preview-frames figure { margin:0; min-width:0; }
+.episode-preview-frames img { display:block; width:100%; border-radius:8px; }
+.episode-preview-frames figcaption { font-size:11px; overflow-wrap:anywhere; }
