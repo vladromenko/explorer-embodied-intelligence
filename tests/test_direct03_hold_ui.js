@@ -16,7 +16,7 @@ function harness(permissionGate=null) {
   const hold=()=>event('pointerdown','#direct03-held',{disabled:false});
   return {run,calls,click,hold,documentEvents,windowEvents,timers};
 }
-const status="direct03.status={state:'IDLE',control_epoch:'epoch',registration:{state:'REGISTERED_DECLARATION'},peer_configured:true,source_hold_gate_schema:'explorer_pi_native_explicit_hold_v1'}";
+const status="direct03.status={state:'IDLE',control_epoch:'epoch',registration:{state:'REGISTERED_DECLARATION'},peer_configured:true,physical_path_admission:{state:'PASS',allowed:true},source_hold_gate_schema:'explorer_pi_native_explicit_hold_v1'}";
 test('old Pi ABI cannot enable start or request a physical permission',async()=>{
  const h=harness();h.run(status+";delete direct03.status.source_hold_gate_schema");
  assert.match(h.run('direct03Panel()'),/data-action="direct03-start" type="button" disabled/);
@@ -61,4 +61,10 @@ test('blur while checking permission cannot STOP a foreign attempt or issue a la
  const pending=h.click('direct03-start');await new Promise(r=>setImmediate(r));
  await Promise.all(h.windowEvents.blur.map(cb=>cb()));release();await pending;
  assert.equal(h.calls.filter(c=>c.path).length,0);
+});
+
+test('open real-input continuity gate prevents permission requests and physical begin',async()=>{
+ const h=harness();h.run(status+";direct03.status.physical_path_admission={state:'OPEN',allowed:false}");
+ assert.match(h.run('direct03Panel()'),/data-action="direct03-start" type="button" disabled/);
+ await h.click('direct03-start');assert.equal(h.calls.length,0);
 });

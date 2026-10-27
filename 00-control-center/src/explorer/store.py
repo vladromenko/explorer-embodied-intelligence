@@ -98,7 +98,7 @@ class Store:
         settings={'episode_id':episode_id}
         if source_format not in (None,'native_capture_v1'):raise ValueError('Unknown source producer format')
         if source_format=='native_capture_v1':
-            if kind!='mobile_import' or project_id!='02':raise ValueError('Native mobile import is the direct02 producer; leader03 retains its own proxy import')
+            if (kind,project_id) not in (('mobile_import','02'),('retarget_import','03')):raise ValueError('Native target import requires its exact02/03 producer identity')
             settings['source_format']=source_format
         if source_review_sha256 is not None:
             if source_format!='native_capture_v1' or not isinstance(source_review_sha256,str) or not re.fullmatch('[0-9a-f]{64}',source_review_sha256):

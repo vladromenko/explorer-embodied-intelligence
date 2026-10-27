@@ -173,3 +173,29 @@ view допустим только из этих же проверенных sam
 bytes, full9/neutral base provenance, masked feedback, frame-before-action,
 phase clocks, finish race, невозможность fake expert из ACK/metadata, budgets,
 restart и безопасный повторный NX import. Никакого реального robot command не было.
+
+
+## Общий data plane02/03 — подготовка 2026-10-27
+
+Новая запись03 использует `/api/retarget/capture/…` → фиксированный Nano
+`/native-capture/…`, тот же producer, что02. Pi `/api/retarget/status`, lease,
+calibration и STOP остаются control plane; прежние Pi-архивы остаются legacy
+analysis. Общие start/stage/pause/resume/cancel/finish, manifest/JPEG/Range-download
+и отдельный post-seal review связываются с исходной SkillSpec и capture intent.
+API проверяет project02/03 до меток и выдачи media. Завершение само не запускает
+перенос; approve закрепляет archive SHA и текущий review SHA, автоматического
+обучения нет. На Homebrain директории native-mobile и native-retarget раздельны.
+
+Пока full continuity на меняющемся реальном leader input имеет OPEN, новый
+physical begin/recenter03 и новые demonstrations03 закрыты в central API/UI.
+Технический режим `observations_only` доступен без зеркала, HOME, grants и
+движения; он принудительно analysis-only. Ограничение не меняет ACTIVE shaping,
+исходный Ruckig, TTL, firmware или аппаратные настройки. Физический путь Pi пока
+не развёртывается. Снятие gate требует нового проверенного evidence/review кода,
+а не клиентского флага или подделанной отметки успеха.
+
+Основной camera_rgb03 — единственная камера Nano. Logitech Pi — только
+возможный явно отдельный вспомогательный ракурс leader/workfield; текущая запись
+не утверждает получение её JPEG или синхронность. Старый pi-overview — та же
+Logitech, а не третье устройство. Технические/generated fixtures не подтверждают
+реальный expert dataset, physical continuity или освоение задачи.

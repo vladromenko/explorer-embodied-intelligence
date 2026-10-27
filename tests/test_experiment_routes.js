@@ -13,12 +13,13 @@ function context() {
   vm.runInContext(fs.readFileSync(root + "direct03.js", "utf8"), ctx);
   return ctx;
 }
-test("03 immediately offers leader to ROSMASTER manual controls without follower training", () => {
+test("03 delegates to shared ROSMASTER capture workflow and retains leader controls without follower training", () => {
   const ctx = context();
   vm.runInContext('stationControlPanel = stationTrainingPanel = stationEvaluationPanel = () => { throw new Error("wrong follower workflow"); }', ctx);
+  ctx.experiment02Page = project => `SHARED-ROSMASTER-CAPTURE-${project.id} ` + vm.runInContext('direct03Panel()', ctx);
   const html = vm.runInContext('stationPage("03")', ctx);
-  assert.match(html, /direct03-start/); assert.match(html, /direct03-recenter/); assert.match(html, /SO-101 leader/);
-  assert.match(html, /не нужны запись или обучение/); assert.match(html, /камер.*ROSMASTER/i);
+  assert.match(html, /direct03-start/); assert.match(html, /direct03-recenter/); assert.match(html, /SO-101/);
+  assert.match(html, /SHARED-ROSMASTER-CAPTURE-03/); assert.match(html, /Обучение для этого не требуется/);
   assert.doesNotMatch(html, /data-station-joint="follower-/); assert.doesNotMatch(html, /station-train/);
 });
 test("06 consumes a learned source and never renders follower teleop or source training", () => {

@@ -66,9 +66,10 @@ async def poll_nodes():
             capture=payload.get('mobile_observation') or {}
             if node['id']=='nano':
                 for recording in (payload.get('native_capture') or {}).get('ready_recordings',[]):
-                    if (recording.get('project_id')=='02' and recording.get('producer_schema')=='explorer_native_capture_service_v1'
+                    if (recording.get('project_id') in ('02','03') and recording.get('producer_schema')=='explorer_native_capture_service_v1'
                             and recording.get('transfer_ready') is True):
-                        STORE.create_import_job('mobile_import','02',recording['recording_id'],recording['archive_sha256'],source_format='native_capture_v1',source_review_sha256=recording.get('review_sha256'))
+                        project=recording['project_id']
+                        STORE.create_import_job('mobile_import' if project=='02' else 'retarget_import',project,recording['recording_id'],recording['archive_sha256'],source_format='native_capture_v1',source_review_sha256=recording.get('review_sha256'))
             # Old observation-only IDs remain visible in inventory. New02 bulk
             # transfer requires the explicit Source review above, never polling alone.
         except Exception:
@@ -561,6 +562,10 @@ async def demonstration_review(request: Request):
 
 @app.api_route('/api/retarget/{operation:path}',methods=['GET','POST'])
 async def retarget_proxy(operation: str,request: Request):
+    if operation.startswith('capture/'):
+        return await rosmaster_capture_transport(operation.removeprefix('capture/'),request,project_id='03',native_capture=True)
+    if request.method=='POST' and operation in ('start','recenter'):
+        raise HTTPException(409,'CONTINUITY_QUALIFICATION_REQUIRED: new03 physical path remains disabled pending real changing-input qualification')
     return await rosmaster_capture_transport(operation,request,project_id='03')
 
 
@@ -570,13 +575,14 @@ async def mobile_capture_proxy(operation: str,request: Request):
     return await rosmaster_capture_transport(operation,request,project_id='02')
 
 
-async def rosmaster_capture_transport(operation,request,*,project_id):
-    """One capture lifecycle service; native transport differs by input owner."""
+async def rosmaster_capture_transport(operation,request,*,project_id,native_capture=False):
+    """Shared Nano data plane; the legacy Pi route retains its own control plane."""
+    native_capture=native_capture or project_id=='02'
     get_allowed=(operation in ('capabilities','status','recordings') or re.fullmatch(r'recordings/[0-9a-f]{32}/(manifest|download|review)',operation)
-        or project_id=='02' and re.fullmatch(r'recordings/[0-9a-f]{32}/frame/[0-9a-f]{64}',operation))
-    post_allowed=('start','recenter','lease','stop','record/start','record/stage','record/finish','import')
-    if project_id=='03':post_allowed+=('calibration/status','calibration/preview','calibration/capture','calibration/accept')
-    else:post_allowed+=('record/pause','record/resume','record/cancel','record/review')
+        or native_capture and re.fullmatch(r'recordings/[0-9a-f]{32}/frame/[0-9a-f]{64}',operation))
+    post_allowed=('record/start','record/stage','record/finish','record/pause','record/resume','record/cancel','record/review') if native_capture else (
+        'start','recenter','lease','stop','record/start','record/stage','record/finish','import',
+        'calibration/status','calibration/preview','calibration/capture','calibration/accept')
     if (request.method=='GET' and not get_allowed) or (request.method=='POST' and operation not in post_allowed):
         raise HTTPException(404)
     if operation=='import':
@@ -588,11 +594,18 @@ async def rosmaster_capture_transport(operation,request,*,project_id):
             return STORE.retry_import_job(job['id']) if job['status'] in ('failed','cancelled') else job
         except ValueError as error:
             raise HTTPException(409,str(error)) from error
-    node=next((node for node in CONFIG['nodes'] if node['id']==('pi' if project_id=='03' else 'nano')),None)
+    node=next((node for node in CONFIG['nodes'] if node['id']==('nano' if native_capture else 'pi')),None)
     if node is None:
-        raise HTTPException(503,'Raspberry Pi is not configured')
+        raise HTTPException(503,'Capture or control source is not configured')
     try:
-        source='http://'+node['host']+':'+str(node['port'])+('/arm-retarget/' if project_id=='03' else '/native-capture/')
+        source='http://'+node['host']+':'+str(node['port'])+('/native-capture/' if native_capture else '/arm-retarget/')
+        media_match=re.fullmatch(r'recordings/([0-9a-f]{32})/(?:manifest|download|review|frame/[0-9a-f]{64})',operation)
+        if native_capture and media_match:
+            scoped=await CLIENT.get(source+'recordings/'+media_match[1]+'/manifest',headers={'Authorization':'Bearer '+node['token']})
+            if not scoped.is_success:raise HTTPException(404,'Original capture manifest unavailable')
+            manifest=scoped.json()
+            if manifest.get('project_id')!=project_id or (manifest.get('embodied_episode') or {}).get('project_id')!=project_id:
+                raise HTTPException(409,'Original capture belongs to another experiment')
         body=await request.json() if request.method=='POST' else None
         capture_intent=None;capture_id=None;review={};finishing_id=None
         if body is not None:
@@ -600,29 +613,40 @@ async def rosmaster_capture_transport(operation,request,*,project_id):
             if operation=='calibration/capture':body['actor_id']=session_actor(request)
             context=body.pop('skill_context',None);capture_id=body.pop('skill_capture_id',None);review=body.pop('skill_review',{})
             if operation=='record/start':
+                if native_capture and project_id=='03' and body.get('mode','demonstration')!='observations_only':
+                    raise HTTPException(409,'CONTINUITY_QUALIFICATION_REQUIRED: new03 demonstrations require real changing-input continuity PASS before physical-path deployment')
                 from .skill_workflow import prepare_capture_request
                 capture_intent,native_context=await asyncio.to_thread(prepare_capture_request,STORE,context,project_id=project_id)
-                if project_id=='02':
+                if native_capture:
                     name=body.pop('name','');description=body.pop('description','')
                     if not isinstance(name,str) or len(name)>80 or not isinstance(description,str) or len(description)>2000:
                         raise HTTPException(400,'Bounded task name and description required')
                     native_context['operator_capture_metadata']={'task_name':name,'description':description}
-                    native_context['operator_input_trace_required']=True
+                    native_context['operator_input_trace_required']=project_id=='02'
                 capture_id=capture_intent['capture_id'];body['skill_context']=native_context
             if operation in ('record/stage','record/finish','record/pause','record/resume','record/cancel','record/review'):
                 before=await CLIENT.get(source+'status',headers={'Authorization':'Bearer '+node['token']})
                 before.raise_for_status();snapshot=before.json();recording=snapshot.get('recording') or {}
-                active=snapshot.get('active_recording_id') if project_id=='02' else recording.get('active')
+                active=snapshot.get('active_recording_id') if native_capture else recording.get('active')
                 active=active if isinstance(active,str) else (active or {}).get('recording_id')
                 expected=body.pop('expected_id',None) or body.get('recording_id')
                 if not expected or operation!='record/review' and active and active!=expected:raise HTTPException(409,'Recording session changed; no labels applied')
                 body['recording_id']=expected
                 if not capture_id:raise HTTPException(400,'Recover the original skill capture before labeling this recording')
                 from .skill_workflow import verify_capture_episode,capture_for_episode
-                await asyncio.to_thread(verify_capture_episode,STORE,capture_id,expected)
+                captured_scope=await asyncio.to_thread(verify_capture_episode,STORE,capture_id,expected)
+                if captured_scope.get('project_id')!=project_id:raise HTTPException(409,'Capture intent belongs to another experiment')
+                if native_capture and operation!='record/review' and (not active or (snapshot.get('capture') or {}).get('project_id')!=project_id):
+                    raise HTTPException(409,'Active source capture belongs to another experiment or has finished')
                 if operation in ('record/cancel','record/review'):body['actor_id']=session_actor(request)
                 if operation=='record/review':
                     if body.get('decision') not in ('approve','reject'):raise HTTPException(400,'Explicit approve/reject required')
+                    if native_capture:
+                        sealed=await CLIENT.get(source+'recordings/'+expected+'/manifest',headers={'Authorization':'Bearer '+node['token']})
+                        sealed.raise_for_status();sealed_manifest=sealed.json()
+                        if (sealed_manifest.get('project_id')!=project_id or (sealed_manifest.get('embodied_episode') or {}).get('project_id')!=project_id
+                                or (sealed_manifest.get('skill_context') or {}).get('capture_id')!=capture_id):
+                            raise HTTPException(409,'Sealed source capture belongs to another experiment or intent')
                 elif operation=='record/stage':
                     captured=await asyncio.to_thread(capture_for_episode,STORE,expected)
                     if not captured or body.get('stage') not in {phase['id'] for phase in captured['spec']['stages']}:raise HTTPException(400,'Phase differs from the captured skill version')
@@ -632,9 +656,13 @@ async def rosmaster_capture_transport(operation,request,*,project_id):
                     from .skill_workflow import native_outcome_evidence
                     body['outcome_evidence']=await asyncio.to_thread(native_outcome_evidence,STORE,capture_id,expected,review,body.get('outcome','unknown'))
         if operation.endswith('/download'):
+            download_headers={'Authorization':'Bearer '+node['token']}
+            if native_capture:
+                for key in ('Range','If-Range'):
+                    if request.headers.get(key):download_headers[key]=request.headers[key]
             upstream=await CLIENT.send(CLIENT.build_request('GET',source+operation,
-                headers={'Authorization':'Bearer '+node['token']}),stream=True)
-            if upstream.status_code!=200:
+                headers=download_headers),stream=True)
+            if upstream.status_code not in (200,206,416):
                 await upstream.aclose()
                 raise HTTPException(503,'Direct recording is not ready for transfer')
             async def data():
@@ -643,7 +671,8 @@ async def rosmaster_capture_transport(operation,request,*,project_id):
                         yield chunk
                 finally:
                     await upstream.aclose()
-            return StreamingResponse(data(),media_type='application/x-tar',headers={'X-Content-SHA256':upstream.headers.get('X-Content-SHA256','')})
+            retained={name:upstream.headers[name] for name in ('X-Content-SHA256','Content-Length','Content-Range','Accept-Ranges','ETag','Content-Disposition') if name in upstream.headers}
+            return StreamingResponse(data(),status_code=upstream.status_code,media_type='application/x-tar',headers=retained)
         if '/frame/' in operation:
             frame=await CLIENT.get(source+operation,headers={'Authorization':'Bearer '+node['token']})
             if not frame.is_success:raise HTTPException(503,'Original recording frame unavailable')
@@ -651,6 +680,16 @@ async def rosmaster_capture_transport(operation,request,*,project_id):
         response=await CLIENT.request(request.method,source+operation,
             headers={'Authorization':'Bearer '+node['token']},**({'json':body} if request.method=='POST' else {}))
         result=response.json()
+        if response.is_success and not native_capture and project_id=='03' and operation=='status':
+            result['physical_path_admission']={'state':'OPEN','allowed':False,
+                'reason':'CONTINUITY_QUALIFICATION_REQUIRED','evidence':'03-lerobot-teaching/docs/CONTINUITY_20261027.json',
+                'physical_commands_authorized':False}
+        if response.is_success and native_capture and operation in ('status','recordings'):
+            result['ready_recordings']=[row for row in result.get('ready_recordings',[]) if row.get('project_id')==project_id]
+            if operation=='status' and (result.get('capture') or {}).get('project_id')!=project_id:
+                result['other_experiment_capture_active']=bool(result.get('active_recording_id'))
+                result['active_recording_id']=None;result['capture']=None
+            result['capture_project_id']=project_id
         if response.is_success and capture_intent:
             from .skill_workflow import capture_started
             identity=result.get('recording_id')
@@ -671,14 +710,14 @@ async def rosmaster_capture_transport(operation,request,*,project_id):
                 authenticated_actor=session_actor(request))
             if result.get('transfer_ready') is True:
                 source_review=result.get('source_review') or {}
-                result['import_job']=STORE.create_import_job('mobile_import','02',body['recording_id'],source_review.get('archive_sha256'),
+                result['import_job']=STORE.create_import_job('mobile_import' if project_id=='02' else 'retarget_import',project_id,body['recording_id'],source_review.get('archive_sha256'),
                     source_format='native_capture_v1',source_review_sha256=result.get('review_sha256'))
         result_identity=result.get('recording_id') or (result.get('capture') or {}).get('recording_id')
         if response.is_success and finishing_id and result_identity==finishing_id:
             from .skill_workflow import capture_finished,bind_import_from_capture
             if not isinstance(review,dict):raise HTTPException(400,'Recording review must be an object')
             result['skill_review']=await asyncio.to_thread(capture_finished,STORE,capture_id,finishing_id,dict(review,outcome=body.get('outcome','unknown')))
-            if result.get('archive_sha256') and project_id=='03':
+            if result.get('archive_sha256') and project_id=='03' and not native_capture:
                 result['import_job']=STORE.create_import_job('retarget_import' if project_id=='03' else 'mobile_import',project_id,finishing_id,result['archive_sha256'],**({'source_format':'native_capture_v1'} if project_id=='02' else {}))
                 await asyncio.to_thread(bind_import_from_capture,STORE,result['import_job'])
         return JSONResponse(result,response.status_code)

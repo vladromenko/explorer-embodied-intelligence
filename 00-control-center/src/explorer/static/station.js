@@ -61,12 +61,7 @@ function stationRecordingPanel(project) {
 }
 function stationPage(project = SO101_SOURCE_PROJECT) {
   const personal = ["personal", SO101_SOURCE_PROJECT].includes(project); const experiment = PROJECTS.find((item) => item.id === project);
-  if (project === "03") return heading("SO-101 leader → ROSMASTER", "Прямое ручное управление рукой ROSMASTER. Для ручного режима не нужны запись или обучение.", "Исследовательский опыт / 03") +
-    `<ol class="station-steps"><li><b>01</b> Ручное управление сейчас</li><li><b>02</b> Выбор предмета</li><li><b>03</b> Запись показа</li><li><b>04</b> Обучение → shadow → отдельный rollout</li></ol>` +
-    `<div class="experiment02-layout"><aside class="experiment02-aside"><div id="camera-slot"></div><section class="panel spaced-section"><div class="panel-heading"><h2>Измерения SO-101 leader</h2></div><div class="panel-body">${stationMeasurements(true)}<p>Целевой робот — ROSMASTER. SO-101 follower относится только к <a href="${SO101_SOURCE_ROUTE}" data-link>опыте ${SO101_SOURCE_PROJECT}</a>.</p></div></section></aside><div class="experiment02-workflow">` +
-    direct03Panel() + notice("База ROSMASTER", "Шасси сейчас физически не двигать. Общий мобильный контракт сохраняет каналы базы; отсутствие исходных команд не заполняется нулями.") +
-    notice("Камера целевого робота", `Основной вид — штатная камера ROSMASTER на Nano. Настольная камера Pi, Hailo и выбор предмета по столу относятся прежде всего к опыте ${SO101_SOURCE_PROJECT} двух SO-101; дополнительный вид Pi полезен здесь лишь при видимости нужной сцены.`) +
-    direct03RecordingPanel() + demonstrationWizardPanel("03") + jobsPanel(model.jobs.filter(job => job.project_id === "03"), "Исходные показы ROSMASTER и проверки 03") + `</div></div>`;
+  if (project === "03") return experiment02Page(experiment);
   if (project === TRANSFER_PROJECT) return heading("Перенос обученного навыка", `Выберите уже обученную исходную модель. Прямая телеманипуляция находится в опыте 03, обучение follower — в опыте ${SO101_SOURCE_PROJECT}.`, `Исследовательский опыт / ${TRANSFER_PROJECT}`) +
     policyTransferPanel() + notice("Разные embodiment", "Перед исполнением нужны подтверждённая геометрия, соответствие команд и независимая проверка. Inference исходной модели сам по себе не подтверждает перенос навыка.") +
     `<p><a href="${SO101_SOURCE_ROUTE}" data-link>Открыть опыт ${SO101_SOURCE_PROJECT} · две руки LeRobot</a> · <a href="/experiments/03" data-link>Открыть прямое управление ROSMASTER</a></p>` + jobsPanel(model.jobs.filter(job => job.project_id === TRANSFER_PROJECT), "Перенос и независимые проверки");
