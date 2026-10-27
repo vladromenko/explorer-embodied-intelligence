@@ -111,3 +111,17 @@ Paper checkpoint `a5865cc` сохранён отдельно на work/temporal-
 agent tools запрещены. Исходные ROSMASTER configs/firmware/limits/watchdogs/
 readbackOFF и Station.py остаются неизменными. Real GET и disarmed software
 release допустимы; физические команды — только отдельный наблюдаемый тест.
+
+## Канонический camera inventory владельца
+
+Всего две физические камеры: одна ROSMASTER/Nano, одна Logitech Pi для LeRobot.
+02 требует только подтверждённый Nano camera_rgb; depth того же устройства optional.
+03 использует Nano как task-scene, Pi Logitech только optional leader/workfield.
+04 использует единственную Logitech Pi.05 может использовать максимум эти два
+ракурса после проверки совместной видимости; третьего общего ракурса нет.
+06 сохраняет разные source/target domains, без заявления одинаковых viewpoints.
+Никаких физических переподключений/перенаправлений или изменений настроек агентом.
+
+03 имеет дополнительный обязательный gate до physical command-path deploy:
+[continuity на реальных leader inputs](03-lerobot-teaching/docs/CONTINUITY_ACCEPTANCE_RU.md).
+Fake/state-machine и реальные статические cache-чтения не закрывают changing-motion gate.

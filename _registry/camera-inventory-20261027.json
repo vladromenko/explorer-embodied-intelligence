@@ -1,0 +1,86 @@
+{
+  "schema": "explorer_current_physical_camera_inventory_v1",
+  "audited_on": "2026-10-27",
+  "physical_camera_count": 2,
+  "authority": "latest_explicit_owner_hardware_confirmation_and_read_only_live_Nano_driver_USB_audit",
+  "generic_multi_camera_support": "optional_extension_not_current_hardware_or_gate",
+  "settings_changed": false,
+  "cameras": [
+    {
+      "physical_camera_id": "rosmaster_nano_onboard",
+      "node_role": "nano",
+      "stream_id": "nano-rgbd",
+      "label": "Orbbec DaBai DCW2 · камера ROSMASTER",
+      "camera_domain": "rosmaster_onboard_scene",
+      "primary_usage": [
+        "02_rosmaster_demonstration",
+        "03_rosmaster_task_scene",
+        "05_rosmaster_side_if_shared_zone_verified",
+        "06_explicit_target_domain"
+      ],
+      "identity": {
+        "manufacturer": "Orbbec",
+        "model": "DaBai DCW2",
+        "serial": "CH82C5200KB",
+        "USB_functions": [
+          {
+            "vendor_id": "2bc5",
+            "product_id": "0561",
+            "reported_product": "Orbbec DaBai DCW2 RGB Camera"
+          },
+          {
+            "vendor_id": "2bc5",
+            "product_id": "06a0",
+            "reported_product": "ORBBEC Depth Sensor"
+          }
+        ],
+        "existing_driver_reported_device_unique_id": "1-2.2.1-8",
+        "existing_original_camera_service_PID_at_audit": 2347,
+        "basis": "existing_original_camera_service_journal_and_lsusb_read_only",
+        "identity_is_one_RGBD_camera_not_two_physical_cameras": true
+      },
+      "capabilities": {
+        "required_channel_for_02": "camera_rgb",
+        "actual_RGB_JPEG_width": 640,
+        "actual_RGB_JPEG_height": 480,
+        "original_driver_configured_color_fps": 15,
+        "original_driver_configured_depth_width": 640,
+        "original_driver_configured_depth_height": 400,
+        "original_driver_configured_depth_fps": 15,
+        "optional_depth": true,
+        "RGB_preview_rate_approx_hz": 5,
+        "actual_02_technical_recording_frames": 17,
+        "actual_valid_optional_depth_records": 11,
+        "exposure_timestamp_verified": false
+      },
+      "second_rosmaster_camera_required": false
+    },
+    {
+      "physical_camera_id": "pi_lerobot_logitech",
+      "node_role": "pi",
+      "stream_id": "pi-overview",
+      "legacy_stream_id_note": "pi-overview is the same single Logitech LeRobot/workfield camera; it is not a second overview camera",
+      "label": "Logitech Pi · рабочее поле LeRobot",
+      "camera_domain": "lerobot_workfield",
+      "primary_usage": [
+        "04_lerobot_source_workfield",
+        "03_optional_explicit_leader_auxiliary_view",
+        "05_pi_side_only_if_shared_zone_verified",
+        "06_explicit_source_domain"
+      ],
+      "identity": {
+        "manufacturer": "Logitech",
+        "model": null,
+        "basis": "explicit_owner_confirmation",
+        "device_model_not_guessed": true,
+        "SSH_USB_model_probe": "banner_timeout_no_device_or_camera_settings_changed"
+      },
+      "required_for_02": false,
+      "may_substitute_for_rosmaster_camera": false,
+      "shared_scene_verified": false,
+      "cross_camera_synchronization_verified": false
+    }
+  ],
+  "handover_shared_coverage_status": "OPEN_requires_actual_both_viewpoints_of_shared_zone",
+  "transfer_viewpoints_equivalent": false
+}

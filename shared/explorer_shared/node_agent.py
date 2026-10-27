@@ -35,6 +35,14 @@ MAX_BODY_BYTES = 16384
 ID_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,79}\Z")
 
 
+def retarget_claims_source_cache(status):
+    """Session admission only; never shapes accepted arm/follower command values."""
+    return bool(status.get('source_cache_claimed') or status.get('target_control_epoch') is not None or
+        status.get('state') in ('STARTING','CLUTCHED','ACTIVATING','ACTIVE','CLUTCHING','STOPPING') or
+        status.get('lifecycle_inflight') or status.get('step_inflight') or status.get('pending_stops') or
+        status.get('stop_delivery_uncertain'))
+
+
 def wall_utc(timestamp=None):
     return datetime.fromtimestamp(time.time() if timestamp is None else timestamp,
                                   timezone.utc).isoformat().replace("+00:00", "Z")
@@ -163,7 +171,7 @@ class CameraSource:
 
 class OpenCVCamera(CameraSource):
     def __init__(self, device, lock_path, width=640, height=480, fps=15):
-        super().__init__("pi-overview", "Общий вид стола · Raspberry Pi")
+        super().__init__("pi-overview", "Logitech Pi · рабочее поле LeRobot")
         self.device, self.lock_path = str(device), Path(lock_path)
         self.width, self.height, self.fps = width, height, min(30, max(1, fps))
 
@@ -598,7 +606,7 @@ class NodeAgent:
             from .station_observed_activation import StationObservedPermission
             def command_guard(operation):
                 direct=self.arm_retarget.status()
-                if operation!='stop' and (direct.get('state')=='ACTIVE' or direct.get('lifecycle_inflight')):
+                if operation!='stop' and retarget_claims_source_cache(direct):
                     raise RuntimeError('Stop the existing direct ROSMASTER source session before using the follower controller')
             self.station_observed=StationObservedPermission(self.station,self.sources['pi-overview'],command_guard=command_guard)
 
@@ -765,10 +773,13 @@ class NodeAgent:
         return self.mobile_records.archive(ident)
 
     def cameras(self):
-        cameras = [source.metadata() for source in self.sources.values()]
-        if self.mode == "nano":
-            cameras.append({"id": "nano-logitech", "label": "Logitech · Jetson Nano",
-                            "available": False, "error": "not_found_in_audited_live_sources"})
+        from .camera_inventory import audited_camera_metadata
+        # Only actual configured owners create streams; no invented placeholder
+        # for an absent second Nano camera. Optional depth belongs to its RGBD unit.
+        cameras=[]
+        for source in self.sources.values():
+            metadata=source.metadata()
+            cameras.append({**metadata,**audited_camera_metadata(self.mode,metadata['id'])})
         return cameras
 
     def inventory(self):
@@ -1196,10 +1207,21 @@ def make_handler(agent):
                         return
                     if path == '/station/stop' and agent.mode == 'pi':
                         if getattr(agent,'station_observed',None) is not None:agent.station_observed.revoke('ORIGINAL_GLOBAL_STATION_STOP')
-                        agent.arm_retarget.stop()
+                        # Preserve immediate ORIGINAL station hold/stop before
+                        # any Wi-Fi/native-source cleanup can block or fail.
+                        stopped=agent.station.command('stop',payload)
+                        try:
+                            cleanup=agent.arm_retarget.stop()
+                        except Exception as error:
+                            self._json(409,{'original_station_stop_confirmed':True,
+                                'station':stopped,'direct_source_stop_confirmed':False,
+                                'direct_source_error':type(error).__name__+': '+str(error)})
+                            return
+                        self._json(200,{**stopped,'original_station_stop_confirmed':True,
+                            'direct_source_stop_confirmed':True,'direct_source_stop':cleanup})
+                        return
                     direct = agent.arm_retarget.status() if agent.mode == 'pi' else {}
-                    if path in ('/station/teleop/start','/station/policy/start','/station/teleop/recenter','/station/action') and (
-                            direct.get('state') == 'ACTIVE' or direct.get('lifecycle_inflight')):
+                    if path in ('/station/teleop/start','/station/policy/start','/station/teleop/recenter','/station/action') and retarget_claims_source_cache(direct):
                         raise RuntimeError('Direct ROSMASTER teaching uses the idle measured source cache; stop that route first')
                     observed=getattr(agent,'station_observed',None)
                     if observed is not None and path in ('/station/teleop/start','/station/policy/start','/station/teleop/recenter','/station/action'):

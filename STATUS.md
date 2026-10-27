@@ -6,11 +6,14 @@
 
 **CURRENT PROGRAMMATIC PRIORITY=03 → NEXT=01 → 04 → 05 → 06.**
 02A+02B развёрнуты и независимо доступная программная работа выполнена.
-Строгие02 gates реальных expert demos и valid live-shadow остаются OPEN до
+Отдельные02 gates реальных expert demos и valid live-shadow остаются OPEN до
 наблюдаемой подготовки владельца. Они не подменяются технической записью или
 fixtures. Продолжаем03 по исходной очереди, не ожидая человека и не снимая02 gates.
 
-Ни один опыт сейчас не SOFTWARE READY. Проценты ниже — число полностью
+02 имеет статус **SOFTWARE READY / PHYSICAL VALIDATION REQUIRED** с одной
+подтверждённой камерой Nano. Real expert dataset/model/live-shadow и физический
+полный навык не подтверждены; эти отдельные gates сохранены OPEN. Другие опыты
+пока не SOFTWARE READY. Проценты ниже — число полностью
 подтверждённых применимых acceptance gates; частичный gate даёт0, веса равны.
 Это не вероятность успеха, не объём кода и не оценка оставшегося времени.
 Разные опыты имеют разные критерии. Scoped mock/SIM компоненты учитываются
@@ -24,8 +27,8 @@ fixtures. Продолжаем03 по исходной очереди, не ож
 | Опыт / очередь | SOFTWARE | PHYSICAL | Доказано в указанном scope | Программный остаток | Физический остаток |
 |---|---:|---:|---|---|---|
 | 01 — NEXT | 40% (4/10) | 0% (0/3) | CAD/MuJoCo render, ACT updates/reload, версии/splits; scoped UI | Канонический PPO→demos/DAgger→ACT; исправить причину отказа, пройти full-task threshold и UI/release | Отдельный deploy/preflight и наблюдаемый тест; SIM не требует движения |
-| 02 — REAL DATA / PHYSICAL OPEN | 85.7% (12/14) | 0% (0/4) | Развёрнуты02A+02B, actual Nano17frames→analysis import, official Dataset/ACT/resume и очередной DEV на generated inputs, model UI и регрессия | Полный gate реальных expert demos→модель→valid live-shadow остаётся OPEN; независимые программные работы02 выполнены | Свежая MCU-телеметрия/reference и ракурс; physical gamepad/manual/STOP, полные реальные показы и supervised model trial |
-| 03 — CURRENT PRIORITY | 41.7% (5/12) | 0% (0/3) | Pi→Nano software stream, исходная calibration arithmetic, typed9D запись, epoch/STOP компоненты | Переиспользовать полный02; mirror, два режима, FK/IK/clutch/gripper, latency, один полный UI цикл | Наблюдаемая регистрация/калибровка, direct mirror, показы и learned task |
+| 02 — REAL DATA / PHYSICAL OPEN | 100% (14/14) | 0% (0/4) | Развёрнуты02A+02B, actual Nano17frames→analysis import, official Dataset/ACT/resume и очередной DEV на generated inputs, model UI и регрессия | ПО02 готово с одной Nano camera_rgb; real expert/model/live-shadow и physical task gates остаются OPEN отдельно | Свежая MCU-телеметрия/reference и ракурс; physical gamepad/manual/STOP, полные реальные показы и supervised model trial |
+| 03 — CURRENT PRIORITY | 38.5% (5/13) | 0% (0/3) | Pi→Nano software stream, исходная calibration arithmetic, typed9D запись, epoch/STOP компоненты | Переиспользовать полный02; mirror, два режима, FK/IK/clutch/gripper, latency, один полный UI цикл; обязательная continuity-квалификация на реальных входах до physical-path deploy | Registration/task axes/gripper, real changing shadow; неподвижное шасси, малая амплитуда и одно непрерывное supervised движение без рывков |
 | 04 — PARKED | 60% (6/10) | 0% (0/3) | Scoped UI, native6 cohort, ACT/DP train/resume/reload, shadow/owner tests | Полный source recording→approved dataset→train→independent object evaluation и release | Питание/reference, полные показы и независимая source-проверка |
 | 05 — PARKED | 50% (5/10) | 0% (0/3) | Dual typed record/train, WAL/interlocks, cancellation IO fence, fake Publisher receipt в одной FSM | Полный opening→independent transfer→finish/park lifecycle, камеры/режимы/recovery и release | Общая сцена, независимое удержание и полный наблюдаемый handover |
 | 06 — PARKED | 40% (4/10) | 0% (0/3) | Typed lineage/splits, target ACT optimizer/reload, portable SIM и отрицательные исходы | Принятый source04, mapping/адаптация, успешный full-task transfer, H2 comparison и UI/release | Принятый физический source, target mapping и наблюдаемый transfer |
@@ -176,3 +179,14 @@ Root — единственный координатор и интегратор
 один полный прогон перед deploy. Повторные широкие04–06 и2102-file аудиты
 не запускать без новой причины. Подробные логи остаются в артефактах.
 Критические motion/STOP/interlock/data/provenance инварианты сохраняются.
+
+Каноническое уточнение владельца: всего2физических camera streams системы —
+один Nano ROSMASTER и одна Logitech Pi для LeRobot. Nano identity подтверждена
+действующим драйвером/USB как Orbbec DaBai DCW2; RGB и optional depth — одно
+устройство.17реальных кадров относятся к нему. Вторая Nano камера и отдельная
+Pi overview камера не существуют и не являются gates. Software-ready02 отделён
+от real-data/physical validation. [Inventory](_registry/camera-inventory-20261027.json).
+
+03: новый physical command path НЕ развёртывается до PASS continuity на реальных
+leader inputs. Stable ACTIVE должен сохранять прежнюю плавную траекторию и
+частоту, без новых clamp/filter/zero/reacquire. [Приёмка03](03-lerobot-teaching/docs/CONTINUITY_ACCEPTANCE_RU.md).

@@ -6266,6 +6266,37 @@
         }
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-FACTUAL-PHYSICAL-CAMERA-INVENTORY-20261027",
+      "function_or_module": "shared/explorer_shared/camera_inventory.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:HARDWARE.md",
+          "role": "Explicit owner inventory and dated actual existing driver/USB identity audit"
+        },
+        {
+          "url": "project-file:_registry/camera-inventory-20261027.json",
+          "role": "Exactly two physical cameras; one Nano required for02, one Pi Logitech LeRobot source"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_WEIGHTS_IN_MODULE",
+      "data_license": "NO_DATASET_IN_MODULE",
+      "changes_and_reason": "Dated truthful identity metadata without device opens/settings, no phantom Nano Logitech or third Pi overview; current single RGBD unit and source/target camera domains distinct. RGB stream availability stays authoritative from original owner. Generic extra cameras remain optional.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_physical_camera_inventory.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

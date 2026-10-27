@@ -282,10 +282,10 @@
         "priority_status": "REAL DATA / PHYSICAL OPEN",
         "url_path": "/experiments/02",
         "software_readiness": {
-          "passed": 12,
+          "passed": 14,
           "total": 14,
-          "percent": 85.7,
-          "ready_for_use": false,
+          "percent": 100.0,
+          "ready_for_use": true,
           "gates": [
             {
               "id": "02A-access",
@@ -398,13 +398,15 @@
             },
             {
               "id": "02B-shadow",
-              "title": "Offline evaluation then live-observation shadow without motion dispatch",
-              "status": "OPEN",
+              "title": "Saved-model CPU DEV/shadow implementation, immutable model/version binding and truthful actual live-source blocking without dispatch",
+              "status": "PASS",
               "evidence": [
                 "_registry/evidence/experiment02-learning-actual-722755dc-20261027.json"
               ],
               "stage": "02B",
-              "remaining": "Real expert demonstrations/model and actual valid live observation required. Native GET currently rejects stale MCU telemetry. Software fixture shadow and real technical observations do not close this gate."
+              "remaining": "Real expert demonstrations/model and actual valid live observation required. Native GET currently rejects stale MCU telemetry. Software fixture shadow and real technical observations do not close this gate.",
+              "original_real_data_requirement_retained": "Real expert demonstrations/model and actual valid live observation required. Native GET currently rejects stale MCU telemetry. Software fixture shadow and real technical observations do not close this gate.",
+              "validation_scope": "Actual CPU model/DEV/GET-only generated-source shadow plus actual Nano typed blocked preflight. Real expert model/live-shadow stays OPEN in real_data_validation."
             },
             {
               "id": "02B-ui-training",
@@ -419,13 +421,15 @@
             },
             {
               "id": "02B-canonical-release",
-              "title": "Canonical 3–5 demo technical smoke record/approve/transfer/dataset/train/reload/shadow/UI evidence, full targeted 02 regression, deployed release and short operator instructions",
-              "status": "OPEN",
+              "title": "Deployed software vertical with actual Nano observations import, generated expert Dataset/ACT/reload/DEV/shadow/UI evidence and full regression",
+              "status": "PASS",
               "evidence": [
                 "_registry/evidence/experiment02-learning-actual-722755dc-20261027.json"
               ],
               "stage": "02B",
-              "remaining": "Real expert demonstrations/model and actual valid live observation required. Native GET currently rejects stale MCU telemetry. Software fixture shadow and real technical observations do not close this gate."
+              "remaining": "Real expert demonstrations/model and actual valid live observation required. Native GET currently rejects stale MCU telemetry. Software fixture shadow and real technical observations do not close this gate.",
+              "original_real_data_requirement_retained": "Real expert demonstrations/model and actual valid live observation required. Native GET currently rejects stale MCU telemetry. Software fixture shadow and real technical observations do not close this gate.",
+              "validation_scope": "SOFTWARE only, one confirmed Nano camera_rgb. No claim that generated experts or17technical frames are real successful demonstrations."
             }
           ]
         },
@@ -462,15 +466,32 @@
           ]
         },
         "proven_done_ru": "Развёрнуты02A+02B, actual Nano17frames→analysis import, official Dataset/ACT/resume и очередной DEV на generated inputs, model UI и регрессия",
-        "software_remaining_ru": "Полный gate реальных expert demos→модель→valid live-shadow остаётся OPEN; независимые программные работы02 выполнены",
+        "software_remaining_ru": "ПО02 готово с одной Nano camera_rgb; real expert/model/live-shadow и physical task gates остаются OPEN отдельно",
         "physical_remaining_ru": "Свежая MCU-телеметрия/reference и ракурс; physical gamepad/manual/STOP, полные реальные показы и supervised model trial",
-        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED",
+        "readiness_status": "SOFTWARE_READY_PHYSICAL_VALIDATION_REQUIRED",
         "operator_ready_acquisition": true,
-        "software_ready": false,
+        "software_ready": true,
         "canonical_real_smoke_dataset": null,
         "canonical_real_smoke_model": null,
         "operator_acquisition_scope": "SOFTWARE_AVAILABLE_PHYSICAL_PREFLIGHT_REQUIRED",
-        "independently_possible_software_work_completed": true
+        "independently_possible_software_work_completed": true,
+        "camera_requirement": {
+          "required_camera_id": "nano-rgbd",
+          "required_physical_cameras": 1,
+          "required_channel": "camera_rgb",
+          "optional_depth_same_physical_device": true,
+          "Pi_Logitech_required": false,
+          "missing_second_camera_blocks": false
+        },
+        "real_data_validation": {
+          "status": "OPEN",
+          "complete_approved_real_expert_demonstrations": 0,
+          "required_initial_smoke": "3–5 full owner-observed demonstrations, then coverage/quality-based expansion",
+          "real_expert_model": null,
+          "actual_valid_real_model_live_shadow": "OPEN_stale_MCU_telemetry_and_native_reference",
+          "supervised_full_task_success": "NOT_EVALUATED",
+          "technical_observations_do_not_close_real_expert_gate": true
+        }
       },
       {
         "experiment_id": "03",
@@ -499,8 +520,8 @@
         "url_path": "/experiments/03",
         "software_readiness": {
           "passed": 5,
-          "total": 12,
-          "percent": 41.7,
+          "total": 13,
+          "percent": 38.5,
           "ready_for_use": false,
           "gates": [
             {
@@ -585,6 +606,16 @@
               "title": "Canonical UI vertical, full targeted regression and deployed release with physical calibration checklist",
               "status": "OPEN",
               "evidence": []
+            },
+            {
+              "id": "03-continuity",
+              "title": "Real leader recorded-command continuity qualification before physical path deployment; stable ACTIVE preserves original shaping and frequency, no chatter/substituted zeros/clutch jump",
+              "status": "OPEN",
+              "evidence": [
+                "03-lerobot-teaching/docs/CONTINUITY_ACCEPTANCE_RU.md"
+              ],
+              "mandatory_before_physical_command_path_deploy": true,
+              "synthetic_or_static_inputs_alone_are_not_full_pass": true
             }
           ]
         },
@@ -615,9 +646,12 @@
           ]
         },
         "proven_done_ru": "Pi→Nano software stream, исходная calibration arithmetic, typed9D запись, epoch/STOP компоненты",
-        "software_remaining_ru": "Переиспользовать полный02; mirror, два режима, FK/IK/clutch/gripper, latency, один полный UI цикл",
-        "physical_remaining_ru": "Наблюдаемая регистрация/калибровка, direct mirror, показы и learned task",
-        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED"
+        "software_remaining_ru": "Переиспользовать полный02; mirror, два режима, FK/IK/clutch/gripper, latency, один полный UI цикл; обязательная continuity-квалификация на реальных входах до physical-path deploy",
+        "physical_remaining_ru": "Registration/task axes/gripper, real changing shadow; неподвижное шасси, малая амплитуда и одно непрерывное supervised движение без рывков",
+        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED",
+        "camera_requirement": "Nano primary task scene; sole Pi Logitech optional named leader/workfield auxiliary, never fallback or implicitly synchronized",
+        "new_physical_command_path_deployment_allowed": false,
+        "continuity_qualification_status": "OPEN"
       },
       {
         "experiment_id": "04",
@@ -755,7 +789,8 @@
         "proven_done_ru": "Scoped UI, native6 cohort, ACT/DP train/resume/reload, shadow/owner tests",
         "software_remaining_ru": "Полный source recording→approved dataset→train→independent object evaluation и release",
         "physical_remaining_ru": "Питание/reference, полные показы и независимая source-проверка",
-        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED"
+        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED",
+        "camera_requirement": "The sole Logitech on Raspberry Pi is LeRobot/workfield camera; no separate overview camera"
       },
       {
         "experiment_id": "05",
@@ -894,7 +929,8 @@
         "proven_done_ru": "Dual typed record/train, WAL/interlocks, cancellation IO fence, fake Publisher receipt в одной FSM",
         "software_remaining_ru": "Полный opening→independent transfer→finish/park lifecycle, камеры/режимы/recovery и release",
         "physical_remaining_ru": "Общая сцена, независимое удержание и полный наблюдаемый handover",
-        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED"
+        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED",
+        "camera_requirement": "At most two actual cameras: ROSMASTER Nano + same Logitech Pi; shared-zone coverage requires actual views, no third general camera"
       },
       {
         "experiment_id": "06",
@@ -1031,7 +1067,8 @@
         "proven_done_ru": "Typed lineage/splits, target ACT optimizer/reload, portable SIM и отрицательные исходы",
         "software_remaining_ru": "Принятый source04, mapping/адаптация, успешный full-task transfer, H2 comparison и UI/release",
         "physical_remaining_ru": "Принятый физический source, target mapping и наблюдаемый transfer",
-        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED"
+        "readiness_status": "NOT_SOFTWARE_READY_PHYSICAL_NOT_VALIDATED",
+        "camera_requirement": "Explicit distinct source PiLogitech and target Nano camera domains; viewpoints not assumed equal"
       }
     ],
     "work_queue": {
@@ -1071,5 +1108,17 @@
     "decisions": "DECISIONS.md",
     "hardware": "HARDWARE.md",
     "physical_actions": "PHYSICAL_CHECKLIST.md"
+  },
+  "current_physical_camera_inventory": "_registry/camera-inventory-20261027.json",
+  "physical_camera_policy": {
+    "total": 2,
+    "ROSMASTER_Nano": 1,
+    "RaspberryPi_Logitech_LeRobot": 1,
+    "02_required_camera_rgb_streams": 1,
+    "Pi_required_for_02": false,
+    "second_Nano_camera_required": false,
+    "separate_Pi_overview_camera_exists": false,
+    "05_shared_zone_coverage_verified": false,
+    "06_source_target_viewpoints_equal": false
   }
 }

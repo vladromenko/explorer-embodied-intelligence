@@ -190,9 +190,9 @@ function cameras() {
     const value = typeof camera === "string" ? { id: camera } : camera;
     if (value?.id && !collection.some((known) => known.id === value.id)) collection.push({ ...value, node_id: node.id, node_online: node.online });
   }));
-  return collection.filter((camera) => camera.id);
+  return collection.filter((camera) => camera.id && camera.id !== "nano-logitech").filter((camera, index, all) => !camera.physical_camera_id || all.findIndex(item => item.physical_camera_id === camera.physical_camera_id) === index);
 }
-function cameraLabel(camera) { return text(camera?.label, text(camera?.name, { "pi-overview": "Общий вид · Raspberry Pi", "nano-rgbd": "RGB-D · ROSMASTER", "nano-logitech": "Внешняя камера · ROSMASTER" }[camera?.id] || camera?.id || "Камера")); }
+function cameraLabel(camera) { return ({ "pi-overview": "Logitech Pi · рабочее поле LeRobot", "nano-rgbd": "Камера ROSMASTER · Nano" }[camera?.id]) || text(camera?.label, text(camera?.name, camera?.id || "Камера")); }
 const cameraCard = document.createElement("section");
 cameraCard.className = "panel camera-card";
 cameraCard.setAttribute("aria-label", "Изображение с камеры");
@@ -249,7 +249,7 @@ function syncCamera() {
   const signature = `${path()}|` + available.map((camera) => `${camera.id}:${cameraLabel(camera)}:${camera.available}:${camera.node_online}`).join("|");
   if (manual) {
     cameraSignature = signature; currentCamera = "nano-rgbd";
-    cameraSelect.innerHTML = '<option value="nano-rgbd">ROSMASTER · RGB / DaBai</option>';
+    cameraSelect.innerHTML = '<option value="nano-rgbd">Единственная камера ROSMASTER · RGB</option>';
     cameraMode = "manual-preview";
     if (!manualPreview.state().active) void manualPreview.start();
     return;
@@ -468,8 +468,10 @@ function experiment02Page(project) {
 }
 
 function rosmasterCameraInventoryPanel() {
-  const sources = cameras().filter(camera => camera.id?.startsWith("nano-"));
-  return `<section class="panel spaced-section"><div class="panel-heading"><h3>Камеры ROSMASTER</h3></div><div class="panel-body">${sources.map(camera => `<p><strong>${esc(cameraLabel(camera))}</strong> · ${camera.available !== false && camera.node_online !== false ? "источник доступен" : "недоступна"}${camera.error ? ` · ${esc(camera.error === "not_found_in_audited_live_sources" ? "не найдена среди действующих источников" : camera.error)}` : ""}</p>`).join("") || "Проверяем камеры Nano…"}<p class="form-hint">Перед показом предмет, захват и цель должны быть видны. Время кэша кадра не является подтверждённым временем экспозиции. Если USB-камера недоступна, проверьте подключение; исходная запись и предпросмотр используют существующего владельца камеры.</p></div></section>`;
+  const source = cameras().find(camera => camera.id === "nano-rgbd");
+  const identity = source?.identity_audit;
+  const modelName = identity?.identity?.model;
+  return `<section class="panel spaced-section"><div class="panel-heading"><h3>Камера ROSMASTER</h3></div><div class="panel-body"><p><strong>${esc(source ? cameraLabel(source) : "Единственный бортовой RGB-поток")}</strong> · ${source && source.available !== false && source.node_online !== false ? "источник доступен" : "ожидаем источник"}</p>${modelName ? `<p>${esc(identity.identity.manufacturer)} ${esc(modelName)} · identity проверена ${esc(identity.audited_on)}</p>` : ""}<p class="form-hint">Для опыта02 достаточно одного подтверждённого camera_rgb. Depth этого же устройства — дополнительный канал по фактической доступности. Вторая камера не требуется. Перед показом предмет, захват и цель должны быть видны; время кэша кадра не подтверждает экспозицию.</p></div></section>`;
 }
 
 function episodeStagePanel() {

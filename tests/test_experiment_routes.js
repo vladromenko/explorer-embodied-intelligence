@@ -43,3 +43,17 @@ test("03 selects Nano on entry, lab selects Pi; Nano outage never silently subst
   ctx.available[0].available = false; vm.runInContext("syncCamera()", ctx); assert.equal(ctx.currentCamera, "nano-rgbd");
   ctx.route = "/experiments/04"; vm.runInContext("syncCamera()", ctx); assert.equal(ctx.currentCamera, "pi-overview");
 });
+
+test("physical inventory has one Nano camera and one Pi Logitech, without a phantom second Nano view", () => {
+  const source=fs.readFileSync(root+"app.js","utf8");
+  const functions=source.slice(source.indexOf("function cameras()"),source.indexOf("const cameraCard"));
+  const ctx=vm.createContext({model:{state:{cameras:[
+    {id:"nano-rgbd",physical_camera_id:"rosmaster_nano_onboard",available:true},
+    {id:"nano-logitech",available:false},
+    {id:"pi-overview",physical_camera_id:"pi_lerobot_logitech",label:"old overview name",available:true}
+  ]}},nodes:()=>[],array:v=>Array.isArray(v)?v:[],text:(v,f)=>v??f});
+  vm.runInContext(functions,ctx);
+  assert.equal(vm.runInContext('cameras().length',ctx),2);
+  assert.equal(vm.runInContext('cameras().filter(c=>c.id.startsWith("nano-")).length',ctx),1);
+  assert.equal(vm.runInContext('cameraLabel(cameras().find(c=>c.id==="pi-overview"))',ctx),'Logitech Pi · рабочее поле LeRobot');
+});
