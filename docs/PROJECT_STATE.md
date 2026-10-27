@@ -1,6 +1,6 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T00:58:00+03:00`
+Updated: `2026-10-28T01:39:00+03:00`
 Code commit: `16c82a89f619e60043700f7193c7e765ac43ddd3`
 Current task: `E03-SOFTWARE-DEPLOY`
 Next tasks: `E03-SOFTWARE-DEPLOY`, `E05-MANUAL`, `E05-LEARNING`
@@ -130,8 +130,11 @@ status/data доступны; physical03 start/recenter/lease/challenge/authoriz
 до peer entry. Global no-owner cleanup не объявляет native STOP delivered;
 original STOP method/body unchanged.93Python PASS6.75s, actual localhost Node
 HTTP оба profiles, source/evaluation/cooperative/original03 fake peer contracts.
-Candidate не deployed: actual commits выше не менялись. Далее actual Pi3.13
-isolated fake-I/O/bootstrap proof, endpoint/UI integration, frozen scoped release.
+Candidate не deployed: actual commits выше не менялись. Actual Pi3.13 isolated bootstrap/fake-I/O и Nano3.12 existing RGB/original GET
+PASS; прямые Pi→Nano status/capture200, reference409 MCUstale retained. Immutable
+c516de7 staged1545files на3узлах, own Pi101/Nano810file backups проверены наHB.
+Полная frozen c516de7 регрессия выполняется; сервисы ещё не переключены. Далее
+scoped deploy и реальные read-only endpoints/UI checks.
 [Contract/evidence](../03-lerobot-teaching/docs/LAB_RUNTIME_CONTRACT_RU.md).
 
 01 PARKED: current C-v2=0/16, canonical full-task mastery/DAgger/ACT не достигнут;

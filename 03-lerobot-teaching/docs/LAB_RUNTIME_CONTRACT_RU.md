@@ -35,3 +35,15 @@ Pi ещё source-only9fc, HBef3f518. Следующие проверки: отд
 процесс с current full source/bootstrap и реальные read-only route/version checks,
 затем frozen regression/scoped deploy. Current native reference409, changing
 real leader trace/physical continuity и физический исход остаются OPEN.
+
+Actual platform qualification c516de7: Pi3.13.5 isolated full Node/frozen Station
++original calibration bytes derives BOOTSTRAP_DERIVED; fake peer HTTP0/buswrites0,
+forced idle camera error blocks1hold, all workers exit. Nano3.12.3 isolated state
+reuses real RGB file and original target status GET, common02/03 capture capabilities
+ready, no camera device/new controller owner. Direct authenticated Pi→Nano GET:
+status/capture/capabilities200, reference409 MCU telemetry stale retained. Original
+Nano target mux definitions byte-identical to4c, no original Web restart required.
+[Platform proof](../../_registry/evidence/experiment03-lab-platform-qualification-20261028.json).
+Immutable source1545files staged HB/Pi/Nano, own backups verified on Homebrain:
+Pi101files63,886,493B /Nano810files316,591,772B, online SQLite snapshots. Current
+links/services unchanged. Full frozen c516de7 running; this is not deployment.

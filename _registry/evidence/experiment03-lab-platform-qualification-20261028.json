@@ -1,0 +1,233 @@
+{
+  "schema": "explorer03_shared_lab_actual_platform_qualification_v1",
+  "commit": "c516de71c156b1d427f367be4a0754fe1b54bb81",
+  "status": "COMPONENT_SOFTWARE_TESTED_NOT_DEPLOYED",
+  "actual_Pi": {
+    "python": "3.13.5 (main, Aug 10 2026, 12:06:59) [GCC 14.2.0]",
+    "scope": "ACTUAL_PI313_CURRENT_NODE_BOOTSTRAP_ORIGINAL_CALIB_BYTES_FAKE_BUSES_LOOPBACK_ONLY",
+    "registration": {
+      "physical_acceptance": false,
+      "registration": {
+        "acceptance_remaining": [
+          "small_xyz_directions",
+          "wrist_orientation",
+          "gripper_direction"
+        ],
+        "controller_configuration_writes": 0,
+        "frame_basis": "declared_URDF_base_axis_convention_installation_unverified",
+        "frame_convention": "aligned_urdf_base_axes",
+        "gripper_basis": "provisional_official_normalized_closed_open_and_original_target_command_reference",
+        "gripper_direction_physically_verified": false,
+        "leader_normalized_to_target_gripper_servo_deg": [
+          [
+            0.0,
+            170.0
+          ],
+          [
+            100.0,
+            30.0
+          ]
+        ],
+        "metric_gripper_aperture_measured": false,
+        "physical_acceptance": false,
+        "physical_commands": 0,
+        "physical_mount_verified": false,
+        "provenance": "derived_from_existing_controller_and_lerobot_calibration",
+        "schema": "explorer_native_leader_bootstrap_v1",
+        "sha256": "8149924bfc6600691b09452e0300cfe048f6680b8fbb46e33873a2af033b3ffb",
+        "source_CAD_bounds": "diagnostic_for_observed_encoder_FK_not_a_motor_limit_or_clamp",
+        "source_calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+        "source_coordinate_profile_sha256": "cb8af25acfa5177c6d162593c0348e1418eee0d93bb94fd3c73c8fb78ef4cd02",
+        "source_joint_coordinate_clipping": false,
+        "source_urdf_sha256": "bc947e2fea65dfc91b0fc40e4cff0c01c6bf426687995937e62e2b0f41122db5",
+        "target_base_from_source_rotation": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "target_gripper_reference_sha256": "ed275d5b774814963fc855009a4f93715ffbe4657796b2ed32f9c1c9718e11cb",
+        "target_measured": false,
+        "target_servo_coordinates_sha256": "6dbfbcaa238b04e2ddb61e08d43f1ebee250e8bfd8ca273d83ff2e1008df6b2f",
+        "target_state_source": "command_estimate",
+        "target_urdf_sha256": "9ee94f15a2473ba04c84c552bae47f7dd2bd734b8b3700f3fe25d752c3eace4b",
+        "translation_basis": "each_explicit_clutch_from_current_native_command_estimate"
+      },
+      "state": "BOOTSTRAP_DERIVED"
+    },
+    "peer_HTTP_calls": 0,
+    "fake_bus_writes": 0,
+    "blocked_idle_hold": 1,
+    "all_isolated_workers_exited": true,
+    "actual_observer_unchanged": true
+  },
+  "actual_Nano": {
+    "python": "3.12.3 (main, Jul 15 2026, 23:46:41) [GCC 13.3.0]",
+    "scope": "ACTUAL_NANO_PY312_CURRENT_NODE_ISOLATED_STATE_EXISTING_RGB_FILE_AND_GET_ONLY_ORIGINAL_NATIVE_API",
+    "capabilities": {
+      "schema": "explorer_native_capture_service_v1",
+      "metadata_skill_context_supported": true,
+      "native_owner_ready": true,
+      "native_source_error": null,
+      "projects": [
+        "02",
+        "03"
+      ],
+      "action_dimension": 9,
+      "same_target_producer": true,
+      "native_source_method": "GET_ONLY",
+      "controller_settings_written": false,
+      "recording_operations": [
+        "start",
+        "pause",
+        "resume",
+        "cancel",
+        "finish",
+        "review"
+      ],
+      "recording_modes": [
+        "demonstration",
+        "observations_only"
+      ],
+      "physical_qualification": false
+    },
+    "original_target_HTTP_requests": [
+      {
+        "method": "GET",
+        "path": "/api/explorer/retarget/status"
+      }
+    ],
+    "existing_RGB_file_reused": true,
+    "camera_device_opened": false,
+    "all_isolated_workers_exited": true
+  },
+  "original_target_compatibility": {
+    "scope": "EXACT_ORIGINAL_NANO_TARGET_NATIVE_STREAM_DEFINITIONS",
+    "original_commit": "4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4",
+    "current_commit": "c516de71c156b1d427f367be4a0754fe1b54bb81",
+    "definitions_byte_identical": {
+      "audit_factory_binding": "767cb2723005b68ddd54a38dd5ef6f0abef60658a16d2b91e4b5424585a23b5e",
+      "_vector": "39693dd047ec4dafd1a0de75dd11c97ec032a6bc8ce47655e691c4bad4787318",
+      "NativeDispatchTap": "cf55e9465f7f1b5b2768946067763472c89fa92d20e33ea9ca0e17fe0ee9955f",
+      "NativeTeleopMux": "5c51b03b4874075d2d19c1f9c9039cc599469ec860e5072681140d6e4bb0a9a5"
+    },
+    "source_only_geometry_changes_excluded": "RelativeLeaderGeometry used on Pi",
+    "original_web_restart_required_for_target_stream_changes": false,
+    "actual_native_commands": 0
+  },
+  "actual_Pi_to_Nano_GET": {
+    "/legacy/explorer/retarget/status": {
+      "status": 200,
+      "detail": null
+    },
+    "/legacy/explorer/retarget/reference": {
+      "status": 409,
+      "detail": "MCU telemetry is stale"
+    },
+    "/native-capture/status": {
+      "status": 200,
+      "detail": null
+    },
+    "/native-capture/capabilities": {
+      "status": 200,
+      "detail": null
+    }
+  },
+  "stage": {
+    "commit": "c516de71c156b1d427f367be4a0754fe1b54bb81",
+    "archive_sha256": "8296e370fb4560a4ef84572936f582230989e53edea6ab054f5216271c5e6345",
+    "nodes": {
+      "pi": {
+        "staged": {
+          "commit": "c516de71c156b1d427f367be4a0754fe1b54bb81",
+          "archive_sha256": "8296e370fb4560a4ef84572936f582230989e53edea6ab054f5216271c5e6345",
+          "files": 1545,
+          "current_switched": false,
+          "services_restarted": false
+        },
+        "backup_sha256": "eb64e92805d143c9acb080ae690e5d1d128d621872d5b17a17bae0973c25424a",
+        "files": 101,
+        "bytes": 63886493,
+        "unit": {
+          "Restart": "on-failure",
+          "MainPID": "62031",
+          "ActiveState": "active"
+        }
+      },
+      "nano": {
+        "staged": {
+          "commit": "c516de71c156b1d427f367be4a0754fe1b54bb81",
+          "archive_sha256": "8296e370fb4560a4ef84572936f582230989e53edea6ab054f5216271c5e6345",
+          "files": 1545,
+          "current_switched": false,
+          "services_restarted": false
+        },
+        "backup_sha256": "abe86168fc129857bab6cb7aaf811abc7134360ea2d10e1c98467115cfc4cc45",
+        "files": 810,
+        "bytes": 316591772,
+        "unit": {
+          "Restart": "on-failure",
+          "MainPID": "459156",
+          "ActiveState": "active"
+        }
+      }
+    },
+    "GPU_source_files": 16,
+    "GPU_binding_sha256": "85a4e1b4e8177ee8a1bcf2bc892782b7ae32ce32516762a2932d0858e512080f",
+    "diffusion_source_files": 21,
+    "diffusion_binding_sha256": "929e92bfeb87ef0f244f836429e4b5f3830840edabca9414a63922580dfc1758",
+    "current_switched": false,
+    "services_restarted": false,
+    "new_training": false
+  },
+  "raw_evidence": {
+    "case-lab-c516de7/result.json": {
+      "path": "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/case-lab-c516de7/result.json",
+      "sha256": "5a19f5f202d6821bde3308dc06ab487de2826752404f135ca44fefc8b3260806"
+    },
+    "Nano-current-readonly.log": {
+      "path": "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/Nano-current-readonly.log",
+      "sha256": "796a6ed300c2c5f18b7d0a38c6055b108f46dbada6d82d6248f5726499151fa4"
+    },
+    "original-target-compatibility.json": {
+      "path": "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/original-target-compatibility.json",
+      "sha256": "9de20d3bf5d2f21f44b8bf37a73d850b0fd11080bc0005090d12d5efa40080af"
+    },
+    "software-stage.json": {
+      "path": "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/software-stage.json",
+      "sha256": "571fe0be63a4e4a5c2a068a872d0d9adf6d675060b3b7c8bc4e78fc1611ac46f"
+    },
+    "pi-before-deploy-backup.tar": {
+      "path": "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/pi-before-deploy-backup.tar",
+      "sha256": "eb64e92805d143c9acb080ae690e5d1d128d621872d5b17a17bae0973c25424a"
+    },
+    "nano-before-deploy-backup.tar": {
+      "path": "/mnt/explorer-data/explorer-work/03-lab-runtime-Pi-20261028-a/nano-before-deploy-backup.tar",
+      "sha256": "abe86168fc129857bab6cb7aaf811abc7134360ea2d10e1c98467115cfc4cc45"
+    }
+  },
+  "physical_acceptance": false,
+  "real_changing_continuity": "OPEN",
+  "native_reference": "409_MCU_TELEMETRY_STALE",
+  "actual_native_commands": 0,
+  "actual_native_grants": 0,
+  "controller_configuration_changes": 0,
+  "station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+  "limitations": [
+    "Pi serial/camera/peer fixture used actual original calibration bytes with fake buses/loopback; not physical hardware qualification",
+    "Nano probe read real cached RGB and original native status GET with isolated own state; no target commands",
+    "Backups cover selected own data/config/calibration; same SSD, not machine images",
+    "Full frozen c516de7 regression in progress; no service/current pointer switched by this proof"
+  ]
+}
