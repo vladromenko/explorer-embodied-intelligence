@@ -195,3 +195,14 @@ test('native wrapper pins server session/epoch and rejects targets, model IDs or
   for(const fields of [{session_id:'other'},{expected_epoch:'other'},{targets:[1,2]},{model_id:'spoof'},{actor_id:'spoof'},{url:'http://foreign'}])assert.throws(()=>client.nativeOperation('native_begin',fields),/без подмены/);
   await client.nativeOperation('native_recenter',{role:'giver',native_control_choice_id:'a'.repeat(64),observing:true,user_observed_test_confirmed:true,neutral:true});assert.equal(calls.at(-1)[2].expected_epoch,'epoch-one');await client.stop();assert.throws(()=>client.nativeOperation('native_refresh',{}),/После STOP/);
 });
+
+
+test('receiver metadata wrapper pins epoch, uses operation-specific fields and fences STOP',async()=>{
+  const {client,calls}=await rig();await client.receiverSetupOperation('receiver_setup_refresh',{});
+  assert.deepEqual(calls.at(-1),['POST','/api/cooperative/receiver_setup_refresh',{session_id:'server-session',expected_epoch:'epoch-one'}]);
+  for(const fields of [{session_id:'foreign'},{expected_epoch:'foreign'},{native_target:[1]},{frame_id:'spoof'},{actor_id:'spoof'},{direction_profile_id:'spoof'},{path:'/secret'}])assert.throws(()=>client.receiverSetupOperation('receiver_setup_bind_guard',fields),/без native чисел/);
+  assert.throws(()=>client.receiverSetupOperation('receiver_setup_reset_safe',{empty_gripper_confirmed:true}),/без native чисел/);
+  assert.throws(()=>client.receiverSetupOperation('native_begin',{}),/без native чисел/);
+  await client.receiverSetupOperation('receiver_setup_capture_empty_open',{receiver_setup_choice_id:'a'.repeat(64),observation_choice_id:'b'.repeat(32),displayed_jpeg_sha256:'c'.repeat(64),observing:true,user_observed_test_confirmed:true,empty_gripper_confirmed:true});
+  assert.equal(calls.at(-1)[2].expected_epoch,'epoch-one');await client.stop();assert.throws(()=>client.receiverSetupOperation('receiver_setup_refresh',{}),/После STOP/);
+});

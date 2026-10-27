@@ -32,6 +32,7 @@ from .cooperative_warm_service import CooperativeWarmService
 from .cooperative_observed_service import CooperativeObservedService
 from .cooperative_policy_job import required_policy_roles
 from .cooperative_native_sessions import CooperativeNativeSessions,OPERATIONS as NATIVE_USER_OPERATIONS
+from .cooperative_receiver_setup import CooperativeReceiverSetup,OPERATIONS as RECEIVER_SETUP_OPERATIONS
 
 
 def _boot():return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
@@ -68,6 +69,7 @@ class CooperativeService:
         self.observed_setup=CooperativeObservedService(self.workflow,{role:self._request(role) for role in ('giver','receiver')},
             self._observed_binary,inspect_native=self._inspect_skill,has_prior_evidence=self._prior_test_evidence,clock=clock)
         self.native_controls=CooperativeNativeSessions(self)
+        self.receiver_setup=CooperativeReceiverSetup(self)
     def _prior_test_evidence(self,row):
         with self.store.connect() as db:
             jobs=list(db.execute("SELECT id,kind,config FROM jobs WHERE json_extract(config,'$.session_id')=? OR json_extract(config,'$.cooperative_shadow_binding.session_id')=?",
@@ -423,6 +425,7 @@ bound first; default construction cannot turn on policy execution.
                 for role in ('giver','receiver')},
             'observed_setup':observed,
             'native_controls':self.native_controls.snapshot(selected) if selected else None,
+            'receiver_setup':self.receiver_setup.snapshot(selected) if selected else None,
             'execution_authority':self._authority(selected) if selected else {'explicit_user_observed_test_current':False},
             'persistent_warm_model_actor_ready':any(row['compute_ready'] for row in warm_compute),
             'model_adapters_bound':{role:callable(self.models.get(role)) for role in ('giver','receiver')}}
@@ -528,7 +531,13 @@ idempotent; process restart never queues its missing half automatically.
         elif operation=='step':result=self.workflow.request_step(session,body.get('event'),expected_epoch=body.get('expected_epoch'))
         elif operation=='stop':
             previous=self.workflow.snapshot(session)
+            self.receiver_setup.invalidate_session(previous)
             result=self.workflow.cancel_session(session)
+            try:
+                result['native_owned_session_cleanup']=self.native_controls.cancel_owned_sessions(previous,actor=authenticated_actor)
+            except Exception as error:
+                result['native_owned_session_cleanup']={'delivery_unknown':True,'error':type(error).__name__+':'+str(error),
+                    'dual_hold_interlocks_unarmed':False}
             result['observed_metadata_revocations']=self.observed_setup.revoke_session(previous)
             result['warm_compute_jobs_cancelled']=self.warm_compute.cancel_session(self.workflow.snapshot(session))
         elif operation=='confirm_evidence':result=self.inbox.confirm(body.get('challenge_id'),
@@ -553,6 +562,10 @@ idempotent; process restart never queues its missing half automatically.
             elif operation=='observed_observe':result=self.observed_setup.observe(body.get('observation_choice_id'),row,spec,body,actor=authenticated_actor)
             elif operation=='observed_revoke':result=self.observed_setup.revoke(body.get('permission_choice_id'),row,spec,actor=authenticated_actor)
             else:result=self.observed_setup.bind(body.get('observed_choice_id'),row,spec,actor=authenticated_actor)
+        elif operation=='receiver_setup_refresh' or operation in tuple('receiver_setup_'+name for name in RECEIVER_SETUP_OPERATIONS):
+            row=self.workflow.snapshot(session);spec=self.workflow.skill(row['skill_id'],row['skill_version'])['spec']
+            result=(self.receiver_setup.refresh(row,spec,actor=authenticated_actor) if operation=='receiver_setup_refresh'
+                else self.receiver_setup.execute(operation.removeprefix('receiver_setup_'),row,spec,body,actor=authenticated_actor))
         elif operation=='native_refresh' or operation in NATIVE_USER_OPERATIONS:
             row=self.workflow.snapshot(session);spec=self.workflow.skill(row['skill_id'],row['skill_version'])['spec']
             result=(self.native_controls.refresh(row,spec,actor=authenticated_actor) if operation=='native_refresh'

@@ -151,3 +151,18 @@ def test_late_get_refresh_after_cancel_never_repopulates_native_choices(tmp_path
         assert errors and not thread.is_alive() and service.native_controls.snapshot(row)['roles']=={}
         assert pair.station.calls==[]
     finally:release.set();close(service,pair,client)
+
+
+def test_service_global_stop_reaches_completed_unattached_pi_using_rotated_native_epoch(tmp_path):
+    service,store,row,spec,pair,client=configured(tmp_path)
+    try:
+        returned=execute(service,'native_begin',choice(service,row,'receiver','native_begin'))['native_receipt']['grant']
+        assert not service.transports and pair.station.mode=='teleoperation'
+        result=command(service,row,'stop')
+        cleanup=result['native_owned_session_cleanup']['roles']['receiver']['source_cleanup_receipt']
+        assert cleanup['native_command_called'] and pair.station.mode=='idle'
+        stop=next(body for op,body in pair.station.calls if op=='stop')
+        assert stop['expected_control_epoch']==returned['control_epoch']
+        assert service.workflow.snapshot(row['session_id'])['status']=='STOPPED'
+        assert not pair.provider.status()['execution_permission']
+    finally:close(service,pair,client)

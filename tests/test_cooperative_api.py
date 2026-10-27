@@ -41,6 +41,12 @@ def test_cooperative_routes_pin_session_scope_actor_and_managed_artifact(tmp_pat
             assert client.post('/api/cooperative/'+operation,json={'session_id':ident,'expected_epoch':'current-fixture','role':'giver','actor_id':'spoofed'},headers=headers).status_code==200
         native_calls=[row for row in calls if row[0]=='POST' and row[1].startswith('native_')]
         assert len(native_calls)==7 and all(row[-1].startswith('authenticated-session:') and row[-1]!='spoofed' for row in native_calls)
+        for operation in ('receiver_setup_refresh','receiver_setup_bind_guard','receiver_setup_capture_empty_open',
+                          'receiver_setup_capture_empty_closed','receiver_setup_reset_safe'):
+            assert client.post('/api/cooperative/'+operation,json={'session_id':ident,'expected_epoch':'current-fixture'},headers=headers).status_code==200
+        setup_calls=[row for row in calls if row[0]=='POST' and row[1].startswith('receiver_setup_')]
+        assert len(setup_calls)==5 and all(row[-1].startswith('authenticated-session:') for row in setup_calls)
+        assert client.post('/api/cooperative/receiver_setup_action',json={},headers=headers).status_code==404
         frame=client.get('/api/cooperative/observed-frame/'+ident)
         assert frame.status_code==200 and frame.content==raw and frame.headers['x-jpeg-sha256']==hashlib.sha256(raw).hexdigest()
         assert next(row for row in calls if row[0]=='displayed_frame')[-1].startswith('authenticated-session:')

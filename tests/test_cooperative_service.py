@@ -205,3 +205,19 @@ def test_partial_native_queue_reservation_recovers_committed_job_after_lost_retu
         assert attempts==['giver','receiver'] and len(store.jobs())==2
         assert not second['action_spaces_merged'] and not second['coordinator_trained'] and calls==[]
     finally:service.close();client.close()
+
+
+def test_global_stop_uses_pre_cancel_native_scope_and_invalidates_receiver_setup(tmp_path,monkeypatch):
+    service,store,calls,active,contexts,client=fixture(tmp_path)
+    try:
+        row,spec=session(service);seen=[]
+        def cleanup(previous,*,actor,reason='EXPLICIT_COOPERATIVE_STOP'):
+            assert service.workflow.snapshot(previous['session_id'])['status']=='STOPPED'
+            assert previous['epoch']==row['epoch'] and actor=='trusted-owner'
+            seen.append(previous);return {'roles':{},'dual_hold_interlocks_unarmed':False}
+        monkeypatch.setattr(service.native_controls,'cancel_owned_sessions',cleanup)
+        result=service.command('stop',{'session_id':row['session_id'],'expected_epoch':row['epoch']},authenticated_actor='trusted-owner')['result']
+        assert len(seen)==1 and result['native_owned_session_cleanup']['dual_hold_interlocks_unarmed'] is False
+        assert service.receiver_setup.generations[row['session_id']]==1
+        assert all('/record/' in path for method,host,path,body in calls if method=='POST')
+    finally:service.close();client.close()

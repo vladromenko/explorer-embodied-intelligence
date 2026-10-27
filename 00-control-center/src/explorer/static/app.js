@@ -81,7 +81,7 @@ const labVision = createLabVisionClient({get: api,post: (...args) => post(...arg
 const tabletopCalibration = createTabletopCalibrationClient({get:api,post:(...args) => post(...args),onChange:() => { model.forceRender = true; render(); }});
 const cooperativeWorkbench = createCooperativeWorkbenchClient({get:api,post:(...args) => post(...args),onChange:() => { model.forceRender = true; render(); }});
 let cooperativeUnbind = () => {}, cooperativeLoadedAt = 0;
-const cooperativeObserved = createCooperativeObservedClient({view:()=>cooperativeWorkbench.snapshot(),invoke:(...args)=>cooperativeWorkbench.observedOperation(...args),invokeNative:(...args)=>cooperativeWorkbench.nativeOperation(...args),
+const cooperativeObserved = createCooperativeObservedClient({view:()=>cooperativeWorkbench.snapshot(),invoke:(...args)=>cooperativeWorkbench.observedOperation(...args),invokeNative:(...args)=>cooperativeWorkbench.nativeOperation(...args),invokeReceiverSetup:(...args)=>cooperativeWorkbench.receiverSetupOperation(...args),
   visible:path()==="/experiments/05" && !document.hidden,
   onChange:()=>{if(path()==="/experiments/05"){model.forceRender=true;render();}}});
 let cooperativeObservedUnbind = () => {};
