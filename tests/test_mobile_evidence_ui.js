@@ -44,3 +44,14 @@ test("sensor recording, admission and actual model use remain separate; canonica
   assert.ok(html.includes("Настоящие нулевые команды остаются"));
   assert.ok(!html.includes("В старом представлении ACT положения"));
 });
+
+test('03 raw observation RGB remains recorded while admission and model use stay false',()=>{
+ const html=mobileEvidencePanel({project_id:'03',counts:{imported:1,pending_imports:0,raw_frames_recorded:39,admitted_for_training:0},imports:[{
+  import_status:'completed',raw_frames_recorded:39,admitted_for_training:false,rgb_verified:false,
+  raw_observation_evidence:{available_source_channel_counts:{camera_rgb:39,imu:39}},
+  mobile_embodied:{channels:{camera_rgb:{recorded:false,admitted:false,model_used:false}}},reasons:[],visual_ACT:{trained_RGB_model_verified:false}
+ }]},{project_id:'03'});
+ assert.match(html,/03 \/ От кадра к модели/);assert.match(html,/Сохранено кадров: 39/);
+ assert.match(html,/<th scope="row">RGB<\/th><td>да<\/td><td>нет<\/td><td>нет<\/td>/);
+ assert.match(html,/leader и записью/);assert.doesNotMatch(html,/Допущен к офлайн-обучению/);
+});

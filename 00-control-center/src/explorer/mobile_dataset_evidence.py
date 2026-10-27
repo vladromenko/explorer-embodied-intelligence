@@ -227,6 +227,58 @@ def _matching_training(jobs,manifest_sha,managed_root):
     return matches
 
 
+def _recorded_rgb_evidence(envelope,payloads):
+    """Count hash-bound raw RGB separately from causal command-pair admission."""
+    from io import BytesIO
+    from PIL import Image
+    if not isinstance(envelope,dict):raise ValueError('Original source envelope required')
+    frames={};verified=set();channels={};errors=[]
+    def frame(value):
+        if not isinstance(value,dict):raise ValueError('Original RGB descriptor required')
+        identity=value.get('frame_id');name=value.get('source_file');raw=payloads.get(name)
+        if not isinstance(identity,str) or not identity or not isinstance(raw,bytes) or hashlib.sha256(raw).hexdigest()!=value.get('sha256'):
+            raise ValueError('Original RGB identity/payload SHA required')
+        signature=tuple(value.get(key) for key in ('source_file','sha256','width','height'))
+        if identity in frames and frames[identity]!=signature:raise ValueError('Conflicting original RGB frame identity')
+        frames[identity]=signature
+        width,height=value.get('width'),value.get('height')
+        if type(width) is not int or type(height) is not int or width<=0 or height<=0 or width*height>16*1024**2:
+            raise ValueError('Raw RGB decode inspection pixel budget exceeded')
+        with Image.open(BytesIO(raw)) as image:
+            if image.mode!='RGB' or image.size!=(width,height):raise ValueError('Original RGB shape/mode differs')
+            image.load()
+        verified.add(identity)
+    rows=envelope.get('observation_stream',[])
+    if not isinstance(rows,list) or len(rows)>20000:raise ValueError('Bounded raw observation stream required')
+    for row in rows:
+        try:
+            if not isinstance(row,dict):raise ValueError('Original observation descriptor required')
+            raw=payloads.get(row.get('source_file'))
+            if not isinstance(raw,bytes) or hashlib.sha256(raw).hexdigest()!=row.get('sha256'):raise ValueError('Original observation SHA required')
+            original=json.loads(raw)
+            if not isinstance(original,dict):raise ValueError('Original observation object required')
+            if (original.get('schema')!='explorer_recording_observation_v1' or original.get('recording_id')!=envelope.get('episode_id') or
+                    original.get('camera_rgb')!=row.get('camera_rgb') or original.get('observed_stamp')!=row.get('observed_stamp')):
+                raise ValueError('Raw observation projection differs from original')
+            frame(original['camera_rgb'])
+            for name,value in original.get('sensor_channels',{}).items():
+                available=(isinstance(value,dict) and value.get('available') is True and value.get('mask') is True and value.get('value') is not None)
+                if available:channels[name]=channels.get(name,0)+1
+        except (OSError,ValueError,KeyError,TypeError) as error:errors.append(str(error))
+    for sample in envelope.get('samples',[]):
+        try:
+            if not isinstance(sample,dict):raise ValueError('Original command sample required')
+            rgb=(sample.get('channels') or {}).get('camera_rgb') or {}
+            if rgb.get('available') is True:frame(rgb.get('value'))
+        except (OSError,ValueError,KeyError,TypeError) as error:errors.append(str(error))
+    if verified:channels['camera_rgb']=len(verified)
+    return {'schema':'explorer_raw_RGB_observation_evidence_v1','frame_count':len(frames),'verified_RGB_count':len(verified),
+        'observation_packet_count':len(rows),'all_RGB_payloads_verified':bool(frames) and len(frames)==len(verified) and not errors,
+        'available_source_channel_counts':channels,'errors':sorted(set(errors)),
+        'basis':'hash_bound_original_observation_packets_and_RGB_payloads_not_causal_command_pairs',
+        'training_admission_inferred':False,'camera_exposure_alignment_inferred':False}
+
+
 def _embodied_evidence(path,manifest,original_episode_id,include_envelope=False):
     """Delegate the ONE full ROSMASTER9D contract to its authoritative module."""
     direct=manifest.get('schema')=='explorer_embodied_episode_v1'
@@ -265,6 +317,8 @@ def _embodied_evidence(path,manifest,original_episode_id,include_envelope=False)
     inspected=inspect_embodied_episode(original_bytes if original_bytes is not None else envelope,source_payloads=payloads)
     inspected['source_artifacts']=artifacts;inspected['envelope_binding']=binding
     inspected['source_project_id']=envelope.get('project_id') if isinstance(envelope,dict) and inspected.get('source_kind') in ('physical','simulation') else None
+    if manifest.get('schema')=='explorer_native_embodied_capture_manifest_v1':
+        inspected['raw_observation_evidence']=_recorded_rgb_evidence(envelope,payloads)
     if include_envelope:inspected['envelope']=envelope
     return inspected
 
@@ -273,7 +327,7 @@ def _inspect_legacy_mobile_import(job,*,managed_root=None,include_manifest=False
     """Return JSON evidence only; missing/analysis-only imports are normal results."""
     result=job.get('result') or {}
     report={'schema':SCHEMA,'import_job_id':job.get('id'),'original_episode_id':(job.get('config') or {}).get('episode_id',result.get('episode_id')),
-        'original_session_id':None,'manifest_path':None,'manifest_sha256':None,'completed_recording':False,
+        'original_session_id':None,'manifest_path':None,'manifest_sha256':None,'completed_recording':False,'import_status':job.get('status'),
         'operator_success':False,'source_quality_usable':False,'source_training_admission_usable':False,
         'rgb_verified':False,'action9_verified':False,'causal_verified':False,'retained_originals_verified':False,
         'admitted_for_training':False,'legacy_RGB9D_contract_admitted':False,
@@ -490,6 +544,9 @@ def inspect_rosmaster_import(job,*,managed_root=None,include_manifest=False,max_
     report['native_dispatch_receipts_verified']=canonical.get('source_kind')=='physical' and canonical.get('action9_verified') is True
     report['simulated_dispatch_receipts_verified']=canonical.get('source_kind')=='simulation' and canonical.get('action9_verified') is True
     report['canonical_samples_recorded']=canonical.get('sample_count')
+    raw=canonical.get('raw_observation_evidence')
+    if isinstance(raw,dict):
+        report.update(raw_observation_evidence=raw,raw_frames_recorded=raw['frame_count'],raw_rgb_verified_count=raw['verified_RGB_count'])
     if job.get('kind')=='retarget_import' and not canonical.get('envelope_binding'):
         try:
             original=_managed(result['observation_manifest'],managed_root);metadata=_json(original)
@@ -539,12 +596,14 @@ def inspect_mobile_import(job,*,managed_root=None,include_manifest=False,max_epi
         max_episode_bytes=max_episode_bytes,training_jobs=training_jobs)
 
 
-def mobile_evidence_summary(jobs,*,managed_root=None,training_jobs=()):
-    imports=[inspect_mobile_import(job,managed_root=managed_root,training_jobs=training_jobs) for job in jobs if job.get('kind') in ('mobile_import','retarget_import')]
-    return {'schema':'explorer_mobile_evidence_summary_v1','imports':imports,
-        'counts':{'imported':len(imports),'raw_frames_recorded':sum(item.get('raw_frames_recorded') or 0 for item in imports),
+def mobile_evidence_summary(jobs,*,managed_root=None,training_jobs=(),project_id=None):
+    if project_id not in (None,'02','03'):raise ValueError('ROSMASTER evidence belongs to project02 or03')
+    imports=[inspect_mobile_import(job,managed_root=managed_root,training_jobs=training_jobs) for job in jobs if job.get('kind') in ('mobile_import','retarget_import') and (project_id is None or job.get('project_id')==project_id)]
+    completed=[item for item in imports if item['import_status']=='completed']
+    return {'schema':'explorer_mobile_evidence_summary_v1','project_id':project_id,'imports':imports,
+        'counts':{'imported':len(completed),'pending_imports':sum(item['import_status'] not in ('completed','failed','cancelled') for item in imports),'raw_frames_recorded':sum(item.get('raw_frames_recorded') or 0 for item in completed),
             'admitted_for_training':sum(item['admitted_for_training'] for item in imports),
-            'observation_or_rejected':sum(not item['admitted_for_training'] for item in imports),
+            'observation_or_rejected':sum(not item['admitted_for_training'] for item in completed),
             'operator_labelled_success':sum(item.get('operator_success') is True for item in imports),
             'trained_RGB9D_models':len({job['job_id'] for item in imports for job in item['visual_ACT']['actual_matching_training_jobs'] if job['RGB_input_in_saved_policy']})},
         'physical_success_validated':False,'new_models_status':'offline_or_shadow_only_pending_separate_qualification'}

@@ -833,10 +833,11 @@ def recordings():
 
 
 @app.get('/api/mobile/evidence')
-def mobile_evidence():
+def mobile_evidence(project_id: str | None = None):
     from .mobile_dataset_evidence import mobile_evidence_summary
+    if project_id not in (None,'02','03'):raise HTTPException(400,'ROSMASTER evidence belongs to project02 or03')
     jobs = STORE.jobs(10000)
-    return mobile_evidence_summary(jobs, managed_root=STORE.root, training_jobs=jobs)
+    return mobile_evidence_summary(jobs, managed_root=STORE.root, training_jobs=jobs,project_id=project_id)
 
 
 @app.post('/api/recordings')

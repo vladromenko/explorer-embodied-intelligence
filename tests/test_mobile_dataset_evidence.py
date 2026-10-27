@@ -111,7 +111,7 @@ def test_observation_only_summary_does_not_fabricate_qualified_physical_models()
                      'qualification':{'rejection_counts':{'unknown_or_unqualified_arm_history:UNKNOWN_AFTER_REBOOT':frames}}}}
           for index,frames in enumerate([9,9,18])]
     summary=mobile_evidence_summary(jobs)
-    assert summary['counts']=={'imported':3,'raw_frames_recorded':36,'admitted_for_training':0,
+    assert summary['counts']=={'imported':3,'pending_imports':0,'raw_frames_recorded':36,'admitted_for_training':0,
         'observation_or_rejected':3,'operator_labelled_success':0,'trained_RGB9D_models':0}
     assert not summary['physical_success_validated']
     assert all(not item['admitted_for_training'] for item in summary['imports'])

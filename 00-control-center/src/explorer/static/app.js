@@ -337,10 +337,12 @@ keyboard.options = {
   },
   changed: () => { if (rosmasterDemonstrationRoute()) { model.forceRender = true; render(); } }
 };
-const mobileEvidence = createMobileEvidenceClient({
-  fetchEvidence: () => api("/api/mobile/evidence"),
-  onChange: () => { if (rosmasterDemonstrationRoute()) { model.forceRender = true; render(); } }
-});
+const mobileEvidenceClients = Object.fromEntries(["02", "03"].map(project => [project, createMobileEvidenceClient({
+  fetchEvidence: () => api(`/api/mobile/evidence?project_id=${project}`),
+  onChange: () => { if (activeProject()?.id === project) { model.forceRender = true; render(); } }
+})]));
+const mobileEvidenceClient = () => mobileEvidenceClients[activeProject()?.id === "03" ? "03" : "02"];
+const mobileEvidence = { refresh: () => mobileEvidenceClient().refresh(), snapshot: () => mobileEvidenceClient().snapshot() };
 let mobileEvidenceSignature = "";
 let skillWorkflowSignature = "";
 let recoveredCaptureEpisode = "";
@@ -460,7 +462,7 @@ function experiment02Page(project) {
     notice(observedNative.chassisAllowed()?"Наблюдаемый тест шасси разрешён":"Шасси по умолчанию заблокировано", "Любое движение — только в отдельной проверке под текущим наблюдением пользователя. Исходные настройки штатного исполнителя сохранены.") + '<a class="button secondary" href="/evening" data-link>Открыть мастер наблюдаемой сессии</a>' +
     `<div class="experiment02-layout"><aside class="experiment02-aside"><div id="camera-slot"></div><div class="manual-session-status" role="status"><strong>${esc(status)}</strong><span id="manual-camera-status">${rosmasterCameraReady() ? "Свежие кадры ROSMASTER получены" : "Ожидаем свежий кадр ROSMASTER"}</span><span>Предпросмотр ≈ 5 кадров/с; исходная запись сохраняет свою частоту.</span></div>${rosmasterCameraInventoryPanel()}${guide}${leader ? `<section class="panel spaced-section"><div class="panel-heading"><h3>Измерения leader</h3></div><div class="panel-body">${stationMeasurements(true)}</div></section>` : ""}</aside><div class="experiment02-workflow">` +
     controls + skillWorkflowPanel() + recordPanel +
-    `<div class="spaced-section">${mobileEvidencePanel(mobileEvidence.snapshot(), {preview: manualPreview.state(), teaching})}</div><div class="spaced-section">${jobsPanel(jobs, "Обучение и проверка ROSMASTER")}</div><div class="spaced-section">${recordingsPanel(project.id)}</div></div></div>`;
+    `<div class="spaced-section">${mobileEvidencePanel(mobileEvidence.snapshot(), {preview: manualPreview.state(), teaching, project_id: project.id})}</div><div class="spaced-section">${jobsPanel(jobs, "Обучение и проверка ROSMASTER")}</div><div class="spaced-section">${recordingsPanel(project.id)}</div></div></div>`;
 }
 
 function rosmasterCameraInventoryPanel() {
@@ -738,7 +740,7 @@ async function refresh(forceExtras = false) {
     }
     if (rosmasterDemonstrationRoute()) {
       await loadRobot();
-      const signature = model.jobs.filter(job => ["mobile_import", "retarget_import"].includes(job.kind)).map(job => `${job.id}:${job.status}:${job.updated}`).join("|");
+      const signature = `${activeProject()?.id}|` + model.jobs.filter(job => ["mobile_import", "retarget_import"].includes(job.kind)).map(job => `${job.id}:${job.status}:${job.updated}`).join("|");
       if (signature !== mobileEvidenceSignature || !mobileEvidence.snapshot().schema) {
         mobileEvidenceSignature = signature; void mobileEvidence.refresh();
       }

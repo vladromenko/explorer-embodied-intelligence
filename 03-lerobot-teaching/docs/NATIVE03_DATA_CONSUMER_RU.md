@@ -99,3 +99,15 @@ adapter вместо существующего workflow adapter; API отказ
 Оба исхода сохранены. CPU2/4GiB/swap0/core0, kernel peak1336369152B/events0.
 Это actual CPU execution на generated source data,0real expert demonstrations,
 0physical requests. Реальный moving-leader continuity gate остаётся OPEN.
+
+## Сырые RGB и командные пары — отдельные счётчики
+
+Technical observations-only source может содержать RGB при0command samples.
+Inspector отдельно проверяет исходные observation JSON/SHA, JPEG bytes/shape/decode
+и уникальные frame IDs. `raw_frames_recorded`/`raw_rgb_verified_count` сохраняют
+эти факты; `rgb_verified`, causal9D и training admission от этого не меняются.
+Raw sensor availability/masks показаны отдельно от допуска и actual model use.
+Evidence API/UI scoped по project02/03; ожидающий перенос job не называется
+перенесённым. Раздельные browser clients сохраняют контекст при смене страниц.
+Фактический candidate original39RGB проверен:39decoded/0expert/0admitted;
+повторная запись или изменение source originals для проверки счётчика не нужны.
