@@ -1,0 +1,301 @@
+{
+  "schema": "explorer04_vision_actual_backend_and_source_admission_v1",
+  "status": "PASS_SCOPED_SOFTWARE",
+  "code_commit": "4993c6d83d97bca9a6056548b7a398c02d405ead",
+  "source_sha256": {
+    "shared/explorer_shared/lab_semantics.py": "7e17e5ba129fda77ddd667d903e20d06de3deae90c1f92e58aa5d55608ebe9d2",
+    "shared/explorer_shared/lab_vision_service.py": "de09006112611d80d5b93853792917ec61286e9b696e221d154bb563ca69934b",
+    "shared/explorer_shared/node_agent.py": "0c2cfd3ff62bb42a961b64f31090d524b5aaacd783d21edf2f51a00102f4cd27",
+    "shared/explorer_shared/station_observed_activation.py": "f216914e51730105cce52760c512c54bf935db33fb6bcbdfb22ab20ca2c0bef2",
+    "00-control-center/src/explorer/static/lab-vision.js": "ed54143c7555603ff59aa20dd8fe88be20348268abd0a0973105e89098278768",
+    "00-control-center/src/explorer/static/source-demonstration.js": "89156f2d0dd59be90c5cde945177ef1af81463be445477b48163910761a1557e",
+    "tests/test_source_semantic_admission.py": "faf042c28bf115b42f0560fc09e940c9022c7dbeade75178bde70049439963fe",
+    "tests/test_lab_vision.js": "02222d6bea525961a0fea8e5d5119237efa05de56c6f885bae9a2af96f05f35f",
+    "tests/test_source_demonstration_ui.js": "a40383772a3579fa8bf34bbb7b7090c82ebdccf2d456b12c42a85edc75441dde"
+  },
+  "actual_Pi": {
+    "original_node_release": "4c5f4f5b0fe4e37a8a66bf3643f0f696c0232db4",
+    "process_pid": 43382,
+    "process_restarted": false,
+    "source_camera": "ONE original Pi Logitech/pi-overview",
+    "segmentation_available": true,
+    "segmentation_model_sha256": "edb7f33aa7212a24dca0090cfca9b83ca72cc81b7385a3225ca2cd465092b9ed",
+    "VLM": {
+      "boot_id": "b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+      "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+      "finished_monotonic_ns": 162646355921842,
+      "model": {
+        "artifact_version": "5.1.1",
+        "model": "Qwen2-VL-2B-Instruct",
+        "model_sha256": "ae02a43fd4cf62ae3da4b6535cc0e2827c214635da34d4053914d9e70924a751",
+        "runtime_version": "5.1.1",
+        "semantic_only": true,
+        "source_url": "https://dev-public.hailo.ai/v5.1.1/blob/Qwen2-VL-2B-Instruct.hef"
+      },
+      "outcome": "SEMANTIC_RESULT",
+      "physical_actions_emitted": false,
+      "prompt": "Describe only what is visible in this cached tabletop image and state uncertainty. This is a software vision qualification, without robot execution. Do not provide coordinates, contact claims or action instructions.",
+      "prompt_sha256": "9e7074b42673cb24d60f08e0d0e60e0a09b760d7f71751b97e5f3cc04fc309b4",
+      "request_id": 1,
+      "requested_monotonic_ns": 162614779469622,
+      "result": {
+        "crop_box_pixels": [
+          80,
+          0,
+          560,
+          480
+        ],
+        "metric_coordinates_produced": false,
+        "model_input_rgb_sha256": "94343542a4207f2dbe4dd37f743c0c72e7bf8625abbf5ebcc52af42ce79c145b",
+        "motor_commands_produced": false,
+        "semantic_text": "The image depicts a tabletop scene that appears to be a simple, unadorned room. The room is dark, with a single light source that casts a gentle illumination on the walls and floor. The walls are plain, with a simple, unadorned design, while the floor is a simple, unadorned pattern of light-colored tiles. The room is devoid of any furniture, personal items, or decorations, giving it a minimalist and uncluttered appearance. The overall look is that of a simple, unadorned room, possibly a study or a small office. The room is devoid of any personal items"
+      },
+      "selection": {
+        "boot_id": "b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "box": null,
+        "camera_id": "pi-overview",
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "frame_id": "pi-overview:6bd968ccf7e8:542577",
+        "frame_sha256": "f39a7c3c8bc3dae4926f95ebefa2a92136417abc3c14812c182b241d8613ab75",
+        "height": 480,
+        "monotonic_ns": 162614674900780,
+        "pixel": [
+          320.0,
+          240.0
+        ],
+        "purpose": "scene_semantics",
+        "semantic_trigger": "ambiguity",
+        "timestamp_basis": "host_receive_estimate",
+        "width": 640
+      },
+      "source_frame": {
+        "boot_id": "b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "camera_id": "pi-overview",
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "frame_id": "pi-overview:6bd968ccf7e8:542577",
+        "frame_sha256": "f39a7c3c8bc3dae4926f95ebefa2a92136417abc3c14812c182b241d8613ab75",
+        "height": 480,
+        "monotonic_ns": 162614674900780,
+        "timestamp_basis": "host_receive_estimate",
+        "width": 640
+      },
+      "started_monotonic_ns": 162614779681918
+    },
+    "VLM_elapsed_source_s": 31.57645222,
+    "VLM_exact_source_JPEG_retained": false,
+    "semantic_accuracy_accepted": false,
+    "one_local_semantic_request": true,
+    "initial_poll_ReadTimeout6s_retained": true,
+    "camera_and_CV_recovered": true,
+    "station_idle_after": true,
+    "controller_configuration_writes": 0,
+    "native_motor_commands_dispatched_by_agent": 0,
+    "frozen_later_JPEG": {
+      "path": "/mnt/explorer-data/explorer-work/04-vision-readonly-20261027-a/actual-frozen-original.jpg",
+      "sha256": "85de3e71b002622be3ce59731495e4d4f0e07f6074e929f1fd693b5d1b4846ee",
+      "same_as_exact_VLM_input": false,
+      "lighting": {
+        "schema": "explorer04_actual_later_Pi_frame_lighting_v1",
+        "source": "actual-frozen-original.jpg",
+        "width": 640,
+        "height": 480,
+        "mean_channel_8bit": 0.09270833333333334,
+        "maximum_channel_8bit": 2,
+        "fraction_pixels_any_channel_above_10": 0.0,
+        "technical_cache_JPEG_only": true,
+        "expert_demonstration": false,
+        "semantic_accuracy_accepted": false,
+        "exact_VLM_input_JPEG": false,
+        "physical_scene_acceptance": false,
+        "camera_settings_changed": false
+      }
+    },
+    "source_selection": {
+      "schema": "explorer04_actual_Pi_cached_selection_and_grid_v1",
+      "frame_sha256": "85de3e71b002622be3ce59731495e4d4f0e07f6074e929f1fd693b5d1b4846ee",
+      "jpeg_bytes": 5579,
+      "selected_request": {
+        "frame_id": "pi-overview:6bd968ccf7e8:551360",
+        "frame_sha256": "85de3e71b002622be3ce59731495e4d4f0e07f6074e929f1fd693b5d1b4846ee",
+        "pixel": [
+          320.0,
+          240.0
+        ],
+        "purpose": "placement_cell"
+      },
+      "selection_status": 200,
+      "selection": {
+        "boot_id": "b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "box": null,
+        "camera_id": "pi-overview",
+        "clock_domain": "pi:b663388f-5a81-4edd-81b2-2b7cc28b14c4",
+        "coordinate_confirmed": false,
+        "frame_id": "pi-overview:6bd968ccf7e8:551360",
+        "frame_sha256": "85de3e71b002622be3ce59731495e4d4f0e07f6074e929f1fd693b5d1b4846ee",
+        "grounding_blocker": "Measured tabletop calibration is unavailable; no metric coordinate inferred",
+        "height": 480,
+        "label": null,
+        "mask_sha256": null,
+        "model_sha256": "edb7f33aa7212a24dca0090cfca9b83ca72cc81b7385a3225ca2cd465092b9ed",
+        "monotonic_ns": 163734817891893,
+        "occupancy": "NO_DETECTED_MASK_AT_CLICK_NOT_PROOF_OF_EMPTY",
+        "physical_execution_allowed": false,
+        "pixel": [
+          320.0,
+          240.0
+        ],
+        "purpose": "placement_cell",
+        "schema": "explorer_tabletop_selection_v1",
+        "score": null,
+        "selected_monotonic_ns": 163735319454773,
+        "selection_id": "fb710e9e95f54d549aeac22dc544e095",
+        "semantic_coordinates_used": false,
+        "timestamp_basis": "host_receive_estimate",
+        "track_id": null,
+        "track_session_id": "0aa727076d09475495c5158ebec6f5b7",
+        "width": 640
+      },
+      "grid_status": 400,
+      "grid": {
+        "error": "Measured calibration required for a metric grid"
+      },
+      "station_mode": "idle",
+      "station_configuration_writes": 0,
+      "native_commands_dispatched": 0,
+      "camera_settings_changed": false,
+      "metric_registration_supplied": false
+    },
+    "measured_tabletop_calibration_present": false,
+    "raw_artifacts": {
+      "actual-Pi-readonly.json": {
+        "path": "/mnt/explorer-data/explorer-work/04-vision-readonly-20261027-a/actual-Pi-readonly.json",
+        "sha256": "e5f76c96264d991fb0270e9e0b5a69f29815ed9a3bf511a4033c4b5f91b1bed4"
+      },
+      "semantic-request.json": {
+        "path": "/mnt/explorer-data/explorer-work/04-vision-readonly-20261027-a/semantic-request.json",
+        "sha256": "d574bc241c4c6affcc7372c6c56f1bf329fbef8c532dd48801cb429dd892e40c"
+      },
+      "semantic-final-recovered.json": {
+        "path": "/mnt/explorer-data/explorer-work/04-vision-readonly-20261027-a/semantic-final-recovered.json",
+        "sha256": "baa61ece61c5f723bac6472128f8b314563114c0d9f5fad3032388f8c1a686ab"
+      },
+      "after-semantic-current-readonly.json": {
+        "path": "/mnt/explorer-data/explorer-work/04-vision-readonly-20261027-a/after-semantic-current-readonly.json",
+        "sha256": "28bfcab07b06011953bc8daafb688f0c5ef2491ee48f9d72c17e4a8d5cfc096a"
+      },
+      "actual-frozen-pair.json": {
+        "path": "/mnt/explorer-data/explorer-work/04-vision-readonly-20261027-a/actual-frozen-pair.json",
+        "sha256": "dcac0fa0afd8539c883f0b3e0eb7cdf792252bb612b6cc4f4bd8fe8287d902e4"
+      },
+      "actual-selection-grid.json": {
+        "path": "/mnt/explorer-data/explorer-work/04-vision-readonly-20261027-a/actual-selection-grid.json",
+        "sha256": "3e0af7430469fe77c4b98e18aee60688830aff035099fade6a1b1a844b084ac5"
+      },
+      "actual-later-frame-lighting.json": {
+        "path": "/mnt/explorer-data/explorer-work/04-vision-readonly-20261027-a/actual-later-frame-lighting.json",
+        "sha256": "5d5e51637cd4a0417ab6c288e37856e4fbc97824ee5c1c2989ef23dac3e405b2"
+      }
+    }
+  },
+  "generated_actual_Firefox": {
+    "receipt": "/mnt/explorer-data/explorer-work/04-vision-browser-20261027-b/fixture/browser-c/receipt.json",
+    "receipt_sha256": "0fa22bc4693834bb1120f06ef060bf378b91da9c67bb0a643b5bd1ae0cd25316",
+    "source_release": "4993c6d83d97bca9a6056548b7a398c02d405ead",
+    "steps": [
+      "Actual UI freezes exact generated CV JPEG/mask and clicks original source pixel; no invented metric grid or grasp",
+      "Pending/entered generated VLM blocks Source start in actual API/UI; same existing fake Station stays idle",
+      "Actual generated backend return/close releases same CV slot without new authority; explicit revoke then fresh displayed challenge",
+      "New actual displayed JPEG/common authorization enters original fake-bus teleop; VLM disabled until separate exact scoped STOP",
+      "Desktop/mobile actual Vision UI uses original generated mask/JPEG/result without horizontal overflow or actuator affordance"
+    ],
+    "fixture_source": "/mnt/explorer-data/explorer-work/04-vision-browser-20261027-b/fixture.py",
+    "fixture_sha256": "3e540781e93b1ecd685c084c77c6cc4bab116069eb0378afb3fe4185b635c088",
+    "driver_source": "/mnt/explorer-data/explorer-work/04-vision-browser-20261027-b/driver-c.py",
+    "driver_sha256": "d34db210db87a9673571604ada2d87c627110785a48b798eb34e9c0425fe3039",
+    "actual_central_and_Node_HTTP": true,
+    "same_original_Station_worker": true,
+    "hardware_buses": false,
+    "hardware_camera": false,
+    "hardware_NPU": false,
+    "non_loopback_network_forbidden": true,
+    "javascript_errors": [],
+    "CV_VLM_owner_events": [
+      "cv-open",
+      "cv-close",
+      "semantic-open",
+      "semantic-close",
+      "cv-open",
+      "cv-close",
+      "semantic-open",
+      "semantic-close",
+      "cv-open",
+      "cv-close"
+    ],
+    "final_NPU_owners": [],
+    "final_fake_Station_mode": "idle",
+    "screenshots": {
+      "desktop": {
+        "path": "/mnt/explorer-data/explorer-work/04-vision-browser-20261027-b/fixture/browser-c/vision-desktop.png",
+        "sha256": "6923a1521c88fd1b68cb6618bd03fb3ba6d6a528ff760239da1c6226274127b3"
+      },
+      "mobile": {
+        "path": "/mnt/explorer-data/explorer-work/04-vision-browser-20261027-b/fixture/browser-c/vision-mobile.png",
+        "sha256": "7c3e47853ac43d3bd18cdb08266ec52a012cd22d91625086bc76c19fab68012b"
+      }
+    }
+  },
+  "tests": [
+    {
+      "suite": "Shared COMMON/source/evaluation/cooperative consumers and vision races",
+      "passed": 147,
+      "seconds": 86.63,
+      "path": "/mnt/explorer-data/explorer-work/04-vision-readonly-20261027-a/admission-common-consumers-a.log",
+      "sha256": "de2c77f38a950c1f24f6c1fb45272a91a980bce71a6413f31c1c135995eb3bf4"
+    },
+    {
+      "suite": "All Node consumers",
+      "passed": 272,
+      "seconds": 3.398474807,
+      "path": "/mnt/explorer-data/explorer-work/04-vision-readonly-20261027-a/all-node-admission-a.log",
+      "sha256": "e4937ed70a58dfa9442a6ce993df731add0b4fe08a6c1866d3db079e2670ba99"
+    },
+    {
+      "suite": "Current exact CPU native6 source/runtime pins",
+      "passed": 3,
+      "path": "/mnt/explorer-data/explorer-work/04-vision-readonly-20261027-a/current-policy-pins-after-admission.log",
+      "sha256": "a0ba7f2fb96adfb2c2564a1053a85160f60c5f008ba0c8c06a58a8cb23d1fc2b"
+    }
+  ],
+  "protections": [
+    "Only new so101_source_only04 profile serializes VLM submission and COMMON native command entry",
+    "VLM requires original Station idle and no open original recording",
+    "Pending/inflight VLM or unknown accelerator release blocks native start/recenter/action before original callback",
+    "Cancel invalidates the semantic result but retains native-admission block until actual backend returns/releases",
+    "Explicit scoped STOP bypasses semantic admission; original global STOP ABI unchanged",
+    "Both admission race orderings and Station-owned status lock ordering tested",
+    "No new camera/serial/NPU owner; existing CV semantic slot and same recorder reused"
+  ],
+  "limitations": [
+    "Actual old4c VLM transport briefly timed out during native initialization; the new profile prevents this load during source motion but does not claim latency-free inference",
+    "Actual later workspace JPEG is almost black; physical scene/illumination and semantic accuracy NOT accepted",
+    "Exact old VLM input JPEG was not retained; its receipt has original frame/input SHA only",
+    "Metric grid correctly rejects absent measured tabletop calibration; no autonomous grasp/physical coordinate claim"
+  ],
+  "negatives_retained": [
+    "generated driver clicked image instead of overlay",
+    "generated detector fixture lacked model_info.sha256 expected by original observer",
+    "fixture startup timing",
+    "driver incorrectly required expiration of a still actually observed idle grant; final proof preserves exact existing authority and explicitly revokes before new challenge"
+  ],
+  "software_guard_deployed": false,
+  "Homebrain_new_release_deployed": false,
+  "Pi_new_profile_deployed": false,
+  "real_expert_demonstrations": 0,
+  "physical_skill_acceptance": false,
+  "all_original_controller_settings_preserved": true,
+  "frozen_station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+  "kernel_generated_UI_memory_peak_bytes": 123359232,
+  "generated_UI_swap_peak_bytes": 0,
+  "generated_UI_OOM_events": 0,
+  "next": "Prove safe first old4c upgrade admission/termination barrier or separate observed first upgrade; current02/03 queue proof/full frozen regression and deployment still OPEN; then mandatory E03-SOFTWARE-DEPLOY"
+}

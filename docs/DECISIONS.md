@@ -19,6 +19,7 @@
 |D-EXPORT|Scientific export копирует только выбранные проверенные bytes и честно сообщает PARTIAL. Не запускает архивный код и не публикует auth/rawSQLite. Metadata backup не заменяет raw data/models/full-disk backup|
 |D-CLAIMS|Mock/SIM/software/deployed/physical/scientific novelty — разные claims. Все failures/unknown/setup failures сохраняются. FSM не learned skill; loss не task success; source train не target qualification|
 |D-PI-UPGRADE|IdleGET и daemon server_close не доказывают zero-write drain старого4c; conditional idle close и actual fake race сохранены. Первый unattended Pi update OPEN. [Контрпример](../04-so101-source-learning/docs/OLD4C_LIFECYCLE_PROOF_20261027_RU.md)|
+|D-VLM-ADMISSION|Actual Pi Qwen inference31.576s/CV recovery подтверждены, native initialization дал ReadTimeout6s. Новый source-only04 profile допускает VLM только idle/no recording и блокирует COMMON native entry до actual release, включая cancel/unknown. Scoped/global STOP ABI сохранены.147Python/272Node и actual generated Firefox; не latency-free/physical/semantic-accuracy claim. [Proof](../_registry/evidence/experiment04-vision-source-admission-20261027.json)|
 |D-PRIORITY|После03 safe checkpoint:04→05→06→01.01 long training PARKED; full248 smoke continuation не запускать. Инфраструктурная организация не меняет эту очередь|
 |D-STATE-DOCS|AGENTS→PROJECT_STATE→BACKLOG→Git+evidence — recovery entrypoint. Один короткий state и один приоритетный backlog; root STATUS/PLAN/DECISIONS/PHYSICAL_CHECKLIST — compatibility pointers, старые тексты остаются в Git/verified backup|
 

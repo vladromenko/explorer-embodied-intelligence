@@ -1,9 +1,9 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-27T21:43:03+03:00`
-Code commit: `3b6e32a01f3709ff6cd50cc483006df88f8000e4`
-Current task: `E04-VISION`
-Next tasks: `E04-VISION`, `E04-FIRST-UPGRADE`, `E04-RELEASE`
+Updated: `2026-10-27T22:19:51+03:00`
+Code commit: `4993c6d83d97bca9a6056548b7a398c02d405ead`
+Current task: `E04-FIRST-UPGRADE`
+Next tasks: `E04-FIRST-UPGRADE`, `E04-RELEASE`, `E03-SOFTWARE-DEPLOY`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
 
 Это единственный краткий текущий статус. Commit выше — последний проверенный
@@ -78,13 +78,26 @@ actual HTTPS Firefox desktop/mobile, passiveROS20s0, source/reference/PIDs/6conf
   Firefox desktop/mobile без повторного optimizer; SIM не допускается физически.
   270Node +36targeted +3current policy pins PASS; kernelpeak2115121152B/swap0/OOM0.
   [Learning UI proof](../_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json).
-- `E04-VISION` CURRENT: actual Pi GET camera/CV/tabletop200; одна Logitech, CV
+- `E04-VISION` DONE scoped software: actual Pi GET camera/CV/tabletop200; одна Logitech, CV
   instance segmentation. Один non-actuating Qwen2-VL event получил SEMANTIC_RESULT
   за31.576s; тот же old4c PID, camera/CV восстановлены, Stationidle/configwrites0.
-  Во время native initialization был HTTP ReadTimeout6s: сохранить отрицательный
-  исход и добавить software admission, запрещающий VLM/управление одновременно
-  в source-only04. Реальная метрическая калибровка отсутствует; no grasp claim.
-  Private raw: `/mnt/explorer-data/explorer-work/04-vision-readonly-20261027-a/`.
+  Во время native initialization был HTTP ReadTimeout6s, затем восстановление.
+  Новый source-only04 admission сериализует VLM submission и COMMON entry:
+  только idle/no recording, pending/inflight/unknown-release блокируют native;
+  cancel не означает release, scoped STOP остаётся отдельным обходом.
+  147Python/86.63s +272Node PASS; actual localhost Firefox generated CV/VLM→
+  exact JPEG/mask/click→native block→CV recovery→new shown grant/fake teleop→
+  semantic block→scoped STOP PASS, desktop/mobile. Guard НЕ deployed.
+  [Vision proof](../_registry/evidence/experiment04-vision-source-admission-20261027.json).
+  Метрическая калибровка отсутствует, actual later JPEG почти чёрный max2/255;
+  exact old VLM input JPEG не сохранён. Semantic accuracy/physical skill OPEN.
+- `E04-FIRST-UPGRADE` CURRENT: проверить безопасный первый переход old4c.
+  PiSSH ключ работает, sudo-n требует пароль. Read-only cold-connect SDK source:
+  port open +motor identity/firmware checks; запрет actual grants/STOP сохраняется.
+  Проверить возможность доказанного freeze/zero-write termination barrier на
+  изолированном old4c/fake IO, прежде любого действия с настоящим процессом.
+  IdleGET/daemon server_close остаются недостаточными; fallback — отдельный
+  наблюдаемый upgrade. Параллельно можно подготовить current release checks.
 - Старый Pi4c имеет воспроизведённую shutdown race. Первый unattended Pi update
   OPEN: idleGET+server_close не drain. Нужен доказанный admission barrier либо
   отдельный наблюдаемый первый upgrade; пока продолжаем программную работу.

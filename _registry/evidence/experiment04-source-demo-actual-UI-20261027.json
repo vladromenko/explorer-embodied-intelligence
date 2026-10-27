@@ -95,9 +95,9 @@
     }
   ],
   "fixture": {
-    "script": "/home/jetsonnx/.local/state/explorer-work/source04_browser_fixture_20261027.py",
+    "script": "/mnt/explorer-data/explorer-work/04-source-demo-browser-20261027-f/reconstructed-qualified-fixture.py",
     "script_sha256": "54eeefc3d15a73dfc8f0fc023fa891edfca3631d90c5d004ae14e8b368c68be7",
-    "driver": "/home/jetsonnx/.local/state/explorer-work/qualify_source04_browser_20261027.py",
+    "driver": "/mnt/explorer-data/explorer-work/04-source-demo-browser-20261027-f/qualified-driver.py",
     "driver_sha256": "50ce8822a93e34da4a4f94b91b12838510300add973a333c474ec523b5081e6b",
     "original_station_worker": true,
     "original_station_recorder": true,
