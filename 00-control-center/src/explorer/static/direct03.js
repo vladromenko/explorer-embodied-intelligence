@@ -1,7 +1,7 @@
 "use strict";
 
 // ENGINEERING_GLUE: measured leader arm and explicit keyboard base share the native 9D owner.
-const direct03 = { owned: false, demoMode: "mirror", operatorProfile: "ARM_ONLY", status: null, error: null, polling: false, busy: false, held: false, leasePending: false, sequence: 0, interrupt: 0, signature: "", recordings: [], recordId: "", recordName: "Показ SO-101 → ROSMASTER", recordBusy: false };
+const direct03 = { owned: false, ownedEpoch: null, pendingEpoch: null, demoMode: "mirror", operatorProfile: "ARM_ONLY", status: null, error: null, polling: false, busy: false, held: false, leasePending: false, sequence: 0, interrupt: 0, signature: "", recordings: [], recordId: "", recordName: "Показ SO-101 → ROSMASTER", recordBusy: false };
 const direct03Route = () => window.location.pathname.replace(/\/$/, "") === "/experiments/03";
 const direct03BaseKeys = new Set();
 const direct03OwnAttempt = () => ["CLUTCHED", "ACTIVE"].includes(direct03.status?.state);
@@ -29,6 +29,10 @@ async function pollDirect03() {
   try {
     const status = await api("/api/retarget/status");
     const signature = JSON.stringify([status.state, status.control_epoch, status.registration?.registration_sha256, status.registration?.missing_cross_map || status.registration?.missing, status.operator_profile, status.source_hold_gate_schema, status.error, status.last_result?.target_receipt?.state, status.recording, direct03.recordings.map((entry) => [entry.recording_id, entry.state, entry.archive_sha256])]);
+    if (direct03.ownedEpoch && status.control_epoch !== direct03.ownedEpoch) {
+      direct03.owned = false; direct03.ownedEpoch = null; direct03.held = false;
+      direct03BaseKeys.clear(); direct03.interrupt += 1;
+    }
     direct03.status = status; direct03.error = null;
     if (direct03OwnAttempt() && status.operator_profile) direct03.operatorProfile = status.operator_profile;
     if (!direct03.lastRecordsAt || Date.now() - direct03.lastRecordsAt > 3000) { const catalog = await api("/api/retarget/recordings"); direct03.recordings = array(catalog.recordings); direct03.lastRecordsAt = Date.now(); }
@@ -37,10 +41,12 @@ async function pollDirect03() {
     if (direct03.error !== error.message) { direct03.error = error.message; if (!direct03.held) { model.forceRender = true; render(); } }
   } finally { direct03.polling = false; }
 }
-async function direct03Stop(quiet = true) {
+async function direct03Stop(quiet = true, capturedEpoch = direct03.ownedEpoch) {
   direct03BaseKeys.clear();
-  direct03.held = false; direct03.owned = false; direct03.interrupt += 1;
-  try { direct03.status = await post("/api/retarget/stop", {}, { keepalive: true }); direct03.error = null; if (!quiet) toast("Прямой контур завершён. Физическая остановка проверяется по наблюдению."); }
+  direct03.held = false; direct03.owned = false; direct03.ownedEpoch = null; direct03.interrupt += 1;
+  const interrupt = direct03.interrupt;
+  if (!capturedEpoch) { if (direct03Route()) { model.forceRender = true; render(); } return; }
+  try { const result = await post("/api/retarget/stop", { control_epoch: capturedEpoch }, { keepalive: true }); if (interrupt === direct03.interrupt) direct03.status = result; direct03.error = null; if (!quiet) toast("Прямой контур завершён. Физическая остановка проверяется по наблюдению."); }
   catch (error) { direct03.error = `Ответ на STOP не получен: ${error.message}`; if (!quiet) toast(direct03.error, true); }
   if (direct03Route()) { model.forceRender = true; render(); }
 }
@@ -48,12 +54,13 @@ async function direct03Lease() {
   if (!rosmasterCameraReady()) { if (direct03.owned || direct03.held) await direct03Stop(); return; }
   if (!direct03.owned || !direct03HeldABI() || !direct03.held || direct03.leasePending || !direct03Route() || document.hidden || !document.hasFocus()) return;
   direct03.leasePending = true;
-  const epoch = direct03.status?.control_epoch;
+  const epoch = direct03.ownedEpoch;
+  if (!epoch) { direct03.leasePending = false; return; }
   try {
     const base_actions=direct03.operatorProfile === "MOBILE_MANIPULATION" && typeof observedNative!=="undefined"&&observedNative.chassisAllowed()?Object.fromEntries([...direct03BaseKeys].map(key=>[direct03BaseMap[key],1])):{};
     const result = await post("/api/retarget/lease", { control_epoch: epoch, sequence: direct03.sequence++, held: true, observing: true,base_actions });
-    if (direct03.held && direct03.status?.control_epoch === epoch) direct03.status = result;
-  } catch (error) { direct03.error = error.message; await direct03Stop(); }
+    if (direct03.held && direct03.ownedEpoch === epoch) { direct03.status = result; direct03.ownedEpoch = result.control_epoch; }
+  } catch (error) { direct03.error = error.message; await direct03Stop(true, epoch); }
   finally { direct03.leasePending = false; }
 }
 document.addEventListener("click", async (event) => {
@@ -64,16 +71,19 @@ document.addEventListener("click", async (event) => {
   if (direct03.busy || !["direct03-start", "direct03-recenter"].includes(action)) return;
   direct03.busy = true;
   const interrupt = direct03.interrupt;
+  const capturedEpoch = direct03.ownedEpoch || direct03.status?.control_epoch;
+  direct03.pendingEpoch = capturedEpoch;
   try {
     if (!direct03HeldABI()) throw new Error("Сначала требуется обновлённый контур Pi с передачей только по удержанию.");
     if (!rosmasterCameraReady()) throw new Error("Нужны свежие кадры камеры ROSMASTER.");
     await observedNative.requirePermission("so101_leader");
-    const result = await post(`/api/retarget/${action === "direct03-start" ? "start" : "recenter"}`, { expected_control_epoch: direct03.status?.control_epoch, observing: true, ...(action === "direct03-start" ? { operator_profile: direct03.operatorProfile } : {}) });
-    if (interrupt !== direct03.interrupt || !direct03Route() || document.hidden || !document.hasFocus()) { await direct03Stop(); return; }
-    direct03.status = result; direct03.owned = ["CLUTCHED", "ACTIVE"].includes(result.state); direct03.sequence = 0; direct03.error = null;
+    if (interrupt !== direct03.interrupt || !direct03Route() || document.hidden || !document.hasFocus()) return;
+    const result = await post(`/api/retarget/${action === "direct03-start" ? "start" : "recenter"}`, { expected_control_epoch: capturedEpoch, observing: true, ...(action === "direct03-start" ? { operator_profile: direct03.operatorProfile } : {}) });
+    if (interrupt !== direct03.interrupt || !direct03Route() || document.hidden || !document.hasFocus()) { await direct03Stop(true, result.control_epoch); return; }
+    direct03.status = result; direct03.owned = ["CLUTCHED", "ACTIVE"].includes(result.state); direct03.ownedEpoch = direct03.owned ? result.control_epoch : null; direct03.sequence = 0; direct03.error = null;
     if (direct03.owned) toast("Начало принято. Для передачи движений удерживайте кнопку.");
   } catch (error) { direct03.error = error.message; toast(error.message, true); }
-  finally { direct03.busy = false; model.forceRender = true; render(); }
+  finally { direct03.pendingEpoch = null; direct03.busy = false; model.forceRender = true; render(); }
 });
 document.addEventListener("pointerdown", (event) => {
   const button = event.target.closest("#direct03-held");
