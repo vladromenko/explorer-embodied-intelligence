@@ -1,0 +1,95 @@
+{
+  "artifacts": {
+    "contact_development_v10_outlined.pdf": {
+      "bytes": 129093,
+      "sha256": "e0c2903bcd76392ac0819833722b5761b8f074a43f51378540a1ed99aaedaebf"
+    },
+    "negative_counts_table.tex": {
+      "bytes": 316,
+      "sha256": "6dcf34667b066a489375f71f6d03dfe70a9399f26eb694efd2c8815bc8928e7f"
+    },
+    "negative_target_outcomes.csv": {
+      "bytes": 3522,
+      "sha256": "d20035c22c7e225b21c017d825eef070f9f83774a880e4b5f52c752dde5165c9"
+    },
+    "negative_target_outcomes.pdf": {
+      "bytes": 29209,
+      "sha256": "7a45d40aef1a88d5bc3c052082713578cfef119f67cfc0a8dae404288d18fcd1"
+    },
+    "negative_target_outcomes.png": {
+      "bytes": 69731,
+      "sha256": "c98e8d21412281e0739da68e9cde7b4967bcf942ad5cec4fa50fa3f78cb3fd7e"
+    },
+    "negative_target_outcomes.svg": {
+      "bytes": 41020,
+      "sha256": "7ab2cf911649a6d93046c183d64f31b3d8220cd1589829a1f01dcd962a23e52b"
+    },
+    "negative_target_outcomes_repeat.pdf": {
+      "bytes": 13478,
+      "sha256": "52047006c537aceb28bfcc4356663fe6c93e9483cdee79719a9e567cd1e3bd50"
+    },
+    "negative_target_outcomes_repeat_outlined.pdf": {
+      "bytes": 29209,
+      "sha256": "7a45d40aef1a88d5bc3c052082713578cfef119f67cfc0a8dae404288d18fcd1"
+    },
+    "negative_target_outcomes_source.pdf": {
+      "bytes": 13478,
+      "sha256": "52047006c537aceb28bfcc4356663fe6c93e9483cdee79719a9e567cd1e3bd50"
+    },
+    "train_fit_table.tex": {
+      "bytes": 262,
+      "sha256": "b407bd3785be230359cc11419b2e00ca42d93f746d961449156c1c8bdde44c99"
+    },
+    "train_gripper_fit.csv": {
+      "bytes": 3972,
+      "sha256": "c0775b8ab318f98a1f05702cba217c893980c7d1c09d13860fd13ba20e6d945b"
+    },
+    "train_gripper_fit.pdf": {
+      "bytes": 40848,
+      "sha256": "e30fc7c1500235a33eda4698f37251b8461f1e7b4038beb83ea218fda0f6310f"
+    },
+    "train_gripper_fit.png": {
+      "bytes": 111233,
+      "sha256": "b87dad2cd1004f3ac3533a352f0d5aa7ba07e44050247fa52f15c7e8e7c8ebb6"
+    },
+    "train_gripper_fit.svg": {
+      "bytes": 40846,
+      "sha256": "0b16fec48846ff12f42e08f94b4129e7e210e6109305c7c00b0c0fc845c07d2d"
+    },
+    "train_gripper_fit_repeat.pdf": {
+      "bytes": 13027,
+      "sha256": "e69c3293de274e8dee5b280ff0852d83e27f535e9815f66657d7011ed3e23abe"
+    },
+    "train_gripper_fit_repeat_outlined.pdf": {
+      "bytes": 40848,
+      "sha256": "e30fc7c1500235a33eda4698f37251b8461f1e7b4038beb83ea218fda0f6310f"
+    },
+    "train_gripper_fit_source.pdf": {
+      "bytes": 13027,
+      "sha256": "e69c3293de274e8dee5b280ff0852d83e27f535e9815f66657d7011ed3e23abe"
+    }
+  },
+  "figure_text_searchability_limited": true,
+  "ghostscript_version": "10.02.1",
+  "mastery_or_physical_claim": false,
+  "model_or_physics_executed": false,
+  "outlined_vector_derivatives": true,
+  "physical_io": false,
+  "plot_script_sha256": "56f57103dfc55276f8336099190ea3f17f1eeb48e34fa6c369aa4f9722a7ceda",
+  "repeat_same_environment_bytes_equal": true,
+  "schema": "explorer_negative_pilot_paper_figures_v1",
+  "source_PDF_and_SVG_retained": true,
+  "source_contact_pdf_sha256": "c19dc28c0ef674bbf4ef3158e51e705c804d2a8d2efc5b36e18a61393ed7d1b9",
+  "source_json_sha256": {
+    "research/audits/target-temporal-factorial-C-v2-results-20261027.json": "8119c460e20a3f23142cae7b4940a83830f3c4dbfda714bc5c411e1d8e90c75c",
+    "research/audits/target-train-forward-audit-B-results-20261027.json": "4c055097c3236c7f09e5b6537f9568b3a8909d682034f19e4e17fb0e91f8ba8c",
+    "research/audits/target-visual-object-v3-results-20261027.json": "b532e1a4c7dcafc1984316b33348dfbbad29a72d3fec926c778ffdf2b7370ff5"
+  },
+  "versions": {
+    "font_paths": [
+      "/usr/share/matplotlib/mpl-data/fonts/ttf/DejaVuSans.ttf"
+    ],
+    "matplotlib": "3.6.3",
+    "numpy": "1.26.4"
+  }
+}

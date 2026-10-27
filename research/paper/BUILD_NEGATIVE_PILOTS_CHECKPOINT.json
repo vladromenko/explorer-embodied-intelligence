@@ -1,0 +1,130 @@
+{
+  "actual_build": {
+    "bytes": 2691,
+    "path": "/mnt/explorer-data/explorer-work/paper-negative-pilots-20261027/attempts/02-updated-warm-probe/terminal.log",
+    "sha256": "1804df8c6d3bccf59dd90d06b1aa4d769c1795ce348dccf27914ca19509cc6a7"
+  },
+  "actual_cgroup_peak_independently_measured": false,
+  "attempts_retained": [
+    {
+      "id": "00-original-TeX-probe",
+      "status": "COMPILED_HISTORICAL_SOURCE_4PAGES"
+    },
+    {
+      "id": "01-updated-layout",
+      "status": "OFFLINE_MISSING_CMR8_PFB_FAILURE_RETAINED"
+    },
+    {
+      "id": "02-updated-warm-probe",
+      "status": "COMPILED_CURRENT_SOURCE_6PAGES"
+    }
+  ],
+  "audit": {
+    "content_pages": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "figure_labels_outlined_searchability_limited": true,
+    "fonts_embedded_Type1_or_Type1C": true,
+    "overfull_boxes": false,
+    "pages": 6,
+    "pdffonts": "name                                 type              encoding         emb sub uni object ID\n------------------------------------ ----------------- ---------------- --- --- --- ---------\nIHAIZV+NimbusRomNo9L-Regu            Type 1C           Custom           yes yes yes      4  0\nBZIVMZ+NimbusRomNo9L-MediItal        Type 1C           Custom           yes yes yes      5  0\nIXFAWU+NimbusRomNo9L-Medi            Type 1C           Custom           yes yes yes      6  0\nTQTHRL+NimbusRomNo9L-ReguItal        Type 1C           Custom           yes yes yes      7  0\nYEUUOC+CMMI10                        Type 1C           Builtin          yes yes yes     17  0\nAKHCZK+CMR10                         Type 1C           Builtin          yes yes yes     18  0\nVDVGTR+CMR7                          Type 1C           Builtin          yes yes yes     19  0\nCAFSZL+CMSY10                        Type 1C           Builtin          yes yes yes     20  0\nXHCTBF+CMSY10                        Type 1            Custom           yes yes no      25  0\nXHDFFI+NimbusRomNo9L-Regu            Type 1            Custom           yes yes no      29  0\nDDIEWW+CMSY7                         Type 1C           Builtin          yes yes yes     43  0\nFKPJSN+CMR8                          Type 1C           Builtin          yes yes yes     46  0\nPVTTLK+CMMI8                         Type 1C           Builtin          yes yes yes     84  0\n",
+    "pdfinfo": "Title:           Testing Evidence-Constrained Skill Updates on Low-Cost Robots\nCreator:         LaTeX with hyperref\nProducer:        xdvipdfmx (0.1)\nCreationDate:    Tue Oct 27 03:00:00 2026 MSK\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           6\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       271158 bytes\nOptimized:       no\nPDF version:     1.5\n",
+    "reference_pages": [
+      6
+    ],
+    "structural_stage1_page_limit": true,
+    "submission_ready": false,
+    "undefined_citations": false,
+    "underfull_warning_count": 5,
+    "venue_compliance_certified": false
+  },
+  "bibtex_log": {
+    "bytes": 194,
+    "path": "/mnt/explorer-data/explorer-work/paper-negative-pilots-20261027/attempts/02-updated-warm-probe/output/main.blg",
+    "sha256": "f7f776f61e365e48ef4e36e855330a84656940380f2bed652c3c9060f7936d1a"
+  },
+  "builder_end_to_end_repeated_run_qualification": false,
+  "compiled_TeX": true,
+  "compiler": "Tectonic0.17.0 XeTeX/BibTeX",
+  "compiler_binary_sha256": "19a2b763e5875fffefaa193c42e460ceba5983d027b6d50b0094130d26ba4e4a",
+  "configured_unit_limits": {
+    "CPUQuota": "200%",
+    "LimitCORE": 0,
+    "MemoryMax": 2147483648,
+    "MemorySwapMax": 0,
+    "RuntimeMaxSec": 600
+  },
+  "data_sources": {
+    "research/audits/target-temporal-factorial-C-v2-results-20261027.json": {
+      "bytes": 82981,
+      "path": "/home/jetsonnx/work/explorer-source04-shadow/research/audits/target-temporal-factorial-C-v2-results-20261027.json",
+      "sha256": "8119c460e20a3f23142cae7b4940a83830f3c4dbfda714bc5c411e1d8e90c75c"
+    },
+    "research/audits/target-train-forward-audit-B-results-20261027.json": {
+      "bytes": 167038,
+      "path": "/home/jetsonnx/work/explorer-source04-shadow/research/audits/target-train-forward-audit-B-results-20261027.json",
+      "sha256": "4c055097c3236c7f09e5b6537f9568b3a8909d682034f19e4e17fb0e91f8ba8c"
+    },
+    "research/audits/target-visual-object-v3-results-20261027.json": {
+      "bytes": 17088,
+      "path": "/home/jetsonnx/work/explorer-source04-shadow/research/audits/target-visual-object-v3-results-20261027.json",
+      "sha256": "b532e1a4c7dcafc1984316b33348dfbbad29a72d3fec926c778ffdf2b7370ff5"
+    }
+  },
+  "date": "2026-10-27",
+  "figure_provenance": {
+    "bytes": 3744,
+    "path": "/home/jetsonnx/work/explorer-source04-shadow/research/paper/figures/negative_learning_20261027/PROVENANCE.json",
+    "sha256": "a672f1802c843b4e49cee10fcedb91cc7d2f20f43dd0bce41d6c3a1c2a660abf"
+  },
+  "full_PDF_visual_review": false,
+  "historical_receipts_unchanged": [
+    {
+      "bytes": 1564,
+      "path": "/home/jetsonnx/work/explorer-source04-shadow/research/paper/BUILD_VERIFICATION.json",
+      "sha256": "c30d59bbdb11060d6995bdb3adc4871c19a4ba7007a2e5dc0d553566bcc40344"
+    },
+    {
+      "bytes": 4241,
+      "path": "/home/jetsonnx/work/explorer-source04-shadow/research/paper/BUILD_CONTACT_V10_FIGURE_VERIFICATION.json",
+      "sha256": "3fe9dc37f95c3c670b38e955c3b488e31ef9ec101e7313531d49614e2a9d5524"
+    }
+  ],
+  "model_training_or_physics": false,
+  "new_figure_PNG_visual_review": true,
+  "official_archive_sha256": "b10954a95404f3ab2328d2fa59a5ebab8e657f893fab096f98be8db7c0c979b8",
+  "official_release_url": "https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%400.17.0/tectonic-0.17.0-aarch64-unknown-linux-musl.tar.gz",
+  "paper_guard_tests_passed": 8,
+  "paused_scope_reason": "User queue02\u219203\u219201\u219204\u219205\u219206; paper parked after current atomic build checkpoint",
+  "pdf_bytes": 271158,
+  "pdf_sha256": "7609157a27722e232fa0a6e9670c0efc720a3bffbd492b1b829b1cb5f220b453",
+  "physical_io": false,
+  "repeat_offline_full_paper_byte_reproducibility": "NOT_RUN_USER_PRIORITY_PARKED",
+  "schema": "explorer_paper_negative_pilots_safe_checkpoint_v1",
+  "scientific_advantage_or_H1_H5_claim": false,
+  "source_DATE_EPOCH": "1793059200",
+  "source_inputs_sha256": {
+    "IEEEtran.cls": "d63d4bf27f29603a733d06e27ba5fbb40488acf9d1d696354a88b886758f70a7",
+    "figures/engineering_checks.pdf": "d6bf39f9529ca1c4fb1ee3e4fe73971e5d77501c7ce0e48e7584fb802724c98b",
+    "figures/negative_learning_20261027/contact_development_v10_outlined.pdf": "e0c2903bcd76392ac0819833722b5761b8f074a43f51378540a1ed99aaedaebf",
+    "figures/negative_learning_20261027/negative_counts_table.tex": "6dcf34667b066a489375f71f6d03dfe70a9399f26eb694efd2c8815bc8928e7f",
+    "figures/negative_learning_20261027/negative_target_outcomes.pdf": "7a45d40aef1a88d5bc3c052082713578cfef119f67cfc0a8dae404288d18fcd1",
+    "figures/negative_learning_20261027/train_fit_table.tex": "b407bd3785be230359cc11419b2e00ca42d93f746d961449156c1c8bdde44c99",
+    "figures/negative_learning_20261027/train_gripper_fit.pdf": "e30fc7c1500235a33eda4698f37251b8461f1e7b4038beb83ea218fda0f6310f",
+    "main.tex": "4a442e5931834df1cbbb0fe40533bde97351b7e43bb2aec1be6fa826c53cb521",
+    "references.bib": "b518a07bfd4eab46dc3efb0ea90598fa708ecc1d7d2c8b18f3a5eabf421eaad2"
+  },
+  "submission_ready": false,
+  "tex_log": {
+    "bytes": 13245,
+    "path": "/mnt/explorer-data/explorer-work/paper-negative-pilots-20261027/attempts/02-updated-warm-probe/output/main.log",
+    "sha256": "45eec809a6a7723fa2eba1589a8a5168c9249e5917f42a0cc1694f5d5a48758c"
+  },
+  "unchanged_official_IEEEtran_class": true,
+  "venue_compliance_certified": false,
+  "whole_master_prompt_complete": false
+}

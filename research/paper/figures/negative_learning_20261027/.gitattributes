@@ -1,0 +1,2 @@
+# Preserve byte-exact Matplotlib SVG path whitespace from the recorded render.
+*.svg -whitespace

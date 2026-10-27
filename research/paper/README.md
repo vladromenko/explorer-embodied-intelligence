@@ -1,29 +1,79 @@
-# Working RSS 2027 Stage 1 source
+# Working draft — negative simulation pilots
 
-`main.tex` uses the unmodified `IEEEtran.cls` from the official current RSS template. `VENUE.json` binds the official CFP/template URLs and hashes. RSS 2027 is a working target inferred from the exact recalled December 4 deadline; this does not record a separately confirmed venue name from the user.
+**NOT SUBMISSION-READY.** Paper work is parked at a safe Git checkpoint after
+an explicit user reprioritization to 02 → 03 → 01 → 04 → 05 → 06. The overall
+Explorer task remains active. No new paper computations are scheduled.
 
-Stage 1 permits at most5 content pages plus1 reference page, due 2026-12-04 at 23:59AoE (2026-12-05 at 14:59 Moscow). Stage 2 final submission is 2027-04-16. Source: [official CFP](https://roboticsconference.org/information/cfp/), checked 2026-10-26.
+`main.pdf` is an actual six-page TeX/BibTeX compilation of the current
+`main.tex`: five content pages and one reference page. It was produced on
+Homebrain by pinned user-local ARM64 Tectonic0.17.0, without system-package or
+Explorer-venv changes. `BUILD_NEGATIVE_PILOTS_CHECKPOINT.json` binds the exact
+TeX, bibliography, unchanged official IEEEtran class, included figures,
+compiler, PDF and logs. There are no undefined citations or overfull boxes;
+all PDF font programs are embedded Type1/Type1C. This is an automated structural
+check, not an official venue-compliance certificate or completed visual review.
 
-The source is anonymized, contains no private repository paths or supplemental links, and distinguishes a proposed hypothesis from executed development evidence. It reports the exact six-seed reaching counts from `research/experiments/default-pilot-v1`; these are not final physical results or a tested scientific advantage. All six bibliography entries were generated from retrieved primary citation metadata. The official template still contains historical example metadata in its sample file; that example was not copied into this manuscript.
+The current draft adds actual negative whole-object pilots B (0/8 complete)
+and C-v2 (0/16 complete), retaining partial effects and the separate C-v1
+UNKNOWN1/NOT_STARTED15 disposition. It also reports 1756 TRAIN-only prior-zero
+queries on four unchanged models. Labels and phase stay in the scorer;
+TRAIN errors are not closed-loop gains, ABS/INCR normalized errors cannot be
+ranked across representations, and no unique failure cause is established.
+No physical result, learned-source04/H2, H1–H5 finding or master completion
+is claimed. The central acceptance-treatment comparison remains untested.
 
-This artifact is **not submission-ready**. Required work includes selecting a central contribution with the human authors, resolving novelty against the reviewed literature, freezing the first controlled experiment, collecting its independently evaluated evidence, checking actual page count/fonts and author responsibility, and rechecking venue rules before submission. The internal literature registry should not be printed wholesale into the six-page submission.
+The exact public input JSONs and their SHA are in
+`figures/negative_learning_20261027/PROVENANCE.json` and the build receipt.
+`negative_counts_table.tex` and `train_fit_table.tex` are generated from those
+inputs, rather than manually transcribed counts. Standard Matplotlib exports
+include CSV, SVG, PNG and font-bearing source PDFs. Separate Ghostscript
+outlined-vector derivatives are used in the manuscript to avoid TrueType/Type3
+figure fonts; the original contact PDF remains unchanged. Outlined labels have
+limited PDF text search/accessibility; source SVG/CSV and original PDFs remain.
+Both new figure source/outlined PDFs repeated byte-identically in the same
+pinned environment. The PNGs were inspected; the complete six-page manuscript
+has not yet been visually reviewed.
 
-The vendored class retains its original copyright and LPPL 1.3 notices. No font size, page dimensions or line spacing have been changed. The current CFP takes precedence over old example-template prose.
+## Preserved build history and remaining checks
 
-The engineering follow-up uses byte-preserved `_registry/evidence/` snapshots under `research/experiments/nx-engineering-20261026/`. Its figure separates simulated development reach counts from synthetic numerical parity; the initial failed GPU parity check is preserved. Technical hold/recording, stationary-source fits and live CPU shadow runs establish only their explicitly recorded interfaces. Historical simulator BC included two failed episodes and does not validate the corrected success-only selector. No CPU/GPU speed ratio or physical task-success claim is made.
+- `BUILD_VERIFICATION.json` is the unchanged historical three-page Mac build,
+  tied to its old source SHA. It does not describe the current manuscript.
+- `BUILD_CONTACT_V10_FIGURE_VERIFICATION.json` remains the unchanged earlier
+  standalone V10-figure receipt. Its statement that the then-current full
+  manuscript was uncompiled is historical.
+- Private attempt00 compiled the old four-page source with real TeX.
+  Attempt01 retained an offline missing-`cmr8.pfb` failure. Attempt02 completed
+  the current six-page source after fetching that font into the separate cache.
+  Logs and source snapshots are retained under
+  `/mnt/explorer-data/explorer-work/paper-negative-pilots-20261027/attempts`.
+- The new offline two-build driver is prepared and has eight source-only guard
+  tests, but its complete repeated-build path has **not** passed end to end.
+  Full-paper duplicate-byte proof and full visual review are **NOT RUN**, because
+  the user parked further paper work after the running atomic build completed.
+  No alternate PDF generator is substituted for compiled TeX.
 
+## Reproduction tools when this stream resumes
 
-The new `contact_development_v10` figure/CSV/provenance files report sixteen
-contact-only attempts on four matched, previously inspected development scenes
-per condition. These new initial-condition diagnostics do not amend the original
-V9 outcomes, validate physics, or test a learned repair. Raw trajectory/substep
-hashes were first registered after the producer exited; that distinction remains
-in the CSV and provenance. Standalone PDF/PNG renders are byte-identical across
-two renders in the same pinned process/environment. The PDF embeds its subset
-CID TrueType font and contains no Type3 font.
+`scripts/plot_negative_learning_paper.py --output FRESH_DIRECTORY` checks the
+three public JSON digests, preserves every matched outcome and generates the
+figures/tables. It never executes models, simulation or fitting.
 
-`BUILD_CONTACT_V10_FIGURE_VERIFICATION.json` describes only this new figure and
-the updated manuscript source. The earlier `BUILD_VERIFICATION.json` remains an
-unchanged historical three-page build tied to its original source SHA. The
-updated full manuscript has **not** been compiled on Homebrain: no TeX compiler
-is installed here, and no current page-count/font/venue-compliance claim is made.
+`scripts/build_research_paper.py prepare-tool` downloads only the pinned
+[official Tectonic0.17.0 ARM64 Linux release](https://github.com/tectonic-typesetting/tectonic/releases/tag/tectonic%400.17.0)
+into a user-local cache and verifies archive and executable SHA. `build --output
+FRESH_DIRECTORY` requires a CPU≤2/MemoryMax≤2GiB/swap0 unit and an already populated
+private TeX cache. It snapshots inputs, uses `--untrusted --only-cached`, fixed
+`SOURCE_DATE_EPOCH=1793059200`, deterministic mode and separate source/output
+roots. It rejects unresolved citations, overfull boxes, author/path leakage,
+nonembedded/non-Type1 font programs and different duplicate PDFs. Its unqualified
+end-to-end status above must remain visible until actually exercised.
+
+RSS2027 remains a working venue inferred from the recalled deadline, not a
+separately confirmed venue choice. The [official CFP](https://roboticsconference.org/information/cfp/)
+was rechecked on 2026-10-27: up to five content pages plus one reference page,
+anonymized metadata, no extra draft markings on pages and the supplied format.
+No font size, page dimensions or line spacing in the official class is changed.
+The current draft removes external source-release hyperlinks from the blinded
+bibliography while preserving the cited revision and the full internal corpus.
+Authors must still decide the contribution, novelty, scientific sufficiency,
+responsibility, final venue compliance and submission. No submission occurred.

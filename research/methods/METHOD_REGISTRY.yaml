@@ -5487,6 +5487,78 @@
         "tests/test_torch_build_identity.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NEGATIVE-LEARNING-PAPER-PLOTS-20261027",
+      "function_or_module": "scripts/plot_negative_learning_paper.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/target-train-forward-audit-B-results-20261027.json",
+          "role": "Actual public pilot/scorer evidence; no algorithm or physical claim"
+        },
+        {
+          "url": "https://tectonic-typesetting.github.io/en-US/install.html",
+          "role": "Official external TeX toolchain; pinned release binary, no tool source vendored"
+        },
+        {
+          "url": "https://ghostscript.readthedocs.io/en/latest/VectorDevices.html",
+          "role": "Explicit separately retained vector-outline figure derivatives"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_EXECUTION_OR_NEW_WEIGHTS",
+      "data_license": "PRIVATE_EXPLICIT_SIMULATION",
+      "changes_and_reason": "Current paper checkpoint honestly adds all negative object pilots/TRAIN-only errors and actual compiled TeX. Figure repeats tested; builder end-to-end duplicate proof and full PDF visual review NOT_RUN after explicit user priority park. Historical receipts/figures/raw science preserved.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "research/paper/tests/test_paper_assets.py",
+        "research/paper/BUILD_NEGATIVE_PILOTS_CHECKPOINT.json"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-ARM64-OFFLINE-PAPER-BUILDER-20261027",
+      "function_or_module": "scripts/build_research_paper.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:research/audits/target-train-forward-audit-B-results-20261027.json",
+          "role": "Actual public pilot/scorer evidence; no algorithm or physical claim"
+        },
+        {
+          "url": "https://tectonic-typesetting.github.io/en-US/install.html",
+          "role": "Official external TeX toolchain; pinned release binary, no tool source vendored"
+        },
+        {
+          "url": "https://ghostscript.readthedocs.io/en/latest/VectorDevices.html",
+          "role": "Explicit separately retained vector-outline figure derivatives"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_EXECUTION_OR_NEW_WEIGHTS",
+      "data_license": "PRIVATE_EXPLICIT_SIMULATION",
+      "changes_and_reason": "Current paper checkpoint honestly adds all negative object pilots/TRAIN-only errors and actual compiled TeX. Figure repeats tested; builder end-to-end duplicate proof and full PDF visual review NOT_RUN after explicit user priority park. Historical receipts/figures/raw science preserved.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "research/paper/tests/test_paper_assets.py",
+        "research/paper/BUILD_NEGATIVE_PILOTS_CHECKPOINT.json"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
