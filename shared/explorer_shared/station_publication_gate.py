@@ -40,6 +40,10 @@ class StationPublicationGate:
                 data['native_mode']==mode and data['control_epoch']==control_epoch and data['boot_id']==station.boot and
                 data['clock_domain']==station.clock_domain and data['follower_calibration_sha256']==profile.get('calibration_sha256') and
                 profile.get('verified_on_connected_hardware') is True and now<data['observation_deadline_ns'])
+            if managed and data.get('binding',{}).get('purpose')=='source04_demo':
+                leader=station.profiles.get('leader') or {}
+                permission_allowed=bool(permission_allowed and leader.get('verified_on_connected_hardware') is True and
+                    leader.get('calibration_sha256')==data.get('leader_calibration_sha256'))
             allowed=permission_allowed and interlock.get('allowed') is True
             decision={'schema':'explorer_station_publication_permission_v1','allowed':allowed,'managed_native_epoch':bool(managed),'cooperative_hold_interlock':deepcopy(interlock),
                 'control_epoch':control_epoch,'native_mode':mode,'grant_id':data.get('grant_id'),'binding_sha256':data.get('binding_sha256'),

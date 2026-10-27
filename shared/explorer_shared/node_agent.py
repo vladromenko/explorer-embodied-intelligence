@@ -534,9 +534,13 @@ class RecordingManager:
 class NodeAgent:
     def __init__(self, node_id, mode, state_dir, token, *, sources=None, delivery=None,
                  central_url=None, ingest_token=None, calibration_dirs=(), camera_device=None,
-                 legacy_dir=Path("/home/vlad/Explorer/data"), hailo_model=None, retarget_config_dir=None):
+                 legacy_dir=Path("/home/vlad/Explorer/data"), hailo_model=None, retarget_config_dir=None,
+                 pi_runtime_profile='native_retarget'):
         if mode not in ("pi", "nano"):
             raise ValueError("mode must be pi or nano")
+        if pi_runtime_profile not in ('native_retarget','so101_source_only') or mode!='pi' and pi_runtime_profile!='native_retarget':
+            raise ValueError('Choose an explicit supported Pi runtime profile')
+        self.pi_runtime_profile=pi_runtime_profile
         if not token or len(token) < 16:
             raise ValueError("EXPLORER_NODE_TOKEN must contain at least 16 characters")
         self.node_id, self.mode, self.token = node_id, mode, token
@@ -598,6 +602,9 @@ class NodeAgent:
         if mode == 'nano':
             geometry = registered_geometry(retarget_config_dir)
             self.arm_retarget = nano_gateway(geometry, self.legacy_bridge)
+        elif pi_runtime_profile=='so101_source_only':
+            from .source_only_runtime import SourceOnlyRetarget
+            self.arm_retarget=SourceOnlyRetarget(self.state_dir)
         else:
             from .pi_native_retarget import PiNativeRetargetService
             self.arm_retarget=PiNativeRetargetService.from_config(self.station,self.state_dir,retarget_config_dir)
@@ -815,6 +822,7 @@ class NodeAgent:
                 "perception": observer, "station": station,"mobile_observation":mobile,
                 "lab_vision":lab_vision,
                 "native_capture":self.native_capture.status() if self.native_capture else None,
+                "pi_runtime_profile":self.pi_runtime_profile if self.mode=='pi' else None,
                 "native_sensor_cache":self.sensor_cache.status() if self.sensor_cache else None,
                 "station_observed_permission":self.station_observed.status() if getattr(self,'station_observed',None) is not None else None,
                 "capabilities": {"physical_motion": bool(station and station['available']) or self.mode=='nano', "servo_bus_access": bool(station and station['available']),
@@ -1302,6 +1310,7 @@ def main(argv=None):
     parser.add_argument("--state-dir", type=Path, default=Path.home() / ".local/share/explorer-node")
     parser.add_argument("--legacy-dir", type=Path, default=Path("/home/vlad/Explorer/data"))
     parser.add_argument("--camera-device")
+    parser.add_argument('--pi-runtime-profile',choices=('native_retarget','so101_source_only'),default='native_retarget')
     parser.add_argument("--calibration-dir", action="append", type=Path, default=[])
     parser.add_argument("--central-url", default=os.environ.get("EXPLORER_CENTRAL_URL"))
     parser.add_argument("--hailo-model", default=os.environ.get('EXPLORER_HAILO_MODEL',"/usr/share/hailo-models/yolov8m_h10.hef"))
@@ -1311,7 +1320,8 @@ def main(argv=None):
                       os.environ.get("EXPLORER_NODE_TOKEN"), central_url=args.central_url,
                       ingest_token=os.environ.get("EXPLORER_INGEST_TOKEN"),
                       calibration_dirs=args.calibration_dir, camera_device=args.camera_device,
-                      legacy_dir=args.legacy_dir, hailo_model=None if args.no_hailo else args.hailo_model)
+                      legacy_dir=args.legacy_dir, hailo_model=None if args.no_hailo else args.hailo_model,
+                      pi_runtime_profile=args.pi_runtime_profile)
     server = AgentHTTPServer((args.bind, args.port or (8091 if args.mode == "pi" else 8092)), make_handler(agent))
     signal.signal(signal.SIGTERM, lambda *_: threading.Thread(target=server.shutdown, daemon=True).start())
     agent.start()

@@ -1,0 +1,62 @@
+{
+  "schema": "explorer04_source_profile_and_demo_permission_contract_v1",
+  "scope": "SOFTWARE_FIXTURES_LOCALHOST_ONLY",
+  "source_profile": {
+    "name": "so101_source_only",
+    "explicit_opt_in": true,
+    "PiNativeRetargetService_constructed": false,
+    "NativeStreamClient_constructed": false,
+    "peer_config_read": false,
+    "leader03_worker_started": false,
+    "all_direct03_POST_routes_409": true,
+    "disabled_cleanup_claims_native_STOP_delivery": false,
+    "default_profile_regression_preserved": true
+  },
+  "demo_binding": {
+    "purpose": "source04_demo",
+    "input_mode": "leader",
+    "domain": "PHYSICAL within explicit software fixtures",
+    "source_session_and_demonstration_IDs": "required server-issued hexadecimal32 identities",
+    "fake_model_or_checkpoint_fields": "rejected",
+    "calibration": "both existing verified roles and fresh original leader cache at acquisition",
+    "allowed_operations": "original teleop/start, recenter, exact scoped STOP",
+    "policy_start_and_action": "rejected",
+    "stable_original_worker_targets": "3 original fake bus writes match unchanged baseline-relative target",
+    "foreign_cleanup": "different attempt or old recenter epoch rejected",
+    "source_calibration_change_before_publication": "original measured hold, no old sample"
+  },
+  "tests": {
+    "runtime_profile_and_default_regression": {
+      "passed": 6,
+      "elapsed_s": 1.34
+    },
+    "demo_and_existing_common_eval_cooperative_contracts": {
+      "passed": 53,
+      "elapsed_s": 1.57
+    },
+    "requested_bounds": {
+      "CPUQuota": "100%",
+      "MemoryMax": "1G",
+      "MemorySwapMax": 0
+    },
+    "measured_kernel_memory_claimed": false
+  },
+  "original_station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+  "implementation_sha256": {
+    "shared/explorer_shared/source_only_runtime.py": "c50e89334c1c4f36811d23f640541d241bd6bd4fc9b62d5661725c4c9bd2dffc",
+    "shared/explorer_shared/node_agent.py": "e50db133ce9e49d3d4fae48403d48277b2302ebd828f04bf2e4fae83e608adeb",
+    "shared/explorer_shared/station_observed_activation.py": "1197ca416ca7a760ac2d2372953f31564d25d57fb2fcd65e0e96de415dd95f62",
+    "shared/explorer_shared/station_publication_gate.py": "bb834941c72f3386deaf812cd18d117313b366680445afe20f9a6db8c780b085",
+    "tests/test_source_only_runtime.py": "de7bf5d6bade6657bf0230ae25a71777f157e7e691be1b905005cf55e5b20e2d",
+    "tests/test_source_demo_permission.py": "ac4fd082b8fa2a57d4b1f44dd24a6a0b60921294ed7378b0d230788a2e9fb99c"
+  },
+  "physical_device_IO": 0,
+  "physical_grants_created_on_devices": 0,
+  "deployed_to_Pi": false,
+  "source04_software_ready": false,
+  "remaining": [
+    "old4c shutdown/admission race proof",
+    "typedcaptureAPI/approval-transfer/Dataset/UI integration",
+    "qualified software release and separately observed physical demonstrations"
+  ]
+}

@@ -24,13 +24,21 @@ OPERATIONS=('policy/start','teleop/start','teleop/recenter','action','stop')
 def binding(value):
     if not isinstance(value,dict):raise ValueError('Exact server-owned native model/skill binding required')
     allowed={'purpose','skill_id','skill_version','spec_sha256','action_contract_id','model_job_id',
-        'checkpoint_content_sha256','source_domain','input_mode','evaluation_id','cooperative_session_id','coordinator_epoch','object_id'}
-    if set(value)-allowed or value.get('purpose') not in ('source04_eval','cooperative05') or value.get('action_contract_id')!=CONTRACT:
+        'checkpoint_content_sha256','source_domain','input_mode','evaluation_id','cooperative_session_id','coordinator_epoch','object_id',
+        'source_session_id','demonstration_id'}
+    if set(value)-allowed or value.get('purpose') not in ('source04_demo','source04_eval','cooperative05') or value.get('action_contract_id')!=CONTRACT:
         raise ValueError('Known source04/cooperative05 native6 binding required')
     result=deepcopy(value);result['skill_id']=str(uuid.UUID(str(result.get('skill_id'))))
     if type(result.get('skill_version')) is not int or result['skill_version']<1:raise ValueError('Pinned native skill version required')
     if not re.fullmatch('[0-9a-f]{64}',str(result.get('spec_sha256'))):raise ValueError('Pinned original native Spec SHA required')
     mode=result.get('input_mode','policy')
+    if result['purpose']=='source04_demo':
+        if (mode!='leader' or result.get('source_domain')!='PHYSICAL' or
+                any(key in result for key in ('model_job_id','checkpoint_content_sha256','evaluation_id','cooperative_session_id','coordinator_epoch','object_id')) or
+                any(not re.fullmatch('[0-9a-f]{32}',str(result.get(key))) for key in ('source_session_id','demonstration_id'))):
+            raise ValueError('Source demonstration requires an exact server session/attempt and leader input, without model identity')
+    elif any(key in result for key in ('source_session_id','demonstration_id')):
+        raise ValueError('Demonstration identity cannot be borrowed by a model/cooperative binding')
     if mode not in ('policy','leader') or result['purpose']=='source04_eval' and mode!='policy':raise ValueError('Explicit native policy/leader input binding required')
     if mode=='policy' and (not re.fullmatch('[0-9a-f]{32}',str(result.get('model_job_id'))) or
             not re.fullmatch('[0-9a-f]{64}',str(result.get('checkpoint_content_sha256')))):
@@ -80,6 +88,18 @@ class StationObservedPermission:
                 not re.fullmatch('[0-9a-f]{64}',str(follower.get('calibration_sha256')))):
             raise ValueError('Original available/calibrated station required; no recalibration or motor writes here')
         return state,follower['calibration_sha256']
+    def _demo_leader(self,selected,native,*,fresh=False):
+        if selected['purpose']!='source04_demo':return None
+        leader=(native.get('roles') or {}).get('leader') or {}
+        if leader.get('verified_on_connected_hardware') is not True or not re.fullmatch('[0-9a-f]{64}',str(leader.get('calibration_sha256'))):
+            raise ValueError('Existing verified leader calibration/cache required for demonstration')
+        if fresh:
+            measured=native.get('measurements') or {};stamp=measured.get('monotonic_ns');values=measured.get('leader')
+            if (type(stamp) is not int or not 0<=self.clock()-stamp<=self._ttl() or
+                    not isinstance(values,list) or len(values)!=6 or
+                    any(type(value) not in (int,float) or not math.isfinite(value) or not (-100 if index<5 else 0)<=value<=100 for index,value in enumerate(values))):
+                raise ValueError('Fresh genuine existing normalized leader cache required for demonstration')
+        return leader['calibration_sha256']
     @staticmethod
     def _data(record):return deepcopy(record['data'])
     def _retire(self,record,reason):
@@ -110,6 +130,7 @@ class StationObservedPermission:
         selected=binding(value);frame,metadata=self._frame()
         with self.station.lock:
             native,calibration=self._native()
+            leader_calibration=self._demo_leader(selected,native,fresh=True)
             if native['mode']!='idle':raise ValueError('Explicit original station STOP/idle required before observed challenge')
             with self.lock:
                 if self.grant is not None and not self.grant['revoked'].is_set():raise ValueError('Revoke current observed permission before a new challenge')
@@ -119,6 +140,7 @@ class StationObservedPermission:
                 self.pending={'data':{'challenge_id':identity,'binding':selected,'binding_sha256':digest(selected),
                     'control_epoch':native['control_epoch'],'frame':metadata,'follower_calibration_sha256':calibration,
                     'provider_process':self.process},'frame':frame,'revoked':threading.Event()}
+                if leader_calibration is not None:self.pending['data']['leader_calibration_sha256']=leader_calibration
                 return {'schema':'explorer_station_observed_challenge_v1',**self._data(self.pending),
                     'frame_path':'/station/observed-test/challenges/'+identity+'/frame','execution_permission':False,
                     'native_command_called':False,'required_confirmations':['observing','robot_workspace_checked','user_observed_test_confirmed']}
@@ -140,6 +162,7 @@ class StationObservedPermission:
         self._frame()  # cached camera remains live; no lock/native command.
         with self.station.lock:
             native,calibration=self._native()
+            leader_calibration=self._demo_leader(selected,native,fresh=True)
             with self.lock:
                 item=pending['data'];frame=pending['frame']
                 if (self.pending is not pending or pending['revoked'].is_set() or self.grant is not None or
@@ -147,6 +170,7 @@ class StationObservedPermission:
                         item['frame']['jpeg_sha256']!=body.get('displayed_jpeg_sha256') or
                         item['control_epoch']!=body.get('expected_control_epoch') or native['control_epoch']!=item['control_epoch'] or
                         native['mode']!='idle' or calibration!=item['follower_calibration_sha256'] or
+                        leader_calibration!=item.get('leader_calibration_sha256') or
                         not 0<=self.clock()-frame.monotonic_ns<=self._ttl()):
                     raise ValueError('Observed challenge revoked/expired or native source/model binding changed')
                 now=self.clock();data={'schema':'explorer_station_observed_grant_v1','grant_id':uuid.uuid4().hex,
@@ -157,6 +181,7 @@ class StationObservedPermission:
                     'observed_monotonic_ns':now,'observation_deadline_ns':frame.monotonic_ns+self._ttl(),
                     'displayed_frame':deepcopy(item['frame']),'execution_permission':True,'hardware_success_claimed':False,
                     'permission_scope':'explicit_current_operator_not_camera_or_measured_pose_alone'}
+                if leader_calibration is not None:data['leader_calibration_sha256']=leader_calibration
                 self.grant={'data':data,'revoked':threading.Event()};self.pending=None;self.revision+=1
                 return self._data(self.grant)
     def _current_locked(self,grant_id,selected,native,calibration,expected_epoch=None):
@@ -165,8 +190,12 @@ class StationObservedPermission:
                 record['data']['binding']!=selected):raise ValueError('Exact current observed grant/model binding required')
         data=record['data']
         if expected_epoch is not None and data['control_epoch']!=expected_epoch:raise ValueError('Old request cannot operate/revoke newer native epoch')
+        try:leader_calibration=self._demo_leader(selected,native)
+        except ValueError:
+            self._retire(record,'DEMONSTRATION_LEADER_CALIBRATION_UNAVAILABLE');raise
         if (data['control_epoch']!=native['control_epoch'] or
                 data['native_mode']!=native['mode'] or calibration!=data['follower_calibration_sha256'] or
+                leader_calibration!=data.get('leader_calibration_sha256') or
                 data['boot_id']!=self.station.boot or not self.clock()<data['observation_deadline_ns']):
             self._retire(record,'NATIVE_EPOCH_MODE_CALIBRATION_OR_OBSERVATION_EXPIRED')
             raise ValueError('Current native epoch/mode or explicit operator observation expired; new challenge required')
