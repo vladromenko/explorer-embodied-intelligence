@@ -11,6 +11,7 @@ import threading
 import time
 
 from .cooperative_contract05 import ROLE_CONTRACTS
+from .contracts import digest
 from .station_observed_http import StationObservedHttp
 from .so101_station import LOW,HIGH
 from .handover_runtime import DispatchReceipt
@@ -18,12 +19,15 @@ from .handover_runtime import DispatchReceipt
 
 class NativeReceiverTransport:
     def __init__(self,request,cooperative_binding,permission_binding,grant,reference,action_provider=None,*,
-                 clock_domain,clock=time.monotonic_ns,sleep=time.sleep,timeout_s=.5):
+                 clock_domain,clock=time.monotonic_ns,sleep=time.sleep,timeout_s=.5,dual_hold_integration_ready=False):
         if not callable(request):raise ValueError('Trusted authenticated original Pi request required')
         self.request,self.binding=request,deepcopy(cooperative_binding)
         self.permission=StationObservedHttp(request,permission_binding);self.grant=deepcopy(grant);self.reference=deepcopy(reference)
         self.predict=action_provider;self.domain,self.clock,self.sleep,self.timeout=clock_domain,clock,sleep,timeout_s
         self.revoked=threading.Event();self.lock=threading.Lock();self.sequence=-1
+        if type(dual_hold_integration_ready) is not bool:raise ValueError('Server-owned coordinator integration flag required')
+        self.dual_hold_integration_ready=dual_hold_integration_ready
+        self.metadata_lock=threading.Lock();self.interlock_lock=threading.Lock();self.interlock_cache={};self.pending_finish=None
         if (grant.get('binding')!=self.permission.binding or not grant.get('grant_id') or not grant.get('control_epoch') or
                 not grant.get('provider_process') or not grant.get('boot_id') or not grant.get('clock_domain') or
                 not (grant.get('displayed_frame') or {}).get('camera_id') or
@@ -48,10 +52,119 @@ class NativeReceiverTransport:
     def observe_state(self):
         try:
             wrapper,native=self._current();ready=True;reason=None
-        except Exception as error:wrapper,native={},{};ready=False;reason=type(error).__name__+':'+str(error)
+            interlock=self._interlock_description(wrapper,native,wrapper.get('cooperative_hold_interlock'))
+        except Exception as error:
+            wrapper,native={},{};ready=False;reason=type(error).__name__+':'+str(error)
+            interlock={'cooperative_dual_hold_publication_interlock_current':False,'source_interlock_current':False,'reason':reason}
+        with self.interlock_lock:self.interlock_cache=deepcopy(interlock)
         return {'current_native_owner_ready':ready,'source_receipt':{'permission':wrapper,'native':native,'reason':reason},
             'clock_domain':self.domain,'received_ns':self.clock(),'attained_stationarity':None,
+            'cooperative_dual_hold_publication_interlock_current':interlock['cooperative_dual_hold_publication_interlock_current'],
+            'receiver_interlock':interlock,
             'native_user_observation_automatically_renewed':False,'native_hold_contact_or_success_inferred':False}
+    def _session(self,row):
+        if (not isinstance(row,dict) or row.get('session_id')!=self.binding['run_id'] or
+                row.get('protocol_object_id')!=self.binding['object_id'] or row.get('epoch')!=self.binding['coordinator_epoch']):
+            raise ValueError('Old cooperative source session cannot operate the receiver interlock')
+    def _interlock_description(self,wrapper,native,source):
+        source=source if isinstance(source,dict) else {};owner=source.get('native_owner') or {}
+        expected={key:self.grant[key] for key in ('grant_id','provider_process','control_epoch','actor_id','boot_id','clock_domain','follower_calibration_sha256')}
+        profile=source.get('direction_profile') or {};gate=wrapper.get('publication_gate') or {}
+        installed=(wrapper.get('native_publication_permission_gate_installed') is True and
+            gate.get('schema')=='explorer_station_publication_gate_v1' and gate.get('installed') is True and source.get('publication_gate_required') is True)
+        known=(isinstance(profile,dict) and profile.get('follower_calibration_sha256')==self.grant['follower_calibration_sha256'] and
+            profile.get('profile_sha256')==digest({key:value for key,value in profile.items() if key!='profile_sha256'}) and
+            type(profile.get('closing_sign')) is int and profile['closing_sign'] in (-1,1))
+        current=bool(installed and source.get('schema')=='explorer_cooperative_receiver_interlock_v1' and
+            re.fullmatch('[0-9a-f]{32}',str(source.get('interlock_id'))) and type(source.get('revision')) is int and source['revision']>=0 and
+            source.get('binding')==self.permission.binding and owner==expected and source.get('binding_current') is True and
+            source.get('capability_ready') is True and source.get('direction_known') is True and known and
+            source.get('all_target_writes_blocked') is False and source.get('persistence_fault') is None and
+            native.get('control_epoch')==self.grant['control_epoch'] and not self.revoked.is_set())
+        return {'source_interlock_current':current,'source_publication_gate_installed':installed,
+            'source_direction_known':known and source.get('direction_known') is True,'source_armed':source.get('armed') is True,
+            'source_binding_current':source.get('binding_current') is True,'source_status':deepcopy(source),
+            'coordinator_both_guard_and_finish_hooks_connected':self.dual_hold_integration_ready,
+            'cooperative_dual_hold_publication_interlock_current':current and self.dual_hold_integration_ready,
+            'received_coordinator_ns':self.clock(),'received_clock_domain':self.domain,
+            'reason':None if current and self.dual_hold_integration_ready else
+                'COORDINATOR_BOTH_GUARD_AND_FINISH_HOOKS_NOT_CONNECTED' if current else 'EXACT_CURRENT_SOURCE_RECEIVER_INTERLOCK_REQUIRED',
+            'metadata_is_not_contact_attainment_or_physical_success':True}
+    def interlock_state(self,refresh=False):
+        """Cached reads never claim current authority or perform an RPC."""
+        if type(refresh) is not bool:raise ValueError('Explicit read-only refresh flag required')
+        if refresh:
+            wrapper,native=self._current();source=self.permission.cooperative('status')
+            value=self._interlock_description(wrapper,native,source)
+            with self.interlock_lock:self.interlock_cache=deepcopy(value)
+            return value
+        with self.interlock_lock:value=deepcopy(self.interlock_cache)
+        value['source_current_at_last_fetch']=value.get('source_interlock_current') is True
+        value.update(cached_snapshot_only=True,cooperative_dual_hold_publication_interlock_current=False,source_interlock_current=False)
+        return value
+    def _metadata(self,operation,row,extra):
+        self._session(row);wrapper,native=self._current();source=self.permission.cooperative('status')
+        before=self._interlock_description(wrapper,native,source)
+        if not before['source_interlock_current']:raise ValueError('Exact current source-bound receiver interlock capability required')
+        body={'grant_id':self.grant['grant_id'],'expected_control_epoch':self.grant['control_epoch'],
+            'interlock_id':source['interlock_id'],'expected_revision':source['revision'],**deepcopy(extra)}
+        response=self.permission.cooperative(operation,body,authenticated_actor=self.grant['actor_id'])
+        wrapper,native=self._current();actual=wrapper.get('cooperative_hold_interlock') or {}
+        description=self._interlock_description(wrapper,native,actual)
+        if (not description['source_interlock_current'] or actual.get('interlock_id')!=source['interlock_id'] or
+                actual.get('revision')!=source['revision']+1):
+            raise ValueError('Receiver metadata return superseded or current native source permission lost')
+        with self.interlock_lock:self.interlock_cache=deepcopy(description)
+        return response,actual,description
+    def arm_release_guard(self,row):
+        with self.metadata_lock:
+            result,actual,description=self._metadata('arm',row,{})
+            frozen=actual.get('frozen') or {};original=frozen.get('original_last_command') or {};pose=original.get('dispatched')
+            if (not isinstance(result,dict) or result.get('interlock_id')!=actual['interlock_id'] or result.get('revision')!=actual['revision'] or
+                    result.get('armed') is not True or actual.get('armed') is not True or result.get('frozen')!=actual.get('frozen') or
+                    not isinstance(pose,list) or len(pose)!=6 or any(type(value) not in (int,float) or not math.isfinite(value) or
+                        not LOW[i]<=value<=HIGH[i] for i,value in enumerate(pose)) or frozen.get('native6')!=pose or
+                    original.get('control_epoch')!=self.grant['control_epoch'] or original.get('clock_domain')!=self.grant['clock_domain'] or
+                    type(original.get('sequence')) is not int or type(original.get('monotonic_ns')) is not int or
+                    frozen.get('source_receipt_sha256')!=digest(original)):
+                raise ValueError('Actual source receiver armed write reference required')
+            return {'native_receiver_dual_hold_guard':deepcopy(result),'source_status':description,
+                'hardware_command_sent':False,'attainment_or_object_hold_claimed':False}
+    def finish_challenge(self,row,giver_release_receipt):
+        with self.metadata_lock:
+            result,actual,description=self._metadata('finish/challenge',row,{'giver_release_receipt':giver_release_receipt})
+            if (not isinstance(result,dict) or result!=actual.get('pending_challenge') or actual.get('armed') is not True or
+                    result.get('cooperative_binding')!=self.permission.binding or result.get('clock_domain')!=self.grant['clock_domain'] or
+                    result.get('boot_id')!=self.grant['boot_id']):raise ValueError('Actual native receiver transfer challenge required')
+            pending={'challenge':deepcopy(result),'received_coordinator_ns':self.clock(),'received_clock_domain':self.domain,
+                'cross_clock_conversion_assumed':False,'metadata_does_not_unfreeze':True}
+            with self.interlock_lock:self.pending_finish=deepcopy(pending)
+            return pending
+    def finish_interlock(self,row,challenge_id,confirmation):
+        with self.metadata_lock:
+            self._session(row)
+            with self.interlock_lock:pending=deepcopy(self.pending_finish)
+            proof=(confirmation or {}).get('confirmation') if isinstance(confirmation,dict) else None
+            challenge=(pending or {}).get('challenge') or {};now=self.clock()
+            if (not pending or challenge.get('challenge_id')!=challenge_id or not isinstance(proof,dict) or
+                    confirmation.get('kind')!='authenticated_operator_confirmation' or proof.get('clock_domain')!=self.domain or
+                    type(proof.get('created_ns')) is not int or type(proof.get('received_ns')) is not int or
+                    not pending['received_coordinator_ns']<=proof['created_ns']<=proof['received_ns']<=now or
+                    proof.get('state')!='consumed' or proof.get('statement')!='object_transferred_to_receiver' or
+                    proof.get('role')!='receiver' or proof.get('run_id')!=self.binding['run_id'] or proof.get('object_id')!=self.binding['object_id'] or
+                    proof.get('after_command_id')!=challenge.get('giver_release_receipt_id') or proof.get('affirmed') is not True or
+                    proof.get('observing') is not True or proof.get('authenticated_actor')!=self.grant['actor_id']):
+                raise ValueError('Consumed independent NX confirmation created after this exact native receiver challenge required')
+            wrapped={'operator_confirmation':deepcopy(proof),'coordinator_verified_confirmation_created_after_challenge':True,
+                'coordinator_clock_domain':self.domain,'coordinator_challenge_received_ns':pending['received_coordinator_ns'],
+                'coordinator_confirmation_checked_ns':now}
+            result,actual,description=self._metadata('finish',row,{'challenge_id':challenge_id,'confirmation':wrapped})
+            if (not isinstance(result,dict) or result.get('interlock_id')!=actual['interlock_id'] or result.get('revision')!=actual['revision'] or
+                    result.get('armed') is not False or actual.get('armed') is not False or actual.get('phase')!='UNFROZEN_TO_FINISH'):
+                raise ValueError('Actual independent-proof receiver unfreeze receipt required')
+            with self.interlock_lock:self.pending_finish=None
+            return {'native_receiver_interlock_finish':deepcopy(result),'source_status':description,
+                'independent_confirmation':wrapped,'hardware_command_sent':False,'full_task_success_claimed':False}
     def submit_observed(self,command,authorization=None):
         if (command.get('role')!='receiver' or any(command.get(key)!=self.binding.get(key) for key in
                 ('run_id','object_id','coordinator_epoch')) or command.get('reference')!=self.reference):
