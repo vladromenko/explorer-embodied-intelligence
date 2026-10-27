@@ -30,7 +30,6 @@ class CooperativeNativeReceipts:
             'basis':'parsed_authenticated_source_reply_not_hardware_attainment',
             'automatic_native_command_replay_allowed':False,'physical_attainment_claimed':False}
         raw=canonical(document);checksum=digest(document)
-        if len(raw)>16*1024**2:raise ValueError('Native control reply exceeds custody bound')
         folder=self.service.root/'native-control'/identity
         write_original(folder/'receipt.json',raw);(folder/'receipt.json').chmod(0o600)
         registration={key:deepcopy(document[key]) for key in ('receipt_id','context','role','operation','ordinal')}

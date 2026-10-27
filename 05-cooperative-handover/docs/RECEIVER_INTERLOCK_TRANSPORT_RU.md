@@ -86,3 +86,29 @@ Artifact fsync выполняется вне workflow/STOP lock. Если STOP �
 прежний exact owned cleanup; автоматического повтора команды нет. Fake-source
 проверки охватывают actual native reply→download→STOP, rollover66→64 c обходом
 всех66 originals, tamper, независимые role heads и blocked fsync/STOP race.
+
+
+## Root: grant succession и отдельный native phase CONTROL
+
+`receiver_setup_adopt_hold` в USER-bound сессии сохраняет исходный
+`observed_test_binding.native_grants` неизменным. После source-validated
+measured-hold successor и immutable receipt создаётся отдельная lineage запись,
+привязанная к initial grant SHA, Spec/run/object/actor/process/epoch. Подмена
+artifact SHA/anchor/new grant блокирует refresh и запуск. Старый transport
+удаляется; metadata не подключает новый model actor и не продлевает наблюдение.
+
+Отдельный `native_phase_activate` доступен только при source parked hold,
+healthy gate/current USER grant и свежем одноразовом server choice. Browser
+передаёт choice и явные observation/test/neutral booleans; native IDs, revision,
+pose и phase_id берутся сервером. phase_id здесь — annotation текущего общего
+protocol_state, не выбор или переписывание исходной policy. Отдельный CONTROL
+facade вызывает original Pi atomic phase/activate; обе armed защиты сохраняются.
+Root сверяет actual returned new epoch/owner, baseline/old-hold lineage и status,
+архивирует reply и запоминает exact new epoch для STOP, в том числе до attach.
+
+Настоящий original Station с fake buses прошёл Root→COMMON→WAL successor и
+CONTROL start→новая actual original publication без auto attach/prediction.
+Blocked artifact fsync не должен задерживать exact new-epoch STOP; поздний архив
+не восстанавливает сессию. Это software phase boundary, не полный continuous
+handover coordinator и не физическая приёмка H5. Pending protocol/evidence
+lifecycle и giver Root phase facade остаются отдельным открытым объёмом.

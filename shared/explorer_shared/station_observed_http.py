@@ -37,6 +37,15 @@ class StationObservedHttp:
         return self._post('revoke',{'reason':reason,'expected_grant_id':expected_grant_id,'expected_control_epoch':expected_control_epoch,
             'binding':deepcopy(self.binding)})
 
+    def cooperative_control(self,operation,body,*,authenticated_actor):
+        """Separate explicit CONTROL facade, never a metadata-only operation."""
+        allowed={'grant_id','expected_control_epoch','interlock_id','expected_revision','phase_id',
+            'observing','user_observed_test_confirmed','neutral'}
+        if (operation!='phase/activate' or not isinstance(body,dict) or set(body)!=allowed or
+                not isinstance(authenticated_actor,str) or not authenticated_actor):
+            raise ValueError('Fixed ID-only explicit USER native phase CONTROL required')
+        return self._post('cooperative/phase/activate',{**deepcopy(body),'actor_id':authenticated_actor})
+
     def cooperative(self,operation,body=None,*,authenticated_actor=None):
         """Fixed metadata operation; source-native arrays never come from UI."""
         if operation=='status':

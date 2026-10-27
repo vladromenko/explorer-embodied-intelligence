@@ -95,7 +95,7 @@ test("locally blocked unsent authorize is not mislabeled as uncertain remote aut
 
 async function nativeRig() {
   const r=await rig(),nativeCalls=[];
-  const operations=()=>Object.fromEntries(['native_begin','native_resume','native_recenter','native_attach','native_lease','native_stop','native_reset_safe'].map(op=>[op,{implemented:true,available:true,choice_id:digest('a')}]));
+  const operations=()=>Object.fromEntries(['native_begin','native_resume','native_recenter','native_attach','native_lease','native_stop','native_reset_safe','native_phase_activate'].map(op=>[op,{implemented:true,available:true,choice_id:digest('a')}]));
   r.controls={schema:'explorer_cooperative_native_controls_v1',roles:{giver:{operations:operations()},receiver:{operations:operations()}}};
   for(const op of ['native_resume','native_recenter','native_lease'])r.controls.roles.receiver.operations[op]={implemented:false,available:false,choice_id:null};
   r.options.invokeNative=async(op,fields)=>{nativeCalls.push([op,copy(fields)]);return op==='native_refresh'?copy(r.controls):{role:fields.role,operation:op,native_controls:copy(r.controls),API_result_claims_hardware_attainment:false};};
@@ -198,4 +198,14 @@ test('giver safe reset consumes fresh explicit object-safe confirmation and neve
  r.client.nativeAffirm('giver','object_safe_no_dual_hold',true);await r.client.nativeCommand('giver','native_reset_safe');
  assert.deepEqual(r.nativeCalls.at(-1),['native_reset_safe',{role:'giver',native_control_choice_id:digest('a'),observing:true,user_observed_test_confirmed:true,object_safe_no_dual_hold:true}]);
  assert.equal(r.client.snapshot().nativeFlags.giver.object_safe_no_dual_hold,false);assert.deepEqual(r.nativeCalls.map(([op])=>op),['native_refresh','native_reset_safe']);
+});
+
+
+test('receiver phase activation requires new neutral confirmation, uses only an opaque choice and fences old frames',async()=>{
+ const r=await nativeRig();await authorize(r.client);await r.client.displayObservation();const oldToken=r.client.snapshot().frames.receiver.token;await r.client.nativeRefresh();r.client.nativeAffirm('receiver','observing',true);r.client.nativeAffirm('receiver','user_observed_test_confirmed',true);
+ await assert.rejects(r.client.nativeCommand('receiver','native_phase_activate'),/Лично подтвердите/);
+ assert.equal(r.nativeCalls.length,1);r.client.nativeAffirm('receiver','neutral',true);await r.client.nativeCommand('receiver','native_phase_activate');
+ assert.deepEqual(r.nativeCalls.at(-1),['native_phase_activate',{role:'receiver',native_control_choice_id:digest('a'),observing:true,user_observed_test_confirmed:true,neutral:true}]);
+ assert.equal(r.client.snapshot().frames.receiver,undefined);assert.deepEqual(await r.client.displayed('receiver',oldToken),{ignored:true});assert.equal(r.client.snapshot().nativeFlags.receiver.neutral,false);
+ assert.equal(r.nativeCalls.length,2);assert.equal(r.calls.some(([op])=>op==='observed_observe'),false);
 });

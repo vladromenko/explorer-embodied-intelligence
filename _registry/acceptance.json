@@ -16,13 +16,13 @@
       "id": "control_center",
       "title": "Панель и автономный runtime Homebrain",
       "status": "VERIFIED_WITHIN_SCOPE",
-      "evidence": "Actual central release36a2d6c; own observer/original web pinsf4cc5c3. Later main source is not automatically live. See STATUS and central actual activation receipt."
+      "evidence": "Actual all-node3ba5f938 disarmed release;1712pytest/205Node,9Firefox pages/12authenticatedGETs; source/controller/scientific prefixes exact. Later main is not automatically live."
     },
     {
       "id": "observers",
       "title": "Настоящие Pi/Nano наблюдения",
       "status": "VERIFIED_WITHIN_SCOPE",
-      "evidence": "Actual observer/camera proofs retained; latest Pi station idle/sync-read error with both USB adapters present. Nano execution permission false/STOP. No fresh arm measurement claim."
+      "evidence": "Latest actual Pi available/idle, configwrites0/last_commandnull. Nano inactive/permissionfalse/STOP; durablegiver installed/healthy but not initialized until USER setup. No new arm command or measured feedback claim."
     },
     {
       "id": "arbitration",
@@ -58,7 +58,7 @@
       "id": "handover",
       "title": "Координация и подтверждённая передача05",
       "status": "PARTIAL",
-      "evidence": "Current tested software: receiver/giver publication guards, durable WAL, source opening-correlated fresh transfer proof, explicit native sessions. Receiver metadata UI and phase hold lifecycle remain open; no physical handover claim."
+      "evidence": "Live3ba5: receiver/giver durable publication guards, source atomic phase activation, metadata/setup/reset UI and receipts. Later main adds immutable native reply chains and Root Pi successor/explicit phase CONTROL; complete parked coordinator/physicalH5 remain open."
     },
     {
       "id": "skill_memory",
@@ -140,7 +140,7 @@
           "research/audits/TRANSFER_CONTACT_V10_RESULTS_RU.md",
           "research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md",
           "research/audits/CONTACT_V10_FIGURE_RU.md",
-          "_registry/evidence/release-883478fe-actual-activation-20261027.json"
+          "_registry/evidence/release-3ba5f938-actual-activation-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED"
       },
@@ -164,7 +164,7 @@
         "evidence": [
           "research/audits/NATIVE_SENSOR_CACHE_RU.md",
           "shared/training/NATIVE6_QUEUE_STATION_R3B_20261027_RU.md",
-          "_registry/evidence/release-883478fe-actual-activation-20261027.json"
+          "_registry/evidence/release-3ba5f938-actual-activation-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED"
       },
@@ -188,7 +188,7 @@
         "evidence": [
           "research/audits/EXPERIMENT_NUMBERING_V2_RU.md",
           "03-lerobot-teaching/docs/NATIVE_STREAM_RU.md",
-          "_registry/evidence/release-883478fe-actual-activation-20261027.json"
+          "_registry/evidence/release-3ba5f938-actual-activation-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED"
       },
@@ -196,7 +196,7 @@
         "experiment_id": "04",
         "status": "IN_PROGRESS",
         "checks": {
-          "interface_and_instructions": "LIVE_883478FE_DESKTOP_MOBILE_TESTED_WITHIN_SCOPE",
+          "interface_and_instructions": "LIVE_3BA5F938_DESKTOP_MOBILE_TESTED_WITHIN_SCOPE",
           "required_cameras": "PI_CAMERA_LIVE_STATION_AVAILABLE_READ_ONLY_PHYSICAL_TASK_OPEN",
           "manual_control": "SOFTWARE_TESTED",
           "keyboard_gamepad_leader": "LEADER_SOFTWARE_TESTED",
@@ -213,7 +213,7 @@
           "shared/training/STATION_CPU_20261027_STATION_R3B_RU.md",
           "tests/test_source_evaluation_api.py",
           "tests/test_source_evaluation_ui.js",
-          "_registry/evidence/release-883478fe-actual-activation-20261027.json"
+          "_registry/evidence/release-3ba5f938-actual-activation-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED"
       },
@@ -221,7 +221,7 @@
         "experiment_id": "05",
         "status": "IN_PROGRESS",
         "checks": {
-          "interface_and_instructions": "LIVE_883_TESTED_MAIN_RECOVERY_AND_RECEIPT_UI_TESTED",
+          "interface_and_instructions": "LIVE_3BA5_RECOVERY_RECEIPT_UI_MAIN_ROOT_PHASE_CONTROL_TESTED",
           "required_cameras": "BOTH_CAMERA_PATHS_TESTED_SHARED_VIEW_OPEN",
           "manual_control": "FOUR_MODES_SOFTWARE_PARTIAL",
           "keyboard_gamepad_leader": "NATIVE_INPUTS_TESTED_PHASE_LOOP_OPEN",
@@ -230,7 +230,7 @@
           "training_launch": "ROLE_WARM_TRAIN_PATH_TESTED",
           "model_version_provenance": "TESTED",
           "skill_replay": "FULL_HANDOVER_OPEN",
-          "STOP_cancel": "EXACT_UNATTACHED_NATIVE_EPOCH_TESTED_PHYSICAL_OPEN",
+          "STOP_cancel": "EXACT_NEW_PHASE_EPOCH_DURING_DELAYED_ARCHIVE_TESTED_PHYSICAL_OPEN",
           "restart_recovery": "RECEIVER_AND_GIVER_WAL_TESTED_PARKED_COORDINATOR_OPEN",
           "user_physical_actions": "USER_SCENE_ENDPOINTS_HOLD_OUTCOMES"
         },
@@ -238,7 +238,8 @@
           "05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md",
           "tests/test_cooperative_interlock_coordinator.py",
           "tests/test_station_cooperative_http.py",
-          "_registry/evidence/release-883478fe-actual-activation-20261027.json"
+          "_registry/evidence/release-3ba5f938-actual-activation-20261027.json",
+          "tests/test_cooperative_phase_controls.py"
         ],
         "physical_skill_status": "NOT_VALIDATED"
       },
@@ -265,7 +266,7 @@
           "tests/test_transfer_target_split.py",
           "research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md",
           "research/audits/CONTACT_V10_FIGURE_RU.md",
-          "_registry/evidence/release-883478fe-actual-activation-20261027.json",
+          "_registry/evidence/release-3ba5f938-actual-activation-20261027.json",
           "research/audits/target-visual-object-v3-results-20261027.json"
         ],
         "physical_skill_status": "NOT_VALIDATED"

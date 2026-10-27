@@ -5358,6 +5358,39 @@
         "tests/test_cooperative_workbench_ui.js"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-COOPERATIVE-EXPLICIT-GRANT-LINEAGE-001",
+      "function_or_module": "00-control-center/src/explorer/cooperative_grant_lineage.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:shared/explorer_shared/station_cooperative_interlock.py",
+          "role": "Source validated measured hold succession and separate atomic native phase CONTROL"
+        },
+        {
+          "url": "project-file:00-control-center/src/explorer/cooperative_native_receipts.py",
+          "role": "Immutable source reply custody independent of bounded projection"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NOT_APPLICABLE",
+      "data_license": "PRIVATE_USER_CONTROL_METADATA",
+      "changes_and_reason": "Preserve original Root grant anchor, accept only archived exact source-owned NEW USER successor, reject corrupt/foreign receipts, and require a separate explicit CONTROL before starting the next native phase. Metadata never rebinds old transports or renews leases.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_cooperative_phase_controls.py",
+        "tests/test_cooperative_receiver_setup.py",
+        "tests/test_cooperative_native_sessions.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

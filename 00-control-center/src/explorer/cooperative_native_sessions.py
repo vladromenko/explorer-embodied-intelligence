@@ -15,7 +15,7 @@ from explorer_shared.cooperative_transport05 import NativeGiverPolicyTransport,N
 from explorer_shared.cooperative_receiver_transport05 import NativeReceiverTransport
 from explorer_shared.station_observed_http import StationObservedHttp
 
-OPERATIONS=('native_begin','native_recenter','native_resume','native_attach','native_lease','native_stop','native_reset_safe')
+OPERATIONS=('native_begin','native_recenter','native_resume','native_attach','native_lease','native_stop','native_reset_safe','native_phase_activate')
 
 
 class CooperativeNativeSessions:
@@ -44,7 +44,8 @@ class CooperativeNativeSessions:
         if not 0<=self.clock()-began<=2_000_000_000:raise ValueError('Current native source receive window expired')
         return {'source':source,'permission':permission}
     def _check_permission(self,role,row,spec,pair):
-        bound=row['observed_test_binding'];expected=bound['native_grants'][role];permission=pair['permission']
+        row=self._fresh(row,spec)
+        bound=row['observed_test_binding'];expected=self.service.grant_lineage.expected(role,row,spec);permission=pair['permission']
         if role=='giver':
             proof=permission.get('authorization_receipt') or {}
             if (pair['source'].get('schema')!='explorer_native_cooperative_owner_v1' or
@@ -68,10 +69,12 @@ class CooperativeNativeSessions:
                 'binding':deepcopy(boundary.get('binding')),'armed':boundary.get('armed'),
                 'constraint':deepcopy(source.get('registered_action_constraint')),
                 'persistence':deepcopy(boundary.get('persistence')),'quiescence':deepcopy(boundary.get('original_quiescence')),
-                'reference_fault':deepcopy(boundary.get('reference_fault'))}
+                'reference_fault':deepcopy(boundary.get('reference_fault')),'parked':deepcopy(boundary.get('parked'))}
         grant=permission.get('grant') or {}
         return {'grant':{key:deepcopy(grant.get(key)) for key in ('grant_id','binding','provider_process','control_epoch','native_mode','actor_id')},
-            'native':{key:source.get(key) for key in ('available','mode','control_epoch','configuration_writes')}}
+            'native':{key:source.get(key) for key in ('available','mode','control_epoch','configuration_writes')},
+            'interlock':{key:deepcopy((permission.get('cooperative_hold_interlock') or {}).get(key)) for key in
+                ('interlock_id','revision','native_owner','parked_observation_only','persistence_fault','all_target_writes_blocked','phase_activation_pending')}}
     def _binding(self,row,pair):
         return {'run_id':row['session_id'],'object_id':row['protocol_object_id'],'coordinator_epoch':row['epoch'],
             'authorization_id':pair['permission']['authorization_id'],'observing':True}
@@ -111,6 +114,9 @@ class CooperativeNativeSessions:
                     if bound.get('reference_fault') is not None:
                         for name in ('native_begin','native_resume','native_recenter','native_attach'):
                             operations[name].update(available=False,reason='NEW_USER_OBSERVED_ORIGINAL_REFERENCE_REQUIRED')
+                    if bound.get('parked') is not None:
+                        for name in ('native_begin','native_resume','native_recenter','native_attach','native_lease'):
+                            operations[name].update(available=False,reason='EXPLICIT_USER_PARKED_PHASE_TRANSITION_REQUIRED')
 
                     if mode=='so101_leader':
                         for name,item in operations.items():
@@ -127,7 +133,14 @@ class CooperativeNativeSessions:
                     operations['native_attach'].update(implemented=True,available=guarded and native.get('mode')==('policy' if policy else 'teleoperation'),
                         reason=None if guarded else 'NATIVE_USER_PERMISSION_REQUIRED_AT_EVERY_ORIGINAL_WRITE')
                     operations['native_stop'].update(implemented=True,available=True)
-                for name in ('native_begin','native_attach'):
+                    operations['native_phase_activate'].update(implemented=interlock.get('explicit_native_phase_activation_supported') is True,
+                        available=guarded and interlock.get('explicit_native_phase_activation_supported') is True and
+                            interlock.get('parked_observation_only') is True and native.get('mode')=='idle' and
+                            interlock.get('persistence_fault') is None and interlock.get('all_target_writes_blocked') is False and
+                            interlock.get('phase_activation_pending') is False and
+                            all((interlock.get('native_owner') or {}).get(key)==grant.get(key) for key in
+                                ('grant_id','provider_process','control_epoch','actor_id','boot_id','clock_domain','follower_calibration_sha256')))
+                for name in ('native_begin','native_attach','native_phase_activate'):
                     if policy and operations[name]['available']:
                         try:self._ready_prediction(row,spec,role)
                         except (ValueError,OSError,KeyError,TypeError) as error:operations[name].update(available=False,reason=str(error))
@@ -165,7 +178,7 @@ class CooperativeNativeSessions:
         if current.get('pending_operation') and operation not in ('native_lease','native_stop'):
             raise ValueError('Finish/cancel current protocol step before changing native control binding')
         if (role not in ('giver','receiver') or body.get('observing') is not True or body.get('user_observed_test_confirmed') is not True or
-                operation in ('native_begin','native_recenter') and body.get('neutral') is not True):raise ValueError('Separate explicit USER current role/observation/test/neutral confirmation required')
+                operation in ('native_begin','native_recenter','native_phase_activate') and body.get('neutral') is not True):raise ValueError('Separate explicit USER current role/observation/test/neutral confirmation required')
         with self.lock:
             choice=self.choices.get(body.get('native_control_choice_id'))
             if (choice is None or choice['used'] or choice['role']!=role or choice['operation']!=operation or
@@ -181,7 +194,7 @@ class CooperativeNativeSessions:
         key=(row['session_id'],row['epoch'],role)
         with self.lock:
             if operation=='native_stop':self.owned.pop(key,None)
-            elif operation in ('native_begin','native_resume','native_recenter','native_attach'):
+            elif operation in ('native_begin','native_resume','native_recenter','native_attach','native_phase_activate'):
                 self.owned[key]={'row':deepcopy(row),'spec':deepcopy(spec),'role':role,'operation':operation,
                     'pair':deepcopy(pair),'result':deepcopy(result),'actor':actor}
                 self.owned.move_to_end(key)
@@ -236,6 +249,28 @@ class CooperativeNativeSessions:
                 elif operation=='native_stop':
                     result=facade.command(grant['grant_id'],grant['binding'],'stop',{'expected_control_epoch':grant['control_epoch']})
                 elif operation=='native_attach':result=self._attach(role,row,spec,pair,actor)
+                elif operation=='native_phase_activate':
+                    interlock=pair['permission'].get('cooperative_hold_interlock') or {}
+                    result=facade.cooperative_control('phase/activate',{'grant_id':grant['grant_id'],
+                        'expected_control_epoch':grant['control_epoch'],'interlock_id':interlock['interlock_id'],
+                        'expected_revision':interlock['revision'],'phase_id':row['protocol_state'],
+                        'observing':True,'user_observed_test_confirmed':True,'neutral':True},authenticated_actor=actor)
+                    returned=result.get('grant') or {};event=result.get('activation') or {};status=result.get('status') or {}
+                    next_owner={key:deepcopy(returned.get(key)) for key in
+                        ('grant_id','provider_process','control_epoch','actor_id','boot_id','clock_domain','follower_calibration_sha256')}
+                    next_guard=result.get('interlock') or {}
+                    if (result.get('schema')!='explorer_station_cooperative_phase_activation_receipt_v1' or
+                            result.get('phase_activation_current') is not True or result.get('native_command_called') is not True or
+                            returned.get('execution_permission') is not True or not isinstance(returned.get('control_epoch'),str) or not returned['control_epoch'] or
+                            any(returned.get(key)!=grant.get(key) for key in ('grant_id','binding','provider_process','actor_id','boot_id','clock_domain','follower_calibration_sha256')) or
+                            returned.get('control_epoch')==grant['control_epoch'] or status.get('control_epoch')!=returned.get('control_epoch') or
+                            status.get('mode')!=('policy' if row['receiver_input_mode']=='policy' else 'teleoperation') or
+                            returned.get('native_mode')!=status.get('mode') or event.get('new_owner')!=next_owner or
+                            next_guard.get('native_owner')!=next_owner or (next_guard.get('frozen') or {}).get('parked_observation_only') is not False or
+                            next_guard.get('armed') is not interlock.get('armed') or event.get('native_command_called') is not True or
+                            event.get('previous_owner')!=interlock.get('native_owner') or event.get('phase_id')!=row['protocol_state'] or
+                            event.get('native_baseline_exactly_matches_returned_hold') is not True):
+                        raise ValueError('Exact current original native phase activation receipt required')
                 else:raise ValueError('Pi has no invented resume/lease/reset operation; use original start/current observation')
             else:
                 binding=self._binding(row,pair);source=pair['source'];native=source['native'];mode=row['giver_input_mode']
@@ -262,7 +297,7 @@ class CooperativeNativeSessions:
                 elif operation=='native_stop':result=post('stop',{**binding,'control_epoch':native['control_epoch'] if mode=='policy' else None,
                     'expected_native_generation':native['owner_generation']})
                 else:raise ValueError('Known exact native USER operation required')
-            known_reply=operation in ('native_recenter','native_resume','native_attach') or operation=='native_begin' and (role=='receiver' or 'bind' in result)
+            known_reply=operation in ('native_recenter','native_resume','native_attach','native_phase_activate') or operation=='native_begin' and (role=='receiver' or 'bind' in result)
             self._remember_owned(row,spec,role,operation,pair,result,actor)
             receipt=self._save(row,spec,role,operation,result,actor)
             controls=self.refresh(row,spec,actor=actor)

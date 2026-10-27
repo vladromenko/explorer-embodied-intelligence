@@ -34,6 +34,7 @@ from .cooperative_policy_job import required_policy_roles
 from .cooperative_native_sessions import CooperativeNativeSessions,OPERATIONS as NATIVE_USER_OPERATIONS
 from .cooperative_receiver_setup import CooperativeReceiverSetup,OPERATIONS as RECEIVER_SETUP_OPERATIONS
 from .cooperative_native_receipts import CooperativeNativeReceipts
+from .cooperative_grant_lineage import CooperativeGrantLineage
 
 
 def _boot():return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
@@ -72,6 +73,7 @@ class CooperativeService:
         self.native_controls=CooperativeNativeSessions(self)
         self.receiver_setup=CooperativeReceiverSetup(self)
         self.native_receipts=CooperativeNativeReceipts(self)
+        self.grant_lineage=CooperativeGrantLineage(self)
     def _prior_test_evidence(self,row):
         with self.store.connect() as db:
             jobs=list(db.execute("SELECT id,kind,config FROM jobs WHERE json_extract(config,'$.session_id')=? OR json_extract(config,'$.cooperative_shadow_binding.session_id')=?",
@@ -303,12 +305,16 @@ class CooperativeService:
         current=bool(row.get('observed_test_binding') and row['execution_domain']=='user_observed_physical_test' and
             row['status'] not in ('STOPPED','INTERRUPTED','COMPLETED') and authority and authority['epoch']==row['epoch'] and
             giver_state.get('current_native_owner_ready') is True and receiver_state.get('current_native_owner_ready') is True)
-        durable=self._durable_giver(self._giver_source(giver_state).get('release_boundary'))
+        boundary=self._giver_source(giver_state).get('release_boundary') or {}
+        durable=self._durable_giver(boundary)
+        unparked=boundary.get('parked') is None
         interlock=receiver_state.get('cooperative_dual_hold_publication_interlock_current') is True
-        return {'explicit_user_observed_test_current':current and interlock and durable,'source_receipt':deepcopy(authority),
+        return {'explicit_user_observed_test_current':current and interlock and durable and unparked,'source_receipt':deepcopy(authority),
             'both_current_user_grants_and_native_owners':current,'receiver_dual_hold_publication_interlock_current':interlock,
             'giver_durable_dual_hold_publication_interlock_current':durable,
-            'reason':None if current and interlock and durable else
+            'giver_dispatch_phase_unparked':unparked,
+            'reason':None if current and interlock and durable and unparked else
+                'GIVER_PARKED_OBSERVATION_IS_NOT_DISPATCH_AUTHORITY' if current and interlock and durable and not unparked else
                 'NATIVE_GIVER_DURABLE_DUAL_HOLD_PUBLICATION_INTERLOCK_REQUIRED' if current and interlock and not durable else
                 'NATIVE_RECEIVER_DUAL_HOLD_PUBLICATION_INTERLOCK_REQUIRED' if current else
                 'BOTH_EXACT_SCOPED_NATIVE_TRANSPORTS_AND_CURRENT_USER_LEASES_REQUIRED'}

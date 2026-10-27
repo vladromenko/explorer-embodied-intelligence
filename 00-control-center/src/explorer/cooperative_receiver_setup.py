@@ -198,6 +198,8 @@ class CooperativeReceiverSetup:
             self._fresh(row,spec,actor);self._current_choice(selected,row)
             if operation.startswith('capture_'):self._displayed(body.get('observation_choice_id'),row,spec,body,actor,grant)
             receipt=self._record_receipt(operation,row,spec,actor,result,selected)
+            if operation=='adopt_hold' and row.get('observed_test_binding'):
+                self.service.grant_lineage.receiver(row,spec,grant,result,receipt,actor=actor)
             return {'operation':operation,'source_receipt':deepcopy(result),'metadata_receipt':receipt,'native_command_sent':False,
                 'native_lease_or_user_observation_renewed':False,'physical_execution_authorized':False}
         finally:

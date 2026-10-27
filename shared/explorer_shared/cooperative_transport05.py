@@ -30,6 +30,7 @@ class NativeGiverPolicyTransport:
             activation.get('input_mode')=='cooperative_policy' and native.get('active') is True and native.get('state')=='ACTIVE' and native.get('native_owner')=='keyboard' and
             native.get('control_epoch')==self.epoch and native.get('native_lease_remaining_s',0)>0 and
             (state.get('release_boundary') or {}).get('reference_fault') is None and
+            (state.get('release_boundary') or {}).get('parked') is None and
             all(bound.get(key)==self.binding.get(key) for key in ('run_id','object_id','coordinator_epoch','authorization_id')))
         if self.action_constraint is not None:
             registered=state.get('registered_action_constraint') or {}
@@ -150,7 +151,7 @@ class NativeGiverManualTransport(NativeGiverPolicyTransport):
             activation.get('input_mode') in ('keyboard','browser_gamepad') and native.get('active') is False and
             native.get('native_owner')=='keyboard' and native.get('stop_latched') is False and
             native.get('owner_generation')==self.generation and native.get('native_lease_remaining_s',0)>0 and
-            boundary.get('reference_fault') is None and bound.get('native_control_epoch') is None and
+            boundary.get('reference_fault') is None and boundary.get('parked') is None and bound.get('native_control_epoch') is None and
             bound.get('native_generation')==self.generation and all(bound.get(key)==self.binding.get(key) for key in
                 ('run_id','object_id','coordinator_epoch','authorization_id')))
         return {'current_native_owner_ready':ready,'source_receipt':{'native':state,'activation':activation},
