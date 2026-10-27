@@ -115,6 +115,7 @@ class NativeReceiverHoldBoundary:
                 type(state.get('revision')) is not int or state['revision']<0 or not isinstance(state.get('used_confirmations'),list) or
                 len(state['used_confirmations'])>2048 or len(set(state['used_confirmations']))!=len(state['used_confirmations']) or
                 not isinstance(state.get('events'),list) or len(state['events'])>8 or
+                state.get('binding') is not None and not isinstance(state['binding'],dict) or
                 state.get('reference_fault') is not None and not isinstance(state['reference_fault'],dict)):
             raise ValueError('Typed bounded retained giver latch required')
         for value in state['used_confirmations']:identity(value)
@@ -576,7 +577,8 @@ class NativeCooperativeOwner:
             'registered_action_constraint':deepcopy(self.action_constraint),
             'capabilities':{'stationary_base_constraint_schema':'explorer_cooperative_stationary_base_constraint_v1',
                 'raw_policy9_projection_provenance_required_when_registered':True,
-                'explicit_user_prepare':True,'explicit_user_manual_resume':True,'scoped_manual_stop':True},
+                'explicit_user_prepare':True,'explicit_user_manual_resume':True,'scoped_manual_stop':True,
+                'explicit_user_giver_phase_http':self.phases.http_mounted},
             'release_boundary':self.guard.status(),'native':self.mux.status(),'same_original_stream_worker':True,
             'phase_lifecycle':self.phases.status(),
             'controller_settings_written':False,'native_dispatch_proof':'read actual correlated dispatch ring',
@@ -592,6 +594,17 @@ def mount_native_cooperative_api(app,owner,*,authenticate,allowed,operation,acti
         if request.url.query:raise HTTPException(400,'Fixed cooperative native API takes no query parameters')
     def allowed(request,body):
         authenticate(request);return original_allowed(request,body)
+    def phase_actor(request,body,*,park=False):
+        # The private authenticated service already minted this source USER
+        # authorization. Never accept a replacement actor from this payload.
+        authenticate(request)
+        if 'actor_id' in body:raise HTTPException(409,'Phase actor is resolved from the authenticated source authorization, never this payload')
+        receipt=activation.receipt(body.get('authorization_id')) if activation is not None else None
+        if park and receipt is None:receipt=(owner.guard.binding or {}).get('observed_source_authorization')
+        actor=(receipt or {}).get('actor_id')
+        if not isinstance(actor,str) or not 0<len(actor)<=128:raise HTTPException(409,'Actual source USER actor unavailable')
+        if not park:allowed(request,body)
+        return actor
     prefix='/api/explorer/cooperative/'
     @app.get(prefix+'status')
     def status(request:Request):authenticate(request);return owner.status()
@@ -621,7 +634,21 @@ def mount_native_cooperative_api(app,owner,*,authenticate,allowed,operation,acti
     @app.post(prefix+'resume')
     def resume(request:Request,body:dict):
         allowed(request,body);operation(owner.guard._match,body)
+        if owner.guard.parked is not None:raise HTTPException(409,'Explicit parked-phase resume required')
         return operation(owner.mux.resume,body.get('control_epoch'),observing=body.get('observing'))
+    @app.post(prefix+'phase/park')
+    def phase_park(request:Request,body:dict):
+        actor=phase_actor(request,body,park=True);return operation(owner.park,body,authenticated_actor=actor)
+    @app.post(prefix+'phase/adopt')
+    def phase_adopt(request:Request,body:dict):
+        actor=phase_actor(request,body);return operation(owner.adopt_parked,body,authenticated_actor=actor)
+    @app.post(prefix+'phase/begin')
+    def phase_begin(request:Request,body:dict):
+        actor=phase_actor(request,body);return operation(owner.begin_parked,body,authenticated_actor=actor)
+    @app.post(prefix+'phase/resume')
+    def phase_resume(request:Request,body:dict):
+        actor=phase_actor(request,body);return operation(owner.resume_parked,body,authenticated_actor=actor)
+    owner.phases.http_mounted=True
     @app.post(prefix+'lease')
     def lease(request:Request,body:dict):allowed(request,body);return operation(owner.lease,body)
     @app.post(prefix+'input')

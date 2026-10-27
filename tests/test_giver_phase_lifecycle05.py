@@ -160,6 +160,13 @@ def test_new_generation_during_park_persistence_is_not_adopted_or_stopped(tmp_pa
     assert teleop.native_stop==1 and owner.guard.parked is None and owner.guard.armed
 
 
+def test_old_park_cannot_cancel_a_new_user_authorization_even_when_native_generation_has_not_changed(tmp_path):
+    values,body,new_user,park,receipts=fixture(tmp_path,auto_park=False);owner,mux,teleop,arm,publisher,tap,activation,tick,binding,path=values
+    before=teleop.generation;activation.id='FOREIGN-NEW-USER';activation.valid=True
+    with pytest.raises(ValueError,match='newer USER'):owner.park(body(control_epoch=mux.epoch),authenticated_actor=ACTOR)
+    assert teleop.native_stop==0 and teleop.generation==before and activation.id=='FOREIGN-NEW-USER' and activation.valid
+
+
 def test_revoke_during_successor_wal_never_attaches_stale_authorization(tmp_path,monkeypatch):
     values,body,new_user,park,receipts=fixture(tmp_path);owner,mux,teleop,arm,publisher,tap,activation,tick,binding,path=values
     request=new_user();original=wal.write;before=deepcopy(owner.guard.binding);drive=deepcopy(teleop.native_drive)

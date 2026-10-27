@@ -5391,6 +5391,39 @@
         "tests/test_cooperative_native_sessions.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-NATIVE-GIVER-PHASE-LIFECYCLE-20261027",
+      "function_or_module": "shared/explorer_shared/giver_phase_lifecycle05.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:05-cooperative-handover/docs/GIVER_PHASE_LIFECYCLE_RU.md",
+          "role": "Explicit USER cancel-only park and truthful command-estimate successor over the same audited native owner"
+        },
+        {
+          "url": "project-file:shared/explorer_shared/native_stream03.py",
+          "role": "Pinned original factory source ABI, unchanged native dispatch/lease/controller evidence"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_MODEL_WEIGHTS_IN_MODULE",
+      "data_license": "PRIVATE_USER_DATA_NOT_RELEASED",
+      "changes_and_reason": "Preserve armed publication latch across explicit cancel/park/new USER authorization/begin/resume. Actual issued9 and base-zero receipts, original no-readback reference, exact prior model/constraint and actor/epoch/CAS evidence; no measured-hold/stationarity claim, automatic lease renewal, new publisher or physical qualification. Bounded32 metadata projection has an ordinal/SHA chain and declares incomplete historical bytes; raw native captures and immutable API receipts remain separate.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_giver_phase_lifecycle05.py",
+        "tests/test_native_giver_phase_http.py",
+        "tests/test_native_giver_persistence.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [

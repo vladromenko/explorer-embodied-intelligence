@@ -16,7 +16,7 @@ from .cooperative_action_constraint05 import verify_constraint
 class GiverPhaseLifecycle:
     def __init__(self,owner):
         self.owner=owner;self.guard=owner.guard;self.mux=owner.mux;self.activation=owner.activation
-        self.process=uuid.uuid4().hex;self.transition_thread=None
+        self.process=uuid.uuid4().hex;self.transition_thread=None;self.http_mounted=False
     def in_transition(self):return self.transition_thread==threading.get_ident()
     def _body(self,body,actor,extra=()):
         common={'run_id','object_id','coordinator_epoch','authorization_id','expected_state_id','expected_revision',
@@ -60,6 +60,8 @@ class GiverPhaseLifecycle:
             if body.get('authorization_id')!=self.guard.binding['authorization_id']:raise ValueError('Exact previous native authorization required')
             with self.mux.teleop.lock:
                 previous=deepcopy(self.guard.binding)
+                if self.activation.current_authorization_id() not in (None,previous['authorization_id']):
+                    raise ValueError('Old park request cannot stop a newer USER authorization')
                 result=self.owner.stop(body)  # SAME original cancel-only STOP; no new hold pose.
                 if self.mux.active or not self.mux.teleop.stop_latched:raise ValueError('Original scoped STOP return unavailable')
                 event=self._event('ORIGINAL_CANCEL_ONLY_PARK',previous_owner=previous,
@@ -209,6 +211,7 @@ class GiverPhaseLifecycle:
                 raise
     def status(self):
         return {'schema':'explorer_native_giver_phase_lifecycle_v1','supported':True,'parked':deepcopy(self.guard.parked),
+            'authenticated_fixed_http_operations_installed':self.http_mounted,
             'same_original_stream_worker':True,'automatic_lease_renewal':False,'new_servo_publisher_or_feedback_reader_created':False,
             'original_native_commands_are_explicit_USER_control':True,
             'command_context_is_not_measured_hold_or_stationarity':True,'physical_qualification':False}

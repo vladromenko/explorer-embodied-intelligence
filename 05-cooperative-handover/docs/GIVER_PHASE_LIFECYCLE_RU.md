@@ -4,7 +4,27 @@ ENGINEERING_GLUE. Работает с **тем же** NativeCooperativeOwner, or
 ManualArm/ManualTeleop, Publisher и Ruckig. Нового publisher/worker/feedback reader,
 motor setting, controller constant, lease heartbeat или автоматического replay
 нет. ROSMASTER readback остаётся OFF. Реальные RPC/GRANT/движения агентом не
-выполнялись. Source HTTP и central UI подключаются отдельным проверяемым атомиком.
+выполнялись. Source HTTP подключён отдельным атомиком; central UI/lineage
+подключает integrator. Наличие source route не означает live deployment.
+
+Fixed authenticated routes: `POST /api/explorer/cooperative/phase/{park,adopt,begin,resume}`.
+Nano Node proxy разрешает только те же четыре suffix под
+`/legacy/explorer/cooperative/phase/`. GET, unknown suffix/query и actor_id из
+phase payload не принимаются. Actor выводится сервером из actual observed-source
+authorization receipt после private service Bearer authentication; для park
+просроченного owner допускается сохранённый source-bound old receipt. Это не
+произвольный browser actor. Central всё равно проверяет текущего пользователя
+и opaque one-use choice перед forwarding.
+
+`capabilities.explicit_user_giver_phase_http=true` появляется только после
+регистрации actual fixed routes. Backend-only `phase_lifecycle.supported` сам
+по себе не разрешает HTTP. Generic cooperative resume и retarget
+begin/recenter/resume/input/base отклоняются при parked barrier; STOP остаётся
+независимым. Fresh actor/model/constraint/epoch revalidation обязательна.
+
+Factory startup attestation теперь hash-pins8 adapter sources, включая
+`giver_phase_lifecycle05.py`. Это проверка original source с fake dependencies,
+не source hardware dispatch qualification.
 
 ## Общая форма
 

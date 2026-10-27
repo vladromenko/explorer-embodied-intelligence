@@ -21,6 +21,9 @@ def mount_native_stream_api(app, mux, *, token, observed_test_permit=lambda:Fals
 
     def allowed(request,body):
         authenticate(request)
+        if (cooperative is not None and cooperative.guard.parked is not None and
+                request.url.path in {'/api/explorer/retarget/'+name for name in ('begin','recenter','resume','input','base')}):
+            raise HTTPException(409,'Explicit parked cooperative phase transition required; generic retarget control is unavailable')
         if activation is not None:
             operation(activation.require,body.get('authorization_id'))
         if observed_test_permit() is not True:
