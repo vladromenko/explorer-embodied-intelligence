@@ -5905,6 +5905,68 @@
         "tests/test_train_forward_driver.py"
       ],
       "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-TORCH-EXACT-BUILD-IDENTITY-20261027",
+      "function_or_module": "shared/explorer_shared/learning/torch_build_identity.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:scripts/run_train_forward_audit.py",
+          "role": "Retained A source copied only at explicit inference boundary; AST parity outside runtime guard"
+        },
+        {
+          "url": "https://docs.python.org/3/library/ast.html",
+          "role": "Static literal inspection without executing installed torch/version.py"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_NEW_MODEL; EXISTING_FROZEN_C_FOUR_CHECKPOINTS",
+      "data_license": "PRIVATE_EXPLICIT_SIMULATION",
+      "changes_and_reason": "A pre-model zero-query failure retained. B pins exact Torch module version/cuda/git literal bytes separately from distribution METADATA; no stripping or allowlisted suffix. All inference math/data/weights/guards except that erroneous cross-field comparison remain unchanged. Real forward requires a new separate review.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_torch_build_identity.py"
+      ],
+      "hardware_run_ids": []
+    },
+    {
+      "method_id": "ENGINEERING_GLUE",
+      "implementation_id": "IMPL-SIM-TRAIN-FORWARD-B-20261027",
+      "function_or_module": "scripts/run_train_forward_audit_B.py",
+      "implementation_type": "ENGINEERING_GLUE",
+      "sources": [
+        {
+          "url": "project-file:scripts/run_train_forward_audit.py",
+          "role": "Retained A source copied only at explicit inference boundary; AST parity outside runtime guard"
+        },
+        {
+          "url": "https://docs.python.org/3/library/ast.html",
+          "role": "Static literal inspection without executing installed torch/version.py"
+        }
+      ],
+      "upstream_repo": "NOT_APPLICABLE",
+      "upstream_commit": "NOT_APPLICABLE",
+      "code_license": "PROJECT_LICENSE_NOT_YET_SELECTED",
+      "model_license": "NO_NEW_MODEL; EXISTING_FROZEN_C_FOUR_CHECKPOINTS",
+      "data_license": "PRIVATE_EXPLICIT_SIMULATION",
+      "changes_and_reason": "A pre-model zero-query failure retained. B pins exact Torch module version/cuda/git literal bytes separately from distribution METADATA; no stripping or allowlisted suffix. All inference math/data/weights/guards except that erroneous cross-field comparison remain unchanged. Real forward requires a new separate review.",
+      "verification": {
+        "code_inspected": true,
+        "software_tested": true,
+        "hardware_tested": false
+      },
+      "test_evidence": [
+        "tests/test_torch_build_identity.py"
+      ],
+      "hardware_run_ids": []
     }
   ],
   "preserved_legacy_exclusions": [
