@@ -6,6 +6,7 @@ validation uses fresh fixed GETs and the source clock, never re-authorization,
 native lease renewal, Source challenge replay or model/driver construction.
 """
 from copy import deepcopy
+import math
 
 from .contracts import digest
 from .cooperative_transport05 import NativeGiverPolicyTransport,NativeGiverManualTransport
@@ -28,12 +29,15 @@ class _InstalledGrant:
                 descriptor.get('received_clock_domain')!=self.domain or type(descriptor.get('deadline_nx_ns')) is not int or
                 not self.clock()<descriptor['deadline_nx_ns']):
             raise ValueError('EXACT_POST_CHALLENGE_USER_RELEASE_AUTHORIZATION_REQUIRED')
-        state=self.observe_state()
+        requested=self.clock();state=self.observe_state();received=self.clock()
         source=state.get('source_receipt') or {}
         if source.get('schema')!='explorer_native_cooperative_owner_v1':source=source.get('native') or {}
         boundary=source.get('release_boundary') or {};native=source.get('native') or {};stamp=boundary.get('source_stamp') or {}
         persistence=boundary.get('persistence') or {};actual=boundary.get('grant') or {};bound=boundary.get('binding') or {}
+        remaining=native.get('native_lease_remaining_s')
         if (state.get('current_native_owner_ready') is not True or actual!=installed or boundary.get('armed') is not True or
+                type(remaining) not in (int,float) or not math.isfinite(remaining) or remaining<=0 or
+                not requested<=received<requested+int(remaining*1e9) or
                 boundary.get('schema')!='explorer_native_receiver_hold_boundary_v1' or
                 not {'reference_fault','parked','pending_challenge','grant'}<=boundary.keys() or
                 boundary.get('parked') is not None or boundary.get('pending_challenge') is not None or boundary.get('reference_fault') is not None or

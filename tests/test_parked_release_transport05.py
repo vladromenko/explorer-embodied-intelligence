@@ -93,3 +93,19 @@ def test_unknown_foreign_expired_or_tampered_grant_never_authorizes_or_posts(tmp
         with pytest.raises(ValueError):transport._authorize_release(authorization)
         assert not any(method=='POST' for method,_,_ in calls) and len(publisher.messages)==before and teleop.lease==lease
     finally:client.close()
+
+
+def test_delayed_activation_get_cannot_reuse_lease_remaining_from_preceding_status_get(tmp_path):
+    values,transport,authorization,calls,client,grant=ready(tmp_path)
+    owner,mux,teleop,arm,publisher,tap,activation,tick,binding,path=values
+    initial=tick[0];root_now=transport.clock();request=transport.request
+    transport.clock=lambda:root_now+round((tick[0]-initial)*1e9)
+    def delayed(method,path,body):
+        result=request(method,path,body)
+        if path.endswith('/cooperative/status'):tick[0]+=.451
+        return result
+    transport.request=delayed
+    try:
+        with pytest.raises(ValueError):transport._authorize_release(authorization)
+        assert tick[0]>teleop.lease and not any(method=='POST' for method,_,_ in calls)
+    finally:client.close()
