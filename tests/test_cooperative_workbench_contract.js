@@ -47,7 +47,9 @@ test("standalone JS request bodies execute actual temporary native-workflow serv
     for(const role of ["giver","receiver"]){const choice=original.native_choices[role][0];client.edit(role+"_choice_id",choice.choice_id);client.edit("phase_maps."+role+".PREPARE",choice.phase_ids[0]);client.edit("native_variants."+role,choice.native_variants.find(value=>value.split==="train").variant_id);}
     client.edit("object_description","Программный тестовый предмет, без физического робота");client.edit("receiver_goal_description","Программно проверить передачу метаданных");client.edit("outcome_criteria","Нет аппаратных команд\nСохранены отдельные native исходники");
     await client.propose();await client.confirm();client.edit("scene","SOFTWARE_FIXTURE_SCENE");client.edit("object_instance","SOFTWARE_FIXTURE_OBJECT");client.edit("stationary_chassis_confirmed",true);await client.createSession();
-    client.edit("zone_checked",true);client.edit("zone_observing",true);await client.registerZone();await client.recordStart();client.edit("record_phase","PREPARE");await client.recordStage();await client.recordFinish();
+    client.edit("zone_checked",true);client.edit("zone_observing",true);await client.registerZone();const recording=await client.recordStart();
+    assert.match(recording.native_source_errors.receiver,/observed cooperative intent\/actor/); // This fixture has no explicit COMMON receiver grant.
+    client.edit("record_phase","PREPARE");await client.recordStage();await client.recordFinish();
     assert.equal(client.snapshot().data.selected_session.recording_id,null);assert.ok(client.snapshot().data.selected_session.last_recording_id);
     await client.step("giver_holding");
     let challenge;
@@ -55,7 +57,7 @@ test("standalone JS request bodies execute actual temporary native-workflow serv
     assert.ok(challenge,"Real durable operator inbox must create a fixture challenge");client.edit("evidence."+challenge.challenge_id+".observing",true);client.edit("evidence."+challenge.challenge_id+".affirmed",true);await client.confirmEvidence(challenge.challenge_id);
     await client.stop();assert.equal(client.snapshot().data.selected_session.status,"STOPPED");
     const summary=await request("GET","/__fixture_summary__");assert.ok(summary.calls.length>0);assert.ok(summary.calls.every(([method,,route])=>method==="GET" || route.includes("/record/")));assert.ok(summary.calls.every(([, ,route])=>!/authorize|heartbeat|trajectory|cooperative\/guard|cooperative\/action/.test(route)));
-    assert.equal(summary.active["nano.test"],null);assert.equal(summary.active["pi.test"],null);assert.equal(summary.contexts["nano.test"].skill_context.project_id,"02");assert.equal(summary.contexts["pi.test"].project_id,"04");
+    assert.equal(summary.active["nano.test"],null);assert.equal(summary.active["pi.test"],null);assert.equal(summary.contexts["nano.test"].skill_context.project_id,"02");assert.equal(summary.contexts["pi.test"],undefined);
   } finally {
     child.stdin.end();await Promise.race([new Promise(resolve=>child.once("exit",resolve)),new Promise(resolve=>setTimeout(resolve,1000))]);if(child.exitCode===null)child.kill("SIGTERM");lines.close();
   }

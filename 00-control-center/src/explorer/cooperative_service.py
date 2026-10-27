@@ -40,6 +40,7 @@ from .cooperative_grant_lineage import CooperativeGrantLineage
 from .cooperative_observed_scopes import CooperativeObservedScopes
 from .cooperative_dispatch_authority import CooperativeDispatchAuthority
 from .cooperative_parked_release import CooperativeParkedRelease
+from .cooperative_capture_starts import CooperativeCaptureStarts
 
 
 def _boot():return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
@@ -49,6 +50,7 @@ class CooperativeService:
     def __init__(self,config,store,*,root=None,client=None,model_adapters=None,clock=time.monotonic_ns):
         self.config,self.store,self.clock=deepcopy(config),store,clock
         self.root=Path(root or store.root/'cooperative05');self.root.mkdir(parents=True,exist_ok=True)
+        self.capture_starts=CooperativeCaptureStarts(self)
         self.domain='nx:'+_boot();self.lock=threading.RLock();self.closed=False;self.model_errors={}
         self.client=client or httpx.Client(timeout=3,trust_env=False,follow_redirects=False)
         self.own_client=client is None;self.models=model_adapters or {};self.transports={};self.native_bindings={}
@@ -56,7 +58,7 @@ class CooperativeService:
         self.preparers=public_capture_preparers(store,rosmaster_create_session=mobile.create_session,
             rosmaster_prepare_capture=mobile.prepare_capture_request,lab_create_session=lab.create_session,lab_capture_context=lab.capture_context)
         self.producers={role:NativeMetadataRecorder(role,self._request(role),lambda context,_role=role:self._prepare_context(_role,context),
-            capture_started=self._capture_started if role=='giver' else None,
+            capture_started=self._capture_started if role=='giver' else self._receiver_capture_started,
             receiver_profile='common' if role=='receiver' else 'legacy') for role in ('giver','receiver')}
         bindings={slug:self._provider_bindings('giver',slug) for slug in ('rosmaster_keyboard_learning','rosmaster_leader_learning')}
         bindings['so101_source_learning']=self._provider_bindings('receiver','so101_source_learning')
@@ -132,7 +134,8 @@ class CooperativeService:
         return 'http://'+host+':'+str(port)
     def _request(self,role):
         def request(method,path,body):
-            cleanup=(method=='GET' and path in ('/native-capture/status','/station/status')) or (
+            cleanup=(method=='GET' and path in ('/native-capture/status','/station/status',
+                '/so101-capture/status','/station/observed-test/status')) or (
                 method=='POST' and path in ('/native-capture/record/finish','/so101-capture/record/finish',
                     '/station/observed-test/revoke','/legacy/explorer/retarget/activation/revoke'))
             if self.closed and not cleanup:raise ValueError('Cooperative service is closed')
@@ -150,6 +153,8 @@ class CooperativeService:
         return request
     def _capture_started(self,prepared,identity):
         return mobile.capture_started(self.store,prepared['source_capture']['capture_id'],identity)
+    def _receiver_capture_started(self,prepared,identity):
+        return self.capture_starts.acknowledge(prepared,identity)
     def _prepare_context(self,role,context):
         prepared=self.preparers[role](context)
         native=prepared['body']['skill_context'] if role=='giver' else prepared['body']['context']
@@ -180,6 +185,7 @@ class CooperativeService:
             cooperative_object_id=row['protocol_object_id'],input_mode=row['receiver_input_mode'])
         prepared['capture_actor_id']=actor
         prepared['capture_permission']={key:deepcopy(grant[key]) for key in ('grant_id','binding','control_epoch')}
+        self.capture_starts.begin(row,prepared,status)
     def _record_stage(self,role,reference,phase,coordinator):
         result=self.producers[role].record_stage(reference,phase,coordinator)
         if role=='giver':
@@ -196,6 +202,31 @@ class CooperativeService:
             binding=mobile.capture_finished(self.store,capture['capture_id'],reference['recording_id'],{**review,'outcome':status})
             return {'native':result,'source_workflow':binding}
         return self.producers[role].record_finish(reference,outcome)
+    def _reconcile_receiver_capture(self,row,actor):
+        ack=self.capture_starts.reconcile(row,actor);reference=ack['reference']
+        self.producers['receiver'].bind_known_capture(reference)
+        current=self.workflow.snapshot(row['session_id']);attached=False
+        if (not self.closed and current['epoch']==row['epoch'] and current.get('recording_id') and
+                current['status'] not in ('STOPPED','INTERRUPTED','COMPLETED')):
+            try:
+                self.recorder.acknowledge_native_source(current['recording_id'],'receiver',reference)
+                with self.workflow.lock:
+                    latest=self.workflow._session(row['session_id'])
+                    if latest['epoch']==row['epoch'] and latest.get('recording_id')==current['recording_id']:
+                        latest['recording_source_refs']['receiver']=deepcopy(reference)
+                        latest.get('record_start_errors',{}).pop('receiver',None)
+                        self.workflow._save(latest);attached=True
+            except ValueError:
+                # A concurrent finish/STOP may have sealed the original camera
+                # archive. Keep the DATA ACK and finish only this known source.
+                attached=False
+        if attached:return {**ack,'recording_metadata_attached':True}
+        result=self.producers['receiver'].record_finish(reference,{'status':'unknown'})
+        pointer=reference['known_capture_intent'];folder,_=self.capture_starts._load(pointer)
+        path=folder/'recovery-finish-unknown.json'
+        if not path.exists():write_original(path,canonical({'source_result':result,'outcome':'unknown',
+            'control_authority_adopted':False,'native_commands_dispatched':False}))
+        return {**ack,'recording_metadata_attached':False,'own_source_finished_unknown':True}
     def _provider_bindings(self,role,slug):
         return {'inspect_skill':lambda ref:self._inspect_skill(role,ref),
             'record_start':self.producers[role].record_start,
@@ -530,6 +561,7 @@ bound first; default construction cannot turn on policy execution.
     def snapshot(self,session_id=None):
         workbench=self.workflow.snapshot();selected=self.workflow.snapshot(session_id) if session_id else None
         for row in workbench['sessions']:
+            row['native_capture_recovery']=self.capture_starts.projection(row)
             row['legal_events']=[event for event,states in LEGAL_STATES.items() if row['protocol_state'] in states]
             row['readiness']=self.workflow.readiness(row['session_id'])
             if row['mode']!='both_manual':
@@ -670,7 +702,14 @@ idempotent; process restart never queues its missing half automatically.
             result=self.workflow.register_zone(session,{'scene_id':row['scene_id'],'method':'operator_checked_shared_zone',
                 'both_robot_workspaces_checked':body.get('both_robot_workspaces_checked') is True,'observing':body.get('observing') is True,
                 'actor_id':authenticated_actor,'source_files_sha256':hashes},payloads)
-        elif operation=='record_start':result=self.workflow.record_start(session)
+        elif operation=='record_start':
+            self.capture_starts.require_no_pending()
+            if any(producer.active is not None for producer in self.producers.values()):
+                raise ValueError('Finish known native DATA capture cleanup before another cooperative start')
+            result=self.workflow.record_start(session)
+        elif operation=='record_reconcile':
+            if set(body)!={'session_id','expected_epoch'}:raise ValueError('Only the server-known DATA intent may be reconciled')
+            result=self._reconcile_receiver_capture(self.workflow.snapshot(session),authenticated_actor)
         elif operation=='record_stage':result=self.workflow.record_stage(session,body.get('phase_id'))
         elif operation=='record_finish':result=self.workflow.record_finish(session,deepcopy(body.get('outcome') or {'status':'unknown'}))
         elif operation=='step':result=self.workflow.request_step(session,body.get('event'),expected_epoch=body.get('expected_epoch'))
@@ -747,4 +786,5 @@ idempotent; process restart never queues its missing half automatically.
                 try:self.workflow.record_finish(row['session_id'],{'status':'unknown','reason':'COORDINATOR_SHUTDOWN_NOT_TASK_SUCCESS'})
                 except (ValueError,OSError,KeyError):pass  # retained active ID stays explicitly interrupted/unknown
         self.workflow.close()
+        self.capture_starts.close()
         if self.own_client:self.client.close()

@@ -165,6 +165,24 @@ class CooperativeRecorder:
             self.phase_events.append(event)
             self._save('sources/phase-'+str(len(self.phase_events))+'.json',canonical(event))
             return deepcopy(event)
+    def acknowledge_native_source(self,recording_id,role,reference):
+        """Append a known DATA ACK sidecar; the original start bytes stay intact."""
+        with self.lock:
+            if (self.state!='RECORDING' or self.ident!=recording_id or role not in ('giver','receiver') or
+                    reference.get('role')!=role or
+                    (reference.get('known_capture_intent') or {}).get('session_id')!=self.context['session_id'] or
+                    reference.get('metadata_only_no_control_started') is not True):
+                raise ValueError('Current cooperative recording and known DATA source intent required')
+            previous=self.native_sources.get(role)
+            if previous:
+                if previous.get('recording_id')!=reference.get('recording_id'):raise ValueError('Cannot replace another original DATA source')
+                if (not previous.get('source_capture_binding_error') and
+                        previous.get('known_capture_intent')==reference.get('known_capture_intent')):
+                    return self.status()
+            self._save('sources/native-producer-reconciled-'+role+'.json',canonical(reference))
+            self.native_sources[role]=deepcopy(reference)
+            write_projection(self.folder/'manifest.json',self._manifest())
+            return self.status()
     def finish(self,outcome,native_source_finish=None):
         with self.lock:
             if self.state!='RECORDING':raise ValueError('Recording changed or finish already pending')

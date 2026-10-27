@@ -5,7 +5,7 @@ only that intent's original known writer. Reads never adopt a recording/grant.
 """
 from copy import deepcopy
 
-from explorer_shared.so101_station import _record_context
+from explorer_shared.source_capture_ack import validate_capture_start
 from . import source_demo_workflow as flow
 
 
@@ -48,33 +48,14 @@ def validate_source(store,row,packet,*,native=None,source_stamp=None):
     """Check actual source identity; grant is historical provenance, never reused."""
     with store.connect() as db:intents=_rows(db,row,'demo_capture_start_intent')
     if len(intents)!=1:raise ValueError('Exact durable source capture start intent required')
-    intent=intents[0];grant=intent['original_grant'];capture=(packet or {}).get('capture') or {}
-    ident=capture.get('recording_id')
-    if (not isinstance(ident,str) or not flow.ID.fullmatch(ident) or packet.get('recovery_required') is not False or
-            packet.get('closed') is not False or packet.get('schema')!='explorer_so101_source_capture_v1' or
-            packet.get('recording_id')!=ident or capture.get('state') not in ('RECORDING','PAUSED') or
-            capture.get('actor_id')!=row['actor_id'] or intent['binding']!=row['binding'] or
-            intent['record_start_body']!=row['record_start_body'] or capture.get('native_control_epoch')!=grant['control_epoch'] or
-            capture.get('source_boot_id')!=grant['boot_id'] or capture.get('source_clock_domain')!=grant['clock_domain'] or
-            capture.get('calibration_sha256')!={'leader':grant['leader_calibration_sha256'],'follower':grant['follower_calibration_sha256']} or
-            (capture.get('original_start_receipt') or {}).get('episode_id')!=ident):
-        raise ValueError('Source capture start identity is foreign, uncertain or changed; no adoption')
-    body=deepcopy(row['record_start_body']);context=dict(body.get('context') or {})
-    context['source04_demo_permission']={'binding':row['binding'],'grant_id':grant['grant_id'],'control_epoch':grant['control_epoch']}
-    body['context']=context;expected=_record_context(body)
-    if flow.lab.canonical(capture.get('source_context'))!=flow.lab.canonical(expected):
-        raise ValueError('Source capture original demonstration context differs from the saved start intent')
-    if native is not None:
-        original=native.get('recording') or {};original_context=deepcopy(original.get('source_context') or {})
-        original_context.pop('native_phase_annotation',None)
-        roles=native.get('roles') or {}
-        if (original.get('episode_id')!=ident or original.get('boot_id')!=grant['boot_id'] or
-                original.get('clock_domain')!=grant['clock_domain'] or original.get('demonstration_actor')!=row['actor_id'][:80] or
-                flow.lab.canonical(original_context)!=flow.lab.canonical(expected) or
-                any((roles.get(role) or {}).get('calibration_sha256')!=grant[role+'_calibration_sha256'] for role in ('leader','follower')) or
-                not isinstance(source_stamp,dict) or source_stamp.get('boot_id')!=grant['boot_id'] or source_stamp.get('clock_domain')!=grant['clock_domain']):
-            raise ValueError('Original source writer/boot/calibration no longer matches the capture intent')
-    return ident
+    intent=intents[0];grant=intent['original_grant']
+    if intent['binding']!=row['binding'] or intent['record_start_body']!=row['record_start_body']:
+        raise ValueError('Saved source capture intent differs from the exact demonstration')
+    permission={'binding':row['binding'],'grant_id':grant['grant_id'],'control_epoch':grant['control_epoch']}
+    identity={'boot_id':grant['boot_id'],'clock_domain':grant['clock_domain'],
+        'calibration_sha256':{role:grant[role+'_calibration_sha256'] for role in ('leader','follower')}}
+    return validate_capture_start(row['actor_id'],row['record_start_body'],permission,identity,packet,
+        native=native,source_stamp=source_stamp)
 
 
 def acknowledge(store,row,packet,*,native=None,source_stamp=None):

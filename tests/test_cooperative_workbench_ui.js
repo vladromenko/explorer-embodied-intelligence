@@ -243,3 +243,12 @@ test('giver phase wrappers preserve server session and reject browser source CAS
  }
  assert.equal(r.calls.filter(([method])=>method==='POST').length,ops.length);
 });
+test("explicit pending DATA reconciliation can finish old data after STOP without control fields",async()=>{
+  const state=fixture(),calls=[];state.workbench.sessions[0].status="STOPPED";
+  state.workbench.sessions[0].native_capture_recovery={state:"PENDING_DATA_RECONCILIATION",attempt_id:"server-opaque-attempt"};
+  state.workbench.sessions[0].record_start_errors={receiver:"KNOWN_START_ACK_MISSING"};
+  const {client}=await rig({get:async()=>clone(state),post:async(path,body)=>{calls.push([path,body]);return {snapshot:clone(state),result:{control_authority_adopted:false}};}});
+  const html=cooperativeWorkbenchPanel(client.snapshot());assert.match(html,/record-reconcile/);assert.match(html,/UNKNOWN/);assert.match(html,/KNOWN_START_ACK_MISSING/);
+  await client.recordReconcile();assert.deepEqual(calls,[["/api/cooperative/record_reconcile",{session_id:"server-session",expected_epoch:"epoch-one"}]]);
+  assert.equal(client.snapshot().data.workbench.sessions[0].status,"STOPPED");assert.throws(()=>client.step("giver_holding"),/После STOP/);
+});

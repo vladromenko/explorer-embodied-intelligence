@@ -24,7 +24,15 @@ class Source:
 
 
 def fixture(tmp_path):
-    store=Store(tmp_path/'state');calls=[];active={'nano.test':None,'pi.test':None};contexts={}
+    from explorer_shared.so101_station import _record_context
+    store=Store(tmp_path/'state');calls=[];active={'nano.test':None,'pi.test':None};contexts={};capture_request={}
+    domain='pi:fake-capture-boot';boot='fake-capture-boot'
+    profiles={role:{'verified_on_connected_hardware':True,'calibration_sha256':('c' if role=='leader' else 'd')*64}
+        for role in ('leader','follower')}
+    def source_context():
+        body=deepcopy(capture_request['record_start_body'])
+        body['context']['cooperative05_capture_permission']=deepcopy(capture_request['permission'])
+        return _record_context(body)
     def request(req):
         role='nano.test' if req.url.host=='nano.test' else 'pi.test'
         assert req.headers['authorization']=='Bearer '+('nano-token-private-fixture' if role=='nano.test' else 'pi-token-private-fixture')
@@ -34,12 +42,23 @@ def fixture(tmp_path):
             if path=='/native-capture/capabilities':result={'metadata_skill_context_supported':True,'native_owner_ready':True,'action_dimension':9}
             elif path=='/so101-capture/capabilities':result={'cooperative_permission_recording_supported':True}
             elif path=='/native-capture/status':result={'active_recording_id':active[role]}
-            elif path=='/station/status':result={'mode':'teleoperation','recording_identity_fence':True,
-                'recording':{'episode_id':active[role]} if active[role] else None}
+            elif path=='/station/status':result={'available':True,'mode':'teleoperation','recording_identity_fence':True,
+                'control_epoch':'fake-source-epoch','roles':deepcopy(profiles),'measurements':{'clock_domain':domain},
+                'recording':{'episode_id':active[role],'clock_domain':domain,'boot_id':boot,
+                    'source_context':source_context(),'demonstration_actor':capture_request['actor_id']} if active[role] else None}
+            elif path=='/so101-capture/status':
+                result={'schema':'explorer_so101_source_capture_v1','recording_id':active[role],
+                    'recovery_required':False,'closed':False,'capture':None}
+                if active[role]:result['capture']={'recording_id':active[role],'state':'RECORDING',
+                    'actor_id':capture_request['actor_id'],'native_control_epoch':'fake-source-epoch',
+                    'source_boot_id':boot,'source_clock_domain':domain,'source_context':source_context(),
+                    'calibration_sha256':{role:profile['calibration_sha256'] for role,profile in profiles.items()},
+                    'original_start_receipt':{'episode_id':active[role]}}
             elif path=='/station/observed-test/status':
                 row=service.workflow.snapshot()['sessions'][-1];spec=service.workflow._spec_for(row)
-                result={'execution_permission':True,'grant':{'execution_permission':True,
+                result={'execution_permission':True,'source_stamp':{'boot_id':boot,'clock_domain':domain},'grant':{'execution_permission':True,
                     'grant_id':'fake-source-current-grant','control_epoch':'fake-source-epoch',
+                    'native_mode':'teleoperation','clock_domain':domain,'boot_id':boot,'follower_calibration_sha256':'d'*64,
                     'actor_id':row['observed_test_binding']['actor_id'],
                     'binding':service.observed_setup.receiver_binding(row,spec)}}
             else:raise AssertionError('No actual device/status path expected')
@@ -48,6 +67,7 @@ def fixture(tmp_path):
             if path.endswith('/start'):
                 active[role]=('a' if role=='nano.test' else 'b')*32
                 contexts[role]=deepcopy(body['record_start_body'] if path.startswith('/so101-capture/') else body)
+                if path.startswith('/so101-capture/'):capture_request.update(deepcopy(body))
                 result={'recording_id' if role=='nano.test' or path.startswith('/so101-capture/') else 'episode_id':active[role]}
             elif path.endswith('/stage'):
                 assert body['recording_id']==active[role];result={'source_annotation':True}

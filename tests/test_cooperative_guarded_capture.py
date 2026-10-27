@@ -123,3 +123,51 @@ def test_root_permission_preparation_fences_foreign_grants_and_late_session_chan
         with pytest.raises(ValueError):root._prepare_context('receiver',deepcopy(row['proposed_native_source_contexts']['receiver']))
         assert calls and all(method=='GET' for method,_,_,_ in calls) and not any(active.values())
     finally:root.close();client.close()
+
+
+def capture_ack_case(service):
+    from explorer_shared.source_capture_ack import validate_capture_start
+    capture,source,clock,request,permission=cooperative(service)
+    ident=capture.start(request,'fixture-owner')['recording_id']
+    identity={'boot_id':source.station.boot,'clock_domain':source.station.clock_domain,
+        'calibration_sha256':{role:source.station.profiles[role]['calibration_sha256'] for role in ('leader','follower')}}
+    packet=capture.status();native=source.station.status();stamp={key:identity[key] for key in ('boot_id','clock_domain')}
+    def acknowledge(actor='fixture-owner'):
+        return validate_capture_start(actor,request['record_start_body'],request['permission'],identity,packet,native=native,source_stamp=stamp)
+    return ident,source,packet,native,stamp,acknowledge
+
+
+def test_shared_known_capture_acknowledges_data_even_when_current_control_owner_changed(service):
+    ident,source,packet,native,stamp,ack=capture_ack_case(service)
+    native.update(control_epoch='FOREIGN_NEW_OWNER',mode='idle')
+    assert ack()==ident
+    assert source.station.mode=='teleoperation' and native['control_epoch']=='FOREIGN_NEW_OWNER'
+    # The only returned value is DATA identity, never a grant or native command.
+    assert isinstance(ack(),str)
+
+
+@pytest.mark.parametrize('fault',['actor','capture_actor','uncertain','recovery','closed','recording_id','epoch','boot','clock','calibration',
+    'context','receipt','original_id','original_actor','original_context','original_calibration','source_boot','source_clock'])
+def test_shared_cooperative_ack_rejects_foreign_or_uncertain_originals(service,fault):
+    ident,source,packet,native,stamp,ack=capture_ack_case(service)
+    if fault=='actor':
+        with pytest.raises(ValueError):ack('foreign')
+        return
+    if fault=='capture_actor':packet['capture']['actor_id']='foreign'
+    elif fault=='uncertain':packet['capture']['state']='UNCERTAIN'
+    elif fault=='recovery':packet['recovery_required']=True
+    elif fault=='closed':packet['closed']=True
+    elif fault=='recording_id':packet['recording_id']='a'*32
+    elif fault=='epoch':packet['capture']['native_control_epoch']='foreign'
+    elif fault=='boot':packet['capture']['source_boot_id']='foreign'
+    elif fault=='clock':packet['capture']['source_clock_domain']='foreign'
+    elif fault=='calibration':packet['capture']['calibration_sha256']['leader']='a'*64
+    elif fault=='context':packet['capture']['source_context']['scene_id']='foreign'
+    elif fault=='receipt':packet['capture']['original_start_receipt']['episode_id']='a'*32
+    elif fault=='original_id':native['recording']['episode_id']='a'*32
+    elif fault=='original_actor':native['recording']['demonstration_actor']='foreign'
+    elif fault=='original_context':native['recording']['source_context']['scene_id']='foreign'
+    elif fault=='original_calibration':native['roles']['follower']['calibration_sha256']='a'*64
+    elif fault=='source_boot':stamp['boot_id']='foreign'
+    else:stamp['clock_domain']='foreign'
+    with pytest.raises(ValueError):ack()

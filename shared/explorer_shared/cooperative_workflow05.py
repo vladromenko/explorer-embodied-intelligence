@@ -272,9 +272,12 @@ class CooperativeWorkflow:
             provider=self.registry.provider(role,ref)
             if provider is None or not callable(provider.record_start):errors[role]='NATIVE_RECORD_PRODUCER_NOT_BOUND'
             else:
-                try:refs[role]=provider.record_start(deepcopy(row['proposed_native_source_contexts'][role]))
+                try:
+                    refs[role]=provider.record_start(deepcopy(row['proposed_native_source_contexts'][role]))
+                    if refs[role].get('source_capture_binding_error'):
+                        errors[role]='SOURCE_DATA_ACK_UNCONFIRMED: '+refs[role]['source_capture_binding_error']
                 except Exception as error:errors[role]=type(error).__name__+': '+str(error)
-        context={**row,'cooperative_skill_spec':spec,'native_record_start_errors':errors,
+        context={**self.snapshot(session_id),'cooperative_skill_spec':spec,'native_record_start_errors':errors,
                  'declared_scene_and_object_are_not_automatic_vision_success':True}
         if self.closed or self.snapshot(session_id)['epoch']!=expected:
             self._finish_sources(row,refs,{'status':'interrupted'})

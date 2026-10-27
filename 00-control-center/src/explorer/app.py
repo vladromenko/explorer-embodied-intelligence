@@ -1026,7 +1026,7 @@ async def cooperative_state(request: Request):
 
 @app.post('/api/cooperative/{operation}')
 async def cooperative_operation(operation: str,request: Request):
-    if operation not in {'propose_skill','confirm_skill','create_session','register_zone','record_start','record_stage','record_finish','step','stop','confirm_evidence','review_recording','aggregate','training_plan','train','shadow','warm_models','attach_native_giver',
+    if operation not in {'propose_skill','confirm_skill','create_session','register_zone','record_start','record_stage','record_finish','record_reconcile','step','stop','confirm_evidence','review_recording','aggregate','training_plan','train','shadow','warm_models','attach_native_giver',
             'observed_refresh','observed_challenge','observed_authorize','bind_observed_test','observed_display','observed_observe','observed_revoke',
             'native_refresh','native_begin','native_resume','native_recenter','native_attach','native_lease','native_stop','native_reset_safe','native_phase_activate',
             'native_phase_park','native_phase_adopt','native_phase_begin','native_phase_resume',

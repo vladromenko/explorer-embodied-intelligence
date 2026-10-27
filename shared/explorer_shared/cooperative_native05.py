@@ -63,6 +63,8 @@ class NativeMetadataRecorder:
                 'source_capture':deepcopy(prepared.get('source_capture')),
                 'metadata_only_no_control_started':True}
             if self.common_receiver:reference.update(capture_profile='common',capture_actor_id=actor)
+            if self.common_receiver and prepared.get('capture_intent'):
+                reference['known_capture_intent']=deepcopy(prepared['capture_intent'])
             self.active=identity
             if self.started is not None:
                 try:reference['source_capture_binding']=self.started(deepcopy(prepared),identity)
@@ -75,6 +77,21 @@ class NativeMetadataRecorder:
         current=(state.get('active_recording_id') if self.role=='giver' else (state.get('recording') or {}).get('episode_id'))
         if current!=identity:raise ValueError('Original native recording changed; refuse stale metadata mutation')
         return identity
+    def bind_known_capture(self,reference):
+        """Internal DATA binding after the caller validates a durable known intent.
+
+        No API grant/control operation; later mutations still check source ID
+        and authenticated capture actor at the guarded original writer.
+        """
+        with self.lock:
+            identity=self._id(reference)
+            if (not self.common_receiver or reference.get('capture_profile')!='common' or
+                    reference.get('role')!='receiver' or not reference.get('known_capture_intent') or
+                    reference.get('metadata_only_no_control_started') is not True or
+                    not reference.get('capture_actor_id') or self.active not in (None,identity)):
+                raise ValueError('Exact validated known common receiver DATA reference required')
+            self.active=identity
+            return deepcopy(reference)
     def record_stage(self,reference,phase_id,coordinator_context):
         with self.lock:
             identity=self._current(reference)
