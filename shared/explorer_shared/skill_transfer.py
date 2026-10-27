@@ -284,7 +284,17 @@ def _immutable(path,raw):
     with path.open('xb') as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
 
 
-def _capture_initial_state(target,folder,request,source_bundle,provider,target_version,target_skill_spec,seed):
+def target_trial_split(value):
+    """A source partition never supplies the independent target partition."""
+    if value is None:return dict(partition='unknown',provenance='NOT_RECORDED')
+    fields={'partition','episode_id','scene_id','session_id','group_id'}
+    if (not isinstance(value,dict) or set(value)!=fields or value.get('partition') not in ('train','development','sealed_test') or
+            any(not isinstance(value.get(key),str) or not 0<len(value[key])<=256 or value[key].strip()!=value[key] or '\x00' in value[key] for key in fields-{'partition'})):
+        raise TransferBlocked('EXPLICIT_TARGET_EPISODE_SCENE_SESSION_GROUP_PARTITION_REQUIRED','A')
+    return deepcopy(value)
+
+
+def _capture_initial_state(target,folder,request,source_bundle,provider,target_version,target_skill_spec,seed,target_split):
     """One registered capture only; before first render/observe/advance."""
     from . import sim_initial_state as initial
     if (not isinstance(request,dict) or set(request)!={'schema','helper_id','helper_sha256','source_bindings','scenario'} or
@@ -304,7 +314,7 @@ def _capture_initial_state(target,folder,request,source_bundle,provider,target_v
         bindings[role]=entry
     scenario=dict(seed=seed,task_type=source['task_type'],skill_id=source['skill_id'],source_skill_version=source['skill_version'],
         target_skill_version=target_version,target_skill_spec_sha256=digest(target_skill_spec),source_manifest_sha256=source_bundle['manifest_sha256'],
-        target_action_contract_id=TARGET_CONTRACT,target_provider_identity_sha256=digest(provider),declared_trial_scenario=deepcopy(request['scenario']))
+        target_action_contract_id=TARGET_CONTRACT,target_provider_identity_sha256=digest(provider),target_split=deepcopy(target_split),declared_trial_scenario=deepcopy(request['scenario']))
     # The helper owns its stationary-profile/native ABI and resource limits.
     # MJB can be ~153MiB: retain files, never inline/copy binary payloads into result.
     bundle=initial.capture_initial_trial(target,scenario=scenario,source_bindings=bindings)
@@ -323,7 +333,7 @@ def _capture_initial_state(target,folder,request,source_bundle,provider,target_v
         restore_reexecution_verified=False,initial_RGB_render_reexecution='UNQUALIFIED',original_runtime_OS_closure='PARTIAL',physical_io=False)
 
 
-def record_target_trial(source_bundle,mapper,target,folder,*,target_version,target_skill_spec,seed,max_steps=2000,initial_state_capture=None):
+def record_target_trial(source_bundle,mapper,target,folder,*,target_version,target_skill_spec,seed,max_steps=2000,initial_state_capture=None,target_split=None):
     """Finite-dynamics provider only; all actual dispatch/measurements are saved.
 
     target.reset/observe/advance/report are deliberately injected. Its observation
@@ -331,7 +341,8 @@ def record_target_trial(source_bundle,mapper,target,folder,*,target_version,targ
     actual dispatched9 + independent evaluator. No source RGB is used as input.
     Initial capture is an explicit registered opt-in, never a retroactive claim.
     """
-    source=source_bundle['document'];folder=Path(folder)
+    source=source_bundle['document'];folder=Path(folder);target_partition=target_trial_split(target_split)
+    optimizer_partition_allowed=source['split']['partition']=='train' and target_partition['partition']=='train'
     if folder.exists():raise TransferBlocked('NEW_IMMUTABLE_TARGET_TRIAL_DIRECTORY_REQUIRED','A')
     if type(target_version) is not int or target_version<=source['skill_version']:raise TransferBlocked('SAME_SKILL_NEW_TARGET_VERSION_REQUIRED','A')
     if (target_skill_spec.get('skill_id')!=source['skill_id'] or target_skill_spec.get('version')!=target_version or not target_skill_spec.get('stages')):raise TransferBlocked('TARGET_SAME_SKILL_VERSION_AND_COMPLETE_STAGES_REQUIRED','A')
@@ -351,7 +362,7 @@ def record_target_trial(source_bundle,mapper,target,folder,*,target_version,targ
         target.reset(seed=seed)
         if capture_request is not None:
             initial_state.update(status='CAPTURE_FAILED',reason='REGISTERED_CAPTURE_DID_NOT_COMPLETE')
-            try:initial_state=_capture_initial_state(target,folder,capture_request,source_bundle,provider,target_version,target_skill_spec,seed)
+            try:initial_state=_capture_initial_state(target,folder,capture_request,source_bundle,provider,target_version,target_skill_spec,seed,target_partition)
             except Exception as error:
                 initial_state['error_type']=type(error).__name__;initial_state['detail']=str(error)
                 manifest=folder/'initial-state'/'manifest.json'
@@ -419,8 +430,8 @@ def record_target_trial(source_bundle,mapper,target,folder,*,target_version,targ
         skill_id=source['skill_id'],source_split=deepcopy(source['split']),source_kind='simulation',source_skill_version=source['skill_version'],target_skill_version=target_version,target_skill_spec_sha256=digest(target_skill_spec),seed=seed,
         target_provider=provider,target_embodiment='ROSMASTER_unified_mobile_manipulator',target_action_contract_id=TARGET_CONTRACT,action_names=list(ACTION_NAMES),action_units=list(ACTION_UNITS),
         simultaneous_9d=True,geometry_lineage=mapper.lineage,target_trace_sha256=sha(trace_raw),frames=len(rows),last_source_frame_index=source_index,failure=failure,independent_evaluation=report,
-        initial_state=initial_state,
-        full_target_simulation_success=bool(full_success and not failure),eligible_for_target_dataset=bool(full_success and not failure),optimizer_partition_allowed=source['split']['partition']=='train',eligible_as_simulation_expert=bool(full_success and not failure and source['split']['partition']=='train'),
+        initial_state=initial_state,target_split=target_partition,optimizer_partition_basis='explicit_source_AND_target_train_only_unknown_denied',
+        full_target_simulation_success=bool(full_success and not failure),eligible_for_target_dataset=bool(full_success and not failure and target_partition['partition']!='unknown'),optimizer_partition_allowed=optimizer_partition_allowed,eligible_as_simulation_expert=bool(full_success and not failure and optimizer_partition_allowed),
         software_contract_only=not physics_provider,learned_target_actor_executed=False,physical_io=False,physical_success_validated=False,source_RGB_reused_as_target=False,source_files_sha256=source_bundle['source_files_sha256'])
     for path,expected in source_bundle['source_files_sha256'].items():
         try:unchanged=sha(Path(path).read_bytes())==expected

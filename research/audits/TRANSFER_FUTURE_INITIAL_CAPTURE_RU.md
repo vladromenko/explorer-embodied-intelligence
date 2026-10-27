@@ -48,3 +48,11 @@ CPU-light tests используют явные MOCK target/capture и наст�
 bundle writer. Они проверяют порядок, source/SHA/scenario lineage, сохранность
 при последующей неудаче, отказ до dispatch и неизменяемую конфигурацию. Здесь
 не выделялись CAD/MJB, renderer, GPU, policy или реальные устройства.
+
+Новые target trial также принимают отдельный `target_split` с partition и
+episode/scene/session/group IDs. Отсутствующий target split остаётся unknown;
+исходный source train не заполняет его. Optimizer допускается только при
+одновременных source train и явно заданном target train. Development и sealed
+test не становятся BC-targets; успешный trial с неизвестным target split также
+остаётся вне target dataset admission. Исторические V9 results и их прежний
+source-only флаг сохранены побайтно и не переинтерпретируются этим изменением.
