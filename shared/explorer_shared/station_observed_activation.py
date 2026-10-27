@@ -55,8 +55,10 @@ def binding(value):
 
 
 class StationObservedPermission:
-    def __init__(self,station,camera,*,clock=time.monotonic_ns,command_guard=None):
+    def __init__(self,station,camera,*,clock=time.monotonic_ns,command_guard=None,command_admission=None,command_admission_status=None):
         self.station,self.camera,self.clock=station,camera,clock;self.command_guard=command_guard or (lambda operation:None)
+        self.command_admission=command_admission or (lambda operation:nullcontext())
+        self.command_admission_status=command_admission_status or (lambda:{})
         self.lock=threading.RLock();self.pending=None;self.grant=None;self.retired=OrderedDict();self.revision=0
         self.process=uuid.uuid4().hex
         self.publication_gate=None;self.cooperative_interlock=None
@@ -227,6 +229,9 @@ class StationObservedPermission:
                 record['data'].update(observed_monotonic_ns=self.clock(),observation_deadline_ns=frame.monotonic_ns+self._ttl(),displayed_frame=metadata)
                 return self._data(record)
     def command(self,grant_id,value,operation,body):
+        with self.command_admission(operation):return self._command(grant_id,value,operation,body)
+
+    def _command(self,grant_id,value,operation,body):
         selected=binding(value)
         if operation not in OPERATIONS or not isinstance(body,dict):raise ValueError('Known native station operation/body required')
         if operation=='stop':return self._stop(grant_id,selected,body)
@@ -300,6 +305,7 @@ class StationObservedPermission:
             'provider_process':self.process,'reason':reason,'native_command_called':False,
             'freshness_basis':'existing_camera_stale_s_not_motor_lease','controller_settings_written':False,
             'permission_is_not_grasp_stationarity_or_physical_success':True}
+        result['runtime_admission']=self.command_admission_status()
         result['source_stamp']={'monotonic_ns':self.clock(),'boot_id':self.station.boot,'clock_domain':self.station.clock_domain}
         return result
 

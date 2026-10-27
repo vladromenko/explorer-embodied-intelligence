@@ -616,7 +616,15 @@ class NodeAgent:
                 direct=self.arm_retarget.status()
                 if operation!='stop' and retarget_claims_source_cache(direct):
                     raise RuntimeError('Stop the existing direct ROSMASTER source session before using the follower controller')
-            self.station_observed=StationObservedPermission(self.station,self.sources['pi-overview'],command_guard=command_guard)
+            semantic_admission=None
+            if pi_runtime_profile=='so101_source_only':
+                from .lab_vision_service import SourceSemanticAdmission
+                semantic_admission=SourceSemanticAdmission(self.station,self.lab_vision)
+                self.lab_vision.semantic_admission=semantic_admission.semantic
+                self.lab_vision.runtime_admission_status=semantic_admission.status
+            self.station_observed=StationObservedPermission(self.station,self.sources['pi-overview'],command_guard=command_guard,
+                command_admission=semantic_admission.control if semantic_admission else None,
+                command_admission_status=semantic_admission.status if semantic_admission else None)
             if pi_runtime_profile=='so101_source_only':
                 # Immutable source releases also run directly via PYTHONPATH;
                 # the experiment package remains in its canonical directory.

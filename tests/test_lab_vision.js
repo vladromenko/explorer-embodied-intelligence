@@ -38,3 +38,11 @@ test("VLM text and selection metadata are escaped and never render motor executi
   assert.ok(html.includes("&lt;img"));assert.ok(!html.includes("<img src=x"));
   assert.ok(!html.includes("data-action=\"execute"));assert.ok(html.includes("не подтверждает координаты"));
 });
+
+test("server idle-only admission disables semantic requests without sending native or semantic POST",async()=>{
+  let calls=0;const status={runtime_admission:{semantic_requires_idle:true,semantic_admission_allowed:false,native_commands_blocked:false},vlm:{model_staged:true}};
+  const client=createLabVisionClient({get:async()=>status,post:async()=>{calls++;}});
+  await client.refresh(true);await assert.rejects(client.semantic(),/завершите запись/);assert.equal(calls,0);
+  assert.match(labVisionPanel(client.snapshot()),/data-lab-vision="semantic" disabled/);
+  status.runtime_admission.semantic_admission_allowed=true;await client.refresh(true);await client.semantic();assert.equal(calls,1);
+});

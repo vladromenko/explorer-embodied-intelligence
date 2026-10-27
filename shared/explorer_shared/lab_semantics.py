@@ -121,6 +121,7 @@ class EventSemanticWorker:
         self.condition = threading.Condition()
         self.pending, self.thread, self.stopping = None, None, False
         self.next_id, self.epoch = 0, 0
+        self.active_request_id = None
         self.state = {'schema': 'explorer_lab_semantic_worker_v1', **experiment_identity('so101_source_learning'),
                       'state': 'NOT_STARTED', 'physical_actions_emitted': False}
         self.receipts = []
@@ -164,7 +165,15 @@ class EventSemanticWorker:
     def snapshot(self):
         with self.condition:
             return {**deepcopy(self.state), 'pending_count': int(self.pending is not None),
+                    'active_request_id':self.active_request_id,'native_admission_blocked':self.busy(),
                     'receipts': deepcopy(self.receipts[-100:])}
+
+    def busy(self):
+        # Cancel invalidates a result; it does not unload an entered native VLM
+        # call. Unknown accelerator release also keeps source control blocked.
+        with self.condition:
+            return bool(self.pending is not None or self.active_request_id is not None or
+                getattr(self.observer,'_semantic_release_unknown',False))
 
     def close(self):
         with self.condition:
@@ -184,6 +193,7 @@ class EventSemanticWorker:
                     self.state['state'] = 'CLOSED'
                     return
                 request, self.pending = self.pending, None
+                self.active_request_id=request['request_id']
                 self.state.update(state='RUNNING', request_id=request['request_id'])
             frame = request['frame']
             receipt = {'request_id': request['request_id'], 'source_frame': frame.metadata(),
@@ -223,6 +233,7 @@ class EventSemanticWorker:
                     receipt['outcome'] = 'LATE_OR_CANCELLED_RESULT_DISCARDED'
                     receipt.pop('result', None)
                 self.receipts.append(receipt)
+                self.active_request_id=None
                 if active:
                     self.state.update(state=receipt['outcome'], result=deepcopy(receipt))
             if self.emit:

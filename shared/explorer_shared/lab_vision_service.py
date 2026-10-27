@@ -6,6 +6,7 @@ events. It contains no actuator, serial, publisher or robot executor interface.
 """
 from .experiments import experiment_id,experiment_identity
 from collections import OrderedDict
+from contextlib import contextmanager,nullcontext
 from copy import deepcopy
 import json
 from pathlib import Path
@@ -17,6 +18,50 @@ from .tabletop_grounding import CachedFrame,TableCalibration,select_target,groun
 from .lab_semantics import EventSemanticWorker,HailoVLMBackend
 
 
+class SourceSemanticAdmission:
+    """Serialize only source04 operation admission; never issues a command.
+
+    The same original Station still owns its locks, publication and file writer.
+    VLM starts only while idle; native commands cannot enter until its actual
+    backend returns/releases, including after a cancelled result.
+    """
+    def __init__(self,station,vision):
+        self.station,self.vision=station,vision;self.lock=threading.RLock()
+
+    def _busy(self):
+        worker=self.vision.worker
+        if worker is None:return False
+        check=getattr(worker,'busy',None)
+        return check() if callable(check) else True
+
+    @contextmanager
+    def semantic(self):
+        with self.lock:
+            native=self.station.status()
+            if native.get('mode')!='idle' or native.get('recording') is not None:
+                raise RuntimeError('Finish recording and explicitly stop source control before semantic inference')
+            if self._busy():raise RuntimeError('Previous semantic backend is still active or its release is unconfirmed')
+            yield
+
+    @contextmanager
+    def control(self,operation):
+        if operation=='stop':
+            yield
+        else:
+            with self.lock:
+                if self._busy():raise RuntimeError('Semantic inference is active or release is unconfirmed; request fresh observation after it finishes')
+                yield
+
+    def status(self):
+        # This read grants nothing and must not invert Station→admission locks
+        # in existing caller-owned status snapshots. Mutations recheck above.
+        native=self.station.status();busy=self._busy()
+        return dict(schema='explorer_source04_semantic_admission_v1',native_commands_blocked=busy,
+            semantic_requires_idle=True,semantic_admission_allowed=not busy and native.get('mode')=='idle' and native.get('recording') is None,
+            native_mode=native.get('mode'),physical_actions_emitted=False,
+            reason='SEMANTIC_INFERENCE_OR_RELEASE_PENDING' if busy else None)
+
+
 class LabVisionService:
     def __init__(self,source,observer,*,clock_domain,boot_id,config_path,emit=None,
                  backend_factory=None,clock=time.monotonic_ns,calibration_dir=None,calibration_context_provider=None):
@@ -25,6 +70,8 @@ class LabVisionService:
         self.config_path=Path(config_path);self.emit=emit or (lambda event:None)
         self.lock=threading.RLock();self.selections=OrderedDict();self.worker=None
         self.frozen_pairs=OrderedDict();self.selection_frames={};self.calibration_frames=OrderedDict()
+        self.semantic_admission=lambda:nullcontext()
+        self.runtime_admission_status=lambda:{}
         self.calibration_wizard=None;self.calibration_wizard_error=None;self.accepted_calibration_sha=None
         self.calibration=None;self.config={};self.configuration_error=None
         self.model_staged=False;self.backend_factory=backend_factory
@@ -187,7 +234,7 @@ class LabVisionService:
             calibration=dict(available=calibration is not None,valid=valid,calibration_id=calibration.get('calibration_id') if calibration else None,
                 provenance='measured' if calibration else None,coordinate_confirmed=False,
                 reason=reason),
-            selections=selections,configuration_error=self.configuration_error,
+            selections=selections,configuration_error=self.configuration_error,runtime_admission=self.runtime_admission_status(),
             calibration_wizard=wizard,calibration_wizard_error=self.calibration_wizard_error,
             native_execution_enabled=False,physical_validation_passed=False,
             state_separation='semantic text, metric geometry, IK preview and physical execution are separate facts')
@@ -230,6 +277,9 @@ class LabVisionService:
         return deepcopy(selected)
 
     def semantic(self,body):
+        with self.semantic_admission():return self._semantic(body)
+
+    def _semantic(self,body):
         if self.worker is None:raise ValueError('A compatible staged Hailo VLM is not configured')
         trigger=body.get('trigger','user_selection')
         if trigger not in ('user_selection','before_attempt','after_attempt','ambiguity','lost_track'):

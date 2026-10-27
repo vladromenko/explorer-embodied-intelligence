@@ -301,7 +301,7 @@
     const native=view.status?.station,capture=view.status?.capture;
     return JSON.stringify({...view,owner,watchBusy:undefined,watchDelayMs:undefined,
       frame:view.frame?{kind:view.frame.kind,displayed:view.frame.kind==="challenge"?view.frame.displayed:true}:null,
-      status:view.status?{station:{available:native?.available,mode:native?.mode,control_epoch:native?.control_epoch,error:native?.error,last_hold_error:native?.last_hold_error},
+      status:view.status?{runtime_admission:view.status.permission?.runtime_admission,station:{available:native?.available,mode:native?.mode,control_epoch:native?.control_epoch,error:native?.error,last_hold_error:native?.last_hold_error},
         capture:{recording_id:capture?.recording_id,state:capture?.capture?.state,recovery_required:capture?.recovery_required}}:null});
   }
   function patchSourceDemonstrationFrame(root,view) {
@@ -321,7 +321,8 @@
     const row=rows(view.listing).find(value=>value.demonstration_id===view.selected),body=row?.record_start_body,prepareBody=view.context?.record_start_body;
     const recording=view.status?.capture?.capture,state=recording?.recording_id===view.recordingID ? recording.state : view.manifest?.state;
     const active=["RECORDING","PAUSED"].includes(state),dataBlocked=Boolean(view.dataBusy || view.status?.capture?.recovery_required);
-    const nativeBlocked=Boolean(view.controlBusy),own=view.owner,files=Object.entries(view.manifest?.original_jpegs_sha256 || {}).filter(([,sha])=>SHA.test(sha));
+    const semanticBlocked=view.status?.permission?.runtime_admission?.native_commands_blocked===true;
+    const nativeBlocked=Boolean(view.controlBusy || semanticBlocked),own=view.owner,files=Object.entries(view.manifest?.original_jpegs_sha256 || {}).filter(([,sha])=>SHA.test(sha));
     const index=Math.min(view.previewIndex || 0,Math.max(0,files.length-1)),saved=files[index];
     const label={RECORDING:"Идёт запись",PAUSED:"Пауза записи для обучения",completed:"Запись сохранена",cancelled:"Показ отменён · raw сохранены",interrupted:"Показ прерван · raw сохранены"}[state] || "Запись ещё не запущена";
     const button=(action,title,disabled=false,kind="secondary")=>`<button type="button" class="button ${kind}" data-source-demo-action="${action}" ${disabled?"disabled":""}>${title}</button>`;
@@ -335,7 +336,8 @@
       <div class="teleop-actions">${button("prepare",view.prepareUncertain?"Проверить тот же запрос подготовки":"Подготовить новый показ",!view.context || Boolean(own) || Boolean(view.busy))}${button("refresh","Обновить состояние",Boolean(view.controlBusy))}</div>
       <label>Подготовленный показ <select data-source-demo-select><option value="">Выберите показ</option>${rows(view.listing).map(value=>`<option value="${esc(value.demonstration_id)}" ${value.demonstration_id===view.selected?"selected":""}>${esc(value.record_start_body?.name || value.record_start_body?.task || "Показ")} · ${esc(value.record_start_body?.scene_id || "сессия")}${value.acknowledged_recording_id?" · есть запись":""}</option>`).join("")}</select></label>
       ${live}<div class="teleop-actions">${button("challenge","Показать свежий кадр",!row || nativeBlocked || Boolean(own))}${button("authorize","Подтвердить наблюдение",!row || !view.challenge || !view.frame?.displayed || !Object.values(view.flags || {}).every(Boolean) || nativeBlocked || !view.visible,"primary")}</div>${checkboxes}
-      <div class="teleop-actions">${button("start","Начать повторение",nativeBlocked || own?.native_mode!=="idle","primary")}${button("recenter","Текущая поза — начало",nativeBlocked || own?.native_mode!=="teleoperation" || active)}${button("stop","STOP этого управления",!own || nativeBlocked,"danger")}</div>
+      ${semanticBlocked?'<p role="status">Анализ сцены ещё выполняется или освобождение его ресурсов не подтверждено. После завершения потребуется свежее наблюдение перед управлением.</p>':""}
+      <div class="teleop-actions">${button("start","Начать повторение",nativeBlocked || own?.native_mode!=="idle","primary")}${button("recenter","Текущая поза — начало",nativeBlocked || own?.native_mode!=="teleoperation" || active)}${button("stop","STOP этого управления",!own || Boolean(view.controlBusy),"danger")}</div>
       <p role="status">${own ? own.native_mode==="teleoperation"?"Вкладка управляет повторением по вашему наблюдаемому разрешению.":"Наблюдение разрешено. Повторение включается отдельным действием." : "Локального права управления нет."} ${view.watching?"Подтверждаются только новые кадры, реально показанные на видимой странице.":"Наблюдение выключено."}</p>
       ${!own && view.status?.station?.mode==="teleoperation"?'<p>Источник сообщает об активном повторении. Эта вкладка его не присвоила.</p>':""}
       <div class="teleop-actions">${button("capture-start","Начать запись",!own || own.native_mode!=="teleoperation" || nativeBlocked || dataBlocked || Boolean(view.recordingID) || view.capturePending)}${button("pause","Пауза записи",dataBlocked || state!=="RECORDING")}${button("resume","Продолжить запись",dataBlocked || state!=="PAUSED")}${button("cancel","Отменить показ · сохранить raw",dataBlocked || !active)}</div>
@@ -346,7 +348,7 @@
       ${view.manifest?`<p>Результат оператора: ${esc(view.manifest.operator_outcome || "unknown")}. Разбор переноса: ${esc(sourceReview || "ещё не выбран")}.</p><div class="teleop-actions">${button("approve","Разрешить перенос этого архива",dataBlocked || view.manifest.state!=="completed" || !view.archiveSHA || !view.previewSeen,"primary")}${button("reject","Отклонить этот архив",dataBlocked || !view.archiveSHA)}</div><p class="form-hint">Завершение записи не выключает повторение. Управление останавливается отдельной кнопкой STOP. Перенос разрешается отдельным одобрением. Приёмка целого навыка и разметка фаз выполняются в мастере после импорта.</p>`:""}
       ${rows(view.importJobs).length?`<p>Перенос этого архива: <a href="/queue" data-nav>общая очередь</a>.</p><ul>${rows(view.importJobs).map(job=>`<li>${esc(job.id)} · ${esc(job.status)} · ${sourceReview==="approve" && job.config.source_review_sha256===view.review?.review_sha256?"текущее одобрение":"предыдущее решение · допуск по нему закрыт"}</li>`).join("")}</ul>`:""}
       ${view.error?`<p class="form-error" role="alert">${esc(view.error)}</p>`:""}
-      ${view.cleanupUnconfirmed?`<p role="alert">Завершение своего управления не подтверждено. Вход сохраняется до завершения исходной команды или проверки источника.</p>${button("retry-cleanup","Повторить scoped STOP этого сеанса",nativeBlocked)}`:""}
+      ${view.cleanupUnconfirmed?`<p role="alert">Завершение своего управления не подтверждено. Вход сохраняется до завершения исходной команды или проверки источника.</p>${button("retry-cleanup","Повторить scoped STOP этого сеанса",Boolean(view.controlBusy))}`:""}
       ${view.status?.capture?.recovery_required?'<p role="alert">Источник требует восстановления записи. Неопределённые raw и журнал сохранены; вкладка не снимает этот gate автоматически.</p>':""}
       </div></section>`;
   }

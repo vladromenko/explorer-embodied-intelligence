@@ -139,6 +139,16 @@ test("fresh observation patches the SAME image without recreating buttons; contr
   after.owner=copy(before.owner);after.status={capture:{capture:{state:"PAUSED"}}};assert.notEqual(sourceDemonstrationRenderKey(before),sourceDemonstrationRenderKey(after));
 });
 
+test("VLM native-admission changes update controls while keeping explicit scoped STOP available",async()=>{
+  const f=fixture();await f.authorized();const before=f.client.snapshot(),view=copy(before);
+  view.status.permission.runtime_admission={native_commands_blocked:true};
+  assert.notEqual(sourceDemonstrationRenderKey(before),sourceDemonstrationRenderKey(view));
+  const html=sourceDemonstrationPanel(view);
+  assert.match(html,/data-source-demo-action="start" disabled/);
+  assert.match(html,/data-source-demo-action="stop" >STOP/);
+  assert.match(html,/освобождение его ресурсов не подтверждено/);
+});
+
 test("prepare -> actual delivered JPEG -> explicit grant -> returned epoch -> DATA finish/review, with no finish STOP",async()=>{
   const f=fixture();await f.authorized();assert.equal(f.client.snapshot().owner.native_mode,"idle");
   await f.client.start();assert.equal(f.client.snapshot().owner.control_epoch,"epoch-start-returned");
