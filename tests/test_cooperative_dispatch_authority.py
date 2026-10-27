@@ -161,3 +161,22 @@ def test_last_transport_status_pair_cannot_publish_lease_captured_before_slow_ac
         assert delayed and sources.pair.teleop.lease==lease
         assert all(method=='GET' for _,method,_,_ in sources.pair.calls[before:])
     finally:sources.close()
+
+
+def test_receiver_permission_pair_cannot_extend_remaining_camera_observation_lifetime(tmp_path,monkeypatch):
+    sources=Sources(tmp_path,monkeypatch);service=sources.service
+    try:
+        row=active(sources,'receiver');gate=CooperativeDispatchAuthority(service)
+        transport=service.transports[(row['session_id'],'receiver')]
+        sources.tick[0]=transport.grant['observation_deadline_ns']-300_000_000
+        request=transport.request;delayed=[]
+        def slow(method,path,body):
+            result=request(method,path,body)
+            if method=='GET' and path=='/station/status' and not delayed:
+                delayed.append(True);time.sleep(.351);sources.tick[0]+=351_000_000
+            return result
+        transport.request=slow
+        with pytest.raises(ValueError,match='receiver observation lifetime elapsed'):
+            gate.require(row,sources.spec,'receiver','close')
+        assert delayed and sources.provider.grant['data']['observation_deadline_ns']==transport.grant['observation_deadline_ns']
+    finally:sources.close()

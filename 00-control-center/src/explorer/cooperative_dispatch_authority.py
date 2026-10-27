@@ -76,6 +76,13 @@ class CooperativeDispatchAuthority:
             if (type(remaining) not in (int,float) or not math.isfinite(remaining) or remaining<=0 or
                     not observed_began<=finished<observed_began+int(remaining*1e9)):
                 raise ValueError('Original native giver lease elapsed during paired source GETs')
+        else:
+            stamp=latest['permission'].get('source_stamp') or {};grant=latest['permission'].get('grant') or {}
+            issued=stamp.get('monotonic_ns');deadline=grant.get('observation_deadline_ns')
+            if (any(stamp.get(key)!=grant.get(key) for key in ('boot_id','clock_domain')) or
+                    type(issued) is not int or type(deadline) is not int or not 0<=issued<deadline or
+                    not observed_began<=finished<observed_began+(deadline-issued)):
+                raise ValueError('Original receiver observation lifetime elapsed during paired source GETs')
         return {'kind':'active_native_transport','role':role,'source_pair':deepcopy(latest),'observed_state':deepcopy(state),
             'received_nx_ns':finished,'clock_domain':self.service.workflow.domain}
     @staticmethod
