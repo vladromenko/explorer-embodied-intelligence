@@ -1,7 +1,8 @@
 """ENGINEERING_GLUE: source-only cross-map, reusing calibrated SO101 cache.
 
 Does not recalibrate either SO101, alter factory coordinates, or own a bus.
-Unknown normalized->physical axes/zero/gripper mapping stays UNREGISTERED.
+Known original calibration/URDF sources produce a labelled bootstrap. Invalid
+explicit profiles stay UNREGISTERED; physical pose acceptance remains separate.
 """
 import hashlib
 import json
@@ -56,7 +57,10 @@ def registered_native_leader_geometry(config_dir,*,root=None,source_calibration_
         from .native_leader_registration import NativeLeaderContext,DerivedUnregisteredGeometry,derived_geometry,DERIVED
         try:
             context=NativeLeaderContext(root,source_calibration_path)
-            if profile is None:return DerivedUnregisteredGeometry(context,parse_error)
+            if profile is None:
+                if parse_error is not None:return DerivedUnregisteredGeometry(context,parse_error)
+                from .native_leader_bootstrap import configured_bootstrap
+                return configured_bootstrap(context,config_dir)
             if profile.get('provenance')==DERIVED:return derived_geometry(config_dir,profile,context)
         except (OSError,ValueError,TypeError,KeyError) as error:
             if 'context' in locals():return DerivedUnregisteredGeometry(context,type(error).__name__+': '+str(error))

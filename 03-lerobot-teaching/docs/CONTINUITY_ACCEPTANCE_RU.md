@@ -43,8 +43,11 @@ acceleration, jerk, dropped/zero/substituted commands и переходы сос
 
 Generated fixtures проверяют state machine и математику. Реальное неподвижное
 чтение cache отдельно проверяет transport/identity; оно не заменяет changing
-leader trace. При недостающих task axes/gripper registration или действительном
-Native reference полный PASS остаётся OPEN. Никакой synthetic-успех не выдаётся
+leader trace. Отсутствие measured task-axis/gripper registration не блокирует
+bootstrap-разработку: [профиль выводится из существующих источников](BOOTSTRAP_REGISTRATION_RU.md).
+Физические направления и захват проверяются короткой отдельной приёмкой.
+При отсутствии changing-input trace или действительного Native reference полный
+continuity PASS остаётся OPEN. Никакой synthetic-успех не выдаётся
 за реальное плавное движение.
 
 ## Следующее наблюдаемое действие владельца

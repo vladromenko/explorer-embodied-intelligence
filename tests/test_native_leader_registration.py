@@ -19,13 +19,16 @@ ROOT=Path(__file__).resolve().parents[1]
 
 
 @pytest.fixture
-def context(tmp_path):
+def context(tmp_path,monkeypatch):
     # Numerical fixture only; production defaults bind the already-known actual
     # leader SHA9512..., never a bus connection or rewritten calibration file.
     calibration={name:{'id':index+1,'drive_mode':int(index==1),'homing_offset':300+index,
                        'range_min':0,'range_max':4095} for index,name in enumerate(NAMES)}
     raw=json.dumps(calibration,indent=2).encode();path=tmp_path/'existing-leader.json';path.write_bytes(raw)
-    return registration.NativeLeaderContext(ROOT,path,expected_sha256=hashlib.sha256(raw).hexdigest())
+    context=registration.NativeLeaderContext(ROOT,path,expected_sha256=hashlib.sha256(raw).hexdigest())
+    from explorer_shared import native_leader_bootstrap
+    monkeypatch.setattr(native_leader_bootstrap,'expected_leader_sha',lambda root:context.coordinates.sha256)
+    return context
 
 
 def measured(context,grip=50):
@@ -60,8 +63,9 @@ def test_known_source_arithmetic_is_available_without_new_generic_joint_pairs(tm
     monkeypatch.setattr(registration,'NativeLeaderContext',lambda root,path:context)
     geometry=registered_native_leader_geometry(tmp_path/'config',source_calibration_path=context.calibration_path)
     status=geometry.status()
-    assert status['state']=='UNREGISTERED' and status['A']['all_computable_A_resolved']
-    assert status['missing_cross_map']==['OBSERVED_TASK_AXES_AND_ORIENTATION','TWO_OBSERVED_LEADER_GRIPPER_ENDPOINTS']
+    assert status['state']=='BOOTSTRAP_DERIVED' and geometry.context.status()['all_computable_A_resolved']
+    assert status['registration']['provenance']=='derived_from_existing_controller_and_lerobot_calibration'
+    assert status['registration']['physical_acceptance'] is False
     assert 'source_joint_points' not in json.dumps(status)
     config=tmp_path/'config';config.mkdir();(config/'native-leader-registration.json').write_text('{')
     recovered=registered_native_leader_geometry(config,source_calibration_path=context.calibration_path)
@@ -115,7 +119,8 @@ def test_pi_metadata_wizard_consumes_existing_cache_and_only_native_GET_referenc
     source=PiNativeRetargetService.from_config(station,tmp_path/'state',tmp_path/'config');peer=Peer()
     original_reference=peer.reference
     peer.reference=lambda:{**original_reference(),'state_source':'command_estimate'};source.client=peer
-    assert source.status()['registration']['A']['all_computable_A_resolved']
+    assert source.status()['registration']['state']=='BOOTSTRAP_DERIVED'
+    assert source.status()['calibration_wizard']['A']['all_computable_A_resolved']
     assert source.command('calibration/preview',{})['preview']['physical_commands']==0
     for kind,grip in [('leader_gripper_open',90),('leader_gripper_closed',10),('task_axes',50)]:
         station.positions[-1]=grip;station.tick=time.monotonic_ns()

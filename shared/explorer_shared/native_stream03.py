@@ -16,7 +16,7 @@ import uuid
 
 import numpy as np
 
-from .kinematics import ObjectRegistration
+from .kinematics import ObjectRegistration, rigid_transform
 from .contracts import ACTION_NAMES,ACTION_UNITS
 
 BASE_ACTIONS = ('forward', 'backward', 'left', 'right', 'turn_left', 'turn_right')
@@ -471,26 +471,36 @@ class RelativeLeaderGeometry:
     """Measured leader -> source FK -> clutch -> target IK -> latest velocity.
 
     The original factory servo-coordinate functions are passed in, not replaced.
-    Source normalized-position physical mapping and gripper curves remain an
-    explicit registration dependency; missing registration is UNREGISTERED.
+    Source mapping/gripper provenance is explicit: observed, synthetic or a
+    calibration-derived bootstrap. Missing/invalid source bindings are rejected.
     """
     def __init__(self, source_chain, target_chain, source_mapper, gripper_mapper,
-                 servo_to_radians, radians_to_servo, *, registration=None,source_mapper_uses_full_leader=False):
+                 servo_to_radians, radians_to_servo, *, registration=None,source_mapper_uses_full_leader=False,
+                 target_base_from_source_rotation=None, source_forward=None):
         self.source, self.target = source_chain, target_chain
         self.source_mapper, self.gripper_mapper = source_mapper, gripper_mapper
         self.to_radians, self.to_servo = servo_to_radians, radians_to_servo
         self.registration, self.anchor = deepcopy(registration), None
         self.full_source=source_mapper_uses_full_leader
+        self.source_forward = source_forward or self.source.forward
+        self.base_rotation = None
+        if target_base_from_source_rotation is not None:
+            rotation = np.asarray(target_base_from_source_rotation, float)
+            if rotation.shape != (3, 3):raise ValueError('Source/target base rotation must be3x3')
+            pose = np.eye(4);pose[:3, :3] = rotation
+            self.base_rotation = rigid_transform(pose)[:3, :3]
 
     def status(self):
         valid = (isinstance(self.registration, dict) and self.registration.get('provenance') in (
-                     'measured','synthetic','calibration_derived_with_observed_taskframe') and
+                     'measured','synthetic','calibration_derived_with_observed_taskframe',
+                     'derived_from_existing_controller_and_lerobot_calibration') and
                  isinstance(self.registration.get('sha256'), str) and len(self.registration['sha256']) == 64 and
                  self.registration.get('source_urdf_sha256') == self.source.source_sha256 and
                  self.registration.get('target_urdf_sha256') == self.target.source_sha256 and
                  all(callable(function) for function in (self.source_mapper, self.gripper_mapper,
                                                           self.to_radians, self.to_servo)))
-        return {'state': 'REGISTERED_DECLARATION' if valid else 'UNREGISTERED',
+        bootstrap = valid and self.registration.get('provenance') == 'derived_from_existing_controller_and_lerobot_calibration'
+        return {'state': ('BOOTSTRAP_DERIVED' if bootstrap else 'REGISTERED_DECLARATION') if valid else 'UNREGISTERED',
                 'registration': deepcopy(self.registration), 'physical_acceptance': False}
 
     def recenter(self, measured_leader, commanded_target_servo):
@@ -500,7 +510,7 @@ class RelativeLeaderGeometry:
         target = _vector(commanded_target_servo, 6)
         source_q = _vector(self.source_mapper(leader if self.full_source else leader[:5]), len(self.source.names))
         target_q = _vector(self.to_radians(target[:5]), len(self.target.names))
-        self.anchor = ObjectRegistration(self.source.forward(source_q), self.target.forward(target_q), 'virtual_declared')
+        self.anchor = ObjectRegistration(self.source_forward(source_q), self.target.forward(target_q), 'virtual_declared')
         return {'recentered': True, 'target_basis': 'native_command_estimate_not_measured',
                 'physical_commands': 0}
 
@@ -512,7 +522,14 @@ class RelativeLeaderGeometry:
         leader, estimated = _vector(measured_leader, 6), _vector(commanded_target_servo, 6)
         source_q = _vector(self.source_mapper(leader if self.full_source else leader[:5]), len(self.source.names))
         target_q = _vector(self.to_radians(estimated[:5]), len(self.target.names))
-        result = self.target.inverse(self.anchor.transfer(self.source.forward(source_q)), target_q,
+        source_pose = self.source_forward(source_q)
+        desired_pose = self.anchor.transfer(source_pose)
+        if self.base_rotation is not None:
+            source_anchor, target_anchor = self.anchor.source_base_from_object, self.anchor.target_base_from_object
+            desired_pose = target_anchor.copy()
+            desired_pose[:3, 3] += self.base_rotation @ (source_pose[:3, 3] - source_anchor[:3, 3])
+            desired_pose[:3, :3] = self.base_rotation @ (source_pose[:3, :3] @ source_anchor[:3, :3].T) @ self.base_rotation.T @ target_anchor[:3, :3]
+        result = self.target.inverse(desired_pose, target_q,
                                       orientation_weight=.03, restarts=0, seed=0)
         if not result.reached:
             return {'accepted': False, 'reason': 'IK_UNREACHABLE', 'ik': result.as_dict(),

@@ -68,3 +68,11 @@ test('open real-input continuity gate prevents permission requests and physical 
  assert.match(h.run('direct03Panel()'),/data-action="direct03-start" type="button" disabled/);
  await h.click('direct03-start');assert.equal(h.calls.length,0);
 });
+
+test('derived bootstrap is selectable with honest provenance and separate physical gate',()=>{
+ const h=harness();h.run(status+";direct03.status.registration={state:'BOOTSTRAP_DERIVED',registration:{provenance:'derived_from_existing_controller_and_lerobot_calibration',frame_convention:'aligned_urdf_base_axes',sha256:'bootstrap-sha'}}");
+ const html=h.run('direct03Panel()');assert.match(html,/Bootstrap: существующая калибровка/);assert.match(html,/Физическая привязка ещё не проверена/);assert.match(html,/derived_from_existing_controller_and_lerobot_calibration/);
+ assert.doesNotMatch(html,/data-action="direct03-start" type="button" disabled/);
+ h.run("direct03.status.physical_path_admission={state:'OPEN',allowed:false}");
+ assert.match(h.run('direct03Panel()'),/data-action="direct03-start" type="button" disabled/);
+});

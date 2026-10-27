@@ -231,3 +231,16 @@ Station writer/control/camera owner и физическое ПО Pi пока н�
 перед реализацией, процент за копирование не прибавляется. Общие Recorder/API/
 Dataset/trainer/model-registry/UI не копируются; существующий владелец камеры
 остаётся единственным. Physical/real-data gates и critical03 continuity не сняты.
+
+
+03 bootstrap по последнему уточнению владельца реализован в main, ещё **не на Pi**.
+Отсутствие отдельного measured registration.json не блокирует разработку:
+`BOOTSTRAP_DERIVED` из source LeRobot calibration/URDF и target factory mapping,
+provenance/SHA, относительный recenter/current command-estimate, provisional
+0…100→170…30°gripper. Source calibrated observation не обрезается при выходе
+за nominalCAD; превышение явно диагностируется, targetIK/6configs не меняются.
+Сохранённая исходная SHA совпала с реестром и liveStation.55targetedPython,
+15UI и1finalpreview PASS. Исходные SSHtimeout/FK-CADnegative сохранены;
+реальный changing-input trace и currentreference409/physicalacceptance OPEN.
+[Bootstrap](03-lerobot-teaching/docs/BOOTSTRAP_REGISTRATION_RU.md) ·
+[Evidence](_registry/evidence/experiment03-bootstrap-existing-calibration-20261027.json).

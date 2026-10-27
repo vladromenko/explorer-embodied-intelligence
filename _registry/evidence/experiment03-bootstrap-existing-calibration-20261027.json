@@ -1,0 +1,80 @@
+{
+  "schema": "explorer03_existing_calibration_bootstrap_qualification_v1",
+  "live_central_release_unchanged": "65ae9d021796c5ec4c9cab8a129fdb827dbf36f3",
+  "physical_runtime_deployed": false,
+  "provenance": "derived_from_existing_controller_and_lerobot_calibration",
+  "registration_sha256": "8149924bfc6600691b09452e0300cfe048f6680b8fbb46e33873a2af033b3ffb",
+  "state": "BOOTSTRAP_DERIVED",
+  "source_calibration_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+  "original_registry_and_live_station_SHA_match": true,
+  "source_cache_FK": {
+    "scope": "one actual cached leader observation, not changing-input continuity",
+    "state": "PASS",
+    "source_CAD_limit_excess_rad": [
+      0.0,
+      0.05753757898315359,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "source_clipping": false,
+    "unit_pose_measured": false,
+    "correction": "source observation FK can evaluate finite original calibrated encoder outside nominal CAD bound; target and hardware limits untouched"
+  },
+  "tests": {
+    "targeted_python": {
+      "passed": 55,
+      "elapsed_s": 8.58,
+      "scope": "bootstrap/native geometry/Pi/fences on generated software sinks"
+    },
+    "preview_branch_after_last_change": {
+      "passed": 1,
+      "elapsed_s": 0.17
+    },
+    "UI": {
+      "passed": 15,
+      "elapsed_ms": 182.16939
+    },
+    "requested_bounds": {
+      "CPUQuota": "100%",
+      "MemoryMax": "1G",
+      "MemorySwapMax": 0
+    },
+    "systemd_summary_memory_peak_used_for_claim": false
+  },
+  "original_Station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+  "implementation_sha256": {
+    "shared/explorer_shared/native_leader_bootstrap.py": "1e6870fa36c21411693a4484b02ffcbfdb94ad83a057ce8d10150c2c152c8638",
+    "shared/explorer_shared/native_leader_geometry.py": "633ef917446871c0c3f94f1fdb933cec13c556b30b13f7252157697fb287838f",
+    "shared/explorer_shared/native_stream03.py": "cb848225546bc73715af55e6dd4f58f07f101f90d1a32abe7f9c5f599265366c",
+    "shared/explorer_shared/pi_native_retarget.py": "b8464ef6a26b1e7944b99aae180afa72bc31dbefdd97d21d86dd391f429e0d28",
+    "00-control-center/src/explorer/static/direct03.js": "7f7cc55bc8600f2511d0f986935f69f074aeb12d8f14f2a54a626fb28a8d5751",
+    "00-control-center/src/explorer/static/native-observed.js": "d5887dd5172da681df47d83319f59a575a64e689ffe8c6192495381e66d384d6",
+    "scripts/bootstrap_native_leader.py": "43ad32e0101c2baabd21cc100bc341b4290b56c306f0a1a9b360a9fb0069a9fc",
+    "tests/test_native_leader_bootstrap.py": "1ecb42bcfbcda3a446b96d707df1b847af2e71b9219e7159855500b9904916ee",
+    "tests/test_native_leader_registration.py": "11b77606e77bd6adba7839502d1271e4fa65f69ac3edd9131e3962ee4d88d9a6",
+    "tests/test_direct03_hold_ui.js": "39e19357e3f92a43d81e69fd48ff6a9bef30c46151fd600f529f667374c84ad5"
+  },
+  "raw_originals_sha256": {
+    "/mnt/explorer-data/explorer-work/experiment03-bootstrap-20261027/actual-calibration-bootstrap-receipt-v2.json": "8a4072d9bf76c4054feef3dc99d0368ba98dd354d4ecae1a235845ff19169c49",
+    "/mnt/explorer-data/explorer-work/experiment03-bootstrap-20261027/actual-calibration-bootstrap-receipt.json": "ddca131b75cc75461069761a4517103999ea23f5ff0b6fddf0e862b53e6ffd04",
+    "/mnt/explorer-data/explorer-work/experiment03-bootstrap-20261027/derived-registration-v2.json": "a39b2c59cf9ccc1317ce351f604c39b1c2f6f3f46ba761c07bb88d68baf12402",
+    "/mnt/explorer-data/explorer-work/experiment03-bootstrap-20261027/derived-registration.json": "0ff563ffbefdf88e4a5c4f9cd1070cba381c3ce922d136d615cd5b8a08823a84",
+    "/mnt/explorer-data/explorer-work/experiment03-bootstrap-20261027/read-only-source-snapshots.json": "069c90c4bd1261110fa4ffa92dbce04b92aa87844123a748528017945e4b54cd",
+    "/mnt/explorer-data/explorer-work/experiment03-bootstrap-20261027/retained-existing-leader-original.json": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+    "/mnt/explorer-data/explorer-work/experiment03-bootstrap-20261027/ssh-attempt-a.json": "0121a34fe82aabd63ec303714c80d1f2f52421d78a0d07e3eb202de7c004794e",
+    "/mnt/explorer-data/explorer-work/experiment03-bootstrap-20261027/targeted-source-FK-invocation.json": "e79de6a98dd7da93e7630c1c0a975fe31c79c0eb489ddfd30cfea5cdb4f723c9",
+    "/mnt/explorer-data/explorer-work/experiment03-bootstrap-20261027/targeted-source-FK.log": "902577231b093ddec12a5b46f8d067ca82ada05c1d77600b44ac22d828b8cd9b"
+  },
+  "open_facts": {
+    "initial_ssh_calibration_read": "FAIL timed out; original retained copy and live authenticated cache/API reused",
+    "initial_source_FK_check": "FAIL at nominal CAD bound, original retained",
+    "current_native_reference_http": 409,
+    "physical_mount_and_gripper_direction": "UNVERIFIED provisional bootstrap; short observed acceptance later",
+    "real_changing_input_continuity": "OPEN",
+    "whole_master_complete": false
+  },
+  "physical_commands": 0,
+  "controller_settings_modified": false,
+  "second_bus_or_camera_owner": false
+}

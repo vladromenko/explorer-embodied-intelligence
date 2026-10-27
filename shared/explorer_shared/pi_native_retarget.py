@@ -478,8 +478,12 @@ class PiNativeRetargetService:
             raise ValueError('Existing leader calibration/URDF arithmetic not available')
         if operation=='calibration/status':return self.calibration_wizard.status()
         if operation=='calibration/preview':
-            measured=self._measurement();return {'measured_leader':measured,
-                'preview':self.calibration_wizard.context.preview(measured['positions'])}
+            measured=self._measurement()
+            if self.geometry.status()['state']=='BOOTSTRAP_DERIVED':
+                from .native_leader_bootstrap import source_diagnostics
+                preview=source_diagnostics(self.geometry,measured['positions'])
+            else:preview=self.calibration_wizard.context.preview(measured['positions'])
+            return {'measured_leader':measured,'preview':preview}
         with self.lock:
             if (self.shutdown.is_set() or self.mode in ('ACTIVE','CLUTCHED','ACTIVATING','CLUTCHING','STOPPING') or
                     self.target_epoch is not None or
