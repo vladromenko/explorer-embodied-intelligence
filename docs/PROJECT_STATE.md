@@ -67,7 +67,7 @@ actual HTTPS Firefox desktop/mobile, passiveROS20s0, source/reference/PIDs/6conf
   legacy04 STOP-on-blur/finish-autoimport заменены scoped flow. Actual Firefox
   desktop1440/mobile390: контекст→видимый verifiedJPEG→COMMON→same fake-bus
   Station/recorder→pause/resume/stage→finishUNKNOWN→отдельный STOP→preview→
-  approve immutable import→reject PASS,35raw/31selected и36raw/32selected;
+  approve immutable import→reject PASS,35raw/31selected и30raw/25selected;
   268Node/26Python PASS. JPEG обновляется без замены кнопок/сброса таймера;
   logout ждёт поздние ответы, uncertain cleanup сохраняет вход.0realIO/deploy.
   [UI proof](../_registry/evidence/experiment04-source-demo-actual-UI-20261027.json).
