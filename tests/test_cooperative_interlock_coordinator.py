@@ -16,7 +16,7 @@ def test_root_arms_receiver_before_giver_and_never_implicitly_unarms_after_parti
     source=lambda:{'current_native_owner_ready':True,'source_receipt':{'schema':'explorer_native_cooperative_owner_v1','release_boundary':{'persistence':durability}}}
     def giver(row):order.append('giver');return {'armed':True,'persistence':durability}
     service=CooperativeService.__new__(CooperativeService)
-    service.transports={('run','receiver'):SimpleNamespace(arm_release_guard=receiver),('run','giver'):SimpleNamespace(arm_release_guard=giver,observe_state=source)}
+    service.transports={('run','receiver'):SimpleNamespace(arm_release_guard=receiver,observe_state=lambda:{'current_native_owner_ready':True}),('run','giver'):SimpleNamespace(arm_release_guard=giver,observe_state=source)}
     result=service._arm_guard({'session_id':'run'})
     assert order==['receiver','giver'] and result['both_original_publication_boundaries_armed']
     order.clear()

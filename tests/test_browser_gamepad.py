@@ -15,6 +15,6 @@ def test_browser_gamepad_native_wire_lifecycle_and_neutral_mock_contract():
         text=True,capture_output=True,timeout=20)
     assert result.returncode==0,result.stdout+'\n'+result.stderr
     proof=json.loads(result.stdout.strip().splitlines()[-1])
-    assert proof['passed']==19
+    assert proof['passed']==22
     assert proof['actualHardwareRequests']==proof['actualChassisMotion']==0
     assert proof['transport']=='in-memory mock only'
