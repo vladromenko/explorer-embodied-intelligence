@@ -109,3 +109,13 @@ def test_changed_source_calibration_and_manual_input_never_submit_policy_targets
     assert manual.observe_state()['current_native_owner_ready']
     with pytest.raises(ValueError,match='Manual receiver'):manual.submit_observed(body)
     assert [op for op,_ in native.calls]==['teleop/start']
+
+
+@pytest.mark.parametrize('field,value',[('skill_id','other-Skill'),('skill_version',2),('spec_sha256','f'*64),
+    ('model_id','f'*32),('checkpoint_sha256','f'*64),('action_contract',ROLE_CONTRACTS['giver'])])
+def test_different_model_or_skill_cannot_use_an_authentic_other_user_grant(field,value):
+    transport,command,provider,station,camera,tick,prediction,calls,grant=rig()
+    reference=deepcopy(transport.reference);reference[field]=value
+    with pytest.raises(ValueError,match='permission binding'):NativeReceiverTransport(transport.request,transport.binding,
+        grant['binding'],grant,reference,transport.predict,clock_domain=transport.domain)
+    assert not calls and not station.writes

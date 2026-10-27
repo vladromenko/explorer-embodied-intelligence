@@ -34,6 +34,11 @@ class NativeReceiverTransport:
                 any(permission_binding.get(key)!=cooperative_binding.get(source) for key,source in
                     (('cooperative_session_id','run_id'),('coordinator_epoch','coordinator_epoch'),('object_id','object_id')))):
             raise ValueError('Exact actual native grant/source/cooperative binding required')
+        if (reference.get('action_contract')!=ROLE_CONTRACTS['receiver'] or any(reference.get(key)!=permission_binding.get(key) for key in
+                ('skill_id','skill_version','spec_sha256')) or permission_binding.get('input_mode','policy')=='policy' and
+                (reference.get('model_id')!=permission_binding.get('model_job_id') or
+                    reference.get('checkpoint_sha256')!=permission_binding.get('checkpoint_content_sha256'))):
+            raise ValueError('Receiver native6 Skill/model/checkpoint must match the actual USER permission binding')
     def _current(self):
         if self.revoked.is_set():raise ValueError('Owned receiver transport was revoked')
         wrapper=self.request('GET','/station/observed-test/status',None);grant=wrapper.get('grant') or {}
