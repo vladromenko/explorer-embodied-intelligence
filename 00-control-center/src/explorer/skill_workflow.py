@@ -486,6 +486,15 @@ def _admission(store,spec,binding,inspector=None):
     if not isinstance(report,dict):return dict(binding=binding,accepted=False,reasons=['invalid_diagnostic_report'])
     embodied=report.get('mobile_embodied') or {}
     reasons=[]
+    if (report.get('source_approval') or {}).get('required') is True:
+        if report['source_approval'].get('verified') is not True:reasons.append('native_source_review_not_verified')
+        with store.connect() as db:
+            reviewed=[row['payload'] for row in _records(db,'capture.reviewed') if row['payload']['original_episode_id']==binding['original_episode_id']]
+        if reviewed:
+            latest=reviewed[-1]
+            report['source_approval']['central_latest_review']=deepcopy_document(latest)
+            if latest.get('archive_sha256')!=(report.get('source_approval') or {}).get('archive_sha256'):reasons.append('source_review_archive_differs_from_import')
+            if latest.get('decision')!='approve':reasons.append('source_approval_rejected_after_import')
     if binding.get('import_job_project_id',job['project_id'])!=job['project_id'] or binding.get('import_kind',job['kind'])!=job['kind']:reasons.append('bound_registry_source_kind_or_project_changed')
     for name in ('completed_recording','operator_success','source_quality_usable'):
         if report.get(name) is not True:reasons.append(name+'_not_verified')
@@ -694,6 +703,16 @@ def build_aggregate(store,skill_id,version,*,inspector=None):
             binding_sha256=binding['binding_sha256'],variant_id=binding['variant_id'],split=binding['split'],teaching_session_id=binding['session_id'],
             original_session_id=binding['source_session_id'],source_split_groups=binding.get('source_split_groups'),canonical_source_artifact_map=mapping)
         source_record.update(source_project_id=binding.get('source_project_id'),import_job_project_id=binding.get('import_job_project_id'),import_kind=binding.get('import_kind'),demonstration_input=binding.get('demonstration_input'))
+        approval=report.get('source_approval') or {}
+        if approval.get('required') is True:
+            from .native_capture_approval import source_bytes
+            latest=approval.get('central_latest_review') or {}
+            wrapper=latest.get('source_wrapper') or {key:approval[key] for key in ('source_review','review_sha256','transfer_ready')}
+            from .native_capture_approval import validate_source_approval
+            checked=validate_source_approval(wrapper,original,approval['archive_sha256'])
+            relative=namespace+'/source-approval.json';raw=source_bytes(wrapper);files[relative]=(raw,hashlib.sha256(raw).hexdigest())
+            source_record.update(source_approval_file=relative,source_review_sha256=checked['review_sha256'],source_archive_sha256=checked['archive_sha256'])
+            canonical_episodes[-1].update(source_approval_file=relative,source_review_sha256=checked['review_sha256'],source_archive_sha256=checked['archive_sha256'])
         # An unchanged optional legacy RGB/prior-command9 view may be retained
         # for an internal ACT component; it never becomes the full dataset.
         if manifest and row.get('legacy_manifest_path'):

@@ -13,3 +13,16 @@ Root после authenticated Source ответа вызывает
 Это immutable/idempotent событие `capture.reviewed`; `capture.finished` и raw
 outcomes не меняются, обучение не запускается. Одобрение записи с unknown
 outcome не превращает её в успешный BC expert. Reject сохраняет оригинал.
+
+Worker нового native02 проверяет pinned `config.source_review_sha256` и
+Source GET review до bulk transfer, повторяет её после bytes и оставляет
+неизменяемый review sidecar рядом с исходным import. Import inspector проверяет
+sidecar file SHA, wrapper SHA, archive и queue pin; отсутствие/повреждение
+approval сохраняет structural canonical evidence, но запрещает BC admission.
+Более поздний central reject снимает запись с cohort, не переписывая import,
+finish labels или source archive. Aggregate включает snapshot действующего
+approval и archive/review SHA в собственной immutable source inventory.
+
+28 targeted import/approval/Range tests прошли; 40 existing workflow/evidence
+tests также прошли. Fixture approvals — только software tests; ни одного
+реального показа или физического успеха из этих результатов не следует.

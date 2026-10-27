@@ -458,6 +458,23 @@ def inspect_rosmaster_import(job,*,managed_root=None,include_manifest=False,max_
         common.append('embodied_evidence_inspection_failed:'+type(error).__name__+':'+str(error))
         canonical={'admitted_for_training':False,'reasons':list(common),'channels':{},'source_integrity':False}
     report['mobile_embodied']=canonical
+    native_approval_required=(job.get('project_id')=='02' and
+        ((job.get('config') or {}).get('source_format')=='native_capture_v1' or result.get('schema')=='explorer_native_capture_import_v1'))
+    report['source_approval']={'required':native_approval_required,'verified':False,'decision':None}
+    if native_approval_required:
+        try:
+            from .native_capture_approval import validate_source_approval
+            approval_path=_managed(result.get('source_approval_path'),managed_root)
+            if file_sha256(approval_path)!=result.get('source_approval_file_sha256'):raise ValueError('Retained Source review bytes changed')
+            wrapper=_json(approval_path)
+            if wrapper!=result.get('source_approval'):raise ValueError('Source review original/result binding differs')
+            expected=(job.get('config') or {}).get('source_review_sha256')
+            if not isinstance(expected,str) or len(expected)!=64:raise ValueError('Source review was not pinned by the import queue')
+            if expected!=result.get('source_review_sha256'):raise ValueError('Queued Source review identity differs')
+            report['source_approval']={'required':True,**validate_source_approval(wrapper,report['original_episode_id'],
+                result.get('source_archive_sha256'),expected_review_sha256=expected)}
+        except (ValueError,OSError,TypeError,KeyError) as error:
+            common.append('native_source_approval_required_or_changed:'+str(error))
     if canonical.get('source_project_id') in ('02','03'):
         report.update(source_project_id=canonical['source_project_id'],source_project_basis='source_bound_original_identity')
     adapter=canonical.get('input_adapter_provenance')

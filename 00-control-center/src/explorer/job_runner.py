@@ -87,13 +87,30 @@ def station_import(store, job, config):
     native=mobile and job['config'].get('source_format')=='native_capture_v1'
     if native:source='native-capture'
     with httpx.Client(timeout=60,trust_env=False) as client:
+        if native:
+            from .native_capture_transfer import transfer_native_capture
+            from .native_capture_approval import source_bytes
+            from explorer_shared.cooperative_recording05 import write_original
+            def cancelled():
+                current=store.job(job['id'])
+                if current and current['status'] in ('cancel_requested','cancelled'):raise RuntimeError('Native source transfer cancelled; partial retained, no import admission')
+            client.headers['Authorization']='Bearer '+node['token']
+            artifact,approval,transfer=transfer_native_capture(client,'http://'+node['host']+':'+str(node['port']),episode_id,
+                job['config'].get('archive_sha256'),job['config'].get('source_review_sha256'),store.root/'artifacts',guard=cancelled)
+            cancelled();checksum=job['config']['archive_sha256']
+            result=native_capture_import(artifact,store.root/'episodes'/'native-mobile',checksum,episode_id,required=True)
+            receipt=Path(result['embodied_manifest']).parent/'operator-reviews'/(approval['review_sha256']+'.json');raw=source_bytes(approval)
+            if receipt.exists():
+                if receipt.read_bytes()!=raw:raise ValueError('Immutable Source approval original changed')
+            else:write_original(receipt,raw)
+            return dict(result,source_format='native_capture_v1',source_approval=approval,source_review_sha256=approval['review_sha256'],
+                source_approval_path=str(receipt),source_approval_file_sha256=hashlib.sha256(raw).hexdigest(),transfer_evidence=transfer)
         response = client.get('http://'+node['host']+':'+str(node['port'])+'/'+source+'/recordings/'+episode_id+'/download',
             headers={'Authorization':'Bearer '+node['token']})
         response.raise_for_status()
     digest = hashlib.sha256(response.content).hexdigest()
     if digest!=response.headers.get('X-Content-SHA256'):
         raise ValueError('Station archive transfer hash mismatch')
-    if native and digest!=job['config'].get('archive_sha256'):raise ValueError('Native source archive differs from its immutable queue binding')
     artifact = store.root/'artifacts'/digest[:2]/(digest+'.tar')
     artifact.parent.mkdir(parents=True,exist_ok=True)
     if not artifact.exists() or hashlib.sha256(artifact.read_bytes()).hexdigest()!=digest:
@@ -103,8 +120,6 @@ def station_import(store, job, config):
             stream.flush()
             os.fsync(stream.fileno())
         temporary.replace(artifact)
-    if native:
-        return native_capture_import(artifact,store.root/'episodes'/'native-mobile',digest,episode_id,required=True)
     destination = store.root/'episodes'/source/episode_id
     marker=destination/'.archive-sha256'
     if not marker.is_file() or marker.read_text().strip()!=digest:
