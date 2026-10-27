@@ -1,0 +1,1774 @@
+{
+  "ONE_qualification_sha256": "8d1e08c434d483b6ea11f7718ea438174572adc6e603376f67a2cca0da54ee6b",
+  "actual_batch_receipt_sha256": "51d598dc6ddb9c28010fec6a091288eae1b0487dd1d2deb982d84363de193b66",
+  "actual_unit": "explorer-contact-portable-v10-full16-wizard-20261027.service",
+  "actual_unit_exit_status": 0,
+  "actual_unit_invocation": "e35896642aba4760b2a375b2b55e73ae",
+  "frozen_batch_plan_sha256": "4358f49c80c2b8146f4c6fc0688111ec51df7a4b1cba5145dd05af88b70579e9",
+  "frozen_qualifier_sha256": "013587bcf9b05a36da65bb98a50d45a71b8b86d8885a5eecae6ba45a8ac43f3c",
+  "full_task_success_claimed": false,
+  "learned_policy_executed": false,
+  "master_prompt_completed": false,
+  "physical_io": false,
+  "private_artifact_locator": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a",
+  "qualification": {
+    "C_open_scope": "UNMEASURED_STRACE_NOT_INSTALLED",
+    "all16_exact_reproduced": true,
+    "all16_fresh_clock_UUIDs": true,
+    "all_children_exit_zero_and_reaped": true,
+    "child_count": 16,
+    "frozen_batch_plan_sha256": "4358f49c80c2b8146f4c6fc0688111ec51df7a4b1cba5145dd05af88b70579e9",
+    "full_task_success_claimed": false,
+    "learned_policy_executed": false,
+    "original_OS_closure": "PARTIAL",
+    "original_V9_outcomes_unchanged": true,
+    "physical_io": false,
+    "portable_qualification_sha256": "5088361255bdb58a8f7c3ea421c08b672a663246681e454ccf68157877d7fda7",
+    "qualifier_sha256": "013587bcf9b05a36da65bb98a50d45a71b8b86d8885a5eecae6ba45a8ac43f3c",
+    "raw_measurement_hash_timing": "V10_independent_first_registration_after_original_unit_exit_preserved",
+    "results": {
+      "C_open_scope": "UNMEASURED_STRACE_NOT_INSTALLED",
+      "all_declared_cases_PASS": true,
+      "children": [
+        {
+          "exit_code": 0,
+          "index": 0,
+          "pid": 2080441,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-8b0300ba619e46f3897e04aae21ef1af",
+            "attempt_id": "v10-v9-in-yawminus-7334-captured-physics",
+            "contact_actual": {
+              "bytes": 4218806,
+              "sha256": "a4773886c9665b41b27f1805ce4070ee365a0115f72ada83e9669f2bc97fdb16"
+            },
+            "contact_reference": {
+              "bytes": 4218806,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-in-yawminus-7334-captured-physics/reference/substeps.jsonl",
+              "sha256": "a4773886c9665b41b27f1805ce4070ee365a0115f72ada83e9669f2bc97fdb16"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 6.622270182007924,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                501,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 500,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": false,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 38.74626446223417,
+              "maximum_downward_bottom_force_N": 26.275998895232004,
+              "minimum_object_point_z_m": -0.011142744972633388,
+              "minimum_saved_contact_distance_m": -0.0159699787140556,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": -26.275998152289144,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": false,
+              "terminal_window_samples": 101
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080441,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1271529472",
+                "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "1871138816",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080441,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "20746240",
+                "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "21426176",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "8f7ca3ed65762c7934fb7584b3f608314819b866f76c20f1d012999233a49349",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-in-yawminus-7334-captured-physics",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-8b0300ba619e46f3897e04aae21ef1af",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "5d41bfa908dcd07e02384ff4844f6a5b1b3fd279607c16cbc9991255ac5e8bf1",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 1,
+          "pid": 2080471,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-7e4cf3e67b12401fa20f913f3fa71d01",
+            "attempt_id": "v10-v9-in-yawminus-7334-low-drop-rest",
+            "contact_actual": {
+              "bytes": 2048506,
+              "sha256": "80fa11072236df45cb1dbe7cc4b902e0d2c3e32a63d4334a482eab470ea41b5d"
+            },
+            "contact_reference": {
+              "bytes": 2048506,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-in-yawminus-7334-low-drop-rest/reference/substeps.jsonl",
+              "sha256": "80fa11072236df45cb1dbe7cc4b902e0d2c3e32a63d4334a482eab470ea41b5d"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 6.837792294987594,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                501,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 500,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": true,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 0.641552985475637,
+              "maximum_downward_bottom_force_N": 0.0,
+              "minimum_object_point_z_m": 0.0034380625202893953,
+              "minimum_saved_contact_distance_m": -0.004561937479710606,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": 0.12360599997246217,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": true,
+              "terminal_window_samples": 101
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080471,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1527664640",
+                "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2133082112",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080471,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "262856704",
+                "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "1871138816",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "1d700b1bbbf1a0e745e587f10d0126df34e03281b5b44035cca1a494904086f6",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-in-yawminus-7334-low-drop-rest",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-7e4cf3e67b12401fa20f913f3fa71d01",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "0c41f41da33e0c19d75f4cf6133779f5d565e3ccf663a4667f02a4ebff57e697",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 2,
+          "pid": 2080533,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-4e423edfad0e4ebb8f392536920455ae",
+            "attempt_id": "v10-v9-in-yawminus-7334-quarter-timestep",
+            "contact_actual": {
+              "bytes": 7710241,
+              "sha256": "8433d67a7e7f923f66c679c479966dccf196e29eed23bc15e9cfa93c48d6a7a2"
+            },
+            "contact_reference": {
+              "bytes": 7710241,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-in-yawminus-7334-quarter-timestep/reference/substeps.jsonl",
+              "sha256": "8433d67a7e7f923f66c679c479966dccf196e29eed23bc15e9cfa93c48d6a7a2"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 8.355882751988247,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                2001,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 2000,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": false,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 15.95391044362152,
+              "maximum_downward_bottom_force_N": 3.761730560054109,
+              "minimum_object_point_z_m": -0.006809703048005051,
+              "minimum_saved_contact_distance_m": -0.014809703048005052,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": false,
+              "terminal_mean_bottom_signed_Z_N": 0.12360599995440816,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": true,
+              "terminal_window_samples": 401
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080533,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1571033088",
+                "memory.events": "low 0\nhigh 0\nmax 1107\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080533,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "501719040",
+                "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2133082112",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "6de63df23d8b63c93cfc4b9e98155a63dd6373a24b70c321e53d2e75f7d523ae",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-in-yawminus-7334-quarter-timestep",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-4e423edfad0e4ebb8f392536920455ae",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "2f368e7d829a2a4c90d8f27cf8c3486188675233a06f5261981dc86e2d4ffe80",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 3,
+          "pid": 2080579,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-e5abe67606b64d0380fe809e924dd274",
+            "attempt_id": "v10-v9-in-yawminus-7334-thick-bottom-same-top",
+            "contact_actual": {
+              "bytes": 2080528,
+              "sha256": "f4c7a4d3f9d1780c936fa13a83d28fda6dbb4f01a7f80ed15bfba758b6a3506c"
+            },
+            "contact_reference": {
+              "bytes": 2080528,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-in-yawminus-7334-thick-bottom-same-top/reference/substeps.jsonl",
+              "sha256": "f4c7a4d3f9d1780c936fa13a83d28fda6dbb4f01a7f80ed15bfba758b6a3506c"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 6.189814398996532,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                501,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 500,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": true,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 2.047219100986662,
+              "maximum_downward_bottom_force_N": 0.0,
+              "minimum_object_point_z_m": -0.00838228565739265,
+              "minimum_saved_contact_distance_m": -0.016382285657392647,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": 0.1236059999803136,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": true,
+              "terminal_window_samples": 101
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080579,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1542520832",
+                "memory.events": "low 0\nhigh 0\nmax 2482\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080579,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "555171840",
+                "memory.events": "low 0\nhigh 0\nmax 1107\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "08d0295c7bcfb370c5ae8e7a7e230d7bd608a41c29adae78af91eddf19ff122a",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-in-yawminus-7334-thick-bottom-same-top",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-e5abe67606b64d0380fe809e924dd274",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "af30ef25db0538d94033e970428053ce831ab235514074fa0d48a2fc54883f4b",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 4,
+          "pid": 2080616,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-6f7ae6223bc74ea7a42320e07b6b7aa1",
+            "attempt_id": "v10-v9-near-left-7332-captured-physics",
+            "contact_actual": {
+              "bytes": 4208889,
+              "sha256": "b8b53bf5b5c8c886187b4907090e8ec290090551055e83f3f644128eea82bf9e"
+            },
+            "contact_reference": {
+              "bytes": 4208889,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-near-left-7332-captured-physics/reference/substeps.jsonl",
+              "sha256": "b8b53bf5b5c8c886187b4907090e8ec290090551055e83f3f644128eea82bf9e"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 6.345245396994869,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                501,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 500,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": false,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 38.81963788482987,
+              "maximum_downward_bottom_force_N": 32.69819427550106,
+              "minimum_object_point_z_m": -0.012018693197436203,
+              "minimum_saved_contact_distance_m": -0.0159749035033608,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": -32.69819025401672,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": false,
+              "terminal_window_samples": 101
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080616,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1545134080",
+                "memory.events": "low 0\nhigh 0\nmax 3731\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080616,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "531582976",
+                "memory.events": "low 0\nhigh 0\nmax 2482\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "e34fe8ff3596545da8b45b06ad64f5a5b28dfb58c4d24dc7865d5df5380cb6b4",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-near-left-7332-captured-physics",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-6f7ae6223bc74ea7a42320e07b6b7aa1",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "bc573697ffd150bb2ab4f6eb85b40ae0d315b9a74821f9e480a8b90054d21cf1",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 5,
+          "pid": 2080654,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-f1df568097064256b8a72c344bfac08a",
+            "attempt_id": "v10-v9-near-left-7332-low-drop-rest",
+            "contact_actual": {
+              "bytes": 2044336,
+              "sha256": "658a67a9423d62fbd9b46426fce09359e480e4a7793deb75d3fb822e9eaec06a"
+            },
+            "contact_reference": {
+              "bytes": 2044336,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-near-left-7332-low-drop-rest/reference/substeps.jsonl",
+              "sha256": "658a67a9423d62fbd9b46426fce09359e480e4a7793deb75d3fb822e9eaec06a"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 5.908037269997294,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                501,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 500,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": true,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 0.6512440455703463,
+              "maximum_downward_bottom_force_N": 0.0,
+              "minimum_object_point_z_m": 0.0025515598799648754,
+              "minimum_saved_contact_distance_m": -0.005448440120035125,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": 0.12360600007746304,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": true,
+              "terminal_window_samples": 101
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080654,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1541451776",
+                "memory.events": "low 0\nhigh 0\nmax 4944\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080654,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "533360640",
+                "memory.events": "low 0\nhigh 0\nmax 3731\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "41e4bb72aeee3654d6361fba2ccda53285943241915c8f4281b4adcbcc28b7e7",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-near-left-7332-low-drop-rest",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-f1df568097064256b8a72c344bfac08a",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "13e0f2c6870010e26bbf6383d6d33891fcbd3677d8f90bfda67a13b09a350a4d",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 6,
+          "pid": 2080679,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-91f0a1424c694b5384d9a38bc8d25003",
+            "attempt_id": "v10-v9-near-left-7332-quarter-timestep",
+            "contact_actual": {
+              "bytes": 7964543,
+              "sha256": "50ab0c46448c208a6065f867c279b20c395457830c0dd68951901c295d9c8bc0"
+            },
+            "contact_reference": {
+              "bytes": 7964543,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-near-left-7332-quarter-timestep/reference/substeps.jsonl",
+              "sha256": "50ab0c46448c208a6065f867c279b20c395457830c0dd68951901c295d9c8bc0"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 8.500931039001443,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                2001,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 2000,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": true,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 15.568673667468838,
+              "maximum_downward_bottom_force_N": 1.8001830638272445,
+              "minimum_object_point_z_m": -0.0064893921879577935,
+              "minimum_saved_contact_distance_m": -0.014489392187957794,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": 0.12360600002290598,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": true,
+              "terminal_window_samples": 401
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080679,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1571430400",
+                "memory.events": "low 0\nhigh 0\nmax 6216\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080679,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "532992000",
+                "memory.events": "low 0\nhigh 0\nmax 4944\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "bea6ecf6d706ab76eb703860cf984bfa5a649b37a8c22012e3fd7abb8646e277",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-near-left-7332-quarter-timestep",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-91f0a1424c694b5384d9a38bc8d25003",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "f5bdbcbed1b8245da3242a56de76f38a57b50505faf240ae1060e3c18b8eb4e7",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 7,
+          "pid": 2080777,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-5ec87cd7b5d848dfbe64cd7e9229cbc5",
+            "attempt_id": "v10-v9-near-left-7332-thick-bottom-same-top",
+            "contact_actual": {
+              "bytes": 2085697,
+              "sha256": "1886d108658b129ae265a85916aed3b72e5ae910818c6c67edcc5d5f3bbdda90"
+            },
+            "contact_reference": {
+              "bytes": 2085697,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-near-left-7332-thick-bottom-same-top/reference/substeps.jsonl",
+              "sha256": "1886d108658b129ae265a85916aed3b72e5ae910818c6c67edcc5d5f3bbdda90"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 6.059248238001601,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                501,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 500,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": true,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 2.1944394032854877,
+              "maximum_downward_bottom_force_N": 0.0,
+              "minimum_object_point_z_m": -0.009209457046877988,
+              "minimum_saved_contact_distance_m": -0.017209457046877992,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": 0.12360599998641683,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": true,
+              "terminal_window_samples": 101
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080777,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1541521408",
+                "memory.events": "low 0\nhigh 0\nmax 7515\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080777,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "553021440",
+                "memory.events": "low 0\nhigh 0\nmax 6216\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "dd13a331eec04789b08894c9b1fa029fb95e3bc59dee99deff3d3aaa0ccc21b9",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-near-left-7332-thick-bottom-same-top",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-5ec87cd7b5d848dfbe64cd7e9229cbc5",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "2f45d1ab8a2a3687cb8e7f7b7eead495ea78797a63cc46b3e014f62b50f7be6e",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 8,
+          "pid": 2080803,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-0399bd918d5646919e9bd3f2bd40d7ef",
+            "attempt_id": "v10-v9-newjitter-7331-captured-physics",
+            "contact_actual": {
+              "bytes": 2051370,
+              "sha256": "f25431179b471c4864a6029449cce348063dfaf9a9518f26fa5778d7696fd8fa"
+            },
+            "contact_reference": {
+              "bytes": 2051370,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-newjitter-7331-captured-physics/reference/substeps.jsonl",
+              "sha256": "f25431179b471c4864a6029449cce348063dfaf9a9518f26fa5778d7696fd8fa"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 6.17840047799109,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                501,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 500,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": true,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 1.8925515601901102,
+              "maximum_downward_bottom_force_N": 0.0,
+              "minimum_object_point_z_m": -0.006798815278696145,
+              "minimum_saved_contact_distance_m": -0.014798815278696146,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": 0.12360600005332924,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": true,
+              "terminal_window_samples": 101
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080803,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1542246400",
+                "memory.events": "low 0\nhigh 0\nmax 8780\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080803,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "531238912",
+                "memory.events": "low 0\nhigh 0\nmax 7515\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "3f10bc412eacab44e704ce167faad8178f95fcde38b94ad784e65b544067e035",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-newjitter-7331-captured-physics",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-0399bd918d5646919e9bd3f2bd40d7ef",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "96365e0eb9ea432547924e837d0f84068c993815bc54178da8114084776cb1de",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 9,
+          "pid": 2080833,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-beb2811ce6fb47bc8d11d1424421b2da",
+            "attempt_id": "v10-v9-newjitter-7331-low-drop-rest",
+            "contact_actual": {
+              "bytes": 2033633,
+              "sha256": "cfdd7d1edac987346609d6deffe818a3ec2fbaa5a9c8585602154763528438c1"
+            },
+            "contact_reference": {
+              "bytes": 2033633,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-newjitter-7331-low-drop-rest/reference/substeps.jsonl",
+              "sha256": "cfdd7d1edac987346609d6deffe818a3ec2fbaa5a9c8585602154763528438c1"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 5.967688343996997,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                501,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 500,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": true,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 0.6158621678867138,
+              "maximum_downward_bottom_force_N": 0.0,
+              "minimum_object_point_z_m": 0.0037495824939075603,
+              "minimum_saved_contact_distance_m": -0.004250417506092439,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": 0.12360600004454576,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": true,
+              "terminal_window_samples": 101
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080833,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1541369856",
+                "memory.events": "low 0\nhigh 0\nmax 9991\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080833,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "522129408",
+                "memory.events": "low 0\nhigh 0\nmax 8780\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "acdbcbb122e5f9491c954e08106dbe61549bc5e4754952a11e3770bb8e3ee07e",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-newjitter-7331-low-drop-rest",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-beb2811ce6fb47bc8d11d1424421b2da",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "6267ad24c38b18d203e627d18e852df8128a7bcec70580fac7ee46d141fc3173",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 10,
+          "pid": 2080858,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-c205d67308a04b199f1ab9fa340b3a65",
+            "attempt_id": "v10-v9-newjitter-7331-quarter-timestep",
+            "contact_actual": {
+              "bytes": 8113173,
+              "sha256": "6fdea3dd16c84f04c76a4898208b9704c548b609f2115c7b470e8da239379ee7"
+            },
+            "contact_reference": {
+              "bytes": 8113173,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-newjitter-7331-quarter-timestep/reference/substeps.jsonl",
+              "sha256": "6fdea3dd16c84f04c76a4898208b9704c548b609f2115c7b470e8da239379ee7"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 8.586196717995335,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                2001,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 2000,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": true,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 1.8107402894677145,
+              "maximum_downward_bottom_force_N": 0.0,
+              "minimum_object_point_z_m": -0.005838040535026178,
+              "minimum_saved_contact_distance_m": -0.013838040535026179,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": 0.12360599996041761,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": true,
+              "terminal_window_samples": 401
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080858,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1570877440",
+                "memory.events": "low 0\nhigh 0\nmax 11253\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080858,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "530079744",
+                "memory.events": "low 0\nhigh 0\nmax 9991\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "beecf080aac936f1fd18991ba6a2e38d84a90342d879d9b7278a84a888acc1ca",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-newjitter-7331-quarter-timestep",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-c205d67308a04b199f1ab9fa340b3a65",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "1400d61713336b3dc2a2d44372edd9d919b218250f28bbd5369aa6dfcaccc47f",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 11,
+          "pid": 2080896,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-8b28c67be1ab4a50b06b0890ae6c04f3",
+            "attempt_id": "v10-v9-newjitter-7331-thick-bottom-same-top",
+            "contact_actual": {
+              "bytes": 2053761,
+              "sha256": "cd4b1be873ae3a5495944f34a1937e9c589e05e8128b52a27a647c88e4617774"
+            },
+            "contact_reference": {
+              "bytes": 2053761,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-newjitter-7331-thick-bottom-same-top/reference/substeps.jsonl",
+              "sha256": "cd4b1be873ae3a5495944f34a1937e9c589e05e8128b52a27a647c88e4617774"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 6.366492314002244,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                501,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 500,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": true,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 1.8925515601966143,
+              "maximum_downward_bottom_force_N": 0.0,
+              "minimum_object_point_z_m": -0.006798815278613147,
+              "minimum_saved_contact_distance_m": -0.014798815278613146,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": 0.12360600005332975,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": true,
+              "terminal_window_samples": 101
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080896,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1541304320",
+                "memory.events": "low 0\nhigh 0\nmax 12650\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080896,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "556670976",
+                "memory.events": "low 0\nhigh 0\nmax 11253\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "b65c016942250b036ce4b8735403458c5b0076b8d9be5f550ec6da4c85b00741",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-newjitter-7331-thick-bottom-same-top",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-8b28c67be1ab4a50b06b0890ae6c04f3",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "b4ec9a78126d04f94427de6f9e37b0b3b8936a11a208efbea5fd7d67d78580ac",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 12,
+          "pid": 2080923,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-5ed96b497a4e4051acff0b4c1f673d23",
+            "attempt_id": "v10-v9-out-yawplus-7333-captured-physics",
+            "contact_actual": {
+              "bytes": 2022192,
+              "sha256": "5638667a6e4836877c0861595cb17523015a53634d7500f1d5c7100ad08a9000"
+            },
+            "contact_reference": {
+              "bytes": 2022192,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-out-yawplus-7333-captured-physics/reference/substeps.jsonl",
+              "sha256": "5638667a6e4836877c0861595cb17523015a53634d7500f1d5c7100ad08a9000"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 6.10807287300122,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                501,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 500,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": true,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 1.8281359314987071,
+              "maximum_downward_bottom_force_N": 0.0,
+              "minimum_object_point_z_m": -0.006893563771054163,
+              "minimum_saved_contact_distance_m": -0.014893563771054164,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": 0.12360599998355437,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": true,
+              "terminal_window_samples": 101
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080923,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1541484544",
+                "memory.events": "low 0\nhigh 0\nmax 13860\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2080923,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "522633216",
+                "memory.events": "low 0\nhigh 0\nmax 12650\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "bd6b97b3fd35e0a06cf269eabb26eeb336776e3f6b4e98b9071c1568d7b7cb53",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-out-yawplus-7333-captured-physics",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-5ed96b497a4e4051acff0b4c1f673d23",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "9c440baf92252191a85e52fbb167d89ea023a3757d100f88835236ae2ab867d9",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 13,
+          "pid": 2081000,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-6bfb0eec4e764a2ebd6447c31824013f",
+            "attempt_id": "v10-v9-out-yawplus-7333-low-drop-rest",
+            "contact_actual": {
+              "bytes": 2030946,
+              "sha256": "ad90b5211b1a6e12784624fafecd84ff87349011721ab54c237bb7744a64920b"
+            },
+            "contact_reference": {
+              "bytes": 2030946,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-out-yawplus-7333-low-drop-rest/reference/substeps.jsonl",
+              "sha256": "ad90b5211b1a6e12784624fafecd84ff87349011721ab54c237bb7744a64920b"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 6.214756219997071,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                501,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 500,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": true,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 0.567987776696777,
+              "maximum_downward_bottom_force_N": 0.0,
+              "minimum_object_point_z_m": 0.003686622587466451,
+              "minimum_saved_contact_distance_m": -0.004313377412533549,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": 0.12360599997242516,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": true,
+              "terminal_window_samples": 101
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2081000,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1542381568",
+                "memory.events": "low 0\nhigh 0\nmax 15134\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2081000,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "529944576",
+                "memory.events": "low 0\nhigh 0\nmax 13860\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "165cdfcdd3bbfbe8027fc57ba1232591099fbf07a8353a48a34bc9546547f578",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-out-yawplus-7333-low-drop-rest",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-6bfb0eec4e764a2ebd6447c31824013f",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "8a441ea5997e05e77ab3712ecc73b51814d6d079c6d62cce3d5ce6d9a2f0ce9b",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 14,
+          "pid": 2081034,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-119a7bc00d2645ddbc5e6380ae0e7d1c",
+            "attempt_id": "v10-v9-out-yawplus-7333-quarter-timestep",
+            "contact_actual": {
+              "bytes": 8014576,
+              "sha256": "8cf350664ff82cb6c3cea47b6a12cee3ea819682f0e1a61e0d6ad6355f2398bb"
+            },
+            "contact_reference": {
+              "bytes": 8014576,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-out-yawplus-7333-quarter-timestep/reference/substeps.jsonl",
+              "sha256": "8cf350664ff82cb6c3cea47b6a12cee3ea819682f0e1a61e0d6ad6355f2398bb"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 8.21674095999333,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                2001,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 2000,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": true,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 2.018862934084515,
+              "maximum_downward_bottom_force_N": 0.0,
+              "minimum_object_point_z_m": -0.0069077166693878485,
+              "minimum_saved_contact_distance_m": -0.014907716669387847,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": 0.12360599998180767,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": true,
+              "terminal_window_samples": 401
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2081034,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1570721792",
+                "memory.events": "low 0\nhigh 0\nmax 16014\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2081034,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "534568960",
+                "memory.events": "low 0\nhigh 0\nmax 15134\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "42a411931fbd3260342eca6a10571c637a09bd289420709d5f03f0bea33093a5",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-out-yawplus-7333-quarter-timestep",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-119a7bc00d2645ddbc5e6380ae0e7d1c",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "761f088b844e924a3d8b40e7aa95bd6600daaddeb086a8a97787fe781d4f931a",
+          "reaped": true
+        },
+        {
+          "exit_code": 0,
+          "index": 15,
+          "pid": 2081071,
+          "qualification": {
+            "C_open_isolation": "UNMEASURED_UNLESS_EXTERNAL_STRACE_LOG_VERIFIED",
+            "Python_open_positive_control_blocked": true,
+            "RGB_reexecution": false,
+            "actual_caller_replay_clock": "portable-contact-e1fa3380a0534bd48e10b9b74b056de2",
+            "attempt_id": "v10-v9-out-yawplus-7333-thick-bottom-same-top",
+            "contact_actual": {
+              "bytes": 2023966,
+              "sha256": "f08285fec80d991e2bbf0bd92ac876d3fcf6270be38f8fb512b87d1f1ebf3c1e"
+            },
+            "contact_reference": {
+              "bytes": 2023966,
+              "path": "/mnt/explorer-data/explorer-work/contact-portable-v10-full16-20261027-a/copies/v10-v9-out-yawplus-7333-thick-bottom-same-top/reference/substeps.jsonl",
+              "sha256": "f08285fec80d991e2bbf0bd92ac876d3fcf6270be38f8fb512b87d1f1ebf3c1e"
+            },
+            "contact_score_bitwise_equal": true,
+            "contacts_solver_JSONL_bitwise_equal": true,
+            "discarded_current_constructor_native_steps": 100,
+            "elapsed_s": 5.555709200998535,
+            "embedded_MJB_loaded": true,
+            "full_task_success_claimed": false,
+            "initial_XML_exact_recorded_bytes": true,
+            "learned_policy_executed": false,
+            "native": {
+              "bitwise_equal": true,
+              "different_float64_words": 0,
+              "dtype": "<f8",
+              "maximum_absolute_numeric_difference": 0.0,
+              "shape": [
+                501,
+                769
+              ]
+            },
+            "native_state_setter_calls": 2,
+            "native_steps": 500,
+            "old_producer_Python_open_attempts": [],
+            "original_OS_closure": "PARTIAL",
+            "outcome": {
+              "contact_recovered": true,
+              "full_task_success_claimed": false,
+              "maximum_bottom_normal_magnitude_N": 1.8281359314987071,
+              "maximum_downward_bottom_force_N": 0.0,
+              "minimum_object_point_z_m": -0.006893524827861444,
+              "minimum_saved_contact_distance_m": -0.014893524827861443,
+              "original_V9_outcome_amended": false,
+              "terminal_inside": true,
+              "terminal_mean_bottom_signed_Z_N": 0.12360599998353208,
+              "terminal_other_contact_free": true,
+              "terminal_settled": true,
+              "terminal_supported": true,
+              "terminal_window_samples": 101
+            },
+            "physical_io": false,
+            "recorded_XML_recompiled": false,
+            "resources_after": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2081071,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "1538088960",
+                "memory.events": "low 0\nhigh 0\nmax 16940\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "resources_before": {
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+              "pid": 2081071,
+              "values": {
+                "cpu.max": "100000 100000",
+                "memory.current": "555188224",
+                "memory.events": "low 0\nhigh 0\nmax 16014\noom 0\noom_kill 0\noom_group_kill 0",
+                "memory.max": "2147483648",
+                "memory.peak": "2147483648",
+                "memory.swap.max": "0"
+              }
+            },
+            "restore_receipt": {
+              "initial_RGB_render_reexecution": "UNQUALIFIED",
+              "initial_snapshot_sha256": "67a43ffa09287b582b840c286db5e6ffa56b2f2f05dff3db592d152ffa2dedca",
+              "native_initial_state_equal": true,
+              "new_clock_identity": true,
+              "original_runtime_OS_closure": "PARTIAL",
+              "original_sim_clock_domain": "new-contact-v10-v9-out-yawplus-7333-thick-bottom-same-top",
+              "physical_io": false,
+              "recorded_profile_derived_buffers_restored": true,
+              "replay_sim_clock_domain": "portable-contact-e1fa3380a0534bd48e10b9b74b056de2",
+              "schema": "explorer_stationary_initial_restore_receipt_v1"
+            },
+            "runtime_preflight": {
+              "equal": true,
+              "extra_modules": [],
+              "missing_modules": []
+            },
+            "schema": "explorer_portable_contact_numeric_case_v1",
+            "source_clock_distinct": true,
+            "status": "PASS"
+          },
+          "qualification_sha256": "dcc95f8f8e8537d6bb30da6e2cec6b2ce8753ac86ca2af0083f4ea707dafde98",
+          "reaped": true
+        }
+      ],
+      "current_trusted_commit": "6e50b6398d1d32daa4ed1a1dc1ec60401b6d5c62",
+      "elapsed_s": 116.15720069600502,
+      "full_task_success_claimed": false,
+      "learned_policy_executed": false,
+      "original_OS_closure": "PARTIAL",
+      "physical_io": false,
+      "plan_sha256": "7e84d2660ec89d2df49807b5c04162919f961fac4cdd00a03ebaaa229e16a854",
+      "resources": {
+        "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/explorer-contact-portable-v10-full16-wizard-20261027.service",
+        "pid": 2080366,
+        "values": {
+          "cpu.max": "100000 100000",
+          "memory.current": "514867200",
+          "memory.events": "low 0\nhigh 0\nmax 16940\noom 0\noom_kill 0\noom_group_kill 0",
+          "memory.max": "2147483648",
+          "memory.peak": "2147483648",
+          "memory.swap.max": "0"
+        }
+      },
+      "schema": "explorer_portable_contact_numeric_campaign_v1",
+      "strace_available": false
+    },
+    "schema": "explorer_portable_contact_full16_qualification_v1",
+    "source_ONE_qualification_sha256": "8d1e08c434d483b6ea11f7718ea438174572adc6e603376f67a2cca0da54ee6b",
+    "wrapper_sha256": "e9b396b832e88a0e1edb943a347a48901fbc1d8544c3937225be153794ee1b91"
+  },
+  "qualified_trusted_commit": "6e50b6398d1d32daa4ed1a1dc1ec60401b6d5c62",
+  "schema": "explorer_portable_contact_full16_public_receipt_v1",
+  "scope": "portable_numerical_restore_of_recorded_V10_contact_initial_conditions_on_matching_ARM64_runtime_not_complete_V9_or_learned_skill",
+  "summary": {
+    "actual_old_producer_Python_open_attempts": 0,
+    "all_contact_solver_bytes_equal": true,
+    "all_python_open_positive_controls_blocked": true,
+    "all_scores_equal": true,
+    "cases": 16,
+    "different_float64_words": 0,
+    "maximum_native_abs_difference": 0.0,
+    "native_float64_words": 10778304,
+    "native_state_size": [
+      769
+    ],
+    "native_states": 14016,
+    "unique_PIDs": 16
+  }
+}

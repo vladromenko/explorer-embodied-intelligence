@@ -2,6 +2,8 @@
 from copy import deepcopy
 import importlib.util
 from pathlib import Path
+import subprocess
+import sys
 
 import pytest
 
@@ -49,3 +51,32 @@ def test_qualified_old_verifier_is_not_edited_or_loaded_if_sha_changes(batch,mon
     monkeypatch.setattr(batch.importlib.util,'spec_from_file_location',lambda *a,**k:calls.append(a))
     with pytest.raises(batch.BatchRejected,match='changed'):batch.original_qualifier()
     assert not calls
+
+
+def test_failed_first_legacy_child_keeps_negative_receipt_and_CLI_exit_is_nonzero(batch,tmp_path):
+    one=dict(root=str(tmp_path/'one'),qualification_sha256='1'*64,trusted_current_sources={'fixture':'MOCK_NO_MATH'})
+    plan=dict(schema='explorer_portable_contact_full16_frozen_v1',output_root=str(tmp_path),
+        wrapper_sha256=batch.file_sha(batch.__file__),current_trusted_commit='a'*40,ONE=one,portable_plan_sha256='2'*64)
+    batch.write(tmp_path/'portable-batch-plan.json',plan);checksum=batch.file_sha(tmp_path/'portable-batch-plan.json')
+    # Separate interpreter demonstrates actual process exit, with a deliberately
+    # fake legacy result. No model, numeric qualification, source Git or old
+    # scientific artifact is touched by this negative fixture.
+    code="""import importlib.util,json,pathlib
+spec=importlib.util.spec_from_file_location('batch',MODULE);b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
+root=pathlib.Path(ROOT)
+class FakeLegacy:
+ def load_plan(self,*args):return dict(cases=[{}]*16,trusted_current_sources={'fixture':'MOCK_NO_MATH'})
+ def coordinate(self,*args):
+  b.write(root/'qualification.json',dict(all_declared_cases_PASS=False,C_open_scope='UNMEASURED_STRACE_NOT_INSTALLED',children=[dict(pid=1234,exit_code=1,reaped=True,qualification=dict(status='FAILED'))]))
+ def read_json(self,path):return json.loads(pathlib.Path(path).read_bytes())
+b.wrapper_trust=lambda commit:None
+b.original_qualifier=lambda:FakeLegacy()
+b.one_proof=lambda *args:ONE
+b.coordinate(root,CHECKSUM)
+""".replace('MODULE',repr(batch.__file__)).replace('ROOT',repr(str(tmp_path))).replace('ONE',repr(one)).replace('CHECKSUM',repr(checksum))
+    run=subprocess.run([sys.executable,'-c',code],capture_output=True,text=True)
+    assert run.returncode!=0 and 'negative batch receipt retained' in run.stderr
+    import json
+    receipt=json.loads((tmp_path/'batch-qualification.json').read_bytes())
+    assert not receipt['all16_exact_reproduced'] and receipt['child_count']==1
+    assert receipt['results']['children'][0]['exit_code']==1 and (tmp_path/'qualification.json').is_file()

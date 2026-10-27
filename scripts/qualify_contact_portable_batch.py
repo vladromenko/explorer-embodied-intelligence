@@ -117,6 +117,8 @@ def coordinate(output,checksum):
     write(output/'batch-qualification.json',receipt)
     print(canonical(dict(all16_exact_reproduced=receipt['all16_exact_reproduced'],child_count=len(children),
         receipt_sha256=sha(canonical(receipt)),physical_io=False,C_open_scope=receipt['C_open_scope'])).decode())
+    if not receipt['all16_exact_reproduced'] or not receipt['all_children_exit_zero_and_reaped']:
+        raise BatchRejected('Full16 portable reproduction failed; negative batch receipt retained')
 
 
 def main():
