@@ -18,7 +18,7 @@ import threading
 import time
 import uuid
 
-from explorer_shared.capture_timeline import pause_intervals,resume_intervals,source_segment
+from explorer_shared.capture_timeline import pause_intervals,resume_intervals,select_source_samples
 from explorer_shared.sealed_capture_review import (atomic_bytes,source_bytes,recording_identity,
     read_source_review,review_sealed_capture)
 from explorer_shared.so101_station import _record_context
@@ -242,19 +242,9 @@ a trusted local Path from the existing Station.archive, never a browser path.
                 blockers=[]
                 if original.get('state')!='complete':blockers.append('ORIGINAL_RECORDING_INTERRUPTED')
                 if page.get('control_epoch')!=owner['native_control_epoch']:blockers.append('NATIVE_OWNER_CHANGED')
-                selection=[]
-                for index,sample in enumerate(original['samples']):
-                    at=sample.get('action_monotonic_ns')
-                    if sample.get('clock_domain')!=self.domain or sample.get('boot_id')!=self.boot:
-                        raise ValueError('Original sample source clock/boot changed')
-                    segment=source_segment(at,owner['pause_intervals'],started_ns=owner['started_monotonic_ns'],ended_ns=ended)
-                    state_at=sample.get('state_monotonic_ns')
-                    state_segment=source_segment(state_at,owner['pause_intervals'],started_ns=owner['started_monotonic_ns'],ended_ns=ended)
-                    selected=segment is not None and state_segment==segment
-                    selection.append({'source_sample_index':index,'action_monotonic_ns':at,'state_monotonic_ns':state_at,
-                        'recording_segment_id':segment if selected else None,'included_after_pause_filter':selected,
-                        'selection_basis':'source_state_and_action_in_same_unpaused_segment',
-                        'exclusion_reason':None if selected else 'ACTION_OUTSIDE_UNPAUSED_SEGMENT' if segment is None else 'STATE_CROSSES_LIFECYCLE_BOUNDARY'})
+                selection=select_source_samples(original['samples'],owner['pause_intervals'],
+                    started_ns=owner['started_monotonic_ns'],ended_ns=ended,clock_domain=self.domain,boot_id=self.boot)
+                for sample in original['samples']:
                     receipt=sample.get('dispatch_receipt') or {}
                     if receipt.get('control_epoch')!=owner['native_control_epoch'] and 'NATIVE_OWNER_CHANGED' not in blockers:
                         blockers.append('NATIVE_OWNER_CHANGED')

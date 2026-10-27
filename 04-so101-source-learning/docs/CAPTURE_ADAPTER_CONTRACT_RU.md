@@ -120,3 +120,22 @@ resumable transfer/approval validator. Prefix выбирает server, прои�
 
 55sharedNode/capture/transfer tests PASS5.40s +1single-owner wiring PASS0.18s;
 provenance registry PASS. Source04 software-ready не повышен. Real Pi не обновлён.
+
+
+## Дополнение Root: общий source timeline и существующий Dataset converter
+
+`capture_timeline.select_source_samples` теперь одинаково используется producer
+при seal и существующим `station_adapter.convert_station_episode` при чтении
+optional SHA-bound capture envelope. Новый converter не создаётся. Selected state
+и action остаются в одном source segment; paused raw samples/JPEG/state/action
+полностью сохранены в source originals. Короткая пауза режет episodes независимо
+от старого gap>3periods. Envelope, raw manifest, source clock/boot/context и exact
+selection перепроверяются; forged selection не допускается даже с новым SHA.
+Cached conversion не может потерять/заменить исходный timeline.
+
+53integration PASS/2optinSKIP/5.75s и финальные6shared-selection/converter PASS0.70s.
+Тесты использовали исходный writer и настоящие маленькие generated JPEG; official
+LeRobot export и optimizer в этом scope не запускались. Первый group negative
+(глобальная проверка Torch зависела от внешней test collection) сохранён; import
+package boundary теперь проверяется в fresh interpreter. Source04 full pipeline,
+worker/source approval binding и vertical UI/release всё ещё OPEN.

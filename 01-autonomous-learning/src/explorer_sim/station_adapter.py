@@ -17,7 +17,7 @@ from PIL import Image
 from .pilot import sha, utc, write_json
 
 
-def convert_station_episode(source_manifest_path, target_dir):
+def convert_station_episode(source_manifest_path, target_dir, *, capture_manifest_path=None, expected_capture_sha256=None):
     source_path, target = Path(source_manifest_path).resolve(), Path(target_dir).resolve()
     source_digest = sha(source_path)
     source = json.loads(source_path.read_text())
@@ -76,14 +76,38 @@ def convert_station_episode(source_manifest_path, target_dir):
     times = {"frame_monotonic_ns": np.asarray(frame_times, np.int64),
              "state_monotonic_ns": np.asarray(state_times, np.int64),
              "action_monotonic_ns": np.asarray(action_times, np.int64)}
-    segments, gaps = _causal_segments(times["action_monotonic_ns"], fps)
+    capture=None
+    if capture_manifest_path is not None:
+        from explorer_shared.capture_timeline import select_source_samples
+        path=Path(capture_manifest_path).resolve();checksum=sha(path)
+        if not isinstance(expected_capture_sha256,str) or checksum!=expected_capture_sha256:
+            raise ValueError('Exact immutable source capture envelope SHA required')
+        if path.stat().st_size>64*1024**2:raise ValueError('Source capture envelope exceeds metadata budget')
+        envelope=json.loads(path.read_bytes());lifecycle=envelope.get('lifecycle') or {}
+        original_context=dict(source.get('source_context') or {});original_context.pop('native_phase_annotation',None)
+        if (envelope.get('recording_id')!=episode_id or envelope.get('state')!='completed' or lifecycle.get('state')!='completed' or
+                (envelope.get('original_manifest') or {}).get('sha256')!=source_digest or
+                envelope.get('source_clock_domain')!=source.get('clock_domain') or envelope.get('source_boot_id')!=source.get('boot_id') or
+                lifecycle.get('source_clock_domain')!=source.get('clock_domain') or lifecycle.get('source_boot_id')!=source.get('boot_id') or
+                envelope.get('source_context')!=original_context or lifecycle.get('source_context')!=original_context):
+            raise ValueError('Source capture timeline/original identity changed')
+        selection=select_source_samples(samples,lifecycle.get('pause_intervals'),
+            started_ns=lifecycle.get('started_monotonic_ns'),ended_ns=lifecycle.get('ended_monotonic_ns'),
+            clock_domain=source.get('clock_domain'),boot_id=source.get('boot_id'))
+        if selection!=envelope.get('sample_selection'):
+            raise ValueError('Source capture sample selection changed or crossed a pause')
+        capture={'path':path,'sha256':checksum,'envelope':envelope,'selection':selection}
+    elif expected_capture_sha256 is not None:
+        raise ValueError('Source capture SHA requires its original envelope')
+    segments, gaps = _causal_segments(times["action_monotonic_ns"], fps,
+        source_segment_ids=[row['recording_segment_id'] for row in capture['selection']] if capture else None)
     if source_path.is_relative_to(target) or any(path.resolve().is_relative_to(target) for path, _ in frames):
         raise ValueError("Conversion target cannot contain the original source files")
     target.parent.mkdir(parents=True, exist_ok=True)
     with (target.parent / ("." + target.name + ".conversion.lock")).open("a") as owner:
         fcntl.flock(owner.fileno(), fcntl.LOCK_EX)
         if target.exists():
-            existing = _completed_conversion(target, source_digest)
+            existing = _completed_conversion(target, source_digest,expected_capture_sha256)
             if existing is not None:
                 return existing
             # Incomplete outputs are retained for inspection rather than overwritten.
@@ -91,9 +115,11 @@ def convert_station_episode(source_manifest_path, target_dir):
         staging = Path(tempfile.mkdtemp(prefix="." + target.name + ".converting-", dir=target.parent))
         try:
             result = _write_conversion(staging, source_path, source_digest, source, frames, states,
-                                       actions, times, low, high, segments, gaps, next(iter(domains)))
+                                       actions, times, low, high, segments, gaps, next(iter(domains)),capture=capture)
             if sha(source_path) != source_digest:
                 raise ValueError("Source station manifest changed during conversion")
+            if capture and sha(capture['path'])!=capture['sha256']:
+                raise ValueError('Source capture envelope changed during conversion')
             write_json(staging / "manifest.json", result)
             os.rename(staging, target)
             return result
@@ -102,9 +128,11 @@ def convert_station_episode(source_manifest_path, target_dir):
                 shutil.rmtree(staging)
 
 
-def _causal_segments(action_times, fps):
+def _causal_segments(action_times, fps, *, source_segment_ids=None):
     """Anchor each grid at its first native action; never interpolate future data."""
     period = 1e9 / fps
+    if source_segment_ids is not None:
+        return _capture_segments(action_times,period,source_segment_ids)
     cuts = (np.flatnonzero(np.diff(action_times) > 3 * period) + 1).tolist()
     bounds = [0, *cuts, len(action_times)]
     segments, gaps = [], []
@@ -122,7 +150,34 @@ def _causal_segments(action_times, fps):
     return segments, gaps
 
 
-def _completed_conversion(target, source_digest):
+def _capture_segments(action_times,period,source_segment_ids):
+    if len(source_segment_ids)!=len(action_times):raise ValueError('Exact source segment count required')
+    groups=[];current=[]
+    for index,identity in enumerate(source_segment_ids):
+        if identity is None:
+            if current:groups.append(current);current=[]
+        else:
+            if current and (identity!=source_segment_ids[current[-1]] or action_times[index]-action_times[current[-1]]>3*period):
+                groups.append(current);current=[]
+            current.append(index)
+    if current:groups.append(current)
+    if not groups:raise ValueError('No samples inside retained source capture intervals')
+    segments=[];gaps=[]
+    for indices in groups:
+        native=action_times[indices];count=int(np.floor((int(native[-1])-int(native[0]))/period))+1
+        grid=native[0]+np.rint(np.arange(count)*period).astype(np.int64);grid=grid[grid<=native[-1]]
+        selected=np.asarray(indices,dtype=np.int64)[np.searchsorted(native,grid,side='right')-1]
+        segments.append({'start':indices[0],'end':indices[-1]+1,'grid':grid,'selected':selected,
+            'recording_segment_id':source_segment_ids[indices[0]]})
+        if len(segments)>1:
+            previous=int(segments[-2]['selected'][-1]);following=indices[0]
+            gaps.append({'previous_source_index':previous,'next_source_index':following,
+                'gap_ns':int(action_times[following]-action_times[previous]),'threshold_ns':3*period,
+                'cut_basis':'source_capture_pause_or_excluded_boundary' if following!=previous+1 or source_segment_ids[following]!=source_segment_ids[previous] else 'original_timestamp_gap'})
+    return segments,gaps
+
+
+def _completed_conversion(target, source_digest,capture_sha256=None):
     path = target / "manifest.json"
     if not path.is_file():
         return None
@@ -137,6 +192,8 @@ def _completed_conversion(target, source_digest):
         return None
     if saved.get("source_manifest_sha256") != source_digest:
         raise ValueError("Conversion target belongs to different source data; it will not be overwritten")
+    if saved.get('source_capture_manifest_sha256')!=capture_sha256:
+        raise ValueError('Conversion target belongs to a different capture timeline; original retained')
     artifacts = {item["file"]: item["sha256"] for item in descriptors}
     artifacts.update(saved.get("source_files_sha256", {}))
     for name, digest in artifacts.items():
@@ -147,13 +204,18 @@ def _completed_conversion(target, source_digest):
 
 
 def _write_conversion(staging, source_path, source_digest, source, frames, states, actions,
-                      times, low, high, segments, gaps, domain):
+                      times, low, high, segments, gaps, domain,*,capture=None):
     originals = staging / "source_originals"
     (originals / "frames").mkdir(parents=True)
     shutil.copyfile(source_path, originals / "manifest.json")
     if sha(originals / "manifest.json") != source_digest:
         raise ValueError("Source station manifest changed while retaining the original")
     artifacts = {"source_originals/manifest.json": source_digest}
+    if capture:
+        shutil.copyfile(capture['path'],originals/'capture-envelope.json')
+        if sha(originals/'capture-envelope.json')!=capture['sha256']:
+            raise ValueError('Source capture envelope changed while retaining original')
+        artifacts['source_originals/capture-envelope.json']=capture['sha256']
     source_files, shape = [], None
     for index, (path, descriptor) in enumerate(frames):
         suffix = path.suffix.lower() if path.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff") else ".image"
@@ -193,6 +255,9 @@ def _write_conversion(staging, source_path, source_digest, source, frames, state
                                  "original_count": segment["end"] - segment["start"],
                                  "converted_count": len(selected), "source_indices": selected.tolist(),
                                  "dropped_source_indices": sorted(set(range(segment["start"], segment["end"])) - set(selected.tolist()))})
+        if capture:
+            episodes[-1]['recording_segment_id']=segment['recording_segment_id']
+            segment_metadata[-1]['recording_segment_id']=segment['recording_segment_id']
     all_selected = np.concatenate([item["selected"] for item in segments])
     all_grid = np.concatenate([item["grid"] for item in segments])
     unchanged = np.array_equal(all_selected, np.arange(len(frames))) and np.array_equal(all_grid, times["action_monotonic_ns"])
@@ -217,6 +282,10 @@ def _write_conversion(staging, source_path, source_digest, source, frames, state
                   "gaps": gaps, "segments": segment_metadata,
                   "all_native_samples_retained": "source_originals/native_samples.npz"},
               "episodes": episodes, "method_ids": ["ENGINEERING_GLUE"]}
+    if capture:
+        result.update(conversion_version=3,source_capture_manifest_path=str(capture['path']),
+            source_capture_manifest_sha256=capture['sha256'],source_pause_selection_verified=True)
+        result['resampling']['excluded_source_capture_indices']=[row['source_sample_index'] for row in capture['selection'] if not row['included_after_pause_filter']]
     return result
 
 

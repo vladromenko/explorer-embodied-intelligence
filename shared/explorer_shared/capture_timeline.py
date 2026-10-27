@@ -54,6 +54,10 @@ def source_segment(at_ns,intervals,*,started_ns=0,ended_ns=None):
     """Return a retained segment index or None; zero duration pauses still cut."""
     at_ns=_ns(at_ns)
     validate_intervals(intervals,started_ns=started_ns,ended_ns=ended_ns)
+    return _segment(at_ns,intervals,started_ns,ended_ns)
+
+
+def _segment(at_ns,intervals,started_ns,ended_ns):
     if at_ns<started_ns or ended_ns is not None and at_ns>=ended_ns:return None
     segment=0
     for part in intervals:
@@ -62,3 +66,26 @@ def source_segment(at_ns,intervals,*,started_ns=0,ended_ns=None):
         if end is None or at_ns<end:return None
         segment+=1
     return segment
+
+
+def select_source_samples(samples,intervals,*,started_ns,ended_ns,clock_domain,boot_id):
+    """One canonical state/action selection, shared by seal and data consumers."""
+    if not isinstance(samples,list) or len(samples)>10000:
+        raise ValueError('Bounded original source sample list required')
+    if any(not isinstance(value,str) or not value for value in (clock_domain,boot_id)):
+        raise ValueError('Original source clock and boot identity required')
+    _ns(ended_ns);validate_intervals(intervals,started_ns=started_ns,ended_ns=ended_ns)
+    selection=[]
+    for index,sample in enumerate(samples):
+        if not isinstance(sample,dict):raise ValueError('Original source sample object required')
+        if sample.get('clock_domain')!=clock_domain or sample.get('boot_id')!=boot_id:
+            raise ValueError('Original sample source clock/boot changed')
+        action=sample.get('action_monotonic_ns');state=sample.get('state_monotonic_ns')
+        segment=_segment(_ns(action),intervals,started_ns,ended_ns)
+        state_segment=_segment(_ns(state),intervals,started_ns,ended_ns)
+        selected=segment is not None and state_segment==segment
+        selection.append({'source_sample_index':index,'action_monotonic_ns':action,'state_monotonic_ns':state,
+            'recording_segment_id':segment if selected else None,'included_after_pause_filter':selected,
+            'selection_basis':'source_state_and_action_in_same_unpaused_segment',
+            'exclusion_reason':None if selected else 'ACTION_OUTSIDE_UNPAUSED_SEGMENT' if segment is None else 'STATE_CROSSES_LIFECYCLE_BOUNDARY'})
+    return selection

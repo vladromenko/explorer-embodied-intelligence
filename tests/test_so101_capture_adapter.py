@@ -5,6 +5,8 @@ import io
 import json
 from pathlib import Path
 import sys
+import os
+import subprocess
 import tarfile
 import threading
 from types import SimpleNamespace
@@ -271,7 +273,13 @@ def test_metadata_persistence_failure_never_publishes_or_clears_original_unknown
 def test_one_metadata_owner_and_package_do_not_load_optional_models(capture):
     adapter,source,clock,make=capture
     with pytest.raises(BlockingIOError):make()
-    assert not source.calls and 'torch' not in sys.modules
+    assert not source.calls
+    # Other collected integration tests may legitimately import training code.
+    # Measure this package's import boundary in its own interpreter instead.
+    root=Path(__file__).resolve().parents[1]
+    env=dict(os.environ,PYTHONPATH=os.pathsep.join([str(root/'shared'),str(root/'04-so101-source-learning/src')]))
+    subprocess.run([sys.executable,'-c',"import sys; assert 'torch' not in sys.modules; import explorer_so101.capture_adapter; assert 'torch' not in sys.modules"],
+        check=True,timeout=10,env=env)
 
 
 @pytest.mark.parametrize('kind',['unknown_second_start','old_id_collision'])

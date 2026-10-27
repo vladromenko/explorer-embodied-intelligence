@@ -1,0 +1,59 @@
+{
+  "schema": "explorer_source_capture_timeline_station_conversion_v1",
+  "scope": "ORIGINAL_FILE_WRITER_REAL_SMALL_JPEG_SOFTWARE_FIXTURES_NO_PHYSICAL_IO",
+  "reused_core": [
+    "capture_timeline source intervals/select_source_samples",
+    "original Station._sample/filewriter/seal",
+    "original station_adapter conversion/causal hold",
+    "original native6 data arrays and source image retention"
+  ],
+  "new_adapter": "optional SHA-bound source capture envelope for existing converter; no converter copy",
+  "checks": [
+    "10ms/110ms source pause boundaries cannot be glued by old3period threshold",
+    "same source state/action retained segment required",
+    "all3raw frames/state/actions retained, onlyindices0and2 converted into2episodes",
+    "originalJPEG/manifest/envelope bytes retained and pinned",
+    "source phase annotation context handled without inventing attainment",
+    "forged included paused sample rejected even with matching new file SHA",
+    "cached conversion cannot omit/change timeline",
+    "legacy station conversion tests preserved",
+    "source-only package optional-model import checked in fresh interpreter"
+  ],
+  "results": {
+    "integrated_python": {
+      "passed": 53,
+      "skipped": 2,
+      "elapsed_s": 5.75
+    },
+    "final_shared_selection_and_converter": {
+      "passed": 6,
+      "elapsed_s": 0.7
+    },
+    "optimizer_updates": 0,
+    "official_LeRobot_export_executed_in_this_receipt": false,
+    "raw_negative": "/mnt/explorer-data/explorer-work/04-source-timeline-conversion-20261027/initial-test-collection-negative.json"
+  },
+  "requested_limits": {
+    "CPUQuota": "100%",
+    "MemoryMax": "1G",
+    "MemorySwapMax": 0
+  },
+  "kernel_memory_peak_claimed": false,
+  "implementation_sha256": {
+    "shared/explorer_shared/capture_timeline.py": "10c077911c7da934c84ab825b16931c445786c9e44858117f4743e88edb15912",
+    "04-so101-source-learning/src/explorer_so101/capture_adapter.py": "0fd4f3b5ce24e301f794b88513e86d490466840c7639ecb8d3f43c8bd1ec9eb2",
+    "01-autonomous-learning/src/explorer_sim/station_adapter.py": "14acab6efb3d0e1027b06c24b7e4f142e2ed3d9a2d6a2c9488a0d99800aff65b",
+    "tests/test_station_capture_timeline_conversion.py": "d925af1a881470624ed4baf8e591d1302cac68c36c7f8abc994cf0e67645e924",
+    "tests/test_so101_capture_adapter.py": "f042b94a4cda13dea8926bc89eea12e26f81d3a8ace7bf6c6d936fa1d019c6cf"
+  },
+  "source04_software_ready": false,
+  "deployed": false,
+  "physical_commands": 0,
+  "training_admission_inferred": false,
+  "remaining": [
+    "worker approved outer/archive importer and qualification bindings",
+    "official Dataset +queued ACT/resume +UI on current complete04 path",
+    "guarded first Pi runtime deployment",
+    "real expert/physical acceptance separately"
+  ]
+}
