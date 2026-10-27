@@ -13,9 +13,9 @@
 | Исследования | Новые contact probes воспроизводятся в новом PID/корне; selective repair сравнивается с baselines на новых зафиксированных условиях. H1–H5, повторы/ablation/retention имеют raw evidence и честные ограничения. |
 | Recovery | Backup/restore и rollback проверены; новые сетевые/процессные/OOM сценарии не переигрывают команды. Реальные device reboot/Wi-Fi проверки только после отдельного checkpoint и применимых физических условий. |
 
-Root интегрирует, выпускает и запускает общую регрессию. Одновременно не более3
-независимых субагентов, отдельные worktree и непересекающееся владение файлами.
-При лимите их очередь остаётся здесь; root продолжает доступную работу.
-Сейчас: direct03 — новый receiver setup helper; wizard — portable numeric restore
-V10; student — figures/paper из проверенного V10. Их точные commits/evidence
-переходят в STATUS при интеграции. Пользователю не передаются программные блокеры.
+Root интегрирует, выпускает и запускает общую регрессию. По умолчанию0–2
+субагента; третий только для трёх крупных независимых потоков. Отдельные worktree
+и непересекающееся владение файлами; короткие проверки выполняет root.
+Сейчас: direct03 — phase/actual-hold successor05 без изменения исходного TTL;
+portable16 и figures/paper завершены и интегрированы, их агенты не заняты.
+Root — frozen release regression, qualified source bindings и guarded cutover.

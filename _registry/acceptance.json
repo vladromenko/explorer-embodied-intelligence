@@ -137,7 +137,9 @@
         },
         "evidence": [
           "shared/training/PROFILE4_ACTUAL_20261026_RU.md",
-          "research/audits/TRANSFER_CONTACT_V10_RESULTS_RU.md"
+          "research/audits/TRANSFER_CONTACT_V10_RESULTS_RU.md",
+          "research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md",
+          "research/audits/CONTACT_V10_FIGURE_RU.md"
         ],
         "physical_skill_status": "NOT_VALIDATED"
       },
@@ -215,7 +217,7 @@
         "experiment_id": "05",
         "status": "IN_PROGRESS",
         "checks": {
-          "interface_and_instructions": "MAIN_TESTED_INTEGRATION_OPEN",
+          "interface_and_instructions": "MAIN_NATIVE_RECEIVER_METADATA_UI_TESTED_LIVE_BASE",
           "required_cameras": "BOTH_CAMERA_PATHS_TESTED_SHARED_VIEW_OPEN",
           "manual_control": "FOUR_MODES_SOFTWARE_PARTIAL",
           "keyboard_gamepad_leader": "NATIVE_INPUTS_TESTED_PHASE_LOOP_OPEN",
@@ -224,7 +226,7 @@
           "training_launch": "ROLE_WARM_TRAIN_PATH_TESTED",
           "model_version_provenance": "TESTED",
           "skill_replay": "FULL_HANDOVER_OPEN",
-          "STOP_cancel": "SCOPED_AND_DURABLE_LATCH_TESTED",
+          "STOP_cancel": "EXACT_UNATTACHED_NATIVE_EPOCH_TESTED_PHYSICAL_OPEN",
           "restart_recovery": "WAL_PROCESS_TESTED_DEVICE_OPEN",
           "user_physical_actions": "USER_SCENE_ENDPOINTS_HOLD_OUTCOMES"
         },
@@ -255,7 +257,9 @@
         "evidence": [
           "research/audits/TRANSFER_FUTURE_INITIAL_CAPTURE_RU.md",
           "research/audits/transfer-hover-development-v9-results-20261026.json",
-          "tests/test_transfer_target_split.py"
+          "tests/test_transfer_target_split.py",
+          "research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md",
+          "research/audits/CONTACT_V10_FIGURE_RU.md"
         ],
         "physical_skill_status": "NOT_VALIDATED"
       }

@@ -3,8 +3,8 @@
 **IN_PROGRESS. Весь master-prompt не завершён.** Canonical Git:
 `/home/jetsonnx/work/Explorer`; работающие службы не зависят от Mac/чата.
 
-Сейчас root подключает receiver setup05 к service/API/UI, затем выполняет
-релизную регрессию и guarded cutover. Подготовленные ветки и stash сохранены;
+Receiver setup05 подключён к service/API/UI; root выполняет frozen релизную
+регрессию и готовит guarded cutover. Подготовленные ветки и stash сохранены;
 изменения интегрируются отдельными commits с адресными проверками.
 
 В production central+worker активен **36a2d6c72295b8bf0598e1af953ade06cf217752**;
@@ -23,7 +23,9 @@
   ограждены. Физическая object evaluation не выдана за пройденную.
 - 05: одноразовые native choices; original Pi publication gate и durable
   double-hold WAL; receiver-first/giver arm и Pi challenge после actual giver
-  opening→новое независимое подтверждение→finish.45 targeted tests прошли;
+  opening→новое независимое подтверждение→finish. Native STOP также охватывает
+  завершённый begin до attach по exact returned epoch; end-to-end fake-source
+  проверка прошла.45 interlock targeted tests прошли;
   loss/corruption/restart/legacy/fault race проверены на fake owners.
   [Границы](05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md).
 - Настоящий future initial capture→authenticated API→Supervisor/bootstrap→worker→
@@ -36,12 +38,13 @@
   сохраняется. Это contact diagnostics, не learned/full task/physical mastery.
   [Все исходы](research/audits/TRANSFER_CONTACT_V10_RESULTS_RU.md).
 - Immutable SIM helper V7b дал новый PID/native/RNG/report bit-exact replay.
-  Отдельный portable V10 near-left baseline также воспроизведён в новом PID:
-  native501×769 и contacts/solver bytes exact; Python old-path ban проверен,
-  C opens/full OS не измерены. Полная16-case portable серия ещё не завершена.
+  Полный portable V10:16 новых PID/UUID,
+  14016×769 float64, contacts/solver/score bytes exact,0diff. Python old-path
+  ban проверен; C opens UNMEASURED, OS closure PARTIAL. Отрицательные исходы
+  сохранены. [Receipt](research/audits/CONTACT_PORTABLE_V10_RESULTS_RU.md).
 - Последний полный frozen d52d13d:1401passed/21skipped/7failed за308.28s.
   Stale proof ожидания и общий login budget тестов исправлены,11 targeted
-  passed; новый полный релизный прогон ещё нужен.194 Node tests прошли.
+  passed; новый полный релизный прогон запускается из frozen commit.198 Node tests прошли.
   Все24jobs/11cards/11892старыхevents и production schema совпали.
   [Отрицательный первый прогон](_registry/evidence/full-regression-first-current-20261027.json).
 
@@ -51,7 +54,7 @@ Nano native reference невалиден после сохранённого tel
 firmware/limits/watchdogs/readbackOFF. Unknown и command-estimate не становятся
 measured. Source/target splits раздельны; development/sealed/unknown не optimizer.
 
-Открытый программный объём: receiver metadata UI, phase/hold-successor lifecycle
+Открытый программный объём: phase/hold-successor lifecycle
 без скрытого TTL/lease продления; final regression/deploy/Firefox/live scientific
 byte audit; полный learned object/transfer/retention цикл, независимые H1–H5
 comparisons/ablations и broad recovery. Физическая подготовка отдельно.
