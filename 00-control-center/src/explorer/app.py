@@ -266,6 +266,13 @@ def node_states():
         item.setdefault('health', 'online' if item['online'] else 'offline')
         item.setdefault('capabilities', {})
         item.setdefault('cameras', [])
+        if config['id'] in ('nano','pi'):
+            from explorer_shared.camera_inventory import audited_camera_metadata
+            stream_id='nano-rgbd' if config['id']=='nano' else 'pi-overview'
+            # Project legacy observer descriptions through the owner's actual
+            # inventory without inventing a stream or changing retained rows.
+            matches=[camera for camera in item['cameras'] if camera.get('id')==stream_id]
+            item['cameras']=[dict(matches[0],**audited_camera_metadata(config['id'],stream_id))] if matches else []
         nodes.append(item)
     memory = psutil.virtual_memory()
     nodes.insert(0, dict(id='nx', name='Центральный сервер', host='homebrain.local', online=True,
