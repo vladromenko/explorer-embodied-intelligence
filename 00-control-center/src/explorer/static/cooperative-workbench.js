@@ -269,7 +269,7 @@
       return operation(name,{...copy(fields),session_id:session.session_id,expected_epoch:session.epoch},name==="native_stop");
     }
     function receiverSetupOperation(name,fields={}) {
-      const names=["receiver_setup_bind_guard","receiver_setup_capture_empty_open","receiver_setup_capture_empty_closed","receiver_setup_reset_safe"],base=["receiver_setup_choice_id","observing","user_observed_test_confirmed"];
+      const names=["receiver_setup_bind_guard","receiver_setup_capture_empty_open","receiver_setup_capture_empty_closed","receiver_setup_reset_safe","receiver_setup_adopt_hold"],base=["receiver_setup_choice_id","observing","user_observed_test_confirmed"];
       const allowed=name.includes("capture_") ? [...base,"observation_choice_id","displayed_jpeg_sha256","empty_gripper_confirmed"] : name==="receiver_setup_reset_safe" ? [...base,"object_safe_no_dual_hold"] : base;
       if((name!=="receiver_setup_refresh" && !names.includes(name)) || !fields || typeof fields!=="object" || Array.isArray(fields) || Object.keys(fields).some(key=>!(name==="receiver_setup_refresh" ? [] : allowed).includes(key)))throw new Error("Нужен текущий серверный выбор подготовки SO101 без native чисел, адресов или подмены epoch");
       const session=sessionRequired();return operation(name,{...copy(fields),session_id:session.session_id,expected_epoch:session.epoch});

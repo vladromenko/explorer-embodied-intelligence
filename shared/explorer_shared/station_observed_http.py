@@ -44,6 +44,7 @@ class StationObservedHttp:
             return self.request('GET','/station/observed-test/cooperative/status',None)
         extra={'bind':{'direction_profile_id'},'arm':set(),'finish/challenge':{'giver_release_receipt'},
             'finish':{'challenge_id','confirmation'},'reset_safe':{'object_safe_no_dual_hold'},
+            'successor':{'previous_grant_id','previous_control_epoch','observing','user_observed_test_confirmed'},
             'direction/observe':{'label','frame_id','displayed_jpeg_sha256','observing','empty_gripper_confirmed','user_observed_test_confirmed'}}
         common={'grant_id','expected_control_epoch','interlock_id','expected_revision'}
         if operation not in extra or not isinstance(body,dict) or set(body)-common-extra[operation] or not isinstance(authenticated_actor,str) or not authenticated_actor:

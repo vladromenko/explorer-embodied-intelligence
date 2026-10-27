@@ -249,7 +249,7 @@ class StationCooperativeInterlock:
                 'basis':value['basis']} for key,value in self.profiles.items()])
         result.update(direction_capture_choices=deepcopy(list(self.captures.values())),direction_capture_errors=deepcopy(self.capture_errors),
             direction_capture_uses_existing_caches_only=True,physical_position_accuracy_known=False)
-        result.update(parked_observation_only=(self.helper.frozen or {}).get('parked_observation_only') is True,
+        result.update(measured_hold_successor_metadata_supported=True,parked_observation_only=(self.helper.frozen or {}).get('parked_observation_only') is True,
             parked_target_writes_allowed=False,parked_is_not_dispatch_authority=True)
         return result
     @staticmethod

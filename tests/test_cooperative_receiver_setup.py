@@ -192,3 +192,41 @@ def test_unavailable_source_stays_unknown_in_readonly_summary_and_has_no_choices
         assert result['source_status']['direction_profile_count'] is None and result['source_status']['direction_capture_count'] is None
         assert pair.station.calls==[]
     finally:close(service,pair,client)
+
+
+def test_real_root_helper_adopts_original_worker_hold_with_server_owned_ids_and_no_new_write(tmp_path,monkeypatch):
+    from test_cooperative_service import fixture as central_fixture,session
+    from test_station_publication_gate import worker_rig
+    from test_station_hold_successor import authorize
+    service,store,calls,active,contexts,client=central_fixture(tmp_path);row,spec=session(service)
+    path=tmp_path/'original-worker';path.mkdir();binding=service.observed_setup.receiver_binding(row,spec)
+    station,provider,selected,start,bus,samples,tick,StopAfter,leader=worker_rig(path,monkeypatch,binding_override=binding,actor='trusted-owner')
+    monkeypatch.setattr('explorer_shared.so101_station.time.monotonic_ns',lambda:tick[0])
+    try:
+        old=start();station.stop_event=StopAfter();station._work();wrapper=provider.cooperative_interlock
+        bound=wrapper.dispatch('bind',{'grant_id':old['grant_id'],'expected_control_epoch':old['control_epoch'],'expected_revision':0},authenticated_actor='trusted-owner')
+        wrapper.dispatch('arm',{'grant_id':old['grant_id'],'expected_control_epoch':old['control_epoch'],'interlock_id':bound['interlock_id'],'expected_revision':bound['revision']},authenticated_actor='trusted-owner')
+        provider.command(old['grant_id'],binding,'stop',{'expected_control_epoch':old['control_epoch']})
+        tick[0]+=100_000_000;station.stop_event=StopAfter();station._work();fresh=authorize(provider,binding,'trusted-owner');posts=[]
+        def source(method,path,body):
+            if method=='GET':
+                if path=='/station/status':return station.status()
+                if path=='/station/observed-test/status':return provider.status()
+                if path=='/station/observed-test/cooperative/status':return wrapper.status()
+                raise AssertionError(path)
+            assert path=='/station/observed-test/cooperative/successor';posts.append(deepcopy(body));fields=deepcopy(body);actor=fields.pop('actor_id')
+            return wrapper.dispatch('successor',fields,authenticated_actor=actor)
+        service._request=lambda role:source;helper=service.receiver_setup
+        state=helper.refresh(row,spec,actor='trusted-owner');choice=state['operations']['adopt_hold']['choices'][0]['choice_id'];writes=deepcopy(bus.writes)
+        body={'receiver_setup_choice_id':choice,'observing':True,'user_observed_test_confirmed':True}
+        for extra in ({'previous_grant_id':'browser-spoof'},{'held_native6':[0]*6},{'control_epoch':'browser-spoof'}):
+            with pytest.raises(ValueError,match='ID-only'):helper.execute('adopt_hold',row,spec,{**body,**extra},actor='trusted-owner')
+        result=helper.execute('adopt_hold',row,spec,body,actor='trusted-owner')
+        assert posts==[{'grant_id':fresh['grant_id'],'expected_control_epoch':fresh['control_epoch'],'interlock_id':bound['interlock_id'],
+            'expected_revision':bound['revision']+1,'previous_grant_id':old['grant_id'],'previous_control_epoch':old['control_epoch'],
+            'observing':True,'user_observed_test_confirmed':True,'actor_id':'trusted-owner'}]
+        assert result['source_receipt']['schema']=='explorer_station_cooperative_successor_receipt_v1'
+        assert result['physical_execution_authorized'] is False and bus.writes==writes
+        assert wrapper.status()['armed'] and wrapper.status()['parked_observation_only']
+        assert not helper.refresh(row,spec,actor='trusted-owner')['operations']['adopt_hold']['available']
+    finally:service.close();client.close()

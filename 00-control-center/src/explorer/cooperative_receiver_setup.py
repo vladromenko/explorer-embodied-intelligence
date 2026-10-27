@@ -13,7 +13,7 @@ import uuid
 from explorer_shared.contracts import digest
 from explorer_shared.station_observed_http import StationObservedHttp
 
-OPERATIONS=('bind_guard','capture_empty_open','capture_empty_closed','reset_safe')
+OPERATIONS=('bind_guard','capture_empty_open','capture_empty_closed','reset_safe','adopt_hold')
 SCHEMA='explorer_cooperative_receiver_setup_v1'
 TTL_NS=2_000_000_000  # Existing server USER-choice lifetime, not a motor lease.
 
@@ -51,7 +51,7 @@ class CooperativeReceiverSetup:
         return {'grant':{key:deepcopy(grant.get(key)) for key in ('grant_id','binding','provider_process','actor_id','control_epoch',
                     'native_mode','boot_id','clock_domain','follower_calibration_sha256')},
             'native_mode':native.get('mode'),'interlock':{key:deepcopy(source.get(key)) for key in
-                ('interlock_id','revision','armed','persistence_fault','all_target_writes_blocked')}}
+                ('interlock_id','revision','armed','persistence_fault','all_target_writes_blocked','native_owner','parked_observation_only')}}
     def _mint(self,operation,row,spec,actor,identity,profile=None):
         context=self.observed._context(row,spec);choice=digest({'context':context,'operation':operation,'actor':actor,'nonce':uuid.uuid4().hex})
         self.choices[choice]={'context':context,'operation':operation,'actor':actor,'identity':deepcopy(identity),'profile':deepcopy(profile),
@@ -74,17 +74,24 @@ class CooperativeReceiverSetup:
             healthy=source.get('persistence_fault') is None and source.get('all_target_writes_blocked') is False
             with self.lock:
                 if self.generations.get(row['session_id'],0)!=generation:raise ValueError('Receiver setup was locally invalidated during refresh')
-                if healthy and source.get('armed') is False:
+                if healthy and source.get('armed') is False and source.get('parked_observation_only') is not True:
                     for name in ('capture_empty_open','capture_empty_closed'):
                         operations[name].update(available=True,choices=[self._mint(name,row,spec,actor,identity)])
                     if profiles and not ambiguity:
                         operations['bind_guard'].update(available=True,choices=[self._mint('bind_guard',row,spec,actor,identity,profile) for profile in profiles])
                     else:operations['bind_guard']['reason']='MULTIPLE_DIRECTION_PROFILES_REQUIRE_SOURCE_REVIEW' if ambiguity else 'OBSERVED_EMPTY_ENDPOINTS_REQUIRED'
+                previous=source.get('native_owner') or {}
+                if (healthy and source.get('measured_hold_successor_metadata_supported') is True and native.get('mode')=='idle' and
+                        source.get('binding')==grant.get('binding') and previous.get('grant_id') and previous.get('control_epoch') and
+                        previous.get('grant_id')!=grant['grant_id'] and all(previous.get(key)==grant.get(key) for key in
+                            ('actor_id','provider_process','boot_id','clock_domain','follower_calibration_sha256'))):
+                    operations['adopt_hold'].update(available=True,choices=[self._mint('adopt_hold',row,spec,actor,identity)])
+                else:operations['adopt_hold']['reason']='NEW_EXPLICIT_USER_IDLE_GRANT_AND_OWNED_RETURNED_HOLD_REQUIRED'
                 if native.get('mode')=='idle' and isinstance(source.get('interlock_id'),str):
                     operations['reset_safe'].update(available=True,choices=[self._mint('reset_safe',row,spec,actor,identity)])
         except Exception as error:reason=type(error).__name__+':'+str(error)
         summary={key:deepcopy(source.get(key)) for key in ('schema','phase','armed','binding_current','capability_ready','direction_known',
-            'persistence_fault','all_target_writes_blocked')}
+            'persistence_fault','all_target_writes_blocked','parked_observation_only','parked_is_not_dispatch_authority')}
         summary.update({key:len(source[name]) if isinstance(source.get(name),list) else None for key,name in
             (('direction_capture_count','direction_capture_choices'),('direction_profile_count','direction_profile_choices'))})
         result={'schema':SCHEMA,'operations':operations,'source_status':summary,'reason':reason,'received_ns':self.clock(),
@@ -129,7 +136,7 @@ class CooperativeReceiverSetup:
     def execute(self,operation,row,spec,body,*,actor):
         common={'receiver_setup_choice_id','observing','user_observed_test_confirmed','session_id','expected_epoch'}
         extra={'bind_guard':set(),'capture_empty_open':{'observation_choice_id','displayed_jpeg_sha256','empty_gripper_confirmed'},
-            'capture_empty_closed':{'observation_choice_id','displayed_jpeg_sha256','empty_gripper_confirmed'},'reset_safe':{'object_safe_no_dual_hold'}}
+            'capture_empty_closed':{'observation_choice_id','displayed_jpeg_sha256','empty_gripper_confirmed'},'reset_safe':{'object_safe_no_dual_hold'},'adopt_hold':set()}
         if (operation not in extra or not isinstance(body,dict) or set(body)-common-extra[operation] or
                 body.get('observing') is not True or body.get('user_observed_test_confirmed') is not True or
                 operation.startswith('capture_') and body.get('empty_gripper_confirmed') is not True or
@@ -151,6 +158,10 @@ class CooperativeReceiverSetup:
                 profile=selected['profile']
                 if profile not in source.get('direction_profile_choices',[]):raise ValueError('Actual source direction profile changed')
                 payload['direction_profile_id']=profile['profile_id'];native_op='bind'
+            elif operation=='adopt_hold':
+                previous=selected['identity']['interlock']['native_owner']
+                payload.update(previous_grant_id=previous['grant_id'],previous_control_epoch=previous['control_epoch'],
+                    observing=True,user_observed_test_confirmed=True);native_op='successor'
             elif operation=='reset_safe':payload['object_safe_no_dual_hold']=True;native_op='reset_safe'
             else:
                 frame=self._displayed(body.get('observation_choice_id'),row,spec,body,actor,grant)

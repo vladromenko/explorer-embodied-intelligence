@@ -2,6 +2,7 @@
 
 No real serial port, physical grant, camera capture, motor or model is opened.
 """
+from copy import deepcopy
 from types import SimpleNamespace
 import uuid
 
@@ -12,7 +13,7 @@ from explorer_shared.station_observed_activation import StationObservedPermissio
 from test_station_operations import make_station
 
 
-def worker_rig(tmp_path,monkeypatch):
+def worker_rig(tmp_path,monkeypatch,*,binding_override=None,actor='SOFTWARE-TEST-OPERATOR'):
     station=make_station(tmp_path,monkeypatch);tick=[10_000_000_000];leader_active=[False]
     class Camera:
         camera_id='SOFTWARE-camera';stale_s=2.
@@ -25,10 +26,11 @@ def worker_rig(tmp_path,monkeypatch):
     provider=StationObservedPermission(station,station.camera,clock=lambda:tick[0])
     selected=dict(purpose='cooperative05',input_mode='leader',skill_id=str(uuid.uuid4()),skill_version=1,spec_sha256='b'*64,
         action_contract_id=CONTRACT,source_domain='PHYSICAL',cooperative_session_id='fake-session',coordinator_epoch='fake-coordinator',object_id='fake-object')
+    if binding_override is not None:selected=deepcopy(binding_override)
     def observed_start():
         challenge=provider.challenge(selected)
         grant=provider.authorize(dict(binding=selected,challenge_id=challenge['challenge_id'],displayed_jpeg_sha256=challenge['frame']['jpeg_sha256'],
-            expected_control_epoch=station.control_epoch,observing=True,robot_workspace_checked=True,user_observed_test_confirmed=True,actor_id='SOFTWARE-TEST-OPERATOR'))
+            expected_control_epoch=station.control_epoch,observing=True,robot_workspace_checked=True,user_observed_test_confirmed=True,actor_id=actor))
         reply=provider.command(grant['grant_id'],selected,'teleop/start',{'expected_control_epoch':grant['control_epoch']})
         leader_active[0]=True;bus.writes.clear()
         return reply['grant']

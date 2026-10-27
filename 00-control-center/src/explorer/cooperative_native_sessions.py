@@ -106,8 +106,12 @@ class CooperativeNativeSessions:
                 else:
                     native=pair['source'];grant=pair['permission']['grant']
                     guarded=pair['permission'].get('native_publication_permission_gate_installed') is True
-                    operations['native_begin'].update(implemented=True,available=guarded and native.get('mode')=='idle',
-                        reason=None if guarded else 'NATIVE_USER_PERMISSION_REQUIRED_AT_EVERY_ORIGINAL_WRITE')
+                    interlock=pair['permission'].get('cooperative_hold_interlock') or {}
+                    parked=(interlock.get('armed') is True or interlock.get('parked_observation_only') is True or
+                        interlock.get('all_target_writes_blocked') is True or interlock.get('persistence_fault') is not None)
+                    operations['native_begin'].update(implemented=True,available=guarded and not parked and native.get('mode')=='idle',
+                        reason='EXPLICIT_HELD_PHASE_TRANSITION_OR_SAFE_OBJECT_RESET_REQUIRED' if parked else
+                            None if guarded else 'NATIVE_USER_PERMISSION_REQUIRED_AT_EVERY_ORIGINAL_WRITE')
                     operations['native_attach'].update(implemented=True,available=guarded and native.get('mode')==('policy' if policy else 'teleoperation'),
                         reason=None if guarded else 'NATIVE_USER_PERMISSION_REQUIRED_AT_EVERY_ORIGINAL_WRITE')
                     operations['native_stop'].update(implemented=True,available=True)

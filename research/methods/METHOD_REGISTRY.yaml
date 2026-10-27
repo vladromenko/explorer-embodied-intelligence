@@ -5170,7 +5170,9 @@
       "test_evidence": [
         "tests/test_station_cooperative_interlock.py",
         "tests/test_station_publication_gate.py",
-        "tests/test_station_cooperative_http.py"
+        "tests/test_station_cooperative_http.py",
+        "tests/test_station_hold_successor.py",
+        "tests/test_cooperative_receiver_setup.py"
       ],
       "hardware_run_ids": []
     },

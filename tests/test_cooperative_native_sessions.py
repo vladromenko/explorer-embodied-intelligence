@@ -202,3 +202,19 @@ def test_expired_or_pending_choices_reject_before_any_source_operation(tmp_path)
         with pytest.raises(ValueError,match='current protocol step'):execute(service,'native_begin',body)
         assert len(pair.calls)==before and not pair.selections
     finally:service.close();pair.close();client.close()
+
+
+@pytest.mark.parametrize('blocked',[{'armed':True},{'parked_observation_only':True},{'all_target_writes_blocked':True},{'persistence_fault':'CORRUPT_WAL'}])
+def test_generic_receiver_begin_never_offered_over_held_or_faulted_publication_gate(tmp_path,monkeypatch,blocked):
+    service,store,row,spec,pair,client=configured(tmp_path)
+    original=service.native_controls._source
+    def source(role):
+        value=original(role)
+        if role=='receiver':value['permission']['cooperative_hold_interlock']=blocked
+        return value
+    monkeypatch.setattr(service.native_controls,'_source',source)
+    try:
+        result=service.native_controls.refresh(row,spec,actor='trusted-owner');begin=result['roles']['receiver']['operations']['native_begin']
+        assert not begin['available'] and begin['reason']=='EXPLICIT_HELD_PHASE_TRANSITION_OR_SAFE_OBJECT_RESET_REQUIRED'
+        assert not begin.get('choice_id') and pair.station.calls==[]
+    finally:service.close();pair.close();client.close()

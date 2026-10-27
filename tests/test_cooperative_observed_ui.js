@@ -125,7 +125,7 @@ test('blur while native request is pending drops its late controls and never reu
 
 async function receiverRig() {
   const r=await rig(),receiverCalls=[];
-  r.setup={schema:'explorer_cooperative_receiver_setup_v1',operations:Object.fromEntries(['bind_guard','capture_empty_open','capture_empty_closed','reset_safe'].map(op=>[op,{implemented:true,available:true,choices:[{choice_id:digest('a'),label:op}]}]))};
+  r.setup={schema:'explorer_cooperative_receiver_setup_v1',operations:Object.fromEntries(['bind_guard','capture_empty_open','capture_empty_closed','reset_safe','adopt_hold'].map(op=>[op,{implemented:true,available:true,choices:[{choice_id:digest('a'),label:op}]}]))};
   r.options.invokeReceiverSetup=async(op,fields)=>{receiverCalls.push([op,copy(fields)]);return op==='receiver_setup_refresh'?copy(r.setup):{operation:op.replace('receiver_setup_',''),native_command_sent:false,native_lease_or_user_observation_renewed:false,physical_execution_authorized:false};};
   return {...r,receiverCalls};
 }
@@ -150,4 +150,34 @@ test('receiver setup rejects stale choices, unknown operations, missing safe-obj
   await r.client.receiverRefresh();await assert.rejects(r.client.receiverCommand('native_begin',digest('a')),/Обновите/);
   const pending=deferred();r.options.invokeReceiverSetup=async()=>pending.promise;const reading=r.client.receiverRefresh();r.client.setVisible(false);pending.resolve(r.setup);assert.deepEqual(await reading,{ignored:true});r.client.setVisible(true);assert.equal(r.client.snapshot().receiverSetup,null);
   assert.equal(r.receiverCalls.length,2);
+});
+
+
+test('receiver begin discards a pending previous-epoch frame while continuous USER watching requires a fresh display',async()=>{
+  const r=await nativeRig();await authorize(r.client);await r.client.displayObservation();const oldToken=r.client.snapshot().frames.receiver.token;
+  await r.client.nativeRefresh();nativeAffirm(r.client,'receiver');await r.client.nativeCommand('receiver','native_begin');
+  assert.equal(r.client.snapshot().watching,true);assert.equal(r.client.snapshot().frames.receiver,undefined);
+  assert.deepEqual(await r.client.displayed('receiver',oldToken),{ignored:true});
+  assert.equal(r.calls.some(([op])=>op==='observed_observe'),false);
+  await r.client.watchOnce();assert.notEqual(r.client.snapshot().frames.receiver.token,oldToken);
+  await r.client.displayed('receiver',r.client.snapshot().frames.receiver.token);
+  assert.equal(r.calls.filter(([op])=>op==='observed_observe').length,1);
+  assert.deepEqual(r.nativeCalls.map(([op])=>op),['native_refresh','native_begin']);
+  await r.client.nativeRefresh();nativeAffirm(r.client,'receiver');await r.client.nativeCommand('receiver','native_stop');
+  assert.equal(r.client.snapshot().watching,false);assert.equal(r.client.snapshot().frames.receiver,undefined);
+});
+test('uncertain receiver start cannot keep renewing observation or reuse a pending old image',async()=>{
+  const r=await nativeRig();await authorize(r.client);await r.client.displayObservation();const token=r.client.snapshot().frames.receiver.token;
+  await r.client.nativeRefresh();nativeAffirm(r.client,'receiver');r.options.invokeNative=async()=>{throw new Error('unknown receiver start reply');};
+  await assert.rejects(r.client.nativeCommand('receiver','native_begin'),/unknown receiver/);
+  assert.equal(r.client.snapshot().watching,false);assert.equal(r.client.snapshot().frames.receiver,undefined);
+  assert.deepEqual(r.client.snapshot().nativeUncertain,['receiver']);assert.deepEqual(await r.client.displayed('receiver',token),{ignored:true});
+  assert.deepEqual(await r.client.watchOnce(),{ignored:true});assert.equal(r.calls.some(([op])=>op==='observed_observe'),false);
+});
+
+
+test('held observation adoption uses only opaque choice and flags and never starts or renews native control',async()=>{
+ const r=await receiverRig();await r.client.receiverRefresh();receiverAffirm(r.client);await r.client.receiverCommand('adopt_hold',digest('a'));
+ assert.deepEqual(r.receiverCalls,[['receiver_setup_refresh',{}],['receiver_setup_adopt_hold',{receiver_setup_choice_id:digest('a'),observing:true,user_observed_test_confirmed:true}]]);
+ assert.equal(r.client.snapshot().watching,false);assert.equal(r.client.snapshot().receiverSetup,null);
 });

@@ -3,7 +3,10 @@
 ENGINEERING_GLUE. Это отдельный source metadata слой. Исходный `Station.py`,
 motor/controller settings, original30Hz, action goal duration и USER leases не
 изменяются. Нет модели, второго servo/camera owner, heartbeat или target writes.
-Root отдельно подключает provider/API/UI и последующий explicit phase activation.
+В текущем main source metadata подключён к fixed authenticated service/API/UI
+через одноразовый server choice; старые owner IDs выводит только сервер. Live
+release883 ещё не включает этот слой. Последующий explicit phase activation
+остаётся отдельной незавершённой работой.
 
 Исходный policy action живёт по прежнему deadline. Ветви простого policy TTL и
 camera loss переходят в idle и вызывают измеренное удержание, но не публикуют
