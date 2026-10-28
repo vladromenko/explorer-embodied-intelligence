@@ -1,0 +1,70 @@
+{
+  "schema": "explorer05_saved_native_learning_actual_UI_v1",
+  "code_commit": "150d8b838c167b4afc5618c421e72ff0a39d56f4",
+  "status": "IMPLEMENTED_SOFTWARE_TESTED_NOT_DEPLOYED",
+  "actual_app": "authenticated /experiments/05 ASGI lifespanOFF, isolated generated-model Store",
+  "views": [
+    1440,
+    390
+  ],
+  "saved_models": {
+    "giver": "746ba7ccad084851b8cde25f44bb2c82",
+    "receiver": "eafde9639fb149588c1b600d63196983"
+  },
+  "actual_training": "Both original queued trainers ACT2/save-reload0; separate post-stage DEV10/0optimizer and source6 offline saved-processor6D proof linked separately",
+  "source6_model_kind": "SIMULATION_OFFLINE_ONLY",
+  "script_errors": 0,
+  "horizontal_or_button_overflow": false,
+  "browser_GETs": 115,
+  "browser_POSTs": 0,
+  "four_screenshots_visually_inspected": true,
+  "readiness_scope": [
+    "session_id",
+    "epoch",
+    "spec_sha256"
+  ],
+  "response_metadata_performance": {
+    "same_generated_store_sessions": 7,
+    "before_s": 7.292586068972014,
+    "after_s": 1.0045980279974174,
+    "native_workflow_reads_before_each": 13,
+    "after_each": 1,
+    "model_table_reads_before": 18,
+    "after": 2,
+    "cross_response_cache": false,
+    "Torch_import": false,
+    "Source_IO": false,
+    "command_preflight_cached": false
+  },
+  "tests": {
+    "Python_response_metadata_contracts": 18,
+    "all_Node_scope_contracts": 285,
+    "later_UI_only_hint_and_actual_backend_contracts": 48
+  },
+  "negative_receipts_preserved": [
+    "Learning UIa read previous GET readiness before selection refresh",
+    "UIb selected option labels missing from body.innerText (test diagnostics issue)",
+    "UIc/d actual open source-controls panel buttons widened mobile document390\u2192480; shared scoped wrap fixed150d8b8"
+  ],
+  "raw_sha256": {
+    "/mnt/explorer-data/explorer-work/05-learning-models-Firefox-20261028-e/receipt.json": "e24a1bfe5b12409cdef5ac9c5c9a929d376170b6751e1b47b2ffdc09abd17f80",
+    "/mnt/explorer-data/explorer-work/05-learning-models-Firefox-20261028-e/desktop-top.png": "c2e2d87157f2e5801eb75a25e1944c3a360158c987967d8f148c699e43c4ff3b",
+    "/mnt/explorer-data/explorer-work/05-learning-models-Firefox-20261028-e/desktop-models.png": "0f781c18a3c53782401a70c38969cc7f25886b47e4e5bc0ed8e30cd7e318e44e",
+    "/mnt/explorer-data/explorer-work/05-learning-models-Firefox-20261028-e/mobile-top.png": "08ce09bf4f4f5f4f0836094185e5eafd0c704455594a5d999b25053160659525",
+    "/mnt/explorer-data/explorer-work/05-learning-models-Firefox-20261028-e/mobile-models.png": "c67b9e783b63883128822395c26b19328f502533e68c1bd5900112e8f6dc04fa",
+    "/mnt/explorer-data/explorer-work/05-learning-snapshot-before-20261028.json": "52f56e0f5ab99c6706b7a7b1a351048f8dc482eed74a5ccfaf5c218cdd252dfd",
+    "/mnt/explorer-data/explorer-work/05-learning-snapshot-after-20261028.json": "13b54e9bdc108a6fa29c8de5c1f0c1800641104c40d19327cffc7a778ee8e448",
+    "/mnt/explorer-data/explorer-work/05-response-metadata-contracts-20261028-a.log": "7cb1789cc3d6785b9fb76e6c8cfbf41437c1030f5fa52259feb01d222d3b1154",
+    "/mnt/explorer-data/explorer-work/05-shadow-scope-all-Node-20261028-c.log": "bf8e1c988f2f57164da799c6153a74b3fbcb20d86f95f1891de355d20d346cd5",
+    "/mnt/explorer-data/explorer-work/05-offline-model-label-contracts-20261028-a.log": "8c6931ccd1f8aff1f0d35cccd6548faae2ba076aa792f4c830420ddf7da98abc"
+  },
+  "actual_native_commands": 0,
+  "actual_native_grants": 0,
+  "real_experts": 0,
+  "physical_acceptance": false,
+  "remaining": [
+    "one full frozen regression",
+    "scoped distributed deploy and actual read-only qualification",
+    "real source/reference/scene/hold/trials"
+  ]
+}

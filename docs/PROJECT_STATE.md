@@ -1,9 +1,9 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T04:16:00+03:00`
-Code commit: `e6e6fbb2fffe02a5f37754185dd6af8aa17c8c46`
-Current task: `E05-LEARNING`
-Next tasks: `E05-LEARNING`, `E05-RELEASE`, `E06-PIPELINE`
+Updated: `2026-10-28T04:39:00+03:00`
+Code commit: `150d8b838c167b4afc5618c421e72ff0a39d56f4`
+Current task: `E05-RELEASE`
+Next tasks: `E05-RELEASE`, `E06-PIPELINE`, `E06-ADAPT`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
 
 Это единственный краткий текущий статус. История требований/отказов и научные
@@ -243,3 +243,17 @@ NOTdeployed/full05DONE. Next learning/model desktop/mobile UI, full frozen relea
 Actual GET probe confirms current Pi idle/disarmed/forwarded0/grantNone; new05
 capture fields absent; Nano WEB held-status404/reference409. These deploy gates
 are recorded, not bypassed; original runtimes/configs unchanged.
+
+
+E05-LEARNING **DONE scoped IMPLEMENTED/SOFTWARE_TESTED, NOTdeployed**.
+[Whole learning scope](../05-cooperative-handover/docs/WHOLE_LEARNING_FLOW_RU.md).
+Actual full app saved-model Firefox1440/390 PASS/4PNG inspected, model IDs real
+from generated ACT2/ACT2 jobs, Source6 SIMULATION offline-only visible, readiness
+session/epoch/Spec pinned;115GET/0POST/0JSerror/overflow. Metadata response7.29→1.00s
+on same7session Store; one-response-only dedup, both-role invalidation/failure
+contracts18PASS +285Node/48later UI contracts. No cached command preflight.
+Current **E05-RELEASE**: one full frozen regression +qualified distributed source
+upgrade/actual GET/UI. OldNano startup HOME config remains enabled/original;
+source code skips HOME beyond boot window and startup guard checks that window,
+original6configs/STOP/manual0velocity. No actual restart/control performed yet.
+Physical/master OPEN; release infrastructure never implies physical acceptance.
