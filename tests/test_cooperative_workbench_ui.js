@@ -279,3 +279,13 @@ for(const [status,message] of [["COMPLETED","Протокол завершён"]
     const html=cooperativeWorkbenchPanel(client.snapshot());assert.match(html,new RegExp(message));assert.doesNotMatch(html,/STOP подтверждён сервером/);
   });
 }
+test("server source-admission blocker disables live shadow and labels simulation without POST",async()=>{
+  const state=fixture(),posts=[];
+  state.queued_native_shadow_supported=true;state.queued_native_shadow_readiness={ready:false,blockers:["SIMULATION is offline only"],models_loaded:false};
+  state.workbench.skills[0].spec.subskills.giver.model_id="saved-giver";state.workbench.skills[0].spec.subskills.receiver.model_id="saved-receiver";
+  state.native_choices.receiver[0].models=[{model_id:"saved-receiver",source_kind:"SIMULATION",trained_offline:true}];
+  const {client}=await rig({get:async()=>clone(state),post:async(...args)=>posts.push(args)});
+  client.edit("receiver_choice_id","server-receiver");
+  const html=cooperativeWorkbenchPanel(client.snapshot());assert.match(html,/SIMULATION · только offline/);assert.match(html,/SIMULATION is offline only/);
+  assert.match(html,/data-coop-action="shadow" disabled/);assert.throws(()=>client.shadow(),/SIMULATION is offline only/);assert.deepEqual(posts,[]);
+});

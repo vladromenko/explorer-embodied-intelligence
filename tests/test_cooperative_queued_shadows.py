@@ -144,3 +144,21 @@ def test_actual_isolated_get_only_workers_preserve_and_verify_both_original_inpu
         assert not changed['both_native_inferences_verified'] and 'evidence_error' in changed['native_heads']['receiver']
         assert len(requests)==5  # Nano packet+frame; Pi prewarm packet + NEW packet+frame.
     finally:service.close();client.close()
+
+
+def test_readiness_preflight_both_heads_is_inert_and_simulation_is_offline_only(tmp_path):
+    service,store,calls,client,spec,session,models=configured(tmp_path)
+    try:
+        before=len(store.jobs(10000));ready=service.snapshot(session['session_id'])['queued_native_shadow_readiness']
+        assert ready=={'ready':True,'blockers':[],'models_loaded':False,'source_requests_sent':0,'dispatch_performed':False}
+        assert not calls and len(store.jobs(10000))==before
+        # Explicit metadata fixture of the SAME virtual-source guard used by a
+        # real generated model. Never change a production model/source label.
+        job=store.job(models['receiver']);result=deepcopy(job['result']);result['source_kind']='SIMULATION'
+        with store.connect() as db:db.execute('UPDATE jobs SET result=? WHERE id=?',(json.dumps(result),job['id']))
+        blocked=service.snapshot(session['session_id'])['queued_native_shadow_readiness']
+        assert not blocked['ready'] and 'SIMULATION is offline only' in blocked['blockers'][0]
+        assert not blocked['models_loaded'] and not calls and len(store.jobs(10000))==before
+        with pytest.raises(ValueError,match='SIMULATION is offline only'):command(service,session)
+        assert len(store.jobs(10000))==before
+    finally:service.close();client.close()

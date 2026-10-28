@@ -666,6 +666,7 @@ bound first; default construction cannot turn on policy execution.
             'model_source_errors':model_errors,
             'queued_native_shadows':self.queued_shadows.snapshots(selected) if selected else [],
             'queued_native_shadow_supported':True,
+            'queued_native_shadow_readiness':self.queued_shadows.readiness(selected,self.workflow._spec_for(selected) if selected else None),
             'warm_compute_sessions':warm_compute,
             'required_policy_roles':required,
             'policy_role_readiness':{role:{'required':role in required,'manual_input_does_not_require_model':role not in required,

@@ -22,6 +22,15 @@ class QueuedNativeShadows:
         self.store,self.root,self.current=store,Path(root),current_session
         self.root.mkdir(parents=True,exist_ok=True);self.lock=threading.RLock()
 
+    def readiness(self,session,spec):
+        """Metadata preflight only; no queue insertion, policy import or Source IO."""
+        try:
+            if session is None or spec is None:raise ValueError('Select the exact session and both saved native models')
+            self._plan(session,spec)
+            return {'ready':True,'blockers':[],'models_loaded':False,'source_requests_sent':0,'dispatch_performed':False}
+        except (ValueError,OSError,KeyError,TypeError) as error:
+            return {'ready':False,'blockers':[str(error)],'models_loaded':False,'source_requests_sent':0,'dispatch_performed':False}
+
     def _plan(self,session,spec,*,roles=('giver','receiver')):
         if (session.get('skill_id')!=spec.get('skill_id') or session.get('skill_version')!=spec.get('version') or
                 session.get('spec_sha256')!=spec.get('spec_sha256')):raise ValueError('Exact cooperative source specification required')
