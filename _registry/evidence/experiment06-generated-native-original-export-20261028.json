@@ -1,0 +1,23 @@
+{
+  "schema": "explorer06_generated_native_original_export_checkpoint_v1",
+  "status": "SOFTWARE_TESTED_NOT_DEPLOYED",
+  "source_commit": "1cfa075983c6d8b71b13a92539ecadd15ad80e0e",
+  "raw_receipt": "/mnt/explorer-data/explorer-work/06-native-target-export-1cfa075-20261028-a/result/pytest/test_actual_native06_originals0/qualification.json",
+  "raw_receipt_sha256": "3aebdf62cf2cb72d44822cf3e3029fbb03e7e624bc08f509310c0fc30463462b",
+  "runner_receipt": "/mnt/explorer-data/explorer-work/06-native-target-export-1cfa075-20261028-a/result/runner-qualification.json",
+  "inputs": "GENERATED_FAKE_NATIVE_TAP_AND_REAL_FILE_WRITER_NOT_PHYSICAL_EXPERTS",
+  "real_experts": 0,
+  "original_counts": {
+    "train": 3,
+    "development": 1,
+    "sealed": 1
+  },
+  "original_manifests_archives_unchanged": true,
+  "official_lerobot_version": "0.6.1",
+  "state_dimension": 106,
+  "action_dimension": 9,
+  "optimizer_steps": 0,
+  "public_budget5_blocked_because_only3_train_originals": true,
+  "physical_acceptance": false,
+  "actual_native_commands": 0
+}

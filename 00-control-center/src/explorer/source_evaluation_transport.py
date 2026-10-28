@@ -15,14 +15,14 @@ from explorer_shared.station_observed_http import StationObservedHttp
 ID=re.compile('[0-9a-f]{32}')
 
 
-def bounded_request(client,method,path,body=None,*,limit=128*1024):
+def bounded_request(client,method,path,body=None,*,limit=128*1024,source_name='Pi'):
     with client.stream(method,path,**({'json':body} if body is not None else {})) as response:
         if not response.is_success:
-            raise ValueError('Pi source endpoint unavailable (HTTP '+str(response.status_code)+'); native settings were not changed')
+            raise ValueError(source_name+' source endpoint unavailable (HTTP '+str(response.status_code)+'); native settings were not changed')
         chunks=[];size=0
         for chunk in response.iter_bytes():
             size+=len(chunk)
-            if size>limit:raise ValueError('Pi source response exceeds its declared bound')
+            if size>limit:raise ValueError(source_name+' source response exceeds its declared bound')
             chunks.append(chunk)
         return b''.join(chunks),dict(response.headers)
 

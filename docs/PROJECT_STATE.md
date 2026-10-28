@@ -1,6 +1,6 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T07:40:21+03:00`
+Updated: `2026-10-28T08:36:34+03:00`
 Code commit: `f1342168f52f06fe9a6237899943dab5c01ada9b`
 Current task: `E06-PIPELINE`
 Next tasks: `E06-ADAPT`, `E06-RELEASE`, `E01-REPAIR`
@@ -10,6 +10,16 @@ Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
 originals сохранены. Подробности: [BACKLOG](BACKLOG.md),
 [ACCEPTANCE_MATRIX](ACCEPTANCE_MATRIX.md), [physical queue](PHYSICAL_CHECKS.md),
 [машинные scientific gates](../_registry/acceptance.json).
+
+## Действующий приоритет MVP
+
+[MVP-FIRST / PHYSICAL-FEEDBACK-FIRST](../AGENTS.md) записан в AGENTS,
+AI_OPERATIONS, repo skill, BACKLOG и ACCEPTANCE_MATRIX для всех01–06/будущих задач.
+04→03→05 software/deploy уже выполнены;04 MVP blockers нет по release evidence,
+физические prerequisites открыты.03 начат `2026-10-28T01:01:26+03:00` (2347c6c).
+[Функциональные10 пунктов04](MVP_STATUS_RU.md). Не возобновлять редкий04 hardening.
+Текущий06: завершить native DATA capture→UI→approved dataset и calibration path,
+целевые проверки/smoke → user-testable deploy; deferred findings отдельно в BACKLOG.
 
 ## Текущий выпуск05 и продолжение06
 
@@ -42,7 +52,7 @@ predictions EXACT and whole actual generated-data desktop/mobile UI qualified.
 All06 code **NOTdeployed**, actual source object trace/real experts still absent.
 Independent source/target domains fixed; nominalSIM never physical registration.
 Current native06 DATA context reuses same writer/importer, UNKNOWN retained;
-operator capture lifecycle/import/review/approved target aggregate +trusted metric
+Actual native06 generated originals3TRAIN/1DEV/1sealed exported through officialDataset0.6.1; optimizer0, budget5 correctly blocked. DATA transport11PASS; operator capture lifecycle/API/UI +trusted metric
 capture/solve remain next. Then06ADAPT/RELEASE→01; original master not complete.
 
 ## Последний checkpoint04

@@ -7,6 +7,13 @@ Snapshot: product code `c82e675`; live Homebrain/Pi/NanoOWN/originalWEBpin c82 s
 labelled generated/mock/SIM input, что явно записано в Evidence. Ни одна строка
 не означает принятого физического полного навыка.
 
+Обязательная политика: [MVP-FIRST / PHYSICAL-FEEDBACK-FIRST](../AGENTS.md).
+Критерий MVP: shortest end-to-end operator path, targeted tests, no-motion smoke,
+working deployment → `MVP_USER_TESTABLE` / `DEPLOYED_AWAITING_PHYSICAL_ACCEPTANCE`.
+Отдельные [MVP BLOCKERS и DEFERRED HARDENING](BACKLOG.md) обязательны для каждой
+задачи01–06 и будущих задач. Deferred не является release gate, кроме фактических
+исключений политики. [Конкретные10 пунктов04](MVP_STATUS_RU.md); physical OPEN.
+
 Фиксированные уровни: Implemented=`YES/PARTIAL/NO/N/A`;
 Software-tested=`PASS/PARTIAL/NOT_TESTED/N/A`;
 Deployed Homebrain/Pi/Nano=`DEPLOYED/PARTIAL/NOT_DEPLOYED/N/A`;

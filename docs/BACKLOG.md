@@ -6,6 +6,29 @@ Checkpoint03 и05 software/deploy завершены scoped; текущий `E06
 Организационный checkpoint не меняет этот порядок. `DONE` относится только к
 конкретному критерию строки, не к целому опыту/master. Физические gates отдельны.
 
+## MVP BLOCKERS
+
+Политика [MVP-FIRST](../AGENTS.md) обязательна для01–06 и будущих задач.
+Для каждой новой задачи сначала добавить её базовый blocker в этот список.
+
+| Опыт | Текущий базовый путь / оставшиеся blockers |
+|---|---|
+|04|Software/deploy MVP завершён; известных blocking software defects по release evidence нет. Пункты1–10 и physical prerequisites — [MVP status](MVP_STATUS_RU.md). Питание OFF не доказывает текущую связь с моторами.|
+|03|Software/deploy MVP завершён; начат сразу после04 `2026-10-28T01:01:26+03:00`. USER continuity, fresh MCU/reference и scene остаются физическими gates.|
+|05|Software/deploy MVP завершён; USER shared-zone/hold/transfer acceptance OPEN.|
+|06|Соединить существующие native9 capture/review/import/aggregate с операторским API/UI; подключить существующий trusted calibration capture/solve; краткий сквозной smoke и deploy. Не создавать второй recorder/trainer.|
+|01|После06: базовый canonical full-task/repair путь, без long248 tuning.|
+
+## DEFERRED HARDENING / NON_BLOCKING_HARDENING
+
+Не брать до базовых путей приоритетных опытов и user-reported defects.
+
+| Scope | Отложено / условие возврата |
+|---|---|
+|04/all|Новые редкие recovery/race/SHA/approval кейсы, архитектурная полировка, расширенный VLM/grid/click-to-grasp, дополнительные research evidence; только фактический MVP blocker возвращает их в текущую работу.|
+|06|Readonly audit выявил: перенос parent dataset между source-model bindings; метаданные sealed split теряются до global split fence; outer imported-manifest SHA не сравнивается с immutable import result. Raw originals сохранены. Не объявлять независимые научные сравнения квалифицированными; исправления — после базового capture/UI/deploy либо при фактическом blocker/data-loss риске.|
+|all|Расширенные benchmarks/H1–H5 и гипотетические edge cases; physical acceptance не выводится из mocks или deployment.|
+
 Статусы: `DONE`, `IN_PROGRESS`, `OPEN`, `WAIT_USER`, `BLOCKED`, `PARKED`.
 Root выбирает один текущий ID; независимый bounded subtask не создаёт второго
 integrator. При отсутствии полезного software-действия внутри gated опыта

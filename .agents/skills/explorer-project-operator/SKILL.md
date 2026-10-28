@@ -21,3 +21,11 @@ Use original master/protocols only for missing or conflicting requirements.
 This repo skill does not change model settings or grant physical authority.
 Automatic discovery by the current client is unverified; AGENTS and the runbook
 remain the required entrypoint even when this skill is not listed automatically.
+
+MVP-FIRST / PHYSICAL-FEEDBACK-FIRST applies to all01–06 and future tasks.
+Use the mandatory policy in root AGENTS and AI_OPERATIONS: shortest deployable
+user path first; targeted tests +one no-motion smoke +one sufficient milestone
+regression, then deploy MVP_USER_TESTABLE / DEPLOYED_AWAITING_PHYSICAL_ACCEPTANCE.
+Track MVP BLOCKERS separately from DEFERRED HARDENING; do not take speculative
+hardening before basic paths of priority experiments. Physical tests remain
+USER-observed; no agent motion, controller/feedback changes or new bus owners.
