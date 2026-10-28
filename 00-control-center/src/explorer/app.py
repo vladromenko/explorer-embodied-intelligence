@@ -981,11 +981,12 @@ async def native_activation_frame(challenge_id: str,request: Request):
 
 @app.api_route('/api/station/{path:path}', methods=['GET','POST'])
 async def station_proxy(path: str, request: Request):
-    node = next(node for node in CONFIG['nodes'] if node['id']=='pi')
     allowed_get = {'status','recordings'}
     allowed_post = {'teleop/start','teleop/recenter','policy/start','stop','record/start','record/stage','record/finish','action'}
     if path not in (allowed_get if request.method=='GET' else allowed_post):
         raise HTTPException(404)
+    node=next((node for node in CONFIG.get('nodes',[]) if node['id']=='pi'),None)
+    if node is None:raise HTTPException(503,'Станция SO-101 ещё не настроена')
     try:
         payload = await request.json() if request.method=='POST' else None
         response = await CLIENT.request(request.method,'http://'+node['host']+':'+str(node['port'])+'/station/'+path,

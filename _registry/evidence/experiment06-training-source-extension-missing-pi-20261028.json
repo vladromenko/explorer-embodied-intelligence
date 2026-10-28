@@ -1,0 +1,27 @@
+{
+  "schema": "explorer_exact_scoped_training_source_extensions_v1",
+  "scope": "COMPATIBILITY_ONLY_NO_NEW_OPTIMIZER_OR_PHYSICAL_ACCEPTANCE",
+  "previous_source_commit": "242056ab735957e633fa35fc4a1bc16486d14569",
+  "previous_receipt_path": "_registry/evidence/experiment06-training-source-extension-20261028.json",
+  "previous_receipt_sha256": "301fd8d27495dd7fa3b473824d0518a9ccfea689f00671b37cf49ac3eceb146e",
+  "extensions": {
+    "00-control-center/src/explorer/app.py": {
+      "previous_sha256": "8ce565bb3e6f658c0515dfadc56cb19beeea15afedbce387ba6e662ed1cf5584",
+      "current_sha256": "c61bf5cb5e4e2ceda3b0d79c5b32d84d9dfe7d9c7b2dc91e3d58e66ca8bbd848",
+      "inverse_replacements": [
+        {
+          "current": "    node=next((node for node in CONFIG.get('nodes',[]) if node['id']=='pi'),None)\n    if node is None:raise HTTPException(503,'\u0421\u0442\u0430\u043d\u0446\u0438\u044f SO-101 \u0435\u0449\u0451 \u043d\u0435 \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043d\u0430')\n",
+          "previous": ""
+        },
+        {
+          "current": "async def station_proxy(path: str, request: Request):\n",
+          "previous": "async def station_proxy(path: str, request: Request):\n    node = next(node for node in CONFIG['nodes'] if node['id']=='pi')\n"
+        }
+      ]
+    }
+  },
+  "justification": "Handle absent configured Pi with explicit503 after route allowlist validation, without transport/native request. All existing configured-node request/control/training code reconstructs exactly to242056a. Discovered by real isolated whole-app UI; original500 ASGI log retained.",
+  "original_training_receipts_rewritten": false,
+  "new_optimizer_updates": 0,
+  "actual_native_commands": 0
+}

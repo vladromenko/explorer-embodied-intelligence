@@ -12,15 +12,18 @@ ROOT=Path(__file__).resolve().parents[1]
 RECEIPT=ROOT/'_registry/evidence/experiment05-training-source-extensions-20261028.json'
 
 RECEIPT06=ROOT/'_registry/evidence/experiment06-training-source-extension-20261028.json'
+RECEIPT06_PI=ROOT/'_registry/evidence/experiment06-training-source-extension-missing-pi-20261028.json'
 
 
 def assert_qualified_source(root,name,expected):
     raw=(Path(root)/name).read_bytes()
     if hashlib.sha256(raw).hexdigest()==expected:return
-    latest=json.loads(RECEIPT06.read_bytes())
-    assert latest['previous_receipt_path']==str(RECEIPT.relative_to(ROOT))
-    assert hashlib.sha256(RECEIPT.read_bytes()).hexdigest()==latest['previous_receipt_sha256']
-    for proof in (latest,json.loads(RECEIPT.read_bytes())):
+    paths=(RECEIPT06_PI,RECEIPT06,RECEIPT)
+    proofs=[json.loads(path.read_bytes()) for path in paths]
+    for current,previous in zip(proofs,paths[1:]):
+        assert current['previous_receipt_path']==str(previous.relative_to(ROOT))
+        assert hashlib.sha256(previous.read_bytes()).hexdigest()==current['previous_receipt_sha256']
+    for proof in proofs:
         extension=proof['extensions'].get(name)
         if extension is not None and hashlib.sha256(raw).hexdigest()==extension['current_sha256']:
             for replacement in extension['inverse_replacements']:

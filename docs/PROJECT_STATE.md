@@ -330,3 +330,13 @@ API +UI/recovery/stale-response fences.78Python13.62s +32boundaries8.48s +291Nod
 Actual live remains c82; source/grant/controller settings unchanged. Current
 E06PIPELINE continues metric capture/fitting, whole app UI and shared target9
 pipeline. Geometry, calibration preparation and source loss do not complete06.
+
+
+06 actual saved ACT2 whole-page preliminary negative: expected geometry blocker
+without original calibration bytes displayed correctly, but server log revealed
+missing-node station/status500 in isolated nodes[] setup. Original UI receipt
+limited scope and full ASGI traces retained; not whole UI acceptance. Added exact
+station proxy empty-node503 after allowlist/no outbound fallback,12 source-boundary
+contracts PASS3.64s. New geometry component242056a remains NOTdeployed; livec82.
+Next corrected whole-app status-aware UI, source original calibration cohort and
+cached metric capture/target9 pipeline; E06PIPELINE still current.
