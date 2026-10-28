@@ -379,3 +379,20 @@ metadata/source-domain mistakes and immutable-Store negative setup failure retai
 in private logs. NOTdeployed/actual target optimizer proof still pending; livec82.
 Next frozen target-only/adapt actual CPU queue +default02/03 numerical parity,
 whole target UI; trusted metric capture/target producer and full06 release remain.
+
+
+06 actual frozen a5325bc target-only2 +vision-adapt2 shared Supervisor jobs PASS
+66.97s; both weights changed/reload0, same selected5 original target TRAIN,
+100backbone tensors only in adapt, new106→9 heads; kernel1,671,122,944B/swap0/OOM0.
+[Scoped target proof](../_registry/evidence/experiment06-actual-generated-target-learning-20261028.json).
+Target fixture25TRAIN+1DEV, sealed is only an excluded generated identity declaration
+(no sealed payload/full-task claim). Original source/checkpoint/target receipts exact.
+Original05 native9 function vs new default02/03:2+2updates, model/optimizer/sampler/
+allRNG/losses/dataset state/checkpointSHA/DEV predictions EXACT; peak1,664,057,344B.
+Actual whole app Firefox1440/390 restore currentwizard/target25+DEV1, choose5/25
+and both modes, retry same queued job PASS/4PNG inspected/0JS/overflow; UI created
+only own queued software jobs, cancelled without workers/optimizer/native IO.
+First UI storage seed timing setup exception retained. All296Node PASS5.77s.
+Queue label UI-only correction follows this candidate; NOTdeployed/livec82.
+E06PIPELINE continues actual target producer/import/review +trusted metric capture;
+saved model/offline/shadow and full06 release remain. No object mastery inferred.

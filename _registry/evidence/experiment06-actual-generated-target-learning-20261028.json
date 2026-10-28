@@ -1,0 +1,74 @@
+{
+  "schema": "explorer06_actual_generated_target_learning_checkpoint_v1",
+  "code_commit": "a5325bca9015b4d0dfc71ab591aa25ad4f92aaef",
+  "status": "SCOPED_SOFTWARE_PASS_NOT_DEPLOYED",
+  "actual_target_jobs": [
+    "0ccbb608bbe7426ebfbd23a288c1d0bd",
+    "b32b934cfb1a47ddb029a0d65996accf"
+  ],
+  "source_model_job_id": "92537967dd05482f9f9c5b8f36a7fc44",
+  "inputs": "GENERATED_CANONICAL_SOURCE_RECORDS_NOT_REAL_EXPERTS_OR_FINITE_TARGET_ROLLOUT",
+  "target_train_originals": 25,
+  "target_development_originals": 1,
+  "target_sealed_scope": "One excluded synthetic identity declaration; no sealed target payload produced by this fixture. No heldout whole-task claim.",
+  "comparison_budget": 5,
+  "optimizer_steps_per_mode": 2,
+  "backbone_tensors_copied_in_adapt": 100,
+  "source_action_state_latent_optimizer_heads_copied": false,
+  "reload_max_abs_error": 0.0,
+  "kernel_peak_bytes": 1671122944,
+  "swap_peak_bytes": 0,
+  "oom": 0,
+  "default02_03_original_current_parity": "model optimizer sampler all RNG losses dataset state checkpoint SHA and DEV predictions exact after2updates each",
+  "whole_app_UI": "desktop1440/mobile390 restore actual wizard; actual target dataset25+DEV1; choose5target_only/25vision_adapt; retry same queued job; four PNG inspected;0JSerror/overflow",
+  "UI_optimizer_updates": 0,
+  "UI_jobs_cancelled_data_only": true,
+  "original_source_and_trained_target_receipts_unchanged": true,
+  "retained_negative": "First UI harness seeded storage after client initialization; null restore-button exception before any target enqueue. Original A retained.",
+  "remaining": [
+    "Human-friendly target queue labels",
+    "Managed real/SIM target original producer and import/review",
+    "Whole saved target model/offline/shadow UI",
+    "Trusted metric cached capture/solve",
+    "5/10/25 scientific comparisons with sufficient real independent data",
+    "Full06 regression/deploy and physical source/target acceptance"
+  ],
+  "actual_native_commands": 0,
+  "physical_acceptance": false,
+  "source_object_skill_inferred": false,
+  "live_code_unchanged": "c82e6754a26194f3fd12533cce35153890ff5771",
+  "evidence": [
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-shared-a5325bc-20261028-a/result/runner-qualification.json",
+      "sha256": "6af27c39ae4f774ec6808a1d4c6bf6cb23aece08d52cbfedc0e4a742684ae1e3"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-shared-a5325bc-20261028-a/result/pytest/test_actual_shared_ACT9_queue_current/qualification.json",
+      "sha256": "f67faba426a65bd4bd4d2133bb8de1cf8143485f9b0f33bc31c15216a75b1089"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-default-native9-parity-a5325bc-20261028-a/qualification.json",
+      "sha256": "ad609638094f2502a36be9031faaf6c7c15298d55f6311340f6191cb37d7b658"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-learning-actual-UI-20261028-b/receipt.json",
+      "sha256": "d105b679790e66b78826b839deef5828924ca8b1f037cd774f647942ed343a00"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-learning-actual-UI-20261028-b/desktop-prepared.png",
+      "sha256": "568ea9c65bed2b661b1ee5f75bc164456f9fc8e62aaed51c06db0c9414a9d0e8"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-learning-actual-UI-20261028-b/desktop-queued.png",
+      "sha256": "e5cfbb1eef04f591890feb443343161c54d1f4b4e03de3acd85149b5f594321e"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-learning-actual-UI-20261028-b/mobile-prepared.png",
+      "sha256": "f563b92d22c2cab695cc6bd529baadcda321b83976a0c6c6c8a01c57f1e7606a"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-learning-actual-UI-20261028-b/mobile-queued.png",
+      "sha256": "306af26b3d662e2008d372453b18c0ae7613d07eb6a72a8dffae15645bfbf3da"
+    }
+  ]
+}
