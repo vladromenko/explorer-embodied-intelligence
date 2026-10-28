@@ -319,3 +319,14 @@ exact, schema unchanged, activejobs0; new inventory events append-only.
 Still STAGED_NOT_DEPLOYED; current E05-RELEASE advances to guarded distributed
 cutover +actual HTTPS05 desktop/mobile/source capability proof. Physical/master
 OPEN; first broken full launcher remains retained as setup failure.
+
+
+E06 geometry/operator component implemented/targeted-tested, **NOTdeployed**:
+shared03 leader/06 follower context; SHA-bound original calibration GET without
+SDK/measurement; admitted04 metadata→existing A/B/C audit→bound durable wizard
+API +UI/recovery/stale-response fences.78Python13.62s +32boundaries8.48s +291Node
+5.24s, explicit structural model/fake-I/O scope, optimizer/actualnative0.
+[Component](../06-cross-embodiment-transfer/docs/GEOMETRY_OPERATOR_COMPONENT_RU.md).
+Actual live remains c82; source/grant/controller settings unchanged. Current
+E06PIPELINE continues metric capture/fitting, whole app UI and shared target9
+pipeline. Geometry, calibration preparation and source loss do not complete06.

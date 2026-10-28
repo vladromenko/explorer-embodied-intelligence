@@ -23,7 +23,7 @@ function manipulationPanel() {
 async function loadTransferSources() {
   if (workflow.loading) return;
   workflow.loading = true;
-  try { const data=await api("/api/transfer/sources");workflow.sources=array(data.sources);workflow.currentSources=data.current || null;workflow.sourceError=""; }
+  try { const data=await api("/api/transfer/sources");workflow.sources=array(data.sources);workflow.currentSources=data.current || null;transferGeometry.refreshChoice(array(workflow.currentSources?.choices).find(row=>row.job_id===workflow.sourceModel));workflow.sourceError=""; }
   catch (error) { workflow.sourceError = error.message; }
   finally { workflow.loading = false; model.forceRender = true; render(); }
 }
@@ -32,7 +32,7 @@ function currentTransferSourcePanel() {
   const ready=chosen?.eligible_for_transfer===true && traces.some(row=>row.evaluation_job_id===workflow.sourceEvaluation);
   return `<section class="panel spaced-section"><div class="panel-heading"><div><p class="eyebrow">04 → 06</p><h2>Исходный навык SO101 и независимая проверка</h2></div><button type="button" class="button secondary" data-workflow="sources">Обновить каталог</button></div><div class="panel-body"><p>Обученная модель и выполненный предметный навык проверяются отдельно. Исходник сохраняет native6, цель ROSMASTER — отдельную9D реализацию с новой версией того же навыка.</p>${workflow.sourceError ? `<p class="form-error">${esc(workflow.sourceError)}</p>` : ""}<label class="form-field">Текущая source04 модель<select id="transfer-current-model"><option value="">Выберите завершённое обучение SO101</option>${choices.map(row=>`<option value="${esc(row.job_id)}" ${row.job_id===workflow.sourceModel ? "selected" : ""}>${esc(row.task || row.skill_id || row.job_id.slice(0,8))} · ${esc(row.backend || "проверяется")} · версия ${esc(row.skill_version)}</option>`).join("")}</select></label>${chosen ? `<p>${chosen.technical_source_ready ? "Checkpoint и происхождение проверены" : "Технические проверки не завершены"}. ${chosen.source_object_rollout_qualified ? "Предметная попытка источника подтверждена" : "Полная предметная попытка источника не подтверждена"}.</p><ul class="form-error">${array(chosen.blockers).map(reason=>`<li>${esc(reason.category)} · ${esc(reason.detail || reason.code)}</li>`).join("")}</ul><label class="form-field">Независимая полная попытка источника<select id="transfer-current-evaluation"><option value="">Выберите подтверждённую попытку</option>${traces.map(row=>`<option value="${esc(row.evaluation_job_id)}" ${row.evaluation_job_id===workflow.sourceEvaluation ? "selected" : ""}>${esc(row.evaluation_job_id.slice(0,8))} · ${esc(row.source_domain)} · ${esc(row.split)}</option>`).join("")}</select></label>` : `<p>${workflow.currentSources ? "В каталоге " + choices.length + " текущих моделей. Исторические hold/checkpoint остаются анализом и не доказывают предметный навык." : "Загрузите каталог текущих моделей и их свидетельств."}</p>`}<button type="button" class="button primary" data-workflow="select_current_source" ${!ready || workflow.loading ? "disabled" : ""}>Зафиксировать проверенный источник для06</button>${workflow.sourceSelection ? `<p role="status">Источник сохранён: ${esc(workflow.sourceSelection.binding?.skill_id)} · версия ${esc(workflow.sourceSelection.binding?.source_skill_version)}. Целевое обучение и исполнение отдельно; движение этим действием не разрешается.</p>` : ""}<p class="form-hint">A — остаётся программная интеграция; B — отдельный наблюдаемый тест пользователя; C — ещё нет научного свидетельства полного навыка. Выбор источника не копирует6D head на ROSMASTER и не запускает целевой робот.</p></div></section>`;
 }
-function policyTransferPanel() { return currentTransferSourcePanel()+`<details class="spaced-section"><summary>Исторический анализ ACT6 и геометрического переноса</summary>${legacyPolicyTransferPanel()}</details>`; }
+function policyTransferPanel() { return currentTransferSourcePanel()+transferGeometryPanel(transferGeometry.snapshot())+`<details class="spaced-section"><summary>Исторический анализ ACT6 и геометрического переноса</summary>${legacyPolicyTransferPanel()}</details>`; }
 function legacyPolicyTransferPanel() {
   if (!workflow.sources.some((source) => source.job_id === workflow.source)) workflow.source = workflow.sources[0]?.job_id || "";
   const jobs = model.jobs.filter((job) => job.kind === "policy_transfer");
@@ -44,14 +44,26 @@ function handoverRuntimePanel() {
   const readiness = workflow.handover;
   return `<section class="panel spaced-section"><div class="panel-heading"><div><p class="eyebrow">05 / Протокол взаимодействия</p><h2>Проверить порядок и подтверждения</h2></div></div><div class="panel-body"><p class="form-description">Программный координатор проверяет связь команд, объекта и свидетельств удержания. Есть отдельные сценарии обрыва, чужого объекта и просроченного подтверждения. При них подающая рука не получает команду отпускания.</p><div class="teleop-actions"><button class="button secondary" type="button" data-workflow="handover_test">Проверить переходы состояний</button><button class="button primary" type="button" data-workflow="handover_runtime_test">Проверить координатор и обрывы</button><button class="button secondary" type="button" data-workflow="handover_readiness">Проверить настоящие узлы без движения</button></div>${readiness ? `<dl class="summary-list">${kv("Энкодеры ROSMASTER", readiness.nano?.measured_joint_feedback ? "Доступны" : "Не подтверждены")}${kv("Измерение силы", readiness.nano?.force_measured ? "Доступно" : "Не подтверждено")}${kv("Станция SO-101", readiness.receiver?.available ? "Доступна" : "Недоступна")}${kv("Аппаратный dispatch", "Пока не квалифицирован")}</dl><p class="form-hint">${array(readiness.blockers).map(esc).join("; ")}</p>` : ""}<p class="form-hint">Это проверки программных транспортов. Они не являются физической симуляцией передачи. Для реального опыта ещё нужны общая зарегистрированная зона, аппаратные receipts и независимое либо операторское подтверждение объекта.</p>${jobs.filter(simulationFinished).slice(0, 2).map((job) => `<p>${esc(jobTitle(job))}: ${job.result?.passed === true ? "все программные сценарии пройдены" : "есть непройденные сценарии"} · ${esc(job.id)}</p>`).join("")}</div>${jobRows(jobs.slice(0, 5))}</section>`;
 }
+document.addEventListener("input", event=>{if(event.target.matches?.("[data-transfer-target-version]"))transferGeometry.setTargetVersion(event.target.value);});
 document.addEventListener("change", (event) => {
+  if(event.target.matches?.("[data-transfer-target-version]"))transferGeometry.setTargetVersion(event.target.value);
   if (event.target.id === "manipulation-task") workflow.task = event.target.value;
   if (event.target.id === "visual-act-device") workflow.visualDevice = event.target.value;
   if (event.target.id === "transfer-source") workflow.source = event.target.value;
-  if (event.target.id === "transfer-current-model") {workflow.sourceModel=event.target.value;workflow.sourceEvaluation="";workflow.sourceSelection=null;model.forceRender=true;render();}
+  if (event.target.id === "transfer-current-model") {workflow.sourceModel=event.target.value;workflow.sourceEvaluation="";workflow.sourceSelection=null;transferGeometry.select(array(workflow.currentSources?.choices).find(row=>row.job_id===workflow.sourceModel));model.forceRender=true;render();}
   if (event.target.id === "transfer-current-evaluation") {workflow.sourceEvaluation=event.target.value;workflow.sourceSelection=null;model.forceRender=true;render();}
 });
 document.addEventListener("click", async (event) => {
+  const geometryButton=event.target.closest("button[data-transfer-geometry]");
+  if(geometryButton){
+    if(geometryButton.disabled)return;
+    try{
+      const action=geometryButton.dataset.transferGeometry;
+      if(action==="preview")await transferGeometry.preview();
+      else if(action==="restore")await transferGeometry.restore();
+      else if(action==="create")await transferGeometry.create(Number(document.querySelector("[data-transfer-target-version]")?.value));
+    }catch(error){toast(error.message,true);}return;
+  }
   const button = event.target.closest("button[data-workflow]");
   if (!button || button.disabled) return;
   const kind = button.dataset.workflow;

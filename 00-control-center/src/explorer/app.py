@@ -1012,6 +1012,8 @@ from .source_evaluation_api import install_router as install_source_evaluation_r
 install_source_evaluation_routes(app,lambda:STORE,lambda:CONFIG,session_actor)
 from .source_demo_api import install_router as install_source_demo_routes
 install_source_demo_routes(app,lambda:STORE,lambda:CONFIG,session_actor,lambda:CLIENT)
+from .transfer_geometry_api import install_router as install_transfer_geometry_routes
+install_transfer_geometry_routes(app,lambda:STORE,lambda:CONFIG,session_actor)
 
 
 @app.get('/api/cooperative')

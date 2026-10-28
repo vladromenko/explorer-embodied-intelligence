@@ -1048,6 +1048,12 @@ def make_handler(agent):
                         'X-Frame-ID':metadata['frame_id'],'X-JPEG-SHA256':metadata['jpeg_sha256'],'X-Boot-ID':metadata['boot_id'],
                         'X-Monotonic-NS':metadata['received_monotonic_ns']}.items():self.send_header(name,str(value))
                     self.end_headers();self.wfile.write(raw)
+                elif path=='/station/calibration-artifact':
+                    query=parse_qs(urlsplit(self.path).query,keep_blank_values=True)
+                    if set(query)!={'role','expected_sha256'} or any(len(values)!=1 for values in query.values()):
+                        raise ValueError('Choose one configured role and exact expected calibration SHA')
+                    from .so101_calibration_artifact import configured_calibration_artifact
+                    self._json(200,configured_calibration_artifact(agent.station,query['role'][0],query['expected_sha256'][0]))
                 elif path=='/station/status':
                     provider=getattr(agent,'station_observed',None)
                     gate=getattr(provider,'publication_gate',None)

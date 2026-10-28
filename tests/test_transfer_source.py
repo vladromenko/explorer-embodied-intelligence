@@ -20,10 +20,11 @@ from explorer_shared.so101_station import NAMES,UNITS,LOW,HIGH
 from explorer_shared.source_archive import canonical,sha
 
 
-def fixture(tmp_path,backend='act',source_kind='SIMULATION'):
+def fixture(tmp_path,backend='act',source_kind='SIMULATION',*,calibration_metadata=None):
     store=Store(tmp_path/'state');skill_id=str(uuid.uuid4());phases=['approach','grasp','lift','transport','place_release','retreat']
     spec=dict(skill_id=skill_id,version=1,title='SOFTWARE object fixture',task_type='pick_object_to_container',stages=[dict(id=p) for p in phases])
-    calibration=dict(calibration_metadata=dict(follower=dict(calibration_sha256=sha(b'SOFTWARE_calibration'))))
+    calibration=(deepcopy(calibration_metadata) if calibration_metadata is not None else
+        dict(calibration_metadata=dict(follower=dict(calibration_sha256=sha(b'SOFTWARE_calibration')))))
     outer=dict(skill_id=skill_id,skill_version=1,skill_spec=spec,spec_sha256=digest(spec),action_contract_id=source.CONTRACT,
         action_names=list(NAMES),action_units=list(UNITS),source_kind=source_kind,source_calibration_metadata=calibration)
     data=store.root/'datasets'/'source';data.mkdir(parents=True)

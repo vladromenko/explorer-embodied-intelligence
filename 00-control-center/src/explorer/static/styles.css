@@ -127,3 +127,7 @@ label.form-field { display:flex; flex-direction:column; gap:8px; min-width:0; co
 
 :is(.cooperative-workbench,.cooperative-observed-workbench) .panel-body > * { min-width:0; }
 :is(.cooperative-workbench,.cooperative-observed-workbench) button { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
+
+.transfer-geometry { min-width: 0; overflow-wrap: anywhere; }
+.transfer-geometry .panel-body > * { min-width: 0; }
+.transfer-geometry button { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }

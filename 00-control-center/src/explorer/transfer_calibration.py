@@ -76,7 +76,7 @@ def _state(db,wizard_id):
         target_dataset_adaptation_completed=False,learned_source_skill_inferred=False,requires_manual_JSON_or_terminal=False)
 
 
-def create_session(store,body,*,audit):
+def create_session(store,body,*,audit,source_model_binding=None,authenticated_actor=None):
     if audit.get('all_computable_mapping_A_resolved') is not True:raise TransferBlocked('AUTOMATIC_MAPPING_A_MUST_BE_RESOLVED_FIRST','A')
     skill_id=_uuid(body.get('skill_id'));source_version=body.get('source_version');target_version=body.get('target_version');domain=body.get('domain','physical')
     if any(type(value) is not int or value<1 for value in (source_version,target_version)) or target_version<=source_version:raise ValueError('Target version advances the SAME source skill UUID')
@@ -85,6 +85,11 @@ def create_session(store,body,*,audit):
     payload=dict(wizard_id=wizard_id,skill_id=skill_id,source_version=source_version,target_version=target_version,domain=domain,
         experiment_slug=TRANSFER_SLUG,source_experiment_slug=SOURCE_SLUG,source_audit_sha256=digest(audit),source_profile=deepcopy(audit['source_profile']),source_requirements=deepcopy(audit.get('C',[])),
         A_resolved=deepcopy(audit['A']),automatic_motor_actions=False,controller_settings_modified=False)
+    if source_model_binding is not None:
+        if (not isinstance(source_model_binding,dict) or not authenticated_actor or
+                source_model_binding.get('skill_id')!=skill_id or source_model_binding.get('skill_version')!=source_version):
+            raise ValueError('Server-correlated source model/skill and authenticated actor required')
+        payload.update(source_model_binding=deepcopy(source_model_binding),created_by_actor=authenticated_actor)
     with store.connect() as db:
         db.execute('BEGIN IMMEDIATE');_append(db,'created',payload,PREFIX+'created:'+wizard_id);return _state(db,wizard_id)
 

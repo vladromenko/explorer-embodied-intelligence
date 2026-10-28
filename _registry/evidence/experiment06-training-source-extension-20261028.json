@@ -1,0 +1,23 @@
+{
+  "schema": "explorer_exact_scoped_training_source_extensions_v1",
+  "scope": "COMPATIBILITY_ONLY_NO_NEW_OPTIMIZER_OR_PHYSICAL_ACCEPTANCE",
+  "previous_source_commit": "c82e6754a26194f3fd12533cce35153890ff5771",
+  "previous_receipt_path": "_registry/evidence/experiment05-training-source-extensions-20261028.json",
+  "previous_receipt_sha256": "4550d31b61f17a7bb58641a88b7854a9836e2bf097f4fa87d16e83a4c791aea0",
+  "extensions": {
+    "00-control-center/src/explorer/app.py": {
+      "previous_sha256": "b8afeddcecd2fa7517743ad1931b5e8e4d86f16203f2cb3de9425d56b384d07d",
+      "current_sha256": "8ce565bb3e6f658c0515dfadc56cb19beeea15afedbce387ba6e662ed1cf5584",
+      "inverse_replacements": [
+        {
+          "current": "\nfrom .transfer_geometry_api import install_router as install_transfer_geometry_routes\ninstall_transfer_geometry_routes(app,lambda:STORE,lambda:CONFIG,session_actor)",
+          "previous": ""
+        }
+      ]
+    }
+  },
+  "justification": "Only imports and installs the06 data-only geometry/calibration router. All existing routes, control logic and training/queue/math bytes in app.py reconstruct exactly to c82. New router has own contracts and does not authorize devices.",
+  "original_training_receipts_rewritten": false,
+  "new_optimizer_updates": 0,
+  "actual_native_commands": 0
+}

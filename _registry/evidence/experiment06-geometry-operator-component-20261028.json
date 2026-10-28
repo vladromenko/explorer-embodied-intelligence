@@ -1,0 +1,51 @@
+{
+  "schema": "explorer06_geometry_operator_component_v1",
+  "status": "TARGETED_SOFTWARE_TESTED_NOT_DEPLOYED",
+  "baseline_live_commit": "c82e6754a26194f3fd12533cce35153890ff5771",
+  "current_task": "E06-PIPELINE",
+  "whole06_completed": false,
+  "Python_both_HTTP_consumers_passed": 78,
+  "Python_source_boundary_passed": 32,
+  "Node_passed": 291,
+  "source_model_fixture_scope": "STRUCTURAL_SOFTWARE_PLACEHOLDERS_NOT_ACTUAL_OPTIMIZER_OR_PHYSICAL_QUALIFICATION",
+  "new_optimizer_updates": 0,
+  "actual_native_commands": 0,
+  "physical_acceptance": false,
+  "source_sha256": {
+    "00-control-center/src/explorer/app.py": "8ce565bb3e6f658c0515dfadc56cb19beeea15afedbce387ba6e662ed1cf5584",
+    "00-control-center/src/explorer/source_evaluation_transport.py": "30686bb0b7ecc17aa8fcd6c3d871fc60e2e4bf2bd2e41c9533293e9946ff1e0f",
+    "00-control-center/src/explorer/static/app.js": "f89507b03060ae2f884a8bd0d502070336658985c7ac02b5baaa145d2e9a9687",
+    "00-control-center/src/explorer/static/index.html": "11ab87e7d9e99857421c3faee607986e099fafe574c74e922da1da04e161e6e9",
+    "00-control-center/src/explorer/static/styles.css": "53b9b216dcbb8a495d7287af30e06bc8cc6698aede7abd9209b0079908efa047",
+    "00-control-center/src/explorer/static/workflows.js": "a1ca379f0de7f9dc00b65994b12361cbfa6613cf803c9cb1f504fb4d4bb1a8b5",
+    "00-control-center/src/explorer/transfer_calibration.py": "104058f1373f0d8382a5a4d9d063d5c9a1299ea51dca362d7ac33bf79db67a49",
+    "shared/explorer_shared/native_leader_registration.py": "38abd2a91196ff395ac4ba622cef935577b069ad0142f3acdddabc153b3151c3",
+    "shared/explorer_shared/node_agent.py": "6068b250fcbd416496fbd0992a2f92beca6c3de055df3be6a41fe2b31c1d892d",
+    "tests/qualification_source_extensions.py": "3f655c8e592a3959b9bfd678d33797b1c49747294ef81649346255d427a714f8",
+    "tests/test_transfer_source.py": "fd0c601169f63be4cff79762e3421f56d69588d2b0e0b9ea9aead5d695640a57",
+    "00-control-center/src/explorer/static/transfer-geometry.js": "7cc3efd243dce236dc6670f91cf53964af47398962ebeacab8d7798e9672eff7",
+    "00-control-center/src/explorer/transfer_geometry.py": "e10890faeb5d944b170dab46d0975c4dce74a8283865dbcf8560e7c50df2bdc1",
+    "00-control-center/src/explorer/transfer_geometry_api.py": "02b5072e27306580484d7387448d8e2a7dd3e81b5a92cae4564d55fb2bf76ffd",
+    "shared/explorer_shared/so101_calibration_artifact.py": "15bd5583b3f7a00ed1cd4aeb5a71e1e293fc27412dadf37b67234b482aeb8bbd",
+    "shared/explorer_shared/source_geometry_context.py": "88462c45b1704bf2cc3a070410f8064bf98fd90f45370154c88989f264a4a120",
+    "tests/test_so101_calibration_artifact.py": "1a055269db52aa598990779d81da5787ef9ce2ddb22ccabd581bdde51f0b7a05",
+    "tests/test_transfer_geometry_api.py": "1e119fee6e7a40b80b7f746e4db58ce1536e04f704f3cee579542a07337109c7",
+    "tests/test_transfer_geometry_ui.js": "e6d0577ffaedeaa66a6c0d3ec0b5a97a0f027cdcc47b26223efe7150a10f0ad5"
+  },
+  "raw_sha256": {
+    "/mnt/explorer-data/explorer-work/06-geometry-both-HTTP-consumers-20261028-a.log": "c03ba78fd132079eb15bc8cab0a36ab4902b6feb63b23bb34778e3b7b4746386",
+    "/mnt/explorer-data/explorer-work/06-geometry-source-boundaries-20261028-a.log": "1baf4ccb02c8bc32ff91b3d2e8edebcceffd0af78b04fb1b513b556db0ec38c3",
+    "/mnt/explorer-data/explorer-work/06-geometry-all-node-20261028-a.log": "a3dbd7e1d8ee8bf7f72bab4186eb2956a02ae81c8760d20913d758a138a1456c",
+    "/mnt/explorer-data/explorer-work/06-actual-saved-source-preflight-20261028-a.json": "25f92290f1cc4cae7dc1fe4db62db3575393acc776b107cc4adfe611b99d4a61",
+    "/mnt/explorer-data/explorer-work/06-geometry-API-contracts-20261028-a.log": "f547e889b8ebfa374feb33408c34aa088b7081404acdaffe722244b1796c4773",
+    "/mnt/explorer-data/explorer-work/06-geometry-API-contracts-20261028-b.log": "6b7eb35fcd05d8cbf184d847f6fde8a27ca2c1aa5ca8951e5a9d6ef71951df88",
+    "/mnt/explorer-data/explorer-work/06-geometry-API-contracts-20261028-c.log": "9c4abad94ff84345d811694327a5459202dea5b799b747e7c29af2b8cea82e00"
+  },
+  "remaining": [
+    "Whole authenticated actual app desktop/mobile UI and current source metadata",
+    "Cached source/target metric capture +solve steps through existing providers",
+    "Shared target9 data/training adapter +5/10/25 comparisons",
+    "One full06 regression and scoped deployment",
+    "Physical source skill/scene/calibration/observed trial acceptance"
+  ]
+}
