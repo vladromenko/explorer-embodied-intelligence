@@ -529,6 +529,32 @@ class RelativeLeaderGeometry:
         return {'recentered': True, 'target_basis': 'native_command_estimate_not_measured',
                 'gripper_clutch': self.gripper_clutch_mode, 'physical_commands': 0}
 
+    def leader_pose_alignment(self, measured_leader, commanded_target_servo, *, original_native_period_s):
+        """Create the explicit first-start goal in the target's native joints."""
+        if self.status()['state'] == 'UNREGISTERED':
+            raise ValueError('Source normalized-to-physical axes/zero/scale and gripper registration missing')
+        if not isinstance(original_native_period_s, (int, float)) or not math.isfinite(original_native_period_s) or original_native_period_s <= 0:
+            raise ValueError('Original native stream period must be supplied unchanged')
+        leader = _vector(measured_leader, 6)
+        estimated = _vector(commanded_target_servo, 6)
+        if np.any(leader[:5] < -100.) or np.any(leader[:5] > 100.):
+            raise ValueError('Leader joint outside calibrated normalized -100..100 alignment domain')
+        # LeRobot's calibrated joint fraction becomes the same fraction of the
+        # ROSMASTER +/-90 degree joint domain.  The existing target coordinate
+        # adapter supplies its real axis signs; no controller setting changes.
+        target_q = np.radians(leader[:5] * .9)
+        if np.any(target_q < self.target.lower) or np.any(target_q > self.target.upper):
+            raise ValueError('Leader pose is outside unchanged target joint limits')
+        goal = np.concatenate((_vector(self.to_servo(target_q), 5),
+                               _vector([self.gripper_mapper(float(leader[5]))], 1)))
+        error = goal - estimated
+        return {'accepted': True, 'phase': 'ALIGNING_TO_LEADER',
+                'alignment_basis': 'leader_calibrated_normalized_joint_fraction_to_target_native_coordinates',
+                'desired_servo_deg': goal.tolist(), 'max_error_deg': float(np.max(np.abs(error))),
+                'joint_velocity_deg_s': (error / original_native_period_s).tolist(),
+                'state_source': 'command_estimate', 'native_dispatched': False,
+                'controller_limits_applied_by': 'unchanged_original_native_Ruckig_generator'}
+
     def propose(self, measured_leader, commanded_target_servo, *, original_native_period_s):
         if self.anchor is None:
             raise ValueError('Explicit clutch/recenter required')

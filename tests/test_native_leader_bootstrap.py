@@ -44,6 +44,18 @@ def test_no_homing_offset_reapplication_and_provisional_gripper_direction(contex
     assert not geometry.registration['metric_gripper_aperture_measured']
 
 
+def test_first_start_alignment_maps_calibrated_leader_fraction_to_native_target_joints(context):
+    geometry=bootstrap.bootstrap_geometry(context)
+    leader=[-10.,-50.,25.,75.,100.,25.]
+    proposal=geometry.leader_pose_alignment(leader,[90.]*6,original_native_period_s=.04)
+    expected_q=np.radians(np.asarray(leader[:5])*.9)
+    expected=np.concatenate((geometry.to_servo(expected_q),[geometry.gripper_mapper(leader[5])]))
+    assert proposal['phase']=='ALIGNING_TO_LEADER' and proposal['accepted']
+    assert proposal['desired_servo_deg']==pytest.approx(expected)
+    assert proposal['joint_velocity_deg_s']==pytest.approx((expected-np.asarray([90.]*6))/.04)
+    assert proposal['controller_limits_applied_by']=='unchanged_original_native_Ruckig_generator'
+
+
 @pytest.mark.parametrize('frame_convention',list(bootstrap.FRAME_YAW))
 def test_clutch_and_latest_pose_use_declared_base_rotation_and_current_command_estimate(context,frame_convention,monkeypatch):
     geometry=bootstrap.bootstrap_geometry(context,frame_convention=frame_convention)

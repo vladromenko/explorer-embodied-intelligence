@@ -30,6 +30,7 @@ test('one click starts the current source and immediately renews its held lease'
  assert.equal(h.run('direct03.owned'),true);assert.equal(h.run('direct03.status.state'),'ACTIVE');
  const leases=h.calls.filter(c=>c.path?.endsWith('/lease'));assert.equal(leases.length,1);
  assert.equal(leases[0].body.held,true);assert.equal(h.calls.find(c=>c.path?.endsWith('/start')).body.operator_profile,'ARM_ONLY');
+ assert.equal(h.calls.find(c=>c.path?.endsWith('/start')).body.initial_alignment,'LEADER_POSE');
  const permission=h.calls.find(c=>c.permission);assert.equal(permission.options.chassis,false);
  assert.equal(h.calls.filter(c=>c.camera==='live').length,1);
 });
@@ -44,9 +45,9 @@ test('an unowned tab neither renews nor stops another tab on blur or pointerdown
  await Promise.all(h.windowEvents.blur.map(cb=>cb()));await h.hold();await h.run('direct03Lease()');
  assert.equal(h.calls.length,0);
 });
-test('simple panel explains automatic relative alignment',()=>{
+test('simple panel explains automatic leader-pose alignment',()=>{
  const h=harness();h.run(status);const html=h.run('direct03Panel()');
- assert.match(html,/Совмещать руки вручную не нужно/);assert.match(html,/текущие позы становятся общей начальной точкой/);
+ assert.match(html,/снача плавно встанет в ту же позу/);assert.match(html,/затем начнёт повторять/);
  assert.match(html,/Шасси остаётся неподвижным/);
 });
 

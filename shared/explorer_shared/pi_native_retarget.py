@@ -22,6 +22,8 @@ from .native_gripper_alignment import gripper_alignment
 
 HOLD_SCHEMA='explorer_pi_native_explicit_hold_v1'
 OPERATOR_PROFILES=('ARM_ONLY','MOBILE_MANIPULATION')
+INITIAL_ALIGNMENT_MODES=('CLUTCH_CURRENT','LEADER_POSE')
+ALIGNMENT_TOLERANCE_DEG=1.
 
 
 class SourcePacketDrop(ValueError):
@@ -64,6 +66,8 @@ class PiNativeRetargetService:
         self.source_identity=None
         self.begin_outcome_unknown=False
         self.gripper_alignment=None;self.packet_drops={};self.last_drop_reason=None
+        self.initial_alignment_mode='CLUTCH_CURRENT';self.initial_alignment_phase='NOT_REQUESTED'
+        self.initial_alignment_pending=False;self.initial_alignment=None
         self.last_lease_receipt=None;self.last_proposal=None;self.last_stop_receipt=None
         self.operator_hold_deadline_ns=None;self.held_base_actions={};self.last_native_heartbeat_ns=None
         self.round_trips=deque(maxlen=64);self.last_source_age_ns=None;self.discarded_late_replies=0
@@ -120,6 +124,10 @@ class PiNativeRetargetService:
                 'last_proposal':deepcopy(self.last_proposal),'last_lease_receipt':deepcopy(self.last_lease_receipt),
                 'last_stop_receipt':deepcopy(self.last_stop_receipt),
                 'gripper_alignment':deepcopy(self.gripper_alignment),
+                'initial_alignment_mode':self.initial_alignment_mode,
+                'initial_alignment_modes':list(INITIAL_ALIGNMENT_MODES),
+                'initial_alignment_phase':self.initial_alignment_phase,
+                'initial_alignment':deepcopy(self.initial_alignment),
                 'packet_drops':dict(self.packet_drops),'last_drop_reason':self.last_drop_reason,
                 'timing_diagnostics':{'schema':'explorer_pi_retarget_host_timing_v1','sample_count':len(self.round_trips),
                     'input_HTTP_RTT_ns':list(self.round_trips),'last_source_cache_age_ns':self.last_source_age_ns,
@@ -196,6 +204,8 @@ class PiNativeRetargetService:
         self._observe(body)
         profile=body.get('operator_profile','ARM_ONLY')
         if profile not in OPERATOR_PROFILES:raise ValueError('Explicit supported operator_profile required')
+        alignment=body.get('initial_alignment','CLUTCH_CURRENT')
+        if alignment not in INITIAL_ALIGNMENT_MODES:raise ValueError('Explicit supported initial_alignment required')
         registration=getattr(self.geometry,'registration',None) or {}
         if registration.get('provenance')=='synthetic' and not self.allow_synthetic:
             raise ValueError('Synthetic registration cannot activate a physical peer')
@@ -249,6 +259,9 @@ class PiNativeRetargetService:
                 self.target_epoch=target_epoch;self.native_period=period;self.estimate=estimate
                 self.source_sequence=0;self.last_source_stamp=measured['monotonic_ns'];self.last_lease_sequence=-1
                 self.epoch=uuid.uuid4().hex;self.mode='CLUTCHED';self.error=None;self.operator_profile=profile
+                self.initial_alignment_mode=alignment;self.initial_alignment_pending=False
+                self.initial_alignment_phase='WAITING_FOR_HELD' if alignment=='LEADER_POSE' else 'NOT_REQUESTED'
+                self.initial_alignment=None
                 self.last_result={'recentered':True,'target_estimate_basis':basis,'native_dispatched':False}
                 self.last_proposal=None;self.last_lease_receipt=None;self.round_trips.clear();self.last_source_age_ns=None
                 self.gripper_alignment=None;self.packet_drops.clear();self.last_drop_reason=None
@@ -291,6 +304,8 @@ class PiNativeRetargetService:
                     raise ValueError('Old recenter response discarded')
                 self.target_epoch=new_target;self.estimate=estimate;self.last_source_stamp=measured['monotonic_ns']
                 self.epoch=uuid.uuid4().hex;self.mode='CLUTCHED';self.error=None
+                self.initial_alignment_mode='CLUTCH_CURRENT';self.initial_alignment_pending=False
+                self.initial_alignment_phase='RECENTERED';self.initial_alignment=None
                 self.last_lease_sequence=-1;self.last_proposal=None;self.last_lease_receipt=None
                 self.last_result={'recentered':True,'target_estimate_basis':basis,'native_dispatched':False}
             self.wake.set();return self.status()
@@ -374,17 +389,23 @@ class PiNativeRetargetService:
             # its CURRENT command estimate after resume/neutral; this acquire-
             # only GET neither renews the original lease nor runs in ACTIVE.
             estimate=self.client.reference();target,basis=self._target_estimate(estimate)
-            # All admission network I/O is now complete. Clutched movement is
-            # the NEW anchor, never replayed by the first ACTIVE frame.
+            # All admission network I/O is now complete. Relative mode makes
+            # this the new anchor; explicit leader-pose mode first converges
+            # through the unchanged native Ruckig stream.
             measured=self._measurement();self._same_source(measured)
             self._align_gripper(measured,target,estimate)
-            self.geometry.recenter(measured['positions'],target)
+            align_to_leader=self.initial_alignment_mode=='LEADER_POSE'
+            if not align_to_leader:self.geometry.recenter(measured['positions'],target)
             with self.lock:
                 if self.epoch!=expected or self.mode!='ACTIVATING':raise ValueError('First held superseded after neutral lease')
                 self.mode='ACTIVE';self.estimate=estimate;self.last_source_stamp=measured['monotonic_ns'];self.error=None
+                self.initial_alignment_pending=align_to_leader
+                self.initial_alignment_phase='ALIGNING_TO_LEADER' if align_to_leader else 'FOLLOWING'
                 self.operator_hold_deadline_ns=self.clock()+400_000_000;self.held_base_actions={};self.last_native_heartbeat_ns=self.clock()
                 self.last_lease_receipt={'target_receipt':deepcopy(result),'target_control_epoch':target_epoch,
-                    'first_explicit_held':True,'recentered_at_explicit_held':True,'target_estimate_basis':basis,'native_dispatched':False}
+                    'first_explicit_held':True,'recentered_at_explicit_held':not align_to_leader,
+                    'leader_pose_alignment_requested':align_to_leader,
+                    'target_estimate_basis':basis,'native_dispatched':False}
             self.wake.set();return self.status()
         except Exception as error:
             with self.lock:
@@ -431,6 +452,7 @@ class PiNativeRetargetService:
                 self.mode='CLOSED' if self.shutdown.is_set() else 'STOPPED'
                 self.target_epoch=None;self.stop_uncertain=False;self.error=None
                 self.chassis_authorized=False
+                self.initial_alignment_pending=False;self.initial_alignment_phase='STOPPED'
                 self.operator_hold_deadline_ns=None;self.held_base_actions={};self.last_native_heartbeat_ns=None
                 self.begin_outcome_unknown=False
                 self.last_stop_receipt=cleanup
@@ -551,9 +573,24 @@ class PiNativeRetargetService:
                 if self.last_source_stamp is not None and measured['monotonic_ns']<=self.last_source_stamp:
                     raise SourcePacketDrop('SOURCE_PACKET_DUPLICATE' if measured['monotonic_ns']==self.last_source_stamp else 'SOURCE_PACKET_OUT_OF_ORDER')
                 estimate=self.estimate or self.client.reference();target,basis=self._target_estimate(estimate)
-                proposal=self.geometry.propose(measured['positions'],target,original_native_period_s=self.native_period)
+                if self.initial_alignment_pending:
+                    proposal=self.geometry.leader_pose_alignment(measured['positions'],target,
+                        original_native_period_s=self.native_period)
+                    with self.lock:self.initial_alignment=deepcopy(proposal)
+                    if proposal['max_error_deg']<=ALIGNMENT_TOLERANCE_DEG:
+                        self.geometry.recenter(measured['positions'],target)
+                        with self.lock:
+                            if self.epoch!=local_epoch or self.mode!='ACTIVE':
+                                raise ValueError('Old alignment frame superseded before following')
+                            self.initial_alignment_pending=False;self.initial_alignment_phase='FOLLOWING'
+                            self.last_source_stamp=measured['monotonic_ns']
+                            self.last_result={'initial_alignment_completed':True,
+                                'max_error_deg':proposal['max_error_deg'],'native_dispatched':False}
+                        return
+                else:
+                    proposal=self.geometry.propose(measured['positions'],target,original_native_period_s=self.native_period)
                 if proposal.get('accepted') is not True:
-                    raise ValueError('Native target IK rejected this latest measured sample')
+                    raise SourcePacketDrop('TARGET_IK_UNREACHABLE')
                 with self.lock:
                     if self.epoch!=local_epoch or self.mode!='ACTIVE':
                         raise ValueError('Old source frame superseded before HTTP intent')
@@ -583,6 +620,8 @@ class PiNativeRetargetService:
                         self.last_source_stamp=measured['monotonic_ns'];self.sample_count+=1
                         self.last_result={'proposal':proposal,'target_receipt':receipt,'native_dispatched':False}
                         self.last_proposal=deepcopy(self.last_result)
+                        if self.initial_alignment_pending:
+                            self.initial_alignment={**deepcopy(proposal),'target_receipt':deepcopy(receipt)}
                         if ended>=started:self.round_trips.append(ended-started)
                         self.last_source_age_ns=started-measured['monotonic_ns']
                     else:self.discarded_late_replies+=1

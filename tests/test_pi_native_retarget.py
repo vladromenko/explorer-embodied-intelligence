@@ -32,13 +32,24 @@ class Geometry:
     context=SimpleNamespace(coordinates=SimpleNamespace(sha256='a'*64,
         calibration={'gripper':{'range_min':2035,'range_max':3274}}))
     gripper_mapper=staticmethod(lambda value:90.)  # Explicit SOFTWARE constant-grip geometry.
+    reject_next=False
     def status(self):
         return {'state':'REGISTERED_DECLARATION','physical_acceptance':False}
     def recenter(self,positions,target):
         self.anchor=(list(positions),list(target))
     def propose(self,positions,target,*,original_native_period_s):
         assert original_native_period_s==.04
+        if self.reject_next:
+            self.reject_next=False
+            return {'accepted':False,'reason':'fixture unreachable','native_dispatched':False}
         return {'accepted':True,'joint_velocity_deg_s':list(positions)}
+    def leader_pose_alignment(self,positions,target,*,original_native_period_s):
+        assert original_native_period_s==.04
+        goal=list(positions);error=[value-current for value,current in zip(goal,target)]
+        return {'accepted':True,'phase':'ALIGNING_TO_LEADER','desired_servo_deg':goal,
+                'max_error_deg':max(abs(value) for value in error),
+                'joint_velocity_deg_s':[value/original_native_period_s for value in error],
+                'native_dispatched':False}
 
 
 class Peer:
@@ -94,8 +105,9 @@ def service(tmp_path):
     return PiNativeRetargetService(Geometry(),station,tmp_path,peer,allow_synthetic=True),station,peer
 
 
-def start(service,*,held=True,operator_profile='ARM_ONLY'):
-    state=service.start({'expected_control_epoch':service.epoch,'observing':True,'operator_profile':operator_profile})
+def start(service,*,held=True,operator_profile='ARM_ONLY',initial_alignment='CLUTCH_CURRENT'):
+    state=service.start({'expected_control_epoch':service.epoch,'observing':True,'operator_profile':operator_profile,
+                         'initial_alignment':initial_alignment})
     if held:state=service.lease({'control_epoch':state['control_epoch'],'sequence':0,'held':True,'observing':True,'base_actions':{}})
     return state
 
@@ -195,6 +207,29 @@ def test_stale_leader_drops_without_zero_automatic_lease_or_restart(tmp_path):
         assert source.mode=='ACTIVE' and source.error is None
     finally:
         source.close()
+
+
+def test_explicit_leader_pose_alignment_completes_before_relative_following(tmp_path):
+    source,station,peer=service(tmp_path);station.positions=[90.]*6
+    start(source,initial_alignment='LEADER_POSE')
+    assert source.initial_alignment_pending and source.status()['initial_alignment_phase']=='ALIGNING_TO_LEADER'
+    station.update(90);source._step_once()
+    assert not source.initial_alignment_pending and source.status()['initial_alignment_phase']=='FOLLOWING'
+    assert not any(name=='input' for name,_ in peer.calls)
+    station.update(2);source._step_once()
+    assert [value['velocity'] for name,value in peer.calls if name=='input']==[[2.]*6]
+    source.close()
+
+
+def test_single_unreachable_following_frame_is_dropped_without_ending_session(tmp_path):
+    source,station,peer=service(tmp_path);start(source);epoch=source.epoch
+    source.geometry.reject_next=True;station.update(1);source._step_once()
+    assert source.mode=='ACTIVE' and source.epoch==epoch and source.error is None
+    assert source.packet_drops=={'TARGET_IK_UNREACHABLE':1}
+    assert not any(name=='input' for name,_ in peer.calls)
+    station.update(2);source._step_once()
+    assert [value['velocity'] for name,value in peer.calls if name=='input']==[[2.]*6]
+    source.close()
 
 
 def test_late_stop_after_close_cannot_remove_permanent_shutdown_latch(tmp_path):

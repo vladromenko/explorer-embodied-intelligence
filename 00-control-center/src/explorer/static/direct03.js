@@ -10,7 +10,9 @@ const direct03HeldABI = () => direct03.status?.source_hold_gate_schema === "expl
 const direct03BaseMap = {KeyW:"forward",KeyS:"backward",KeyA:"left",KeyD:"right",KeyQ:"turn_left",KeyE:"turn_right"};
 function direct03Panel(){
  const active=direct03.owned;
- return `<section class="panel"><div class="panel-heading"><h2>Leader → ROSMASTER</h2></div><div class="panel-body"><p>Двигайте ведущую SO-101 — рука ROSMASTER повторяет движение. Совмещать руки вручную не нужно: при подключении их текущие позы становятся общей начальной точкой без прыжка. Шасси остаётся неподвижным.</p><div class="teleop-actions"><button class="button primary" data-action="${active?"direct03-stop":"direct03-start"}" ${direct03.busy?"disabled":""}>${active?"Отключить управление":"Управлять"}</button>${active?`<button class="button secondary" data-action="direct03-recenter">Текущая поза — начало</button>`:""}</div>${direct03.error?`<p class="form-error">${esc(direct03.error)}</p>`:""}</div></section>`;
+ const phase=direct03.status?.initial_alignment_phase;
+ const phaseText=phase==="ALIGNING_TO_LEADER"?"ROSMASTER плавно совмещается с ведущей рукой…":phase==="FOLLOWING"?"Поза совмещена — движения повторяются.":"";
+ return `<section class="panel"><div class="panel-heading"><h2>Leader → ROSMASTER</h2></div><div class="panel-body"><p>Нажмите «Управлять» и на секунду удерживайте ведущую SO-101 неподвижно. Рука ROSMASTER снача плавно встанет в ту же позу, затем начнёт повторять движения. Шасси остаётся неподвижным.</p>${phaseText?`<p class="form-note">${phaseText}</p>`:""}<div class="teleop-actions"><button class="button primary" data-action="${active?"direct03-stop":"direct03-start"}" ${direct03.busy?"disabled":""}>${active?"Отключить управление":"Управлять"}</button>${active?`<button class="button secondary" data-action="direct03-recenter">Текущая поза — начало</button>`:""}</div>${direct03.error?`<p class="form-error">${esc(direct03.error)}</p>`:""}</div></section>`;
 }
 
 async function pollDirect03() {
@@ -19,7 +21,7 @@ async function pollDirect03() {
   direct03.polling = true;
   try {
     const status = await api("/api/retarget/status");
-    const signature = JSON.stringify([status.state, status.control_epoch, status.registration?.registration_sha256 || status.registration?.registration?.sha256, status.registration?.state, status.registration?.missing_cross_map || status.registration?.missing, status.operator_profile, status.source_hold_gate_schema, status.error, status.last_result?.target_receipt?.state, status.recording]);
+    const signature = JSON.stringify([status.state, status.control_epoch, status.registration?.registration_sha256 || status.registration?.registration?.sha256, status.registration?.state, status.registration?.missing_cross_map || status.registration?.missing, status.operator_profile, status.source_hold_gate_schema, status.initial_alignment_phase, status.error, status.last_result?.target_receipt?.state, status.recording]);
     if (direct03.ownedEpoch && status.control_epoch !== direct03.ownedEpoch) {
       direct03.owned = false; direct03.ownedEpoch = null; direct03.held = false;
       direct03BaseKeys.clear(); direct03.interrupt += 1;
@@ -48,9 +50,10 @@ async function direct03Lease() {
   const epoch = direct03.ownedEpoch;
   if (!epoch) { direct03.leasePending = false; return; }
   try {
+    const previousPhase=direct03.status?.initial_alignment_phase;
     const base_actions=direct03.operatorProfile === "MOBILE_MANIPULATION" && typeof observedNative!=="undefined"&&observedNative.chassisAllowed()?Object.fromEntries([...direct03BaseKeys].map(key=>[direct03BaseMap[key],1])):{};
     const result = await post("/api/retarget/lease", { control_epoch: epoch, sequence: direct03.sequence++, held: true, observing: true,base_actions });
-    if (direct03.held && direct03.ownedEpoch === epoch) { direct03.status = result; direct03.ownedEpoch = result.control_epoch; }
+    if (direct03.held && direct03.ownedEpoch === epoch) { direct03.status = result; direct03.ownedEpoch = result.control_epoch; if(previousPhase!==result.initial_alignment_phase){model.forceRender=true;render();} }
   } catch (error) { direct03.error = error.message; await direct03Stop(true, epoch); }
   finally { direct03.leasePending = false; }
 }
@@ -85,7 +88,7 @@ async function direct03Control(action){
     if(action==="direct03-start")await observedNative.connect("so101_leader",{chassis:direct03.operatorProfile==="MOBILE_MANIPULATION",initializeArm:nativeArmNeedsHome()});
     else await observedNative.requirePermission("so101_leader");
     if (interrupt !== direct03.interrupt || !direct03Route() || document.hidden || !document.hasFocus()) return;
-    const result = await post(`/api/retarget/${action === "direct03-start" ? "start" : "recenter"}`, { expected_control_epoch: capturedEpoch, observing: true, ...(action === "direct03-start" ? { operator_profile: direct03.operatorProfile } : {}) });
+    const result = await post(`/api/retarget/${action === "direct03-start" ? "start" : "recenter"}`, { expected_control_epoch: capturedEpoch, observing: true, ...(action === "direct03-start" ? { operator_profile: direct03.operatorProfile, initial_alignment: "LEADER_POSE" } : {}) });
     if (interrupt !== direct03.interrupt || !direct03Route() || document.hidden || !document.hasFocus()) { await direct03Stop(true, result.control_epoch); return; }
     direct03.status = result; direct03.owned = ["CLUTCHED", "ACTIVE"].includes(result.state); direct03.ownedEpoch = direct03.owned ? result.control_epoch : null; direct03.sequence = 0; direct03.error = null;
     if (direct03.owned && action === "direct03-start") {direct03.held=true;await direct03Lease();}
