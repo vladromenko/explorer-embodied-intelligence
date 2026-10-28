@@ -10,6 +10,8 @@ import pytest
 from explorer.store import Store
 from explorer import skill_workflow as mobile,lab_skill_workflow as lab
 from explorer.cooperative_service import CooperativeService
+from explorer_shared.native_capture_identity import normalize_capture_context,native_context_sha256
+from explorer_shared.contracts import digest
 
 
 class Source:
@@ -41,7 +43,13 @@ def fixture(tmp_path):
         if req.method=='GET':
             if path=='/native-capture/capabilities':result={'metadata_skill_context_supported':True,'native_owner_ready':True,'action_dimension':9}
             elif path=='/so101-capture/capabilities':result={'cooperative_permission_recording_supported':True}
-            elif path=='/native-capture/status':result={'active_recording_id':active[role]}
+            elif path=='/native-capture/status':
+                context=normalize_capture_context(contexts[role]['skill_context']) if role in contexts else None
+                result={'active_recording_id':active[role],'capture':{'schema':'explorer_native_capture_status_v1',
+                    'recording_id':active[role],'state':'RECORDING' if active[role] else 'IDLE',
+                    'source_clock_domain':'nano:fake-boot','source_boot_id':'fake-boot',
+                    'source_context_sha256':native_context_sha256(context) if context else None,'project_id':context.get('project_id') if context else None}}
+            elif path=='/legacy/explorer/retarget/reference':result={'measured':False,'valid_fixture_reference':True}
             elif path=='/station/status':result={'available':True,'mode':'teleoperation','recording_identity_fence':True,
                 'control_epoch':'fake-source-epoch','roles':deepcopy(profiles),'measurements':{'clock_domain':domain},
                 'recording':{'episode_id':active[role],'clock_domain':domain,'boot_id':boot,
@@ -54,7 +62,7 @@ def fixture(tmp_path):
                     'source_boot_id':boot,'source_clock_domain':domain,'source_context':source_context(),
                     'calibration_sha256':{role:profile['calibration_sha256'] for role,profile in profiles.items()},
                     'original_start_receipt':{'episode_id':active[role]}}
-            elif path.startswith('/so101-capture/recordings/') and path.endswith('/manifest'):
+            elif path.startswith(('/so101-capture/recordings/','/native-capture/recordings/')) and path.endswith('/manifest'):
                 identity=path.split('/')[-2]
                 if identity not in sealed:return httpx.Response(404,json={'detail':'Fake source archive not sealed yet'})
                 result=deepcopy(sealed[identity])
@@ -89,7 +97,18 @@ def fixture(tmp_path):
                         'original_manifest':{'sha256':'e'*64},'original_archive':{'sha256':'f'*64},
                         'operator_outcome':body['outcome'],'physical_success_inferred':False,'automatic_import_or_training':False}
                     sealed[identity]=deepcopy(result)
-                else:result={'saved':True}
+                else:
+                    identity=active[role];context=normalize_capture_context(contexts[role]['skill_context'])
+                    outcome=body['outcome_evidence']
+                    result={'schema':'explorer_native_embodied_capture_manifest_v1','recording_id':identity,
+                        'project_id':context['project_id'],'state':'completed','skill_context':context,
+                        'embodied_episode':{'episode_id':identity,'clock_domains':{'nano:fake-boot':{'boot_id':'fake-boot'}},
+                            'recording':{'status':'completed','operator_outcome':outcome.get('operator_outcome')},
+                            'outcomes':deepcopy(outcome.get('outcomes',{}))},
+                        'embodied_source_files_sha256':{'sources/outcome.json':native_context_sha256(outcome)},
+                        'physical_success_inferred':False,'controller_settings_written':False}
+                    sealed[identity]=deepcopy(result)
+                    result={'active_recording_id':None,'capture':{'state':'SEALING'}}
                 active[role]=None
             else:raise AssertionError('Unknown native metadata operation')
         return httpx.Response(200,json=result)

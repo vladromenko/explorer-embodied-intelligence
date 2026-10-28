@@ -104,7 +104,7 @@ def test_ack_checksum_failure_never_publishes_ready_and_original_known_data_can_
         root.workflow._save(row);base={'session_id':row['session_id'],'expected_epoch':row['epoch']}
         original=implementation.write_original
         def fail_checksum(path,raw):
-            if path.name=='ack.sha256':raise OSError('FAKE fsync failure before DATA ACK publication')
+            if path.name=='ack.sha256' and json.loads(path.with_name('intent.json').read_bytes())['role']=='receiver':raise OSError('FAKE fsync failure before DATA ACK publication')
             return original(path,raw)
         monkeypatch.setattr(implementation,'write_original',fail_checksum)
         result=root.command('record_start',base,authenticated_actor='trusted-owner')['result']
@@ -126,7 +126,7 @@ def test_session_save_failure_after_intent_persistence_is_known_pre_rpc_abort(tm
         root.workflow._save(row);base={'session_id':row['session_id'],'expected_epoch':row['epoch']};save=root.workflow._save;failed=[]
         def fail_once(value):
             save(value)
-            if value.get('native_capture_start_intents') and not failed:
+            if (value.get('native_capture_start_intents') or {}).get('receiver') and not failed:
                 failed.append(True);raise OSError('FAKE directory fsync failure AFTER row replace BEFORE source RPC')
         monkeypatch.setattr(root.workflow,'_save',fail_once)
         result=root.command('record_start',base,authenticated_actor='trusted-owner')['result']

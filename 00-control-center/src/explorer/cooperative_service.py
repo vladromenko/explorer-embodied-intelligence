@@ -136,6 +136,8 @@ class CooperativeService:
         def request(method,path,body):
             cleanup=(method=='GET' and path in ('/native-capture/status','/station/status',
                 '/so101-capture/status','/station/observed-test/status')) or (
+                method=='GET' and isinstance(path,str) and re.fullmatch(
+                    r'/(so101-capture|native-capture)/recordings/[a-f0-9]{32}/manifest',path) is not None) or (
                 method=='POST' and path in ('/native-capture/record/finish','/so101-capture/record/finish',
                     '/station/observed-test/revoke','/legacy/explorer/retarget/activation/revoke'))
             if self.closed and not cleanup:raise ValueError('Cooperative service is closed')
@@ -152,7 +154,9 @@ class CooperativeService:
             return value
         return request
     def _capture_started(self,prepared,identity):
-        return mobile.capture_started(self.store,prepared['source_capture']['capture_id'],identity)
+        ack=self.capture_starts.acknowledge(prepared,identity)
+        binding=mobile.capture_started(self.store,prepared['source_capture']['capture_id'],identity)
+        return {'known_capture_ack':ack,'source_workflow':binding}
     def _receiver_capture_started(self,prepared,identity):
         return self.capture_starts.acknowledge(prepared,identity)
     def _prepare_context(self,role,context):
@@ -161,6 +165,10 @@ class CooperativeService:
         native['cooperative_source_execution_domain']='REAL'
         native['cooperative_domain_basis']='configured_physical_source_declared_by_server_not_independent_task_success'
         if role=='receiver':self._receiver_capture_permission(context,prepared)
+        else:
+            row=self.workflow.snapshot((context.get('cooperative_parent') or {}).get('session_id'))
+            prepared['capture_actor_id']=row.get('recording_actor_id')
+            self.capture_starts.begin_giver(row,prepared)
         return prepared
     def _receiver_capture_permission(self,context,prepared):
         parent=context.get('cooperative_parent') or {};row=self.workflow.snapshot(parent.get('session_id'))
@@ -191,42 +199,57 @@ class CooperativeService:
         if role=='giver':
             result={'native':result,'source_workflow':mobile.capture_stage(self.store,reference['source_capture']['capture_id'],phase)}
         return result
+    def _giver_outcome(self,reference,outcome):
+        capture=reference['source_capture'];status=outcome.get('status','unknown')
+        try:mobile.verify_capture_episode(self.store,capture['capture_id'],reference['recording_id'])
+        except ValueError:
+            # A durable ACK fsync may have failed after the original writer
+            # started. Cleanup still requires the exact known active DATA
+            # original; never bind the current GET owner or create authority.
+            _,intent,_,identity=self.capture_starts._known_reference(reference)
+            if intent['role']!='giver' or self.capture_starts._active(intent)!=identity:
+                raise ValueError('Known native9 DATA original required before outcome cleanup')
+            mobile.capture_started(self.store,capture['capture_id'],identity)
+        if status not in ('success','failure','unknown'):status='unknown'
+        review=deepcopy(outcome.get('review') or {})
+        if outcome.get('method')!='operator_observation':review={};status='unknown'
+        return mobile.native_outcome_evidence(self.store,capture['capture_id'],reference['recording_id'],review,status)
     def _record_finish(self,role,reference,outcome):
         if role=='giver':
-            capture=reference['source_capture'];status=outcome.get('status','unknown')
-            if status not in ('success','failure','unknown'):status='unknown'
-            review=deepcopy(outcome.get('review') or {})
-            if outcome.get('method')!='operator_observation':review={};status='unknown'
-            native=mobile.native_outcome_evidence(self.store,capture['capture_id'],reference['recording_id'],review,status)
-            result=self.producers[role].record_finish(reference,native)
-            binding=mobile.capture_finished(self.store,capture['capture_id'],reference['recording_id'],{**review,'outcome':status})
+            native=self._giver_outcome(reference,outcome)
+            result=(self.capture_starts.finish(reference,native,cleanup=self.closed) if reference.get('known_capture_intent')
+                else self.producers[role].record_finish(reference,native))
+            status=native['operator_outcome'];review=deepcopy(outcome.get('review') or {}) if outcome.get('method')=='operator_observation' else {}
+            binding=mobile.capture_finished(self.store,reference['source_capture']['capture_id'],reference['recording_id'],{**review,'outcome':status})
             return {'native':result,'source_workflow':binding}
         if reference.get('known_capture_intent'):
             return self.capture_starts.finish(reference,outcome,cleanup=self.closed)
         return self.producers[role].record_finish(reference,outcome)
-    def _reconcile_receiver_capture(self,row,actor):
-        ack=self.capture_starts.reconcile(row,actor);reference=ack['reference']
-        self.producers['receiver'].bind_known_capture(reference)
+    def _reconcile_native_capture(self,row,actor,role='receiver'):
+        ack=self.capture_starts.reconcile(row,actor,role);reference=ack['reference']
+        self.producers[role].bind_known_capture(reference)
+        if role=='giver':
+            mobile.capture_started(self.store,reference['source_capture']['capture_id'],reference['recording_id'])
         current=self.workflow.snapshot(row['session_id']);attached=False
         if (not self.closed and current['epoch']==row['epoch'] and current.get('recording_id') and
-                (current.get('native_capture_start_intents') or {}).get('receiver')==reference['known_capture_intent'] and
+                (current.get('native_capture_start_intents') or {}).get(role)==reference['known_capture_intent'] and
                 current.get('recording_actor_id')==reference['capture_actor_id'] and
                 current['status'] not in ('STOPPED','INTERRUPTED','COMPLETED')):
             try:
-                self.recorder.acknowledge_native_source(current['recording_id'],'receiver',reference)
+                self.recorder.acknowledge_native_source(current['recording_id'],role,reference)
                 with self.workflow.lock:
                     latest=self.workflow._session(row['session_id'])
                     if (latest['epoch']==row['epoch'] and latest.get('recording_id')==current['recording_id'] and
-                            (latest.get('native_capture_start_intents') or {}).get('receiver')==reference['known_capture_intent']):
-                        latest['recording_source_refs']['receiver']=deepcopy(reference)
-                        latest.get('record_start_errors',{}).pop('receiver',None)
+                            (latest.get('native_capture_start_intents') or {}).get(role)==reference['known_capture_intent']):
+                        latest['recording_source_refs'][role]=deepcopy(reference)
+                        latest.get('record_start_errors',{}).pop(role,None)
                         self.workflow._save(latest);attached=True
             except ValueError:
                 # A concurrent finish/STOP may have sealed the original camera
                 # archive. Keep the DATA ACK and finish only this known source.
                 attached=False
         if attached:return {**ack,'recording_metadata_attached':True}
-        result=self.capture_starts.finish(reference,{'status':'unknown'},cleanup=True)
+        result=self._record_finish(role,reference,{'status':'unknown'})
         pointer=reference['known_capture_intent'];folder,_=self.capture_starts._load(pointer)
         path=folder/'recovery-finish-unknown.json'
         if not path.exists():write_original(path,canonical({'source_result':result,'outcome':'unknown',
@@ -235,27 +258,33 @@ class CooperativeService:
     def _record_reconcile(self,body,actor):
         if not self.workflow.record_io.acquire(blocking=False):raise ValueError('Another recording metadata operation is pending')
         try:
-            if set(body)!={'session_id','expected_epoch','capture_attempt_id'}:
+            if set(body) not in ({'session_id','expected_epoch','capture_attempt_id'},
+                    {'session_id','expected_epoch','capture_attempt_id','role'}):
                 raise ValueError('Only the exact server-known DATA attempt may be reconciled')
+            role=body.get('role','receiver')
+            if role not in ('giver','receiver'):raise ValueError('Fixed native DATA role required')
             selected=self.workflow.snapshot(body['session_id'])
             if selected['epoch']!=body['expected_epoch']:raise ValueError('Session epoch changed inside DATA IO lock')
-            if body['capture_attempt_id']!=(selected.get('native_capture_start_intents') or {}).get('receiver',{}).get('attempt_id'):
+            if body['capture_attempt_id']!=(selected.get('native_capture_start_intents') or {}).get(role,{}).get('attempt_id'):
                 raise ValueError('Known DATA capture attempt changed; stale reconciliation rejected')
-            recovery=self.capture_starts.projection(selected)
+            recovery=self.capture_starts.projection(selected,role)
             if recovery and recovery['state'] in ('PENDING_DATA_FINISH_RECONCILIATION','DATA_FINISHED'):
-                result=self.capture_starts.reconcile_finish(selected,actor)
-            else:result=self._reconcile_receiver_capture(selected,actor)
-            result['interrupted_camera_pointer_retired']=self._retire_interrupted_camera(selected,result)
+                result=self.capture_starts.reconcile_finish(selected,actor,role)
+            else:result=self._reconcile_native_capture(selected,actor,role)
+            result['interrupted_camera_pointer_retired']=self._retire_interrupted_camera(selected,result,role)
             return result
         finally:self.workflow.record_io.release()
-    def _retire_interrupted_camera(self,selected,result):
+    def _retire_interrupted_camera(self,selected,result,role='receiver'):
         """Retire only an old inactive DATA pointer; retain its raw files/receipt."""
         current=self.workflow.snapshot(selected['session_id']);identity=current.get('recording_id')
-        pointer=(current.get('native_capture_start_intents') or {}).get('receiver')
+        pointer=(current.get('native_capture_start_intents') or {}).get(role)
         if (not identity or identity!=selected.get('recording_id') or not re.fullmatch('[0-9a-f]{32}',str(identity)) or
                 current['status'] not in ('STOPPED','INTERRUPTED','COMPLETED') or
-                pointer!=(selected.get('native_capture_start_intents') or {}).get('receiver') or
+                pointer!=(selected.get('native_capture_start_intents') or {}).get(role) or
                 result.get('control_authority_adopted') is not False):return False
+        if any(self.capture_starts.projection(current,other) and
+                self.capture_starts.projection(current,other)['state']!='DATA_FINISHED'
+                for other in ('giver','receiver')):return False
         if self.recorder is not None:
             recorder=self.recorder.status()
             if recorder['recording_id']==identity and recorder['state'] in ('RECORDING','SEALING'):return False
@@ -273,7 +302,7 @@ class CooperativeService:
         with self.workflow.lock:
             latest=self.workflow._session(current['session_id'])
             if (latest.get('recording_id')!=identity or
-                    (latest.get('native_capture_start_intents') or {}).get('receiver')!=pointer or
+                    (latest.get('native_capture_start_intents') or {}).get(role)!=pointer or
                     latest['status'] not in ('STOPPED','INTERRUPTED','COMPLETED')):return False
             latest.update(recording_id=None,last_interrupted_recording_id=identity,
                 interrupted_recording_recovery={**receipt,'receipt_sha256':sha_file(path)})
@@ -613,7 +642,8 @@ bound first; default construction cannot turn on policy execution.
     def snapshot(self,session_id=None):
         workbench=self.workflow.snapshot();selected=self.workflow.snapshot(session_id) if session_id else None
         for row in workbench['sessions']:
-            row['native_capture_recovery']=self.capture_starts.projection(row)
+            row['native_capture_recoveries']={role:self.capture_starts.projection(row,role) for role in ('giver','receiver')}
+            row['native_capture_recovery']=row['native_capture_recoveries']['receiver']
             row['legal_events']=[event for event,states in LEGAL_STATES.items() if row['protocol_state'] in states]
             row['readiness']=self.workflow.readiness(row['session_id'])
             if row['mode']!='both_manual':

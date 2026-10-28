@@ -63,8 +63,10 @@ class NativeMetadataRecorder:
                 'source_capture':deepcopy(prepared.get('source_capture')),
                 'metadata_only_no_control_started':True}
             if self.common_receiver:reference.update(capture_profile='common',capture_actor_id=actor)
-            if self.common_receiver and prepared.get('capture_intent'):
+            if prepared.get('capture_intent'):
                 reference['known_capture_intent']=deepcopy(prepared['capture_intent'])
+                reference['capture_actor_id']=prepared.get('capture_actor_id')
+                if self.role=='giver':reference['capture_profile']='native'
             self.active=identity
             if self.started is not None:
                 try:reference['source_capture_binding']=self.started(deepcopy(prepared),identity)
@@ -85,12 +87,13 @@ class NativeMetadataRecorder:
         """
         with self.lock:
             identity=self._id(reference)
-            if (not self.common_receiver or reference.get('capture_profile')!='common' or
-                    reference.get('role')!='receiver' or not reference.get('known_capture_intent') or
+            if (reference.get('capture_profile')!=('native' if self.role=='giver' else 'common') or
+                    reference.get('role')!=self.role or (self.role=='receiver' and not self.common_receiver) or not reference.get('known_capture_intent') or
                     reference.get('metadata_only_no_control_started') is not True or
                     not reference.get('capture_actor_id') or self.active not in (None,identity)):
                 raise ValueError('Exact validated known common receiver DATA reference required')
-            current=(self._status().get('recording') or {}).get('episode_id')
+            status=self._status()
+            current=status.get('active_recording_id') if self.role=='giver' else (status.get('recording') or {}).get('episode_id')
             if current!=identity:raise ValueError('Known DATA original is no longer active; inspect sealed originals')
             self.active=identity
             return deepcopy(reference)
@@ -129,7 +132,7 @@ class NativeMetadataRecorder:
         """Release only the known DATA slot after caller verifies sealed originals."""
         with self.lock:
             identity=self._id(reference)
-            if not self.common_receiver or not reference.get('known_capture_intent'):
+            if (self.role=='receiver' and not self.common_receiver) or reference.get('role')!=self.role or not reference.get('known_capture_intent'):
                 raise ValueError('Known common receiver DATA reference required')
             released=self.active==identity
             if released:self.active=None

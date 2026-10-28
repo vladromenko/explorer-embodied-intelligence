@@ -248,6 +248,8 @@ class NativeCaptureWriter:
                     'packets_dropped':getattr(self,'dropped',0),'queued':self.items.qsize(),'error':self.error,
                     'embodied_manifest':str(self.folder/'manifest.json') if hasattr(self,'folder') and self.state=='SEALED' else None,
                     'project_id':getattr(self,'context',{}).get('project_id'),
+                    'source_context_sha256':_sha(_bytes(self.context)) if hasattr(self,'context') else None,
+                    'source_clock_domain':self.domain,'source_boot_id':self.boot,
                     'input_mode':getattr(self,'context',{}).get('input_mode'),
                     'phase':deepcopy(self.phase_events[-1]) if getattr(self,'phase_events',[]) else None,
                     'frames_recorded':len(getattr(self,'observation_stream',[])),

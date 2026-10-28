@@ -1,4 +1,4 @@
-"""ENGINEERING_GLUE: durable known receiver DATA starts; no control or grant RPC."""
+"""ENGINEERING_GLUE: durable known source DATA starts; no control or grant RPC."""
 from copy import deepcopy
 import fcntl
 import json
@@ -8,7 +8,8 @@ import uuid
 
 from explorer_shared.contracts import canonical,digest
 from explorer_shared.cooperative_recording05 import write_original,sha_file
-from explorer_shared.source_capture_ack import validate_capture_start
+from explorer_shared.source_capture_ack import validate_capture_start,validate_capture_finish
+from explorer_shared.native_capture_identity import validate_native_capture_start,validate_native_capture_finish,native_context_sha256
 
 
 class CooperativeCaptureStarts:
@@ -48,34 +49,33 @@ class CooperativeCaptureStarts:
                 reference.get('capture_actor_id')!=intent['actor_id'] or
                 value.get('control_authority_adopted') is not False or value.get('native_commands_dispatched') is not False):
             raise ValueError('Known DATA ACK context changed')
-        ident=validate_capture_start(intent['actor_id'],intent['record_start_body'],intent['permission'],
-            intent['source_identity'],reference.get('native_start_result'))
+        ident=self._validate_start(intent,reference.get('native_start_result'))
         if ident!=value['recording_id']:raise ValueError('Known DATA ACK original identity changed')
         return value
-    def projection(self,row):
-        pointer=(row.get('native_capture_start_intents') or {}).get('receiver')
+    def projection(self,row,role='receiver'):
+        pointer=(row.get('native_capture_start_intents') or {}).get(role)
         if not pointer:return None
         try:
             folder,intent=self._load(pointer)
             terminal=self._finish_receipt(folder,intent,pointer)
-            if terminal:return {'role':'receiver','attempt_id':intent['attempt_id'],'state':'DATA_FINISHED',
+            if terminal:return {'role':role,'attempt_id':intent['attempt_id'],'state':'DATA_FINISHED',
                 'recording_id':terminal['recording_id'],'source_operator_outcome':terminal['expected_outcome'],
                 'cleanup_required':bool(row.get('recording_id') and row['status'] in ('STOPPED','INTERRUPTED','COMPLETED')),
                 'control_authority_adopted':False,'native_commands_dispatched':False}
             if any((folder/(name+'-intent.json')).exists() for name in ('finish-cleanup','finish')):
-                return {'role':'receiver','attempt_id':intent['attempt_id'],'state':'PENDING_DATA_FINISH_RECONCILIATION',
+                return {'role':role,'attempt_id':intent['attempt_id'],'state':'PENDING_DATA_FINISH_RECONCILIATION',
                     'recording_id':None,'control_authority_adopted':False,'native_commands_dispatched':False}
             ack=self._ack(folder,intent,pointer);abort=folder/'aborted-before-rpc.json'
-            return {'role':'receiver','attempt_id':intent['attempt_id'],'state':'ACKNOWLEDGED' if ack else
+            return {'role':role,'attempt_id':intent['attempt_id'],'state':'ACKNOWLEDGED' if ack else
                 'ABORTED_BEFORE_RPC' if abort.exists() else 'PENDING_DATA_RECONCILIATION',
                 'recording_id':ack['recording_id'] if ack else None,
-                'attachment_required':bool(ack and (row.get('recording_source_refs') or {}).get('receiver',{}).get('recording_id')!=ack['recording_id']),
+                'attachment_required':bool(ack and (row.get('recording_source_refs') or {}).get(role,{}).get('recording_id')!=ack['recording_id']),
                 'cleanup_required':bool(ack and (not row.get('recording_id') or row['status'] in ('STOPPED','INTERRUPTED','COMPLETED'))),
                 'control_authority_adopted':False,'native_commands_dispatched':False}
         except (OSError,ValueError,KeyError,TypeError) as error:
-            return {'role':'receiver','attempt_id':pointer.get('attempt_id') if isinstance(pointer,dict) else None,'state':'UNKNOWN_METADATA',
+            return {'role':role,'attempt_id':pointer.get('attempt_id') if isinstance(pointer,dict) else None,'state':'UNKNOWN_METADATA',
                 'error':str(error),'recording_id':None,'control_authority_adopted':False,'native_commands_dispatched':False}
-    def require_no_pending(self):
+    def require_no_pending(self,starting_session=None):
         with self.lock:
             for path in self.root.glob('*/*/intent.json'):
                 existing=json.loads(path.read_bytes())
@@ -90,9 +90,12 @@ class CooperativeCaptureStarts:
                 else:
                     ack=self._ack(path.parent,existing,pointer)
                     row=self.service.workflow.snapshot(existing['session_id'])
-                    bound=(row.get('recording_source_refs') or {}).get('receiver',{}).get('recording_id')
-                    if not ack or bound!=ack['recording_id']:
-                        raise ValueError('Known receiver start is pending; explicitly reconcile DATA before any new start')
+                    role=existing.get('role','receiver')
+                    bound=(row.get('recording_source_refs') or {}).get(role,{}).get('recording_id')
+                    inflight=bool(ack and existing['session_id']==starting_session and
+                        self.service.producers[role].active==ack['recording_id'])
+                    if not ack or bound!=ack['recording_id'] and not inflight:
+                        raise ValueError('Known source start is pending; explicitly reconcile DATA before any new start')
     def begin(self,row,prepared,permission_status):
         """Persist exact body/permission +separate DATA identity before record/start."""
         source=self.service._request('receiver')('GET','/station/status',None)
@@ -107,7 +110,7 @@ class CooperativeCaptureStarts:
                 (source.get('measurements') or {}).get('clock_domain')!=grant.get('clock_domain')):
             raise ValueError('Exact pre-start DATA source identity/native owner required')
         with self.lock:
-            self.require_no_pending()
+            self.require_no_pending(row['session_id'])
             attempt=uuid.uuid4().hex;body=deepcopy(prepared['body'])
             body['context']['source_capture_attempt_id']=attempt
             intent={'schema':'explorer_cooperative_known_capture_start_v1','session_id':row['session_id'],
@@ -119,31 +122,78 @@ class CooperativeCaptureStarts:
                     'calibration_sha256':{role:profile['calibration_sha256'] for role,profile in calibrations.items()}},
                 'source_capture':deepcopy(prepared.get('source_capture')),
                 'control_authority_created':False,'source_rpc_issued_by_this_intent_builder':False}
-            folder=self._folder(row['session_id'],attempt);folder.mkdir(parents=True)
-            raw=canonical(intent);write_original(folder/'intent.json',raw)
-            pointer={'session_id':row['session_id'],'attempt_id':attempt,'intent_sha256':digest(intent)}
-            try:
-                with self.service.workflow.lock:
-                    current=self.service.workflow._session(row['session_id'])
-                    if (self.service.closed or current['epoch']!=row['epoch'] or
-                            current['status'] in ('STOPPED','INTERRUPTED','COMPLETED')):
-                        raise ValueError('Session changed before recording DATA RPC; start not issued')
-                    current.setdefault('native_capture_start_intents',{})['receiver']=pointer
-                    self.service.workflow._save(current)
-            except Exception:
-                write_original(folder/'aborted-before-rpc.json',canonical({'source_record_start_issued':False}));raise
-            prepared['body']=body;prepared['capture_intent']=pointer
+            pointer=self._persist_start(row,prepared,intent)
+        return pointer
+    @staticmethod
+    def _validate_start(intent,packet,**kwargs):
+        if intent.get('role')=='giver':
+            return validate_native_capture_start(intent['record_start_body'],intent['source_identity'],packet)
+        return validate_capture_start(intent['actor_id'],intent['record_start_body'],intent['permission'],
+            intent['source_identity'],packet,**kwargs)
+    @staticmethod
+    def _validate_finish(intent,identity,manifest,outcome):
+        if intent.get('role')=='giver':
+            return validate_native_capture_finish(intent['record_start_body'],intent['source_identity'],identity,manifest,outcome)
+        return validate_capture_finish(intent['actor_id'],intent['record_start_body'],intent['permission'],
+            intent['source_identity'],identity,manifest,outcome)
+    def _active(self,intent):
+        request=self.service._request(intent['role'])
+        if intent['role']=='giver':return self._validate_start(intent,request('GET','/native-capture/status',None))
+        packet=request('GET','/so101-capture/status',None);native=request('GET','/station/status',None)
+        stamp=request('GET','/station/observed-test/status',None).get('source_stamp')
+        return self._validate_start(intent,packet,native=native,source_stamp=stamp)
+    def begin_giver(self,row,prepared):
+        request=self.service._request('giver')
+        # A missing real reference is a preflight failure, never a pending start.
+        request('GET','/legacy/explorer/retarget/reference',None)
+        capture=request('GET','/native-capture/status',None)
+        stamp=capture.get('capture') or {};actor=row.get('recording_actor_id')
+        if (capture.get('active_recording_id') is not None or stamp.get('state') not in ('IDLE','SEALED') or
+                not actor or not isinstance(stamp.get('source_clock_domain'),str) or not stamp['source_clock_domain'] or
+                not isinstance(stamp.get('source_boot_id'),str) or not stamp['source_boot_id']):
+            raise ValueError('Original idle native9 DATA source clock/boot and authenticated actor required')
+        with self.lock:
+            self.require_no_pending();attempt=uuid.uuid4().hex;body=deepcopy(prepared['body'])
+            body['skill_context']['source_capture_attempt_id']=attempt
+            body['skill_context']['cooperative_capture_actor_id']=actor
+            intent={'schema':'explorer_cooperative_known_capture_start_v1','session_id':row['session_id'],
+                'epoch':row['epoch'],'process_session':row['process_session'],'attempt_id':attempt,'role':'giver',
+                'actor_id':actor,'record_start_body':body,'source_capture':deepcopy(prepared.get('source_capture')),
+                'source_identity':{'clock_domain':stamp['source_clock_domain'],'boot_id':stamp['source_boot_id']},
+                'control_authority_created':False,'source_rpc_issued_by_this_intent_builder':False}
+            pointer=self._persist_start(row,prepared,intent)
+        return pointer
+    def _persist_start(self,row,prepared,intent):
+        """Caller holds DATA lock; one durable intent/CAS implementation for both sources."""
+        attempt=intent['attempt_id'];role=intent['role']
+        folder=self._folder(row['session_id'],attempt);folder.mkdir(parents=True)
+        write_original(folder/'intent.json',canonical(intent))
+        pointer={'session_id':row['session_id'],'attempt_id':attempt,'intent_sha256':digest(intent)}
+        try:
+            with self.service.workflow.lock:
+                current=self.service.workflow._session(row['session_id'])
+                if (self.service.closed or current['epoch']!=row['epoch'] or
+                        current.get('recording_actor_id')!=intent['actor_id'] or
+                        current['status'] in ('STOPPED','INTERRUPTED','COMPLETED')):
+                    raise ValueError('Session changed before recording DATA RPC; start not issued')
+                current.setdefault('native_capture_start_intents',{})[role]=pointer
+                self.service.workflow._save(current)
+        except Exception:
+            write_original(folder/'aborted-before-rpc.json',canonical({'source_record_start_issued':False}));raise
+        prepared['body']=deepcopy(intent['record_start_body']);prepared['capture_intent']=pointer
         return pointer
     def acknowledge(self,prepared,returned_id=None):
         pointer=prepared['capture_intent'];folder,intent=self._load(pointer)
         if folder.joinpath('aborted-before-rpc.json').exists():raise ValueError('Capture intent was aborted before source IO')
-        request=self.service._request('receiver')
-        packet=request('GET','/so101-capture/status',None);native=request('GET','/station/status',None)
-        stamp=request('GET','/station/observed-test/status',None).get('source_stamp')
-        identity=validate_capture_start(intent['actor_id'],intent['record_start_body'],intent['permission'],
-            intent['source_identity'],packet,native=native,source_stamp=stamp)
+        role=intent['role'];request=self.service._request(role)
+        packet=request('GET','/native-capture/status' if role=='giver' else '/so101-capture/status',None)
+        if role=='giver':identity=self._validate_start(intent,packet)
+        else:
+            native=request('GET','/station/status',None)
+            stamp=request('GET','/station/observed-test/status',None).get('source_stamp')
+            identity=self._validate_start(intent,packet,native=native,source_stamp=stamp)
         if returned_id is not None and returned_id!=identity:raise ValueError('Returned source recording differs from known original')
-        reference={'recording_id':identity,'episode_id':identity,'role':'receiver','capture_profile':'common',
+        reference={'recording_id':identity,'episode_id':identity,'role':role,'capture_profile':'native' if role=='giver' else 'common',
             'capture_actor_id':intent['actor_id'],'native_start_result':deepcopy(packet),
             'source_context_sha256':digest(intent['record_start_body']),'source_capture':deepcopy(intent['source_capture']),
             'known_capture_intent':deepcopy(pointer),'metadata_only_no_control_started':True}
@@ -159,25 +209,24 @@ class CooperativeCaptureStarts:
             write_original(path,canonical(value))
             write_original(folder/'ack.sha256',(digest(value)+'\n').encode())
         return value
-    def reconcile(self,row,actor):
-        pointer=(row.get('native_capture_start_intents') or {}).get('receiver')
-        if not pointer:raise ValueError('This session has no known receiver DATA start intent')
+    def reconcile(self,row,actor,role='receiver'):
+        pointer=(row.get('native_capture_start_intents') or {}).get(role)
+        if not pointer:raise ValueError('This session has no known source DATA start intent')
         folder,intent=self._load(pointer)
-        if intent['session_id']!=row['session_id'] or intent['actor_id']!=actor:
+        if intent['role']!=role or intent['session_id']!=row['session_id'] or intent['actor_id']!=actor:
             raise ValueError('Only the original authenticated DATA capture actor may reconcile its intent')
         return self.acknowledge({'capture_intent':pointer})
 
     def _known_reference(self,reference):
         pointer=reference.get('known_capture_intent') or {};folder,intent=self._load(pointer)
         identity=reference.get('recording_id')
-        if (reference.get('role')!='receiver' or reference.get('capture_actor_id')!=intent['actor_id'] or
+        if (reference.get('role')!=intent['role'] or reference.get('capture_actor_id')!=intent['actor_id'] or
                 not re.fullmatch('[0-9a-f]{32}',str(identity)) or
                 reference.get('source_context_sha256')!=digest(intent['record_start_body'])):
-            raise ValueError('Exact known receiver DATA reference required for finish')
+            raise ValueError('Exact known source DATA reference required for finish')
         return folder,intent,pointer,identity
 
     def _finish_receipt(self,folder,intent,pointer):
-        from explorer_shared.source_capture_ack import validate_capture_finish
         for name in ('finish-cleanup','finish'):
             path=folder/(name+'-ack.json');checksum=folder/(name+'-ack.sha256')
             if path.exists():
@@ -191,8 +240,7 @@ class CooperativeCaptureStarts:
                         value.get('intent_sha256')!=pointer['intent_sha256'] or value.get('finish_intent_sha256')!=digest(wanted) or
                         value.get('control_authority_adopted') is not False or value.get('native_commands_dispatched') is not False):
                     raise ValueError('Known DATA finish ACK context changed')
-                ident=validate_capture_finish(intent['actor_id'],intent['record_start_body'],intent['permission'],
-                    intent['source_identity'],wanted['recording_id'],value['sealed_manifest'],wanted['expected_outcome'])
+                ident=self._validate_finish(intent,wanted['recording_id'],value['sealed_manifest'],wanted['expected_outcome'])
                 if ident!=value.get('recording_id'):raise ValueError('Known DATA finish identity changed')
                 return value
         return None
@@ -210,7 +258,6 @@ class CooperativeCaptureStarts:
             raise
 
     def _ack_sealed_impl(self,folder,intent,pointer,manifest):
-        from explorer_shared.source_capture_ack import validate_capture_finish
         for name in ('finish-cleanup','finish'):
             path=folder/(name+'-intent.json')
             if path.exists():
@@ -218,9 +265,11 @@ class CooperativeCaptureStarts:
                 if (not isinstance(wanted,dict) or wanted.get('intent_sha256')!=pointer['intent_sha256'] or
                         wanted.get('actor_id')!=intent['actor_id']):
                     raise ValueError('Known DATA finish intent context changed')
-                if wanted.get('expected_outcome')==manifest.get('operator_outcome'):
-                    ident=validate_capture_finish(intent['actor_id'],intent['record_start_body'],intent['permission'],
-                        intent['source_identity'],wanted['recording_id'],manifest,wanted['expected_outcome'])
+                matched=(wanted.get('expected_outcome')==manifest.get('operator_outcome') if intent['role']=='receiver' else
+                    native_context_sha256(wanted.get('expected_outcome'))==
+                    (manifest.get('embodied_source_files_sha256') or {}).get('sources/outcome.json'))
+                if matched:
+                    ident=self._validate_finish(intent,wanted['recording_id'],manifest,wanted['expected_outcome'])
                     value={'schema':'explorer_cooperative_known_capture_finish_ACK_v1','recording_id':ident,
                         'intent_sha256':pointer['intent_sha256'],'finish_intent_sha256':digest(wanted),
                         'expected_outcome':wanted['expected_outcome'],'sealed_manifest':deepcopy(manifest),
@@ -234,9 +283,11 @@ class CooperativeCaptureStarts:
 
     def finish(self,reference,outcome,*,cleanup=False):
         """Known DATA finish only; after a lost response inspect sealed originals."""
-        producer=self.service.producers['receiver'];label=producer.receiver_outcome(outcome)
-        if cleanup and label!='unknown':raise ValueError('Recovery cleanup can declare only UNKNOWN')
         folder,intent,pointer,identity=self._known_reference(reference)
+        role=intent['role'];producer=self.service.producers[role]
+        label=producer.receiver_outcome(outcome) if role=='receiver' else deepcopy(outcome)
+        if cleanup and (label if role=='receiver' else label.get('operator_outcome'))!='unknown':
+            raise ValueError('Recovery cleanup can declare only UNKNOWN')
         name='finish-cleanup' if cleanup else 'finish'
         wanted={'schema':'explorer_cooperative_known_capture_finish_intent_v1','recording_id':identity,
             'actor_id':intent['actor_id'],'intent_sha256':pointer['intent_sha256'],'expected_outcome':label,
@@ -251,17 +302,16 @@ class CooperativeCaptureStarts:
         previous=self._finish_receipt(folder,intent,pointer)
         if previous:
             producer.acknowledge_known_finish(reference);return previous
-        request=self.service._request('receiver');route='/so101-capture/recordings/'+identity+'/manifest'
+        request=self.service._request(role);route=('/native-capture' if role=='giver' else '/so101-capture')+'/recordings/'+identity+'/manifest'
         try:manifest=request('GET',route,None)
         except Exception:manifest=None  # no mutation/retry follows without validating the active original below
         if manifest is not None:
             result=self._ack_sealed(folder,intent,pointer,manifest);producer.acknowledge_known_finish(reference);return result
-        packet=request('GET','/so101-capture/status',None);native=request('GET','/station/status',None)
-        stamp=request('GET','/station/observed-test/status',None).get('source_stamp')
-        actual=validate_capture_start(intent['actor_id'],intent['record_start_body'],intent['permission'],
-            intent['source_identity'],packet,native=native,source_stamp=stamp)
+        actual=self._active(intent)
         if actual!=identity:raise ValueError('Another DATA original is active; refuse finish')
-        try:manifest=producer.record_finish(reference,outcome)
+        try:
+            manifest=producer.record_finish(reference,outcome)
+            if role=='giver':manifest=request('GET',route,None)
         except Exception as error:
             failure={'source_finish_return_error':type(error).__name__+': '+str(error),'data_outcome_unknown':True}
             path=folder/(name+'-rpc-failure.json')
@@ -272,16 +322,20 @@ class CooperativeCaptureStarts:
         result=self._ack_sealed(folder,intent,pointer,manifest);producer.acknowledge_known_finish(reference)
         return result
 
-    def reconcile_finish(self,row,actor):
-        pointer=(row.get('native_capture_start_intents') or {}).get('receiver')
+    def reconcile_finish(self,row,actor,role='receiver'):
+        pointer=(row.get('native_capture_start_intents') or {}).get(role)
         folder,intent=self._load(pointer)
-        if intent['actor_id']!=actor:raise ValueError('Only the original DATA actor may reconcile finish')
+        if intent['role']!=role or intent['actor_id']!=actor:raise ValueError('Only the original DATA actor may reconcile finish')
         wanted_path=folder/'finish-intent.json'
         if not wanted_path.exists():wanted_path=folder/'finish-cleanup-intent.json'
         wanted=json.loads(wanted_path.read_bytes())
-        reference={'role':'receiver','recording_id':wanted['recording_id'],'episode_id':wanted['recording_id'],
-            'capture_profile':'common','capture_actor_id':actor,'known_capture_intent':pointer,
-            'source_context_sha256':digest(intent['record_start_body']),'metadata_only_no_control_started':True}
+        reference={'role':role,'recording_id':wanted['recording_id'],'episode_id':wanted['recording_id'],
+            'capture_profile':'native' if role=='giver' else 'common','capture_actor_id':actor,'known_capture_intent':pointer,
+            'source_context_sha256':digest(intent['record_start_body']),'source_capture':deepcopy(intent.get('source_capture')),
+            'metadata_only_no_control_started':True}
         cleanup=not row.get('recording_id') or row['status'] in ('STOPPED','INTERRUPTED','COMPLETED')
-        result=self.finish(reference,{'status':'unknown'} if cleanup else wanted['declared_outcome'],cleanup=cleanup)
-        return {**result,'recording_metadata_attached':False,'own_source_finished_unknown':result['expected_outcome']=='unknown'}
+        outcome={'status':'unknown'} if cleanup else wanted['declared_outcome']
+        if role=='giver' and cleanup:
+            outcome=self.service._giver_outcome(reference,{'status':'unknown'})
+        result=self.finish(reference,outcome,cleanup=cleanup)
+        return {**result,'recording_metadata_attached':False,'own_source_finished_unknown':(result['expected_outcome'] if role=='receiver' else result['expected_outcome'].get('operator_outcome'))=='unknown'}

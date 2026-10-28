@@ -8,6 +8,9 @@ from .native_capture import NativeCaptureWriter
 from .native_stream03_client import OriginalNativeStreamReader
 
 
+from .native_capture_identity import normalize_capture_context
+
+
 class NativeCaptureService:
     def __init__(self,writer,client,*,clock=time.monotonic_ns,poll_s=.05,observation_reader=None):
         self.writer,self.client,self.clock,self.poll_s=writer,client,clock,poll_s
@@ -62,9 +65,7 @@ class NativeCaptureService:
                     'legacy_ready_recording_ids_modified':False}
 
     def start(self,skill_context,*,observation_only=False):
-        if type(observation_only) is not bool:raise ValueError('Explicit recording mode required')
-        if not isinstance(skill_context,dict) or skill_context.get('project_id') not in ('02','03'):
-            raise ValueError('Validated source project02/03 skill_context required')
+        context=normalize_capture_context(skill_context,observation_only=observation_only)
         with self.lock:
             if self.active_id or self.inflight or self.finish_pending:
                 raise RuntimeError('Finish current native capture first')
@@ -75,9 +76,6 @@ class NativeCaptureService:
         if not observation_only:self.client.reference()
         packet=self.client.dispatch_source_packet(0)
         with self.lock:
-            context=deepcopy(skill_context)
-            context['recording_mode']='observations_only' if observation_only else 'demonstration'
-            context['force_analysis_only']=observation_only
             result=self.writer.start(context,packet['source_bytes'])
             self.active_id=result['recording_id'];self.cursor=result['cursor'];self.fetch_enabled=True
             self.failure_count=packet['payload'].get('capture_failures',0)

@@ -262,3 +262,13 @@ for(const recovery of [{state:"PENDING_DATA_FINISH_RECONCILIATION"},{state:"DATA
     assert.match(cooperativeWorkbenchPanel(client.snapshot()),/record-reconcile/);
   });
 }
+test("both DATA sources expose separate attempts and giver reconcile never carries authority",async()=>{
+  const state=fixture(),calls=[];
+  state.workbench.sessions[0].native_capture_recoveries={
+    giver:{state:"PENDING_DATA_FINISH_RECONCILIATION",attempt_id:"giver-attempt"},
+    receiver:{state:"PENDING_DATA_RECONCILIATION",attempt_id:"receiver-attempt"}};
+  const {client}=await rig({get:async()=>clone(state),post:async(path,body)=>{calls.push([path,body]);return {snapshot:clone(state),result:{control_authority_adopted:false}};}});
+  const html=cooperativeWorkbenchPanel(client.snapshot());assert.match(html,/data-coop-role="giver"/);assert.match(html,/data-coop-role="receiver"/);
+  assert.throws(()=>client.recordReconcile("other"),/DATA поток/);
+  await client.recordReconcile("giver");assert.deepEqual(calls,[["/api/cooperative/record_reconcile",{session_id:"server-session",expected_epoch:"epoch-one",capture_attempt_id:"giver-attempt",role:"giver"}]]);
+});
