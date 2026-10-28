@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T15:45:05+03:00`
-Code commit: `551c967a7bc733cd94eba3ae7a54ab2146e124b3`
+Updated: `2026-10-28T15:58:15+03:00`
+Code commit: `94f6f436f10a61ddfe3e830d6177bb8bf45cdbce`
 Current task: `E02-04-OPERATOR`
 Next tasks: `E02-04-USER-FEEDBACK`, `E04-REAL`, `E03-CONTINUITY`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -87,6 +87,28 @@ backend и command-estimate reference `[90×6]` доступны. Nano controlle
 не перезапускались и не записывались. 12 целевых UI contracts PASS; authenticated
 Homebrain `nano-rgbd` snapshot вернул JPEG200. Физическое повторение руки ещё
 OPEN до USER click «Управлять» и наблюдения; GET/deploy не доказывают движение.
+
+Первый USER-observed запуск03 после этого реально провёл команды от leader через
+Pi в исходный Nano Ruckig: пользователь увидел совместное движение, Pi накопил
+132 measured-cache samples, последний native source sequence был6, шасси не
+запрашивалось. Сессия оборвалась на одном `Native target IK rejected`; этот
+исход сохранён, а не назван PASS. Уточнённый USER-критерий требует сначала
+плавно поставить ROSMASTER в позу ведущей SO-101 и только затем повторять дельты.
+
+`94f6f43` добавляет явную opt-in фазу `LEADER_POSE`: calibrated -100..100
+положение каждого из5 суставов становится той же долей native +/-90° диапазона
+ROSMASTER с исходными axis signs; захват использует существующий mapper. Команды
+идут только через неизменённый original Ruckig и его limits. После command-estimate
+сходимости backend автоматически переходит `ALIGNING_TO_LEADER → FOLLOWING` и
+фиксирует новую относительную точку. Единичный недостижимый последующий IK-кадр
+теперь packet-drop `TARGET_IK_UNREACHABLE`, а не завершение всей сессии.
+50 связанных Python contracts/1skip, 41 native mux contracts и12 UI contracts
+PASS. Frozen Station SHA прежний. Homebrain и Pi deployed exact `94f6f43`; Pi
+observer PID82081, state IDLE/targetNone, свежие measured SO-101 данные. Cutover
+выполнен при Nano execution_permission=false/lease0/chassis=false, не отправил
+native command/STOP/HOME, не вызвал Node.close и не перезапустил исходный Nano
+controller. Физическое совмещение и sustained following после исправления ещё
+OPEN до нового USER-observed клика. [Evidence](../_registry/evidence/experiment03-initial-leader-alignment-94f6f43-20261028.json).
 
 Последний06 DATA checkpoint: recorder/review/import/dataset/model UI реализованы
 и deployed; actual software-generated whole-browser cycle прошёл.186 targeted

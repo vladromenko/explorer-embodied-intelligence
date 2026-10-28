@@ -1,6 +1,6 @@
 # Приёмка пользовательских функций
 
-Snapshot: product code `551c967`; live Homebrain551c/Pi b38/Nano observer764; original ROSMASTER controller unchanged (точные commits
+Snapshot: product code `94f6f43`; live Homebrain+Pi94f6f43/Nano observer764; original ROSMASTER controller unchanged (точные commits
 в [PROJECT_STATE](PROJECT_STATE.md)). Это function-level view;
 [машинные gates/исторические scope](../_registry/acceptance.json) сохранены.
 Новая документация не повышает готовность. `PASS` software может относиться к
@@ -15,7 +15,7 @@ working deployment → `MVP_USER_TESTABLE` / `DEPLOYED_AWAITING_PHYSICAL_ACCEPTA
 исключений политики. [Конкретные10 пунктов04](MVP_STATUS_RU.md); physical OPEN.
 
 **Текущий USER acceptance02–04: PARTIAL, повторная проверка идёт.** Simple UI и
-исправления02/03/04 deployed; Homebrain+Pi exact b38fcbf активны.04 фактически
+исправления02/03/04 deployed; Homebrain+Pi exact94f6f43 активны.04 фактически
 входил в teleoperation, отправлял6-axis команды и после de84 держал длительную
 USER-сессию без прежнего сброса. Отдельный blank-camera defect исправлен в00b;
 direct Pi и authenticated Homebrain proxy дают fresh JPEG/MJPEG. При source04
@@ -37,10 +37,10 @@ Physical acceptance=`PASS/OPEN/N/A`. PARTIAL означает только scope
 |E02-CAMERA · реальная Nano сцена|YES|PASS|DEPLOYED|N/A|DEPLOYED|OPEN|[Actual HTTPS JPEG](../_registry/evidence/experiment03-central-data-actual-65ae9d02-20261027.json)|Кадры меняются, но gripper/object/goal scene visibility не подтверждена|
 |E02-RECORD · pause/cancel/review/approved transfer|YES|PASS|DEPLOYED|N/A|DEPLOYED|OPEN|[Actual17RGB analysis](../_registry/evidence/experiment02-learning-actual-722755dc-20261027.json)|Real expert commands0; собрать полные показы|
 |E02-TRAIN · Dataset/ACT/resume/reload/DEV/shadow UI|YES|PASS|DEPLOYED|N/A|DEPLOYED|OPEN|[Generated queueR5](../shared/training/NATIVE02_QUEUED_CPU_R5_20261027_QUALIFICATION.json)|Real expert model/valid live-shadow отсутствуют|
-|E03-RETARGET · SO101→ROSMASTER/bootstrap|YES|PASS|DEPLOYED|DEPLOYED|DEPLOYED|OPEN|[Arm-only operator path](../_registry/evidence/experiment03-arm-only-operator-551c967-20261028.json)|One-click defaults ARM_ONLY/chassis=false; direct Pi peer and Nano original Ruckig/reference idle/available, camera JPEG200. Physical leader→ROSMASTER repetition still OPEN|
-|E03-RECENTER · held/relative reference/ownership|YES|PASS|DEPLOYED|DEPLOYED|DEPLOYED|OPEN|[Actual gated lab release](../_registry/evidence/experiment03-shared-lab-actual-release-20261028.json)|Gated software deployed; physical Start/Recenter/held CLOSED, changing continuity/reference409/scene OPEN. Actual41RGB observations/0expert commands, not accepted skill|
+|E03-RETARGET · SO101→ROSMASTER/bootstrap|YES|PASS|DEPLOYED|DEPLOYED|DEPLOYED|OPEN|[Initial alignment94f6](../_registry/evidence/experiment03-initial-leader-alignment-94f6f43-20261028.json)|First USER run visibly moved ROSMASTER with leader through original Ruckig, chassis0, then one IK reject aborted. New deployed path aligns5 joints+gripper before following and drops one unreachable frame without ending session. Physical retest OPEN|
+|E03-RECENTER · initial pose/held/relative ownership|YES|PASS|DEPLOYED|DEPLOYED|DEPLOYED|OPEN|[Initial alignment94f6](../_registry/evidence/experiment03-initial-leader-alignment-94f6f43-20261028.json)|Explicit LEADER_POSE converges via unchanged Ruckig, then switches to relative FOLLOWING. Software contracts PASS; observed post-fix alignment/sustained following OPEN|
 |E03-SMOOTHNESS · неизменная stable trajectory|PARTIAL|PARTIAL|NOT_DEPLOYED|NOT_DEPLOYED|NOT_DEPLOYED|OPEN|[Actual static trace only](../03-lerobot-teaching/docs/CONTINUITY_20261027.json)|Real changing-input frequency/dt/jitter/derivatives/drop/zero comparison OPEN|
-|E03-MOBILE-RECORD · arm+keyboard base/camera/record|YES|PASS|DEPLOYED|DEPLOYED|DEPLOYED|OPEN|[Arm-only operator path](../_registry/evidence/experiment03-arm-only-operator-551c967-20261028.json)|Current requested path is arm-only and leaves chassis stationary; physical repetition and start→record→finish remain OPEN|
+|E03-MOBILE-RECORD · arm+keyboard base/camera/record|YES|PASS|DEPLOYED|DEPLOYED|DEPLOYED|OPEN|[Initial alignment94f6](../_registry/evidence/experiment03-initial-leader-alignment-94f6f43-20261028.json)|Current requested path is ARM_ONLY, base actions empty and observed chassis requests0; post-fix repetition and start→record→finish remain OPEN|
 |E03-TRAIN · official Dataset/ACT/reload/DEV|YES|PASS|DEPLOYED|N/A|N/A|OPEN|[Generated03 queueR3](../03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_R3_20261027.json)|Current generated03 queueR3/profiles unchanged; actual41RGB analysis-only import shown in UI, real experts/models/independent physical trial OPEN|
 |E04-CAPTURE · две руки/одна Logitech/full skill capture|YES|PASS|DEPLOYED|DEPLOYED|N/A|OPEN|[Leader alignment b38](../_registry/evidence/experiment04-leader-alignment-b38fcbf-20261028.json)|USER real grant/start/6-axis dispatch and sustained control observed. b38 makes the follower's first goal equal the measured leader pose using original worker;05 relative consumer unchanged. Direct+proxied fresh camera PASS; physical alignment, visible camera and start/finish recording still OPEN|
 |E04-TRAIN · native6 Dataset/ACT+DP/resume/models|YES|PASS|DEPLOYED|DEPLOYED|N/A|OPEN|[Actual learning UI](../_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json)|Approved generated cohort→actual UI ACT8/DP8/queue retained-process pause/reload/DEV/model versions; exact new-PID отдельный R7 proof. Math workers on HB, source adapter on Pi; current real experts/physical skill OPEN|

@@ -1,0 +1,54 @@
+{
+  "schema": "explorer.evidence.operator_checkpoint.v1",
+  "recorded_at": "2026-10-28T15:58:15+03:00",
+  "scope": "experiment03 initial ROSMASTER arm alignment to measured SO101 leader pose",
+  "code_commit": "94f6f436f10a61ddfe3e830d6177bb8bf45cdbce",
+  "preserved_first_user_observed_attempt": {
+    "user_report": "ROSMASTER arm began moving with the LeRobot leader",
+    "operator_profile": "ARM_ONLY",
+    "chassis_requests": 0,
+    "observed_chassis_grant_received": false,
+    "pi_cached_samples_consumed_total": 132,
+    "last_native_source_sequence": 6,
+    "original_native_backend": "existing_factory_ruckig_velocity",
+    "terminal_failure": "ValueError: Native target IK rejected this latest measured sample",
+    "interpretation": "real leader-to-original-Ruckig path dispatched, but one unreachable IK frame interrupted the old session"
+  },
+  "implemented": {
+    "one_click_initial_alignment": "LEADER_POSE",
+    "joint_mapping": "calibrated SO101 -100..100 fraction to the same fraction of ROSMASTER native +/-90 degree joint coordinates",
+    "gripper_mapping": "existing registered SO101 gripper mapper",
+    "alignment_phase": "ALIGNING_TO_LEADER before FOLLOWING",
+    "trajectory_owner": "unchanged original ROSMASTER Ruckig stream",
+    "single_unreachable_following_frame": "TARGET_IK_UNREACHABLE packet drop; last valid command is retained and session remains ACTIVE",
+    "default_operator_profile": "ARM_ONLY",
+    "base_actions": {},
+    "controller_configuration_writes": 0
+  },
+  "software_tests": {
+    "pi_retarget_continuity_bootstrap": "50 passed, 1 skipped",
+    "native_mux_registration_hold_contracts": "41 passed",
+    "direct03_ui_contracts": "12 passed",
+    "frozen_so101_station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885"
+  },
+  "deployment": {
+    "homebrain_commit": "94f6f436f10a61ddfe3e830d6177bb8bf45cdbce",
+    "pi_commit": "94f6f436f10a61ddfe3e830d6177bb8bf45cdbce",
+    "pi_old_pid": 81085,
+    "pi_new_pid": 82081,
+    "pi_state_after_cutover": "IDLE",
+    "pi_target_control_epoch_after_cutover": null,
+    "pi_measurement_age_ms_after_cutover": 14.451701,
+    "native_commands_during_cutover": 0,
+    "node_close_used": false,
+    "original_rosmaster_controller_restarted": false,
+    "controller_settings_written": false
+  },
+  "physical_acceptance": {
+    "real_path_started_before_fix": true,
+    "initial_pose_alignment_after_fix": "AWAITING_USER_OBSERVED_RETEST",
+    "sustained_following_after_fix": "AWAITING_USER_OBSERVED_RETEST",
+    "start_record_finish": "OPEN",
+    "overall_experiment03": "OPEN"
+  }
+}
