@@ -191,7 +191,7 @@ document.addEventListener("click",async event=>{
     else if(action==="finish")await operatorFinish(project);
     else if(action==="gamepad"){
       if(browserGamepad.status().state==="active")await browserGamepad.disconnect();
-      else{const pad=browserGamepad.scan().find(row=>row&&row.connected&&row.mapping==="standard");if(!pad)throw new Error("Подключите джойстик к Mac и нажмите любую его кнопку.");await browserGamepad.select(pad.index);await browserGamepad.connect();}
+      else await browserGamepad.connect();
     }
     else if(action==="source-control")await operatorSourceControl();
     else if(action==="source-disconnect")await sourceDemonstration.stop();
@@ -256,7 +256,7 @@ function csrfToken() {
 async function api(path, options = {}) {
   const headers = { Accept: "application/json", ...(options.headers || {}) };
   if (options.method && options.method !== "GET") { headers["Content-Type"] = "application/json"; headers["X-Explorer-CSRF"] = csrfToken(); }
-  const boundedControl = path.startsWith("/api/robot/teleop") || path === "/api/robot/teaching/mobile" || options.method === "POST" && ["/api/station/", "/api/retarget/stop", "/api/stop"].some(prefix => path.startsWith(prefix));
+  const boundedControl = path.startsWith("/api/robot/teleop") || path.startsWith("/api/robot/gamepad") || path === "/api/robot/teaching/mobile" || options.method === "POST" && ["/api/station/", "/api/retarget/stop", "/api/stop"].some(prefix => path.startsWith(prefix));
   const abort = boundedControl && !options.signal && typeof AbortController !== "undefined" ? new AbortController() : null;
   const timeout = abort ? setTimeout(() => abort.abort(), 6500) : null;
   let response;
@@ -447,19 +447,39 @@ const waitManualIdle = async (controller, token) => {
   while (controller.busy || controller.starting || controller.stopping) { check(); await new Promise(resolve => setTimeout(resolve, 10)); }
   check();
 };
-const browserGamepad = ExplorerBrowserGamepad.install({
-  window, document, secure: window.isSecureContext,
-  getGamepads: typeof navigator.getGamepads === "function" ? () => navigator.getGamepads() : undefined,
-  visible: () => !document.hidden, focused: () => document.hasFocus(), routeActive: () => activeProject()?.id === "02" && !dialog.open,
-  cameraReady: rosmasterCameraReady, now: () => performance.now(),
-  post: (url, body, options) => post(url, url.endsWith("/input") ? { ...body, operator_input_metadata: browserGamepad.inputProvenance() } : body, options),
-  controls: async () => { await loadRobot(); return model.robot.controls; }, nativeState: () => model.robot.teleop || {},
-  claim: () => claimManualInput("gamepad"), ownershipCurrent: ownsManualInput,
-  beforeConnect: async token => { if(direct03.owned)await direct03Stop();await sourceDemonstration.drain();await stopKeyboard(true); await waitManualIdle(keyboard, token); if (keyboard.stopUnconfirmed) throw new Error("STOP клавиатуры не подтверждён."); await observedNative.connect("browser_gamepad",{initializeArm:nativeArmNeedsHome()}); },
-  filterKeys: filterManualKeysForCurrentOwnerConstraints,
-  chassisProhibited: () => !observedNative.chassisAllowed(),
-  render: () => { model.forceRender = true; render(); }, error: message => toast(message, true)
-});
+const browserGamepad = {
+  state:"idle",busy:false,stopping:false,stopUnconfirmed:false,leaseTimer:null,selectionAttempted:false,
+  status(){return {state:this.state};},
+  async connect(){
+    if(this.busy||this.state==="active")return;
+    this.busy=true;this.state="connecting";this.stopUnconfirmed=false;
+    const token=claimManualInput("gamepad");
+    try{
+      if(direct03.owned)await direct03Stop();await sourceDemonstration.drain();await stopKeyboard(true);await waitManualIdle(keyboard,token);
+      if(keyboard.stopUnconfirmed)throw new Error("STOP клавиатуры не подтверждён.");
+      if(!await manualPreview.ensureFresh())throw new Error("Дождитесь свежих кадров ROSMASTER.");
+      await observedNative.connect("gamepad",{initializeArm:nativeArmNeedsHome()});
+      await post("/api/robot/gamepad/panel",{enabled:true,observing:true});this.selectionAttempted=true;
+      await post("/api/robot/gamepad/mode",{mode:"TELEOP",drive_profile:"normal",arm_speed:"normal"});
+      await post("/api/robot/teleop/resume",{source:"gamepad",observing:true});
+      this.leaseTimer=setInterval(()=>post("/api/robot/gamepad/panel",{enabled:true,observing:true}).catch(error=>{toast(error.message,true);void this.disconnect();}),400);
+      this.state="active";
+    }catch(error){await this.disconnect();throw error;}
+    finally{this.busy=false;model.forceRender=true;render();}
+  },
+  async disconnect(reason=""){
+    if(this.stopping)return;this.stopping=true;
+    if(this.leaseTimer){clearInterval(this.leaseTimer);this.leaseTimer=null;}
+    let stopped=true;
+    try{
+      if(this.selectionAttempted){try{await post("/api/robot/teleop/stop",{}, {keepalive:true});}catch{stopped=false;}
+        try{await post("/api/robot/gamepad/panel",{enabled:false,observing:false},{keepalive:true});}catch{stopped=false;}}
+    }finally{
+      this.state="idle";this.selectionAttempted=false;this.stopUnconfirmed=!stopped;this.stopping=false;
+      if(reason&&!stopped)toast(reason,true);model.forceRender=true;render();
+    }
+  }
+};
 keyboard.options = {
   post, filterKeys: filterManualKeysForCurrentOwnerConstraints,
   ready: () => activeProject()?.id === "02" && rosmasterCameraReady() && document.hasFocus() && !dialog.open,
@@ -567,7 +587,7 @@ function experimentPage(project) {
 }
 
 function keyboardPanel(){
- return `<section class="panel"><div class="panel-heading"><h2>Управление ROSMASTER</h2></div><div class="panel-body"><p>Первое подключение после включения переводит руку в штатную стартовую позу.</p><div class="teleop-actions"><button class="button primary" type="button" data-action="keyboard-toggle" ${keyboard.busy||keyboard.starting||keyboard.stopping?"disabled":""}>${keyboard.active?"Отключить клавиатуру":"Управлять"}</button><button class="button secondary" data-operator-action="gamepad">${browserGamepad.status().state==="active"?"Отключить джойстик":"Управлять джойстиком"}</button>${keyboard.active?`<button class="button secondary" data-action="keyboard-stop">Пауза</button>`:""}<button class="button secondary" data-action="keyboard-mode" data-arm-mode="cartesian">XYZ</button><button class="button secondary" data-action="keyboard-mode" data-arm-mode="joint">Суставы</button></div><p>W/S — вперёд/назад · A/D — влево/вправо · Q/E — поворот.<br>I/K, J/L, U/O — рука · N/M — захват · Shift — точно · Space — пауза.</p>${keyboard.error?`<p class="form-error">${esc(keyboard.error)}</p>`:""}</div></section>`;
+ return `<section class="panel"><div class="panel-heading"><h2>Управление ROSMASTER</h2></div><div class="panel-body"><p>Первое подключение после включения переводит руку в штатную стартовую позу.</p><div class="teleop-actions"><button class="button primary" type="button" data-action="keyboard-toggle" ${keyboard.busy||keyboard.starting||keyboard.stopping?"disabled":""}>${keyboard.active?"Отключить клавиатуру":"Управлять"}</button><button class="button secondary" data-operator-action="gamepad" ${browserGamepad.busy||browserGamepad.stopping?"disabled":""}>${browserGamepad.status().state==="active"?"Отключить джойстик":"Управлять джойстиком"}</button>${keyboard.active?`<button class="button secondary" data-action="keyboard-stop">Пауза</button>`:""}<button class="button secondary" data-action="keyboard-mode" data-arm-mode="cartesian">XYZ</button><button class="button secondary" data-action="keyboard-mode" data-arm-mode="joint">Суставы</button></div><p>Джойстик подключён к ROSMASTER и читается его штатным контроллером.<br>W/S — вперёд/назад · A/D — влево/вправо · Q/E — поворот.<br>I/K, J/L, U/O — рука · N/M — захват · Shift — точно · Space — пауза.</p>${keyboard.error?`<p class="form-error">${esc(keyboard.error)}</p>`:""}</div></section>`;
 }
 
 function demonstrationCapturePrefix() {

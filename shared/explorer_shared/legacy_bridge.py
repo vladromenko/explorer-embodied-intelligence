@@ -20,6 +20,7 @@ POST_PATHS = {'control', 'teleop/select', 'teleop/mode', 'teleop/speed', 'teleop
     'teleop/stop', 'teleop/resume', 'teleop/disconnect', 'teaching/mobile/start',
     'teaching/mobile/lease', 'teaching/mobile/finish', 'teaching/mobile/stage', 'arm/jog', 'arm/finite',
     'arm/trajectory/plan', 'arm/trajectory/start', 'arm/trajectory/lease', 'arm/trajectory/stop'}
+POST_PATHS |= {'gamepad/panel', 'gamepad/mode'}
 POST_PATHS |= {'explorer/retarget/begin', 'explorer/retarget/recenter', 'explorer/retarget/resume',
                'explorer/retarget/input', 'explorer/retarget/base', 'explorer/retarget/stop'}
 POST_PATHS |= {'explorer/retarget/activation/authorize','explorer/retarget/activation/revoke','arm/prepare'}
