@@ -1,0 +1,54 @@
+{
+  "schema": "explorer_exact_source_compatibility_extension_v1",
+  "scope": "Typed06 branch only; default02/03 numerical operations retained. Compatibility inverse is not optimizer or physical qualification.",
+  "previous_receipt_path": "_registry/evidence/experiment06-training-source-extension-missing-pi-20261028.json",
+  "previous_receipt_sha256": "04911819f148cd398f986236c6d2c354c7835361d9eeb720802310d402371e73",
+  "extensions": {
+    "shared/explorer_shared/learning/rosmaster_skill_pipeline.py": {
+      "current_sha256": "94983eb6c77b1e61cf6d71ec0355abd1fae07eaf24a516e49068d0a9bcf19a68",
+      "previous_sha256": "90543a1182b196a38aa6a2d7c24a040fd79f7d3d733180f77ff1108e850cbaa6",
+      "inverse_replacements": [
+        {
+          "current": "def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None,guard=lambda:None,transfer_context=None):\n",
+          "previous": "def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None,guard=lambda:None):\n"
+        },
+        {
+          "current": "    if transfer_context is None and any((row['report'].get('experiment_identity') or {}).get('canonical_project_id')=='06' for row in corpus.episodes):\n        raise PipelineBlocked('TARGET06_TYPED_TRAINING_CONTEXT_REQUIRED')\n    if transfer_context is not None:\n        from .transfer_target_training import TransferTrainingContext\n        if type(transfer_context) is not TransferTrainingContext:raise PipelineBlocked('TYPED_TRANSFER_TRAINING_CONTEXT_REQUIRED')\n        transfer_context.validate_corpus(corpus)\n",
+          "previous": ""
+        },
+        {
+          "current": "    guard();policy=make_act_policy(settings_act,len(FEATURE_NAMES)*2,9)\n    transfer_initialization=None\n    if transfer_context is not None:\n        transfer_initialization=transfer_context.initialize(policy)\n        training.resume_context['transfer_context']=transfer_context.resume_context()\n        training.resume_context['source_files'].extend(dict(path=str(transfer_context.checkpoint/name),sha256=expected)\n            for name,expected in transfer_context.hashes.items() if transfer_context.mode=='vision_adapt')\n    initial=state_digest(policy)\n",
+          "previous": "    guard();policy=make_act_policy(settings_act,len(FEATURE_NAMES)*2,9);initial=state_digest(policy)\n"
+        },
+        {
+          "current": "    if transfer_context is not None:\n        transfer_context.recheck()\n        model.update(job_kind='transfer_target_train',compatible_source_projects=['06'],transfer_initialization=transfer_initialization,\n                     transfer_target_selection=corpus.manifest['transfer_target_selection'])\n",
+          "previous": ""
+        },
+        {
+          "current": "    if transfer_context is not None:\n        card['lineage'].update(compatible_source_projects=['06'],workflow_family='cross_embodiment_target_shared_ACT9_v1',\n                               source_model_binding=transfer_context.binding)\n        card['transfer_initialization']=transfer_initialization\n",
+          "previous": ""
+        }
+      ]
+    },
+    "00-control-center/src/explorer/job_runner.py": {
+      "current_sha256": "9e35d15ba09b9be65a072514cf902b67412987d0fbd844175efaf3139de151d9",
+      "previous_sha256": "07dc847a474b0daeac3cdc40bb76996efbeab7c8c93a486233f0bb83af994149",
+      "inverse_replacements": [
+        {
+          "current": "        elif job['kind']=='transfer_target_train':\n            from .transfer_target import run_training\n            result=run_training(store,job)\n",
+          "previous": ""
+        }
+      ]
+    },
+    "00-control-center/src/explorer/queue_policy.py": {
+      "current_sha256": "7b526ec3979bc9915469aa62853bce9c46f4f03edff6f18a6459ddb1575852ea",
+      "previous_sha256": "04498ff40ee988cff08e5ee8d14b641ed6bdb0f6f04f4229f3e63a8d3e281f5d",
+      "inverse_replacements": [
+        {
+          "current": "HEAVY_JOBS=('sim_pilot','train_act','rosmaster_skill_train','transfer_target_train','so101_skill_train','world_model','dagger','skill_cycle',\n",
+          "previous": "HEAVY_JOBS=('sim_pilot','train_act','rosmaster_skill_train','so101_skill_train','world_model','dagger','skill_cycle',\n"
+        }
+      ]
+    }
+  }
+}

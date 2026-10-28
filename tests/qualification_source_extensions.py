@@ -14,11 +14,12 @@ RECEIPT=ROOT/'_registry/evidence/experiment05-training-source-extensions-2026102
 RECEIPT06=ROOT/'_registry/evidence/experiment06-training-source-extension-20261028.json'
 RECEIPT06_PI=ROOT/'_registry/evidence/experiment06-training-source-extension-missing-pi-20261028.json'
 
+RECEIPT06_TARGET=ROOT/'_registry/evidence/experiment06-training-source-extension-target-context-20261028.json'
 
 def assert_qualified_source(root,name,expected):
     raw=(Path(root)/name).read_bytes()
     if hashlib.sha256(raw).hexdigest()==expected:return
-    paths=(RECEIPT06_PI,RECEIPT06,RECEIPT)
+    paths=(RECEIPT06_TARGET,RECEIPT06_PI,RECEIPT06,RECEIPT)
     proofs=[json.loads(path.read_bytes()) for path in paths]
     for current,previous in zip(proofs,paths[1:]):
         assert current['previous_receipt_path']==str(previous.relative_to(ROOT))

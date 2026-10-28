@@ -274,7 +274,7 @@ def offline_metrics(policy,corpus,samples,phase_model,device):
         raw_predictions=predictions,sealed_test_used=False,learned_policy_rollout_executed=False,whole_task_success='NOT_EVALUATED',physical_success=False)
 
 
-def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None,guard=lambda:None):
+def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None,guard=lambda:None,transfer_context=None):
     guard()
     import torch
     from explorer_shared.learning.act_backend import IMAGE_KEY,framework_info,make_act_policy,optimize_act,save_reload_act
@@ -286,13 +286,26 @@ def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None,gua
         if type(options[name]) is not int or not low<=options[name]<=high:raise ValueError('Invalid fused ACT setting: '+name)
     if options['device']!='cpu':raise PipelineBlocked('FUSED_ACT_DEVICE_NOT_QUALIFIED','This new feature shape has CPU qualification only; old6D/CUDA receipts do not apply')
     torch.set_num_threads(options['threads']);started=time.monotonic();corpus=CanonicalCorpus(dataset_manifest);folder=Path(output_dir);folder.mkdir(parents=True,exist_ok=True)
+    if transfer_context is None and any((row['report'].get('experiment_identity') or {}).get('canonical_project_id')=='06' for row in corpus.episodes):
+        raise PipelineBlocked('TARGET06_TYPED_TRAINING_CONTEXT_REQUIRED')
+    if transfer_context is not None:
+        from .transfer_target_training import TransferTrainingContext
+        if type(transfer_context) is not TransferTrainingContext:raise PipelineBlocked('TYPED_TRANSFER_TRAINING_CONTEXT_REQUIRED')
+        transfer_context.validate_corpus(corpus)
     from .rosmaster_lerobot_dataset import export_official_dataset,OfficialFusedChunks
     train_folder,train_index=export_official_dataset(corpus,folder/'lerobot_native9'/'train',image_size=options['image_size'],partition='train',guard=guard)
     development_folder,development_index=export_official_dataset(corpus,folder/'lerobot_native9'/'development',image_size=options['image_size'],partition='development',guard=guard)
     training=OfficialFusedChunks(corpus,corpus.train,options['chunk_size'],options['image_size'],train_folder,train_index)
     development=OfficialFusedChunks(corpus,corpus.development,options['chunk_size'],options['image_size'],development_folder,development_index)
     settings_act={key:value for key,value in options.items() if key!='threads'}
-    guard();policy=make_act_policy(settings_act,len(FEATURE_NAMES)*2,9);initial=state_digest(policy)
+    guard();policy=make_act_policy(settings_act,len(FEATURE_NAMES)*2,9)
+    transfer_initialization=None
+    if transfer_context is not None:
+        transfer_initialization=transfer_context.initialize(policy)
+        training.resume_context['transfer_context']=transfer_context.resume_context()
+        training.resume_context['source_files'].extend(dict(path=str(transfer_context.checkpoint/name),sha256=expected)
+            for name,expected in transfer_context.hashes.items() if transfer_context.mode=='vision_adapt')
+    initial=state_digest(policy)
     progress=progress or (lambda *args:None)
     optimizer,losses,_=optimize_act(policy,training,settings_act,folder,progress,.05,.75,checkpoint_interval=min(25,options['act_steps']))
     phase_rows=[row for episode in corpus.train for row in episode['frames']]
@@ -332,6 +345,10 @@ def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None,gua
         implementation_sha256={name:_sha(Path(__file__).with_name(name)) for name in
             ('rosmaster_skill_pipeline.py','rosmaster_skill_features.py','rosmaster_skill_hybrid.py','rosmaster_skill_segments.py','rosmaster_lerobot_dataset.py')},
         offline_evaluation=evaluation,physical_execution_qualified=False,whole_skill_mastered=False,method_ids=['ACT_LEROBOT_0_6_1','ENGINEERING_GLUE'])
+    if transfer_context is not None:
+        transfer_context.recheck()
+        model.update(job_kind='transfer_target_train',compatible_source_projects=['06'],transfer_initialization=transfer_initialization,
+                     transfer_target_selection=corpus.manifest['transfer_target_selection'])
     _write(folder/'model_manifest.json',model)
     source_type='simulation' if model['source_kind']==['simulation'] else 'physical_demonstrations' if model['source_kind']==['physical'] else 'mixed_simulation_and_physical_demonstrations'
     card=dict(id='rosmaster-skill-'+_sha(folder/'model_manifest.json')[:24],task=corpus.spec.get('title'),source_type=source_type,status='trained_offline_candidate_only',
@@ -339,6 +356,10 @@ def train_pipeline(dataset_manifest,output_dir,*,settings=None,progress=None,gua
         lineage=dict(skill_id=corpus.skill_id,skill_version=corpus.version,aggregate_sha256=corpus.sha256,model_manifest_sha256=_sha(folder/'model_manifest.json'),workflow_family='rosmaster_shared_demonstration_pipeline_v1',compatible_source_projects=['02','03']),
         model_input_schema=preprocessing,recorded_channels=model['recorded_channels'],admitted_channels=model['admitted_channels'],model_used_channels=used_channels,checkpoint_sha256=model['weights_sha256'],
         evaluation=evaluation,limitations=['No learned-policy rollout or physical trial from this offline job','Hybrid blocks absent essential navigation/geometry/transition evidence','Phase labels are supervised targets, never actor observations','Sealed payloads excluded from optimization and development metrics'])
+    if transfer_context is not None:
+        card['lineage'].update(compatible_source_projects=['06'],workflow_family='cross_embodiment_target_shared_ACT9_v1',
+                               source_model_binding=transfer_context.binding)
+        card['transfer_initialization']=transfer_initialization
     result=dict(trained=True,optimizer_steps=len(losses),weights_changed=state_digest(policy)!=initial,save_reload_passed=True,reload_max_abs_error=error,
         algorithm='official LeRobot compact ACT9 available-sensor fusion plus separately composed hybrid candidate',job_kind=JOB_KIND,feature_dimension=len(FEATURE_NAMES)*2,
         output_action_dimension=9,device='cpu',checkpoint_dir=str(checkpoint),checkpoint_sha256=model['weights_sha256'],model_manifest=str(folder/'model_manifest.json'),

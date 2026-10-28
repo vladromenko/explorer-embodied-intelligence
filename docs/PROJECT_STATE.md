@@ -365,3 +365,17 @@ and rejects wrong-version replies,36Node contracts PASS. Old negative originals
 retained. No independent source object trace/target9training/physical acceptance;
 NOTdeployed, live remains c82. Continue E06PIPELINE target9 corpus/common trainer
 and trusted cached metric capture; not full06/master completion.
+
+
+06 target corpus/common trainer candidate: same canonical native9 reader; explicit
+06 original identity +same UUID/advancing version/domain, nested original5/10/25
+selection, preserved DEV/sealed and RGB substitution/source drift fences. Typed
+ACT6 visual-backbone-only initializer leaves target9 state/action/latent/optimizer
+heads untouched; target-only no-op/RNG contracts passed. Managed06 dataset IDs→
+authenticated API→durable idempotent shared queue4GiB/2CPU, no paths/device claims
+from browser; target source-task phase contract rechecked.20Python21.37s +11Node
+136.9ms scoped PASS (earlier26shared contracts25.28s also passed). Initial fixture
+metadata/source-domain mistakes and immutable-Store negative setup failure retained
+in private logs. NOTdeployed/actual target optimizer proof still pending; livec82.
+Next frozen target-only/adapt actual CPU queue +default02/03 numerical parity,
+whole target UI; trusted metric capture/target producer and full06 release remain.

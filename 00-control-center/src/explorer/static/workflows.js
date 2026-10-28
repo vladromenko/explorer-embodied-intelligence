@@ -46,6 +46,7 @@ function handoverRuntimePanel() {
 }
 document.addEventListener("input", event=>{if(event.target.matches?.("[data-transfer-target-version]"))transferGeometry.setTargetVersion(event.target.value);});
 document.addEventListener("change", (event) => {
+  if(event.target.matches?.("[data-transfer-training]"))transferGeometry.setTraining(event.target.dataset.transferTraining,event.target.value);
   if(event.target.matches?.("[data-transfer-target-version]"))transferGeometry.setTargetVersion(event.target.value);
   if (event.target.id === "manipulation-task") workflow.task = event.target.value;
   if (event.target.id === "visual-act-device") workflow.visualDevice = event.target.value;
@@ -61,6 +62,8 @@ document.addEventListener("click", async (event) => {
       const action=geometryButton.dataset.transferGeometry;
       if(action==="preview")await transferGeometry.preview();
       else if(action==="restore")await transferGeometry.restore();
+      else if(action==="datasets")await transferGeometry.loadDatasets();
+      else if(action==="train")await transferGeometry.train();
       else if(action==="create")await transferGeometry.create(Number(document.querySelector("[data-transfer-target-version]")?.value));
     }catch(error){toast(error.message,true);}return;
   }

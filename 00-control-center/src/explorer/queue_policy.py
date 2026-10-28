@@ -7,7 +7,7 @@ import math
 import time
 
 GIB=1024**3
-HEAVY_JOBS=('sim_pilot','train_act','rosmaster_skill_train','so101_skill_train','world_model','dagger','skill_cycle',
+HEAVY_JOBS=('sim_pilot','train_act','rosmaster_skill_train','transfer_target_train','so101_skill_train','world_model','dagger','skill_cycle',
     'manipulation','manipulation_student','manipulation_benchmark','manipulation_curriculum','mobile_manipulation',
     'manipulation_selective_repair','policy_transfer','fault_repair')
 PHYSICAL_JOBS=('station_rollout','handover_physical','so101_skill_eval')

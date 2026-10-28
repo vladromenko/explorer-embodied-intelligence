@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 
 from . import transfer_geometry as geometry
 from . import transfer_calibration as wizard
+from . import transfer_target as target
 from .source_evaluation_api import bounded_body
 from .source_evaluation_transport import pi_metadata_connection
 
@@ -69,3 +70,16 @@ def install_router(app,get_store,get_config,get_actor):
             if current_geometry['source_model_binding']!=binding:raise ValueError('Source model binding changed; old wizard remains preserved')
             return dict(result,current_geometry=current_geometry)
         return await safe(read)
+
+    @app.get('/api/transfer/calibration/{wizard_id}/datasets')
+    async def datasets(wizard_id:str,request:Request):
+        if request.query_params:raise HTTPException(400,'Fixed managed target dataset query')
+        return await safe(lambda:target.dataset_choices(get_store(),wizard_id))
+
+    @app.post('/api/transfer/calibration/{wizard_id}/train')
+    async def train(wizard_id:str,request:Request):
+        body=await bounded_body(request)
+        if not isinstance(body,dict) or 'dataset_job_id' not in body:
+            raise HTTPException(400,'Choose a managed target dataset ID')
+        return await safe(lambda:target.enqueue_training(get_store(),wizard_id,body['dataset_job_id'],
+            {key:value for key,value in body.items() if key!='dataset_job_id'},actor=get_actor(request)))

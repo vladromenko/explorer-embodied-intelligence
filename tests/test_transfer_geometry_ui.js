@@ -53,3 +53,45 @@ test("restored target version remains the saved version and mismatched version r
   assert.equal(client.snapshot().targetVersion,"4");assert.match(transferGeometryPanel(client.snapshot()),/value="4"/);
   const wrong=fixture({post:async()=>saved}).client;wrong.select(row);await wrong.preview();await assert.rejects(wrong.create(2),/целевой версии/);
 });
+
+function targetFixture({getExtra,postExtra}={}){
+  const row=choice(),active=wizard(row),calls=[];
+  const data={wizard_id:active.wizard_id,target_version:2,source_model_binding:binding(row),datasets:[{dataset_job_id:'3'.repeat(32),ready:true,train_original_demonstrations:5,development_original_demonstrations:1,budgets:[{demonstrations:5,ready:true},{demonstrations:10,ready:false}]}]};
+  const client=createTransferGeometryClient({get:async path=>path.endsWith('/datasets')?(getExtra?getExtra(data):data):response(row),post:async(path,body)=>{
+    calls.push([path,body]);if(!path.endsWith('/train'))return active;
+    return postExtra?postExtra(body):{id:'4'.repeat(32),kind:'transfer_target_train',project_id:'06',config:{...body,wizard_id:active.wizard_id,source_model_binding:binding(row)}};
+  },randomUUID:()=> '55555555-5555-4555-8555-555555555555'});
+  client.select(row);return {client,row,active,data,calls};
+}
+
+test('target data uses the saved wizard and insufficient original counts never enqueue',async()=>{
+  const {client,calls}=targetFixture();await client.preview();await client.create(2);await client.loadDatasets();
+  assert.match(transferGeometryPanel(client.snapshot()),/TRAIN 5 · DEV 1/);
+  client.setTraining('demonstrations','10');await assert.rejects(client.train(),/достаточное число/);
+  assert.equal(calls.filter(row=>row[0].endsWith('/train')).length,0);
+  assert.match(transferGeometryPanel(client.snapshot()),/target_only/);
+});
+
+test('target training posts only managed IDs and reuses request identity after lost ACK',async()=>{
+  let attempts=0;const {client,calls,active,row}=targetFixture({postExtra:body=>{
+    if(++attempts===1)throw new Error('lost ACK');return {id:'4'.repeat(32),kind:'transfer_target_train',project_id:'06',config:{...body,wizard_id:active.wizard_id,source_model_binding:binding(row)}};
+  }});
+  await client.preview();await client.create(2);await client.loadDatasets();await assert.rejects(client.train(),/lost ACK/);await client.train();
+  const posts=calls.filter(call=>call[0].endsWith('/train'));assert.deepEqual(posts[0],posts[1]);
+  assert.deepEqual(Object.keys(posts[0][1]).sort(),['dataset_job_id','demonstrations','mode','request_id']);
+  assert.equal(client.snapshot().targetJob.kind,'transfer_target_train');assert.ok(calls.every(call=>call[0].startsWith('/api/transfer/')));
+});
+
+test('late target dataset response cannot attach after source selection changes',async()=>{
+  const wait=deferred(),{client,data}=targetFixture({getExtra:()=>wait.promise});
+  await client.preview();await client.create(2);const pending=client.loadDatasets();client.select(choice('b'));wait.resolve(data);await pending;
+  assert.equal(client.snapshot().datasets,null);assert.equal(client.snapshot().targetJob,null);
+});
+
+test('wrong wizard target data and wrong budget queue ACK are rejected',async()=>{
+  const bad=targetFixture({getExtra:data=>({...data,target_version:3})});await bad.client.preview();await bad.client.create(2);
+  await assert.rejects(bad.client.loadDatasets(),/другому мастеру/);assert.equal(bad.client.snapshot().datasets,null);
+  const queue=targetFixture({postExtra:body=>({kind:'transfer_target_train',project_id:'06',config:{...body,demonstrations:25}})});
+  await queue.client.preview();await queue.client.create(2);await queue.client.loadDatasets();await assert.rejects(queue.client.train(),/другую привязку/);
+  assert.equal(queue.client.snapshot().targetJob,null);
+});
