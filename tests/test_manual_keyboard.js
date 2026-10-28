@@ -13,8 +13,9 @@ function rig() {
 }
 test("neutral input precedes native resume; one packet retains simultaneous base and arm", async () => {
   const r = rig(); await r.keyboard.start();
-  assert.deepEqual(r.calls.map(call => call.operation), ["select", "input", "resume"]);
-  assert.deepEqual(r.calls[1].body.keys, []);
+  assert.deepEqual(r.calls.map(call => call.operation), ["select", "mode", "input", "resume"]);
+  assert.deepEqual(r.calls[1].body, { source: "keyboard", mode: "cartesian" });
+  assert.deepEqual(r.calls[2].body.keys, []);
   r.keyboard.keys = new Set(["KeyW", "KeyI", "KeyM"]); await r.keyboard.send();
   assert.deepEqual(r.calls.at(-1).body, { source: "keyboard", keys: ["KeyI", "KeyM", "KeyW"], observing: true, arm_mode: "cartesian" });
   r.state.baseForbidden = true; await r.keyboard.send();

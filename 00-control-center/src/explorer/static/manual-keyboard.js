@@ -66,6 +66,7 @@
         if (this.heldKeys.size) throw new Error("Перед подключением отпустите клавиши движения.");
         this.keys.clear(); this.error = null;
         await this.request(epoch, "select", { source: "keyboard", observing: true, neutral: true });
+        await this.request(epoch, "mode", { source: "keyboard", mode: this.mode });
         await this.request(epoch, "input", this.packet(true));
         await this.request(epoch, "resume", { source: "keyboard", observing: true });
         this.active = true; this.paused = false;
