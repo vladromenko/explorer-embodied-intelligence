@@ -272,3 +272,10 @@ test("both DATA sources expose separate attempts and giver reconcile never carri
   assert.throws(()=>client.recordReconcile("other"),/DATA поток/);
   await client.recordReconcile("giver");assert.deepEqual(calls,[["/api/cooperative/record_reconcile",{session_id:"server-session",expected_epoch:"epoch-one",capture_attempt_id:"giver-attempt",role:"giver"}]]);
 });
+for(const [status,message] of [["COMPLETED","Протокол завершён"],["INTERRUPTED","Сессия прервана"]]){
+  test(`${status} never fabricates a confirmed STOP`,async()=>{
+    const state=fixture();state.workbench.sessions[0].status=status;
+    const {client}=await rig({get:async()=>clone(state)});
+    const html=cooperativeWorkbenchPanel(client.snapshot());assert.match(html,new RegExp(message));assert.doesNotMatch(html,/STOP подтверждён сервером/);
+  });
+}

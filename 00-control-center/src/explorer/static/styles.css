@@ -124,3 +124,6 @@ label.form-field { display:flex; flex-direction:column; gap:8px; min-width:0; co
 #skill-models-panel .button-row { display:flex; flex-wrap:wrap; gap:8px; }
 #skill-models-panel .button-row button { max-width:100%; white-space:normal; }
 #skill-workflow-panel select { min-width:0; max-width:100%; width:100%; }
+
+.cooperative-workbench .panel-body > * { min-width:0; }
+.cooperative-workbench button { max-width:100%; white-space:normal; overflow-wrap:anywhere; }

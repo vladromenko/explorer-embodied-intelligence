@@ -219,6 +219,16 @@ class CooperativeNativeSessions:
     def _save(self,row,spec,role,operation,result,actor):
         pointer=self.service.native_receipts.archive(row,spec,role,operation,result,actor)
         return self.service.native_receipts.publish(row,spec,pointer,actor)
+    def detach_transport(self,row,role):
+        """Local revocation precedes Source STOP I/O; never detach a newer epoch."""
+        with self.service.lock:
+            key=(row['session_id'],role);transport=self.service.transports.get(key)
+            if transport is not None and transport.binding.get('coordinator_epoch')==row['epoch']:
+                self.service.transports.pop(key,None)
+            binding=self.service.native_bindings.get(row['session_id'])
+            if binding is not None and binding.get('epoch')==row['epoch']:
+                binding.get('roles',{}).pop(role,None)
+                if not binding.get('roles'):self.service.native_bindings.pop(row['session_id'],None)
     def _remember_owned(self,row,spec,role,operation,pair,result,actor):
         key=(row['session_id'],row['epoch'],role)
         if role=='giver' and operation in ('native_begin','native_resume','native_recenter','native_attach','native_phase_begin','native_phase_resume'):
@@ -270,6 +280,7 @@ class CooperativeNativeSessions:
             'native_lease_automatically_renewed':False,'dual_hold_interlocks_unarmed':False}
     def command(self,operation,row,spec,body,*,actor):
         selected=self._choose(operation,row,spec,body,actor);role=selected['role'];pair=None;result={};known_reply=False;custody=None;intent=None;reservation=None
+        if operation=='native_stop':self.detach_transport(row,role)
         scopes=getattr(self.service,'observed_scopes',None)
         if scopes is not None:scopes.invalidate(row,role)
         request=self.service._request(role)

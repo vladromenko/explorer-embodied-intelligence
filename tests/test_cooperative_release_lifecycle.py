@@ -86,3 +86,99 @@ def test_root_control_then_existing_policy_dispatch_returns_actual_original_open
         assert not any(path.endswith('/guard/authorize') or path.endswith('/lease') for path in posts)
         assert current['protocol_completed'] is False and sources.wrapper.helper.armed and sources.pair.owner.guard.armed
     finally:sources.close()
+
+
+def test_manual_original_opening_then_independent_transfer_unfreezes_receiver_and_both_park(tmp_path,monkeypatch):
+    """Compose real Root/native adapters and original fake publishers; no devices.
+
+    Pre-grasp state is the explicit existing fixture. Tail uses the real durable
+    inbox and source transfer boundary, never a fabricated transport receipt.
+    """
+    from test_cooperative_native_sessions import choice,execute
+    from test_cooperative_giver_phases import phase
+    from test_native_cooperative05 import message
+    sources=Sources(tmp_path,monkeypatch);service=sources.service
+    def observed_step(row,event):
+        operation=service.command('step',{'session_id':row['session_id'],'expected_epoch':row['epoch'],'event':event},authenticated_actor=ACTOR)['result']
+        thread=service.workflow.threads[operation['operation_id']];deadline=time.monotonic()+3
+        while thread.is_alive() and time.monotonic()<deadline:
+            for prompt in service.inbox.pending(row['session_id']):
+                service.command('confirm_evidence',{'challenge_id':prompt['challenge_id'],'affirmed':True,'observing':True,
+                    'note':'EXPLICIT SOFTWARE INPUT; no physical observation claimed'},authenticated_actor=ACTOR)
+            thread.join(.005)
+        assert not thread.is_alive()
+        current=service.workflow.snapshot(row['session_id']);assert current['status']!='STOPPED',current['errors']
+        return current
+    try:
+        row=release_ready(sources);request,descriptor=start_release(service,row)
+        before=len(sources.pair.owner.original_publisher.messages)
+        controlled=service.command('native_parked_release_resume',body(row,descriptor),authenticated_actor=ACTOR)['result']
+        service.workflow.threads[request['operation_id']].join(3)
+        current=service.workflow.snapshot(row['session_id']);assert current['protocol_state']=='RELEASE',current['errors']
+        assert len(sources.pair.owner.original_publisher.messages)==before  # authorization never opens
+        # Explicit original publisher input, simulating a human manual opening.
+        sources.pair.arm.pub.publish(message(80))
+        assert len(sources.pair.owner.original_publisher.messages)==before+1
+        opening=service._giver_opening(current);assert opening['opening'] and opening['guard_grant']==controlled['completion']['release_grant']
+        current=observed_step(current,'giver_released')
+        execute(service,'native_phase_activate',{**choice(service,current,'receiver','native_phase_activate'),'neutral':True})
+        execute(service,'native_attach',choice(service,current,'receiver','native_attach'))
+        assert service._authority(current)['explicit_user_observed_test_current']
+        receiver_before=deepcopy(sources.bus.writes)
+        current=observed_step(current,'transfer_confirmed')
+        assert current['protocol_state']=='SO101_FINISH' and sources.wrapper.helper.phase=='UNFROZEN_TO_FINISH'
+        assert sources.bus.writes==receiver_before  # metadata transfer authorization is not a write
+        transfer=current['observation_receipts'][-1]['native_receiver_independent_transfer_finish']
+        assert transfer['hardware_command_sent'] is False and transfer['full_task_success_claimed'] is False
+        # Operator parks both existing owners before the final observation.
+        phase(service,current,'native_phase_park')
+        execute(service,'native_stop',choice(service,current,'receiver','native_stop'))
+        current=observed_step(current,'receiver_finished')
+        assert current['protocol_completed'] and current['status']=='COMPLETED'
+        assert not service.transports
+        assert not current['dispatch_receipts']  # all manual; no hidden learned-policy command
+    finally:sources.close()
+
+
+def test_explicit_receiver_stop_detaches_local_owner_before_lost_source_reply_and_preserves_other_role(tmp_path,monkeypatch):
+    import threading
+    import httpx
+    from test_cooperative_native_sessions import choice,execute
+    from test_cooperative_giver_phases import phase
+    sources=Sources(tmp_path,monkeypatch);service=sources.service;entered=threading.Event();release=threading.Event();errors=[]
+    original=service._request
+    try:
+        row=release_ready(sources)
+        phase(service,row,'native_phase_resume')
+        execute(service,'native_attach',choice(service,row,'giver','native_attach'))
+        giver=service.transports[(row['session_id'],'giver')]
+        execute(service,'native_phase_activate',{**choice(service,row,'receiver','native_phase_activate'),'neutral':True})
+        execute(service,'native_attach',choice(service,row,'receiver','native_attach'))
+        transport=service.transports[(row['session_id'],'receiver')];assert transport.observe_state()['current_native_owner_ready']
+        assert service._authority(row)['explicit_user_observed_test_current']
+        service.native_controls.detach_transport({**row,'epoch':'stale-epoch'},'receiver')
+        assert service.transports[(row['session_id'],'receiver')] is transport
+        selected=choice(service,row,'receiver','native_stop')
+        def factory(role):
+            send=original(role)
+            def request(method,path,payload):
+                if role=='receiver' and method=='POST' and (payload or {}).get('operation')=='stop':
+                    entered.set();assert release.wait(3)
+                    raise httpx.ReadTimeout('EXPLICIT FAKE lost STOP request before original source')
+                return send(method,path,payload)
+            return request
+        monkeypatch.setattr(service,'_request',factory)
+        def stop():
+            try:execute(service,'native_stop',selected)
+            except Exception as error:errors.append(error)
+        thread=threading.Thread(target=stop);thread.start();assert entered.wait(2)
+        assert (row['session_id'],'receiver') not in service.transports
+        assert service.transports[(row['session_id'],'giver')] is giver
+        assert not service._authority(row)['explicit_user_observed_test_current']
+        # The old external fixture reference can still see the live fake source;
+        # Root has revoked its own slot before any source acknowledgment.
+        assert transport.observe_state()['current_native_owner_ready']
+        release.set();thread.join(3);assert not thread.is_alive() and errors
+        assert (row['session_id'],'receiver') not in service.transports
+        monkeypatch.setattr(service,'_request',original)
+    finally:release.set();sources.close()

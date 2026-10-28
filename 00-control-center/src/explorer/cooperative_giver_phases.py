@@ -99,7 +99,7 @@ class CooperativeGiverPhases:
             body.update(previous_authorization_id=binding['authorization_id'],previous_native_generation=binding['native_generation'],
                 previous_control_epoch=binding.get('native_control_epoch'))
         if operation=='native_phase_resume' and row['giver_input_mode']=='policy':body['control_epoch']=native['control_epoch']
-        with self.service.lock:self.service.transports.pop((row['session_id'],'giver'),None)
+        self.native.detach_transport(row,'giver')
         result=self.service._request('giver')('POST','/legacy/explorer/cooperative/'+SOURCE_OPERATIONS[operation],body)
         if not isinstance(result,dict):raise ValueError('Parsed source giver phase reply unavailable')
         return result,{'selection':deepcopy(selection),'request':body,'phase_pin':self.native._phase_pin(row),

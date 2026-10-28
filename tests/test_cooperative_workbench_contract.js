@@ -51,10 +51,33 @@ test("standalone JS request bodies execute actual temporary native-workflow serv
     assert.match(recording.native_source_errors.receiver,/observed cooperative intent\/actor/); // This fixture has no explicit COMMON receiver grant.
     client.edit("record_phase","PREPARE");await client.recordStage();await client.recordFinish();
     assert.equal(client.snapshot().data.selected_session.recording_id,null);assert.ok(client.snapshot().data.selected_session.last_recording_id);
-    await client.step("giver_holding");
-    let challenge;
-    for(let attempt=0;attempt<60&&!challenge;attempt++){await client.refresh();challenge=client.snapshot().data.pending_evidence[0];if(!challenge)await new Promise(resolve=>setTimeout(resolve,10));}
-    assert.ok(challenge,"Real durable operator inbox must create a fixture challenge");client.edit("evidence."+challenge.challenge_id+".observing",true);client.edit("evidence."+challenge.challenge_id+".affirmed",true);await client.confirmEvidence(challenge.challenge_id);
+    // Full annotation-only protocol through the actual JS client, Root service
+    // and durable concurrent inbox. These explicit fixture confirmations are
+    // software inputs; they assert no physical object hold or actuator motion.
+    let receiverHoldPrompts=0;
+    const events=["giver_holding","offer_ready","receiver_ready","receiver_at_object","receiver_closed","receiver_hold_confirmed","release_requested","giver_released","transfer_confirmed","receiver_finished"];
+    for(const event of events){
+      await client.step(event);let completed=false;
+      for(let attempt=0;attempt<120&&!completed;attempt++){
+        await client.refresh();const current=client.snapshot().data;
+        for(const challenge of current.pending_evidence){
+          assert.equal(challenge.run_id,current.selected_session.session_id);
+          if(challenge.statement==="receiver_holds_object")receiverHoldPrompts++;
+          client.edit("evidence."+challenge.challenge_id+".observing",true);
+          client.edit("evidence."+challenge.challenge_id+".affirmed",true);
+          await client.confirmEvidence(challenge.challenge_id);
+        }
+        await client.refresh();const row=client.snapshot().data.selected_session;
+        assert.notEqual(row.status,"STOPPED",JSON.stringify(row.errors));
+        completed=!row.pending_operation;
+        if(!completed)await new Promise(resolve=>setTimeout(resolve,5));
+      }
+      assert.ok(completed,"Actual durable inbox operation must finish: "+event);
+      if(event==="receiver_closed")assert.equal(client.snapshot().data.selected_session.protocol_state,"RECEIVER_GRASP_CHECK");
+    }
+    assert.equal(receiverHoldPrompts,2,"Closure is not hold; release requires a second fresh independent fixture observation");
+    assert.equal(client.snapshot().data.selected_session.protocol_completed,true);
+    assert.equal(client.snapshot().data.selected_session.status,"COMPLETED");
     await client.stop();assert.equal(client.snapshot().data.selected_session.status,"STOPPED");
     const summary=await request("GET","/__fixture_summary__");assert.ok(summary.calls.length>0);assert.ok(summary.calls.every(([method,,route])=>method==="GET" || route.includes("/record/")));assert.ok(summary.calls.every(([, ,route])=>!/authorize|heartbeat|trajectory|cooperative\/guard|cooperative\/action/.test(route)));
     assert.equal(summary.active["nano.test"],null);assert.equal(summary.active["pi.test"],null);assert.equal(summary.contexts["nano.test"].skill_context.project_id,"02");assert.equal(summary.contexts["pi.test"],undefined);
