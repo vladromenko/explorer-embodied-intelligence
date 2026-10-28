@@ -1,0 +1,32 @@
+{
+  "schema": "explorer06_capture_whole_browser_checkpoint_v1",
+  "status": "SOFTWARE_UI_TESTED_AWAITING_MVP_DEPLOY",
+  "code_commit": "1864cf0a2dd793154b3253b5d5d433699d7323ab",
+  "receipt": "/mnt/explorer-data/explorer-work/06-capture-mainpath-actual-UI-20261028-b/receipt.json",
+  "receipt_sha256": "8ed63de31108d8ffe08e210bdac2647a4f665e9ae6d140596c141d12b27bb0a4",
+  "inputs": "GENERATED_FAKE_NATIVE_TAP_REAL_WRITER_NOT_PHYSICAL",
+  "source_model_job_id": "92537967dd05482f9f9c5b8f36a7fc44",
+  "source_model_original_unchanged": true,
+  "pages": [
+    {
+      "name": "desktop",
+      "overflow": false,
+      "state": "SEALED",
+      "outcome": "unknown",
+      "decision": "approve"
+    },
+    {
+      "name": "mobile",
+      "overflow": false,
+      "state": "SEALED",
+      "outcome": "unknown",
+      "decision": "approve"
+    }
+  ],
+  "all_four_screenshots_visually_inspected": true,
+  "javascript_errors": [],
+  "actual_native_commands": 0,
+  "optimizer_steps": 0,
+  "physical_acceptance": false,
+  "negative_setup_retained": "/mnt/explorer-data/explorer-work/06-capture-mainpath-actual-UI-20261028-a/receipt.json"
+}

@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
 Updated: `2026-10-28T08:36:34+03:00`
-Code commit: `bfe93b7c160ab6c113cb3654e827b67de526e0fa`
+Code commit: `1864cf0a2dd793154b3253b5d5d433699d7323ab`
 Current task: `E06-PIPELINE`
 Next tasks: `E06-ADAPT`, `E06-RELEASE`, `E01-REPAIR`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -52,7 +52,7 @@ predictions EXACT and whole actual generated-data desktop/mobile UI qualified.
 All06 code **NOTdeployed**, actual source object trace/real experts still absent.
 Independent source/target domains fixed; nominalSIM never physical registration.
 Current native06 DATA context reuses same writer/importer, UNKNOWN retained;
-Actual native06 generated originals3TRAIN/1DEV/1sealed exported through officialDataset0.6.1; optimizer0, budget5 correctly blocked. DATA transport11PASS; Operator native DATA capture/list/pause/stage/finish/separate review/import/aggregate API+UI implemented; shared-writer mainpath17PASS, integrated API/cohort16PASS, UI15PASS. Actual whole-browser capture smoke next; NOTdeployed. Trusted metric
+Actual native06 generated originals3TRAIN/1DEV/1sealed exported through officialDataset0.6.1; optimizer0, budget5 correctly blocked. DATA transport11PASS; Operator native DATA capture/list/pause/stage/finish/separate review/import/aggregate API+UI implemented; shared-writer mainpath17PASS, integrated API/cohort16PASS, UI15PASS. Whole-app Firefox1440/390 capture→UNKNOWN→separate approve→import queue PASS, all4PNG inspected/0JSerror/overflow. Failed fake-source clock setup retained; explicit abandon-start DATA closes only pending metadata without deleting originals. MVP capture deploy next; NOTdeployed. Trusted metric
 capture/solve remain next. Then06ADAPT/RELEASE→01; original master not complete.
 
 ## Последний checkpoint04
