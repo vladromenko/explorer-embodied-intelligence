@@ -101,6 +101,20 @@ let sourceEvaluationUnbind = () => {}, sourceEvaluationLoadedAt = 0;
 const sourceDemonstration = createSourceDemonstrationClient({get:api,post:(url,body)=>post(url,body,{keepalive:true}),
   visible:sourceEvaluationRoute() && !document.hidden,displayFrame:async url=>{const image=document.querySelector("#camera-image");if(!image)return false;image.src=url;await image.decode();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));return !document.hidden;},onChange:()=>{if(sourceEvaluationRoute())refreshSourcePane("demonstration");}});
 let sourceDemonstrationUnbind = () => {}, sourceDemonstrationLoadedAt = 0;
+let sourceDemonstrationLeasePending=false;
+async function sourceDemonstrationLease(){
+  const view=sourceDemonstration.snapshot();
+  if(sourceDemonstrationLeasePending||!sourceEvaluationRoute()||document.hidden||!document.hasFocus()||
+      !view.visible||!view.watching||!view.owner||view.controlBusy||view.watchBusy||view.watchDelayMs>0)return;
+  sourceDemonstrationLeasePending=true;
+  try{await sourceDemonstration.watchOnce();}
+  catch(error){simpleOperator.error=error.message;toast(error.message,true);}
+  finally{sourceDemonstrationLeasePending=false;}
+}
+// Renewal belongs to the visible experiment page, not to one rendering of
+// its panel.  render() may replace that panel while the user is moving the
+// leader; this scheduler survives it and the client serializes each renewal.
+setInterval(sourceDemonstrationLease,100);
 const labSkills = createLabSkillsClient({api,onChange: () => {
   const state=labSkills.snapshot().state;
   if(state?.spec)sourceDemonstration.setPhaseCatalogue({...state.spec,spec_sha256:state.spec_sha256},state.spec.phase_ids);

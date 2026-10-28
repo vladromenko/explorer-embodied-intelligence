@@ -223,6 +223,7 @@
     }
     async function watchOnce() {
       if (!watching || !owner || !visible || busy || watchBusy || !flags.observing) return {ignored:true};
+      if(now()<nextWatchAt)return {waiting:true};
       nextWatchAt=now()+300;
       if (frame?.kind==="observation" && !frame.displayed) return {ignored:true};
       const epoch=generation,revision=ownerRevision,receipt=copy(owner),id=selected;watchBusy=true;

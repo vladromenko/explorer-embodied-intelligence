@@ -23,6 +23,7 @@ class Element {
   get innerHTML() { return this.html || ""; }
   get isConnected() { return this.connected || !!this.parentNode?.isConnected; }
   querySelector(selector) { return this.nodes.get(selector) || null; }
+  getElementById(id) { return this.querySelector("#" + id); }
   querySelectorAll() { return []; }
   append(child) { child.remove(); child.parentNode = this; this.nodes.set("#" + (child.id || "anonymous"), child); }
   remove() { if (this.parentNode) for (const [key, value] of this.parentNode.nodes) if (value === this) this.parentNode.nodes.delete(key); this.parentNode = null; }
@@ -133,6 +134,17 @@ test("04 ordinary render retains its pane and blur/pagehide issue no legacy STOP
   await rig.document.querySelector("#stop-button").listeners.get("click")[0]();await flush();
   assert.deepEqual(mutations.filter(row=>row.url==="/api/station/stop"),[{url:"/api/station/stop",body:"{}"}]);
   assert.equal(mutations.filter(row=>row.url==="/api/stop").length,1);
+});
+test("04 observation renewal survives a full page render and is inert without an owner",async()=>{
+  const rig=bootstrap("/experiments/04");await flush();
+  await rig.run("sourceDemonstrationLease()");
+  assert.ok(rig.requests.every(row=>row.method==="GET"));
+  rig.run(`globalThis.renewals=0;
+    sourceDemonstration.snapshot=()=>({visible:true,watching:true,owner:{grant_id:"fixture"},controlBusy:false,watchBusy:false,watchDelayMs:0});
+    sourceDemonstration.watchOnce=async()=>{globalThis.renewals+=1;};`);
+  rig.run("render()");await rig.run("sourceDemonstrationLease()");
+  assert.equal(rig.run("globalThis.renewals"),1);
+  assert.equal(rig.run("sourceDemonstrationLeasePending"),false);
 });
 
 async function pump(rig, rounds = 40) {
