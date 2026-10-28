@@ -14,10 +14,11 @@ working deployment → `MVP_USER_TESTABLE` / `DEPLOYED_AWAITING_PHYSICAL_ACCEPTA
 задачи01–06 и будущих задач. Deferred не является release gate, кроме фактических
 исключений политики. [Конкретные10 пунктов04](MVP_STATUS_RU.md); physical OPEN.
 
-**Текущий USER acceptance02–04: FAIL.** Скриншоты:02 permanentSTOP error,
-03 disabled Start/continuity,04 чрезмерный недоступный flow и размытая камера.
-Исторические PASS ниже относятся к отдельным components; реальный launch
-исправляется `E02-04-OPERATOR`, не объявлен готовым.06 приостановлен пользователем.
+**Текущий USER acceptance02–04: FAIL, повторная проверка идёт.** Simple UI и
+исправления02/03/04 deployed на Homebrain;03 USER screenshot предшествует deploy,
+а Pi04 fix пока только staged до закрытия retained03 epoch. Исторические PASS ниже
+относятся к отдельным components; реальный launch не объявлен готовым без новых
+USER-observed движений/записи.06 приостановлен пользователем.
 
 Фиксированные уровни: Implemented=`YES/PARTIAL/NO/N/A`;
 Software-tested=`PASS/PARTIAL/NOT_TESTED/N/A`;

@@ -12,7 +12,7 @@ software scope, не подтверждённую пользователем п�
 
 | Опыт | Текущий базовый путь / оставшиеся blockers |
 |---|---|
-|02–04|USER: невозможно начать управление;02 permanent STOP_UNCONFIRMED,03 disabled Start/continuity,04 перегруженный permission/skill flow; камера04 размыта. Исправить реальный user path, не повышать readiness по mocks.|
+|02–04|Упрощённый path deployed на Homebrain. Исправления02 preview/gamepad lease и03 retained-session one-click deployed;04 observed-TTL fix staged на Pi. Нужны USER reload/click03, безопасный Pi cutover и фактические повторные проверки02–04. Не повышать readiness по mocks.|
 |03|Software/deploy MVP завершён; начат сразу после04 `2026-10-28T01:01:26+03:00`. USER continuity, fresh MCU/reference и scene остаются физическими gates.|
 |05|Software/deploy MVP завершён; USER shared-zone/hold/transfer acceptance OPEN.|
 |06|Соединить существующие native9 capture/review/import/aggregate с операторским API/UI; подключить существующий trusted calibration capture/solve; краткий сквозной smoke и deploy. Не создавать второй recorder/trainer.|
@@ -35,8 +35,8 @@ integrator. При отсутствии полезного software-действ
 
 | ID | Scope | Depends | Done / evidence | Status | Next action |
 |---|---|---|---|---|---|
-|E02-04-OPERATOR|02/03/04|none|Реальные USER screenshots: контроль не запускается; упростить камера→Управлять→Записать навык через existing core|IN_PROGRESS|Устранить STOP_UNCONFIRMED/continuity/default workflow blockers; скрыть исследовательские формы; камера/фокус; не двигать устройства агентом|
-|E02-04-DEPLOY|02/03/04|E02-04-OPERATOR|Минимальные проверки основного исправленного пути и deploy|OPEN|Без full sweep/новых гипотетических gates|
+|E02-04-OPERATOR|02/03/04|none|Simple camera→Управлять→Записать навык; d798 fixes preview/gamepad lease, retained03 takeover, ACK-relative04 permission; targeted03 11/11, station18/18, changed04 browser3/3|IN_PROGRESS|USER reload/click03 должен очистить retained epoch; затем Pi cutover и реальные повторные проверки02–04|
+|E02-04-DEPLOY|02/03/04|E02-04-OPERATOR|Homebrain d798 deployed exact; Pi d798 staged; Nano original unchanged|OPEN|После USER stop03 переключить Pi без native commands; проверить idle/grantNone/0writes и выполнить observed04 recording|
 |E02-04-USER-FEEDBACK|02/03/04|E02-04-DEPLOY|USER может нажать Управлять и Записать навык; реальные неисправности исправлены|OPEN|Не считать read-only UI или mocks подтверждением управления|
 |OPS-STATE|shared|none|AGENTS/state/backlog/function matrix/runbook/skill и лёгкий consistency check; verified original-doc backup|DONE|После отдельного организационного commit продолжить E04-IMPORT|
 |E03-CHECKPOINT|03|none|Central-only65 actual release/full regression/GET UI, physical path CLOSED; [proof](../_registry/evidence/experiment03-central-data-actual-65ae9d02-20261027.json)|DONE|Сохранять separate physical gates|
