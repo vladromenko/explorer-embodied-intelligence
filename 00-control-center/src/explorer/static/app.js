@@ -168,24 +168,24 @@ async function operatorSourceControl(){
   await sourceDemonstration.setContext(prepared.context,prepared.phases);
   await sourceDemonstration.prepare();
   // A displayed Pi frame uses the existing short camera-freshness window.
-  // Retry only the metadata/frame preparation when that window elapsed in
-  // transit.  Authorization and native start are deliberately never retried.
-  let challengeReady=false,lastChallengeError=null;
-  for(let attempt=0;attempt<3&&!challengeReady;attempt+=1){
-    try{await sourceDemonstration.requestChallenge();challengeReady=true;}
-    catch(error){
-      lastChallengeError=error;
-      if(!/cached camera frame|required|challenge expired|HTTP 400/i.test(error.message)||sourceDemonstration.snapshot().owner)throw error;
+  // A 400 means the Pi rejected this metadata handshake before minting a
+  // grant, so only that challenge/authorize pair may be retried.  A returned
+  // owner or any ambiguous transport failure is never replayed.
+  let authorized=false,lastHandshakeError=null;
+  for(let attempt=0;attempt<3&&!authorized;attempt+=1){
+    try{
+      await sourceDemonstration.requestChallenge();
+      for(const key of Object.keys(sourceDemonstration.snapshot().flags))sourceDemonstration.affirm(key,true);
+      await sourceDemonstration.authorize();authorized=true;
+    }catch(error){
+      lastHandshakeError=error;const view=sourceDemonstration.snapshot();
+      if(view.owner||!/cached camera frame|required|challenge expired|display receipt expired|HTTP 400/i.test(error.message))throw error;
     }
   }
-  if(!challengeReady)throw lastChallengeError||new Error("Не получен свежий кадр Raspberry Pi");
-  for(const key of Object.keys(sourceDemonstration.snapshot().flags))sourceDemonstration.affirm(key,true);
-  try{await sourceDemonstration.authorize();}
-  catch(error){throw new Error(`Свежий кадр показан, но Pi не включил руки: ${error.message}`);}
-  // Renew once from the frame that is actually displayed in the main camera
-  // before the first native start.  The Pi camera freshness/lease duration is
-  // unchanged; this avoids spending it on the multi-hop setup requests.
-  await sourceDemonstration.watchOnce();
+  if(!authorized)throw new Error(`Pi не подтвердил свежий кадр: ${lastHandshakeError?.message||"повторите запуск"}`);
+  // Start immediately from the just-returned idle grant.  An extra camera
+  // round trip here consumed the short observation lease before native start.
+  // start() schedules immediate renewal; the page-level loop keeps it alive.
   await sourceDemonstration.start();
 }
 async function operatorRecord(project){
