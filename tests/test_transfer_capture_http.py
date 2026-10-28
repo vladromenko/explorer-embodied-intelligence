@@ -41,3 +41,7 @@ def test_both_consumers_retain_response_bounds_and_typed_error():
     with httpx.Client(base_url='http://fixture',transport=httpx.MockTransport(lambda _:httpx.Response(503))) as client:
         with pytest.raises(ValueError,match='Pi source endpoint unavailable'):PiStationHttp(client).status()
         with pytest.raises(ValueError,match='Nano DATA source endpoint unavailable'):NanoCaptureData(client).status()
+    with httpx.Client(base_url='http://fixture',transport=httpx.MockTransport(
+            lambda _:httpx.Response(400,json={'detail':'Current exact Pi cached camera frame required'}))) as client:
+        with pytest.raises(ValueError,match='Current exact Pi cached camera frame required'):
+            PiStationHttp(client).status()

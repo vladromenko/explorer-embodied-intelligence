@@ -18,7 +18,20 @@ ID=re.compile('[0-9a-f]{32}')
 def bounded_request(client,method,path,body=None,*,limit=128*1024,source_name='Pi'):
     with client.stream(method,path,**({'json':body} if body is not None else {})) as response:
         if not response.is_success:
-            raise ValueError(source_name+' source endpoint unavailable (HTTP '+str(response.status_code)+'); native settings were not changed')
+            # Node errors are small JSON objects produced by our authenticated
+            # private transport.  Preserve the bounded, human-readable detail
+            # instead of reducing every recoverable camera/owner condition to
+            # an opaque HTTP number.  Never echo headers or request bodies.
+            raw=response.read()
+            detail=''
+            if len(raw)<=16*1024:
+                try:
+                    value=json.loads(raw)
+                    if isinstance(value,dict) and isinstance(value.get('detail'),str):detail=value['detail'][:500]
+                except (UnicodeDecodeError,json.JSONDecodeError):
+                    pass
+            suffix=': '+detail if detail else ''
+            raise ValueError(source_name+' source endpoint unavailable (HTTP '+str(response.status_code)+')'+suffix+'; native settings were not changed')
         chunks=[];size=0
         for chunk in response.iter_bytes():
             size+=len(chunk)
