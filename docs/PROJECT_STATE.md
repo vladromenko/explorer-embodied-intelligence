@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T15:40:46+03:00`
-Code commit: `b38fcbfa9415a993988966b0010b477b0b08c1bf`
+Updated: `2026-10-28T15:45:05+03:00`
+Code commit: `551c967a7bc733cd94eba3ae7a54ab2146e124b3`
 Current task: `E02-04-OPERATOR`
 Next tasks: `E02-04-USER-FEEDBACK`, `E04-REAL`, `E03-CONTINUITY`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -37,7 +37,7 @@ ROSMASTER teleop и frozen Station. Без новых research/hardening/tests s
 изменённых browser-contract source04 PASS. Frozen Station SHA
 `2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885` не менялся.
 
-Homebrain central/worker и Pi runtime deployed exact **b38fcbf**; Homebrain
+Homebrain central/worker deployed **551c967**, Pi runtime **b38fcbf**; Homebrain
 central/worker active, Pi observer PID81085, idle/grantNone/0 configuration writes.
 Pi cutover выполнен только после idle/no-grant/no-capture; без `Node.close`, STOP или
 native command. Предшествующий worker уже был idle с реальным servo read error;
@@ -76,6 +76,17 @@ Station SHA не менялся.
 fresh1280x720 JPEG и MJPEG с JPEG markers; Pi observer active PID81085, Station
 idle/available/errorNone. Визуальный USER camera retest и полный start→record→finish
 ещё OPEN; deploy/GET не повышаются до physical acceptance.
+
+По новому прямому указанию USER опыт03 настроен на короткий arm-only путь.
+`551c967` меняет только Homebrain UI: default `ARM_ONLY`, native authorization
+получает `chassis=false`, lease всегда отправляет пустые base actions, а после
+start возвращается live camera. Шасси программно остаётся неподвижным. Существующий
+Pi direct03 уже peer-configured/idle/errorNone, SO-101 leader calibrated; Nano
+observer `764c9ac` active PID2373, native mux idle/STOP-latched, original Ruckig
+backend и command-estimate reference `[90×6]` доступны. Nano controller/configs
+не перезапускались и не записывались. 12 целевых UI contracts PASS; authenticated
+Homebrain `nano-rgbd` snapshot вернул JPEG200. Физическое повторение руки ещё
+OPEN до USER click «Управлять» и наблюдения; GET/deploy не доказывают движение.
 
 Последний06 DATA checkpoint: recorder/review/import/dataset/model UI реализованы
 и deployed; actual software-generated whole-browser cycle прошёл.186 targeted

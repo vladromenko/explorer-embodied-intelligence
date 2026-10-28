@@ -1,0 +1,47 @@
+{
+  "schema": "explorer.evidence.operator_checkpoint.v1",
+  "recorded_at": "2026-10-28T15:45:05+03:00",
+  "scope": "experiment03 SO101 leader to ROSMASTER arm-only operator path",
+  "code_commit": "551c967a7bc733cd94eba3ae7a54ab2146e124b3",
+  "deployment": {
+    "homebrain_commit": "551c967a7bc733cd94eba3ae7a54ab2146e124b3",
+    "pi_commit": "b38fcbfa9415a993988966b0010b477b0b08c1bf",
+    "pi_observer_pid": 81085,
+    "nano_observer_commit": "764c9ac894cb17438443d46522dbfd0f0bd7c1b5",
+    "nano_observer_pid": 2373,
+    "original_rosmaster_controller_restarted": false,
+    "controller_settings_written": false
+  },
+  "operator_path": {
+    "default_profile": "ARM_ONLY",
+    "observed_chassis_request": false,
+    "base_actions": {},
+    "live_camera_restored_after_native_start": true,
+    "source_alignment": "current SO101 leader and ROSMASTER command estimate become the relative start reference without a jump",
+    "physical_motion_issued_by_agent": false
+  },
+  "read_only_live_state": {
+    "pi_state": "IDLE",
+    "pi_peer_configured": true,
+    "pi_source_hold_gate_schema": "explorer_pi_native_explicit_hold_v1",
+    "pi_operator_profile": "ARM_ONLY",
+    "pi_error": null,
+    "nano_state": "IDLE",
+    "nano_active": false,
+    "nano_execution_permission": false,
+    "nano_stop_latched": true,
+    "nano_arm_backend": "existing_factory_ruckig_velocity",
+    "nano_reference_servo_deg": [90, 90, 90, 90, 90, 90],
+    "nano_reference_state_source": "command_estimate",
+    "homebrain_nano_rgbd_snapshot_status": 200,
+    "homebrain_nano_rgbd_snapshot_content_type": "image/jpeg"
+  },
+  "software_tests": {
+    "direct03_ui_contracts": "12 passed"
+  },
+  "physical_acceptance": {
+    "leader_to_rosmaster_arm_repetition": "OPEN",
+    "start_record_finish": "OPEN",
+    "overall_experiment03": "OPEN"
+  }
+}
