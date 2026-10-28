@@ -27,7 +27,8 @@ def test_current_cooperative_queue_uses_both_original_trainers_reload_and_saved_
         config=private_config(tmp_path/'private-config.json',store.root);monkeypatch.setenv('EXPLORER_CONFIG',str(config))
         for key in ('HF_HUB_OFFLINE','HF_DATASETS_OFFLINE','TRANSFORMERS_OFFLINE'):monkeypatch.setenv(key,'1')
         monkeypatch.setenv('CUDA_VISIBLE_DEVICES','')
-        settings={role:dict(act_steps=2,batch_size=2,image_size=32,chunk_size=2,device='cpu',backend='act') for role in ('giver','receiver')}
+        settings={role:dict(act_steps=2,batch_size=2,image_size=32,chunk_size=2,device='cpu') for role in ('giver','receiver')}
+        settings['receiver']['backend']='act'
         reservation=root.command('train',{'skill_id':spec['skill_id'],'version':1,'settings':settings},authenticated_actor=ACTOR)['result']
         assert reservation['complete_native_reservation'] and not reservation['errors'],reservation
         assert set(reservation['jobs'])=={'giver','receiver'}
