@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
 Updated: `2026-10-28T07:40:21+03:00`
-Code commit: `f134216`
+Code commit: `f1342168f52f06fe9a6237899943dab5c01ada9b`
 Current task: `E06-PIPELINE`
 Next tasks: `E06-ADAPT`, `E06-RELEASE`, `E01-REPAIR`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
