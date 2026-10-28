@@ -1,0 +1,51 @@
+{
+  "schema": "explorer05_giver_known_DATA_recovery_component_v1",
+  "code_commit": "cbd82a1280d95950ac6a85b1edbaed8daf5e0258",
+  "status": "IMPLEMENTED_SOFTWARE_TESTED_NOT_DEPLOYED",
+  "tests": {
+    "frozen_targeted_Python": 192,
+    "seconds": 49.41,
+    "Node_passed": 279,
+    "Node_ms": 2591.196912,
+    "CPUQuota": "300%",
+    "MemoryMax": "4G",
+    "swap": 0,
+    "full_regression": false
+  },
+  "source": "/mnt/explorer-data/explorer-work/05-giver-recovery-20261028-cbd82a1/source",
+  "raw_sha256": {
+    "/mnt/explorer-data/explorer-work/05-giver-recovery-20261028-cbd82a1/result/pytest.log": "c7a9f7924f1990bd18aaccc35927a3e808d3cec51d765db27f52030cdcaacee6",
+    "/mnt/explorer-data/explorer-work/05-giver-recovery-20261028-cbd82a1/result/node.log": "0f9dff9a8ab51e45cef27587d9662ba65977e4f68c7e0b8d80ddeaba516acedb",
+    "/mnt/explorer-data/explorer-work/05-giver-new-20261028-d.log": "a1ea5d4286c5fb61ea752182552e000510dca99c7455df4ce19057c3e79c9117",
+    "/mnt/explorer-data/explorer-work/05-giver-current-20261028-a.log": "09eca2cf8d2f04ec71c042ca2835432675f968ee56cae698560e129f732e5a87",
+    "/mnt/explorer-data/explorer-work/05-giver-current-20261028-b.log": "0632cb6926b3f921202965fa2149c8f2ff55e8589389524d20d4cbf46bfa63ad"
+  },
+  "scope": [
+    "One shared intent/ACK/finish implementation, fixed role adapters, original02/03 writer reused",
+    "Native GET status exposes exact original context SHA and clock/boot; shared normalization tested on both02/03 with Unicode",
+    "Reference GET failure precedes durable intent/source POST",
+    "Known attempt nonce and authenticated DATA actor included in source context; no current control owner adoption",
+    "Lost start/finish responses and process reconstruction use exact original identity; no duplicate finish after seal",
+    "Source asynchronous finish response acknowledged using original sealed manifest and exact sources/outcome.json SHA",
+    "Separate per-role explicit DATA reconciliation UI; both known sources terminal before interrupted camera retirement",
+    "ACK fsync failure preserved UNKNOWN; validated own active original may finish UNKNOWN without deleting incomplete ACK"
+  ],
+  "negatives_preserved": [
+    "Original receiver fixture fsync injection unexpectedly applied to giver too; scoped fixture corrected",
+    "Original native writer adds provenance to output labels; sealed validation uses existing raw outcome SHA rather than altering originals"
+  ],
+  "live_unchanged": {
+    "HB": "9766bc3ee495a104a16303fef0c4b4d4d215eef0",
+    "Pi_Nano_OWN": "c516de71c156b1d427f367be4a0754fe1b54bb81"
+  },
+  "actual_native_commands": 0,
+  "actual_native_grants": 0,
+  "controller_configuration_changes": 0,
+  "physical_acceptance": false,
+  "remaining": [
+    "whole manual/manual backend/browser flow including observed source adapter release/transfer/finish/park",
+    "paired native data/review/import/training/reload/shadow",
+    "full frozen05 release/scoped deployment",
+    "real shared zone/hold/transfer acceptance"
+  ]
+}

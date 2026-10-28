@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T03:20:00+03:00`
-Code commit: `7ea604dd41214b3ad4438f698ebb3363be26ed35`
+Updated: `2026-10-28T03:31:00+03:00`
+Code commit: `cbd82a1280d95950ac6a85b1edbaed8daf5e0258`
 Current task: `E05-MANUAL`
 Next tasks: `E05-MANUAL`, `E05-LEARNING`, `E06-PIPELINE`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -188,3 +188,12 @@ raw snapshot and receipt, never resumes capture/control. Frozen159PASS42.04s
 NOTdeployed. CurrentE05MANUAL continues giver recovery/whole operator flow, then
 paired learning/full release. Actual simulation scope separated from real crash
 acceptance; no new physical test/grant/STOP or controller configuration change.
+
+
+Candidatecbd82a1 extends the SAME known DATA recovery helper to giver native9,
+with original02/03 normalization/writer/context SHA/clock/boot, reference GET
+before intent, exact raw outcome SHA and asynchronous sealed finish ACK.
+Frozen192PASS49.41s +279NodePASS2.59s; [proof](../_registry/evidence/experiment05-giver-data-recovery-20261028.json).
+NOTdeployed; currentE05MANUAL. Whole manual/manual JS→Root→durable Inbox protocol
+now passed locally on explicit software fixtures; browser/observed adapters and
+paired learning/release remain next. No actual native commands/config changes.
