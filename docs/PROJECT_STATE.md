@@ -1,15 +1,47 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T04:39:00+03:00`
+Updated: `2026-10-28T05:30:00+03:00`
 Code commit: `c82e6754a26194f3fd12533cce35153890ff5771`
-Current task: `E05-RELEASE`
-Next tasks: `E05-RELEASE`, `E06-PIPELINE`, `E06-ADAPT`
+Current task: `E06-PIPELINE`
+Next tasks: `E06-ADAPT`, `E06-RELEASE`, `E01-REPAIR`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
 
 Это единственный краткий текущий статус. История требований/отказов и научные
 originals сохранены. Подробности: [BACKLOG](BACKLOG.md),
 [ACCEPTANCE_MATRIX](ACCEPTANCE_MATRIX.md), [physical queue](PHYSICAL_CHECKS.md),
 [машинные scientific gates](../_registry/acceptance.json).
+
+## Текущий выпуск05 и продолжение06
+
+**05 IMPLEMENTED/SOFTWARE_TESTED/DEPLOYED; physical/master OPEN.**
+[Фактический выпуск](../05-cooperative-handover/docs/SCOPED_RELEASE_RU.md).
+Live HB central/worker +Pi/Nano OWN observers +original Nano Web import pin:
+**c82e6754a26194f3fd12533cce35153890ff5771**. PIDs:HB2890245/2890246,
+Pi67842, Nano738049, original Web737036. Existing cache722/PID459153 unchanged.
+Original MCU2356/control2413/camera2347, six controller configs/reference files
+exact после final UI; frozen Station SHA unchanged. Two passive ROS55s windows0.
+
+Full2542PASS/23SKIP978.83s +285NodePASS5.55s, kernel4,549,218,304B/swap0/OOM0;
+original26jobs/11skills/allprior events and schema preserved. Actual HTTPS05
+1440/390/4PNG inspected:2real cameras,0JSerror/nonGET/overflow; current no-session
+page, giver choices2/receiver0. Filled manual10FSM/paired learning/saved models
+qualified separately on generated inputs, not injected into production.
+
+New held-scope GET200; reference409 MCUstale retained. Pi cooperative captureABI
+and native9 contextSHA/clock/boot installed; cold forwarded0/grantsNone. USERboth
+SO101 motor powerOFF persists. No actual native grant/HOME/control/STOP or motion.
+Original startup enabled/window unchanged; old PIDs killed without cleanup only
+under exact idle/starttick/sole-cgroup-PID/PPID/startup guards. First attempt
+preflight missing proc children file aborted before writes; retained. First UI
+harness empty-string-vs-None assertion corrected without product/source change.
+
+E05-MANUAL/LEARNING/RELEASE DONE only in scoped software/deploy sense. **Current
+E06-PIPELINE**: reuse approved04 lineage +known geometry +durable calibration
+backend; connect operator API/UI and target9 pipeline through existing owners.
+Actual saved generated Source6 ACT2 metadata passed technical admission without
+Torch/IO/optimizer, but hold/no independent object trace correctly blocks learned
+object transfer. Geometry/operator software can proceed separately; no false
+source skill, physical registration or H1–H5 acceptance. Далее06ADAPT/RELEASE→01.
 
 ## Последний checkpoint04
 
@@ -41,7 +73,7 @@ originals сохранены. Подробности: [BACKLOG](BACKLOG.md),
   caused1blocked hold/0writes. Original Station SHA unchanged.
   [Cold Pi proof](../_registry/evidence/experiment04-cold-current-Pi-20261027.json).
 
-## Фактический deploy после03
+## Исторический deploy checkpoint03 (до выпуска05)
 
 | Runtime | Actual commit / evidence |
 |---|---|

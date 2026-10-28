@@ -1,6 +1,6 @@
 # Приёмка пользовательских функций
 
-Snapshot: product code `9766bc3`; live Homebrain9766bc3/NanoOWNc516/Pi c516 shared lab (точные commits
+Snapshot: product code `c82e675`; live Homebrain/Pi/NanoOWN/originalWEBpin c82 shared lab/handover (точные commits
 в [PROJECT_STATE](PROJECT_STATE.md)). Это function-level view;
 [машинные gates/исторические scope](../_registry/acceptance.json) сохранены.
 Новая документация не повышает готовность. `PASS` software может относиться к
@@ -27,11 +27,11 @@ Physical acceptance=`PASS/OPEN/N/A`. PARTIAL означает только scope
 |E04-CAPTURE · две руки/одна Logitech/full skill capture|YES|PASS|DEPLOYED|DEPLOYED|N/A|OPEN|[Actual04 release](../_registry/evidence/experiment04-source-release-actual-ef3f5185-20261028.json)|Generated full capture/review +actual HTTPS desktop/mobile/real JPEG/COMMON guard; motor power OFF, real experts0, physical scene/skill OPEN|
 |E04-TRAIN · native6 Dataset/ACT+DP/resume/models|YES|PASS|DEPLOYED|DEPLOYED|N/A|OPEN|[Actual learning UI](../_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json)|Approved generated cohort→actual UI ACT8/DP8/queue retained-process pause/reload/DEV/model versions; exact new-PID отдельный R7 proof. Math workers on HB, source adapter on Pi; current real experts/physical skill OPEN|
 |E04-REPLAY · reload/offline/live shadow/observed trial|YES|PASS|DEPLOYED|DEPLOYED|N/A|OPEN|[Current learning/model UI](../_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json)|Current generated models/reload/DEV/offline shadow +COMMON observed source transport qualified; actual real model/physical trial OPEN, motor power OFF|
-|E05-HANDOVER · manual/manual FSM, два робота|PARTIAL|PARTIAL|PARTIAL|PARTIAL|PARTIAL|OPEN|[Receiver interlocks](../05-cooperative-handover/docs/RECEIVER_INTERLOCK_TRANSPORT_RU.md), [both-role DATA recovery](../_registry/evidence/experiment05-giver-data-recovery-20261028.json), [whole manual workbench](../05-cooperative-handover/docs/WHOLE_MANUAL_FLOW_RU.md), [entire app](../_registry/evidence/experiment05-entire-app-manual-UI-20261028.json)|Opening→independent transfer→finish/park+data path/UI/release, real shared zone|
-|E05-LEARNING · two-clock capture/train/reload/shadow|PARTIAL|PARTIAL|PARTIAL|PARTIAL|PARTIAL|OPEN|[Queued native shadows](../05-cooperative-handover/docs/QUEUED_NATIVE_SHADOW_RU.md), [generated native pair admission](../_registry/evidence/experiment05-generated-paired-admission-20261028.json), [actual ACT2/ACT2 +post recovery](../_registry/evidence/experiment05-actual-pair-learning-recovery-20261028.json), [whole learning/UI](../05-cooperative-handover/docs/WHOLE_LEARNING_FLOW_RU.md)|Whole approved dual data pipeline; FSM не learned skill|
+|E05-HANDOVER · manual/manual FSM, два робота|YES|PASS|DEPLOYED|DEPLOYED|DEPLOYED|OPEN|[Actual scoped release](../05-cooperative-handover/docs/SCOPED_RELEASE_RU.md), [manual10FSM](../05-cooperative-handover/docs/WHOLE_MANUAL_FLOW_RU.md)|Software/deploy qualified; actual no-session page/two real cameras. Whole populated flow uses generated fixtures; shared zone/reference/independent physical hold/transfer OPEN|
+|E05-LEARNING · two-clock capture/train/reload/shadow|YES|PASS|DEPLOYED|DEPLOYED|DEPLOYED|OPEN|[Actual scoped release](../05-cooperative-handover/docs/SCOPED_RELEASE_RU.md), [paired learning](../05-cooperative-handover/docs/WHOLE_LEARNING_FLOW_RU.md)|Generated originals/ACT2+ACT2/reload/DEV/offline6D and actual isolated saved-model UI qualified. Production has no paired expert dataset/models; SIMULATION live-shadow blocked, physical skill OPEN|
 |E06-TRANSFER · distinct-domain source→target/adapt|PARTIAL|PARTIAL|PARTIAL|PARTIAL|PARTIAL|OPEN|[Negative full-task0/16](../research/audits/TARGET_TEMPORAL_C_V2_RESULTS_RU.md)|Approved04 source, registration/UI/5-10-25 target comparisons, full release|
 |E01-AUTONOMY · PPO→demos/DAgger→ACT full task|PARTIAL|PARTIAL|PARTIAL|N/A|NOT_DEPLOYED|N/A|[Bounded smoke+PARKED](../01-autonomous-learning/docs/audits/PARKED_AFTER_SMOKE8_20261027_RU.md)|Canonical learned full-task не достигнут; long tuning PARKED после04–06|
 
 Для01 N/A означает отсутствие physical acceptance у SIM-обучения; optional
-physical deployment остаётся отдельным OPEN gate в машинной матрице.04–06 PARTIAL
-в deployment — старые scoped components, а не новый полный операторский flow.
+physical deployment остаётся отдельным OPEN gate в машинной матрице.06 PARTIAL
+в deployment относится к прежним components;05 scoped software flow released, physical OPEN.

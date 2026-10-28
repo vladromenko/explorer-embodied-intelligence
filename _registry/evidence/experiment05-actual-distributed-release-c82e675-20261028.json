@@ -1,0 +1,167 @@
+{
+  "schema": "explorer05_actual_distributed_software_release_v1",
+  "code_commit": "c82e6754a26194f3fd12533cce35153890ff5771",
+  "status": "DEPLOYED_AWAITING_PHYSICAL_ACCEPTANCE",
+  "original_master_completed": false,
+  "live": {
+    "Homebrain_central_worker": {
+      "commit": "c82e6754a26194f3fd12533cce35153890ff5771",
+      "PIDs": {
+        "explorer-control-center": "2890245",
+        "explorer-worker": "2890246"
+      }
+    },
+    "Pi_own_observer": {
+      "commit": "c82e6754a26194f3fd12533cce35153890ff5771",
+      "PID": "67842"
+    },
+    "Nano_own_observer": {
+      "commit": "c82e6754a26194f3fd12533cce35153890ff5771",
+      "PID": "738049"
+    },
+    "Nano_original_Web_import_pin": {
+      "commit": "c82e6754a26194f3fd12533cce35153890ff5771",
+      "PID": "737036"
+    },
+    "Nano_existing_cache": {
+      "commit": "722755dc99094fc86bab20796d2b7bc4bf56d536",
+      "PID": "459153",
+      "restarted": false
+    }
+  },
+  "tests": {
+    "full_Python_passed": 2542,
+    "full_Python_skipped": 23,
+    "full_Python_seconds": 978.83,
+    "Node_passed": 285,
+    "Node_seconds": 5.55,
+    "kernel_memory_peak_bytes": 4549218304,
+    "kernel_swap_peak_bytes": 0,
+    "OOM_events": 0
+  },
+  "actual_UI": {
+    "origin": "https://homebrain.tail4a7de4.ts.net",
+    "widths": [
+      1440,
+      390
+    ],
+    "two_real_camera_frames_each": true,
+    "all_four_screenshots_visually_inspected": true,
+    "non_GET_requests": 0,
+    "JavaScript_errors": 0,
+    "overflow": false,
+    "source_choices": {
+      "giver": 2,
+      "receiver": 0
+    },
+    "cooperative_sessions": 0,
+    "scope": "Actual current unconfigured operator page/source controls; populated ten-event manual and saved-model flows are separately isolated-generated tested"
+  },
+  "source_API": {
+    "new_held_scope_GET_status": 200,
+    "original_reference_GET_status": 409,
+    "original_reference_failure_retained": "MCU_TELEMETRY_STALE",
+    "Pi_cooperative_metadata_supported": true,
+    "Native9_context_SHA_clock_boot_fields_installed": true
+  },
+  "actual_passive_ROS": [
+    {
+      "seconds": 55,
+      "counts": {
+        "/arm6_joints": 0,
+        "/explorer/request": 0
+      }
+    },
+    {
+      "seconds": 55,
+      "counts": {
+        "/arm6_joints": 0,
+        "/explorer/request": 0
+      }
+    }
+  ],
+  "preserved": {
+    "original_six_configs": {
+      "factory-arm-startup.json": "5a26edf01d8e20e440dc51c33da214d739357cd9130ff12a16601b7874e79ec5",
+      "arm-motion.json": "8ab3bc35a2d88f78050c720d1af8c97dcfffb500f20fcc04fee6a95a8dd4ca3a",
+      "factory-runtime.json": "7088214801e6a0c7e29eabb8a2ac41a00e83df0118f3fb7984709120c42fd9ca",
+      "controller-calibration.json": "3203d59ef9a06fb5215446b0e3e1f7f4aaf68d27c8b85f26375fdb5dca5be53a",
+      "arm_model.json": "842dfe7960fd01be18992e62dabe293added502d0df3715a9d31944b60317d4f",
+      "gripper-reference.json": "ed275d5b774814963fc855009a4f93715ffbe4657796b2ed32f9c1c9718e11cb"
+    },
+    "original_reference_files_and_other_PIDs_exact_after_UI": true,
+    "factory_startup_enabled": true,
+    "factory_startup_original_window_s": 180,
+    "frozen_Station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+    "scientific_originals": {
+      "jobs": {
+        "original_rows": 26,
+        "current_rows": 26,
+        "all_original_rows_identical": true
+      },
+      "skills": {
+        "original_rows": 11,
+        "current_rows": 11,
+        "all_original_rows_identical": true
+      },
+      "events": {
+        "original_rows": 17799,
+        "current_rows": 17831,
+        "all_original_rows_identical": true
+      }
+    },
+    "production_schema_unchanged": true,
+    "active_jobs": 0,
+    "old_Web_and_observers_graceful_close_used": false
+  },
+  "scoped_backups": {
+    "Pi_files": 102,
+    "Pi_bytes": 65529426,
+    "Nano_files": 1148,
+    "Nano_bytes": 425191525,
+    "own_selected_payload_verified_on_Homebrain": true,
+    "OS_image": false,
+    "disk_loss_protection": false
+  },
+  "retained_negatives": [
+    "First full launcher setup failure: unguarded pytest.main under multiprocessing spawn and missing CAD environment; isolated unit stopped, raw retained",
+    "First actual cutover preflight: Nano kernel lacks /proc task children file; aborted before source/service change, replaced by explicit sole-cgroup-process plus PPID proof",
+    "First live browser assertion expected None while client success error field is empty string; only harness corrected, screenshot/receipt retained"
+  ],
+  "actual_native_grants": 0,
+  "actual_native_commands": 0,
+  "controller_configuration_changes": 0,
+  "physical_acceptance": false,
+  "real_accepted_experts": 0,
+  "physical_gates_open": [
+    "Shared task zone visibility: Nano still ceiling and Pi only part of arms/table",
+    "Fresh MCU/reference and changing03 continuity",
+    "Current calibration/hold/release/contact/full independent observed trials",
+    "Real successful source/target skill and accepted expert/model trials"
+  ],
+  "evidence_links": [
+    "05-cooperative-handover/docs/WHOLE_MANUAL_FLOW_RU.md",
+    "05-cooperative-handover/docs/WHOLE_LEARNING_FLOW_RU.md",
+    "_registry/evidence/experiment05-actual-pair-learning-recovery-20261028.json"
+  ],
+  "raw_sha256": {
+    "/mnt/explorer-data/explorer-work/05-distributed-release-20261028-a/composite-activation-B.json": "c9a09fa84e118872cc5fe3c39b741f99c7ee8d3a0f30b9936d7a45659cf550bb",
+    "/mnt/explorer-data/explorer-work/05-distributed-release-20261028-a/original-web-activation-B.json": "28ba536b0b3250c72c21f17aaca34405d2dc64e532df0f39ff8d3b95356f3fe6",
+    "/mnt/explorer-data/explorer-work/05-distributed-release-20261028-a/nano-activation-B.json": "7951d9063188c30edc35486f15eae324ec4a7d3287ecb86c175e5efceb0a79fd",
+    "/mnt/explorer-data/explorer-work/05-distributed-release-20261028-a/pi-activation-B.json": "23b85f958815970d49983e853823c2a41514963b001e0273e7b4c8c126d434bf",
+    "/mnt/explorer-data/explorer-work/05-distributed-release-20261028-a/central-activation.json": "4d69976025d4f1883da8361e648c8cdc7ec80fbcedda263b92d8a2b166b0fcf0",
+    "/mnt/explorer-data/explorer-work/05-distributed-release-20261028-a/original-final-after-UI.json": "bc459ddae2cc87a25d5901dd09aaee6fdb8a1b5cb28503b0068e43daa2dc4cbd",
+    "/mnt/explorer-data/explorer-work/05-distributed-release-20261028-a/process-exclusion-GET-only.json": "4916e07dad5a2ae7ec7113cbc06deae17d6420349e6520a6e4d9c5e71f1d17ae",
+    "/mnt/explorer-data/explorer-work/05-full-release-20261028-c82e675/result/qualification.json": "4a212ef678a50d7c50b564b2676bb254429e46d59497910e76d5e5d2b8014a9f",
+    "/mnt/explorer-data/explorer-work/05-full-release-20261028-c82e675/result/pytest.log": "7200c6527f64a065c31130cbb160e3f5945713fd5d1e7bb0004d074f3a7e3e5e",
+    "/mnt/explorer-data/explorer-work/05-full-release-20261028-c82e675/result/node-tests.log": "4dd21ef5a72cdf7c0b7f32e60c1d756283b1e7c0cefb0d0cf2b23f8ce6767369",
+    "/mnt/explorer-data/explorer-work/05-deployed-live-Firefox-20261028-c82e675-b/receipt.json": "717c258f68a486a0e1c863f6363ae215c0ce095329d42790a71efd10b1cd5181",
+    "/mnt/explorer-data/explorer-work/05-deployed-GET-only-20261028-b/receipt.json": "b81a749af68ff02ea06642dcaeb432962b9d4faafc0dfe110c1ed4070d16469b",
+    "/mnt/explorer-data/explorer-work/05-distributed-release-20261028-a/original-web-readonly-preflight-diagnostic.log": "64469a74a2ff63c6327b50a66cdcff2cb4e302721fc9fe5d001b9c7069ae38b6",
+    "/mnt/explorer-data/explorer-work/05-distributed-release-20261028-a/composite-activation.log": "efcb394363910f9e235cf31e020668c74ce50dac8e4923346c5ab1b070f41d5c",
+    "/mnt/explorer-data/explorer-work/05-deployed-live-Firefox-20261028-c82e675-b/05-desktop-source.png": "461693f685ea1c8bfe5cf3565f8f99bda21bbb4ea0b3e055e806ebcfb8f6549c",
+    "/mnt/explorer-data/explorer-work/05-deployed-live-Firefox-20261028-c82e675-b/05-mobile-source.png": "08adc0acafda7171cde6557cc2ee7f6a7254ca5607f36c20d20320ee6487b6b9",
+    "/mnt/explorer-data/explorer-work/05-deployed-live-Firefox-20261028-c82e675-b/05-desktop.png": "5df172b682304b6c7da0b066020b16090e02235745fcccee25c857529bb21b08",
+    "/mnt/explorer-data/explorer-work/05-deployed-live-Firefox-20261028-c82e675-b/05-mobile.png": "3f6ab64cea342c2c8df8b7a2153fbb46bc3f74c599f76e1bc31992e336311204"
+  }
+}
