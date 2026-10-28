@@ -1,0 +1,40 @@
+{
+  "schema": "explorer05_current_full_release_preflight_v1",
+  "code_commit": "c82e6754a26194f3fd12533cce35153890ff5771",
+  "status": "FULL_SOFTWARE_TESTED_STAGED_NOT_DEPLOYED",
+  "Python_passed": 2542,
+  "Python_skipped": 23,
+  "Node_passed": 285,
+  "kernel_memory_peak_bytes": 4549218304,
+  "kernel_swap_peak_bytes": 0,
+  "kernel_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+  "production_originals": {
+    "jobs": {
+      "original_rows": 26,
+      "current_rows": 26,
+      "all_original_rows_identical": true
+    },
+    "skills": {
+      "original_rows": 11,
+      "current_rows": 11,
+      "all_original_rows_identical": true
+    },
+    "events": {
+      "original_rows": 17799,
+      "current_rows": 17831,
+      "all_original_rows_identical": true
+    }
+  },
+  "production_schema_unchanged": true,
+  "production_active_jobs": 0,
+  "previous_setup_failure_retained": true,
+  "actual_native_commands": 0,
+  "actual_native_grants": 0,
+  "physical_acceptance": false,
+  "raw_sha256": {
+    "/mnt/explorer-data/explorer-work/05-full-release-20261028-c82e675/result/qualification.json": "4a212ef678a50d7c50b564b2676bb254429e46d59497910e76d5e5d2b8014a9f",
+    "/mnt/explorer-data/explorer-work/05-full-release-20261028-c82e675/result/pytest.log": "7200c6527f64a065c31130cbb160e3f5945713fd5d1e7bb0004d074f3a7e3e5e",
+    "/mnt/explorer-data/explorer-work/05-full-release-20261028-c82e675/result/node-tests.log": "4dd21ef5a72cdf7c0b7f32e60c1d756283b1e7c0cefb0d0cf2b23f8ce6767369",
+    "/mnt/explorer-data/explorer-work/05-full-release-20261028-b4ee397/result/interrupted-setup-failure.json": "aecf7743adfd9e2cbc21b9b0f0d18eccdbce05d322ee5acd83b5454cec97ebb5"
+  }
+}

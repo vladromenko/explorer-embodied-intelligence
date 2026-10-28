@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
 Updated: `2026-10-28T04:39:00+03:00`
-Code commit: `150d8b838c167b4afc5618c421e72ff0a39d56f4`
+Code commit: `c82e6754a26194f3fd12533cce35153890ff5771`
 Current task: `E05-RELEASE`
 Next tasks: `E05-RELEASE`, `E06-PIPELINE`, `E06-ADAPT`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -278,3 +278,12 @@ whole-file SHA. All math/runtime source pins remain exact; no optimizer replay.
 Next corrected subprocess-based full freeze with established original source/CAD
 inputs and isolated API config, then qualified source cutover/actual HTTPS05 UI.
 Live HB976/Pi+Nano c516/originalWEB4c unchanged; physical/master OPEN.
+
+
+E05 corrected frozen c82e675 **2542PASS/23SKIP978.83s +285NodePASS5.55s**.
+Kernelpeak4,549,218,304B/swap0/OOM0. Original26jobs/11skills/all17799prior events
+exact, schema unchanged, activejobs0; new inventory events append-only.
+[Full preflight](../_registry/evidence/experiment05-full-release-preflight-c82e675-20261028.json).
+Still STAGED_NOT_DEPLOYED; current E05-RELEASE advances to guarded distributed
+cutover +actual HTTPS05 desktop/mobile/source capability proof. Physical/master
+OPEN; first broken full launcher remains retained as setup failure.
