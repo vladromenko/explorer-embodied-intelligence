@@ -128,3 +128,22 @@ def run_training(store,job):
     if not any(card['id']==result['skill_card']['id'] for card in store.skills()):store.add_skill(result['skill_card'])
     write_json(folder/'result.json',result)
     return result
+
+
+def prepare_capture_context(store,wizard_id,metadata,*,actor):
+    """Prepare DATA only; source, Nano owners and native commands are untouched."""
+    allowed={'request_id','session_id','partition','scene_id','object_instance_id','group_id','variant_id','phase_id'}
+    if not isinstance(metadata,dict) or set(metadata)!=allowed or not actor:
+        raise ValueError('Choose explicit target session/split/scene/object/group and phase only')
+    wizard,model=source_for_wizard(store,wizard_id)
+    if wizard['domain']!='physical':raise ValueError('Native source packets describe the physical target; use a separate SIM producer for simulation')
+    from explorer_shared.transfer_target_capture import build_target_capture_context,SPEC_SCHEMA,CONTRACT
+    from explorer_shared.contracts import ACTION_NAMES,ACTION_UNITS
+    source_spec=model['manifest']['skill_spec'];binding=wizard['source_model_binding']
+    target_spec=dict(schema=SPEC_SCHEMA,skill_id=wizard['skill_id'],version=wizard['target_version'],
+        title=source_spec.get('title'),recognized_type=transfer_geometry.transfer_source.source_task_type(source_spec),
+        stages=deepcopy(source_spec['stages']),source_spec_sha256=binding['spec_sha256'],
+        source_spec_snapshot=deepcopy(source_spec),source_model_job_id=binding['model_job_id'],
+        action_contract_id=CONTRACT,action_names=list(ACTION_NAMES),action_units=list(ACTION_UNITS))
+    return build_target_capture_context(binding,target_spec,wizard_id=wizard_id,capture_id=metadata['request_id'],
+        actor_id=actor,**{key:value for key,value in metadata.items() if key!='request_id'})

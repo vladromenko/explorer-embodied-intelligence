@@ -36,3 +36,14 @@ def test_saved_target_shared_extension_requires_exact_inverse_and_rejects_extra_
     candidate=tmp_path/name;candidate.parent.mkdir(parents=True)
     candidate.write_bytes((ROOT/name).read_bytes()+b'\nUNREVIEWED_SAVED_MODEL_CHANGE=True\n')
     with pytest.raises(AssertionError):assert_qualified_source(tmp_path,name,extension['previous_sha256'])
+
+
+@pytest.mark.parametrize('name',['shared/explorer_shared/native_capture.py',
+    'shared/explorer_shared/native_capture_identity.py','shared/explorer_shared/native_capture_service.py'])
+def test_native_target_context_extension_is_bounded_to_exact_data_only_change(tmp_path,name):
+    from qualification_source_extensions import RECEIPT06_NATIVE
+    extension=json.loads(RECEIPT06_NATIVE.read_bytes())['extensions'][name]
+    assert_qualified_source(ROOT,name,extension['previous_sha256'])
+    candidate=tmp_path/name;candidate.parent.mkdir(parents=True)
+    candidate.write_bytes((ROOT/name).read_bytes()+b'\nUNREVIEWED_CAPTURE_CHANGE=True\n')
+    with pytest.raises(AssertionError):assert_qualified_source(tmp_path,name,extension['previous_sha256'])

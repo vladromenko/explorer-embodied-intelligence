@@ -93,6 +93,9 @@ class NativeCaptureWriter:
     def start(self,skill_context,initial_source_packet):
         if not isinstance(skill_context,dict) or not isinstance(initial_source_packet,bytes):
             raise ValueError('Validated skill metadata and exact native source packet bytes required')
+        if skill_context.get('project_id')=='06':
+            from .transfer_target_capture import validate_target_capture_context
+            validate_target_capture_context(skill_context)
         page=json.loads(initial_source_packet)
         if page.get('boot_id')!=self.boot or page.get('clock_domain')!=self.domain:
             raise ValueError('Native and camera producer must share verified original clock/boot')
@@ -306,7 +309,7 @@ class NativeCaptureWriter:
                 try:
                     manifest=json.loads(path.read_bytes());info=json.loads(info_path.read_bytes())
                     if (manifest.get('schema')=='explorer_native_embodied_capture_manifest_v1' and
-                            manifest.get('state') in ('completed','cancelled') and manifest.get('project_id') in ('02','03') and
+                            manifest.get('state') in ('completed','cancelled') and manifest.get('project_id') in ('02','03','06') and
                             info.get('recording_id')==manifest.get('recording_id')):
                         review=self.recording_review(manifest['recording_id'])
                         receipt=review.get('source_review') or {}

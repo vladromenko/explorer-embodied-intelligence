@@ -13,8 +13,11 @@ def native_context_sha256(context):
 def normalize_capture_context(skill_context,*,observation_only=False):
     """Pure original02/03 writer context; also used to identify known DATA starts."""
     if type(observation_only) is not bool:raise ValueError('Explicit recording mode required')
-    if not isinstance(skill_context,dict) or skill_context.get('project_id') not in ('02','03'):
+    if not isinstance(skill_context,dict) or skill_context.get('project_id') not in ('02','03','06'):
         raise ValueError('Validated source project02/03 skill_context required')
+    if skill_context['project_id']=='06':
+        from .transfer_target_capture import validate_target_capture_context
+        validate_target_capture_context(skill_context)
     context=deepcopy(skill_context)
     context['recording_mode']='observations_only' if observation_only else 'demonstration'
     context['force_analysis_only']=observation_only

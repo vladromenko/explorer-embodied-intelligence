@@ -1,0 +1,84 @@
+{
+  "schema": "explorer06_native_target_original_writer_context_component_v1",
+  "status": "IMPLEMENTED_TARGETED_SOFTWARE_TESTED_NOT_DEPLOYED",
+  "baseline": "f134216",
+  "scope": "Original native9 writer/service and immutable importer, strict06 prestart DATA metadata only. Central capture lifecycle/operator UI/cohort admission still pending.",
+  "software_inputs": "FAKE_GET_NATIVE_TAP_AND_CAMERA_RECORDS_NOT_REAL_EXPERTS",
+  "contracts": "29PASS7.66s native writer/02/03/06 identity/service/import;29PASS8.17s exact source chain/current03/default05 giver recovery and06 preflight",
+  "source_spec_snapshot_verified_before_source_access": true,
+  "target_same_UUID_advancing_version": true,
+  "full_native9_preserved": true,
+  "measured_feedback_provided": false,
+  "UNKNOWN_and_separate_reject_preserved": true,
+  "new_camera_or_serial_owner_created": false,
+  "physical_commands": 0,
+  "optimizer_updates": 0,
+  "physical_acceptance": false,
+  "frozen_Station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885",
+  "retained_negatives": [
+    "A qualifier used nonexistent archive_file metadata instead of existing writer.archive()",
+    "B qualifier finished before async producer collected a sample; C waits for recorded sample, existing finish semantics unchanged",
+    "source-boundary A misspelled test filename: zero tests ran, not a product failure"
+  ],
+  "actual_domain_UI": {
+    "code": "f134216",
+    "desktop": 1440,
+    "mobile": 390,
+    "physical_target_preparation_gates_closed": true,
+    "SIM_restore_retains_source_binding": true,
+    "all_four_PNG_visually_inspected": true,
+    "only_own_data_POST": true,
+    "new_optimizer_updates": 0,
+    "actual_native_commands": 0
+  },
+  "source_files_sha256": {
+    "00-control-center/src/explorer/transfer_target.py": "a1724d3ff77461736b39b7e5f4b98d8eadd6a5aef7d61c6155076cadea2fe6b5",
+    "shared/explorer_shared/transfer_target_capture.py": "6ed38e663826b3baa0003a50958cf3a125ad00752bdf013f56dbe2d10a61202f",
+    "shared/explorer_shared/native_capture.py": "65a096e6f68b9bf175b3e89e1893f3f4a30f2f5bd9d47bb4989e1fc687018ccf",
+    "shared/explorer_shared/native_capture_identity.py": "e3b48d5595ec16a7c76f7392b19fa9f69892174187267b62c2b5069e933bf482",
+    "shared/explorer_shared/native_capture_service.py": "0b988cd3652ee17863014474ab79c164aa98b6320e58bbf7643ac85a26b001a7",
+    "tests/test_transfer_target_native_capture.py": "af216f153fe55c5f332ea28b446034c35c2e6ea39b9b193eabd55913fa086c91"
+  },
+  "evidence": [
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-shared-native-target-capture-contracts-20261028-a.log",
+      "sha256": "574d1db72423d84ac52fb261626b8bc9e45608364680710b579bbc26eedb1966"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-shared-native-target-capture-contracts-20261028-b.log",
+      "sha256": "d5e144091f1313cdbbf4118363a431345aec35f12c86f092c1c15fa8cd15b0e1"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-shared-native-target-capture-contracts-20261028-c.log",
+      "sha256": "1f4dc088d4b0f1a99388da470b100129aa12eddf6da19e12d0b8329df3377e69"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-native-target-source-boundaries-20261028-a.log",
+      "sha256": "790aa5762da8f2a78143c3d23e04b562da6d49d007face1dab3cc8d62243b694"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-native-target-source-boundaries-20261028-b.log",
+      "sha256": "6f8b5e45296ae9e967e9de1df364f7588d1bf1db9a0604dd7f6677e070a8b1c4"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-independent-target-domain-actual-UI-20261028-a/receipt.json",
+      "sha256": "3adcb9a74d45a637a56e15703240457228358f8ae8c30488c7584ae3e850b775"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-independent-target-domain-actual-UI-20261028-a/desktop-physical-preparation.png",
+      "sha256": "874a5ff80050bf52711e52211a683c1c4c7e151cc71e6bf1230b1594f793b2d4"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-independent-target-domain-actual-UI-20261028-a/mobile-physical-preparation.png",
+      "sha256": "ecad302e19a460872b01ae7ddb19225a71973cabf7fcaae08b25ee71b6b00634"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-independent-target-domain-actual-UI-20261028-a/desktop-SIM-restored.png",
+      "sha256": "7115a00f77e675828b7c9f7d449889db1578028b9c485d470fd4cf4576843b89"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-independent-target-domain-actual-UI-20261028-a/mobile-SIM-restored.png",
+      "sha256": "c6658cda421dceec0585860018a920378e68c47b00af2f824c7d43b798b9f00f"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T05:30:00+03:00`
-Code commit: `c82e6754a26194f3fd12533cce35153890ff5771`
+Updated: `2026-10-28T07:40:21+03:00`
+Code commit: `f134216`
 Current task: `E06-PIPELINE`
 Next tasks: `E06-ADAPT`, `E06-RELEASE`, `E01-REPAIR`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -36,12 +36,14 @@ preflight missing proc children file aborted before writes; retained. First UI
 harness empty-string-vs-None assertion corrected without product/source change.
 
 E05-MANUAL/LEARNING/RELEASE DONE only in scoped software/deploy sense. **Current
-E06-PIPELINE**: reuse approved04 lineage +known geometry +durable calibration
-backend; connect operator API/UI and target9 pipeline through existing owners.
-Actual saved generated Source6 ACT2 metadata passed technical admission without
-Torch/IO/optimizer; canonical object task is recognized, but no independent object
-trace correctly blocks learned object transfer. Geometry/operator software can proceed separately; no false
-source skill, physical registration or H1–H5 acceptance. Далее06ADAPT/RELEASE→01.
+E06-PIPELINE** continues. Admitted04 raw calibration/source ACT2→geometry/wizard
+UI; target-only2/vision-adapt2 through same ACT9 queue; saved reload/new-PID DEV
+predictions EXACT and whole actual generated-data desktop/mobile UI qualified.
+All06 code **NOTdeployed**, actual source object trace/real experts still absent.
+Independent source/target domains fixed; nominalSIM never physical registration.
+Current native06 DATA context reuses same writer/importer, UNKNOWN retained;
+operator capture lifecycle/import/review/approved target aggregate +trusted metric
+capture/solve remain next. Then06ADAPT/RELEASE→01; original master not complete.
 
 ## Последний checkpoint04
 
@@ -444,3 +446,18 @@ Actual current-domain-choice Firefox proof is next, then shared target producer.
 incomplete jobs separately retained, native9 units/order/original actions visible;
 source/target result SHA exact, UI optimizer0/ownqueuedchecks cancelled data-only.
 E06PIPELINE remains current; code NOTdeployed/livec82, full06/master OPEN.
+
+
+06 native target original context component: same NativeCaptureService/Writer/
+immutable importer +strict06 DATA metadata before any Source GET. Source snapshot
+SHA/SAME UUID/advancing target9/full phases/explicit original split and actor;
+action/native additions rejected, feedback remains null, no new owners.29PASS
+7.66s shared02/03/06 +29PASS8.17s source-chain/03/default05giver recovery.
+[Component/original negatives](../_registry/evidence/experiment06-native-target-original-context-20261028.json).
+Fake GET tap/camera only; UNKNOWN+separate reject retained through actual file
+seal/archive/import; no physical expert/optimizer/commands. Central lifecycle/UI/
+approved target cohort still pending. Actual f134 whole-app target domain choice
+1440/390 PASS/4PNG inspected: physical target prep gates remain closed; SIM target
+restore same immutable source. Node/unit/controller sources not switched; livec82.
+E06PIPELINE continues central capture DATA lifecycle/import/review and shared
+aggregate assembly, metric cached provider; full06/master/physical remain OPEN.

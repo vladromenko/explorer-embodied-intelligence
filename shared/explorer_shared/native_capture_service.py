@@ -49,7 +49,7 @@ class NativeCaptureService:
             self.native_ready=False;self.last_error=type(error).__name__
         return {'schema':'explorer_native_capture_service_v1','metadata_skill_context_supported':True,
                 'native_owner_ready':self.native_ready,'native_source_error':self.last_error,
-                'projects':['02','03'],'action_dimension':9,'same_target_producer':True,
+                'projects':['02','03','06'],'action_dimension':9,'same_target_producer':True,
                 'native_source_method':'GET_ONLY','controller_settings_written':False,
                 'recording_operations':['start','pause','resume','cancel','finish','review'],
                 'recording_modes':['demonstration','observations_only'],
