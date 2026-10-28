@@ -227,9 +227,6 @@
       if (frame?.kind==="observation" && !frame.displayed) return {ignored:true};
       const epoch=generation,revision=ownerRevision,receipt=copy(owner),id=selected;watchBusy=true;
       try {
-        const current=await options.get(`${route(id)}/status`);
-        if(epoch!==generation || revision!==ownerRevision || busy)return {ignored:true};
-        if(current.station?.control_epoch!==receipt.control_epoch || current.permission?.grant?.grant_id!==receipt.grant_id || current.permission?.grant?.control_epoch!==receipt.control_epoch){dropOwner();notify();return {ignored:true};}
         const reply=await options.get(`${route(id)}/observation`),packet=reply.packet?.observation;
         if(epoch!==generation || revision!==ownerRevision || busy)return {ignored:true};
         if(!packet || packet.frame_boot_id!==receipt.boot_id || packet.follower_calibration_sha256!==receipt.follower_calibration_sha256 || packet.camera_id!==receipt.displayed_frame?.camera_id)throw new Error("Источник наблюдения изменился");

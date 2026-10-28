@@ -111,8 +111,10 @@ def test_explicit_new_displayed_frame_can_renew_current_grant_with_same_actor_on
     body={'grant_id':grant['grant_id'],'binding':selected,'observing':True,'frame_id':frame.frame_id,
         'displayed_jpeg_sha256':hashlib.sha256(frame.jpeg).hexdigest(),'expected_control_epoch':grant['control_epoch'],'actor_id':'other-actor'}
     with pytest.raises(ValueError,match='observer identity'):provider.observe(body)
+    tick[0]+=500_000_000
     body['actor_id']='actual-server-owner';renewed=provider.observe(body)
-    assert renewed['observation_deadline_ns']==frame.monotonic_ns+int(camera.stale_s*1e9) and not station.calls
+    assert renewed['observed_monotonic_ns']==tick[0]
+    assert renewed['observation_deadline_ns']==tick[0]+int(camera.stale_s*1e9) and not station.calls
 
 
 def test_late_authorize_and_frame_after_revoke_cannot_replace_new_user_grant():

@@ -155,7 +155,12 @@ async function operatorSourceControl(){
   await sourceDemonstration.prepare();
   await sourceDemonstration.requestChallenge();
   for(const key of Object.keys(sourceDemonstration.snapshot().flags))sourceDemonstration.affirm(key,true);
-  await sourceDemonstration.authorize();await sourceDemonstration.start();
+  await sourceDemonstration.authorize();
+  // Renew once from the frame that is actually displayed in the main camera
+  // before the first native start.  The Pi camera freshness/lease duration is
+  // unchanged; this avoids spending it on the multi-hop setup requests.
+  await sourceDemonstration.watchOnce();
+  await sourceDemonstration.start();
 }
 async function operatorRecord(project){
   if(project==="04"){await operatorSourceControl();await sourceDemonstration.captureStart();return;}
@@ -427,10 +432,11 @@ const manualPreview = createManualCameraPreview({
     const status = document.querySelector("#manual-camera-status"); if (status) status.textContent = `Кадр ${frame.frame_id} · ${frame.source_wall_utc ? `кэш ${clockTime(dateValue(frame.source_wall_utc))}` : "время источника не получено"} · камера на связи`;
   },
   onUnavailable: () => {
-    cameraUnavailable("Нет свежих кадров ROSMASTER", "Проверяем камеру повторно. Управление требует нового явного подключения.");
-    if (keyboard.active || keyboard.starting) void stopKeyboard(true);
-    if (direct03.owned || direct03.held || direct03.busy) void direct03Stop(true);
-    if (["active", "connecting", "paused"].includes(browserGamepad.state) || browserGamepad.busy) void browserGamepad.disconnect("Камера ROSMASTER недоступна. Подключите управление явно.");
+    cameraUnavailable("Кадр ROSMASTER временно задержан", "Камера переподключается; выбранное ручное управление остаётся у штатного контроллера.");
+    // A single delayed preview request is not a control command and must not
+    // tear down an already selected native keyboard/gamepad owner.  The
+    // original ROSMASTER input watchdog still stops stale control locally;
+    // the preview keeps retrying independently.
     const status = document.querySelector("#manual-camera-status"); if (status) status.textContent = "Свежий кадр пока не получен";
   }
 });
@@ -458,9 +464,13 @@ const browserGamepad = {
       if(direct03.owned)await direct03Stop();await sourceDemonstration.drain();await stopKeyboard(true);await waitManualIdle(keyboard,token);
       if(keyboard.stopUnconfirmed)throw new Error("STOP клавиатуры не подтверждён.");
       if(!await manualPreview.ensureFresh())throw new Error("Дождитесь свежих кадров ROSMASTER.");
+      keyboard.error=null;
       await post("/api/robot/gamepad/panel",{enabled:true,observing:true});this.selectionAttempted=true;
       await post("/api/robot/gamepad/mode",{mode:"TELEOP",drive_profile:"normal",arm_speed:"normal"});
-      this.leaseTimer=setInterval(()=>post("/api/robot/gamepad/panel",{enabled:true,observing:true}).catch(error=>{toast(error.message,true);void this.disconnect();}),400);
+      // The unchanged native panel lease is one second.  Renew with enough
+      // network margin for Mac -> Homebrain -> Nano instead of running only
+      // 600 ms away from expiry.
+      this.leaseTimer=setInterval(()=>post("/api/robot/gamepad/panel",{enabled:true,observing:true}).catch(error=>{toast(error.message,true);void this.disconnect();}),150);
       await observedNative.connect("local_gamepad",{initializeArm:nativeArmNeedsHome()});
       await post("/api/robot/gamepad/panel",{enabled:true,observing:true});
       await post("/api/robot/teleop/resume",{source:"gamepad",observing:true});
@@ -483,7 +493,9 @@ const browserGamepad = {
 };
 keyboard.options = {
   post, filterKeys: filterManualKeysForCurrentOwnerConstraints,
-  ready: () => activeProject()?.id === "02" && rosmasterCameraReady() && document.hasFocus() && !dialog.open,
+  // Camera freshness is checked once in prepare().  A transient preview miss
+  // after connection must not convert into an application-level STOP.
+  ready: () => activeProject()?.id === "02" && document.hasFocus() && !dialog.open,
   claim: () => claimManualInput("keyboard"), ownershipCurrent: ownsManualInput,
   beforeConnect: async token => { if(direct03.owned)await direct03Stop();await sourceDemonstration.drain();await browserGamepad.disconnect("Выбрана клавиатура."); await waitManualIdle(browserGamepad, token); if (browserGamepad.stopUnconfirmed) throw new Error("STOP геймпада не подтверждён."); },
   prepare: async () => {

@@ -181,7 +181,13 @@ class StationObservedPermission:
                     'binding':selected,'binding_sha256':digest(selected),'actor_id':actor,'control_epoch':native['control_epoch'],
                     'native_mode':'idle','follower_calibration_sha256':calibration,'provider_process':self.process,
                     'clock_domain':self.station.clock_domain,'boot_id':self.station.boot,'created_monotonic_ns':now,
-                    'observed_monotonic_ns':now,'observation_deadline_ns':frame.monotonic_ns+self._ttl(),
+                    # The displayed frame must still be inside the existing
+                    # camera freshness contract above.  The operator's
+                    # observation lease starts when that display is actually
+                    # acknowledged, not when the camera happened to receive
+                    # the JPEG.  This keeps the same TTL while avoiding loss
+                    # of most of it to the Homebrain/Pi/browser round trip.
+                    'observed_monotonic_ns':now,'observation_deadline_ns':now+self._ttl(),
                     'displayed_frame':deepcopy(item['frame']),'execution_permission':True,'hardware_success_claimed':False,
                     'permission_scope':'explicit_current_operator_not_camera_or_measured_pose_alone'}
                 if leader_calibration is not None:data['leader_calibration_sha256']=leader_calibration
@@ -227,7 +233,8 @@ class StationObservedPermission:
             with self.lock:
                 record=self._current_locked(grant_id,selected,native,calibration,body.get('expected_control_epoch'))
                 if body.get('actor_id')!=record['data']['actor_id']:raise ValueError('Current authenticated observer identity differs')
-                record['data'].update(observed_monotonic_ns=self.clock(),observation_deadline_ns=frame.monotonic_ns+self._ttl(),displayed_frame=metadata)
+                now=self.clock()
+                record['data'].update(observed_monotonic_ns=now,observation_deadline_ns=now+self._ttl(),displayed_frame=metadata)
                 return self._data(record)
     def command(self,grant_id,value,operation,body):
         with self.command_admission(operation):return self._command(grant_id,value,operation,body)

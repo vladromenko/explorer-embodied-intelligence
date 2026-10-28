@@ -10,7 +10,7 @@ const direct03HeldABI = () => direct03.status?.source_hold_gate_schema === "expl
 const direct03BaseMap = {KeyW:"forward",KeyS:"backward",KeyA:"left",KeyD:"right",KeyQ:"turn_left",KeyE:"turn_right"};
 function direct03Panel(){
  const active=direct03.owned;
- return `<section class="panel"><div class="panel-heading"><h2>Leader → ROSMASTER</h2></div><div class="panel-body"><p>Двигайте ведущую SO-101 — рука ROSMASTER повторяет движение. Первое подключение после включения переводит ROSMASTER в штатную стартовую позу.</p><div class="teleop-actions"><button class="button primary" data-action="${active?"direct03-stop":"direct03-start"}" ${direct03.busy?"disabled":""}>${active?"Отключить управление":"Управлять"}</button>${active?`<button class="button secondary" data-action="direct03-recenter">Текущая поза — начало</button>`:""}</div>${direct03.error?`<p class="form-error">${esc(direct03.error)}</p>`:""}</div></section>`;
+ return `<section class="panel"><div class="panel-heading"><h2>Leader → ROSMASTER</h2></div><div class="panel-body"><p>Двигайте ведущую SO-101 — рука ROSMASTER повторяет движение. Совмещать руки вручную не нужно: при подключении их текущие позы становятся общей начальной точкой без прыжка.</p><div class="teleop-actions"><button class="button primary" data-action="${active?"direct03-stop":"direct03-start"}" ${direct03.busy?"disabled":""}>${active?"Отключить управление":"Управлять"}</button>${active?`<button class="button secondary" data-action="direct03-recenter">Текущая поза — начало</button>`:""}</div>${direct03.error?`<p class="form-error">${esc(direct03.error)}</p>`:""}</div></section>`;
 }
 
 async function pollDirect03() {
@@ -59,13 +59,27 @@ async function direct03Control(action){
   if (direct03.busy || !["direct03-start", "direct03-recenter"].includes(action)) return;
   direct03.busy = true;
   const interrupt = direct03.interrupt;
-  const capturedEpoch = direct03.ownedEpoch || direct03.status?.control_epoch;
+  let capturedEpoch = direct03.ownedEpoch || direct03.status?.control_epoch;
   direct03.pendingEpoch = capturedEpoch;
   try {
     if (!direct03ContinuityReady()) throw new Error("Сначала требуется continuity-проверка на реальном меняющемся входе leader. Физический контур пока закрыт.");
     if (!direct03HeldABI()) throw new Error("Сначала требуется обновлённый контур Pi с передачей только по удержанию.");
     if (!rosmasterCameraReady()) throw new Error("Нужны свежие кадры камеры ROSMASTER.");
-    if(action==="direct03-start"){await stopKeyboard(true);await browserGamepad.disconnect();await sourceDemonstration.drain();await post("/api/operator/source-connect",{});}
+    if(action==="direct03-start"){
+      await stopKeyboard(true);await browserGamepad.disconnect();await sourceDemonstration.drain();
+      // A reload or an expired browser heartbeat may leave an exact old Pi
+      // retarget epoch CLUTCHED even though this tab no longer owns it.  The
+      // user's new "Управлять" click explicitly replaces that source: stop
+      // the retained Pi epoch first, then latch the shared native teleop STOP.
+      const previous=direct03.status || await api("/api/retarget/status");
+      if(previous?.target_control_epoch || ["CLUTCHED","ACTIVE","ACTIVATING","CLUTCHING","INTERRUPTED","STOP_DELIVERY_UNKNOWN"].includes(previous?.state)){
+        const stopped=await post("/api/retarget/stop",{control_epoch:previous.control_epoch},{keepalive:true});
+        direct03.status=stopped;capturedEpoch=stopped.control_epoch;
+      }
+      await post("/api/robot/teleop/stop",{},{keepalive:true});
+      await post("/api/operator/source-connect",{});
+      const fresh=await api("/api/retarget/status");direct03.status=fresh;capturedEpoch=fresh.control_epoch;
+    }
     if(action==="direct03-start")await observedNative.connect("so101_leader",{chassis:direct03.operatorProfile==="MOBILE_MANIPULATION",initializeArm:nativeArmNeedsHome()});
     else await observedNative.requirePermission("so101_leader");
     if (interrupt !== direct03.interrupt || !direct03Route() || document.hidden || !document.hasFocus()) return;
@@ -73,7 +87,12 @@ async function direct03Control(action){
     if (interrupt !== direct03.interrupt || !direct03Route() || document.hidden || !document.hasFocus()) { await direct03Stop(true, result.control_epoch); return; }
     direct03.status = result; direct03.owned = ["CLUTCHED", "ACTIVE"].includes(result.state); direct03.ownedEpoch = direct03.owned ? result.control_epoch : null; direct03.sequence = 0; direct03.error = null;
     if (direct03.owned && action === "direct03-start") {direct03.held=true;await direct03Lease();}
-  } catch (error) { direct03.error = error.message; toast(error.message, true); }
+  } catch (error) {
+    direct03.error=/Existing native STOP and neutral inputs|required before observed authorization/i.test(error.message)
+      ? "Предыдущее ручное управление ещё завершалось. Нажмите «Управлять» ещё раз — Explorer сначала остановит прежний источник и возьмёт текущие позы как начало."
+      : error.message;
+    toast(direct03.error, true);
+  }
   finally { direct03.pendingEpoch = null; direct03.busy = false; model.forceRender = true; render(); }
 }
 document.addEventListener("click",event=>{const button=event.target.closest('button[data-action^="direct03-"]');if(button&&!button.disabled)direct03Control(button.dataset.action);});
