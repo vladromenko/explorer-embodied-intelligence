@@ -84,3 +84,11 @@ def test_target_saved_receipt_and_cancel_drift_fail_before_loading_and_keep_orig
     with pytest.raises(ValueError,match='training receipt changed'):models.model_reference(store,wizard['wizard_id'],trained['id'])
     assert models.model_versions(store,wizard['wizard_id'])['models'][0]['compatible'] is False
     receipt.write_bytes(old)  # Restore only this deliberately changed test-owned negative fixture.
+
+
+def test_unfinished_or_cancelled_training_is_not_presented_as_a_saved_model(tmp_path,monkeypatch):
+    app,store,client,csrf,wizard,trained,_=model_fixture(tmp_path,monkeypatch)
+    queued=store.create_job(target.JOB_KIND,'06',dict(wizard_id=wizard['wizard_id'],mode='vision_adapt',demonstrations=25))
+    listing=models.model_versions(store,wizard['wizard_id'])
+    assert [row['model_job_id'] for row in listing['models']]==[trained['id']]
+    assert [row['model_job_id'] for row in listing['training_jobs']]==[queued['id']]

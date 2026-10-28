@@ -1,0 +1,65 @@
+{
+  "schema": "explorer06_actual_saved_generated_target_DEV_UI_checkpoint_v1",
+  "code_commit": "db2faa15d37c6ac68eebbbe34478af3bbb2e4f3b",
+  "status": "SCOPED_SOFTWARE_PASS_NOT_DEPLOYED",
+  "model_job_ids": [
+    "0ccbb608bbe7426ebfbd23a288c1d0bd",
+    "b32b934cfb1a47ddb029a0d65996accf"
+  ],
+  "evaluation_job_ids": [
+    "762f894f98ec42d5a4cf2d304e0d6186",
+    "34db245ca3e84d149bc06232964716d8"
+  ],
+  "inputs": "RETAINED_GENERATED_CANONICAL_ORIGINALS_NOT_REAL_EXPERTS",
+  "real_experts": 0,
+  "optimizer_steps_executed": 0,
+  "DEV_samples_per_model": 7,
+  "all_DEV_predictions_exact_to_original_training": true,
+  "new_process_per_model": true,
+  "model_checkpoint_training_receipts_unchanged": true,
+  "kernel_peak_bytes": 702369792,
+  "swap_peak_bytes": 0,
+  "oom": 0,
+  "whole_app_UI": "Firefox desktop1440/mobile390, actual saved wizard/models/reload/DEV raw predictions, enqueue exact typed DEV model ID; own queued UI checks cancelled without workers",
+  "all_four_PNG_visually_inspected": true,
+  "central_Torch_loaded": false,
+  "Javascript_errors": 0,
+  "overflow": false,
+  "remaining_UI_polish": "Unfinished training jobs separated from saved models; native9 units/order and actual target actions added after visual review, targeted4Python+12Node passed; actual refreshed UI pending.",
+  "physical_acceptance": false,
+  "independent_source_or_target_skill": false,
+  "live_shadow_qualified": false,
+  "actual_native_commands": 0,
+  "actual_native_grants": 0,
+  "live_code_unchanged": "c82e6754a26194f3fd12533cce35153890ff5771",
+  "evidence": [
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-saved-db2faa1-20261028-a/result/runner-qualification.json",
+      "sha256": "0042c0ecc0e77a0b30cdf460ee8df49181bfd2ec6aeeaf949fb9ec28740bb090"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-saved-db2faa1-20261028-a/result/pytest/test_actual_saved_target_ACT9_0/qualification.json",
+      "sha256": "76ad9f458f44fc3776b1b19d5a7d79365e36cbee7e49e8a6afb39ad5f5c9b787"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-saved-target-models-actual-UI-20261028-a/receipt.json",
+      "sha256": "de4c561371469bb6a58fe24630442bfcdf16dc18eaee9b984dc1bfed4a923c4b"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-saved-target-models-actual-UI-20261028-a/desktop-models.png",
+      "sha256": "887bfbf1c68953991cdf458cd9892b687a888c7b32dd6129979698f59df076f0"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-saved-target-models-actual-UI-20261028-a/mobile-models.png",
+      "sha256": "68cc20b94846693de6576af7b40be38273cf9196724d021f2335d31a0bfef00e"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-saved-target-models-actual-UI-20261028-a/desktop-offline-predictions.png",
+      "sha256": "deca7fac2731e4bc813ed71d491fe7537f33189820bfe7e14840809725639cdd"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-saved-target-models-actual-UI-20261028-a/mobile-offline-predictions.png",
+      "sha256": "ada59ddc8414e432cfd2a6ad1153d3e0a9d74f1541d7a0639d0765f183985967"
+    }
+  ]
+}

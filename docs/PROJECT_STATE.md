@@ -413,3 +413,17 @@ DEV comparison on retained target-only/adapt models is next; no newoptimizer.
 e1f full app D1440/390/4PNG inspected, labels fixed; initial C harness used absent
 #app instead of actual #main, retained. No product/source change C→D.
 Current06component NOTdeployed/livec82, E06PIPELINE/master/physical remain OPEN.
+
+
+06 saved-target actual db2faa1: TWO new Supervisor/bootstrap worker processes
+loaded retained ACT9 target-only/adapt checkpoints; each7DEV predictions EXACT
+to training,0optimizer/alloriginalsSHA unchanged.1PASS27.94s, kernel702,369,792B/
+swap0/OOM0, CPU2/2GiB perjob. [Scoped evidence](../_registry/evidence/experiment06-actual-saved-target-DEV-UI-20261028.json).
+Actual full-app Firefox1440/390 saved models +DEV native9 predictions/typed enqueue
+PASS/4PNG inspected/0JS/overflow; own queued UI checks cancelled withoutworkers.
+Central did not load Torch. Catalog metadata/legend corrected after visual review:
+uncompleted jobs kept in queue history, not saved-model list; native9 order/units
+and original recorded actions shown.4Python7.90s+12Node141.5ms; refreshedactual
+UI pending, no optimizer replay warranted. NOTdeployed/livec82, source/target
+physical/master gates OPEN; E06PIPELINE continues original target producer/import/
+review and trusted cached metric capture/solve before whole06release/then01.

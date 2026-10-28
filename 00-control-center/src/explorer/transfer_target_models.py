@@ -62,9 +62,11 @@ def model_versions(store,wizard_id):
                                optimizer_steps=job['result']['optimizer_steps'],offline_evaluation=job['result'].get('evaluation'))
                 except (ValueError,KeyError,TypeError,OSError) as error:row['reason']=str(error)
             items.append(row)
+    training_jobs=[row for row in items if row['status']!='completed']
+    items=[row for row in items if row['status']=='completed']
     ids={row['model_job_id'] for row in items}
     checks=[job for job in store.jobs(10000) if job['kind']==EVAL_KIND and job.get('config',{}).get('model_job_id') in ids]
-    return dict(wizard_id=wizard_id,source_model_binding=wizard['source_model_binding'],models=items,checks=checks,model_loaded=False,source_network_requests_sent=0,
+    return dict(wizard_id=wizard_id,source_model_binding=wizard['source_model_binding'],models=items,training_jobs=training_jobs,checks=checks,model_loaded=False,source_network_requests_sent=0,
         physical_execution_authorized=False,live_shadow_available=False,
         evaluation_scope='recorded_target_DEV_action_predictions_only_not_independent_task_trials')
 
