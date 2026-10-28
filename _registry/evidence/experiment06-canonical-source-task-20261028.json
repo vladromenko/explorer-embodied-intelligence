@@ -1,0 +1,37 @@
+{
+  "schema": "explorer06_canonical_source_task_integration_v1",
+  "status": "SOFTWARE_TESTED_NOT_DEPLOYED",
+  "canonical_field": "recognized_type",
+  "legacy_field": "task_type",
+  "conflicting_fields_rejected": true,
+  "source_manifest_rewritten": false,
+  "Source_catalogue_and_observed_evaluator_share_task_reader": true,
+  "Python_passed": 74,
+  "Python_seconds": 10.14,
+  "original_calibration_cohort_Python_passed": 1,
+  "cohort_seconds": 10.0,
+  "cohort_inputs": "GENERATED_NATIVE6_CAPTURE_NOT_PHYSICAL",
+  "cohort_originals": 5,
+  "cohort_splits": {
+    "train": 3,
+    "development": 1,
+    "sealed_test": 1
+  },
+  "original_training_receipts_rewritten": false,
+  "actual_saved_ACT2_readback": {
+    "technical_source_ready": true,
+    "actual_canonical_task": "pick_object_to_container",
+    "previous_hold_classification_was_reader_bug": true,
+    "eligible_for_transfer": false,
+    "remaining_C": "C_NO_QUALIFIED_OBJECT_TRACE"
+  },
+  "new_optimizer_updates": 0,
+  "actual_native_commands": 0,
+  "physical_acceptance": false,
+  "raw_sha256": {
+    "/mnt/explorer-data/explorer-work/06-canonical-task-serializer-and-consumers-20261028-b.log": "176bb59f2515db0d6277674cfc4f71a7c0a4b12c116c9e2782764d1e94f4cae3",
+    "/mnt/explorer-data/explorer-work/06-original-calibration-cohort-20261028-a.log": "2cee01d4c250e81879a56d1ad2389097be24f6f10c4f0c6a57a8f00c4dde4004",
+    "/mnt/explorer-data/explorer-work/06-actual-saved-source-preflight-20261028-a.json": "25f92290f1cc4cae7dc1fe4db62db3575393acc776b107cc4adfe611b99d4a61",
+    "/mnt/explorer-data/explorer-work/06-actual-saved-source-preflight-20261028-b.json": "548d6c8333d54fc4dc9c9c1328db85f710385ae9d6b16b204e5c3a770abc36ab"
+  }
+}

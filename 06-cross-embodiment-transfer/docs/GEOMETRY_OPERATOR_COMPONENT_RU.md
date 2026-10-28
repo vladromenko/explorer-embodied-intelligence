@@ -37,8 +37,10 @@ version сохраняется при re-render, data request ID повторя�
 291Node5.24s. Модели в новых route fixtures — явно structural SOFTWARE placeholders,
 не optimizer/model-quality evidence; HTTP loopback и fake native dependencies.
 Отдельный actual generated ACT2 source metadata preflight подтверждает loader,
-но hold/no independent object trace и отсутствие original calibration bytes
-ограничивают его применение к переносу. Новых optimizer updates и physical IO0.
+но отсутствие independent object trace и original calibration bytes ограничивают
+его применение к переносу. Ранее reader ошибочно называл canonical pick-and-place
+модель hold: исправлено чтение recognized_type обоими consumers, исходный Spec
+и старый отрицательный вывод сохранены. Новых optimizer updates и physical IO0.
 
 Старые optimizer receipts не переписываются. Новый exact inverse source receipt
 для двух router-install строк цепляется к сохранённому05 compatibility receipt;

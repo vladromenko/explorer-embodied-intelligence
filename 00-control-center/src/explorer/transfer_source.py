@@ -71,6 +71,17 @@ def _admission(store, config):
     return verify_so101_aggregate(store, config)
 
 
+def source_task_type(spec):
+    """Canonical04 recognized_type or the explicitly retained legacy task_type.
+
+    Never infer object mastery/task identity from free text or a title.
+    """
+    canonical_type=spec.get('recognized_type');legacy_type=spec.get('task_type')
+    if canonical_type is not None and legacy_type is not None and canonical_type!=legacy_type:
+        raise ValueError('Conflicting canonical and legacy source task types')
+    return canonical_type if canonical_type is not None else legacy_type
+
+
 def _metadata(store, job, *, admission_verifier=None):
     if not isinstance(job,dict):raise ValueError('Source model job not found')
     config, result = job.get('config') or {}, job.get('result') or {}
@@ -87,6 +98,7 @@ def _metadata(store, job, *, admission_verifier=None):
         raise ValueError('Current model optimizer/reload/Spec/source lineage differs')
     if outer.get('source_kind') not in ('SIMULATION','SO101_RECORDED_DEMONSTRATIONS') or outer.get('action_contract_id') != CONTRACT:
         raise ValueError('Unknown source domain or native6 contract')
+    task_type=source_task_type(outer['skill_spec'])
     receipt = _file(store, Path(store.root)/'jobs'/job['id']/'result.json')
     original = _json(receipt)
     for key in ('skill_id','skill_version','spec_sha256','aggregate_manifest_sha256','checkpoint_sha256','source_kind','trained','save_reload_passed'):
@@ -167,7 +179,7 @@ def _metadata(store, job, *, admission_verifier=None):
         raise ValueError('Registered native source SkillCard missing or changed')
     episodes = [dict(id=row.get('id'), original_episode_id=row.get('source_episode_id'),split=row['split'])
         for row in view.get('episodes',[]) if row.get('split') in ('train','development')]
-    return dict(job=job, result=result, manifest=outer, manifest_path=str(path), view=view,
+    return dict(job=job, result=result, task_type=task_type, manifest=outer, manifest_path=str(path), view=view,
         view_path=str(view_path), checkpoint_path=str(checkpoint), checkpoint_sha256=hashes,
         checkpoint_content_sha256=digest(hashes), backend=backend, preprocessing=pre,
         source_camera_ids=cameras, source_calibration_sha256=calibration_sha,
@@ -275,12 +287,12 @@ def inspect_source_model(store, model_job_id, *, admission_verifier=None, owner_
         blockers.append(_block('A_SOURCE_MODEL_OR_ADMISSION_NOT_VERIFIED','A',str(error)))
     if model is not None:
         spec=model['manifest']['skill_spec']
-        choice.update(technical_source_ready=True,backend=model['backend'],task=spec.get('title'),task_type=spec.get('task_type'),
+        choice.update(technical_source_ready=True,backend=model['backend'],task=spec.get('title'),task_type=model['task_type'],
             history_steps=model['history_steps'],prediction_steps=model['prediction_steps'],source_domain=model['source_domain'],
             source_camera_ids=model['source_camera_ids'],source_calibration_sha256=model['source_calibration_sha256'],
             aggregate_manifest_sha256=model['result']['aggregate_manifest_sha256'],checkpoint_content_sha256=model['checkpoint_content_sha256'],
             unsealed_episode_choices=model['unsealed_episode_choices'],action_contract_id=CONTRACT,action_names=list(NAMES))
-        if spec.get('task_type') in (None,'hold','trajectory','joint_trajectory'):
+        if model['task_type'] in (None,'hold','trajectory','joint_trajectory'):
             blockers.append(_block('C_OBJECT_SKILL_SOURCE_REQUIRED','C','Удержание и joint replay не подтверждают предметный навык.'))
         else:
             for evaluation in store.jobs(10000):

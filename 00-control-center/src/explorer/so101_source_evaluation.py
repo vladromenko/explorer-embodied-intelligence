@@ -122,7 +122,7 @@ def request_settings(store,model_job_id,body=None,*,admission_verifier=None,eval
     if not isinstance(model_job_id,str) or not ID.fullmatch(model_job_id):raise EvaluationBlocked('Exact current source model ID required')
     model=_metadata(store,store.job(model_job_id),admission_verifier=admission_verifier)
     spec=model['manifest']['skill_spec'];phases=[row['id'] for row in spec['stages']]
-    if spec.get('task_type') in (None,'hold','joint_trajectory','trajectory') or any(name not in PHASE_REFERENCES for name in phases):
+    if model['task_type'] in (None,'hold','joint_trajectory','trajectory') or any(name not in PHASE_REFERENCES for name in phases):
         raise EvaluationBlocked('Explicit supported whole object SkillSpec/phase-reference plan required')
     duration=body.get('duration_s',20);review=body.get('review_timeout_s',120)
     if type(duration) not in (int,float) or not math.isfinite(duration) or not 0<duration<=60 or type(review) not in (int,float) or not math.isfinite(review) or not 0<review<=300:
@@ -571,7 +571,7 @@ def _finish(store,job,requested,model,folder,rows,error,stop,inbox,clock,sleep,a
         for name in ('attempt-context.json','runtime-actor.json','grant-before-load.json','grant-after-load.json','prestart-observation.json','prestart-observation.jpg','native-policy-start-status.json','stop-receipt.json'):
             retain('raw/'+name,(folder/name).read_bytes())
         source_trace=dict(schema='explorer_skill_transfer_source_trace_v1',experiment_slug='so101_source_learning',source_kind='QUALIFIED_SOURCE_MODEL',
-            source_domain=model['source_domain'],task_type=model['manifest']['skill_spec']['task_type'],
+            source_domain=model['source_domain'],task_type=model['task_type'],
             skill_id=model['manifest']['skill_id'],skill_version=model['manifest']['skill_version'],action_contract_id=CONTRACT,action_names=list(model['source_profile']['names']),
             split=dict(partition='development',episode_id=job['id'],session_id=inbox.session_id,scene_id=requested['context']['scene_id'],group_id=job['id']),
             qualification=dict(independent_closed_loop_object_success=True,source_model_sha256=model['checkpoint_sha256']['model.safetensors'],

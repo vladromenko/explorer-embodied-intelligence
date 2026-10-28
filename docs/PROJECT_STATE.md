@@ -340,3 +340,17 @@ station proxy empty-node503 after allowlist/no outbound fallback,12 source-bound
 contracts PASS3.64s. New geometry component242056a remains NOTdeployed; livec82.
 Next corrected whole-app status-aware UI, source original calibration cohort and
 cached metric capture/target9 pipeline; E06PIPELINE still current.
+
+
+06 canonical source integration correction: actual saved ACT2 Spec already has
+recognized_type=pick_object_to_container. Earlier readers checked task_type only,
+so C_OBJECT_SKILL_SOURCE_REQUIRED was a reader bug, not a hold Spec. Shared reader
+now serves catalogue/evaluation/trace serializer, rejects contradictory fields;
+legacy task_type retained.74Python10.14s PASS. Actual model reread: technical-ready,
+only C_NO_QUALIFIED_OBJECT_TRACE remains; original Spec/training bytes unchanged.
+[Proof](../_registry/evidence/experiment06-canonical-source-task-20261028.json).
+New generated original04 cohort carries SHA-bound raw calibration BEFORE writer
+start; same capture/import/approval/aggregate passed1test10s,5originals/3train1DEV/
+1sealed, raw manifests unchanged. Next opt-in ACT2 shared queue on these NEW
+inputs and whole geometry UI; no gratuitous repeat or real-source mastery claim.
+Live c82 unchanged; E06PIPELINE continues, target9/adaptation/full06release OPEN.

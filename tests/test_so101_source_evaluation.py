@@ -85,8 +85,8 @@ class AutoInbox(evaluation.SourceOutcomeInbox):
         return row
 
 
-def prepared(tmp_path,backend='act',*,dispatch=True,outcome='success',early_grant=True):
-    store,model,admission,outer,view=fixture(tmp_path,backend);clock=Clock()
+def prepared(tmp_path,backend='act',*,dispatch=True,outcome='success',early_grant=True,spec_transform=None):
+    store,model,admission,outer,view=fixture(tmp_path,backend,spec_transform=spec_transform);clock=Clock()
     settings=evaluation.request_settings(store,model['id'],dict(duration_s=.9,review_timeout_s=.5,object_instance_id='software-object',scene_id='software-scene',goal_instance_id='software-bin'),admission_verifier=admission)
     calibration=outer['source_calibration_metadata']['calibration_metadata']['follower']['calibration_sha256']
     station=Station(clock,calibration,dispatch=dispatch);permission=Permission(station,settings['binding'])
@@ -317,14 +317,16 @@ def test_real_COMMON_provider_expiry_after_load_blocks_any_original_station_comm
     assert not permission.status()['execution_permission']
 
 
-def test_qualified_bundle_serializer_roundtrip_is_structural_fixture_not_a_real_policy_trial(tmp_path):
+@pytest.mark.parametrize('canonical_spec',[False,True])
+def test_qualified_bundle_serializer_roundtrip_is_structural_fixture_not_a_real_policy_trial(tmp_path,canonical_spec):
     """Exercise producer/consumer schema with explicit trusted-branch fixture data.
 
     The actual mocked loop above remains diagnostic/unqualified. This direct
     PRIVATE serializer fixture is never an admitted model or public run receipt.
     """
     import shutil
-    parts=prepared(tmp_path);store,original,admission,station,permission,inbox,clock,phase,Policy,model_job=parts
+    from test_canonical_source_task_type import canonical
+    parts=prepared(tmp_path,spec_transform=canonical if canonical_spec else None);store,original,admission,station,permission,inbox,clock,phase,Policy,model_job=parts
     diagnostic=run(parts)
     assert diagnostic['execution_kind']=='software_injected_predictor_diagnostic'
     source_folder=store.root/'jobs'/original['id']
