@@ -62,6 +62,8 @@ document.addEventListener("click", async (event) => {
       const action=geometryButton.dataset.transferGeometry;
       if(action==="preview")await transferGeometry.preview();
       else if(action==="restore")await transferGeometry.restore();
+      else if(action==="models")await transferGeometry.loadModels();
+      else if(action==="evaluate")await transferGeometry.evaluateModel(geometryButton.dataset.modelJobId);
       else if(action==="datasets")await transferGeometry.loadDatasets();
       else if(action==="train")await transferGeometry.train();
       else if(action==="create")await transferGeometry.create(Number(document.querySelector("[data-transfer-target-version]")?.value));

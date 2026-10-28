@@ -16,10 +16,12 @@ RECEIPT06_PI=ROOT/'_registry/evidence/experiment06-training-source-extension-mis
 
 RECEIPT06_TARGET=ROOT/'_registry/evidence/experiment06-training-source-extension-target-context-20261028.json'
 
+RECEIPT06_SAVED=ROOT/'_registry/evidence/experiment06-training-source-extension-saved-target-20261028.json'
+
 def assert_qualified_source(root,name,expected):
     raw=(Path(root)/name).read_bytes()
     if hashlib.sha256(raw).hexdigest()==expected:return
-    paths=(RECEIPT06_TARGET,RECEIPT06_PI,RECEIPT06,RECEIPT)
+    paths=(RECEIPT06_SAVED,RECEIPT06_TARGET,RECEIPT06_PI,RECEIPT06,RECEIPT)
     proofs=[json.loads(path.read_bytes()) for path in paths]
     for current,previous in zip(proofs,paths[1:]):
         assert current['previous_receipt_path']==str(previous.relative_to(ROOT))
@@ -32,4 +34,5 @@ def assert_qualified_source(root,name,expected):
                 assert raw.count(after)==1,(name,'Ambiguous inverse')
                 raw=raw.replace(after,before)
             assert hashlib.sha256(raw).hexdigest()==extension['previous_sha256']
+            if hashlib.sha256(raw).hexdigest()==expected:return
     assert hashlib.sha256(raw).hexdigest()==expected,(name,'Unreviewed change or original source not exactly reconstructed')

@@ -396,3 +396,20 @@ First UI storage seed timing setup exception retained. All296Node PASS5.77s.
 Queue label UI-only correction follows this candidate; NOTdeployed/livec82.
 E06PIPELINE continues actual target producer/import/review +trusted metric capture;
 saved model/offline/shadow and full06 release remain. No object mastery inferred.
+
+
+06 saved-target component: shared native9 artifact contract and SAME offline DEV
+evaluator extracted from02/03, typed06 wrapper/CPU2GiB2CPU queue +authenticated
+models/evaluate API and geometry-page saved models/DEV raw predictions UI. New
+model reference rechecks original training receipt and current source/wizard/
+parent/selected dataset; GET does not recreate missing selection artifacts.
+Both consumers12PASS15.55s +readonly7PASS9.11s +exactsource11PASS0.36s; all297Node
+PASS5.73s. Intermediate inverse-source test2FAIL retained: chain helper previously
+always reduced to oldest baseline even when exact intermediate SHA was requested;
+now stops at requested exact independently anchored predecessor. Unknown bytes
+remain rejected, old scientific/optimizer receipts unchanged. Actual new-PID
+DEV comparison on retained target-only/adapt models is next; no newoptimizer.
+[Actual label UI](../_registry/evidence/experiment06-target-queue-label-UI-20261028.json):
+e1f full app D1440/390/4PNG inspected, labels fixed; initial C harness used absent
+#app instead of actual #main, retained. No product/source change C→D.
+Current06component NOTdeployed/livec82, E06PIPELINE/master/physical remain OPEN.

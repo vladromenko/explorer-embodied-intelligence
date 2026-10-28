@@ -95,3 +95,17 @@ test('wrong wizard target data and wrong budget queue ACK are rejected',async()=
   await queue.client.preview();await queue.client.create(2);await queue.client.loadDatasets();await assert.rejects(queue.client.train(),/другую привязку/);
   assert.equal(queue.client.snapshot().targetJob,null);
 });
+
+test('saved target models use exact wizard binding and only DEV model ID is submitted',async()=>{
+  const base=targetFixture(),{client,row,active}=base;
+  await client.preview();await client.create(2);
+  // A separate client wires actual catalogue/evaluation response contracts.
+  const calls=[];const saved=createTransferGeometryClient({get:async path=>path.endsWith('/models')?{wizard_id:active.wizard_id,source_model_binding:binding(row),models:[{model_job_id:'6'.repeat(32),compatible:true,comparison_mode:'target_only',demonstrations:5,optimizer_steps:2}]}:response(row),post:async(path,body)=>{
+    if(!path.endsWith('/evaluate'))return active;calls.push([path,body]);return {kind:'transfer_target_eval',project_id:'06',id:'7'.repeat(32),config:{wizard_id:active.wizard_id,model_job_id:body.model_job_id,partition:'development',sealed_test_used:false,source_model_binding:binding(row)}};
+  },randomUUID:()=>active.wizard_id});
+  saved.select(row);await saved.preview();await saved.create(2);await saved.loadModels();
+  assert.match(transferGeometryPanel(saved.snapshot()),/Сохранение и reload проверены/);
+  await saved.evaluateModel('6'.repeat(32));assert.deepEqual(calls[0][1],{model_job_id:'6'.repeat(32)});
+  assert.equal(saved.snapshot().targetEvalJob.kind,'transfer_target_eval');
+  await assert.rejects(saved.evaluateModel('f'.repeat(32)),/совместимую/);
+});

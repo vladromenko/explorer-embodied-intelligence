@@ -108,6 +108,13 @@ class TransferTargetCorpus:
             source_action_head_reused=False, physical_execution_authorized=False)
         return manifest
 
+    def selection_reference(self, demonstrations, *, seed=41):
+        """Read-only expected view identity; never repairs missing artifacts."""
+        manifest = self.selection(demonstrations, seed=seed)
+        checksum = digest(manifest)
+        return dict(dataset_manifest=str(self.corpus.path.with_name('transfer-target-'+checksum+'.json')),
+                    dataset_sha256=checksum,selection=manifest['transfer_target_selection'])
+
     def save_selection(self, demonstrations, *, seed=41):
         """New immutable sibling view: relative original mappings stay unchanged."""
         manifest = self.selection(demonstrations, seed=seed)

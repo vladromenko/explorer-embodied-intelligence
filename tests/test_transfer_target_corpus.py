@@ -100,7 +100,8 @@ def test_target06_reuses_shared_reader_and_counts_whole_originals_in_nested_budg
     assert not ready['source_action_head_reused'] and not ready['physical_execution_authorized']
     selected=[]
     for budget in (5,10,25):
-        receipt=adapter.save_selection(budget);assert receipt==adapter.save_selection(budget)
+        reference=adapter.selection_reference(budget);assert not Path(reference['dataset_manifest']).exists()
+        receipt=adapter.save_selection(budget);assert receipt==reference==adapter.save_selection(budget)
         corpus=CanonicalCorpus(receipt['dataset_manifest']);selected.append(set(receipt['selection']['training_original_episode_ids']))
         assert len(corpus.train)==budget and len(corpus.development)==1 and corpus.sealed_ids==['GENERATED-sealed-no-payload']
         assert all(row['report']['experiment_identity']['canonical_project_id']=='06' for row in corpus.episodes)

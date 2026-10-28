@@ -24,3 +24,15 @@ def test_target_context_extension_is_exact_and_does_not_exempt_default_trainer_e
     candidate=tmp_path/name;candidate.parent.mkdir(parents=True)
     candidate.write_bytes((ROOT/name).read_bytes()+b"\nUNREVIEWED_TRAINER_CHANGE=True\n")
     with pytest.raises(AssertionError):assert_qualified_source(tmp_path,name,extension["previous_sha256"])
+
+
+@pytest.mark.parametrize('name',['00-control-center/src/explorer/rosmaster_learning.py',
+    '00-control-center/src/explorer/rosmaster_eval_job.py','00-control-center/src/explorer/job_runner.py',
+    '00-control-center/src/explorer/queue_policy.py'])
+def test_saved_target_shared_extension_requires_exact_inverse_and_rejects_extra_changes(tmp_path,name):
+    from qualification_source_extensions import RECEIPT06_SAVED
+    extension=json.loads(RECEIPT06_SAVED.read_bytes())['extensions'][name]
+    assert_qualified_source(ROOT,name,extension['previous_sha256'])
+    candidate=tmp_path/name;candidate.parent.mkdir(parents=True)
+    candidate.write_bytes((ROOT/name).read_bytes()+b'\nUNREVIEWED_SAVED_MODEL_CHANGE=True\n')
+    with pytest.raises(AssertionError):assert_qualified_source(tmp_path,name,extension['previous_sha256'])

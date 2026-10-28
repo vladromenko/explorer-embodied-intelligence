@@ -327,6 +327,9 @@ def main(job_id):
         elif job['kind'] == 'rosmaster_skill_train':
             from explorer_shared.learning.rosmaster_skill_pipeline import train_rosmaster_skill
             result = train_rosmaster_skill(store,job)
+        elif job['kind']=='transfer_target_eval':
+            from .transfer_target_models import run_evaluation
+            result=run_evaluation(store,job)
         elif job['kind']=='transfer_target_train':
             from .transfer_target import run_training
             result=run_training(store,job)

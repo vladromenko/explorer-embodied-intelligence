@@ -11,8 +11,9 @@ from explorer_shared.contracts import canonical,digest
 from .rosmaster_learning import evaluation_request,_sha
 
 
-def run_rosmaster_evaluation(store,job,*,loader=None,evaluator=None):
-    config=dict(job.get('config') or {});execution_commit=None
+def queued_execution_config(config):
+    """Shared exact archived-source execution pin parser for02/03/06."""
+    config=dict(config);execution_commit=None
     if '_execution_commit' in config:
         execution_commit=config.pop('_execution_commit')
         if not isinstance(execution_commit,str) or not re.fullmatch('[0-9a-f]{40}',execution_commit):
@@ -20,11 +21,21 @@ def run_rosmaster_evaluation(store,job,*,loader=None,evaluator=None):
         from .qualification_bindings import release_identity
         release=release_identity(Path(__file__).resolve().parents[3])
         if release.name!=execution_commit:raise ValueError('Evaluator execution commit differs from its archived source release')
+    return config,execution_commit
+
+
+def run_rosmaster_evaluation(store,job,*,loader=None,evaluator=None):
+    config,execution_commit=queued_execution_config(job.get('config') or {})
     expected=evaluation_request(store,config.get('skill_id'),config.get('skill_version'),config.get('model_job_id'))
     training=store.job(config['model_job_id'])
     if (job.get('kind')!='rosmaster_skill_eval' or job.get('project_id') not in ('02','03') or
             job['project_id']!=training['project_id'] or config!=expected):
         raise ValueError('Exact queued saved-model DEV evaluation binding required')
+    return evaluate_saved_native9(store,job,training,expected,execution_commit=execution_commit,loader=loader,evaluator=evaluator)
+
+
+def evaluate_saved_native9(store,job,training,expected,*,execution_commit=None,loader=None,evaluator=None):
+    """Same saved-model DEV evaluator; callers validate their exact typed job."""
     def guard():
         current=store.job(job['id'])
         if current and current['status'] in ('cancel_requested','cancelled'):raise RuntimeError('Offline evaluation cancelled before load/next sample/result')
@@ -47,7 +58,7 @@ def run_rosmaster_evaluation(store,job,*,loader=None,evaluator=None):
         evaluation=offline_metrics(policy.policy,corpus,Guarded(),policy.phase_model,'cpu')
     else:evaluation=evaluator(policy,corpus,chunks,guard)
     guard();corpus.recheck()
-    if _sha(path)!=config['model_manifest_sha256']:raise ValueError('Saved model metadata changed during evaluation')
+    if _sha(path)!=expected['model_manifest_sha256']:raise ValueError('Saved model metadata changed during evaluation')
     checkpoint=Path(result['checkpoint_dir'])
     for name,checksum in result['checkpoint_sha256'].items():
         if _sha(checkpoint/name)!=checksum:raise ValueError('Evaluation changed or lost the original weights')

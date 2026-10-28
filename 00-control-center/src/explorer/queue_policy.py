@@ -11,14 +11,14 @@ HEAVY_JOBS=('sim_pilot','train_act','rosmaster_skill_train','transfer_target_tra
     'manipulation','manipulation_student','manipulation_benchmark','manipulation_curriculum','mobile_manipulation',
     'manipulation_selective_repair','policy_transfer','fault_repair')
 PHYSICAL_JOBS=('station_rollout','handover_physical','so101_skill_eval')
-INFERENCE_JOBS=('station_shadow','station_rollout','so101_skill_shadow','rosmaster_skill_shadow','cooperative_policy_warm','so101_skill_eval','rosmaster_skill_eval')
+INFERENCE_JOBS=('transfer_target_eval','station_shadow','station_rollout','so101_skill_shadow','rosmaster_skill_shadow','cooperative_policy_warm','so101_skill_eval','rosmaster_skill_eval')
 DATA_JOBS=('station_import','mobile_import','retarget_import','camera_recording','program_trace','research_export','study_export')
 TERMINAL=('completed','failed','cancelled')
 
 
 def default_metadata(job):
     config=job.get('config') or {};heavy=job['kind'] in HEAVY_JOBS;inference=job['kind'] in INFERENCE_JOBS
-    source_shadow=job['kind'] in ('so101_skill_shadow','rosmaster_skill_shadow');source_eval=job['kind'] in ('so101_skill_eval','rosmaster_skill_eval')
+    source_shadow=job['kind'] in ('so101_skill_shadow','rosmaster_skill_shadow');source_eval=job['kind'] in ('so101_skill_eval','rosmaster_skill_eval','transfer_target_eval')
     warm=job['kind']=='cooperative_policy_warm';study=job['kind']=='study_export';export=job['kind'] in ('research_export','study_export')
     gpu=False if source_shadow or source_eval or warm or export else config.get('device')=='cuda' or inference and config.get('device')!='cpu'
     size,batch=config.get('image_size',64),config.get('batch_size',2)

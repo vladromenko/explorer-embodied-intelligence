@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse
 from . import transfer_geometry as geometry
 from . import transfer_calibration as wizard
 from . import transfer_target as target
+from . import transfer_target_models as target_models
 from .source_evaluation_api import bounded_body
 from .source_evaluation_transport import pi_metadata_connection
 
@@ -83,3 +84,15 @@ def install_router(app,get_store,get_config,get_actor):
             raise HTTPException(400,'Choose a managed target dataset ID')
         return await safe(lambda:target.enqueue_training(get_store(),wizard_id,body['dataset_job_id'],
             {key:value for key,value in body.items() if key!='dataset_job_id'},actor=get_actor(request)))
+
+    @app.get('/api/transfer/calibration/{wizard_id}/models')
+    async def models(wizard_id:str,request:Request):
+        if request.query_params:raise HTTPException(400,'Fixed saved target model query')
+        return await safe(lambda:target_models.model_versions(get_store(),wizard_id))
+
+    @app.post('/api/transfer/calibration/{wizard_id}/evaluate')
+    async def evaluate(wizard_id:str,request:Request):
+        body=await bounded_body(request)
+        if not isinstance(body,dict) or set(body)!={'model_job_id'}:
+            raise HTTPException(400,'Choose the saved target model ID only')
+        return await safe(lambda:target_models.enqueue_evaluation(get_store(),wizard_id,body['model_job_id']))

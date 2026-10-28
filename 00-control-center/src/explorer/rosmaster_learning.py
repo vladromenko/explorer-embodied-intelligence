@@ -57,6 +57,12 @@ def model_reference(store,skill_id,version,model_job_id):
             not all(result.get(key) is True for key in ('trained','weights_changed','save_reload_passed')) or
             type(result.get('optimizer_steps')) is not int or result['optimizer_steps']<1):
         raise ValueError('Actual completed native skill optimizer/reload version required')
+    return saved_native9_reference(store,result,skill_id=skill_id,version=version,
+        spec_sha256=chosen['spec_sha256'],aggregate_sha256=lineage.get('aggregate_sha256'),model_job_id=model_job_id)
+
+
+def saved_native9_reference(store,result,*,skill_id,version,spec_sha256,aggregate_sha256,model_job_id):
+    """Shared02/03/06 artifact contract; each caller owns typed job admission."""
     def managed(value):
         path=Path(value).resolve()
         if not path.is_relative_to(store.root.resolve()) or not path.is_file():raise ValueError('Managed immutable model/source artifact required')
@@ -66,15 +72,15 @@ def model_reference(store,skill_id,version,model_job_id):
     model=json.loads(path.read_bytes());weights=result.get('checkpoint_sha256') or {};folder=Path(result.get('checkpoint_dir','')).resolve()
     if (model.get('schema')!='explorer_rosmaster_skill_model_v1' or model.get('action_contract_id')!=ACTION_CONTRACT_ID or model.get('action_names')!=list(ACTION_NAMES) or
             (model.get('ACT9') or {}).get('state_dimension')!=106 or (model.get('ACT9') or {}).get('output_dimension')!=9 or
-            model.get('skill_id')!=skill_id or model.get('skill_version')!=version or model.get('skill_spec_sha256')!=chosen['spec_sha256'] or
+            model.get('skill_id')!=skill_id or model.get('skill_version')!=version or model.get('skill_spec_sha256')!=spec_sha256 or
             not weights or model.get('weights_sha256')!=weights or not folder.is_relative_to(store.root.resolve())):
         raise ValueError('Exact saved ACT native9/state106 and checkpoint inventory required')
     for name,expected in weights.items():
         if Path(name).name!=name or _sha(managed(folder/name))!=expected:raise ValueError('Saved checkpoint changed')
     source=managed(result.get('source_manifest_path',''))
-    if _sha(source)!=result.get('source_manifest_sha256') or model.get('aggregate_sha256')!=_sha(source) or lineage.get('aggregate_sha256')!=_sha(source):
+    if _sha(source)!=result.get('source_manifest_sha256') or model.get('aggregate_sha256')!=_sha(source) or aggregate_sha256!=_sha(source):
         raise ValueError('Pinned model aggregate source changed')
-    return {'model_job_id':model_job_id,'skill_id':skill_id,'skill_version':version,'spec_sha256':chosen['spec_sha256'],
+    return {'model_job_id':model_job_id,'skill_id':skill_id,'skill_version':version,'spec_sha256':spec_sha256,
         'model_manifest_sha256':result['model_manifest_sha256'],'checkpoint_content_sha256':digest(weights),
         'aggregate_sha256':_sha(source),'device':'cpu','state_dimension':106,'action_dimension':9,
         'hardware_commands_dispatched':False,'physical_execution_authorized':False}

@@ -1,0 +1,36 @@
+{
+  "schema": "explorer06_target_queue_label_actual_UI_v1",
+  "code_commit": "e1f7eb9",
+  "status": "SCOPED_SOFTWARE_PASS_NOT_DEPLOYED",
+  "all_four_PNG_visually_inspected": true,
+  "desktop_width": 1440,
+  "mobile_width": 390,
+  "raw_job_kind_absent_from_DOM": true,
+  "original_target_and_source_results_unchanged": true,
+  "new_optimizer_updates": 0,
+  "actual_native_commands": 0,
+  "physical_acceptance": false,
+  "retained_harness_failure": "C attempted #app.innerText but actual root is #main; exception retained, own queued job cancelled. D uses observed #main. Product code unchanged betweenC/D.",
+  "evidence": [
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-learning-actual-UI-20261028-d/receipt.json",
+      "sha256": "cb29bed8c2922a00606a0b22aad7fb117ef180b56cd41e79bca836ae2314226f"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-learning-actual-UI-20261028-d/desktop-prepared.png",
+      "sha256": "5979fdbae1132a721a76cff72c5a697edcfac0ada78ebfab2fdd0545a7550e88"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-learning-actual-UI-20261028-d/desktop-queued.png",
+      "sha256": "a93fdb0e535ed983f3140146424883ae383aa7aa891694ae88bc63479aed7cb1"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-learning-actual-UI-20261028-d/mobile-prepared.png",
+      "sha256": "ab84589143a75489a1efd4903cb49aa1875aa3d4461fc6d6ccff464cdfe9511d"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-learning-actual-UI-20261028-d/mobile-queued.png",
+      "sha256": "0da2e4e89d1285707c8b61e6192c4035068a03670e61d25b9951e5503dcb48b1"
+    }
+  ]
+}
