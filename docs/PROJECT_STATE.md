@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T03:31:00+03:00`
-Code commit: `cbd82a1280d95950ac6a85b1edbaed8daf5e0258`
+Updated: `2026-10-28T03:43:00+03:00`
+Code commit: `4da35a8e614cfd5e98e96f84843f5d4d1849b768`
 Current task: `E05-MANUAL`
 Next tasks: `E05-MANUAL`, `E05-LEARNING`, `E06-PIPELINE`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -197,3 +197,14 @@ Frozen192PASS49.41s +279NodePASS2.59s; [proof](../_registry/evidence/experiment0
 NOTdeployed; currentE05MANUAL. Whole manual/manual JS→Root→durable Inbox protocol
 now passed locally on explicit software fixtures; browser/observed adapters and
 paired learning/release remain next. No actual native commands/config changes.
+
+
+Candidate4da35a8 whole manual software component: actual JS→Root→durable Inbox
+all10 events, Firefox1440/390 DOM flow/2fresh hold prompts/0JSerror/overflow,
+4screenshots inspected. Original fake publisher/localhost fake-bus Station tail:
+parked release→explicit manual opening→independent transfer→unfreeze→both park.
+Fixed local receiver transport revocation BEFORE explicit Source STOP IO (foreign
+epoch/other-role fences), honest COMPLETED/INTERRUPTED UI and mobile wrapping.
+Frozen62PASS147.06s +281NodePASS5.21s; [scope/proof](../05-cooperative-handover/docs/WHOLE_MANUAL_FLOW_RU.md).
+NOTdeployed/full05DONE; E05MANUAL remains current while paired data/learning and
+entire05 page/source-control panels are integrated, before one full/scoped release.

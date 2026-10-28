@@ -1,0 +1,72 @@
+{
+  "schema": "explorer05_whole_manual_software_component_v1",
+  "code_commit": "4da35a8e614cfd5e98e96f84843f5d4d1849b768",
+  "status": "IMPLEMENTED_SOFTWARE_TESTED_NOT_DEPLOYED",
+  "tests": {
+    "frozen_targeted_Python": 62,
+    "seconds": 147.06,
+    "Node_passed": 281,
+    "Node_ms": 5211.526626,
+    "CPUQuota": "300%",
+    "MemoryMax": "4G",
+    "swap": 0,
+    "full_regression": false
+  },
+  "raw_sha256": {
+    "/mnt/explorer-data/explorer-work/05-manual-flow-20261028-4da35a8/result/pytest.log": "bdab78931146bdbe41a4c445ae99db378527c529f620d301821bb25844e6cd31",
+    "/mnt/explorer-data/explorer-work/05-manual-flow-20261028-4da35a8/result/node.log": "36306f1e6cfabeaf8cdd8635a1d43708b06d2d77b8a9c932a25b55ca7c2e1d67",
+    "/mnt/explorer-data/explorer-work/05-whole-manual-Firefox-20261028-e/receipt.json": "524786ef4879ae2ad7e8e8be774efe1c895f5612ae6070e229ac3c22a12e5d2c",
+    "/mnt/explorer-data/explorer-work/05-whole-manual-Firefox-20261028-e/desktop-top.png": "9d860df1e880a548c9502096e2c538a8c332b78480fac0d0ffff6d0bf6f1ef3d",
+    "/mnt/explorer-data/explorer-work/05-whole-manual-Firefox-20261028-e/desktop-recording.png": "a851b2ef11c24911c7008623299378409397716a1afa2d0e7d0d2e9ede7c5e6a",
+    "/mnt/explorer-data/explorer-work/05-whole-manual-Firefox-20261028-e/mobile-top.png": "8b874b921b282e37d8b55d8371c2ef92196027097b5e599c8e02791f2e6f27c5",
+    "/mnt/explorer-data/explorer-work/05-whole-manual-Firefox-20261028-e/mobile-recording.png": "4c35fdf098980114887cfc65aaeda7a0c9f5c3d1f2b07a688c8aa8d44c305180"
+  },
+  "Firefox": {
+    "isolated_current_backend": true,
+    "viewports": [
+      1440,
+      390
+    ],
+    "all_ten_FSM_events": true,
+    "receiver_hold_prompts_each": 2,
+    "JS_errors": 0,
+    "document_or_button_overflow": false,
+    "screenshots_visually_inspected": 4,
+    "scope": "Actual current workbench/client/Root/durable Inbox; generated images and fake native metadata HTTP, not the entire production app or physical scene"
+  },
+  "native_tail": {
+    "original_publisher_fixture": true,
+    "real_authenticated_localhost_original_station_fake_buses": true,
+    "scope": "Pre-grasp state supplied by existing explicit fixture; real Root parked release control \u2192 manual fake original opening \u2192 independent transfer \u2192 receiver unfreeze \u2192 park both \u2192 final confirmation",
+    "authorization_alone_opens": false,
+    "transfer_metadata_moves_receiver": false,
+    "physical_success_claimed": false
+  },
+  "fixes": [
+    "Explicit native STOP detaches only the matching local epoch before source IO, including unknown reply; other role retained",
+    "Giver phase detachment reuses the same local helper",
+    "Completed/interrupted status no longer fabricates a confirmed STOP",
+    "Scoped mobile button wrapping and grid min-width fix after screenshot review"
+  ],
+  "negative_receipts_preserved": [
+    "05-manual-native-tail-20261028-a.log: test expected an incorrect response key",
+    "05-manual-native-tail-20261028-b.log: actual stale receiver transport reproduced",
+    "Firefox-a/b invalid generated PNG",
+    "Firefox-c old stored session selected before new fixture session settled",
+    "Firefox-d passed machine checks but screenshot exposed false STOP caption and clipped button"
+  ],
+  "live_unchanged": {
+    "HB": "9766bc3ee495a104a16303fef0c4b4d4d215eef0",
+    "Pi_Nano_OWN": "c516de71c156b1d427f367be4a0754fe1b54bb81"
+  },
+  "actual_native_commands": 0,
+  "actual_native_grants": 0,
+  "controller_configuration_changes": 0,
+  "physical_acceptance": false,
+  "remaining": [
+    "paired native data/review/import/learning/reload/shadow through existing02/04 pipelines",
+    "entire current05 page and source-control panels integration proof",
+    "full frozen05 regression and scoped deploy",
+    "real observed scene/reference/hold/transfer acceptance"
+  ]
+}
