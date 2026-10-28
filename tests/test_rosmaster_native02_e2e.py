@@ -33,10 +33,11 @@ from test_native_capture_approval import approved
 from test_skill_workflow import skill,assign
 
 
-def native_aggregate(tmp_path,monkeypatch):
-    store=Store(tmp_path/'nx');selected=skill(store);phases=[row['id'] for row in selected['spec']['stages']]
+def native_aggregate(tmp_path,monkeypatch,*,store=None,selected=None,session_for_variant=None,prepare_context=None):
+    store=store if store is not None else Store(tmp_path/'nx')
+    selected=selected if selected is not None else skill(store);phases=[row['id'] for row in selected['spec']['stages']]
     sessions={split:create_session(store,selected['spec']['skill_id'],1,{'split':split,'scene':'software-scene-'+split})
-        for split in ('train','development','sealed_test')}
+        for split in ('train','development','sealed_test')} if session_for_variant is None else {}
     requests=[];originals={};client_type=httpx.Client
     for episode_index,variant in enumerate(selected['spec']['coverage_plan']['variants']):
         clock=Clock();clock.value=1000;tap=NativeDispatchTap(boot_id='software-boot',clock_domain='nano',clock=clock)
@@ -50,13 +51,14 @@ def native_aggregate(tmp_path,monkeypatch):
         def consume(*args,original_consume=original_consume):
             result=original_consume(*args);consumed.set();return result
         writer._consume=consume
-        session=sessions[variant['split']]
+        session=session_for_variant(episode_index,deepcopy(variant)) if session_for_variant else sessions[variant['split']]
         context={'project_id':'02','input_mode':'keyboard','skill_id':selected['spec']['skill_id'],'skill_version':1,
             'skill_spec_sha256':selected['spec_sha256'],'variant_id':variant['variant_id'],'session_id':session['session_id'],
             'episode_scope':'whole_episode','phase_id':phases[0],'operator_input_trace_required':True,
             'split':{'partition':variant['split'],'scene_id':'software-scene-'+variant['split'],'session_id':session['session_id'],
                 'object_instance_id':'software-object-'+str(episode_index),'group_id':'software-series-'+str(episode_index),
                 'group_by':['scene_id','session_id','episode_id','object_instance_id']}}
+        if prepare_context is not None:context=prepare_context(episode_index,deepcopy(variant),deepcopy(session),deepcopy(context))
         identity=writer.start(context,canonical(tap.since(0)))['recording_id']
         journal.active_id=identity  # Passive callback only; fetch_enabled staysFalse.
         try:

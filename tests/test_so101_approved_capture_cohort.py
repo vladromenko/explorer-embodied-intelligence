@@ -80,7 +80,7 @@ def _video_review(store,chosen,raw,binding,*,previous=None):
     return flow.review_episode(store,chosen['spec']['skill_id'],1,body)
 
 
-def approved_cohort(tmp_path):
+def approved_cohort(tmp_path,*,store=None,chosen=None,session_for_variant=None,prepare_context=None):
     """One confirmed SkillSpec/five variants; all inputs visibly software-only.
 
     Only the original recorder file writer is started; never Station._work or
@@ -88,8 +88,10 @@ def approved_cohort(tmp_path):
     returning, so this factory can be reused in an isolated queue proof.
     """
     tmp_path=Path(tmp_path);tmp_path.mkdir(parents=True,exist_ok=True)
-    store=Store(tmp_path/'state');chosen=flow.propose(store,{'template_id':'pick_object_to_container'})
-    chosen=flow.confirm(store,chosen['spec']['skill_id'],1,{'spec_sha256':chosen['spec_sha256']})
+    store=store if store is not None else Store(tmp_path/'state')
+    if chosen is None:
+        chosen=flow.propose(store,{'template_id':'pick_object_to_container'})
+        chosen=flow.confirm(store,chosen['spec']['skill_id'],1,{'spec_sha256':chosen['spec_sha256']})
     variants=chosen['spec']['demo_plan']['variants']
     assert Counter(row['split'] for row in variants)=={'train':3,'development':1,'sealed_test':1}
     sources=[]
@@ -101,9 +103,11 @@ def approved_cohort(tmp_path):
             record_start=source.start,record_finish=source.finish,read_manifest=source.manifest,
             archive_original=source.archive,clock_domain=source.station.clock_domain,boot_id=source.station.boot,clock=clock)
         try:
-            session=flow.create_session(store,chosen['spec']['skill_id'],1,{'scene_id':'GENERATED_SCENE_'+str(index),'split':variant['split']})
+            session=(session_for_variant(index,deepcopy(variant)) if session_for_variant else
+                flow.create_session(store,chosen['spec']['skill_id'],1,{'scene_id':'GENERATED_SCENE_'+str(index),'split':variant['split']}))
             body=flow.capture_context(store,chosen['spec']['skill_id'],1,{'variant_id':variant['variant_id'],
                 'session_id':session['session_id'],'object_instance_id':'GENERATED_OBJECT_'+str(index)})['record_start_body']
+            if prepare_context is not None:body=prepare_context(index,deepcopy(variant),deepcopy(session),deepcopy(body))
             started=clock();ident=adapter.start(body,'SOFTWARE_FIXTURE_SOURCE_ACTOR')['recording_id']
             for step in range(8):
                 if step==3:clock.value=started+350_000_000;adapter.pause(ident)
