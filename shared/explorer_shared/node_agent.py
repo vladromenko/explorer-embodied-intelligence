@@ -170,7 +170,7 @@ class CameraSource:
 
 
 class OpenCVCamera(CameraSource):
-    def __init__(self, device, lock_path, width=640, height=480, fps=15):
+    def __init__(self, device, lock_path, width=1280, height=720, fps=15):
         super().__init__("pi-overview", "Logitech Pi · рабочее поле LeRobot")
         self.device, self.lock_path = str(device), Path(lock_path)
         self.width, self.height, self.fps = width, height, min(30, max(1, fps))
@@ -193,11 +193,12 @@ class OpenCVCamera(CameraSource):
                         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
                         cap.set(cv2.CAP_PROP_FPS, self.fps)
                         cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+                        cap.set(cv2.CAP_PROP_AUTOFOCUS, 1)
                     ok, image = cap.read()
                     received_ns = time.monotonic_ns()
                     if not ok or image is None:
                         raise RuntimeError("Camera returned no frame")
-                    ok, jpeg = cv2.imencode(".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, 80])
+                    ok, jpeg = cv2.imencode(".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, 92])
                     if not ok:
                         raise RuntimeError("JPEG encoding failed")
                     self.publish(jpeg.tobytes(), image.shape[1], image.shape[0],
@@ -1234,6 +1235,9 @@ def make_handler(agent):
                 elif retarget:
                     self._json(200, agent.retarget_command(path.removeprefix('/arm-retarget/'), payload))
                 elif station:
+                    if path=='/station/connect':
+                        from .station_connection import connect_station
+                        self._json(200,connect_station(agent.station));return
                     if path.startswith('/station/observed-test/'):
                         if urlsplit(self.path).query:raise ValueError('Fixed observed permission API takes no query parameters')
                         provider=getattr(agent,'station_observed',None)

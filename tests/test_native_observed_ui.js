@@ -41,3 +41,16 @@ test("late permission status after interruption is ignored before native acquisi
   const pending=r.client.requirePermission("keyboard");r.client.cancelPending();answer({execution_permission:true,authorization_id:"late",input_mode:"keyboard",chassis_motion_allowed:true});
   await assert.rejects(()=>pending,/прервана/);assert.equal(r.client.chassisAllowed(),false);
 });
+test("one explicit control click displays its frame and obtains the existing manual permission",async()=>{
+ const r=rig();let shown=false;r.options.displayFrame=async url=>{assert.equal(url,'blob:mock');shown=true;};
+ await r.client.connect('keyboard');assert.ok(shown);
+ const request=r.calls.find(row=>row.path.endsWith('/authorize'));assert.ok(request);
+ const body=JSON.parse(request.body);assert.equal(body.input_mode,'keyboard');assert.equal(body.owner_chassis_test_authorized,true);
+ assert.ok(!r.calls.some(row=>row.path.endsWith('/prepare')||row.path.endsWith('/begin')));
+});
+test("explicit first-connect initialization reuses original HOME and then obtains a fresh manual permission",async()=>{
+ const r=rig();await r.client.connect('keyboard',{initializeArm:true});
+ assert.equal(r.calls.filter(row=>row.path.endsWith('/arm/prepare')).length,1);
+ assert.equal(r.calls.filter(row=>row.path.endsWith('/authorize')).length,2);
+ const body=JSON.parse(r.calls.find(row=>row.path.endsWith('/arm/prepare')).body);assert.equal(body.acknowledge_factory_home_motion,true);
+});

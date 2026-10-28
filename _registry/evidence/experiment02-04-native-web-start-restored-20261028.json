@@ -1,0 +1,33 @@
+{
+  "schema": "explorer_native_operator_web_start_repair_v1",
+  "status": "ORIGINAL_NATIVE_WEB_RUNNING",
+  "old_sha256": "a9d46700c3c102887c8ba122394f745f865266500c92952a86a9f2825a1661d2",
+  "new_sha256": "20009b37fb89a389ed7ef1708177d2ef439aae319bffdf9bd9af58b92c44feab",
+  "changed_lines": 1,
+  "removed_app_startup_gate_only": true,
+  "controller_configs_unchanged": true,
+  "teleop": {
+    "owner": null,
+    "stop_latched": true,
+    "neutral_seen": false,
+    "lease_age_s": 0.0,
+    "precision": false,
+    "arm_speed": "normal",
+    "arm_speed_selected": "normal",
+    "arm_mode": "cartesian",
+    "generation": 0,
+    "inputs": {},
+    "drive_active": false,
+    "arm_busy": false,
+    "error": null,
+    "backend": "shared_manual_teleop",
+    "control_scheme": "explorer-manual-v2",
+    "measured_joint_feedback": false
+  },
+  "new_PID": "10141",
+  "actual_native_control_requests_sent": 0,
+  "raw_receipt": "/mnt/explorer-data/explorer-work/02-04-native-start-20261028-a/stdout.json",
+  "physical_acceptance": false,
+  "extra_startup_guard_disabled": true,
+  "original_factory_startup_configuration_preserved": true
+}

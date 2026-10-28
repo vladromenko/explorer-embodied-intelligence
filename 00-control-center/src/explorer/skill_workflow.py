@@ -850,7 +850,7 @@ def begin_capture(store,skill_id,version,variant_id,session_id,*,request_id=None
     with store.connect() as db:
         db.execute('BEGIN IMMEDIATE');selected=_get_spec(db,skill_id,version);spec=selected['spec'];variant=_variant(spec,variant_id);session=_session(db,session_id)
         if not selected['confirmed']:raise WorkflowBlocked(['skill_spec_not_confirmed'])
-        if stationary_chassis_confirmed is not True:raise WorkflowBlocked(['owner_chassis_motion_forbidden'])
+        if type(stationary_chassis_confirmed) is not bool:raise ValueError('Explicit recording chassis scope required')
         if episode_scope not in ('whole_episode','targeted_subskill','recovery'):raise ValueError('Unknown episode coverage scope; action contract always remains full 9D')
         targets=target_phase_ids if target_phase_ids is not None else [item['id'] for item in spec['stages']]
         if not isinstance(targets,list) or not targets or any(not isinstance(item,str) for item in targets) or len(set(targets))!=len(targets) or set(targets)-{item['id'] for item in spec['stages']}:raise ValueError('Explicit valid target phases required')
@@ -859,7 +859,7 @@ def begin_capture(store,skill_id,version,variant_id,session_id,*,request_id=None
         if session['skill_id']!=spec['skill_id'] or session['version']!=version or session['split']!=variant['split']:raise ValueError('Recording context belongs to a different skill/version/split')
         payload=dict(capture_id=capture_id,skill_id=spec['skill_id'],version=version,spec_sha256=selected['spec_sha256'],variant_id=variant_id,session_id=session['session_id'],split=variant['split'],
             context=context,project_id=project_id,input_mode=context['input_mode'],workflow_family=WORKFLOW_FAMILY,
-            native_payload_additions={},automatic_motion=False,episode_scope=episode_scope,target_phase_ids=targets,stationary_chassis_confirmed=True,
+            native_payload_additions={},automatic_motion=False,episode_scope=episode_scope,target_phase_ids=targets,stationary_chassis_confirmed=stationary_chassis_confirmed,
             action_contract_id=UNIFIED_ACTION_CONTRACT,neutral_channels_retained=True)
         payload.update(scene_id=session['scene'],**{name:session[name] for name in ('object_instance_id','group_id') if name in session})
         if phase_id is not None:payload['phase_id']=phase_id

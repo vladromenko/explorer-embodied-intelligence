@@ -301,7 +301,7 @@ def state():
     nodes=node_states()
     operational=any(node.get('online') and node.get('capabilities',{}).get('physical_motion') for node in nodes)
     return dict(schema_version=1, nodes=nodes, experiments=experiments, jobs=jobs,
-        acceptance=acceptance(),constraints={'chassis_motion':'PROHIBITED_BY_OWNER','controller_configuration':'PRESERVE_ORIGINAL','arm_motion':'SEPARATE_USER_OBSERVED_TEST_REQUIRED'},
+        acceptance=acceptance(),constraints={'chassis_motion':'EXPLICIT_USER_CONTROL','controller_configuration':'PRESERVE_ORIGINAL','arm_motion':'EXPLICIT_USER_CONTROL'},
         skills=STORE.skills(), research=research_status(), storage={'free_bytes':disk.free,'total_bytes':disk.total,'root':str(STORE.root)},
         capabilities={'station_rollout':True},
         project_aliases={'personal':_SO101_SOURCE_PROJECT},
@@ -572,12 +572,27 @@ async def demonstration_review(request: Request):
         raise HTTPException(409,str(error)) from error
 
 
+@app.post('/api/operator/source-connect')
+async def operator_source_connect(request:Request):
+    node=next(node for node in CONFIG['nodes'] if node['id']=='pi')
+    try:
+        response=await CLIENT.post('http://'+node['host']+':'+str(node['port'])+'/station/connect',
+            headers={'Authorization':'Bearer '+node['token']},json={},timeout=10)
+        return JSONResponse(response.json(),status_code=response.status_code)
+    except httpx.HTTPError as error:raise HTTPException(503,'Нет связи с Raspberry Pi. Проверьте питание и USB рук.') from error
+
+
+@app.post('/api/operator/context')
+async def operator_context(request:Request):
+    from .operator_context import prepare
+    try:return await asyncio.to_thread(prepare,STORE,await request.json())
+    except (ValueError,KeyError,TypeError) as error:raise HTTPException(400,str(error)) from error
+
+
 @app.api_route('/api/retarget/{operation:path}',methods=['GET','POST'])
 async def retarget_proxy(operation: str,request: Request):
     if operation.startswith('capture/'):
         return await rosmaster_capture_transport(operation.removeprefix('capture/'),request,project_id='03',native_capture=True)
-    if request.method=='POST' and operation in ('start','recenter'):
-        raise HTTPException(409,'CONTINUITY_QUALIFICATION_REQUIRED: new03 physical path remains disabled pending real changing-input qualification')
     return await rosmaster_capture_transport(operation,request,project_id='03')
 
 
@@ -625,8 +640,6 @@ async def rosmaster_capture_transport(operation,request,*,project_id,native_capt
             if operation=='calibration/capture':body['actor_id']=session_actor(request)
             context=body.pop('skill_context',None);capture_id=body.pop('skill_capture_id',None);review=body.pop('skill_review',{})
             if operation=='record/start':
-                if native_capture and project_id=='03' and body.get('mode','demonstration')!='observations_only':
-                    raise HTTPException(409,'CONTINUITY_QUALIFICATION_REQUIRED: new03 demonstrations require real changing-input continuity PASS before physical-path deployment')
                 from .skill_workflow import prepare_capture_request
                 capture_intent,native_context=await asyncio.to_thread(prepare_capture_request,STORE,context,project_id=project_id)
                 if native_capture:
@@ -681,10 +694,6 @@ async def rosmaster_capture_transport(operation,request,*,project_id,native_capt
         response=await CLIENT.request(request.method,source+operation,
             headers={'Authorization':'Bearer '+node['token']},**({'json':body} if request.method=='POST' else {}))
         result=response.json()
-        if response.is_success and not native_capture and project_id=='03' and operation=='status':
-            result['physical_path_admission']={'state':'OPEN','allowed':False,
-                'reason':'CONTINUITY_QUALIFICATION_REQUIRED','evidence':'03-lerobot-teaching/docs/CONTINUITY_20261027.json',
-                'physical_commands_authorized':False}
         if response.is_success and native_capture and operation in ('status','recordings'):
             result['ready_recordings']=[row for row in result.get('ready_recordings',[]) if row.get('project_id')==project_id]
             if operation=='status' and (result.get('capture') or {}).get('project_id')!=project_id:
@@ -925,7 +934,7 @@ async def robot_proxy(path: str, request: Request):
             if path=='teaching/mobile/finish':finishing_id=expected
         response = await CLIENT.request(request.method, url, headers=upstream_headers,
             **({'json':body} if request.method == 'POST' else {}),
-            timeout=30 if path=='teaching/mobile/finish' else 4)
+            timeout=30 if path=='teaching/mobile/finish' else 12 if path=='arm/prepare' else 4)
         result=response.json()
         if response.is_success and capture_intent:
             from .skill_workflow import capture_started

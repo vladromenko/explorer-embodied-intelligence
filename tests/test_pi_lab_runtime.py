@@ -7,12 +7,14 @@ from test_pi_native_retarget import Geometry,Station,Peer
 
 
 @pytest.mark.parametrize('operation',['start','recenter','lease','activation/challenge','activation/authorize'])
-def test_open_real_continuity_gate_rejects_before_any_existing_peer_method(tmp_path,operation):
-    peer=Peer();service=PiNativeRetargetService(Geometry(),Station(),tmp_path,client=peer)
+def test_manual_control_delegates_to_existing_owner_without_research_gate(operation):
+    from types import SimpleNamespace
+    calls=[];recorder=object()
+    service=SimpleNamespace(recorder=recorder,command=lambda operation,body:calls.append((operation,body)) or {'existing_owner':True})
     lab=LabRetargetRuntime(service)
-    with pytest.raises(RuntimeError,match='CONTINUITY_QUALIFICATION_REQUIRED'):lab.command(operation,{})
-    assert peer.calls==[] and service.mode=='IDLE' and service.target_epoch is None
-    assert lab.recorder is service.recorder and lab.status()['physical_path_admission']['allowed'] is False
+    assert lab.command(operation,{'user_button':True})=={'existing_owner':True}
+    assert calls==[(operation,{'user_button':True})] and lab.recorder is recorder
+    assert lab.physical_admission()['allowed'] and not lab.physical_admission()['physical_commands_authorized']
 
 
 def test_original_status_and_idle_worker_close_remain_peer_IO_free(tmp_path):
@@ -21,7 +23,7 @@ def test_original_status_and_idle_worker_close_remain_peer_IO_free(tmp_path):
     try:
         for _ in range(5):
             status=lab.status();assert status['peer_configured'] and status['runtime_profile']=='so101_lab'
-            assert status['state']=='IDLE' and not status['physical03_commands_enabled']
+            assert status['state']=='IDLE' and status['physical03_commands_enabled']
     finally:lab.close()
     assert peer.calls==[] and not service.thread.is_alive()
 

@@ -99,7 +99,7 @@ const sourceEvaluation = createSourceEvaluationClient({get:api,post:(...args)=>p
   onChange:()=>{if(sourceEvaluationRoute())refreshSourcePane("evaluation");}});
 let sourceEvaluationUnbind = () => {}, sourceEvaluationLoadedAt = 0;
 const sourceDemonstration = createSourceDemonstrationClient({get:api,post:(url,body)=>post(url,body,{keepalive:true}),
-  visible:sourceEvaluationRoute() && !document.hidden,onChange:()=>{if(sourceEvaluationRoute())refreshSourcePane("demonstration");}});
+  visible:sourceEvaluationRoute() && !document.hidden,displayFrame:async url=>{const image=document.querySelector("#camera-image");if(!image)return false;image.src=url;await image.decode();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));return !document.hidden;},onChange:()=>{if(sourceEvaluationRoute())refreshSourcePane("demonstration");}});
 let sourceDemonstrationUnbind = () => {}, sourceDemonstrationLoadedAt = 0;
 const labSkills = createLabSkillsClient({api,onChange: () => {
   const state=labSkills.snapshot().state;
@@ -110,6 +110,72 @@ const labSkills = createLabSkillsClient({api,onChange: () => {
   if(!sourceEvaluationRoute() || body?.skill_id!==chosen.selected || body?.skill_version!==chosen.version || body?.skill_spec_sha256!==chosen.state?.spec_sha256)return;
   sourceDemonstration.setContext(context,chosen.state.spec.phase_ids);toast("Контекст показa выбран. Подготовьте показ и отдельно подтвердите наблюдение за руками.");
 }});
+const simpleOperator={busy:false,error:"",contexts:{},skills:{},recordings:{},task:""};
+async function operatorContext(project){
+  if(simpleOperator.contexts[project])return simpleOperator.contexts[project];
+  const known=simpleOperator.skills[project];
+  const selected=known?.task===simpleOperator.task?{skill_id:known.id,skill_version:known.version}:{};
+  const result=await post("/api/operator/context",{project_id:project,task:simpleOperator.task,request_id:crypto.randomUUID(),...selected});
+  simpleOperator.skills[project]={id:result.skill.spec.skill_id,version:result.skill.spec.version,task:simpleOperator.task};
+  simpleOperator.contexts[project]=result;
+  if(project!=="04"){skillWorkflowUI.selected=result.skill.spec.skill_id;skillWorkflowUI.version=result.skill.spec.version;skillWorkflowUI.variant=result.context.variant_id;skillWorkflowUI.session=result.context.session_id;skillWorkflowUI.initialPhase=result.context.phase_id;}
+  return result;
+}
+async function operatorSourceControl(){
+  const previous=sourceDemonstration.snapshot();
+  if(previous.owner?.native_mode==="teleoperation"&&!previous.recordingID&&simpleOperator.contexts["04"])return;
+  if(previous.owner?.native_mode==="teleoperation")await sourceDemonstration.stop();
+  if(direct03.owned)await direct03Stop();if(keyboard.active)await stopKeyboard(true);if(browserGamepad.status().state==="active")await browserGamepad.disconnect();
+  await post("/api/operator/source-connect",{});
+  const prepared=await operatorContext("04");
+  await labSkills.select(prepared.skill.spec.skill_id,prepared.skill.spec.version);
+  await sourceDemonstration.setContext(prepared.context,prepared.phases);
+  await sourceDemonstration.prepare();
+  await sourceDemonstration.requestChallenge();
+  for(const key of Object.keys(sourceDemonstration.snapshot().flags))sourceDemonstration.affirm(key,true);
+  await sourceDemonstration.authorize();await sourceDemonstration.start();
+}
+async function operatorRecord(project){
+  if(project==="04"){await operatorSourceControl();await sourceDemonstration.captureStart();return;}
+  if(project==="02"&&!keyboard.active)await startKeyboard();
+  if(project==="03"&&!direct03.owned){await direct03Control("direct03-start");if(!direct03.owned)throw new Error(direct03.error||"Нет связи с ROSMASTER");}
+  const prepared=await operatorContext(project);
+  const response=await post(demonstrationCapturePrefix()+"record/start",{name:simpleOperator.task||"Показ",skill_context:prepared.context});
+  simpleOperator.recordings[project]=response;
+  if(response.skill_capture)skillWorkflowCaptureStarted(response.skill_capture.capture_id,response.skill_capture);
+  await loadRobot();
+}
+async function operatorFinish(project){
+  if(project==="04"){await sourceDemonstration.finish("unknown");delete simpleOperator.contexts[project];return;}
+  const recording=simpleOperator.recordings[project];
+  const id=recording?.recording_id||demonstrationTeaching().active?.id;
+  const scope=recording?.skill_capture;
+  if(!id||!scope)throw new Error("Нет активной записи этой сессии");
+  await post(demonstrationCapturePrefix()+"record/finish",{recording_id:id,skill_capture_id:scope.capture_id,outcome:"unknown",skill_review:{outcome:"unknown",completed_stages:[],full_task_confirmed:false,object_and_goal_visible:false,phase_outcomes:Object.fromEntries(scope.target_phase_ids.map(phase=>[phase,"unknown"]))}});
+  delete simpleOperator.recordings[project];delete simpleOperator.contexts[project];await loadRobot();
+}
+function operatorRecordingPanel(project){
+  const source=project==="04"?sourceDemonstration.snapshot():null;
+  const active=source?Boolean(source.recordingID&&["RECORDING","PAUSED"].includes(source.status?.capture?.capture?.state)):Boolean(demonstrationTeaching().active||simpleOperator.recordings[project]);
+  return `<section class="panel spaced-section"><div class="panel-heading"><h2>Обучение навыку</h2></div><div class="panel-body"><label class="form-field">Название навыка<input data-operator-task value="${esc(simpleOperator.task)}" placeholder="Например: переложить предмет в коробку" maxlength="100"></label><p>${active?"Записываются действия и камера":"Покажите роботу нужные действия. Кнопка начинает запись."}</p><div class="teleop-actions"><button class="button primary" data-operator-action="record" ${simpleOperator.busy||active?"disabled":""}>Обучать навыку · начать запись</button><button class="button secondary" data-operator-action="finish" ${simpleOperator.busy||!active?"disabled":""}>Завершить и сохранить</button></div>${simpleOperator.error?`<p class="form-error" role="alert">${esc(simpleOperator.error)}</p>`:""}</div></section>`;
+}
+document.addEventListener("input",event=>{if(event.target.matches?.("[data-operator-task]")){simpleOperator.task=event.target.value;for(const project of Object.keys(simpleOperator.contexts))if(simpleOperator.skills[project]?.task!==simpleOperator.task)delete simpleOperator.contexts[project];}});
+document.addEventListener("click",async event=>{
+  const button=event.target.closest?.("[data-operator-action]");if(!button||button.disabled||simpleOperator.busy)return;
+  const project=activeProject()?.id;simpleOperator.busy=true;simpleOperator.error="";button.disabled=true;
+  try{
+    const action=button.dataset.operatorAction;
+    if(action==="record")await operatorRecord(project);
+    else if(action==="finish")await operatorFinish(project);
+    else if(action==="gamepad"){
+      if(browserGamepad.status().state==="active")await browserGamepad.disconnect();
+      else{const pad=browserGamepad.scan().find(row=>row&&row.connected&&row.mapping==="standard");if(!pad)throw new Error("Подключите джойстик к Mac и нажмите любую его кнопку.");await browserGamepad.select(pad.index);await browserGamepad.connect();}
+    }
+    else if(action==="source-control")await operatorSourceControl();
+    else if(action==="source-disconnect")await sourceDemonstration.stop();
+  }catch(error){simpleOperator.error=error.message;toast(error.message,true);}
+  finally{simpleOperator.busy=false;model.forceRender=true;render();}
+});
 let labSkillsLoadedAt = 0;
 const keyboard = new ManualKeyboard();
 const mobileLearning = { importJob: "" };
@@ -185,6 +251,7 @@ async function api(path, options = {}) {
 const post = (path, body = {}, options = {}) => api(path, { method: "POST", body: JSON.stringify(body), ...options });
 const observedNative = createObservedNativeClient({api,now:()=>performance.now(),
   createURL:blob=>URL.createObjectURL(blob),revokeURL:url=>URL.revokeObjectURL(url),
+  displayFrame:async url=>{const image=document.querySelector("#camera-image");if(image){image.src=url;await image.decode();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));}},
   decode:async url=>{const image=document.createElement("img");image.src=url;await image.decode();},
   frame:async id=>{
     const response=await fetch(`/api/native-activation/frame/${encodeURIComponent(id)}`,{credentials:"same-origin",cache:"no-store"});
@@ -289,7 +356,7 @@ function startCamera() {
   }
 }
 function syncCamera() {
-  const available = cameras();
+  const available = sourceEvaluationRoute()?cameras().filter(camera=>camera.id==="pi-overview"):cameras();
   const manual = rosmasterDemonstrationRoute();
   cameraSelect.disabled = manual;
   const signature = `${path()}|` + available.map((camera) => `${camera.id}:${cameraLabel(camera)}:${camera.available}:${camera.node_online}`).join("|");
@@ -322,6 +389,7 @@ function filterManualKeysForCurrentOwnerConstraints(keys) {
   if(observedNative.chassisAllowed())return keys;
   return keys.filter(key => !["KeyW", "KeyS", "KeyA", "KeyD", "KeyQ", "KeyE"].includes(key));
 }
+function nativeArmNeedsHome(){return model.robot.arm?.ready===true&&!model.robot.arm?.servo_deg&&/сначала подготовьте|reference.*(?:missing|unavailable)|same.boot/i.test(model.robot.arm.blocked_by||"");}
 function rosmasterCameraReady() {
   return rosmasterDemonstrationRoute() && currentCamera === "nano-rgbd" && !document.hidden && manualPreview.ready();
 }
@@ -365,7 +433,7 @@ const browserGamepad = ExplorerBrowserGamepad.install({
   post: (url, body, options) => post(url, url.endsWith("/input") ? { ...body, operator_input_metadata: browserGamepad.inputProvenance() } : body, options),
   controls: async () => { await loadRobot(); return model.robot.controls; }, nativeState: () => model.robot.teleop || {},
   claim: () => claimManualInput("gamepad"), ownershipCurrent: ownsManualInput,
-  beforeConnect: async token => { await stopKeyboard(true); await waitManualIdle(keyboard, token); if (keyboard.stopUnconfirmed) throw new Error("STOP клавиатуры не подтверждён."); await observedNative.requirePermission("browser_gamepad"); },
+  beforeConnect: async token => { if(direct03.owned)await direct03Stop();await sourceDemonstration.drain();await stopKeyboard(true); await waitManualIdle(keyboard, token); if (keyboard.stopUnconfirmed) throw new Error("STOP клавиатуры не подтверждён."); await observedNative.connect("browser_gamepad",{initializeArm:nativeArmNeedsHome()}); },
   filterKeys: filterManualKeysForCurrentOwnerConstraints,
   chassisProhibited: () => !observedNative.chassisAllowed(),
   render: () => { model.forceRender = true; render(); }, error: message => toast(message, true)
@@ -374,12 +442,12 @@ keyboard.options = {
   post, filterKeys: filterManualKeysForCurrentOwnerConstraints,
   ready: () => activeProject()?.id === "02" && rosmasterCameraReady() && document.hasFocus() && !dialog.open,
   claim: () => claimManualInput("keyboard"), ownershipCurrent: ownsManualInput,
-  beforeConnect: async token => { await browserGamepad.disconnect("Выбрана клавиатура."); await waitManualIdle(browserGamepad, token); if (browserGamepad.stopUnconfirmed) throw new Error("STOP геймпада не подтверждён."); },
+  beforeConnect: async token => { if(direct03.owned)await direct03Stop();await sourceDemonstration.drain();await browserGamepad.disconnect("Выбрана клавиатура."); await waitManualIdle(browserGamepad, token); if (browserGamepad.stopUnconfirmed) throw new Error("STOP геймпада не подтверждён."); },
   prepare: async () => {
     if (!await manualPreview.ensureFresh()) throw new Error("Дождитесь свежих кадров ROSMASTER.");
     if (!model.robot.controls) await loadRobot();
     if (!ExplorerBrowserGamepad.qualifiedControls(model.robot.controls)) throw new Error("Штатная раскладка explorer-manual-v2 не подтверждена.");
-    await observedNative.requirePermission("keyboard");
+    await observedNative.connect("keyboard",{initializeArm:nativeArmNeedsHome()});
   },
   changed: () => { if (rosmasterDemonstrationRoute()) { model.forceRender = true; render(); } }
 };
@@ -476,11 +544,10 @@ function experimentPage(project) {
   return content;
 }
 
-function keyboardPanel() {
-  const live = model.robot.teleop;
-  const help = model.robot.controls?.help || {};
-  return `<section class="panel"><div class="panel-heading"><div><h2>Показ с клавиатуры</h2><p>Штатный исполнитель ROSMASTER · текущие ограничения</p></div>${badge(keyboard.active ? keyboard.paused ? "paused" : "running" : "not_started")}</div><div class="panel-body"><p class="form-description">Наблюдайте за рабочей сценой во время управления. После ухода из окна клавиатура отключается и сама не возобновляет движение.</p><div class="teleop-actions"><button class="button ${keyboard.active ? "secondary" : "primary"}" type="button" data-action="keyboard-toggle">${keyboard.active ? "Отключить клавиатуру" : "Наблюдаю сцену · включить клавиатуру"}</button><button class="button danger" type="button" data-action="robot-stop">${icon("cancel")}STOP</button></div><div class="teleop-mode"><span>Режим руки</span><button class="button small ${keyboard.mode === "cartesian" ? "ghost" : "secondary"}" data-arm-mode="cartesian" type="button" ${keyboard.active ? "" : "disabled"}>XYZ</button><button class="button small ${keyboard.mode === "joint" ? "ghost" : "secondary"}" data-arm-mode="joint" type="button" ${keyboard.active ? "" : "disabled"}>Суставы</button></div><div class="keyboard-guide"><p><kbd>W</kbd><kbd>S</kbd> вперёд / назад · <kbd>A</kbd><kbd>D</kbd> влево / вправо · <kbd>Q</kbd><kbd>E</kbd> поворот</p><p>${esc(keyboard.mode === "joint" ? help.keyboard_joint || "J/L — J1; I/K — J2; U/O — J3; Y/H — J4; ,/. — J5." : help.keyboard_cartesian || "I/K — X; J/L — Y; U/O — Z.")}</p><p><kbd>N</kbd><kbd>M</kbd> захват · <kbd>Shift</kbd> точно · <kbd>Space</kbd> / <kbd>Esc</kbd> STOP · <kbd>Enter</kbd> продолжить</p></div>${keyboard.active && keyboard.paused ? '<p class="teleop-message">STOP зафиксирован. Отпустите клавиши; Enter — продолжить.</p>' : ""}${keyboard.error || model.robot.error ? `<p class="form-error">${esc(keyboard.error || model.robot.error)}</p>` : ""}<p class="form-hint">Углы руки — командная оценка. Измеренная обратная связь суставов ${live?.measured_joint_feedback === true ? "доступна по данным робота" : "не подтверждена"}.</p></div></section>`;
+function keyboardPanel(){
+ return `<section class="panel"><div class="panel-heading"><h2>Управление ROSMASTER</h2></div><div class="panel-body"><p>Первое подключение после включения переводит руку в штатную стартовую позу.</p><div class="teleop-actions"><button class="button primary" type="button" data-action="keyboard-toggle" ${keyboard.busy||keyboard.starting||keyboard.stopping?"disabled":""}>${keyboard.active?"Отключить клавиатуру":"Управлять"}</button><button class="button secondary" data-operator-action="gamepad">${browserGamepad.status().state==="active"?"Отключить джойстик":"Управлять джойстиком"}</button>${keyboard.active?`<button class="button secondary" data-action="keyboard-stop">Пауза</button>`:""}<button class="button secondary" data-action="keyboard-mode" data-arm-mode="cartesian">XYZ</button><button class="button secondary" data-action="keyboard-mode" data-arm-mode="joint">Суставы</button></div><p>W/S — вперёд/назад · A/D — влево/вправо · Q/E — поворот.<br>I/K, J/L, U/O — рука · N/M — захват · Shift — точно · Space — пауза.</p>${keyboard.error?`<p class="form-error">${esc(keyboard.error)}</p>`:""}</div></section>`;
 }
+
 function demonstrationCapturePrefix() {
   return activeProject()?.id === "03" ? "/api/retarget/capture/" : "/api/mobile/capture/";
 }
@@ -496,20 +563,11 @@ function demonstrationTeaching() {
 function demonstrationRecordPath(operation) {
   return activeProject()?.id !== "03" && operation !== "start" && demonstrationTeaching().active?.source === "legacy" ? `/api/robot/teaching/mobile/${operation}` : `${demonstrationCapturePrefix()}record/${operation}`;
 }
-function experiment02Page(project) {
-  const leader = project.id === "03";
-  const jobs = model.jobs.filter(job => ["02", "03"].includes(projectId(job.project_id)));
-  const teaching = demonstrationTeaching(), active = teaching.active;
-  const status = active ? `Идёт запись · ${text(active.name, active.id)}` : "Запись остановлена";
-  const guide = leader ? `<section class="panel spaced-section"><div class="panel-heading"><h2>Leader → рука · клавиатура → база</h2></div><div class="panel-body keyboard-guide"><p>Рука ROSMASTER получает команды от измеряемого SO-101 leader. Recenter задаёт видимый новый epoch относительно текущей командной оценки цели.</p><p><kbd>W</kbd>/<kbd>S</kbd> вперёд/назад, <kbd>A</kbd>/<kbd>D</kbd> mecanum, <kbd>Q</kbd>/<kbd>E</kbd> поворот. ${observedNative.chassisAllowed() ? "Разрешён отдельный наблюдаемый тест базы; удерживайте кнопку передачи движений." : "Клавиши базы заблокированы до отдельного разрешения наблюдаемого теста."}</p><p><kbd>Space</kbd>/<kbd>Esc</kbd> — STOP. Ручное зеркало не создаёт датасет.</p></div></section>` : ExplorerBrowserGamepad.keyboardGuide(model.robot.controls || {});
-  const modes = leader ? `<section class="panel"><div class="panel-heading"><h2>Источник показа · SO-101 leader</h2></div><div class="panel-body"><div class="teleop-actions"><button class="button ${direct03.demoMode !== "record" ? "primary" : "secondary"}" type="button" data-action="direct03-mode" data-demo-mode="mirror">Зеркало · без записи</button><button class="button ${direct03.demoMode === "record" ? "primary" : "secondary"}" type="button" data-action="direct03-mode" data-demo-mode="record">Запись показа для обучения</button></div><p>Обучение, проверка и модели общие с опытом 02. Отличается только способ управления рукой во время демонстрации.</p></div></section>` : "";
-  const controls = leader ? modes + direct03Panel() : keyboardPanel() + ExplorerBrowserGamepad.panel(browserGamepad.status());
-  const recordPanel = !leader || direct03.demoMode === "record" ? `<div class="spaced-section">${episodePanel()}${episodeStagePanel()}</div>` : notice("Зеркало без обучения", "Включение ручного контура не создаёт эпизод. Для демонстраций выберите режим записи и подтверждённую версию навыка.");
-  return heading("Обучение ROSMASTER", "Единый мобильный манипулятор: восприятие, база, рука и захват. Общие 9D данные, охват показов, обучение и версии навыка.", `Исследовательский опыт / ${project.id}`) +
-    notice(observedNative.chassisAllowed()?"Наблюдаемый тест шасси разрешён":"Шасси по умолчанию заблокировано", "Любое движение — только в отдельной проверке под текущим наблюдением пользователя. Исходные настройки штатного исполнителя сохранены.") + '<a class="button secondary" href="/evening" data-link>Открыть мастер наблюдаемой сессии</a>' +
-    `<div class="experiment02-layout"><aside class="experiment02-aside"><div id="camera-slot"></div><div class="manual-session-status" role="status"><strong>${esc(status)}</strong><span id="manual-camera-status">${rosmasterCameraReady() ? "Свежие кадры ROSMASTER получены" : "Ожидаем свежий кадр ROSMASTER"}</span><span>Предпросмотр ≈ 5 кадров/с; исходная запись сохраняет свою частоту.</span></div>${rosmasterCameraInventoryPanel()}${guide}${leader ? `<section class="panel spaced-section"><div class="panel-heading"><h3>Измерения leader</h3></div><div class="panel-body">${stationMeasurements(true)}</div></section>` : ""}</aside><div class="experiment02-workflow">` +
-    controls + skillWorkflowPanel() + recordPanel +
-    `<div class="spaced-section">${mobileEvidencePanel(mobileEvidence.snapshot(), {preview: manualPreview.state(), teaching, project_id: project.id})}</div><div class="spaced-section">${jobsPanel(jobs, "Обучение и проверка ROSMASTER")}</div><div class="spaced-section">${recordingsPanel(project.id)}</div></div></div>`;
+function experiment02Page(project){
+ const leader=project.id==="03";
+ return heading(leader?"SO-101 → ROSMASTER":"Управление ROSMASTER","Камера, управление и запись показа.","Опыт "+project.id)+
+ `<div class="overview-grid"><div><div id="camera-slot"></div></div><div>${leader?direct03Panel():keyboardPanel()}${operatorRecordingPanel(project.id)}</div></div>`+
+ `<details class="spaced-section"><summary>Мои показы и обучение модели</summary>${episodeReviewPanel()}${skillWorkflowPanel(project.id)}</details>`;
 }
 
 function rosmasterCameraInventoryPanel() {
@@ -625,11 +683,12 @@ function mobileImportJobs() {
 }
 async function loadRobot() {
   const project = activeProject()?.id, prefix = demonstrationCapturePrefix();
-  const results = await Promise.allSettled([api("/api/robot/teleop"), api("/api/robot/teleop/controls"), api("/api/robot/teaching/mobile"),api(prefix + "capabilities"),api(prefix + "status")]);
+  const results = await Promise.allSettled([api("/api/robot/teleop"), api("/api/robot/teleop/controls"), api("/api/robot/teaching/mobile"),api(prefix + "capabilities"),api(prefix + "status"),api("/api/robot/arm/manual")]);
   if (activeProject()?.id !== project) return;
   if (results[0].status === "fulfilled") { model.robot.teleop = results[0].value; model.robot.error = null; }
   else model.robot.error = results[0].reason.message;
   if (results[1].status === "fulfilled") model.robot.controls = results[1].value;
+  if (results[5].status === "fulfilled") model.robot.arm = results[5].value;
   if (results[2].status === "fulfilled") model.robot.teaching = results[2].value;
   model.robot.captureCapabilities = results[3].status === "fulfilled" ? results[3].value : null;
   model.robot.nativeCapture = results[4].status === "fulfilled" ? results[4].value : null;
@@ -715,6 +774,9 @@ function updateHeader() {
   if (model.error) banner.textContent = model.lastUpdate ? "Связь со станцией прервалась. На экране последние полученные данные; пробуем подключиться снова." : `Ожидаем ответ станции. ${model.error}`;
 }
 function render() {
+  const simpleRoute=["/experiments/02","/experiments/03","/experiments/04"].includes(path());
+  document.getElementById("stop-button").hidden=simpleRoute;
+  const observationButton=cameraCard.querySelector('[data-action="record"]');if(observationButton)observationButton.hidden=simpleRoute;
   const route = path(); const project = activeProject();
   const focused = document.activeElement;
   const sourceFocus = sourceEvaluationRoute(route) && focused && main.contains(focused) && focused.dataset?.sourceEvalField;

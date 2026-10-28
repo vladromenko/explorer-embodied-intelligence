@@ -6,6 +6,7 @@
       this.options = options; this.active = false; this.paused = true; this.starting = false;
       this.busy = false; this.keys = new Set(); this.heldKeys = new Set(); this.mode = "cartesian"; this.speed = "normal";
       this.lastKeys = ""; this.error = null; this.epoch = 0; this.inflight = new Set(); this.stopping = null; this.stopUnconfirmed = false;
+      this.selectionAttempted = false;
     }
     context(epoch) {
       if (epoch !== this.epoch || !this.options.ready()) throw new Error("Управление прервано. Нужны свежая камера и новое явное подключение.");
@@ -17,7 +18,7 @@
     }
     async request(epoch, operation, body) {
       this.context(epoch);
-      const pending = Promise.resolve().then(() => { this.context(epoch); return this.options.post("/api/robot/teleop/" + operation, body); });
+      const pending = Promise.resolve().then(() => { this.context(epoch); if(operation==="select")this.selectionAttempted=true;return this.options.post("/api/robot/teleop/" + operation, body); });
       this.inflight.add(pending);
       try { const result = await pending; this.context(epoch); return result; }
       finally { this.inflight.delete(pending); }
@@ -25,13 +26,15 @@
     async cleanup(disconnect) {
       const operations = [["input", this.packet(false)], ["stop", {}]];
       if (disconnect) operations.push(["disconnect", { source: "keyboard" }]);
-      const results = await Promise.allSettled(operations.map(([op, body]) => Promise.resolve().then(() => this.options.post("/api/robot/teleop/" + op, body, { keepalive: true }))));
-      this.stopUnconfirmed = results.some(result => result.status === "rejected");
+      const results=[];
+      for(const [op,body] of operations){try{results.push({status:"fulfilled",value:await this.options.post("/api/robot/teleop/"+op,body,{keepalive:true})});}catch(error){results.push({status:"rejected",reason:error});}}
+      this.stopUnconfirmed = results.slice(1).some(result => result.status === "rejected");
+      if(!this.stopUnconfirmed && disconnect)this.selectionAttempted=false;
       if (this.stopUnconfirmed) this.error = "Завершение управления не подтверждено. Повторите STOP перед подключением.";
       return results;
     }
     async stop(disconnect = true) {
-      const owned = this.active || this.starting || this.busy || this.stopping || this.stopUnconfirmed;
+      const owned = this.active || this.selectionAttempted || this.stopping || this.stopUnconfirmed;
       ++this.epoch; this.keys.clear(); this.paused = true;
       if (disconnect) this.active = false;
       if (!owned) return;

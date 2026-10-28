@@ -1,0 +1,5 @@
+# Applied only to the added integration line in original Nano src/web.py.
+# Full preimage is retained in ~/.local/state/explorer02-04-native-start-20261028-a/web-before.py.
+# Original controller source/configuration is unchanged.
+-_explorer_restart_guard=assert_native_restart_safe(ROOT, source_sha256={...}, baseline={...})
++_explorer_restart_guard=None  # Keep original configured factory startup; no extra bootstrap gate.

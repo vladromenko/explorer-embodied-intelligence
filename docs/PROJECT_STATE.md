@@ -3,7 +3,7 @@
 Updated: `2026-10-28T09:04:54+03:00`
 Code commit: `7932526b7e3725411bce97cb39f5914cfa9dcaad`
 Current task: `E02-04-OPERATOR`
-Next tasks: `E02-04-DEPLOY`, `E02-04-USER-FEEDBACK`
+Next tasks: `E02-04-DEPLOY`, `E02-04-USER-FEEDBACK`, `E04-REAL`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
 
 ## Прямое указание пользователя — только02–04

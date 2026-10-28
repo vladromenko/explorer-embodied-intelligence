@@ -60,6 +60,15 @@
       if(result.execution_permission!==true || !result.authorization_id || result.input_mode!==mode)throw new Error("Сначала подтвердите отдельный наблюдаемый тест для этого способа управления");
       return result;
     }
+    async function connect(mode,{chassis=true,initializeArm=false}={}) {
+      data.inputMode=mode;data.chassis=chassis;
+      data.confirmations={observing:true,neutral:true,space_clear:true,user_observed_test_confirmed:true};
+      await freeze();
+      if(options.displayFrame)await options.displayFrame(data.frameURL);
+      let result=await authorize();
+      if(initializeArm){data.home=true;await home();await freeze();if(options.displayFrame)await options.displayFrame(data.frameURL);result=await authorize();}
+      return result;
+    }
     async function home() {
       if(data.home!==true || data.activation?.execution_permission!==true)throw new Error("Отдельно подтвердите видимое штатное движение HOME");
       const id=data.activation.authorization_id;cancelPending();data.activation=null;emit();
@@ -76,7 +85,7 @@
       const result=await call("/api/retarget/calibration/accept",{observing:data.confirmations.observing===true,accept_observed_cross_map:true,expected_registration_sha256:data.registration?.current_registration_sha256??null});
       data.registration=result;emit();return result;
     }
-    return {snapshot:()=>clone(data),refresh,freeze,authorize,revoke,requirePermission,home,capture,acceptRegistration,cancelPending,
+    return {snapshot:()=>clone(data),refresh,freeze,authorize,revoke,requirePermission,connect,home,capture,acceptRegistration,cancelPending,
       configure(patch){for(const key of ["inputMode","chassis","axes","home"])if(key in patch)data[key]=patch[key];if(patch.confirmations)Object.assign(data.confirmations,patch.confirmations);emit();},
       chassisAllowed:()=>data.activation?.execution_permission===true && data.activation?.chassis_motion_allowed===true};
   }

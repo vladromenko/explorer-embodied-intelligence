@@ -67,3 +67,12 @@ test("an uncertain STOP blocks acquisition until an explicit successful cleanup"
   await r.keyboard.stop(true); await assert.rejects(r.keyboard.start(), /не подтверждено/);
   r.keyboard.options.post = post; await r.keyboard.start(); assert.equal(r.keyboard.active, true);
 });
+test("a failed pre-connect retains its real error and does not create a fictitious STOP failure",async()=>{
+ const r=rig();r.keyboard.options.prepare=async()=>{throw new Error("Нет связи с устройством");};
+ await assert.rejects(r.keyboard.start(),/Нет связи/);assert.deepEqual(r.calls,[]);assert.equal(r.keyboard.stopUnconfirmed,false);
+});
+test("failed neutral cleanup cannot override successful native stop and disconnect",async()=>{
+ const r=rig();await r.keyboard.start();const original=r.keyboard.options.post;
+ r.keyboard.options.post=async(url,body)=>{if(url.endsWith('/input'))throw new Error('already inactive');return original(url,body);};
+ await r.keyboard.stop();assert.equal(r.keyboard.stopUnconfirmed,false);
+});

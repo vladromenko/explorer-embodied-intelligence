@@ -317,7 +317,7 @@
     if(counter)counter.textContent=Number.isInteger(view.status?.station?.recording?.queued_samples)?` · получено измерений: ${view.status.station.recording.queued_samples}`:"";
     return true;
   }
-  function sourceDemonstrationPanel(view,{phaseTitle=value=>value}={}) {
+  function sourceDemonstrationAdvancedPanel(view,{phaseTitle=value=>value}={}) {
     const row=rows(view.listing).find(value=>value.demonstration_id===view.selected),body=row?.record_start_body,prepareBody=view.context?.record_start_body;
     const recording=view.status?.capture?.capture,state=recording?.recording_id===view.recordingID ? recording.state : view.manifest?.state;
     const active=["RECORDING","PAUSED"].includes(state),dataBlocked=Boolean(view.dataBusy || view.status?.capture?.recovery_required);
@@ -351,6 +351,10 @@
       ${view.cleanupUnconfirmed?`<p role="alert">Завершение своего управления не подтверждено. Вход сохраняется до завершения исходной команды или проверки источника.</p>${button("retry-cleanup","Повторить scoped STOP этого сеанса",Boolean(view.controlBusy))}`:""}
       ${view.status?.capture?.recovery_required?'<p role="alert">Источник требует восстановления записи. Неопределённые raw и журнал сохранены; вкладка не снимает этот gate автоматически.</p>':""}
       </div></section>`;
+  }
+  function sourceDemonstrationPanel(view){
+    const active=view.owner?.native_mode==="teleoperation";
+    return `<section class="panel"><div class="panel-heading"><h2>Управление руками</h2></div><div class="panel-body"><p>Ведущая рука управляет ведомой.</p><button class="button primary" data-operator-action="${active?"source-disconnect":"source-control"}" ${view.busy?"disabled":""}>${active?"Отключить управление":"Управлять"}</button>${active?`<button class="button secondary" data-source-demo-action="recenter">Текущая поза — начало</button>`:""}${view.error?`<p class="form-error" role="alert">${esc(view.error)}</p>`:""}</div></section>`;
   }
   function bindSourceDemonstration(root,client,{onError=()=>{},document=surface.document,window=surface}={}) {
     let disposed=false,timer=null;

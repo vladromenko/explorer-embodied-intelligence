@@ -70,7 +70,7 @@
       this.options = options;
       this.state = "disconnected"; this.reason = "Выберите геймпад и подключите управление явно.";
       this.selected = null; this.mode = "cartesian"; this.speed = "normal"; this.deadzone = .18;
-      this.epoch = 0; this.busy = false; this.stopping = null; this.stopUnconfirmed = false; this.previousButtons = [];
+      this.selectionAttempted=false;this.epoch = 0; this.busy = false; this.stopping = null; this.stopUnconfirmed = false; this.previousButtons = [];
       this.pending = []; this.nextSend = 0; this.neutralRequired = false; this.canResumeFromStart = false;
       this.lastKeys = []; this.lastFrame = null; this.devices = []; this.preview = false;
       this.calibration = null; this.calibrating = null; this.rawAxes = [];
@@ -155,6 +155,7 @@
     }
     async checkedPost(epoch, operation, body, neutral = false, ignoreStart = false) {
       this.current(epoch); this.context(neutral, ignoreStart);
+      if(operation==="select")this.selectionAttempted=true;
       const result = await this.options.post(PATH + operation, body);
       this.current(epoch); this.context(neutral, ignoreStart);
       return result;
@@ -189,7 +190,7 @@
       finally { this.busy = false; this.notify(); }
     }
     async disconnect(reason = "Геймпад отключён.", allowStart = false) {
-      const hadControl = ["active", "connecting", "paused"].includes(this.state) || this.busy || this.stopUnconfirmed;
+      const hadControl = ["active", "paused"].includes(this.state) || this.selectionAttempted || this.stopUnconfirmed;
       ++this.epoch; this.state = allowStart ? "paused" : "disconnected"; this.reason = reason;
       this.canResumeFromStart = allowStart; this.lastKeys = []; this.pending = []; this.neutralRequired = true;
       if (!hadControl) { this.notify(); return; }
@@ -200,7 +201,8 @@
         this.stopping = Promise.allSettled(calls);
       }
       const results = await this.stopping; this.stopping = null;
-      this.stopUnconfirmed = results.some(result => result.status === "rejected");
+      this.stopUnconfirmed = results.slice(1).some(result => result.status === "rejected");
+      if(!this.stopUnconfirmed)this.selectionAttempted=false;
       if (this.stopUnconfirmed) { this.state = "disconnected"; this.canResumeFromStart = false; this.reason = "STOP не подтверждён. Повторите отключение перед новым подключением."; }
       this.notify();
     }
