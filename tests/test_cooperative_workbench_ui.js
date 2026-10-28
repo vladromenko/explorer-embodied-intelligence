@@ -285,8 +285,8 @@ test("server source-admission blocker disables live shadow and labels simulation
   state.workbench.skills[0].spec.subskills.giver.model_id="saved-giver";state.workbench.skills[0].spec.subskills.receiver.model_id="saved-receiver";
   state.native_choices.receiver[0].models=[{model_id:"saved-receiver",source_kind:"SIMULATION",trained_offline:true}];
   const {client}=await rig({get:async()=>clone(state),post:async(...args)=>posts.push(args)});
-  client.edit("receiver_choice_id","server-receiver");
-  const html=cooperativeWorkbenchPanel(client.snapshot());assert.match(html,/SIMULATION · только offline/);assert.match(html,/SIMULATION is offline only/);
+  client.edit("receiver_choice_id","server-receiver");client.edit("receiver_model_id","saved-receiver");
+  const html=cooperativeWorkbenchPanel(client.snapshot());assert.match(html,/Модель SIMULATION: доступна только offline-проверка/);assert.match(html,/SIMULATION · только offline/);assert.match(html,/SIMULATION is offline only/);
   assert.match(html,/data-coop-action="shadow" disabled/);assert.throws(()=>client.shadow(),/SIMULATION is offline only/);assert.deepEqual(posts,[]);
 });
 for(const key of ["session_id","epoch","spec_sha256"]){
