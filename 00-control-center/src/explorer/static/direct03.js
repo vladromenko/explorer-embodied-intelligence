@@ -1,7 +1,7 @@
 "use strict";
 
 // ENGINEERING_GLUE: measured leader arm and explicit keyboard base share the native 9D owner.
-const direct03 = { owned: false, ownedEpoch: null, pendingEpoch: null, demoMode: "mirror", operatorProfile: "MOBILE_MANIPULATION", status: null, error: null, polling: false, busy: false, held: false, leasePending: false, sequence: 0, interrupt: 0, signature: "" };
+const direct03 = { owned: false, ownedEpoch: null, pendingEpoch: null, demoMode: "mirror", operatorProfile: "ARM_ONLY", status: null, error: null, polling: false, busy: false, held: false, leasePending: false, sequence: 0, interrupt: 0, signature: "" };
 const direct03Route = () => window.location.pathname.replace(/\/$/, "") === "/experiments/03";
 const direct03BaseKeys = new Set();
 const direct03OwnAttempt = () => ["CLUTCHED", "ACTIVE"].includes(direct03.status?.state);
@@ -10,7 +10,7 @@ const direct03HeldABI = () => direct03.status?.source_hold_gate_schema === "expl
 const direct03BaseMap = {KeyW:"forward",KeyS:"backward",KeyA:"left",KeyD:"right",KeyQ:"turn_left",KeyE:"turn_right"};
 function direct03Panel(){
  const active=direct03.owned;
- return `<section class="panel"><div class="panel-heading"><h2>Leader → ROSMASTER</h2></div><div class="panel-body"><p>Двигайте ведущую SO-101 — рука ROSMASTER повторяет движение. Совмещать руки вручную не нужно: при подключении их текущие позы становятся общей начальной точкой без прыжка.</p><div class="teleop-actions"><button class="button primary" data-action="${active?"direct03-stop":"direct03-start"}" ${direct03.busy?"disabled":""}>${active?"Отключить управление":"Управлять"}</button>${active?`<button class="button secondary" data-action="direct03-recenter">Текущая поза — начало</button>`:""}</div>${direct03.error?`<p class="form-error">${esc(direct03.error)}</p>`:""}</div></section>`;
+ return `<section class="panel"><div class="panel-heading"><h2>Leader → ROSMASTER</h2></div><div class="panel-body"><p>Двигайте ведущую SO-101 — рука ROSMASTER повторяет движение. Совмещать руки вручную не нужно: при подключении их текущие позы становятся общей начальной точкой без прыжка. Шасси остаётся неподвижным.</p><div class="teleop-actions"><button class="button primary" data-action="${active?"direct03-stop":"direct03-start"}" ${direct03.busy?"disabled":""}>${active?"Отключить управление":"Управлять"}</button>${active?`<button class="button secondary" data-action="direct03-recenter">Текущая поза — начало</button>`:""}</div>${direct03.error?`<p class="form-error">${esc(direct03.error)}</p>`:""}</div></section>`;
 }
 
 async function pollDirect03() {
@@ -89,6 +89,7 @@ async function direct03Control(action){
     if (interrupt !== direct03.interrupt || !direct03Route() || document.hidden || !document.hasFocus()) { await direct03Stop(true, result.control_epoch); return; }
     direct03.status = result; direct03.owned = ["CLUTCHED", "ACTIVE"].includes(result.state); direct03.ownedEpoch = direct03.owned ? result.control_epoch : null; direct03.sequence = 0; direct03.error = null;
     if (direct03.owned && action === "direct03-start") {direct03.held=true;await direct03Lease();}
+    if (typeof startCamera === "function") startCamera();
   } catch (error) {
     direct03.error=/Power policy blocks arm commissioning|NATIVE_REFERENCE_UNAVAILABLE.*Power policy/i.test(error.message)
       ? "Питание ROSMASTER слишком низкое для руки. Подключите зарядку или заряженную батарею; после восстановления питания нажмите «Управлять» ещё раз."

@@ -5,7 +5,7 @@ function harness(permissionGate=null) {
   const register=(into,name,cb)=>(into[name]??=[]).push(cb);
   const context=vm.createContext({document:{hidden:false,hasFocus:()=>true,addEventListener:(name,cb)=>register(documentEvents,name,cb)},
     window:{location:{pathname:"/experiments/03"},addEventListener:(name,cb)=>register(windowEvents,name,cb)},
-    setInterval:cb=>timers.push(cb),model:{forceRender:false},render:()=>{},toast:message=>calls.push({toast:message}),rosmasterCameraReady:()=>true,
+    setInterval:cb=>timers.push(cb),model:{forceRender:false},render:()=>{},toast:message=>calls.push({toast:message}),rosmasterCameraReady:()=>true,startCamera:()=>calls.push({camera:'live'}),
     stopKeyboard:async()=>calls.push({cleanup:'keyboard'}),browserGamepad:{disconnect:async()=>calls.push({cleanup:'gamepad'})},
     sourceDemonstration:{drain:async()=>calls.push({cleanup:'source04'})},nativeArmNeedsHome:()=>false,
     observedNative:{connect:async(mode,options)=>{calls.push({permission:true,mode,options});if(permissionGate)await permissionGate;},requirePermission:async()=>{calls.push({permission:true});if(permissionGate)await permissionGate;},chassisAllowed:()=>true},
@@ -29,7 +29,9 @@ test('one click starts the current source and immediately renews its held lease'
  const h=harness();h.run(status);await h.click('direct03-start');
  assert.equal(h.run('direct03.owned'),true);assert.equal(h.run('direct03.status.state'),'ACTIVE');
  const leases=h.calls.filter(c=>c.path?.endsWith('/lease'));assert.equal(leases.length,1);
- assert.equal(leases[0].body.held,true);assert.equal(h.calls.find(c=>c.path?.endsWith('/start')).body.operator_profile,'MOBILE_MANIPULATION');
+ assert.equal(leases[0].body.held,true);assert.equal(h.calls.find(c=>c.path?.endsWith('/start')).body.operator_profile,'ARM_ONLY');
+ const permission=h.calls.find(c=>c.permission);assert.equal(permission.options.chassis,false);
+ assert.equal(h.calls.filter(c=>c.camera==='live').length,1);
 });
 test('ARM_ONLY filters base keys while MOBILE_MANIPULATION forwards them',async()=>{
  const h=harness();h.run(status+";direct03.operatorProfile='ARM_ONLY';direct03.status.state='ACTIVE';direct03.owned=true;direct03.ownedEpoch='epoch';direct03.held=true;direct03BaseKeys.add('KeyW')");
@@ -45,6 +47,7 @@ test('an unowned tab neither renews nor stops another tab on blur or pointerdown
 test('simple panel explains automatic relative alignment',()=>{
  const h=harness();h.run(status);const html=h.run('direct03Panel()');
  assert.match(html,/Совмещать руки вручную не нужно/);assert.match(html,/текущие позы становятся общей начальной точкой/);
+ assert.match(html,/Шасси остаётся неподвижным/);
 });
 
 test('one new click replaces a retained CLUTCHED source before authorization',async()=>{
