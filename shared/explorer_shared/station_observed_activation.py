@@ -105,6 +105,18 @@ class StationObservedPermission:
         return leader['calibration_sha256']
     @staticmethod
     def _data(record):return deepcopy(record['data'])
+    @staticmethod
+    def _manual_demo_session(data):
+        """The explicit source04 leader start hands lifetime to native teleop.
+
+        This is the ordinary LeRobot interaction model: camera evidence is
+        required to enter the session, while the already-started manual
+        session remains owned until its exact STOP, page cleanup, or a real
+        native source/epoch/calibration change.
+        """
+        selected=data.get('binding') or {}
+        return bool(selected.get('purpose')=='source04_demo' and selected.get('input_mode')=='leader' and
+            data.get('native_mode')=='teleoperation' and data.get('observation_renewal_required') is False)
     def _retire(self,record,reason):
         record['revoked'].set();record['data'].update(execution_permission=False,revoked_reason=reason)
         identity=record['data']['grant_id'];self.retired[identity]=record
@@ -188,6 +200,7 @@ class StationObservedPermission:
                     # the JPEG.  This keeps the same TTL while avoiding loss
                     # of most of it to the Homebrain/Pi/browser round trip.
                     'observed_monotonic_ns':now,'observation_deadline_ns':now+self._ttl(),
+                    'observation_renewal_required':True,'manual_session_until_explicit_stop':False,
                     'displayed_frame':deepcopy(item['frame']),'execution_permission':True,'hardware_success_claimed':False,
                     'permission_scope':'explicit_current_operator_not_camera_or_measured_pose_alone'}
                 if leader_calibration is not None:data['leader_calibration_sha256']=leader_calibration
@@ -205,20 +218,26 @@ class StationObservedPermission:
         if (data['control_epoch']!=native['control_epoch'] or
                 data['native_mode']!=native['mode'] or calibration!=data['follower_calibration_sha256'] or
                 leader_calibration!=data.get('leader_calibration_sha256') or
-                data['boot_id']!=self.station.boot or not self.clock()<data['observation_deadline_ns']):
+                data['boot_id']!=self.station.boot or
+                not (self._manual_demo_session(data) or self.clock()<data['observation_deadline_ns'])):
             self._retire(record,'NATIVE_EPOCH_MODE_CALIBRATION_OR_OBSERVATION_EXPIRED')
             raise ValueError('Current native epoch/mode or explicit operator observation expired; new challenge required')
         return record
     def check(self,grant_id,value,expected_control_epoch=None):
         selected=binding(value)
-        try:self._frame()
-        except (ValueError,OSError):self.revoke('CAMERA_SOURCE_UNAVAILABLE',expected_grant_id=grant_id,expected_binding=selected);raise
+        with self.lock:
+            current=self.grant
+            persistent=bool(current is not None and current['data'].get('grant_id')==grant_id and
+                current['data'].get('binding')==selected and self._manual_demo_session(current['data']))
+        if not persistent:
+            try:self._frame()
+            except (ValueError,OSError):self.revoke('CAMERA_SOURCE_UNAVAILABLE',expected_grant_id=grant_id,expected_binding=selected);raise
         with self.station.lock:
             try:native,calibration=self._native()
             except (ValueError,OSError):self.revoke('NATIVE_SOURCE_UNAVAILABLE',expected_grant_id=grant_id,expected_binding=selected);raise
             with self.lock:
                 record=self._current_locked(grant_id,selected,native,calibration,expected_control_epoch)
-                result=self._data(record);result['remaining_observation_s']=max(0,(result['observation_deadline_ns']-self.clock())/1e9)
+                result=self._data(record);result['remaining_observation_s']=None if self._manual_demo_session(result) else max(0,(result['observation_deadline_ns']-self.clock())/1e9)
                 return result
     def observe(self,body):
         selected=binding(body.get('binding'));grant_id=body.get('grant_id')
@@ -246,7 +265,12 @@ class StationObservedPermission:
         mode=selected.get('input_mode','policy')
         if (operation.startswith('policy/') or operation=='action') and mode!='policy' or operation.startswith('teleop/') and mode!='leader':
             raise ValueError('Native operation must match the explicitly observed model/input binding')
-        self.command_guard(operation);self._frame()
+        self.command_guard(operation)
+        with self.lock:
+            current=self.grant
+            persistent=bool(current is not None and current['data'].get('grant_id')==grant_id and
+                current['data'].get('binding')==selected and self._manual_demo_session(current['data']))
+        if not persistent:self._frame()
         with self.station.lock:
             native,calibration=self._native()
             with self.lock:
@@ -271,7 +295,9 @@ class StationObservedPermission:
                     except Exception:record['data']['scoped_stop_return_unknown']=True
                     raise
                 new_epoch=result.get('control_epoch')
-                if record['revoked'].is_set() or self.grant is not record or not self.clock()<record['data']['observation_deadline_ns']:
+                persistent_started=bool(selected['purpose']=='source04_demo' and operation=='teleop/start' and result.get('mode')=='teleoperation')
+                if (record['revoked'].is_set() or self.grant is not record or
+                        not (persistent or persistent_started or self.clock()<record['data']['observation_deadline_ns'])):
                     # One already-entered bounded native call may have returned.
                     # Cleanup is scoped to its exact new epoch, never a new user.
                     if self.station.control_epoch==new_epoch:
@@ -279,6 +305,8 @@ class StationObservedPermission:
                     self._retire(record,'LATE_NATIVE_COMMAND_AFTER_PERMISSION_REVOCATION')
                     raise ValueError('Late native command revoked and scoped stopped; no permission replay')
                 record['data'].update(control_epoch=new_epoch,native_mode=result.get('mode'))
+                if persistent_started:
+                    record['data'].update(observation_renewal_required=False,manual_session_until_explicit_stop=True)
                 return {'status':result,'grant':self._data(record),'native_command_called':True,
                     'dispatch_claimed_from_HTTP_acceptance':False}
     def _stop(self,grant_id,selected,body):
@@ -304,7 +332,7 @@ class StationObservedPermission:
             except (ValueError,OSError) as error:reason=str(error)
         with self.lock:
             valid=bool(valid and self.grant is current and current and not current['revoked'].is_set() and
-                self.clock()<current['data']['observation_deadline_ns'])
+                (self._manual_demo_session(current['data']) or self.clock()<current['data']['observation_deadline_ns']))
             grant=self._data(current) if valid else None
         result={'schema':'explorer_station_observed_permission_status_v1','execution_permission':valid,
             'grant':grant,

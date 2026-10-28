@@ -27,6 +27,9 @@ def worker_rig(tmp_path,monkeypatch,*,binding_override=None,actor='SOFTWARE-TEST
     selected=dict(purpose='cooperative05',input_mode='leader',skill_id=str(uuid.uuid4()),skill_version=1,spec_sha256='b'*64,
         action_contract_id=CONTRACT,source_domain='PHYSICAL',cooperative_session_id='fake-session',coordinator_epoch='fake-coordinator',object_id='fake-object')
     if binding_override is not None:selected=deepcopy(binding_override)
+    if selected['purpose']=='source04_demo':
+        station.profiles['leader']=dict(verified_on_connected_hardware=True,calibration_sha256='c'*64)
+        station.measurements=dict(monotonic_ns=tick[0],leader=[0.,0.,0.,0.,0.,50.],follower=[0.,0.,0.,0.,0.,50.])
     def observed_start():
         challenge=provider.challenge(selected)
         grant=provider.authorize(dict(binding=selected,challenge_id=challenge['challenge_id'],displayed_jpeg_sha256=challenge['frame']['jpeg_sha256'],
@@ -41,6 +44,25 @@ def worker_rig(tmp_path,monkeypatch,*,binding_override=None,actor='SOFTWARE-TEST
             self.count+=1
             if self.count==1 and self.after_tick:self.after_tick()
     return station,provider,selected,observed_start,bus,samples,tick,StopAfter,leader_active
+
+
+def source04_demo_binding():
+    return dict(purpose='source04_demo',input_mode='leader',skill_id=str(uuid.uuid4()),skill_version=1,spec_sha256='b'*64,
+        action_contract_id=CONTRACT,source_domain='PHYSICAL',source_session_id='1'*32,demonstration_id='2'*32)
+
+
+def test_source04_manual_session_survives_web_observation_deadline_until_exact_stop(tmp_path,monkeypatch):
+    station,provider,selected,start,bus,samples,tick,StopAfter,_=worker_rig(
+        tmp_path,monkeypatch,binding_override=source04_demo_binding())
+    grant=start();old=grant['control_epoch']
+    assert grant['observation_renewal_required'] is False and grant['manual_session_until_explicit_stop'] is True
+    tick[0]+=60_000_000_000
+    checked=provider.check(grant['grant_id'],selected,old)
+    assert checked['execution_permission'] is True and checked['remaining_observation_s'] is None
+    station.stop_event=StopAfter();station._work()
+    assert station.mode=='teleoperation' and station.control_epoch==old and len(samples)==len(bus.writes)==3
+    stopped=provider.command(grant['grant_id'],selected,'stop',{'expected_control_epoch':old})
+    assert stopped['status']['mode']=='idle' and stopped['native_command_called'] is True
 
 
 @pytest.mark.parametrize('reason',['expired_observation','explicit_revoke'])

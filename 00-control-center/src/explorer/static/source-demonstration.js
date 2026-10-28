@@ -100,7 +100,8 @@
       return {...copy(value),attempt:row.demonstration_id};
     }
     function requireOwner(mode) {
-      if (!owner || owner.attempt!==selected || !visible || !watching || uncertainControl || mode && owner.native_mode!==mode) throw new Error("Нужно ваше текущее подтверждённое наблюдение и исходный owner/epoch");
+      const persistent=owner?.observation_renewal_required===false && owner?.native_mode==="teleoperation";
+      if (!owner || owner.attempt!==selected || !visible || !watching && !persistent || uncertainControl || mode && owner.native_mode!==mode) throw new Error("Нужно ваше текущее подтверждённое наблюдение и исходный owner/epoch");
       return copy(owner);
     }
     async function refresh() {
@@ -217,7 +218,7 @@
         const returned=checkedGrant(result.grant,row);
         if (returned.grant_id!==receipt.grant_id)throw new Error("Native ответ сменил owner");
         if(epoch!==generation || !visible){await cleanup(returned);return {ignored:true};}
-        owner=returned;ownerRevision++;readSequence++;nextWatchAt=now();if(status && result.status)status.station=result.status;return result;
+        owner=returned;ownerRevision++;readSequence++;watching=returned.observation_renewal_required!==false;nextWatchAt=now();if(status && result.status)status.station=result.status;return result;
       } catch(failure){if(operation!=="stop")uncertainScopes.set(scopeKey(receipt),receipt);if(epoch===generation){uncertainControl=true;dropOwner();error=failure.message;}throw failure;}
       finally {if(epoch===generation){busy="";notify();}}
     }
@@ -336,7 +337,7 @@
       ${live}<div class="teleop-actions">${button("challenge","Показать свежий кадр",!row || nativeBlocked || Boolean(own))}${button("authorize","Подтвердить наблюдение",!row || !view.challenge || !view.frame?.displayed || !Object.values(view.flags || {}).every(Boolean) || nativeBlocked || !view.visible,"primary")}</div>${checkboxes}
       ${semanticBlocked?'<p role="status">Анализ сцены ещё выполняется или освобождение его ресурсов не подтверждено. После завершения потребуется свежее наблюдение перед управлением.</p>':""}
       <div class="teleop-actions">${button("start","Начать повторение",nativeBlocked || own?.native_mode!=="idle","primary")}${button("recenter","Текущая поза — начало",nativeBlocked || own?.native_mode!=="teleoperation" || active)}${button("stop","STOP этого управления",!own || Boolean(view.controlBusy),"danger")}</div>
-      <p role="status">${own ? own.native_mode==="teleoperation"?"Вкладка управляет повторением по вашему наблюдаемому разрешению.":"Наблюдение разрешено. Повторение включается отдельным действием." : "Локального права управления нет."} ${view.watching?"Подтверждаются только новые кадры, реально показанные на видимой странице.":"Наблюдение выключено."}</p>
+      <p role="status">${own ? own.native_mode==="teleoperation"?"Ручное управление активно до кнопки STOP или ухода со страницы.":"Наблюдение разрешено. Повторение включается отдельным действием." : "Локального права управления нет."} ${view.watching?"Подтверждаются только новые кадры, реально показанные на видимой странице.":own?.observation_renewal_required===false?"Веб-таймер не ограничивает сессию.":"Наблюдение выключено."}</p>
       ${!own && view.status?.station?.mode==="teleoperation"?'<p>Источник сообщает об активном повторении. Эта вкладка его не присвоила.</p>':""}
       <div class="teleop-actions">${button("capture-start","Начать запись",!own || own.native_mode!=="teleoperation" || nativeBlocked || dataBlocked || Boolean(view.recordingID) || view.capturePending)}${button("pause","Пауза записи",dataBlocked || state!=="RECORDING")}${button("resume","Продолжить запись",dataBlocked || state!=="PAUSED")}${button("cancel","Отменить показ · сохранить raw",dataBlocked || !active)}</div>
       <p role="status"><strong>${esc(label)}</strong><span data-source-demo-samples>${Number.isInteger(view.status?.station?.recording?.queued_samples)?` · получено измерений: ${view.status.station.recording.queued_samples}`:""}</span></p>

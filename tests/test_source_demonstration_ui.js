@@ -11,7 +11,8 @@ function fixture(overrides={}) {
   const context={record_start_body:{project_id:"04",skill_id:"skill-one",skill_version:1,skill_spec_sha256:"e".repeat(64),session_id:"session-one",name:"Конфета → коробка",context:{variant_id:"variant-one",object_instance_id:"object-one"}}};
   const frameMeta=(id="camera-frame-1")=>({frame_id:id,jpeg_sha256:sha,boot_id:"source-boot",camera_id:"pi-logitech-fixture"});
   function grantValue(){return {grant_id:GRANT,control_epoch:epoch,native_mode:mode,execution_permission:true,binding:row.binding,actor_id:row.actor_id,
-    follower_calibration_sha256:"f".repeat(64),leader_calibration_sha256:"1".repeat(64),boot_id:"source-boot",clock_domain:"source-clock",displayed_frame:frameMeta()};}
+    follower_calibration_sha256:"f".repeat(64),leader_calibration_sha256:"1".repeat(64),boot_id:"source-boot",clock_domain:"source-clock",displayed_frame:frameMeta(),
+    observation_renewal_required:overrides.persistentManual && mode==="teleoperation"?false:true};}
   const native=()=>({available:true,control_epoch:epoch,mode});
   async function get(path) {
     calls.push({method:"GET",path});
@@ -154,6 +155,15 @@ test("prepare -> actual delivered JPEG -> explicit grant -> returned epoch -> DA
   await f.client.start();assert.equal(f.client.snapshot().owner.control_epoch,"epoch-start-returned");
   await f.client.captureStart();assert.equal(f.client.snapshot().recordingID,RECORD);
   assert.deepEqual(f.client.previewDisplayed("wrong",sha),{ignored:true}); // Stale preview never approves another recording.
+});
+
+test("source04 manual control has no two-second web lease and still stops on page leave",async()=>{
+  const f=fixture({persistentManual:true});await f.authorized();await f.client.start();
+  assert.equal(f.client.snapshot().watching,false);assert.equal(f.client.snapshot().owner.observation_renewal_required,false);
+  f.advance();const count=f.calls.length;assert.deepEqual(await f.client.watchOnce(),{ignored:true});assert.equal(f.calls.length,count);
+  await f.client.captureStart();assert.equal(f.client.snapshot().recordingID,RECORD);
+  await f.client.setVisible(false);assert.equal(f.client.snapshot().owner,null);
+  const stops=f.posts().filter(call=>call.path.endsWith("/stop"));assert.equal(stops.length,1);assert.equal(stops[0].body.expected_control_epoch,"epoch-start-returned");
 });
 
 test("pause/resume/finish UNKNOWN preserve control; only separate reviewed archive approval can import",async()=>{

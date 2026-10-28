@@ -39,7 +39,8 @@ class StationPublicationGate:
             permission_allowed=not managed or bool(record is not None and record in managed and not record['revoked'].is_set() and
                 data['native_mode']==mode and data['control_epoch']==control_epoch and data['boot_id']==station.boot and
                 data['clock_domain']==station.clock_domain and data['follower_calibration_sha256']==profile.get('calibration_sha256') and
-                profile.get('verified_on_connected_hardware') is True and now<data['observation_deadline_ns'])
+                profile.get('verified_on_connected_hardware') is True and
+                (provider._manual_demo_session(data) or now<data['observation_deadline_ns']))
             if managed and data.get('binding',{}).get('purpose')=='source04_demo':
                 leader=station.profiles.get('leader') or {}
                 permission_allowed=bool(permission_allowed and leader.get('verified_on_connected_hardware') is True and
