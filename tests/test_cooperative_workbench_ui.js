@@ -281,7 +281,7 @@ for(const [status,message] of [["COMPLETED","Протокол завершён"]
 }
 test("server source-admission blocker disables live shadow and labels simulation without POST",async()=>{
   const state=fixture(),posts=[];
-  state.queued_native_shadow_supported=true;state.queued_native_shadow_readiness={ready:false,blockers:["SIMULATION is offline only"],models_loaded:false};
+  state.queued_native_shadow_supported=true;state.queued_native_shadow_readiness={ready:false,binding:{session_id:"server-session",epoch:"epoch-one",spec_sha256:"c".repeat(64)},blockers:["SIMULATION is offline only"],models_loaded:false};
   state.workbench.skills[0].spec.subskills.giver.model_id="saved-giver";state.workbench.skills[0].spec.subskills.receiver.model_id="saved-receiver";
   state.native_choices.receiver[0].models=[{model_id:"saved-receiver",source_kind:"SIMULATION",trained_offline:true}];
   const {client}=await rig({get:async()=>clone(state),post:async(...args)=>posts.push(args)});
@@ -289,3 +289,14 @@ test("server source-admission blocker disables live shadow and labels simulation
   const html=cooperativeWorkbenchPanel(client.snapshot());assert.match(html,/SIMULATION · только offline/);assert.match(html,/SIMULATION is offline only/);
   assert.match(html,/data-coop-action="shadow" disabled/);assert.throws(()=>client.shadow(),/SIMULATION is offline only/);assert.deepEqual(posts,[]);
 });
+for(const key of ["session_id","epoch","spec_sha256"]){
+  test(`stale native shadow metadata ${key} cannot enable current session or POST`,async()=>{
+    const state=fixture(),posts=[];state.queued_native_shadow_supported=true;
+    for(const role of ["giver","receiver"])state.workbench.skills[0].spec.subskills[role].model_id=role+"-saved";
+    const binding={session_id:"server-session",epoch:"epoch-one",spec_sha256:"c".repeat(64),[key]:"other"};
+    state.queued_native_shadow_readiness={ready:true,binding,blockers:[]};
+    const {client}=await rig({get:async()=>clone(state),post:async(...args)=>posts.push(args)});
+    assert.throws(()=>client.shadow(),/выбранной сессии и epoch/);assert.deepEqual(posts,[]);
+    assert.match(cooperativeWorkbenchPanel(client.snapshot()),/data-coop-action="shadow" disabled/);
+  });
+}

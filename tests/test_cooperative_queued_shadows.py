@@ -150,7 +150,7 @@ def test_readiness_preflight_both_heads_is_inert_and_simulation_is_offline_only(
     service,store,calls,client,spec,session,models=configured(tmp_path)
     try:
         before=len(store.jobs(10000));ready=service.snapshot(session['session_id'])['queued_native_shadow_readiness']
-        assert ready=={'ready':True,'blockers':[],'models_loaded':False,'source_requests_sent':0,'dispatch_performed':False}
+        assert ready=={'ready':True,'binding':{'session_id':session['session_id'],'epoch':session['epoch'],'spec_sha256':spec['spec_sha256']},'blockers':[],'models_loaded':False,'source_requests_sent':0,'dispatch_performed':False}
         assert not calls and len(store.jobs(10000))==before
         # Explicit metadata fixture of the SAME virtual-source guard used by a
         # real generated model. Never change a production model/source label.

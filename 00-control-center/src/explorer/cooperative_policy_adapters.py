@@ -24,12 +24,14 @@ class QueuedNativeShadows:
 
     def readiness(self,session,spec):
         """Metadata preflight only; no queue insertion, policy import or Source IO."""
+        binding={'session_id':(session or {}).get('session_id'),'epoch':(session or {}).get('epoch'),
+            'spec_sha256':(spec or {}).get('spec_sha256')}
         try:
             if session is None or spec is None:raise ValueError('Select the exact session and both saved native models')
             self._plan(session,spec)
-            return {'ready':True,'blockers':[],'models_loaded':False,'source_requests_sent':0,'dispatch_performed':False}
+            return {'ready':True,'binding':binding,'blockers':[],'models_loaded':False,'source_requests_sent':0,'dispatch_performed':False}
         except (ValueError,OSError,KeyError,TypeError) as error:
-            return {'ready':False,'blockers':[str(error)],'models_loaded':False,'source_requests_sent':0,'dispatch_performed':False}
+            return {'ready':False,'binding':binding,'blockers':[str(error)],'models_loaded':False,'source_requests_sent':0,'dispatch_performed':False}
 
     def _plan(self,session,spec,*,roles=('giver','receiver')):
         if (session.get('skill_id')!=spec.get('skill_id') or session.get('skill_version')!=spec.get('version') or
