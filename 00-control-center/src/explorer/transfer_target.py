@@ -43,6 +43,8 @@ def target_dataset(store,wizard_id,dataset_job_id):
         raise PipelineBlocked('MANAGED_TARGET_DATASET_CHANGED_OR_ESCAPED')
     adapter=TransferTargetCorpus(path,source_model_binding=wizard['source_model_binding'],
         target_version=wizard['target_version'],target_domain=wizard['domain'])
+    from .native_capture_cohort import validate_current_approvals
+    validate_current_approvals(store,adapter.corpus.manifest)
     source_spec=model['manifest']['skill_spec'];target_spec=adapter.corpus.spec
     if ([row['id'] for row in source_spec['stages']] != [row['id'] for row in target_spec['stages']] or
             transfer_geometry.transfer_source.source_task_type(source_spec)!=
@@ -118,6 +120,8 @@ def run_training(store,job):
         current=store.job(job['id'])
         if current and current['status'] in ('cancel_requested','cancelled'):raise RuntimeError('Target06 training cancelled')
         source_for_wizard(store,wizard['wizard_id']);context.recheck();adapter.corpus.recheck()
+        from .native_capture_cohort import validate_current_approvals
+        validate_current_approvals(store,adapter.corpus.manifest)
     def progress(value,phase):guard();store.update_job(job['id'],progress=value,result=dict(phase=phase))
     folder=store.root/'jobs'/job['id']
     result=train_pipeline(expected['dataset_manifest'],folder,

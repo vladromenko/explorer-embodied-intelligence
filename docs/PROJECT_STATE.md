@@ -461,3 +461,21 @@ approved target cohort still pending. Actual f134 whole-app target domain choice
 restore same immutable source. Node/unit/controller sources not switched; livec82.
 E06PIPELINE continues central capture DATA lifecycle/import/review and shared
 aggregate assembly, metric cached provider; full06/master/physical remain OPEN.
+
+
+06 approved native target cohort component: same original producer +separate
+Source review +GET Range transfer/import +generic inspector explicit06 kind +
+shared immutable materializer extracted from02/03. Generated5REAL-FILE originals
+(3TRAIN1DEV1sealed), original manifest/archiveSHA exact; sourceKind physical is
+FAKE_NATIVE declaration, actualexperts/physical/commands0. Complete target9/UTF
+sourceSpec snapshot, realJPEGs, segments/clock/masks preserved. Contextv2 requires
+operator trace and rejects all extra action/grant metadata before source access.
+Shared current-review journal/guard reused: late rejection blocks oldaggregate/
+manageddataset/nextfit; staleapproval replaydenied, rawoutcomes/oldsnapshots retained.
+50PASS2SKIP50.35s sharedconsumers +41PASS17.75s source/03/default05 boundaries;
+02/03 oldfunction vsnewmaterializer SAMEinput manifest/payload bytes EXACT1.58s.
+[Component](../_registry/evidence/experiment06-approved-native-target-original-cohort-20261028.json).
+Native06 import budget conservative1GiBmemory/disk/CPU1, not measured acceptance.
+No optimizer replay;3originalTRAIN correctly insufficientfor5. Next frozenactual
+officialexport ofnewnative originals, centralDATA lifecycle/review/aggregate UI,
+trustedmetriccapture. NOTdeployed/livec82, E06PIPELINE/master/physical remainOPEN.

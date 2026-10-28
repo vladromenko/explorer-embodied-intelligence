@@ -28,7 +28,7 @@ def native_capture_import(artifact,destination,checksum,episode_id,*,required=Fa
         if required:raise ValueError('Native producer returned a different immutable source format')
         return None
     if manifest.get('recording_id')!=episode_id:raise ValueError('Native source recording identity changed in transfer')
-    if expected_project is not None and (expected_project not in ('02','03') or
+    if expected_project is not None and (expected_project not in ('02','03','06') or
             manifest.get('project_id')!=expected_project or (manifest.get('embodied_episode') or {}).get('project_id')!=expected_project):
         raise ValueError('Native source project differs from the exact queued import project')
     from explorer_shared.native_capture import import_native_capture
@@ -81,7 +81,7 @@ def recording(store, job, config):
 
 def approved_native_capture_import(store,job,config):
     """One Nano source data plane for native02/03; Pi control is separate."""
-    if (job.get('kind'),job.get('project_id')) not in (('mobile_import','02'),('retarget_import','03')):
+    if (job.get('kind'),job.get('project_id')) not in (('mobile_import','02'),('retarget_import','03'),('transfer_target_import','06')):
         raise ValueError('Exact native ROSMASTER import kind/project required')
     if job['config'].get('source_format')!='native_capture_v1':raise ValueError('Explicit native source format required')
     episode_id=job['config']['episode_id']
@@ -96,7 +96,7 @@ def approved_native_capture_import(store,job,config):
         artifact,approval,transfer=transfer_native_capture(client,'http://'+node['host']+':'+str(node['port']),episode_id,
             job['config'].get('archive_sha256'),job['config'].get('source_review_sha256'),store.root/'artifacts',guard=cancelled)
     cancelled();checksum=job['config']['archive_sha256']
-    destination='native-mobile' if job['project_id']=='02' else 'native-retarget'
+    destination={'02':'native-mobile','03':'native-retarget','06':'native-transfer-target'}[job['project_id']]
     result=native_capture_import(artifact,store.root/'episodes'/destination,checksum,episode_id,required=True,expected_project=job['project_id'])
     cancelled()
     receipt=Path(result['embodied_manifest']).parent/'operator-reviews'/(approval['review_sha256']+'.json');raw=source_bytes(approval)
@@ -309,6 +309,9 @@ def main(job_id):
             result = recording(store, job, config)
         elif job['kind'] in ('station_import','mobile_import'):
             result = station_import(store,job,config)
+        elif job['kind']=='transfer_target_import':
+            from .transfer_target_import import run_import
+            result=run_import(store,job,config)
         elif job['kind']=='retarget_import':
             result=retarget_import(store,job,config)
         elif job['kind'] in ('station_shadow','station_rollout'):

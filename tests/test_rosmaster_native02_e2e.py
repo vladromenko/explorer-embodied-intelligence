@@ -33,7 +33,7 @@ from test_native_capture_approval import approved
 from test_skill_workflow import skill,assign
 
 
-def native_aggregate(tmp_path,monkeypatch,*,store=None,selected=None,session_for_variant=None,prepare_context=None):
+def native_aggregate(tmp_path,monkeypatch,*,store=None,selected=None,session_for_variant=None,prepare_context=None,job_factory=None,importer=None,on_import=None,finalize=None):
     store=store if store is not None else Store(tmp_path/'nx')
     selected=selected if selected is not None else skill(store);phases=[row['id'] for row in selected['spec']['stages']]
     sessions={split:create_session(store,selected['spec']['skill_id'],1,{'split':split,'scene':'software-scene-'+split})
@@ -85,8 +85,8 @@ def native_aggregate(tmp_path,monkeypatch,*,store=None,selected=None,session_for
             source_manifest=writer.folder/'manifest.json';document=json.loads(source_manifest.read_bytes())
             assert document['admission']['admitted_for_dataset'],document['admission']['missing_facts']
             assert document['admission']['eligible_as_successful_bc_expert']==(variant['split']=='train')
-            assert len(document['embodied_episode']['operator_input_trace'])==10
-            assert [row['recording_segment_id'] for row in document['embodied_episode']['samples']]==[0]*5+[1]*5
+            assert len(document['embodied_episode']['operator_input_trace'])==len(phases)
+            assert [row['recording_segment_id'] for row in document['embodied_episode']['samples']]==[0]*min(5,len(phases))+[1]*max(0,len(phases)-5)
             archive=writer.archive(identity);raw=archive.read_bytes();checksum=hashlib.sha256(raw).hexdigest()
             review=(writer.review(identity,decision='approve',actor_id='SOFTWARE-FIXTURE-OWNER',expected_archive_sha256=checksum)
                 if hasattr(writer,'review') else approved(identity,checksum,actor='SOFTWARE-FIXTURE-OWNER'))
@@ -96,16 +96,20 @@ def native_aggregate(tmp_path,monkeypatch,*,store=None,selected=None,session_for
                 if request.url.path=='/native-capture/recordings/'+identity+'/review':return httpx.Response(200,json=review)
                 assert request.url.path=='/native-capture/recordings/'+identity+'/download'
                 return httpx.Response(200,content=raw,headers={'X-Content-SHA256':checksum,'ETag':'"'+checksum+'"'})
-            job=store.create_job('mobile_import','02',{'episode_id':identity,'source_format':'native_capture_v1','archive_sha256':checksum,'source_review_sha256':review['review_sha256']})
+            job=(job_factory(identity,checksum,review['review_sha256']) if job_factory else
+                 store.create_job('mobile_import','02',{'episode_id':identity,'source_format':'native_capture_v1','archive_sha256':checksum,'source_review_sha256':review['review_sha256']}))
             with monkeypatch.context() as patch:
                 patch.setattr(job_runner.httpx,'Client',lambda **kwargs:client_type(**kwargs,transport=httpx.MockTransport(handler)))
-                result=job_runner.station_import(store,job,{'nodes':[{'id':'nano','host':'software.invalid','port':8092,'token':'software-fixture-only'}]})
+                result=(importer or job_runner.station_import)(store,job,{'nodes':[{'id':'nano','host':'software.invalid','port':8092,'token':'software-fixture-only'}]})
             assert Path(result['embodied_manifest']).read_bytes()==source_manifest.read_bytes()
-            store.complete_job(job['id'],result);job=store.job(job['id']);assign(store,selected,job,variant['variant_id'],session)
+            store.complete_job(job['id'],result);job=store.job(job['id'])
+            if on_import:on_import(job,deepcopy(variant),deepcopy(session))
+            else:assign(store,selected,job,variant['variant_id'],session)
             originals[str(source_manifest)]=hashlib.sha256(source_manifest.read_bytes()).hexdigest()
             originals[str(archive)]=checksum
         finally:journal.close()
-    result=build_aggregate(store,selected['spec']['skill_id'],1);path=Path(result['dataset_manifest']);corpus=CanonicalCorpus(path)
+    result=finalize() if finalize else build_aggregate(store,selected['spec']['skill_id'],1)
+    path=Path(result['dataset_manifest']);corpus=CanonicalCorpus(path)
     return path,store,{'all_sources_are_software_fixtures':True,'physical_validation':False,'request_methods':[method for method,_ in requests],
         'originals_sha256':originals,'native_source_original_ids':[row['descriptor']['source_episode_id'] for row in corpus.episodes],
         'missing_real_demonstrations':True}

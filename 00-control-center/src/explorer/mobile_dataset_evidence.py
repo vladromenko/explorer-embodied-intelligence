@@ -488,7 +488,7 @@ def inspect_rosmaster_import(job,*,managed_root=None,include_manifest=False,max_
     report['legacy_RGB9D_view']['reasons']=list(report['reasons'])
     report['legacy_RGB9D_view']['missing_facts']=list(report['missing_facts'])
     result=job.get('result') or {};common=[];canonical=None;seen=set()
-    if job.get('kind') not in ('mobile_import','retarget_import'):common.append('not_a_ROSMASTER_import')
+    if job.get('kind') not in ('mobile_import','retarget_import','transfer_target_import'):common.append('not_a_ROSMASTER_import')
     if job.get('status')!='completed':common.append('mobile_import_not_completed')
     try:
         # The original native canonical document is a first-class source. Converted
@@ -516,7 +516,7 @@ def inspect_rosmaster_import(job,*,managed_root=None,include_manifest=False,max_
         result.get('schema')=='explorer_native_capture_import_v1')
     report['source_approval']={'required':native_approval_required,'verified':False,'decision':None}
     if native_approval_required and (canonical.get('source_project_id')!=job.get('project_id') or
-            (job.get('kind'),job.get('project_id')) not in (('mobile_import','02'),('retarget_import','03'))):
+            (job.get('kind'),job.get('project_id')) not in (('mobile_import','02'),('retarget_import','03'),('transfer_target_import','06'))):
         common.append('native_source_project_or_kind_differs_from_import')
     if native_approval_required:
         try:
@@ -532,7 +532,7 @@ def inspect_rosmaster_import(job,*,managed_root=None,include_manifest=False,max_
                 result.get('source_archive_sha256'),expected_review_sha256=expected)}
         except (ValueError,OSError,TypeError,KeyError) as error:
             common.append('native_source_approval_required_or_changed:'+str(error))
-    if canonical.get('source_project_id') in ('02','03'):
+    if canonical.get('source_project_id') in ('02','03','06'):
         report.update(source_project_id=canonical['source_project_id'],source_project_basis='source_bound_original_identity')
     adapter=canonical.get('input_adapter_provenance')
     report['demonstration_input_provenance']=adapter

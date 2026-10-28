@@ -9,7 +9,7 @@ import uuid
 
 from .contracts import ACTION_NAMES,ACTION_UNITS,digest
 
-SCHEMA='explorer_transfer_target_capture_context_v1'
+SCHEMA='explorer_transfer_target_capture_context_v2'
 SPEC_SCHEMA='explorer_transfer_target_skill_spec_v1'
 CONTRACT='rosmaster_joint9_position6_velocity3_v1'
 
@@ -21,6 +21,12 @@ def _uuid(value):
 
 def validate_target_capture_context(context):
     if not isinstance(context,dict):raise ValueError('Explicit target06 DATA context required')
+    allowed={'schema','project_id','target_domain','wizard_id','capture_id','created_by_actor','source_model_binding',
+        'skill_id','skill_version','version','skill_spec','skill_spec_sha256','spec_sha256','session_id','variant_id',
+        'episode_scope','phase_id','target_phase_ids','input_mode','split','action_contract_id','neutral_channels_retained',
+        'stationary_chassis_confirmed','automatic_motion','native_payload_additions','source_action_head_reused',
+        'operator_input_trace_required','recording_mode','force_analysis_only'}
+    if set(context)-allowed:raise ValueError('Only fixed target DATA metadata is accepted; no action/grant fields')
     binding=context.get('source_model_binding') or {};spec=context.get('skill_spec') or {}
     if not isinstance(binding,dict) or not isinstance(spec,dict):raise ValueError('Structured source binding and target Spec required')
     hashes=('spec_sha256','aggregate_manifest_sha256','training_receipt_sha256',
@@ -64,7 +70,7 @@ def validate_target_capture_context(context):
     if (context.get('automatic_motion') is not False or context.get('native_payload_additions')!={} or
             context.get('stationary_chassis_confirmed') is not True or
             context.get('action_contract_id')!=CONTRACT or
-            context.get('source_action_head_reused') is not False):
+            context.get('source_action_head_reused') is not False or context.get('operator_input_trace_required') is not True):
         raise ValueError('DATA-only stationary target9 context required; no action/grant additions')
     return deepcopy(context)
 
@@ -80,5 +86,5 @@ def build_target_capture_context(source_model_binding,target_spec,*,wizard_id,ca
         split=dict(partition=partition,scene_id=scene_id,session_id=session_id,object_instance_id=object_instance_id,
             group_id=group_id,group_by=['scene_id','session_id','episode_id','object_instance_id']),
         action_contract_id=CONTRACT,neutral_channels_retained=True,stationary_chassis_confirmed=True,
-        automatic_motion=False,native_payload_additions={},source_action_head_reused=False)
+        automatic_motion=False,native_payload_additions={},source_action_head_reused=False,operator_input_trace_required=True)
     return validate_target_capture_context(context)

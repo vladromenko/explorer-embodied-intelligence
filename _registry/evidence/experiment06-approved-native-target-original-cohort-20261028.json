@@ -1,0 +1,71 @@
+{
+  "schema": "explorer06_approved_native_target_original_cohort_component_v1",
+  "status": "IMPLEMENTED_TARGETED_SOFTWARE_TESTED_NOT_DEPLOYED",
+  "scope": "Generated original native9 writer→separate Source approval→shared GET archive importer/inspector→shared immutable canonical materializer/Corpus. No new recorder/converter/trainer.",
+  "inputs": "FAKE_NATIVE_TAP_OPERATOR_AND_CAMERA_INPUTS_SEALED_BY_ORIGINAL_WRITER",
+  "real_experts": 0,
+  "original_counts": {
+    "train": 3,
+    "development": 1,
+    "sealed": 1
+  },
+  "original_manifests_and_archives_unchanged": true,
+  "feedback_stays_null_and_command_estimate_labelled": true,
+  "source_domain": "SIMULATION",
+  "target_domain": "physical_DECLARATION_IN_FAKE_NATIVE_ORIGINALS_NOT_HARDWARE_PROOF",
+  "source_review_and_outcome_separate": true,
+  "late_reject_blocks_old_aggregate_and_managed_dataset": true,
+  "stale_approval_replay_denied": true,
+  "DATA_context_v2_whitelist_and_operator_trace_required": true,
+  "default02_03_manifest_payload_byte_parity": true,
+  "new_optimizer_steps": 0,
+  "actual_native_commands": 0,
+  "physical_acceptance": false,
+  "tests": [
+    "50PASS2SKIP50.35s shared consumers",
+    "41PASS17.75s current03/default05/exact source boundaries",
+    "15PASS13.85s strict06 input/approval contracts"
+  ],
+  "retained_setup_negatives": [
+    "original cohortA missing fixture spec_sha256",
+    "original cohortB direct writer context lacked production service normalization; C uses SAME normalize_capture_context before sealing",
+    "late reject first assertion expected less-strict error text; actual exact review-SHA mismatch already refused fit"
+  ],
+  "pending": [
+    "Actual official native9 export of NEW originals with retained ACT6 source",
+    "Central capture lifecycle/reconcile/review/import/aggregate API and operator UI",
+    "Trusted cached metric capture/solve",
+    "Full06 regression and deployment; physical/master acceptance"
+  ],
+  "source_files_sha256": {
+    "00-control-center/src/explorer/transfer_target_import.py": "2caad168c5c361203acbaedd2d98b55973cffb6b3335e0d34e407965ec4eb39a",
+    "00-control-center/src/explorer/transfer_target.py": "78c9701a8c00ebf37444253842941e3dc98e1a094dc2765c11f218650211d6ae",
+    "00-control-center/src/explorer/skill_workflow.py": "640e70f8c64be9e52a3f0a04ae66eb25b1588d296017e9105e336ef53c2d40e2",
+    "00-control-center/src/explorer/mobile_dataset_evidence.py": "ae4b59fb77139b6298768c91f255c50dbc1a85132c6091bc17957544717ed4b8",
+    "shared/explorer_shared/immutable_dataset_bundle.py": "35dd798b5eef501e576e7194c9c6e7693d56033f206a6861273e1fa0f09cf5c7",
+    "shared/explorer_shared/transfer_target_capture.py": "eaca643025b1573e8d75b64fdf83172b7d26951b7357a9e9f7f182105ff471ea",
+    "tests/test_transfer_target_original_cohort.py": "ed6232af8ffc12540086f2fcbf972c65f6db24dfdfbfeed5ca31c345c0711406"
+  },
+  "evidence": [
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-approved-cohort-shared-contracts-20261028-b.log",
+      "sha256": "038ce7bee69f53e27197e5641958cb7c7c2ff8f831b45337c8d54dcf27faeafd"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-original-cohort-full-consumers-20261028-a.log",
+      "sha256": "c5b840218e4a94c78cd0f811374cf5a3da92f20d547e40065fcaf379fc1d9299"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-cohort-source-consumer-boundaries-20261028-a.log",
+      "sha256": "e6d8c83ee108942444ca8e9b81e6f2fbc0e6b18a8c02e14570df5709864810ad"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-target-original-input-approval-contracts-20261028-a.log",
+      "sha256": "0af06af60d08d62a1d1a2faa7d9ba10316b1295def24ddf3f6ebafe5651fa4be"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-aggregate-default-byte-parity-20261028-a/qualification.json",
+      "sha256": "92039cb2062babceca2c62b211d20c338ed6d066f93365c4d72de86f86a5df76"
+    }
+  ]
+}

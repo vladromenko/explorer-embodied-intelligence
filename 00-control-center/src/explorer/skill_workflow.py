@@ -664,17 +664,6 @@ def _schema(manifest,row):
         camera_feature=manifest.get('source_camera_feature','UNKNOWN'),rgb_shape=row['rgb_shape'])
 
 
-def _write_file(path,data):
-    path.parent.mkdir(parents=True,exist_ok=True)
-    with path.open('wb') as stream:stream.write(data);stream.flush();os.fsync(stream.fileno())
-
-
-def _sync_directory(path):
-    descriptor=os.open(path,os.O_RDONLY|os.O_DIRECTORY)
-    try:os.fsync(descriptor)
-    finally:os.close(descriptor)
-
-
 def build_aggregate(store,skill_id,version,*,inspector=None):
     state=workflow(store,skill_id,version,inspector=inspector)
     if not state['data_ready']:raise WorkflowBlocked(state['data_blockers'])
@@ -783,23 +772,8 @@ def build_aggregate(store,skill_id,version,*,inspector=None):
         runtime_implementation_availability_is_not_dataset_fact=True,physical_success_inferred=False,method_ids=['ENGINEERING_GLUE'])
     content=digest(core);manifest=dict(core,aggregate_content_id=content,dataset_id='unified-skill-'+spec['skill_id']+'-v'+str(version)+'-'+content[:16]);data=canonical(manifest)
     destination=Path(store.root)/'datasets'/'skill-workflows'/spec['skill_id']/('v'+str(version).zfill(4))/content
-    if destination.exists():
-        if (destination/'manifest.json').read_bytes()!=data:raise ValueError('Immutable unified aggregate manifest changed')
-        for name,(_,expected) in files.items():
-            if _sha(destination/name)!=expected:raise ValueError('Immutable unified aggregate payload changed')
-    else:
-        destination.parent.mkdir(parents=True,exist_ok=True);stage=destination.with_name('.'+content+'.'+uuid.uuid4().hex+'.staging');stage.mkdir()
-        try:
-            for name,(source,expected) in files.items():
-                payload=source.read_bytes() if isinstance(source,Path) else source
-                _write_file(stage/name,payload)
-                if _sha(stage/name)!=expected or (isinstance(source,Path) and _sha(source)!=expected):raise ValueError('Source changed while copying immutable canonical aggregate')
-            _write_file(stage/'manifest.json',data)
-            for directory,_,_ in os.walk(stage,topdown=False):_sync_directory(directory)
-            stage.rename(destination);_sync_directory(destination.parent)
-        except Exception:
-            if stage.exists():shutil.rmtree(stage)
-            raise
+    from explorer_shared.immutable_dataset_bundle import write_immutable_bundle
+    write_immutable_bundle(destination,data,files)
     return dict(dataset_manifest=str(destination/'manifest.json'),aggregate_sha256=hashlib.sha256(data).hexdigest(),aggregate_content_id=content,dataset_id=manifest['dataset_id'],
         skill_id=spec['skill_id'],skill_version=version,spec_sha256=state['spec_sha256'],
         training_original_episode_ids=[row['binding']['original_episode_id'] for row in included if row['binding']['split']=='train'],

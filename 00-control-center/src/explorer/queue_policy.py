@@ -12,7 +12,7 @@ HEAVY_JOBS=('sim_pilot','train_act','rosmaster_skill_train','transfer_target_tra
     'manipulation_selective_repair','policy_transfer','fault_repair')
 PHYSICAL_JOBS=('station_rollout','handover_physical','so101_skill_eval')
 INFERENCE_JOBS=('transfer_target_eval','station_shadow','station_rollout','so101_skill_shadow','rosmaster_skill_shadow','cooperative_policy_warm','so101_skill_eval','rosmaster_skill_eval')
-DATA_JOBS=('station_import','mobile_import','retarget_import','camera_recording','program_trace','research_export','study_export')
+DATA_JOBS=('transfer_target_import','station_import','mobile_import','retarget_import','camera_recording','program_trace','research_export','study_export')
 TERMINAL=('completed','failed','cancelled')
 
 
@@ -23,9 +23,10 @@ def default_metadata(job):
     gpu=False if source_shadow or source_eval or warm or export else config.get('device')=='cuda' or inference and config.get('device')!='cpu'
     size,batch=config.get('image_size',64),config.get('batch_size',2)
     measured_compact=job['kind']=='so101_skill_train' and type(size) is int and 32<=size<=64 and type(batch) is int and 1<=batch<=2
-    memory=(4 if warm else 2 if study else .5 if export else 2 if source_shadow or source_eval else 4 if gpu or heavy and not measured_compact else 2 if heavy else .75 if inference else .25)*GIB
+    target_import=job['kind']=='transfer_target_import'
+    memory=(1 if target_import else 4 if warm else 2 if study else .5 if export else 2 if source_shadow or source_eval else 4 if gpu or heavy and not measured_compact else 2 if heavy else .75 if inference else .25)*GIB
     payload=config.get('estimated_payload_bytes');estimated_export=export and type(payload) is int and payload>=0
-    disk=int((2 if heavy else .25)*GIB)+(3*payload if estimated_export else 0)
+    disk=int((1 if target_import else 2 if heavy else .25)*GIB)+(3*payload if estimated_export else 0)
     budget=dict(cpu_cores=4 if warm else 2 if heavy or source_shadow or source_eval else 1,memory_bytes=int(memory),disk_bytes=disk,gpu_slots=int(gpu))
     return dict(schema='explorer_job_scheduling_v1',job_id=job['id'],experiment_slug=job.get('experiment_slug','unresolved:'+job['project_id']),
         project_id=job['project_id'],experiment_numbering_version=2,skill_id=config.get('skill_id'),skill_version=config.get('skill_version'),

@@ -47,3 +47,15 @@ def test_native_target_context_extension_is_bounded_to_exact_data_only_change(tm
     candidate=tmp_path/name;candidate.parent.mkdir(parents=True)
     candidate.write_bytes((ROOT/name).read_bytes()+b'\nUNREVIEWED_CAPTURE_CHANGE=True\n')
     with pytest.raises(AssertionError):assert_qualified_source(tmp_path,name,extension['previous_sha256'])
+
+
+@pytest.mark.parametrize('name',['00-control-center/src/explorer/job_runner.py','00-control-center/src/explorer/mobile_dataset_evidence.py',
+    '00-control-center/src/explorer/queue_policy.py','00-control-center/src/explorer/skill_workflow.py',
+    '00-control-center/src/explorer/transfer_target.py','shared/explorer_shared/transfer_target_capture.py','tests/test_rosmaster_native02_e2e.py'])
+def test_target_original_cohort_extension_reconstructs_exact_previous_bytes(tmp_path,name):
+    from qualification_source_extensions import RECEIPT06_COHORT
+    extension=json.loads(RECEIPT06_COHORT.read_bytes())['extensions'][name]
+    assert_qualified_source(ROOT,name,extension['previous_sha256'])
+    candidate=tmp_path/name;candidate.parent.mkdir(parents=True)
+    candidate.write_bytes((ROOT/name).read_bytes()+b'\nUNREVIEWED_COHORT_CHANGE=True\n')
+    with pytest.raises(AssertionError):assert_qualified_source(tmp_path,name,extension['previous_sha256'])

@@ -80,6 +80,7 @@ def test_same_native_writer_preserves_original06_identity_and_unknown_through_se
 
 @pytest.mark.parametrize('field,value',[
     ('automatic_motion',True),('native_payload_additions',{'action9':[1]*9}),
+    ('action9',[0]*9),('execution_permission',True),('operator_input_trace_required',False),
     ('target_domain','simulation'),('skill_version',1),('source_model_binding',[]),('split',[])])
 def test_foreign_or_action_bearing06_context_is_rejected_before_even_source_GET(tmp_path,monkeypatch,field,value):
     store,wizard,metadata,context=context_fixture(tmp_path,monkeypatch)
