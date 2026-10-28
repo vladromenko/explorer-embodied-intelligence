@@ -39,8 +39,8 @@ E05-MANUAL/LEARNING/RELEASE DONE only in scoped software/deploy sense. **Current
 E06-PIPELINE**: reuse approved04 lineage +known geometry +durable calibration
 backend; connect operator API/UI and target9 pipeline through existing owners.
 Actual saved generated Source6 ACT2 metadata passed technical admission without
-Torch/IO/optimizer, but hold/no independent object trace correctly blocks learned
-object transfer. Geometry/operator software can proceed separately; no false
+Torch/IO/optimizer; canonical object task is recognized, but no independent object
+trace correctly blocks learned object transfer. Geometry/operator software can proceed separately; no false
 source skill, physical registration or H1–H5 acceptance. Далее06ADAPT/RELEASE→01.
 
 ## Последний checkpoint04
@@ -354,3 +354,14 @@ start; same capture/import/approval/aggregate passed1test10s,5originals/3train1D
 1sealed, raw manifests unchanged. Next opt-in ACT2 shared queue on these NEW
 inputs and whole geometry UI; no gratuitous repeat or real-source mastery claim.
 Live c82 unchanged; E06PIPELINE continues, target9/adaptation/full06release OPEN.
+
+
+06 actual new generated cohort →shared native6 ACT2/reload0 →geometry positive
+whole-app Firefox1440/390 save/reload/restore PASS; all4finalPNG inspected.
+[Scoped checkpoint](../_registry/evidence/experiment06-generated-actual-source-geometry-UI-20261028.json).
+Original prestart calibration bytes retained and exact; old calibration-less model
+not rewritten. First UI exposed targetVersion input reset; cce055c fixes restore
+and rejects wrong-version replies,36Node contracts PASS. Old negative originals
+retained. No independent source object trace/target9training/physical acceptance;
+NOTdeployed, live remains c82. Continue E06PIPELINE target9 corpus/common trainer
+and trusted cached metric capture; not full06/master completion.

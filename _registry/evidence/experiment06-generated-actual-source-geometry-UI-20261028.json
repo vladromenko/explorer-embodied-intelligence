@@ -1,0 +1,58 @@
+{
+  "schema": "explorer06_generated_actual_source_geometry_UI_checkpoint_v1",
+  "source_code": "d8e12a8dcac8586df225700a8c428088f7cc5fb5",
+  "UI_code": "cce055c0760ccc1279947dccdf2c92c0cdd7767a",
+  "status": "SCOPED_SOFTWARE_PASS_NOT_DEPLOYED",
+  "model_job_id": "92537967dd05482f9f9c5b8f36a7fc44",
+  "inputs": "GENERATED_ORIGINAL_CAPTURES_WITH_PRESTART_CALIBRATION",
+  "real_experts": 0,
+  "actual_source_optimizer_steps": 2,
+  "reload_max_abs_error": 0.0,
+  "source_calibration_sha256": "9a773d67affb2d37fb029ecc421617806291a90579185b2e8159f36206010730",
+  "four_final_PNG_visually_inspected": true,
+  "UI_cases": [
+    "desktop1440/mobile390 preview geometry",
+    "save target version3/4",
+    "reload/reselect/restore same wizard and version input"
+  ],
+  "retained_negatives": [
+    "06-actual-source-positive-UI-20261028-a/visual-review-retained.json",
+    "06-actual-saved-source-negative-UI-20261028-a/backend-errors-retained.json"
+  ],
+  "original_source_manifests_unchanged": true,
+  "source_object_trace_qualified": false,
+  "target_policy_trained": false,
+  "physical_acceptance": false,
+  "actual_native_commands": 0,
+  "live_code_unchanged": "c82e6754a26194f3fd12533cce35153890ff5771",
+  "evidence": [
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-actual-source-geometry-d8e12a8-20261028-a/result/runner-qualification.json",
+      "sha256": "52c870039a76379d9dcdaf1c2af4ebeb2d3dbd82df86713cb806c6cb76d7a7c3"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-actual-source-geometry-d8e12a8-20261028-a/result/pytest/test_actual_native6_queue_keep0/qualification.json",
+      "sha256": "567cdb32c27d9096ad55d17f800e48b8812d34dfd1b02f31b6375a17a705693a"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-actual-source-positive-UI-20261028-b/receipt.json",
+      "sha256": "8b9ada4e3073eb1226589d750799a85317967926bc3589ba62e3226661645137"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-actual-source-positive-UI-20261028-b/desktop-prepared.png",
+      "sha256": "67948260c11c81ec5dda001d2f62515df00ba77e852dd23cc263ac4f2bdf450a"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-actual-source-positive-UI-20261028-b/desktop-restored.png",
+      "sha256": "67948260c11c81ec5dda001d2f62515df00ba77e852dd23cc263ac4f2bdf450a"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-actual-source-positive-UI-20261028-b/mobile-prepared.png",
+      "sha256": "bfb638230a736208fa102d1540c990d4eb96f24e7ccd6037702cd8d5c8960cf6"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-actual-source-positive-UI-20261028-b/mobile-restored.png",
+      "sha256": "bfb638230a736208fa102d1540c990d4eb96f24e7ccd6037702cd8d5c8960cf6"
+    }
+  ]
+}
