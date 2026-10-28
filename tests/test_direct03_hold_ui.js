@@ -52,7 +52,7 @@ test('one new click replaces a retained CLUTCHED source before authorization',as
  await h.click('direct03-start');
  const operations=h.calls.filter(c=>c.path||c.get||c.permission).map(c=>c.path||(c.get?`GET:${c.get}`:'permission'));
  assert.deepEqual(operations,[
-  '/api/retarget/stop','/api/robot/teleop/stop','/api/operator/source-connect','GET:/api/retarget/status','permission','/api/retarget/start','/api/retarget/lease'
+  '/api/robot/teleop/stop','/api/retarget/stop','/api/operator/source-connect','GET:/api/retarget/status','permission','/api/retarget/start','/api/retarget/lease'
  ]);
  assert.equal(h.calls.find(c=>c.path==='/api/retarget/stop').body.control_epoch,'old-source');
  assert.equal(h.run('direct03.owned'),true);assert.equal(h.run('direct03.status.state'),'ACTIVE');

@@ -70,13 +70,15 @@ async function direct03Control(action){
       // A reload or an expired browser heartbeat may leave an exact old Pi
       // retarget epoch CLUTCHED even though this tab no longer owns it.  The
       // user's new "Управлять" click explicitly replaces that source: stop
-      // the retained Pi epoch first, then latch the shared native teleop STOP.
+      // the original shared native teleop first.  This also invalidates a Nano
+      // mux whose browser lease expired before Pi could deliver its scoped
+      // STOP; Pi can then verify that the retained target epoch is inactive.
       const previous=direct03.status || await api("/api/retarget/status");
+      await post("/api/robot/teleop/stop",{},{keepalive:true});
       if(previous?.target_control_epoch || ["CLUTCHED","ACTIVE","ACTIVATING","CLUTCHING","INTERRUPTED","STOP_DELIVERY_UNKNOWN"].includes(previous?.state)){
         const stopped=await post("/api/retarget/stop",{control_epoch:previous.control_epoch},{keepalive:true});
         direct03.status=stopped;capturedEpoch=stopped.control_epoch;
       }
-      await post("/api/robot/teleop/stop",{},{keepalive:true});
       await post("/api/operator/source-connect",{});
       const fresh=await api("/api/retarget/status");direct03.status=fresh;capturedEpoch=fresh.control_epoch;
     }
