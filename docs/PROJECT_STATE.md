@@ -1,9 +1,9 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T03:43:00+03:00`
+Updated: `2026-10-28T03:49:00+03:00`
 Code commit: `4da35a8e614cfd5e98e96f84843f5d4d1849b768`
-Current task: `E05-MANUAL`
-Next tasks: `E05-MANUAL`, `E05-LEARNING`, `E06-PIPELINE`
+Current task: `E05-LEARNING`
+Next tasks: `E05-LEARNING`, `E05-RELEASE`, `E06-PIPELINE`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
 
 Это единственный краткий текущий статус. История требований/отказов и научные
@@ -208,3 +208,12 @@ epoch/other-role fences), honest COMPLETED/INTERRUPTED UI and mobile wrapping.
 Frozen62PASS147.06s +281NodePASS5.21s; [scope/proof](../05-cooperative-handover/docs/WHOLE_MANUAL_FLOW_RU.md).
 NOTdeployed/full05DONE; E05MANUAL remains current while paired data/learning and
 entire05 page/source-control panels are integrated, before one full/scoped release.
+
+
+Latest whole-app authenticated isolated ASGI+Firefox1440/390 PASS all10FSM,
+version/session DOM selection, recordUNKNOWN, observed panel loaded,0script error/
+overflow;4PNG inspected. [Evidence](../_registry/evidence/experiment05-entire-app-manual-UI-20261028.json).
+E05-MANUAL **DONE scoped IMPLEMENTED/SOFTWARE_TESTED, NOTdeployed**; current is
+**E05-LEARNING**: generate explicit software paired originals using existing02/04
+recorders/importers, preserve separate9D/6D/clocks/parents/reviews and run shared
+training/reload/shadow. E05-RELEASE/full regression/deploy and physical gates OPEN.

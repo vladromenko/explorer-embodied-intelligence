@@ -33,3 +33,16 @@ release. Earlier both-role DATA recovery cbd192PASS остаётся отдел�
 Live HB976/Pi+NanoOWNc516 без изменений; no actual native command/grant/STOP.
 Далее paired native admission/review/import/train/reload/shadow, whole current
 page/control panels, full regression/scoped deploy; real physical gates отдельно.
+
+
+## Дополнительная проверка всей страницы приложения
+
+[Actual whole-page evidence](../../_registry/evidence/experiment05-entire-app-manual-UI-20261028.json):
+текущий authenticated FastAPI/ASGI app с isolated Store и lifespanOFF, настоящий
+`/experiments/05` и все current assets. Firefox1440/390, DOM выбор skill/version
+и session, zone/record UNKNOWN/all10FSM; observed preparation panel loaded,
+0script errors с начала navigation,0document/button overflow,4PNG просмотрены.
+No native USER grants/control actions; only test metadata protocol operations.
+Source-positive controls отдельно проверены native-tail fixture выше.
+E05-MANUAL criterion IMPLEMENTED/SOFTWARE_TESTED; NOTdeployed. ДалееE05-LEARNING,
+затем full/scoped release. Физическая/полная05/master приёмка не повышена.

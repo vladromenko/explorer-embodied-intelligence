@@ -1,0 +1,36 @@
+{
+  "schema": "explorer05_entire_app_manual_UI_v1",
+  "code_commit": "4da35a8e614cfd5e98e96f84843f5d4d1849b768",
+  "status": "SOFTWARE_TESTED_NOT_DEPLOYED",
+  "actual_application_route": "/experiments/05",
+  "isolated_ASGI_Store": true,
+  "production_lifespan_poller_started": false,
+  "source_inputs": "generated images and explicit fake native metadata HTTP",
+  "viewports": [
+    1440,
+    390
+  ],
+  "ten_FSM_events_each": true,
+  "fresh_receiver_hold_prompts_each": 2,
+  "observed_panel_loaded": true,
+  "script_errors_since_navigation": 0,
+  "document_and_button_overflow": false,
+  "four_screenshots_visually_inspected": true,
+  "raw_sha256": {
+    "/mnt/explorer-data/explorer-work/05-entire-page-Firefox-20261028-b/receipt.json": "d707be1fb05918275d8b5b8b6ca7d3d2e4314d40c2d3dab6338dae3804c9a451",
+    "/mnt/explorer-data/explorer-work/05-entire-page-Firefox-20261028-b/desktop-top.png": "af80d343c5a293d03a23bfa98afe6f066781c490c5ad245e7026cb240cf3fa06",
+    "/mnt/explorer-data/explorer-work/05-entire-page-Firefox-20261028-b/desktop-recording.png": "e73eff134826a86b7a0b312a8abaabacab97ed320f970cda83d890021a14899f",
+    "/mnt/explorer-data/explorer-work/05-entire-page-Firefox-20261028-b/mobile-top.png": "08ce09bf4f4f5f4f0836094185e5eafd0c704455594a5d999b25053160659525",
+    "/mnt/explorer-data/explorer-work/05-entire-page-Firefox-20261028-b/mobile-recording.png": "68c60d8f5a5a62a69eee7bbfba48666fc9b1ba482f5672009a15d86ebb5bd155"
+  },
+  "only_fixture_POST_operations": [
+    "/api/cooperative/confirm_evidence",
+    "/api/cooperative/record_finish",
+    "/api/cooperative/record_start",
+    "/api/cooperative/register_zone",
+    "/api/cooperative/step"
+  ],
+  "source_control_authorization_or_physical_acceptance_claimed": false,
+  "actual_native_commands": 0,
+  "remaining": "E05 learning/full regression/scoped deploy/physical acceptance remain separate; native source positive control tested on original fake publishers/localhost separately"
+}
