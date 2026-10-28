@@ -87,7 +87,7 @@ class ObservedNativeActivation:
         if not isinstance(actor,str) or not 0<len(actor)<=128:
             raise ValueError('Bounded explicit operator identity required')
         input_mode=body.get('input_mode','so101_leader')
-        if input_mode not in ('so101_leader','keyboard','browser_gamepad','cooperative_policy'):
+        if input_mode not in ('so101_leader','keyboard','browser_gamepad','local_gamepad','cooperative_policy'):
             raise ValueError('Explicit supported observed input adapter required')
         if not all(body.get(key) is True for key in ('observing','neutral','space_clear','user_observed_test_confirmed')):
             raise ValueError('Separate explicit current user-observed test confirmation required')
@@ -181,19 +181,20 @@ class ObservedNativeActivation:
                        authorization.get('transition') is True and self.mux.state=='CLUTCHED')) and
                    self.mux.teleop.generation==authorization['generation'] and owner=='keyboard')
         else:
-            manual=authorization.get('input_mode') in ('keyboard','browser_gamepad')
+            manual_owner={'keyboard':'keyboard','browser_gamepad':'keyboard','local_gamepad':'gamepad'}.get(authorization.get('input_mode'))
+            manual=manual_owner is not None
             if manual and authorization.get('bound_manual_generation') is not None:
-                valid=(not self.mux.active and owner=='keyboard' and
+                valid=(not self.mux.active and owner==manual_owner and
                        self.mux.teleop.generation==authorization['bound_manual_generation'] and
                        (self.mux.teleop.stop_latched or self.mux.clock()<self.mux.teleop.lease))
             else:
                 valid=((not self.mux.active or self.mux.state=='CLUTCHED') and
-                       (self.mux.teleop.stop_latched or manual) and owner in (None,'keyboard') and
+                       (self.mux.teleop.stop_latched or manual) and owner in (None,manual_owner or 'keyboard') and
                        self.mux.teleop.generation in (authorization['generation'],authorization['generation']+1) and
                        (manual or not any(abs(value)>1e-8 for value in self.mux.teleop.inputs.values())))
                 if manual and not self.mux.teleop.stop_latched:
-                    valid=valid and owner=='keyboard' and self.mux.clock()<self.mux.teleop.lease
-                if valid and manual and owner=='keyboard' and not self.mux.teleop.stop_latched:
+                    valid=valid and owner==manual_owner and self.mux.clock()<self.mux.teleop.lease
+                if valid and manual and owner==manual_owner and not self.mux.teleop.stop_latched:
                     with self.lock:
                         if self.authorization and self.authorization['authorization_id']==authorization['authorization_id']:
                             self.authorization['bound_manual_generation']=self.mux.teleop.generation

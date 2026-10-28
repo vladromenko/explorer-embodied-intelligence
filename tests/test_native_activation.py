@@ -239,10 +239,11 @@ def test_node_binary_proxy_requires_auth_and_returns_only_pinned_typed_frame(tmp
         server.shutdown();server.server_close();agent.close()
 
 
-@pytest.mark.parametrize('input_mode',['so101_leader','keyboard','browser_gamepad'])
+@pytest.mark.parametrize('input_mode',['so101_leader','keyboard','browser_gamepad','local_gamepad'])
 def test_chassis_remains_default_blocked_and_only_fresh_explicit_observed_grant_opens_existing_drive(tmp_path,input_mode):
     client,gate,mux,teleop,arm,tick,jpeg=fixture(tmp_path)
     with client:
+        if input_mode=='local_gamepad':teleop.owner='gamepad'
         auth,_=authorize(client,input_mode=input_mode)
         assert not gate.base_allowed() and gate.status()['chassis_motion_allowed'] is False
         with pytest.raises(PermissionError):teleop.drive([.1,0.,0.])
@@ -251,7 +252,7 @@ def test_chassis_remains_default_blocked_and_only_fresh_explicit_observed_grant_
             epoch=gate.transition(lambda:mux.begin(observing=True,neutral=True),auth['authorization_id'])['control_epoch']
             mux.resume(epoch,observing=True)
         else:
-            teleop.resume('keyboard',True)  # SAME original executor; no leader mux
+            teleop.resume('gamepad' if input_mode=='local_gamepad' else 'keyboard',True)  # SAME original executor; no leader mux
             assert not mux.active
         assert gate.base_allowed()
         teleop.drive([.1,0.,0.])

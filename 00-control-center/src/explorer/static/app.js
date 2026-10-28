@@ -458,11 +458,12 @@ const browserGamepad = {
       if(direct03.owned)await direct03Stop();await sourceDemonstration.drain();await stopKeyboard(true);await waitManualIdle(keyboard,token);
       if(keyboard.stopUnconfirmed)throw new Error("STOP клавиатуры не подтверждён.");
       if(!await manualPreview.ensureFresh())throw new Error("Дождитесь свежих кадров ROSMASTER.");
-      await observedNative.connect("gamepad",{initializeArm:nativeArmNeedsHome()});
       await post("/api/robot/gamepad/panel",{enabled:true,observing:true});this.selectionAttempted=true;
       await post("/api/robot/gamepad/mode",{mode:"TELEOP",drive_profile:"normal",arm_speed:"normal"});
-      await post("/api/robot/teleop/resume",{source:"gamepad",observing:true});
       this.leaseTimer=setInterval(()=>post("/api/robot/gamepad/panel",{enabled:true,observing:true}).catch(error=>{toast(error.message,true);void this.disconnect();}),400);
+      await observedNative.connect("local_gamepad",{initializeArm:nativeArmNeedsHome()});
+      await post("/api/robot/gamepad/panel",{enabled:true,observing:true});
+      await post("/api/robot/teleop/resume",{source:"gamepad",observing:true});
       this.state="active";
     }catch(error){await this.disconnect();throw error;}
     finally{this.busy=false;model.forceRender=true;render();}
@@ -489,6 +490,7 @@ keyboard.options = {
     if (!await manualPreview.ensureFresh()) throw new Error("Дождитесь свежих кадров ROSMASTER.");
     if (!model.robot.controls) await loadRobot();
     if (!ExplorerBrowserGamepad.qualifiedControls(model.robot.controls)) throw new Error("Штатная раскладка explorer-manual-v2 не подтверждена.");
+    if(["cartesian","joint"].includes(model.robot.teleop?.arm_mode))keyboard.mode=model.robot.teleop.arm_mode;
     await observedNative.connect("keyboard",{initializeArm:nativeArmNeedsHome()});
   },
   changed: () => { if (rosmasterDemonstrationRoute()) { model.forceRender = true; render(); } }
