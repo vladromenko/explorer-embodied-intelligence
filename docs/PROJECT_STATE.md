@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T03:49:00+03:00`
-Code commit: `4da35a8e614cfd5e98e96f84843f5d4d1849b768`
+Updated: `2026-10-28T03:59:00+03:00`
+Code commit: `15039b06ca9adf9d3eaa2707165cba72df79e554`
 Current task: `E05-LEARNING`
 Next tasks: `E05-LEARNING`, `E05-RELEASE`, `E06-PIPELINE`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -217,3 +217,14 @@ E05-MANUAL **DONE scoped IMPLEMENTED/SOFTWARE_TESTED, NOTdeployed**; current is
 **E05-LEARNING**: generate explicit software paired originals using existing02/04
 recorders/importers, preserve separate9D/6D/clocks/parents/reviews and run shared
 training/reload/shadow. E05-RELEASE/full regression/deploy and physical gates OPEN.
+
+
+E05-LEARNING15039b0 generated paired admission: actual existing02/04 producers,
+approved imports/native binds/video reviews →server-resolved paired review and
+aggregate5(3train/1DEV/1sealed),9D/6D/clocks separate. Late current Source reject
+invalidates an older cooperative approval without rewriting raw originals.
+Both original factory defaults+paired negative3PASS97.92s; [proof](../_registry/evidence/experiment05-generated-paired-admission-20261028.json).
+All inputs GENERATED, actual physical inputs/real accepted experts0. Writer REAL/
+physical source-profile declarations are explicitly not evidence of hardware.
+No optimizer yet in this component. Next bounded actual shared queued training/
+save/reload/DEV/shadow, learning UI, then one full05 regression/deploy.
