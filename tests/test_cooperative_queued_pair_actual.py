@@ -45,7 +45,7 @@ def test_current_cooperative_queue_uses_both_original_trainers_reload_and_saved_
             job=store.job(identity);assert job['status']=='completed',job
             result=job['result'];assert result['trained'] and result['weights_changed'] and result['save_reload_passed'] and result['optimizer_steps']==2
             admitted=trace.admitted[identity];budget=admitted['metadata']['resources']
-            assert budget['cpu_cores']==2 and budget['memory_bytes']==4*GIB and budget['gpu_slots']==0
+            assert budget['cpu_cores']==2 and budget['memory_bytes']==({'giver':4,'receiver':2}[role])*GIB and budget['gpu_slots']==0
             assert job['config']['_execution_commit']==frozen['source_commit']
             runtime=store.schedule_status(identity)['runtime'];assert runtime['process_exit_code']==0 and not runtime['memory_retained']
             trained[role]=job
