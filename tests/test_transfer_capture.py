@@ -3,6 +3,7 @@ from contextlib import contextmanager
 import importlib
 import json
 import time
+import uuid
 
 from fastapi.testclient import TestClient
 import pytest
@@ -13,6 +14,23 @@ from explorer_shared.native_capture_service import NativeCaptureService
 from test_transfer_target_native_capture import context_fixture
 from test_native_capture import setup,publication
 from test_transfer_target_original_cohort import original_target_cohort
+
+
+def test_failed_data_start_can_be_closed_without_deleting_source_originals(tmp_path,monkeypatch):
+    store,wizard,metadata,_=context_fixture(tmp_path,monkeypatch)
+    class MissingSource:
+        def status(self):return dict(active_recording_id=None,capture=dict(state='IDLE',source_clock_domain='nano',source_boot_id='boot'))
+        def reference(self):return {}
+        def start_recording(self,context):raise ValueError('Actual fixture source clock mismatch before allocation')
+    source=MissingSource();actor='OWN_TEST_ACTOR'
+    with pytest.raises(ValueError,match='clock mismatch'):capture.start(store,wizard['wizard_id'],metadata,actor,source)
+    saved=capture.capture_list(store,wizard['wizard_id'],actor)['captures'][0]
+    assert saved['state']=='START_PENDING'
+    abandoned=capture.operation(store,wizard['wizard_id'],saved['capture_id'],{'operation':'abandon'},actor,source)
+    assert abandoned['state']=='ABANDONED_START' and not abandoned['originals_deleted']
+    assert not abandoned['source_start_absence_inferred']
+    with pytest.raises(ValueError,match='clock mismatch'):
+        capture.start(store,wizard['wizard_id'],dict(metadata,request_id=str(uuid.uuid4())),actor,source)
 
 
 def test_operator_start_pause_stage_finish_separate_review_and_import_queue(tmp_path,monkeypatch):

@@ -80,7 +80,7 @@ def start(store,wizard_id,metadata,actor,nano):
         if previous:
             if previous['context']!=context or previous['actor_id']!=actor:raise ValueError('Conflicting target capture request')
             return _reconcile(store,previous,nano)
-        if any(row['state'] not in ('SEALED',) for row in _rows(store).values()):raise ValueError('Finish or reconcile the known target recording first')
+        if any(row['state'] not in ('SEALED','ABANDONED_START') for row in _rows(store).values()):raise ValueError('Finish or reconcile the known target recording first')
         packet=nano.status();stamp=packet.get('capture') or {}
         if packet.get('active_recording_id') is not None or stamp.get('state') not in ('IDLE','SEALED'):
             raise ValueError('Existing native recorder must be idle; no foreign recording adoption')
@@ -100,6 +100,15 @@ def operation(store,wizard_id,capture_id,body,actor,nano):
     action=body['operation']
     with _lock(store):
         row=_known(store,wizard_id,capture_id,actor)
+        if action=='abandon':
+            if set(body)!={'operation'} or row['state']!='START_PENDING':raise ValueError('Only an unacknowledged DATA start may be abandoned')
+            packet=nano.status();stamp=packet.get('capture') or {}
+            if (packet.get('active_recording_id') is not None or stamp.get('state') not in ('IDLE','SEALED') or
+                    stamp.get('source_clock_domain')!=row['source_identity']['clock_domain'] or
+                    stamp.get('source_boot_id')!=row['source_identity']['boot_id']):
+                raise ValueError('Same idle DATA recorder required; reconcile an active recording first')
+            return _save(store,row,state='ABANDONED_START',originals_deleted=False,
+                source_start_absence_inferred=False)
         if action=='refresh':
             if set(body)!={'operation'}:raise ValueError('Fixed refresh request')
             return _reconcile(store,row,nano)
