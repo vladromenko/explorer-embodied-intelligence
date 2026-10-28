@@ -25,7 +25,7 @@ class Source:
 
 def fixture(tmp_path):
     from explorer_shared.so101_station import _record_context
-    store=Store(tmp_path/'state');calls=[];active={'nano.test':None,'pi.test':None};contexts={};capture_request={}
+    store=Store(tmp_path/'state');calls=[];active={'nano.test':None,'pi.test':None};contexts={};capture_request={};sealed={}
     domain='pi:fake-capture-boot';boot='fake-capture-boot'
     profiles={role:{'verified_on_connected_hardware':True,'calibration_sha256':('c' if role=='leader' else 'd')*64}
         for role in ('leader','follower')}
@@ -54,6 +54,10 @@ def fixture(tmp_path):
                     'source_boot_id':boot,'source_clock_domain':domain,'source_context':source_context(),
                     'calibration_sha256':{role:profile['calibration_sha256'] for role,profile in profiles.items()},
                     'original_start_receipt':{'episode_id':active[role]}}
+            elif path.startswith('/so101-capture/recordings/') and path.endswith('/manifest'):
+                identity=path.split('/')[-2]
+                if identity not in sealed:return httpx.Response(404,json={'detail':'Fake source archive not sealed yet'})
+                result=deepcopy(sealed[identity])
             elif path=='/station/observed-test/status':
                 row=service.workflow.snapshot()['sessions'][-1];spec=service.workflow._spec_for(row)
                 result={'execution_permission':True,'source_stamp':{'boot_id':boot,'clock_domain':domain},'grant':{'execution_permission':True,
@@ -72,7 +76,21 @@ def fixture(tmp_path):
             elif path.endswith('/stage'):
                 assert body['recording_id']==active[role];result={'source_annotation':True}
             elif path.endswith('/finish'):
-                assert body.get('recording_id',body.get('episode_id'))==active[role];active[role]=None;result={'saved':True}
+                assert body.get('recording_id',body.get('episode_id'))==active[role]
+                if path.startswith('/so101-capture/'):
+                    identity=active[role];context=source_context();assert body['actor_id']==capture_request['actor_id']
+                    lifecycle={'state':'completed','recording_id':identity,'actor_id':body['actor_id'],
+                        'source_context':context,'native_control_epoch':'fake-source-epoch','source_boot_id':boot,
+                        'source_clock_domain':domain,'calibration_sha256':{role:p['calibration_sha256'] for role,p in profiles.items()},
+                        'original_start_receipt':{'episode_id':identity},'original_finish_receipt':{'episode_id':identity,'sha256':'e'*64}}
+                    result={'schema':'explorer_so101_source_capture_v1','project_id':'04','recording_id':identity,
+                        'action_contract_id':'so101_follower_calibrated_position6_v1','state':'completed',
+                        'source_boot_id':boot,'source_clock_domain':domain,'source_context':context,'lifecycle':lifecycle,
+                        'original_manifest':{'sha256':'e'*64},'original_archive':{'sha256':'f'*64},
+                        'operator_outcome':body['outcome'],'physical_success_inferred':False,'automatic_import_or_training':False}
+                    sealed[identity]=deepcopy(result)
+                else:result={'saved':True}
+                active[role]=None
             else:raise AssertionError('Unknown native metadata operation')
         return httpx.Response(200,json=result)
     client=httpx.Client(transport=httpx.MockTransport(request))

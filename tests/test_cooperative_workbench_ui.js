@@ -249,6 +249,16 @@ test("explicit pending DATA reconciliation can finish old data after STOP withou
   state.workbench.sessions[0].record_start_errors={receiver:"KNOWN_START_ACK_MISSING"};
   const {client}=await rig({get:async()=>clone(state),post:async(path,body)=>{calls.push([path,body]);return {snapshot:clone(state),result:{control_authority_adopted:false}};}});
   const html=cooperativeWorkbenchPanel(client.snapshot());assert.match(html,/record-reconcile/);assert.match(html,/UNKNOWN/);assert.match(html,/KNOWN_START_ACK_MISSING/);
-  await client.recordReconcile();assert.deepEqual(calls,[["/api/cooperative/record_reconcile",{session_id:"server-session",expected_epoch:"epoch-one"}]]);
+  await client.recordReconcile();assert.deepEqual(calls,[["/api/cooperative/record_reconcile",{session_id:"server-session",expected_epoch:"epoch-one",capture_attempt_id:"server-opaque-attempt"}]]);
   assert.equal(client.snapshot().data.workbench.sessions[0].status,"STOPPED");assert.throws(()=>client.step("giver_holding"),/После STOP/);
 });
+for(const recovery of [{state:"PENDING_DATA_FINISH_RECONCILIATION"},{state:"DATA_FINISHED",cleanup_required:true}]){
+  test(`DATA recovery ${recovery.state} uses only server attempt pin after interruption`,async()=>{
+    const state=fixture(),calls=[];state.workbench.sessions[0].status="INTERRUPTED";
+    state.workbench.sessions[0].native_capture_recovery={...recovery,attempt_id:"current-server-attempt"};
+    const {client}=await rig({get:async()=>clone(state),post:async(path,body)=>{calls.push([path,body]);return {snapshot:clone(state),result:{control_authority_adopted:false}};}});
+    await client.recordReconcile();assert.deepEqual(calls,[["/api/cooperative/record_reconcile",{session_id:"server-session",expected_epoch:"epoch-one",capture_attempt_id:"current-server-attempt"}]]);
+    assert.equal(client.snapshot().data.workbench.sessions[0].status,"INTERRUPTED");
+    assert.match(cooperativeWorkbenchPanel(client.snapshot()),/record-reconcile/);
+  });
+}

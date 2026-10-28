@@ -171,6 +171,7 @@ class CooperativeRecorder:
             if (self.state!='RECORDING' or self.ident!=recording_id or role not in ('giver','receiver') or
                     reference.get('role')!=role or
                     (reference.get('known_capture_intent') or {}).get('session_id')!=self.context['session_id'] or
+                    reference.get('known_capture_intent')!=(self.context.get('native_capture_start_intents') or {}).get(role) or
                     reference.get('metadata_only_no_control_started') is not True):
                 raise ValueError('Current cooperative recording and known DATA source intent required')
             previous=self.native_sources.get(role)

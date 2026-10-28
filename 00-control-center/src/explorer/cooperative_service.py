@@ -201,18 +201,23 @@ class CooperativeService:
             result=self.producers[role].record_finish(reference,native)
             binding=mobile.capture_finished(self.store,capture['capture_id'],reference['recording_id'],{**review,'outcome':status})
             return {'native':result,'source_workflow':binding}
+        if reference.get('known_capture_intent'):
+            return self.capture_starts.finish(reference,outcome,cleanup=self.closed)
         return self.producers[role].record_finish(reference,outcome)
     def _reconcile_receiver_capture(self,row,actor):
         ack=self.capture_starts.reconcile(row,actor);reference=ack['reference']
         self.producers['receiver'].bind_known_capture(reference)
         current=self.workflow.snapshot(row['session_id']);attached=False
         if (not self.closed and current['epoch']==row['epoch'] and current.get('recording_id') and
+                (current.get('native_capture_start_intents') or {}).get('receiver')==reference['known_capture_intent'] and
+                current.get('recording_actor_id')==reference['capture_actor_id'] and
                 current['status'] not in ('STOPPED','INTERRUPTED','COMPLETED')):
             try:
                 self.recorder.acknowledge_native_source(current['recording_id'],'receiver',reference)
                 with self.workflow.lock:
                     latest=self.workflow._session(row['session_id'])
-                    if latest['epoch']==row['epoch'] and latest.get('recording_id')==current['recording_id']:
+                    if (latest['epoch']==row['epoch'] and latest.get('recording_id')==current['recording_id'] and
+                            (latest.get('native_capture_start_intents') or {}).get('receiver')==reference['known_capture_intent']):
                         latest['recording_source_refs']['receiver']=deepcopy(reference)
                         latest.get('record_start_errors',{}).pop('receiver',None)
                         self.workflow._save(latest);attached=True
@@ -221,12 +226,59 @@ class CooperativeService:
                 # archive. Keep the DATA ACK and finish only this known source.
                 attached=False
         if attached:return {**ack,'recording_metadata_attached':True}
-        result=self.producers['receiver'].record_finish(reference,{'status':'unknown'})
+        result=self.capture_starts.finish(reference,{'status':'unknown'},cleanup=True)
         pointer=reference['known_capture_intent'];folder,_=self.capture_starts._load(pointer)
         path=folder/'recovery-finish-unknown.json'
         if not path.exists():write_original(path,canonical({'source_result':result,'outcome':'unknown',
             'control_authority_adopted':False,'native_commands_dispatched':False}))
         return {**ack,'recording_metadata_attached':False,'own_source_finished_unknown':True}
+    def _record_reconcile(self,body,actor):
+        if not self.workflow.record_io.acquire(blocking=False):raise ValueError('Another recording metadata operation is pending')
+        try:
+            if set(body)!={'session_id','expected_epoch','capture_attempt_id'}:
+                raise ValueError('Only the exact server-known DATA attempt may be reconciled')
+            selected=self.workflow.snapshot(body['session_id'])
+            if selected['epoch']!=body['expected_epoch']:raise ValueError('Session epoch changed inside DATA IO lock')
+            if body['capture_attempt_id']!=(selected.get('native_capture_start_intents') or {}).get('receiver',{}).get('attempt_id'):
+                raise ValueError('Known DATA capture attempt changed; stale reconciliation rejected')
+            recovery=self.capture_starts.projection(selected)
+            if recovery and recovery['state'] in ('PENDING_DATA_FINISH_RECONCILIATION','DATA_FINISHED'):
+                result=self.capture_starts.reconcile_finish(selected,actor)
+            else:result=self._reconcile_receiver_capture(selected,actor)
+            result['interrupted_camera_pointer_retired']=self._retire_interrupted_camera(selected,result)
+            return result
+        finally:self.workflow.record_io.release()
+    def _retire_interrupted_camera(self,selected,result):
+        """Retire only an old inactive DATA pointer; retain its raw files/receipt."""
+        current=self.workflow.snapshot(selected['session_id']);identity=current.get('recording_id')
+        pointer=(current.get('native_capture_start_intents') or {}).get('receiver')
+        if (not identity or identity!=selected.get('recording_id') or not re.fullmatch('[0-9a-f]{32}',str(identity)) or
+                current['status'] not in ('STOPPED','INTERRUPTED','COMPLETED') or
+                pointer!=(selected.get('native_capture_start_intents') or {}).get('receiver') or
+                result.get('control_authority_adopted') is not False):return False
+        if self.recorder is not None:
+            recorder=self.recorder.status()
+            if recorder['recording_id']==identity and recorder['state'] in ('RECORDING','SEALING'):return False
+        folder,intent=self.capture_starts._load(pointer)
+        raw_path=self.root/'recordings'/identity/'manifest.json';snapshot=folder/'interrupted-camera-manifest.json'
+        if raw_path.is_file() and not snapshot.exists():write_original(snapshot,raw_path.read_bytes())
+        receipt={'schema':'explorer_cooperative_interrupted_camera_retirement_v1','session_id':current['session_id'],
+            'recording_id':identity,'known_capture_intent':pointer,'raw_camera_originals_preserved':True,
+            'raw_camera_manifest_available':raw_path.is_file(),
+            'camera_manifest_snapshot_sha256':sha_file(snapshot) if snapshot.exists() else None,
+            'camera_capture_resumed':False,'control_authority_adopted':False,'native_commands_dispatched':False,
+            'coordinator_outcome':'unknown'}
+        path=folder/'interrupted-camera-retirement.json'
+        if not path.exists():write_original(path,canonical(receipt))
+        with self.workflow.lock:
+            latest=self.workflow._session(current['session_id'])
+            if (latest.get('recording_id')!=identity or
+                    (latest.get('native_capture_start_intents') or {}).get('receiver')!=pointer or
+                    latest['status'] not in ('STOPPED','INTERRUPTED','COMPLETED')):return False
+            latest.update(recording_id=None,last_interrupted_recording_id=identity,
+                interrupted_recording_recovery={**receipt,'receipt_sha256':sha_file(path)})
+            self.workflow._save(latest)
+        return True
     def _provider_bindings(self,role,slug):
         return {'inspect_skill':lambda ref:self._inspect_skill(role,ref),
             'record_start':self.producers[role].record_start,
@@ -712,12 +764,19 @@ idempotent; process restart never queues its missing half automatically.
                 raise ValueError('Finish known native DATA capture cleanup before another cooperative start')
             result=self.workflow.record_start(session,authenticated_actor)
         elif operation=='record_reconcile':
-            if set(body)!={'session_id','expected_epoch'}:raise ValueError('Only the server-known DATA intent may be reconciled')
-            result=self._reconcile_receiver_capture(self.workflow.snapshot(session),authenticated_actor)
+            result=self._record_reconcile(body,authenticated_actor)
         elif operation=='record_stage':result=self.workflow.record_stage(session,body.get('phase_id'),
             recording_id=body.get('recording_id'),actor_id=authenticated_actor)
-        elif operation=='record_finish':result=self.workflow.record_finish(session,deepcopy(body.get('outcome') or {'status':'unknown'}),
-            recording_id=body.get('recording_id'),actor_id=authenticated_actor)
+        elif operation=='record_finish':
+            outcome=deepcopy(body.get('outcome') or {'status':'unknown'})
+            if not isinstance(outcome,dict):raise ValueError('Explicit DATA outcome object required')
+            roles=outcome.get('native_roles') or {}
+            if (not isinstance(roles,dict) or set(roles)-{'giver','receiver'} or
+                    any(not isinstance(value,dict) or value.get('status','unknown') not in ('success','failure','unknown','interrupted')
+                        for value in roles.values())):
+                raise ValueError('Only exact native-role outcome objects are accepted')
+            if 'receiver' in roles:self.producers['receiver'].receiver_outcome(roles['receiver'])
+            result=self.workflow.record_finish(session,outcome,recording_id=body.get('recording_id'),actor_id=authenticated_actor)
         elif operation=='step':result=self.workflow.request_step(session,body.get('event'),expected_epoch=body.get('expected_epoch'))
         elif operation=='stop':
             previous=self.workflow.snapshot(session)

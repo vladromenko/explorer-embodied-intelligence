@@ -9,6 +9,11 @@ from explorer.cooperative_service import CooperativeService
 from test_cooperative_service import fixture,session
 
 
+def reconcile_body(root,base):
+    row=root.workflow.snapshot(base['session_id'])
+    return {**base,'capture_attempt_id':row['native_capture_start_intents']['receiver']['attempt_id']}
+
+
 def lost_ack(tmp_path,monkeypatch):
     root,store,calls,active,contexts,client=fixture(tmp_path)
     row,spec=session(root);row.update(execution_domain='user_observed_physical_test',observed_test_binding={'actor_id':'trusted-owner'})
@@ -44,9 +49,9 @@ def test_lost_start_reply_is_durable_no_retry_and_explicit_reconcile_appends_sid
         with pytest.raises(ValueError,match='source recording|known receiver|already user-observed'):
             root.producers['receiver'].record_start(deepcopy(row['proposed_native_source_contexts']['receiver']))
         before=len(calls)
-        with pytest.raises(ValueError,match='original authenticated DATA'):root.command('record_reconcile',base,authenticated_actor='foreign')
+        with pytest.raises(ValueError,match='original authenticated DATA'):root.command('record_reconcile',reconcile_body(root,base),authenticated_actor='foreign')
         assert len(calls)==before
-        reply=root.command('record_reconcile',base,authenticated_actor='trusted-owner')['result']
+        reply=root.command('record_reconcile',reconcile_body(root,base),authenticated_actor='trusted-owner')['result']
         assert reply['recording_metadata_attached'] and not reply['control_authority_adopted'] and not reply['native_commands_dispatched']
         assert (root.recorder.folder/'sources/native-producer-start.json').read_bytes()==original_bytes
         assert (root.recorder.folder/'sources/native-producer-reconciled-receiver.json').is_file()
@@ -68,7 +73,7 @@ def test_restart_reconciles_only_old_data_and_finishes_unknown_without_control_r
         body={'session_id':row['session_id'],'expected_epoch':row['epoch']};before=len(calls)
         assert recovered.capture_starts.projection(row)['state']=='PENDING_DATA_RECONCILIATION'
         assert len(calls)==before  # read-only projection never adopts a source
-        reply=recovered.command('record_reconcile',body,authenticated_actor='trusted-owner')['result']
+        reply=recovered.command('record_reconcile',reconcile_body(recovered,body),authenticated_actor='trusted-owner')['result']
         assert not reply['recording_metadata_attached'] and reply['own_source_finished_unknown']
         assert active['pi.test'] is None and recovered.workflow.snapshot(row['session_id'])['status'] in ('STOPPED','INTERRUPTED')
         mutations=[(path,body) for method,_,path,body in calls[before:] if method=='POST']
@@ -85,7 +90,7 @@ def test_changed_intent_never_adopts_source_and_another_root_writer_cannot_mutat
         pointer=before['native_capture_start_intents']['receiver'];folder,intent=root.capture_starts._load(pointer)
         path=folder/'intent.json';raw=path.read_bytes();intent['actor_id']='foreign';path.write_text(json.dumps(intent))
         count=len(calls)
-        with pytest.raises(ValueError,match='intent bytes changed'):root.command('record_reconcile',base,authenticated_actor='trusted-owner')
+        with pytest.raises(ValueError,match='intent bytes changed'):root.command('record_reconcile',reconcile_body(root,base),authenticated_actor='trusted-owner')
         assert len(calls)==count and root.capture_starts.projection(before)['state']=='UNKNOWN_METADATA'
         path.write_bytes(raw)
     finally:root.close();client.close()
@@ -191,3 +196,143 @@ def test_concurrent_failed_record_start_cannot_replace_first_authenticated_actor
             release.set();result=first.result(timeout=5)['result']
         root.command('record_finish',{**base,'recording_id':result['recording_id'],'outcome':{'status':'unknown'}},authenticated_actor='first-data-owner')
     finally:release.set();root.close();client.close()
+
+
+def ready_capture(tmp_path):
+    root,store,calls,active,contexts,client=fixture(tmp_path)
+    row,spec=session(root);row.update(execution_domain='user_observed_physical_test',observed_test_binding={'actor_id':'trusted-owner'})
+    root.workflow._save(row);base={'session_id':row['session_id'],'expected_epoch':row['epoch']}
+    result=root.command('record_start',base,authenticated_actor='trusted-owner')['result']
+    return root,calls,active,client,base,result
+
+
+def test_lost_finish_ack_after_source_sealed_reads_original_once_without_second_finish(tmp_path):
+    root,calls,active,client,base,result=ready_capture(tmp_path);send=root.producers['receiver'].request
+    try:
+        def lost(method,path,body):
+            reply=send(method,path,body)
+            if path=='/so101-capture/record/finish':raise httpx.ReadTimeout('FAKE lost reply AFTER original seal')
+            return reply
+        root.producers['receiver'].request=lost
+        root.command('record_finish',{**base,'recording_id':result['recording_id'],'outcome':{'status':'unknown'}},authenticated_actor='trusted-owner')
+        assert active['pi.test'] is None and root.producers['receiver'].active is None
+        current=root.workflow.snapshot(base['session_id']);assert root.capture_starts.projection(current)['state']=='DATA_FINISHED'
+        assert len([c for c in calls if c[0]=='POST' and c[2]=='/so101-capture/record/finish'])==1
+        folder,_=root.capture_starts._load(current['native_capture_start_intents']['receiver'])
+        assert (folder/'finish-rpc-failure.json').is_file() and (folder/'finish-ack.json').is_file()
+        assert all('/record/' in path for method,_,path,_ in calls if method=='POST')
+    finally:root.close();client.close()
+
+
+def test_finish_not_issued_stays_pending_until_explicit_actor_attempt_bound_data_cleanup(tmp_path):
+    root,calls,active,client,base,result=ready_capture(tmp_path);send=root.producers['receiver'].request
+    try:
+        def lost(method,path,body):
+            if path=='/so101-capture/record/finish':raise httpx.ReadTimeout('FAKE request lost BEFORE original writer finish')
+            return send(method,path,body)
+        root.producers['receiver'].request=lost
+        root.command('record_finish',{**base,'recording_id':result['recording_id'],'outcome':{'status':'unknown'}},authenticated_actor='trusted-owner')
+        row=root.workflow.snapshot(base['session_id']);assert root.capture_starts.projection(row)['state']=='PENDING_DATA_FINISH_RECONCILIATION' and active['pi.test']
+        count=len(calls)
+        with pytest.raises(ValueError,match='finish is pending'):root.command('record_start',base,authenticated_actor='trusted-owner')
+        with pytest.raises(ValueError,match='attempt changed'):root.command('record_reconcile',{**base,'capture_attempt_id':'f'*32},authenticated_actor='trusted-owner')
+        with pytest.raises(ValueError,match='original DATA actor'):root.command('record_reconcile',reconcile_body(root,base),authenticated_actor='foreign')
+        assert len(calls)==count
+        root.producers['receiver'].request=send
+        reply=root.command('record_reconcile',reconcile_body(root,base),authenticated_actor='trusted-owner')['result']
+        assert reply['own_source_finished_unknown'] and not reply['control_authority_adopted'] and active['pi.test'] is None
+    finally:root.close();client.close()
+
+
+def test_changed_sealed_reply_is_retained_and_never_releases_pending_data_slot(tmp_path,monkeypatch):
+    root,calls,active,client,base,result=ready_capture(tmp_path);send=root.producers['receiver'].request;original=root._request
+    try:
+        def lost(method,path,body):
+            reply=send(method,path,body)
+            if path=='/so101-capture/record/finish':raise httpx.ReadTimeout('FAKE finish ACK lost')
+            return reply
+        root.producers['receiver'].request=lost
+        def factory(role):
+            request=original(role)
+            def changed(method,path,body):
+                reply=request(method,path,body)
+                if path.startswith('/so101-capture/recordings/') and path.endswith('/manifest'):
+                    reply['source_context']['scene_id']='FOREIGN_SEALED_CONTEXT'
+                return reply
+            return changed
+        monkeypatch.setattr(root,'_request',factory)
+        root.command('record_finish',{**base,'recording_id':result['recording_id'],'outcome':{'status':'unknown'}},authenticated_actor='trusted-owner')
+        row=root.workflow.snapshot(base['session_id']);assert root.capture_starts.projection(row)['state']=='PENDING_DATA_FINISH_RECONCILIATION'
+        folder,_=root.capture_starts._load(row['native_capture_start_intents']['receiver'])
+        failures=list(folder.glob('finish-ack-failure-*.json'));assert failures and 'FOREIGN_SEALED_CONTEXT' in failures[0].read_text()
+        assert not (folder/'finish-ack.json').exists() and root.producers['receiver'].active
+        monkeypatch.setattr(root,'_request',original);root.producers['receiver'].request=send
+    finally:root.close();client.close()
+
+
+def test_reconciliation_is_serialized_and_old_reference_cannot_attach_to_next_same_epoch_attempt(tmp_path,monkeypatch):
+    root,store,calls,active,contexts,client,base,result,original=lost_ack(tmp_path,monkeypatch)
+    try:
+        before=len(calls);root.workflow.record_io.acquire()
+        try:
+            with pytest.raises(ValueError,match='metadata operation'):root.command('record_reconcile',reconcile_body(root,base),authenticated_actor='trusted-owner')
+            assert len(calls)==before
+        finally:root.workflow.record_io.release()
+        row=root.workflow.snapshot(base['session_id']);pointer=row['native_capture_start_intents']['receiver']
+        ack=root.capture_starts.acknowledge({'capture_intent':pointer})
+        old=(root.recorder.folder/'sources/native-producer-start.json').read_bytes()
+        saved=deepcopy(root.recorder.context['native_capture_start_intents'])
+        root.recorder.context['native_capture_start_intents']['receiver']['attempt_id']='f'*32
+        with pytest.raises(ValueError,match='known DATA'):root.recorder.acknowledge_native_source(result['recording_id'],'receiver',ack['reference'])
+        assert 'receiver' not in root.recorder.native_sources
+        assert (root.recorder.folder/'sources/native-producer-start.json').read_bytes()==old
+        root.recorder.context['native_capture_start_intents']=saved
+        state=root.capture_starts.projection(row);assert state['attachment_required']
+        reply=root.command('record_reconcile',reconcile_body(root,base),authenticated_actor='trusted-owner')['result']
+        assert reply['recording_metadata_attached']
+    finally:root.close();client.close()
+
+
+def test_invalid_receiver_role_label_rejects_before_either_data_producer_finishes(tmp_path):
+    root,calls,active,client,base,result=ready_capture(tmp_path)
+    try:
+        count=len(calls)
+        with pytest.raises(ValueError,match='operator outcome'):root.command('record_finish',
+            {**base,'recording_id':result['recording_id'],'outcome':{'native_roles':{'receiver':{'status':'success'}}}},authenticated_actor='trusted-owner')
+        assert len(calls)==count and all(active.values())
+        assert root.workflow.snapshot(base['session_id'])['recording_id']==result['recording_id']
+        root.command('record_finish',{**base,'recording_id':result['recording_id'],'outcome':{'status':'unknown'}},authenticated_actor='trusted-owner')
+    finally:root.close();client.close()
+
+
+@pytest.mark.parametrize('native_roles',[{'giver':'success'},{'giver':{'status':'INVALID'}},{'unknown-role':{'status':'unknown'}}])
+def test_malformed_native_role_outcomes_never_partially_finish_other_source(tmp_path,native_roles):
+    root,calls,active,client,base,result=ready_capture(tmp_path)
+    try:
+        count=len(calls)
+        with pytest.raises(ValueError,match='outcome objects'):root.command('record_finish',
+            {**base,'recording_id':result['recording_id'],'outcome':{'native_roles':native_roles}},authenticated_actor='trusted-owner')
+        assert len(calls)==count and all(active.values())
+    finally:root.close();client.close()
+
+
+def test_explicit_restart_recovery_retires_stale_camera_pointer_without_rewriting_raw_manifest(tmp_path,monkeypatch):
+    root,store,calls,active,contexts,client,base,result,original=lost_ack(tmp_path,monkeypatch)
+    path=root.workflow._path(base['session_id']);persisted=path.read_bytes();config=deepcopy(root.config)
+    root.close();assert active['pi.test']
+    # Simulate persisted active session metadata after process loss before its
+    # camera pointer was retired. This is a DATA recovery fixture, not SIGKILL evidence.
+    path.write_bytes(persisted)
+    camera=root.root/'recordings'/result['recording_id']/'manifest.json';raw=camera.read_bytes()
+    recovered=CooperativeService(config,store,client=client)
+    try:
+        row=recovered.workflow.snapshot(base['session_id']);assert row['status']=='INTERRUPTED' and row['recording_id']==result['recording_id']
+        body=reconcile_body(recovered,{'session_id':row['session_id'],'expected_epoch':row['epoch']})
+        reply=recovered.command('record_reconcile',body,authenticated_actor='trusted-owner')['result']
+        assert reply['interrupted_camera_pointer_retired'] and not reply['control_authority_adopted']
+        current=recovered.workflow.snapshot(row['session_id']);assert current['recording_id'] is None
+        assert current['last_interrupted_recording_id']==result['recording_id'] and current['status']=='INTERRUPTED'
+        assert camera.read_bytes()==raw and active['pi.test'] is None
+        assert current['interrupted_recording_recovery']['camera_capture_resumed'] is False
+        assert all('/record/' in p for method,_,p,_ in calls if method=='POST')
+    finally:recovered.close();client.close()

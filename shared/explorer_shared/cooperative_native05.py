@@ -90,6 +90,8 @@ class NativeMetadataRecorder:
                     reference.get('metadata_only_no_control_started') is not True or
                     not reference.get('capture_actor_id') or self.active not in (None,identity)):
                 raise ValueError('Exact validated known common receiver DATA reference required')
+            current=(self._status().get('recording') or {}).get('episode_id')
+            if current!=identity:raise ValueError('Known DATA original is no longer active; inspect sealed originals')
             self.active=identity
             return deepcopy(reference)
     def record_stage(self,reference,phase_id,coordinator_context):
@@ -108,19 +110,31 @@ class NativeMetadataRecorder:
             if not isinstance(outcome,dict):raise ValueError('Explicit role outcome or unknown required')
             if self.role=='giver':body={'recording_id':identity,'outcome_evidence':deepcopy(outcome)}
             else:
-                status=outcome.get('status','unknown')
-                # Whole-coordinator success never supplies this per-native role
-                # label. A role success requires an explicit actual observation.
-                if status not in ('success','failure','unknown','interrupted'):raise ValueError('Native outcome label invalid')
-                if status in ('success','failure') and outcome.get('method')!='operator_observation':
-                    raise ValueError('Explicit native-role operator outcome observation required')
-                body={'episode_id':identity,'outcome':status if status!='interrupted' else 'unknown'}
+                body={'episode_id':identity,'outcome':self.receiver_outcome(outcome)}
             path='/native-capture/record/finish' if self.role=='giver' else '/station/record/finish'
             if self.common_receiver:
                 path='/so101-capture/record/finish'
                 body={'recording_id':identity,'outcome':body['outcome'],'actor_id':reference.get('capture_actor_id')}
             result=self.request('POST',path,body)
             self.active=None;return result
+    @staticmethod
+    def receiver_outcome(outcome):
+        if not isinstance(outcome,dict):raise ValueError('Explicit role outcome or unknown required')
+        status=outcome.get('status','unknown')
+        if status not in ('success','failure','unknown','interrupted'):raise ValueError('Native outcome label invalid')
+        if status in ('success','failure') and outcome.get('method')!='operator_observation':
+            raise ValueError('Explicit native-role operator outcome observation required')
+        return status if status!='interrupted' else 'unknown'
+    def acknowledge_known_finish(self,reference):
+        """Release only the known DATA slot after caller verifies sealed originals."""
+        with self.lock:
+            identity=self._id(reference)
+            if not self.common_receiver or not reference.get('known_capture_intent'):
+                raise ValueError('Known common receiver DATA reference required')
+            released=self.active==identity
+            if released:self.active=None
+            return {'recording_id':identity,'data_capture_slot_released':released,
+                'control_authority_adopted':False,'native_commands_dispatched':False}
 
 
 def public_capture_preparers(store,*,rosmaster_create_session,rosmaster_prepare_capture,
