@@ -46,6 +46,7 @@ function handoverRuntimePanel() {
 }
 document.addEventListener("input", event=>{if(event.target.matches?.("[data-transfer-target-version]"))transferGeometry.setTargetVersion(event.target.value);});
 document.addEventListener("change", (event) => {
+  if(event.target.matches?.("[data-transfer-capture-select]"))transferGeometry.selectCapture(event.target.value);
   if(event.target.matches?.("[data-transfer-target-domain]"))transferGeometry.setTargetDomain(event.target.value);
   if(event.target.matches?.("[data-transfer-training]"))transferGeometry.setTraining(event.target.dataset.transferTraining,event.target.value);
   if(event.target.matches?.("[data-transfer-target-version]"))transferGeometry.setTargetVersion(event.target.value);
@@ -56,6 +57,23 @@ document.addEventListener("change", (event) => {
   if (event.target.id === "transfer-current-evaluation") {workflow.sourceEvaluation=event.target.value;workflow.sourceSelection=null;model.forceRender=true;render();}
 });
 document.addEventListener("click", async (event) => {
+  const captureButton=event.target.closest("button[data-transfer-capture]");
+  if(captureButton){
+    if(captureButton.disabled)return;
+    try{
+      const action=captureButton.dataset.transferCapture;
+      if(action==="list")await transferGeometry.loadCaptures();
+      else if(action==="start")await transferGeometry.startCapture(Object.fromEntries(Array.from(document.querySelectorAll("[data-transfer-capture-field]")).map(element=>[element.dataset.transferCaptureField,element.value])));
+      else if(action==="aggregate")await transferGeometry.aggregateCaptures(Array.from(document.querySelectorAll("[data-transfer-import-id]:checked")).map(element=>element.dataset.transferImportId));
+      else{
+        let body={operation:action};
+        if(action==="approve"||action==="reject")body={operation:"review",decision:action==="approve"?"approve":"reject"};
+        if(action==="stage")body.phase_id=document.querySelector("[data-transfer-capture-stage]")?.value;
+        if(action==="finish"){body.operator_outcome=document.querySelector("[data-transfer-capture-outcome]")?.value;body.per_phase=Object.fromEntries(Array.from(document.querySelectorAll("[data-transfer-phase-outcome]")).map(element=>[element.dataset.transferPhaseOutcome,element.value]));}
+        await transferGeometry.captureOperation(body);
+      }
+    }catch(error){toast(error.message,true);}return;
+  }
   const geometryButton=event.target.closest("button[data-transfer-geometry]");
   if(geometryButton){
     if(geometryButton.disabled)return;

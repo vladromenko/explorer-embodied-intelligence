@@ -22,6 +22,7 @@ class NanoCaptureData:
         return result
     def capabilities(self):return self._request('GET','/native-capture/capabilities')
     def status(self):return self._request('GET','/native-capture/status')
+    def reference(self):return self._request('GET','/legacy/explorer/retarget/reference')
     def manifest(self,identity):return self._request('GET','/native-capture/recordings/'+_recording(identity)+'/manifest',limit=32*1024**2)
     def review_state(self,identity):return self._request('GET','/native-capture/recordings/'+_recording(identity)+'/review',limit=32*1024)
     def start_recording(self,context):return self._request('POST','/native-capture/record/start',dict(skill_context=context))

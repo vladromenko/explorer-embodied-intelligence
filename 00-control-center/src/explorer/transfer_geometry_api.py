@@ -14,6 +14,8 @@ from . import transfer_target as target
 from . import transfer_target_models as target_models
 from .source_evaluation_api import bounded_body
 from .source_evaluation_transport import pi_metadata_connection
+from .transfer_capture_http import nano_capture_connection
+from . import transfer_capture
 
 
 def install_router(app,get_store,get_config,get_actor):
@@ -92,6 +94,33 @@ def install_router(app,get_store,get_config,get_actor):
     async def models(wizard_id:str,request:Request):
         if request.query_params:raise HTTPException(400,'Fixed saved target model query')
         return await safe(lambda:target_models.model_versions(get_store(),wizard_id))
+
+    @app.get('/api/transfer/calibration/{wizard_id}/captures')
+    async def captures(wizard_id:str,request:Request):
+        if request.query_params:raise HTTPException(400,'Fixed target capture list')
+        return await safe(lambda:transfer_capture.capture_list(get_store(),wizard_id,get_actor(request)))
+
+    @app.post('/api/transfer/calibration/{wizard_id}/captures')
+    async def capture_start(wizard_id:str,request:Request):
+        body=await bounded_body(request)
+        def run():
+            with nano_capture_connection(get_config()) as nano:
+                return transfer_capture.start(get_store(),wizard_id,body,get_actor(request),nano)
+        return await safe(run)
+
+    @app.post('/api/transfer/calibration/{wizard_id}/captures/{capture_id}')
+    async def capture_operation(wizard_id:str,capture_id:str,request:Request):
+        body=await bounded_body(request)
+        def run():
+            with nano_capture_connection(get_config()) as nano:
+                return transfer_capture.operation(get_store(),wizard_id,capture_id,body,get_actor(request),nano)
+        return await safe(run)
+
+    @app.post('/api/transfer/calibration/{wizard_id}/aggregate')
+    async def aggregate(wizard_id:str,request:Request):
+        body=await bounded_body(request)
+        if not isinstance(body,dict) or set(body)!={'import_job_ids'}:raise HTTPException(400,'Choose completed original imports only')
+        return await safe(lambda:transfer_capture.aggregate(get_store(),wizard_id,body['import_job_ids'],get_actor(request)))
 
     @app.post('/api/transfer/calibration/{wizard_id}/evaluate')
     async def evaluate(wizard_id:str,request:Request):

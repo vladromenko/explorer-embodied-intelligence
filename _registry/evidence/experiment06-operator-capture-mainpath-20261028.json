@@ -1,0 +1,32 @@
+{
+  "schema": "explorer06_operator_capture_data_mainpath_v1",
+  "status": "IMPLEMENTED_TARGETED_SOFTWARE_TESTED_NOT_DEPLOYED",
+  "baseline_commit": "bfe93b7c160ab6c113cb3654e827b67de526e0fa",
+  "software_tests": [
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-capture-mainpath-20261028-a.log",
+      "passed": 17
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-capture-integrated-mainpath-20261028-a.log",
+      "passed": 16
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-capture-UI-20261028-b.log",
+      "passed": 15
+    }
+  ],
+  "reused": [
+    "NativeCaptureService",
+    "NativeCaptureWriter",
+    "native_capture_identity",
+    "native_capture_approval",
+    "transfer_target_import",
+    "shared DATA queue and CanonicalCorpus"
+  ],
+  "new_device_owners": 0,
+  "actual_native_commands": 0,
+  "physical_acceptance": false,
+  "whole_browser_capture_smoke": "PENDING",
+  "deferred_hardening": "docs/BACKLOG.md"
+}

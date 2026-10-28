@@ -6,6 +6,25 @@ const binding=row=>({model_job_id:row.job_id,spec_sha256:row.spec_sha256,source_
 const response=row=>({source_model_binding:binding(row),geometry_preview_ready:true,audit:{B:[{id:"source_and_target_metric_gripper_aperture"}],C:[{id:"qualified06_object_skill_source"}]}});
 const wizard=row=>({wizard_id:"11111111-1111-4111-8111-111111111111",source_model_binding:binding(row),domain:"simulation",source_version:1,target_version:2,steps:[]});
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};};
+
+test("target capture buttons use fixed DATA API and keep original UNKNOWN separate from review",async()=>{
+  const row=choice(),w={...wizard(row),domain:"physical"},calls=[],captures=[];
+  const {client}=fixture({get:async path=>path.endsWith('/captures')?{wizard_id:w.wizard_id,source_model_binding:binding(row),phases:[{id:"pick",title:"Взять"}],captures,imports:[]}:response(row),post:async(path,body)=>{
+    calls.push([path,body]);if(path.endsWith('/calibration'))return w;
+    if(path.endsWith('/captures')){const saved={wizard_id:w.wizard_id,capture_id:body.request_id,state:"RECORDING",context:{source_model_binding:binding(row),split:{partition:body.partition}}};captures.push(saved);return saved;}
+    if(path.endsWith('/aggregate'))return {kind:"transfer_target_dataset",project_id:"06",status:"completed",id:"d"};
+    return captures[0];
+  }});
+  client.select(row);await client.preview();client.setTargetDomain("physical");await client.create(2);await client.loadCaptures();
+  await client.startCapture({partition:"train",scene_id:"scene",object_instance_id:"object",group_id:"group",variant_id:"variant"});
+  assert.equal(client.snapshot().selectedCapture,captures[0].capture_id);
+  const html=transferGeometryPanel(client.snapshot());assert.match(html,/Начать запись/);assert.match(html,/Завершить и сохранить/);assert.match(html,/Не установлено/);assert.match(html,/Одобрить сохранённую запись/);
+  await client.captureOperation({operation:"finish",operator_outcome:"unknown",per_phase:{pick:"unknown"}});
+  await client.aggregateCaptures(["original-import"]);
+  const start=calls.find(([path])=>path.endsWith('/captures'))[1];assert.equal(start.phase_id,"pick");assert.ok(start.request_id&&start.session_id);
+  assert.ok(calls.every(([path])=>path.startsWith('/api/transfer/')));assert.ok(!calls.some(([path])=>/grant|policy|home|native-control/.test(path)));
+  client.select(choice("b"));assert.equal(client.snapshot().captures,null);assert.equal(client.snapshot().selectedCapture,"");
+});
 function fixture(extra={}){const calls=[],cache=new Map();const row=choice();const client=createTransferGeometryClient({get:async path=>{calls.push(["GET",path]);return response(row);},post:async(path,body)=>{calls.push(["POST",path,body]);return wizard(row);},randomUUID:()=>"22222222-2222-4222-8222-222222222222",storage:{getItem:key=>cache.get(key),setItem:(key,value)=>cache.set(key,value)},...extra});return {client,calls,cache,row};}
 
 test("geometry stays available for technically ready source while object mastery remains separate",async()=>{
