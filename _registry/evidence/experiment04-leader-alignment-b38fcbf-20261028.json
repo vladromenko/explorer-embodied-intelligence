@@ -1,0 +1,51 @@
+{
+  "schema": "explorer.evidence.operator_checkpoint.v1",
+  "recorded_at": "2026-10-28T15:40:46+03:00",
+  "scope": "experiment04 follower alignment to leader at manual start",
+  "commit": "b38fcbfa9415a993988966b0010b477b0b08c1bf",
+  "implementation": {
+    "source04_first_follower_goal": "current measured normalized leader pose",
+    "subsequent_owner": "original frozen Station 30Hz worker and publication gate",
+    "second_bus_owner_added": false,
+    "direct_goal_write_added_by_adapter": false,
+    "cooperative05_relative_baseline_changed": false,
+    "motor_calibration_written": false,
+    "controller_settings_written": false,
+    "frozen_station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885"
+  },
+  "software_tests": {
+    "station_observed_activation_and_publication": "21 passed",
+    "targeted_simple_ui": "2 passed",
+    "full_legacy_source_demonstration_ui": "22 passed, 3 failed: legacy advanced-panel assertions against the intentionally simplified panel",
+    "physical_motion_commands": 0
+  },
+  "deployment": {
+    "homebrain_health_commit": "b38fcbfa9415a993988966b0010b477b0b08c1bf",
+    "pi_release": "/home/vlados/.local/share/explorer/releases/b38fcbfa9415a993988966b0010b477b0b08c1bf",
+    "pi_observer_pid": 81085,
+    "pi_observer_active": true,
+    "station_mode": "idle",
+    "station_available": true,
+    "station_error": null,
+    "grant": null,
+    "capture": null,
+    "configuration_writes": 0,
+    "cutover_native_commands": 0,
+    "node_close_used": false,
+    "initial_cutover_attempt": "failed closed before process or symlink changes because the locally copied full commit SHA was wrong"
+  },
+  "camera_read_only_check": {
+    "authenticated_homebrain_proxy_snapshot_status": 200,
+    "snapshot_content_type": "image/jpeg",
+    "snapshot_jpeg_markers": true,
+    "authenticated_homebrain_proxy_stream_status": 200,
+    "stream_content_type": "multipart/x-mixed-replace; boundary=frame",
+    "stream_jpeg_present": true
+  },
+  "physical_acceptance": {
+    "follower_reached_leader_pose": "OPEN",
+    "visible_camera": "OPEN",
+    "start_record_finish": "OPEN",
+    "overall_experiment04": "OPEN"
+  }
+}

@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T15:31:55+03:00`
-Code commit: `e5deaf329ac9597557053595c31d00afb7226727`
+Updated: `2026-10-28T15:40:46+03:00`
+Code commit: `b38fcbfa9415a993988966b0010b477b0b08c1bf`
 Current task: `E02-04-OPERATOR`
 Next tasks: `E02-04-USER-FEEDBACK`, `E04-REAL`, `E03-CONTINUITY`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -37,8 +37,8 @@ ROSMASTER teleop и frozen Station. Без новых research/hardening/tests s
 изменённых browser-contract source04 PASS. Frozen Station SHA
 `2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885` не менялся.
 
-Homebrain central/worker и Pi runtime deployed exact **e5deaf3**; Homebrain
-central/worker active, Pi observer PID80394, idle/grantNone/0 configuration writes.
+Homebrain central/worker и Pi runtime deployed exact **b38fcbf**; Homebrain
+central/worker active, Pi observer PID81085, idle/grantNone/0 configuration writes.
 Pi cutover выполнен только после idle/no-grant/no-capture; без `Node.close`, STOP или
 native command. Предшествующий worker уже был idle с реальным servo read error;
 перезапуск восстановил обе руки: available, errorNone, свежие измерения <10ms.
@@ -60,15 +60,20 @@ teleoperation оставалась active более10 минут без оши�
 После этого обнаружен отдельный UI-дефект камеры: challenge-frame временно заменял
 общий `#camera-image`, а после долгоживущего старта отозванный blob оставлял его
 пустым. `00b6837` явно возвращает live stream сразу после успешного start.
-`e5deaf3` дополнительно делает первый запуск понятным и однокнопочным: текущие
-позы ведущей и ведомой рук принимаются frozen Station как относительный ноль,
-после чего начинается обычное управление. Это не motor calibration: calibration
-файлы, контроллер и servo settings не записываются; API возвращает точный receipt,
-а browser запоминает его только для текущей пары calibration SHA. Целевые Python
-и Node contracts PASS; frozen Station SHA не менялся.
+`b38fcbf` исправляет уточнённый USER-критерий запуска: для source04 только
+текущая измеренная поза ведущей становится первой целью ведомой, затем frozen
+Station продолжает обычное копирование. Тонкий adapter не открывает второй bus и
+не пишет Goal_Position сам: он меняет только start baseline под исходным lock,
+а все команды остаются у штатного30Hz worker и publication gate. Поведение
+cooperative05 остаётся относительным и отдельно проверено. Это не motor
+calibration: calibration файлы, контроллер и servo settings не записываются.
+21 связанных Python contracts и2 целевых Node contracts PASS. Полный старый
+Node-файл:22 PASS/3 FAIL — legacy advanced-panel ожидания не соответствуют уже
+введённой простой панели; этот исход сохранён и не назван полным PASS. Frozen
+Station SHA не менялся.
 
-После deploy `e5deaf3` direct Pi camera и authenticated Homebrain proxy вернули
-fresh1280x720 JPEG и MJPEG с JPEG markers; Pi observer active PID80394, Station
+После deploy `b38fcbf` direct Pi camera и authenticated Homebrain proxy вернули
+fresh1280x720 JPEG и MJPEG с JPEG markers; Pi observer active PID81085, Station
 idle/available/errorNone. Визуальный USER camera retest и полный start→record→finish
 ещё OPEN; deploy/GET не повышаются до physical acceptance.
 

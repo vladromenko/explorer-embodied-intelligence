@@ -12,7 +12,7 @@ software scope, не подтверждённую пользователем п�
 
 | Опыт | Текущий базовый путь / оставшиеся blockers |
 |---|---|
-|02–04|Упрощённый path deployed exact e5deaf3 Homebrain+Pi. Реальные04 starts/6-axis dispatch и USER-длительная сессия подтверждены; добавленный2s web deadline был причиной сброса и устранён. Отдельный blank-camera blob defect исправлен; direct Pi и authenticated Homebrain proxy дают fresh JPEG/MJPEG. Первый запуск одной кнопкой принимает текущие позы как относительный ноль без motor/config write. Нужны USER reload, визуальная camera04 и start→record→finish, затем02/03. Не повышать readiness по deploy/GET.|
+|02–04|Упрощённый path deployed exact b38fcbf Homebrain+Pi. Реальные04 starts/6-axis dispatch и USER-длительная сессия подтверждены;2s web deadline и blank-camera blob устранены. При каждом source04 start первая цель ведомой равна текущей измеренной позе ведущей; далее штатный frozen worker копирует движения. Adapter не открывает bus и не пишет config/calibration. Direct Pi и authenticated Homebrain proxy дают fresh JPEG/MJPEG. Нужны USER reload, физическая проверка совмещения+камеры и start→record→finish, затем02/03.|
 |03|Software/deploy MVP завершён; начат сразу после04 `2026-10-28T01:01:26+03:00`. USER continuity, fresh MCU/reference и scene остаются физическими gates.|
 |05|Software/deploy MVP завершён; USER shared-zone/hold/transfer acceptance OPEN.|
 |06|Соединить существующие native9 capture/review/import/aggregate с операторским API/UI; подключить существующий trusted calibration capture/solve; краткий сквозной smoke и deploy. Не создавать второй recorder/trainer.|
@@ -35,8 +35,8 @@ integrator. При отсутствии полезного software-действ
 
 | ID | Scope | Depends | Done / evidence | Status | Next action |
 |---|---|---|---|---|---|
-|E02-04-OPERATOR|02/03/04|none|Simple camera→Управлять→Записать навык; de84 removed custom2s lease and USER confirmed sustained04 control;00b restored live camera after challenge frame; e5 adds one-click first-start relative reference with exact receipt and no motor/config write; targeted Py+Node PASS|IN_PROGRESS|USER hard reload04, подтвердить видимый live stream и выполнить start→record→finish; затем повторить02/03|
-|E02-04-DEPLOY|02/03/04|E02-04-OPERATOR|Homebrain+Pi exact e5deaf3 active; Pi PID80394 idle/grantNone/available/errorNone/0writes; direct+proxied fresh JPEG/MJPEG; Nano original unchanged|DONE|Сохранять точные commits/config; deploy и camera GET не равны physical acceptance|
+|E02-04-OPERATOR|02/03/04|none|Simple camera→Управлять→Записать навык; sustained04 control confirmed; camera restored; b38 aligns follower first goal to measured leader under original lock/worker while05 relative baseline is unchanged;21Py+2targetNode PASS|IN_PROGRESS|USER hard reload04, подтвердить совмещение рук, видимый live stream и start→record→finish; затем повторить02/03|
+|E02-04-DEPLOY|02/03/04|E02-04-OPERATOR|Homebrain+Pi exact b38fcbf active; Pi PID81085 idle/grantNone/available/errorNone/0writes; direct+proxied fresh JPEG/MJPEG; frozen Station SHA exact; Nano original unchanged|DONE|Сохранять точные commits/config; deploy и camera GET не равны physical acceptance|
 |E02-04-USER-FEEDBACK|02/03/04|E02-04-DEPLOY|USER может нажать Управлять и Записать навык; реальные неисправности исправлены|OPEN|Не считать read-only UI или mocks подтверждением управления|
 |OPS-STATE|shared|none|AGENTS/state/backlog/function matrix/runbook/skill и лёгкий consistency check; verified original-doc backup|DONE|После отдельного организационного commit продолжить E04-IMPORT|
 |E03-CHECKPOINT|03|none|Central-only65 actual release/full regression/GET UI, physical path CLOSED; [proof](../_registry/evidence/experiment03-central-data-actual-65ae9d02-20261027.json)|DONE|Сохранять separate physical gates|

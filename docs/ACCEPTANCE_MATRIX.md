@@ -1,6 +1,6 @@
 # Приёмка пользовательских функций
 
-Snapshot: product code `e5deaf3`; live Homebrain/Pi source04 exact e5deaf3; Nano original unchanged (точные commits
+Snapshot: product code `b38fcbf`; live Homebrain/Pi source04 exact b38fcbf; Nano original unchanged (точные commits
 в [PROJECT_STATE](PROJECT_STATE.md)). Это function-level view;
 [машинные gates/исторические scope](../_registry/acceptance.json) сохранены.
 Новая документация не повышает готовность. `PASS` software может относиться к
@@ -15,12 +15,13 @@ working deployment → `MVP_USER_TESTABLE` / `DEPLOYED_AWAITING_PHYSICAL_ACCEPTA
 исключений политики. [Конкретные10 пунктов04](MVP_STATUS_RU.md); physical OPEN.
 
 **Текущий USER acceptance02–04: PARTIAL, повторная проверка идёт.** Simple UI и
-исправления02/03/04 deployed; Homebrain+Pi exact e5deaf3 активны.04 фактически
+исправления02/03/04 deployed; Homebrain+Pi exact b38fcbf активны.04 фактически
 входил в teleoperation, отправлял6-axis команды и после de84 держал длительную
 USER-сессию без прежнего сброса. Отдельный blank-camera defect исправлен в00b;
-direct Pi и authenticated Homebrain proxy на e5 дают fresh JPEG/MJPEG. Первый
-start принимает текущие позы как относительный ноль без motor/config write.
-Видимый USER camera retest и start→record→finish ещё OPEN. Исторические PASS ниже
+direct Pi и authenticated Homebrain proxy дают fresh JPEG/MJPEG. При source04
+start ведомая получает текущую measured позу ведущей как первую цель через
+исходный worker; config/calibration не пишутся. Физическое совмещение рук,
+видимый USER camera retest и start→record→finish ещё OPEN. Исторические PASS ниже
 относятся к отдельным components; реальный launch не объявлен готовым без новых
 USER-observed движений/записи.06 приостановлен пользователем.
 
@@ -41,7 +42,7 @@ Physical acceptance=`PASS/OPEN/N/A`. PARTIAL означает только scope
 |E03-SMOOTHNESS · неизменная stable trajectory|PARTIAL|PARTIAL|NOT_DEPLOYED|NOT_DEPLOYED|NOT_DEPLOYED|OPEN|[Actual static trace only](../03-lerobot-teaching/docs/CONTINUITY_20261027.json)|Real changing-input frequency/dt/jitter/derivatives/drop/zero comparison OPEN|
 |E03-MOBILE-RECORD · arm+keyboard base/camera/record|YES|PASS|DEPLOYED|DEPLOYED|DEPLOYED|OPEN|[Actual gated lab release](../_registry/evidence/experiment03-shared-lab-actual-release-20261028.json)|Gated software deployed; physical Start/Recenter/held CLOSED, changing continuity/reference409/scene OPEN. Actual41RGB observations/0expert commands, not accepted skill|
 |E03-TRAIN · official Dataset/ACT/reload/DEV|YES|PASS|DEPLOYED|N/A|N/A|OPEN|[Generated03 queueR3](../03-lerobot-teaching/docs/NATIVE03_QUEUE_CPU_R3_20261027.json)|Current generated03 queueR3/profiles unchanged; actual41RGB analysis-only import shown in UI, real experts/models/independent physical trial OPEN|
-|E04-CAPTURE · две руки/одна Logitech/full skill capture|YES|PASS|DEPLOYED|DEPLOYED|N/A|OPEN|[Camera/reference e5](../_registry/evidence/experiment04-camera-reference-e5deaf3-20261028.json)|USER real grant/start/6-axis dispatch and sustained control observed; custom2s lease removed. e5 restores camera after challenge frame and adds first-start relative reference without motor/config write. Direct+proxied fresh camera PASS; visible USER camera + start/finish recording still OPEN|
+|E04-CAPTURE · две руки/одна Logitech/full skill capture|YES|PASS|DEPLOYED|DEPLOYED|N/A|OPEN|[Leader alignment b38](../_registry/evidence/experiment04-leader-alignment-b38fcbf-20261028.json)|USER real grant/start/6-axis dispatch and sustained control observed. b38 makes the follower's first goal equal the measured leader pose using original worker;05 relative consumer unchanged. Direct+proxied fresh camera PASS; physical alignment, visible camera and start/finish recording still OPEN|
 |E04-TRAIN · native6 Dataset/ACT+DP/resume/models|YES|PASS|DEPLOYED|DEPLOYED|N/A|OPEN|[Actual learning UI](../_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json)|Approved generated cohort→actual UI ACT8/DP8/queue retained-process pause/reload/DEV/model versions; exact new-PID отдельный R7 proof. Math workers on HB, source adapter on Pi; current real experts/physical skill OPEN|
 |E04-REPLAY · reload/offline/live shadow/observed trial|YES|PASS|DEPLOYED|DEPLOYED|N/A|OPEN|[Current learning/model UI](../_registry/evidence/experiment04-approved-learning-actual-UI-20261027.json)|Current generated models/reload/DEV/offline shadow +COMMON observed source transport qualified; actual real model/physical trial OPEN, motor power OFF|
 |E05-HANDOVER · manual/manual FSM, два робота|YES|PASS|DEPLOYED|DEPLOYED|DEPLOYED|OPEN|[Actual scoped release](../05-cooperative-handover/docs/SCOPED_RELEASE_RU.md), [manual10FSM](../05-cooperative-handover/docs/WHOLE_MANUAL_FLOW_RU.md)|Software/deploy qualified; actual no-session page/two real cameras. Whole populated flow uses generated fixtures; shared zone/reference/independent physical hold/transfer OPEN|
