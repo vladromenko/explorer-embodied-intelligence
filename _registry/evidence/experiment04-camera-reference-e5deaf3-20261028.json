@@ -1,0 +1,59 @@
+{
+  "schema": "explorer.evidence.operator_checkpoint.v1",
+  "recorded_at": "2026-10-28T15:31:55+03:00",
+  "scope": "experiment04 operator camera and first-start reference",
+  "commit": "e5deaf329ac9597557053595c31d00afb7226727",
+  "deployment": {
+    "homebrain_health_commit": "e5deaf329ac9597557053595c31d00afb7226727",
+    "pi_release": "/home/vlados/.local/share/explorer/releases/e5deaf329ac9597557053595c31d00afb7226727",
+    "pi_observer_pid": 80394,
+    "pi_observer_active": true,
+    "station_mode": "idle",
+    "station_available": true,
+    "station_error": null,
+    "grant": null,
+    "capture": null
+  },
+  "camera_read_only_checks": {
+    "pi_snapshot": {
+      "status": 200,
+      "content_type": "image/jpeg",
+      "width": 1280,
+      "height": 720,
+      "jpeg_markers": true,
+      "fresh_frame_id": "pi-overview:87302ddbe365:717"
+    },
+    "pi_stream": {
+      "status": 200,
+      "content_type": "multipart/x-mixed-replace; boundary=frame",
+      "jpeg_present": true
+    },
+    "authenticated_homebrain_proxy_snapshot": {
+      "status": 200,
+      "content_type": "image/jpeg",
+      "content_length": 116088,
+      "jpeg_markers": true,
+      "frame_id": "pi-overview:87302ddbe365:1170"
+    },
+    "authenticated_homebrain_proxy_stream": {
+      "status": 200,
+      "content_type": "multipart/x-mixed-replace; boundary=frame",
+      "jpeg_present": true
+    }
+  },
+  "implementation": {
+    "persistent_manual_session_commit": "de84b48334c920eb77d03c2525623039ae59d10d",
+    "live_camera_restore_commit": "00b6837",
+    "first_start_reference_commit": "e5deaf329ac9597557053595c31d00afb7226727",
+    "first_start_reference": "current leader and follower positions become the relative zero through the original Station teleop start",
+    "motor_calibration_written": false,
+    "controller_settings_written": false,
+    "frozen_station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885"
+  },
+  "physical_acceptance": {
+    "sustained_manual_control": "USER confirmed fixed before the separate camera regression",
+    "visible_camera_after_e5": "OPEN",
+    "start_record_finish": "OPEN",
+    "overall_experiment04": "OPEN"
+  }
+}

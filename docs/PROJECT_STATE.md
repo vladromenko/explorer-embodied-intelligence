@@ -1,9 +1,9 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T15:07:21+03:00`
-Code commit: `de84b48334c920eb77d03c2525623039ae59d10d`
+Updated: `2026-10-28T15:31:55+03:00`
+Code commit: `e5deaf329ac9597557053595c31d00afb7226727`
 Current task: `E02-04-OPERATOR`
-Next tasks: `E02-04-DEPLOY`, `E02-04-USER-FEEDBACK`, `E04-REAL`
+Next tasks: `E02-04-USER-FEEDBACK`, `E04-REAL`, `E03-CONTINUITY`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
 
 ## Прямое указание пользователя — только02–04
@@ -37,8 +37,8 @@ ROSMASTER teleop и frozen Station. Без новых research/hardening/tests s
 изменённых browser-contract source04 PASS. Frozen Station SHA
 `2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885` не менялся.
 
-Homebrain central/worker и Pi runtime deployed exact **de84b48**; Homebrain
-central/worker active, Pi observer PID79747, idle/grantNone/0 configuration writes.
+Homebrain central/worker и Pi runtime deployed exact **e5deaf3**; Homebrain
+central/worker active, Pi observer PID80394, idle/grantNone/0 configuration writes.
 Pi cutover выполнен только после idle/no-grant/no-capture; без `Node.close`, STOP или
 native command. Предшествующий worker уже был idle с реальным servo read error;
 перезапуск восстановил обе руки: available, errorNone, свежие измерения <10ms.
@@ -54,8 +54,23 @@ publication gate сохранил `OBSERVED_NATIVE_PERMISSION_REVOKED_EXPIRED_OR
 или штатный LeRobot. Исправление `de84b48` после явного USER start переводит
 source04 manual teleop в обычную долгоживущую сессию до точного Disconnect/ухода
 со страницы/native source change; browser renewal больше не ограничивает manual
-session. 27 Python contract tests и новый целевой Node contract PASS; frozen
-Station SHA не менялся. Повторная USER проверка >10s и записи ещё OPEN.
+session. USER после выкладки подтвердил, что этот сброс устранён; фактическая
+teleoperation оставалась active более10 минут без ошибок и configuration writes.
+
+После этого обнаружен отдельный UI-дефект камеры: challenge-frame временно заменял
+общий `#camera-image`, а после долгоживущего старта отозванный blob оставлял его
+пустым. `00b6837` явно возвращает live stream сразу после успешного start.
+`e5deaf3` дополнительно делает первый запуск понятным и однокнопочным: текущие
+позы ведущей и ведомой рук принимаются frozen Station как относительный ноль,
+после чего начинается обычное управление. Это не motor calibration: calibration
+файлы, контроллер и servo settings не записываются; API возвращает точный receipt,
+а browser запоминает его только для текущей пары calibration SHA. Целевые Python
+и Node contracts PASS; frozen Station SHA не менялся.
+
+После deploy `e5deaf3` direct Pi camera и authenticated Homebrain proxy вернули
+fresh1280x720 JPEG и MJPEG с JPEG markers; Pi observer active PID80394, Station
+idle/available/errorNone. Визуальный USER camera retest и полный start→record→finish
+ещё OPEN; deploy/GET не повышаются до physical acceptance.
 
 Последний06 DATA checkpoint: recorder/review/import/dataset/model UI реализованы
 и deployed; actual software-generated whole-browser cycle прошёл.186 targeted
