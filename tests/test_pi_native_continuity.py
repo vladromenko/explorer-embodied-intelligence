@@ -157,6 +157,23 @@ def test_repeated_clutch_actual_repository_fk_ik_first_goal_remains_current_comm
     source.close()
 
 
+def test_repository_geometry_clutches_misaligned_gripper_without_initial_jump_then_tracks_relative_delta(tmp_path):
+    from test_native_stream03 import geometry as repository_geometry
+    source,station,peer=service(tmp_path);mapper,_=repository_geometry();mapper.context=Geometry.context
+    mapper.gripper_mapper=lambda value:170.-1.4*value
+    source.geometry=mapper;station.positions=[0.,-.6,.9,-.3,0.,1.]
+    peer.reference=lambda:{'boot_id':'nano-boot','servo_deg':[90.]*5+[94.],
+        'q_estimated_deg':[90.]*5+[94.],'measured':False}
+    start(source,held=False);held(source);station.tick+=1;source._step_once()
+    assert source.mode=='ACTIVE'
+    assert source.gripper_alignment['aligned'] is False
+    assert source.gripper_alignment['relative_clutch_applied'] is True
+    assert source.last_proposal['proposal']['desired_servo_deg'][5]==pytest.approx(94.)
+    station.positions[5]=11.;station.tick+=1;source._step_once()
+    assert source.last_proposal['proposal']['desired_servo_deg'][5]!=pytest.approx(94.)
+    source.close()
+
+
 def test_original_serialization_source_pin_and_extracted_quantizer(tmp_path):
     import ast
     import hashlib

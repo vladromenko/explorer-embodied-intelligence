@@ -481,6 +481,8 @@ class RelativeLeaderGeometry:
         self.source_mapper, self.gripper_mapper = source_mapper, gripper_mapper
         self.to_radians, self.to_servo = servo_to_radians, radians_to_servo
         self.registration, self.anchor = deepcopy(registration), None
+        self.gripper_anchor = None
+        self.gripper_clutch_mode = 'relative_delta'
         self.full_source=source_mapper_uses_full_leader
         self.source_forward = source_forward or self.source.forward
         self.base_rotation = None
@@ -511,8 +513,12 @@ class RelativeLeaderGeometry:
         source_q = _vector(self.source_mapper(leader if self.full_source else leader[:5]), len(self.source.names))
         target_q = _vector(self.to_radians(target[:5]), len(self.target.names))
         self.anchor = ObjectRegistration(self.source_forward(source_q), self.target.forward(target_q), 'virtual_declared')
+        mapped_gripper = float(self.gripper_mapper(float(leader[5])))
+        if not math.isfinite(mapped_gripper):
+            raise ValueError('Finite mapped gripper reference required')
+        self.gripper_anchor = (mapped_gripper, float(target[5]))
         return {'recentered': True, 'target_basis': 'native_command_estimate_not_measured',
-                'physical_commands': 0}
+                'gripper_clutch': self.gripper_clutch_mode, 'physical_commands': 0}
 
     def propose(self, measured_leader, commanded_target_servo, *, original_native_period_s):
         if self.anchor is None:
@@ -534,8 +540,12 @@ class RelativeLeaderGeometry:
         if not result.reached:
             return {'accepted': False, 'reason': 'IK_UNREACHABLE', 'ik': result.as_dict(),
                     'joint_velocity_deg_s': [0.] * 6, 'native_dispatched': False}
+        if self.gripper_anchor is None:
+            raise ValueError('Explicit gripper clutch/recenter required')
+        mapped_at_clutch,target_at_clutch=self.gripper_anchor
+        relative_gripper=target_at_clutch+float(self.gripper_mapper(float(leader[5])))-mapped_at_clutch
         goal = np.concatenate((_vector(self.to_servo(result.positions), 5),
-                               _vector([self.gripper_mapper(float(leader[5]))], 1)))
+                               _vector([relative_gripper], 1)))
         return {'accepted': True, 'ik': result.as_dict(), 'desired_servo_deg': goal.tolist(),
                 'joint_velocity_deg_s': ((goal-estimated)/original_native_period_s).tolist(),
                 'state_source': 'command_estimate', 'native_dispatched': False,

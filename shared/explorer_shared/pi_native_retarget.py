@@ -521,7 +521,14 @@ class PiNativeRetargetService:
         result=gripper_alignment(self.geometry,measured['positions'],target,
             calibration_sha256=measured['calibration_sha256'],wire_target=estimate.get('servo_deg') or [])
         with self.lock:self.gripper_alignment=result
-        if result.get('aligned') is not True:raise ValueError(result['reason'])
+        if result.get('aligned') is not True:
+            if getattr(self.geometry,'gripper_clutch_mode',None)!='relative_delta' or getattr(self.geometry,'gripper_anchor',None) is None:
+                raise ValueError(result['reason'])
+            mapped_at_clutch,target_at_clutch=self.geometry.gripper_anchor
+            result.update(relative_clutch_applied=True,relative_clutch_initial_target_deg=target_at_clutch,
+                absolute_mapper_at_clutch_deg=mapped_at_clutch,initial_serialized_endpoint_unchanged=True,
+                reason='RELATIVE_CLUTCH_PRESERVES_CURRENT_TARGET_ENDPOINT')
+            with self.lock:self.gripper_alignment=deepcopy(result)
         return result
 
     def _step_once(self):
