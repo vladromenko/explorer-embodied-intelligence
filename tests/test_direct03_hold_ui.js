@@ -84,3 +84,9 @@ test('an observed authorization race is translated into a retryable Russian mess
  const h=harness();h.run(status+";observedNative.connect=async()=>{throw new Error('Existing native STOP and neutral inputs required before observed authorization')}");
  await h.click('direct03-start');assert.match(h.run('direct03.error'),/Предыдущее ручное управление/);
 });
+
+test('native low-power refusal tells the operator how to restore experiment03',async()=>{
+ const h=harness();h.run(status+";observedNative.connect=async()=>{throw new Error('NATIVE_REFERENCE_UNAVAILABLE: Power policy blocks arm commissioning')}");
+ await h.click('direct03-start');assert.match(h.run('direct03.error'),/Питание ROSMASTER слишком низкое/);
+ assert.match(h.run('direct03.error'),/зарядку или заряженную батарею/);
+});

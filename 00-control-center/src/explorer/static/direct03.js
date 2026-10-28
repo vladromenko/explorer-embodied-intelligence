@@ -90,7 +90,9 @@ async function direct03Control(action){
     direct03.status = result; direct03.owned = ["CLUTCHED", "ACTIVE"].includes(result.state); direct03.ownedEpoch = direct03.owned ? result.control_epoch : null; direct03.sequence = 0; direct03.error = null;
     if (direct03.owned && action === "direct03-start") {direct03.held=true;await direct03Lease();}
   } catch (error) {
-    direct03.error=/Existing native STOP and neutral inputs|required before observed authorization/i.test(error.message)
+    direct03.error=/Power policy blocks arm commissioning|NATIVE_REFERENCE_UNAVAILABLE.*Power policy/i.test(error.message)
+      ? "Питание ROSMASTER слишком низкое для руки. Подключите зарядку или заряженную батарею; после восстановления питания нажмите «Управлять» ещё раз."
+      : /Existing native STOP and neutral inputs|required before observed authorization/i.test(error.message)
       ? "Предыдущее ручное управление ещё завершалось. Нажмите «Управлять» ещё раз — Explorer сначала остановит прежний источник и возьмёт текущие позы как начало."
       : error.message;
     toast(direct03.error, true);
