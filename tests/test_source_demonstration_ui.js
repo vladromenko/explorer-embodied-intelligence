@@ -107,6 +107,12 @@ test("demo panel escapes metadata, preserves unknown outcome and never exposes l
   assert.match(html,/Следующий новый показ/);assert.match(html,/Просматриваемый показ/);
 });
 
+test("simple04 first start offers one-click current-pose reference without a motor calibration write",()=>{
+  const html=sourceDemonstrationPanel({owner:null,busy:false},{firstStartPending:true});
+  assert.match(html,/Принять текущие позы и управлять/);assert.match(html,/без рывка/);
+  assert.doesNotMatch(html,/перезапис/);
+});
+
 test("import queue status is reconstructed by exact archive and review pins; reject retains prior job without admission",async()=>{
   const f=fixture();await f.authorized();await f.client.start();await f.client.captureStart();await f.client.finish("unknown");
   f.client.previewDisplayed(RECORD,sha);await f.client.review("approve");await f.client.refresh();

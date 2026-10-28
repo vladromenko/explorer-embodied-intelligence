@@ -306,7 +306,12 @@ class StationObservedPermission:
                     raise ValueError('Late native command revoked and scoped stopped; no permission replay')
                 record['data'].update(control_epoch=new_epoch,native_mode=result.get('mode'))
                 if persistent_started:
-                    record['data'].update(observation_renewal_required=False,manual_session_until_explicit_stop=True)
+                    record['data'].update(observation_renewal_required=False,manual_session_until_explicit_stop=True,
+                        first_start_reference={'captured':True,'operation':'original_station_teleop_start',
+                            'basis':'current_leader_and_follower_positions_used_as_relative_zero_without_motor_calibration_write',
+                            'leader_calibration_sha256':record['data'].get('leader_calibration_sha256'),
+                            'follower_calibration_sha256':record['data']['follower_calibration_sha256'],
+                            'motor_calibration_written':False,'controller_settings_written':False})
                 return {'status':result,'grant':self._data(record),'native_command_called':True,
                     'dispatch_claimed_from_HTTP_acceptance':False}
     def _stop(self,grant_id,selected,body):

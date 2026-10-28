@@ -139,6 +139,20 @@ function storedOperatorSkill(project){
   try{const value=JSON.parse(localStorage.getItem(operatorStorageKey(project))||"null");return value&&typeof value.task==="string"?value:null;}catch{return null;}
 }
 const simpleOperator={busy:false,error:"",contexts:{},skills:{},recordings:{},drafts:{}};
+const sourceStartReferenceKey="explorer.source04-start-reference.v1";
+function sourceCalibrationSignature(){
+  const roles=stationLab.status?.roles||{},leader=roles.leader,follower=roles.follower;
+  return leader?.verified_on_connected_hardware===true&&follower?.verified_on_connected_hardware===true&&
+    /^[0-9a-f]{64}$/.test(leader.calibration_sha256||"")&&/^[0-9a-f]{64}$/.test(follower.calibration_sha256||"")
+    ? `${leader.calibration_sha256}:${follower.calibration_sha256}`:"";
+}
+function sourceFirstStartPending(){const signature=sourceCalibrationSignature();try{return !signature||localStorage.getItem(sourceStartReferenceKey)!==signature;}catch{return true;}}
+function rememberSourceStartReference(grant){
+  const reference=grant?.first_start_reference,signature=sourceCalibrationSignature();
+  if(reference?.captured!==true||reference.motor_calibration_written!==false||!signature||
+      `${reference.leader_calibration_sha256}:${reference.follower_calibration_sha256}`!==signature)return false;
+  try{localStorage.setItem(sourceStartReferenceKey,signature);}catch{}return true;
+}
 for(const project of ["02","03","04"]){const saved=storedOperatorSkill(project);if(saved){simpleOperator.drafts[project]=saved.task;if(saved.id&&Number.isInteger(saved.version))simpleOperator.skills[project]=saved;}}
 const operatorTask=project=>simpleOperator.drafts[project]??simpleOperator.skills[project]?.task??"";
 function persistOperatorSkill(project){
@@ -187,7 +201,8 @@ async function operatorSourceControl(){
   // challenge temporarily occupies the shared scene <img>; manual source04
   // no longer renews challenge frames after start, so restore the ordinary
   // live camera stream explicitly instead of leaving a revoked blob URL.
-  await sourceDemonstration.start();
+  const started=await sourceDemonstration.start();
+  rememberSourceStartReference(started?.grant);
   startCamera();
 }
 async function operatorRecord(project){
@@ -264,7 +279,7 @@ function refreshSourcePane(kind) {
   else if(kind==="demonstration"){
     const view=sourceDemonstration.snapshot(),key=sourceDemonstrationRenderKey(view);
     if(slot.dataset.sourceDemoRenderKey===key && patchSourceDemonstrationFrame(slot,view))return;
-    sourceDemonstrationUnbind();slot.innerHTML=sourceDemonstrationPanel(view,{phaseTitle:labSkillPhaseTitle});slot.dataset.sourceDemoRenderKey=key;
+    sourceDemonstrationUnbind();slot.innerHTML=sourceDemonstrationPanel(view,{phaseTitle:labSkillPhaseTitle,firstStartPending:sourceFirstStartPending()});slot.dataset.sourceDemoRenderKey=key;
     sourceDemonstrationUnbind=bindSourceDemonstration(slot,sourceDemonstration,{onError:error=>toast(error.message,true)});
   }
   else {saveSourceLabDraft();slot.innerHTML=labSkillsPanel(labSkills.snapshot(),{renderTrainingJobs:jobRows});slot.dataset.sourceLabKey=sourceLabKey();restoreSourceLabDraft();}

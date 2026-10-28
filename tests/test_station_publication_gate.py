@@ -56,6 +56,10 @@ def test_source04_manual_session_survives_web_observation_deadline_until_exact_s
         tmp_path,monkeypatch,binding_override=source04_demo_binding())
     grant=start();old=grant['control_epoch']
     assert grant['observation_renewal_required'] is False and grant['manual_session_until_explicit_stop'] is True
+    assert grant['first_start_reference']=={'captured':True,'operation':'original_station_teleop_start',
+        'basis':'current_leader_and_follower_positions_used_as_relative_zero_without_motor_calibration_write',
+        'leader_calibration_sha256':'c'*64,'follower_calibration_sha256':'a'*64,
+        'motor_calibration_written':False,'controller_settings_written':False}
     tick[0]+=60_000_000_000
     checked=provider.check(grant['grant_id'],selected,old)
     assert checked['execution_permission'] is True and checked['remaining_observation_s'] is None

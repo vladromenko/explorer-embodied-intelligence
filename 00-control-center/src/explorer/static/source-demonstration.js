@@ -351,9 +351,11 @@
       ${view.status?.capture?.recovery_required?'<p role="alert">Источник требует восстановления записи. Неопределённые raw и журнал сохранены; вкладка не снимает этот gate автоматически.</p>':""}
       </div></section>`;
   }
-  function sourceDemonstrationPanel(view){
+  function sourceDemonstrationPanel(view,{firstStartPending=false}={}){
     const active=view.owner?.native_mode==="teleoperation";
-    return `<section class="panel"><div class="panel-heading"><h2>Управление руками</h2></div><div class="panel-body"><p>Ведущая рука управляет ведомой.</p><button class="button primary" data-operator-action="${active?"source-disconnect":"source-control"}" ${view.busy?"disabled":""}>${active?"Отключить управление":"Управлять"}</button>${active?`<button class="button secondary" data-source-demo-action="recenter">Текущая поза — начало</button>`:""}${view.error?`<p class="form-error" role="alert">${esc(view.error)}</p>`:""}</div></section>`;
+    const introduction=firstStartPending&&!active?"Первый запуск: поставьте обе руки в удобные исходные позы. Сохранённые калибровки будут проверены, а текущая пара положений станет началом без рывка.":"Ведущая рука управляет ведомой.";
+    const title=active?"Отключить управление":firstStartPending?"Принять текущие позы и управлять":"Управлять";
+    return `<section class="panel"><div class="panel-heading"><h2>Управление руками</h2></div><div class="panel-body"><p>${introduction}</p><button class="button primary" data-operator-action="${active?"source-disconnect":"source-control"}" ${view.busy?"disabled":""}>${title}</button>${active?`<button class="button secondary" data-source-demo-action="recenter">Текущая поза — начало</button>`:""}${view.error?`<p class="form-error" role="alert">${esc(view.error)}</p>`:""}</div></section>`;
   }
   function bindSourceDemonstration(root,client,{onError=()=>{},document=surface.document,window=surface}={}) {
     let disposed=false,timer=null;
