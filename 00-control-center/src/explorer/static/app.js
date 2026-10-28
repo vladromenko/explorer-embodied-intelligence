@@ -149,7 +149,7 @@ function sourceCalibrationSignature(){
 function sourceFirstStartPending(){const signature=sourceCalibrationSignature();try{return !signature||localStorage.getItem(sourceStartReferenceKey)!==signature;}catch{return true;}}
 function rememberSourceStartReference(grant){
   const reference=grant?.first_start_reference,signature=sourceCalibrationSignature();
-  if(reference?.captured!==true||reference.motor_calibration_written!==false||!signature||
+  if(reference?.captured!==true||reference.aligned_to_leader_on_start!==true||reference.motor_calibration_written!==false||!signature||
       `${reference.leader_calibration_sha256}:${reference.follower_calibration_sha256}`!==signature)return false;
   try{localStorage.setItem(sourceStartReferenceKey,signature);}catch{}return true;
 }

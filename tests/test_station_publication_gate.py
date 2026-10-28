@@ -57,7 +57,8 @@ def test_source04_manual_session_survives_web_observation_deadline_until_exact_s
     grant=start();old=grant['control_epoch']
     assert grant['observation_renewal_required'] is False and grant['manual_session_until_explicit_stop'] is True
     assert grant['first_start_reference']=={'captured':True,'operation':'original_station_teleop_start',
-        'basis':'current_leader_and_follower_positions_used_as_relative_zero_without_motor_calibration_write',
+        'basis':'current_leader_pose_is_initial_follower_goal_using_original_station_worker',
+        'aligned_to_leader_on_start':True,'native_worker_dispatch_pending':True,
         'leader_calibration_sha256':'c'*64,'follower_calibration_sha256':'a'*64,
         'motor_calibration_written':False,'controller_settings_written':False}
     tick[0]+=60_000_000_000
@@ -67,6 +68,27 @@ def test_source04_manual_session_survives_web_observation_deadline_until_exact_s
     assert station.mode=='teleoperation' and station.control_epoch==old and len(samples)==len(bus.writes)==3
     stopped=provider.command(grant['grant_id'],selected,'stop',{'expected_control_epoch':old})
     assert stopped['status']['mode']=='idle' and stopped['native_command_called'] is True
+
+
+def test_source04_start_uses_current_leader_pose_as_first_follower_goal(tmp_path,monkeypatch):
+    station,provider,selected,start,bus,samples,tick,StopAfter,_=worker_rig(
+        tmp_path,monkeypatch,binding_override=source04_demo_binding())
+    station._positions=lambda role:([35.,-20.,15.,5.,-10.,70.] if role=='leader' else [-40.,30.,-15.,10.,20.,25.])
+    station.measurements=dict(monotonic_ns=tick[0],leader=station._positions('leader'),follower=station._positions('follower'))
+    grant=start()
+    assert station.baseline_leader==station.baseline_follower==[35.,-20.,15.,5.,-10.,70.]
+    assert grant['first_start_reference']['aligned_to_leader_on_start'] is True
+    station.stop_event=StopAfter();station._work()
+    assert len(bus.writes)==3
+    assert all(list(write[1].values())==[35.,-20.,15.,5.,-10.,70.] for write in bus.writes)
+
+
+def test_cooperative_leader_start_keeps_relative_baselines_unchanged(tmp_path,monkeypatch):
+    station,provider,selected,start,bus,samples,tick,StopAfter,_=worker_rig(tmp_path,monkeypatch)
+    station._positions=lambda role:([35.,-20.,15.,5.,-10.,70.] if role=='leader' else [-40.,30.,-15.,10.,20.,25.])
+    start()
+    assert station.baseline_leader==[35.,-20.,15.,5.,-10.,70.]
+    assert station.baseline_follower==[-40.,30.,-15.,10.,20.,25.]
 
 
 @pytest.mark.parametrize('reason',['expired_observation','explicit_revoke'])

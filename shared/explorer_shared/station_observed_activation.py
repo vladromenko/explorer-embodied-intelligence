@@ -21,6 +21,30 @@ CONTRACT='so101_follower_calibrated_position6_v1'
 OPERATIONS=('policy/start','teleop/start','teleop/recenter','action','stop')
 
 
+def align_source04_start_to_leader(station,selected,operation,result):
+    """Select native LeRobot direct-pose start without opening another bus.
+
+    The frozen Station has already captured both normalized baselines while its
+    original lock is held. For source04 only, use the captured leader pose as
+    the follower baseline too. Its existing 30 Hz worker and publication gate
+    then own every Goal_Position write.
+    """
+    if not (selected.get('purpose')=='source04_demo' and operation=='teleop/start' and result.get('mode')=='teleoperation'):
+        return None
+    leader=getattr(station,'baseline_leader',None);follower=getattr(station,'baseline_follower',None)
+    def valid(values):
+        return (isinstance(values,list) and len(values)==6 and
+            all(type(value) in (int,float) and math.isfinite(value) and
+                (-100<=value<=100 if index<5 else 0<=value<=100) for index,value in enumerate(values)))
+    if not valid(leader) or not valid(follower):
+        raise ValueError('Original Station did not return finite calibrated leader/follower start poses')
+    station.baseline_follower=list(leader)
+    return {'captured':True,'operation':'original_station_teleop_start',
+        'basis':'current_leader_pose_is_initial_follower_goal_using_original_station_worker',
+        'aligned_to_leader_on_start':True,'native_worker_dispatch_pending':True,
+        'motor_calibration_written':False,'controller_settings_written':False}
+
+
 def binding(value):
     if not isinstance(value,dict):raise ValueError('Exact server-owned native model/skill binding required')
     allowed={'purpose','skill_id','skill_version','spec_sha256','action_contract_id','model_job_id',
@@ -287,6 +311,7 @@ class StationObservedPermission:
                     result=self.station.command(operation,payload)
                     if (not isinstance(result,dict) or result.get('control_epoch')!=self.station.control_epoch or
                             result.get('mode')!=self.station.mode):raise ValueError('Original native result epoch/mode correlation unavailable')
+                    start_reference=align_source04_start_to_leader(self.station,selected,operation,result)
                 except Exception:
                     self._retire(record,'ORIGINAL_NATIVE_COMMAND_RETURN_UNKNOWN')
                     # Still under the same original RLock: nobody can have
@@ -307,11 +332,9 @@ class StationObservedPermission:
                 record['data'].update(control_epoch=new_epoch,native_mode=result.get('mode'))
                 if persistent_started:
                     record['data'].update(observation_renewal_required=False,manual_session_until_explicit_stop=True,
-                        first_start_reference={'captured':True,'operation':'original_station_teleop_start',
-                            'basis':'current_leader_and_follower_positions_used_as_relative_zero_without_motor_calibration_write',
+                        first_start_reference={**start_reference,
                             'leader_calibration_sha256':record['data'].get('leader_calibration_sha256'),
-                            'follower_calibration_sha256':record['data']['follower_calibration_sha256'],
-                            'motor_calibration_written':False,'controller_settings_written':False})
+                            'follower_calibration_sha256':record['data']['follower_calibration_sha256']})
                 return {'status':result,'grant':self._data(record),'native_command_called':True,
                     'dispatch_claimed_from_HTTP_acceptance':False}
     def _stop(self,grant_id,selected,body):

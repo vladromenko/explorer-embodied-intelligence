@@ -107,9 +107,9 @@ test("demo panel escapes metadata, preserves unknown outcome and never exposes l
   assert.match(html,/Следующий новый показ/);assert.match(html,/Просматриваемый показ/);
 });
 
-test("simple04 first start offers one-click current-pose reference without a motor calibration write",()=>{
+test("simple04 first start clearly aligns follower to leader without a motor calibration write",()=>{
   const html=sourceDemonstrationPanel({owner:null,busy:false},{firstStartPending:true});
-  assert.match(html,/Принять текущие позы и управлять/);assert.match(html,/без рывка/);
+  assert.match(html,/Совместить с ведущей и управлять/);assert.match(html,/ведомая рука перейдёт в эту позу/);
   assert.doesNotMatch(html,/перезапис/);
 });
 

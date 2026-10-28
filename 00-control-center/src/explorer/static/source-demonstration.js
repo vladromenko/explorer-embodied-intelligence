@@ -353,8 +353,8 @@
   }
   function sourceDemonstrationPanel(view,{firstStartPending=false}={}){
     const active=view.owner?.native_mode==="teleoperation";
-    const introduction=firstStartPending&&!active?"Первый запуск: поставьте обе руки в удобные исходные позы. Сохранённые калибровки будут проверены, а текущая пара положений станет началом без рывка.":"Ведущая рука управляет ведомой.";
-    const title=active?"Отключить управление":firstStartPending?"Принять текущие позы и управлять":"Управлять";
+    const introduction=active?"Ведущая рука управляет ведомой.":firstStartPending?"Первый запуск: поставьте ведущую руку в удобную исходную позу. После нажатия ведомая рука перейдёт в эту позу, затем начнёт повторять движения.":"При запуске ведомая рука сначала принимает текущую позу ведущей, затем повторяет её движения.";
+    const title=active?"Отключить управление":firstStartPending?"Совместить с ведущей и управлять":"Управлять";
     return `<section class="panel"><div class="panel-heading"><h2>Управление руками</h2></div><div class="panel-body"><p>${introduction}</p><button class="button primary" data-operator-action="${active?"source-disconnect":"source-control"}" ${view.busy?"disabled":""}>${title}</button>${active?`<button class="button secondary" data-source-demo-action="recenter">Текущая поза — начало</button>`:""}${view.error?`<p class="form-error" role="alert">${esc(view.error)}</p>`:""}</div></section>`;
   }
   function bindSourceDemonstration(root,client,{onError=()=>{},document=surface.document,window=surface}={}) {
