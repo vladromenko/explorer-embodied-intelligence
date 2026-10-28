@@ -32,7 +32,7 @@
     "frozen_so101_station_sha256": "2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885"
   },
   "deployment": {
-    "homebrain_commit": "94f6f436f10a61ddfe3e830d6177bb8bf45cdbce",
+    "homebrain_commit": "ad2e93b13fa45012b090b101a92aea1eeb4edbbf",
     "pi_commit": "94f6f436f10a61ddfe3e830d6177bb8bf45cdbce",
     "pi_old_pid": 81085,
     "pi_new_pid": 82081,

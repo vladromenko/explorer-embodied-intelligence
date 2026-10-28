@@ -1,6 +1,6 @@
 # Приёмка пользовательских функций
 
-Snapshot: product code `94f6f43`; live Homebrain+Pi94f6f43/Nano observer764; original ROSMASTER controller unchanged (точные commits
+Snapshot: product code `ad2e93b`; live Homebrain ad2e93b/Pi94f6f43/Nano observer764; original ROSMASTER controller unchanged (точные commits
 в [PROJECT_STATE](PROJECT_STATE.md)). Это function-level view;
 [машинные gates/исторические scope](../_registry/acceptance.json) сохранены.
 Новая документация не повышает готовность. `PASS` software может относиться к
@@ -15,7 +15,7 @@ working deployment → `MVP_USER_TESTABLE` / `DEPLOYED_AWAITING_PHYSICAL_ACCEPTA
 исключений политики. [Конкретные10 пунктов04](MVP_STATUS_RU.md); physical OPEN.
 
 **Текущий USER acceptance02–04: PARTIAL, повторная проверка идёт.** Simple UI и
-исправления02/03/04 deployed; Homebrain+Pi exact94f6f43 активны.04 фактически
+исправления02/03/04 deployed; Homebrain ad2e93b/Pi94f6f43 активны.04 фактически
 входил в teleoperation, отправлял6-axis команды и после de84 держал длительную
 USER-сессию без прежнего сброса. Отдельный blank-camera defect исправлен в00b;
 direct Pi и authenticated Homebrain proxy дают fresh JPEG/MJPEG. При source04

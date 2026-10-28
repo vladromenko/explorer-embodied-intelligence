@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
 Updated: `2026-10-28T15:58:15+03:00`
-Code commit: `94f6f436f10a61ddfe3e830d6177bb8bf45cdbce`
+Code commit: `ad2e93b13fa45012b090b101a92aea1eeb4edbbf`
 Current task: `E02-04-OPERATOR`
 Next tasks: `E02-04-USER-FEEDBACK`, `E04-REAL`, `E03-CONTINUITY`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -109,6 +109,8 @@ observer PID82081, state IDLE/targetNone, свежие measured SO-101 данн�
 native command/STOP/HOME, не вызвал Node.close и не перезапустил исходный Nano
 controller. Физическое совмещение и sustained following после исправления ещё
 OPEN до нового USER-observed клика. [Evidence](../_registry/evidence/experiment03-initial-leader-alignment-94f6f43-20261028.json).
+Homebrain затем обновлён UI-only `ad2e93b`: подсказка теперь требует
+удерживать leader до явной надписи «Поза совмещена», а не ровно1s.
 
 Последний06 DATA checkpoint: recorder/review/import/dataset/model UI реализованы
 и deployed; actual software-generated whole-browser cycle прошёл.186 targeted
