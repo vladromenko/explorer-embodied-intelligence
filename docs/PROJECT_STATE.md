@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T02:47:00+03:00`
-Code commit: `78ba20b3dcbfe60694336e984813dc83da78fe30`
+Updated: `2026-10-28T03:20:00+03:00`
+Code commit: `7ea604dd41214b3ad4438f698ebb3363be26ed35`
 Current task: `E05-MANUAL`
 Next tasks: `E05-MANUAL`, `E05-LEARNING`, `E06-PIPELINE`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -179,3 +179,12 @@ cannot replace owner. Shared sealed DATA identity validator tested both04/05.
 114Python +current27Python /39Node contracts PASS,
 [proof](../_registry/evidence/experiment05-data-actor-sealed-identity-20261028.json).
 NOTdeployed; finish-ACK Root integration still OPEN, E05MANUAL continues.
+
+Candidate7ea604d receiver finish/restart DATA recovery: finish-intent +exact
+sealed ACK, no second finish after sealed reply loss; pending until explicit
+reconcile; actor/attempt/IO fencing; interrupted camera pointer retirement keeps
+raw snapshot and receipt, never resumes capture/control. Frozen159PASS42.04s
++278NodePASS2.54s, [proof](../05-cooperative-handover/docs/KNOWN_CAPTURE_RECOVERY_RU.md).
+NOTdeployed. CurrentE05MANUAL continues giver recovery/whole operator flow, then
+paired learning/full release. Actual simulation scope separated from real crash
+acceptance; no new physical test/grant/STOP or controller configuration change.

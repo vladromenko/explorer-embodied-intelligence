@@ -1,0 +1,59 @@
+{
+  "schema": "explorer05_receiver_finish_recovery_component_v1",
+  "code_commit": "7ea604dd41214b3ad4438f698ebb3363be26ed35",
+  "status": "IMPLEMENTED_SOFTWARE_TESTED_NOT_DEPLOYED",
+  "tests": {
+    "frozen_targeted_Python": 159,
+    "seconds": 42.04,
+    "source": "/mnt/explorer-data/explorer-work/05-finish-recovery-20261028-7ea604d/source",
+    "CPUQuota": "300%",
+    "MemoryMax": "4G",
+    "swap": "0",
+    "full_regression": false,
+    "Node_passed": 278,
+    "Node_ms": 2541.458785
+  },
+  "raw": {
+    "/mnt/explorer-data/explorer-work/05-finish-recovery-20261028-7ea604d/result/pytest.log": "4975a00f47df586317c7e96bc25a7af594cdb0011448f9dc9936dfcf14b26e6b",
+    "/mnt/explorer-data/explorer-work/05-finish-recovery-all-Node-20261028.log": "0d0d6eec5838c45b336d4dccfa7a9567db48401f35405b6c95b19561e9c53493",
+    "/mnt/explorer-data/explorer-work/05-finish-ACK-root-loss-contracts-20261028-b.log": "2663426bc4b768343e6a36bf3f5009f9cab3f69c7f16a66bbb225f4827171ce6",
+    "/mnt/explorer-data/explorer-work/05-finish-ACK-restart-current-20261028-e.log": "c8ca715f7a2ac7a434f9dbb964de73c48ba14b4ac6676492487e62842fbaea50"
+  },
+  "scope": [
+    "Known finish intent persists before receiver DATA finish RPC",
+    "Lost reply AFTER seal: GET exact original manifest, no second finish",
+    "Request lost BEFORE writer: pending until explicit actor/attempt-bound DATA reconcile",
+    "Source sealed identity and per-role outcome must match known intent; no unknown-to-success promotion",
+    "Explicit interrupted cleanup may declare UNKNOWN; already sealed original outcome is never rewritten",
+    "Rejected source reply/persistence failures retained; no ready publication after checksum/fsync failure",
+    "Opaque capture_attempt_id pins each session recording, not only session epoch",
+    "Data reconcile serialized under record-IO, original writer fenced again at bind",
+    "Append-only sidecar must match exact camera-context start intent; old reply cannot attach to next attempt",
+    "Persisted active camera pointer retired only after explicit known DATA recovery, raw manifest snapshot/receipt retained, no capture/control resume",
+    "Authenticated actor and recording ID rechecked under IO lock; role outcomes preflight before either producer finishes"
+  ],
+  "restart_scope": "Fake persisted-active-pointer fixture after camera seal/session-pointer loss, NOT an actual SIGKILL experiment",
+  "API": {
+    "operation": "record_reconcile",
+    "body": [
+      "session_id",
+      "expected_epoch",
+      "capture_attempt_id"
+    ],
+    "browser_native_grant_or_target_fields_allowed": false
+  },
+  "live_unchanged": {
+    "HB": "9766bc3ee495a104a16303fef0c4b4d4d215eef0",
+    "Pi_Nano_OWN": "c516de71c156b1d427f367be4a0754fe1b54bb81"
+  },
+  "actual_native_commands": 0,
+  "actual_native_grants": 0,
+  "controller_configuration_changes": 0,
+  "physical_acceptance": false,
+  "remaining": [
+    "giver start/finish DATA recovery",
+    "whole manual/manual FSM +actual generated desktop/mobile full flow",
+    "paired source admission/train/reload/shadow",
+    "frozen full release/scoped deploy; original Nano05 source capability audit"
+  ]
+}

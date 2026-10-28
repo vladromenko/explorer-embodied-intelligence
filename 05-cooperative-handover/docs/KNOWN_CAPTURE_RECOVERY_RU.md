@@ -25,3 +25,17 @@ bytes retained, no duplicate start, fsync failures, single writer, stopped UI.
 Initial2 lost-ACK fixture failures retained: factory patch did not replace captured
 consumer callback. Corrected test actually loses response; no product safety
 assertion weakened. Whole05/physical transfer/learning/release remain OPEN.
+
+Current candidate7ea604d also handles known receiver finish: durable finish intent,
+shared exact sealed-manifest validator, lost response read-only ACK without second
+finish, explicit pending DATA cleanup, immutable rejected replies and checksum
+fences. Original outcome/bytes stay intact. UI/API now ALSO pin server-issued
+`capture_attempt_id`, and reconciliation holds existing record-IO lock. Historical
+559 body above was two fields; it was not deployed.
+
+Persisted inactive camera pointer can be retired after explicit successful DATA
+recovery: raw manifest snapshot and independent receipt retained; FSM stays
+INTERRUPTED/STOPPED. Test simulates persisted active metadata, not actual SIGKILL.
+159frozen targetedPASS42.04s +278NodePASS2.54s.
+[Finish/restart proof](../../_registry/evidence/experiment05-receiver-finish-recovery-20261028.json).
+Giver recovery/whole05 flow/learning/release and physical transfer remain OPEN.
