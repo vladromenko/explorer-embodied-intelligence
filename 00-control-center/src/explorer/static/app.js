@@ -110,13 +110,35 @@ const labSkills = createLabSkillsClient({api,onChange: () => {
   if(!sourceEvaluationRoute() || body?.skill_id!==chosen.selected || body?.skill_version!==chosen.version || body?.skill_spec_sha256!==chosen.state?.spec_sha256)return;
   sourceDemonstration.setContext(context,chosen.state.spec.phase_ids);toast("Контекст показa выбран. Подготовьте показ и отдельно подтвердите наблюдение за руками.");
 }});
-const simpleOperator={busy:false,error:"",contexts:{},skills:{},recordings:{},task:""};
+function operatorUUID(){
+  const cryptoAPI=globalThis.crypto;
+  if(cryptoAPI?.randomUUID)return cryptoAPI.randomUUID();
+  const bytes=new Uint8Array(16);
+  if(cryptoAPI?.getRandomValues)cryptoAPI.getRandomValues(bytes);
+  else for(let index=0;index<bytes.length;index+=1)bytes[index]=Math.floor(Math.random()*256);
+  bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;
+  const hex=[...bytes].map(value=>value.toString(16).padStart(2,"0")).join("");
+  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+}
+const operatorStorageKey=project=>`explorer.operator-skill.v1.${project}`;
+function storedOperatorSkill(project){
+  try{const value=JSON.parse(localStorage.getItem(operatorStorageKey(project))||"null");return value&&typeof value.task==="string"?value:null;}catch{return null;}
+}
+const simpleOperator={busy:false,error:"",contexts:{},skills:{},recordings:{},drafts:{}};
+for(const project of ["02","03","04"]){const saved=storedOperatorSkill(project);if(saved){simpleOperator.drafts[project]=saved.task;if(saved.id&&Number.isInteger(saved.version))simpleOperator.skills[project]=saved;}}
+const operatorTask=project=>simpleOperator.drafts[project]??simpleOperator.skills[project]?.task??"";
+function persistOperatorSkill(project){
+  const known=simpleOperator.skills[project],task=operatorTask(project);
+  const value=known?.task===task?known:{task};
+  try{localStorage.setItem(operatorStorageKey(project),JSON.stringify(value));}catch{}
+}
 async function operatorContext(project){
   if(simpleOperator.contexts[project])return simpleOperator.contexts[project];
-  const known=simpleOperator.skills[project];
-  const selected=known?.task===simpleOperator.task?{skill_id:known.id,skill_version:known.version}:{};
-  const result=await post("/api/operator/context",{project_id:project,task:simpleOperator.task,request_id:crypto.randomUUID(),...selected});
-  simpleOperator.skills[project]={id:result.skill.spec.skill_id,version:result.skill.spec.version,task:simpleOperator.task};
+  const task=operatorTask(project),known=simpleOperator.skills[project];
+  const selected=known?.task===task?{skill_id:known.id,skill_version:known.version}:{};
+  const result=await post("/api/operator/context",{project_id:project,task,request_id:operatorUUID(),...selected});
+  simpleOperator.skills[project]={id:result.skill.spec.skill_id,version:result.skill.spec.version,task:result.skill.spec.title};
+  simpleOperator.drafts[project]=result.skill.spec.title;persistOperatorSkill(project);
   simpleOperator.contexts[project]=result;
   if(project!=="04"){skillWorkflowUI.selected=result.skill.spec.skill_id;skillWorkflowUI.version=result.skill.spec.version;skillWorkflowUI.variant=result.context.variant_id;skillWorkflowUI.session=result.context.session_id;skillWorkflowUI.initialPhase=result.context.phase_id;}
   return result;
@@ -140,7 +162,7 @@ async function operatorRecord(project){
   if(project==="02"&&!keyboard.active)await startKeyboard();
   if(project==="03"&&!direct03.owned){await direct03Control("direct03-start");if(!direct03.owned)throw new Error(direct03.error||"Нет связи с ROSMASTER");}
   const prepared=await operatorContext(project);
-  const response=await post(demonstrationCapturePrefix()+"record/start",{name:simpleOperator.task||"Показ",skill_context:prepared.context});
+  const response=await post(demonstrationCapturePrefix()+"record/start",{name:operatorTask(project)||"Показ",skill_context:prepared.context});
   simpleOperator.recordings[project]=response;
   if(response.skill_capture)skillWorkflowCaptureStarted(response.skill_capture.capture_id,response.skill_capture);
   await loadRobot();
@@ -157,9 +179,9 @@ async function operatorFinish(project){
 function operatorRecordingPanel(project){
   const source=project==="04"?sourceDemonstration.snapshot():null;
   const active=source?Boolean(source.recordingID&&["RECORDING","PAUSED"].includes(source.status?.capture?.capture?.state)):Boolean(demonstrationTeaching().active||simpleOperator.recordings[project]);
-  return `<section class="panel spaced-section"><div class="panel-heading"><h2>Обучение навыку</h2></div><div class="panel-body"><label class="form-field">Название навыка<input data-operator-task value="${esc(simpleOperator.task)}" placeholder="Например: переложить предмет в коробку" maxlength="100"></label><p>${active?"Записываются действия и камера":"Покажите роботу нужные действия. Кнопка начинает запись."}</p><div class="teleop-actions"><button class="button primary" data-operator-action="record" ${simpleOperator.busy||active?"disabled":""}>Обучать навыку · начать запись</button><button class="button secondary" data-operator-action="finish" ${simpleOperator.busy||!active?"disabled":""}>Завершить и сохранить</button></div>${simpleOperator.error?`<p class="form-error" role="alert">${esc(simpleOperator.error)}</p>`:""}</div></section>`;
+  return `<section class="panel spaced-section"><div class="panel-heading"><h2>Обучение навыку</h2></div><div class="panel-body"><label class="form-field">Название навыка<input data-operator-task value="${esc(operatorTask(project))}" placeholder="Например: переложить предмет в коробку" maxlength="100"></label><p>${active?"Записываются действия и камера":"Название сохранится. Следующие показы добавятся к этому же навыку."}</p><div class="teleop-actions"><button class="button primary" data-operator-action="record" ${simpleOperator.busy||active?"disabled":""}>Обучать навыку · начать запись</button><button class="button secondary" data-operator-action="finish" ${simpleOperator.busy||!active?"disabled":""}>Завершить и сохранить</button></div>${simpleOperator.error?`<p class="form-error" role="alert">${esc(simpleOperator.error)}</p>`:""}</div></section>`;
 }
-document.addEventListener("input",event=>{if(event.target.matches?.("[data-operator-task]")){simpleOperator.task=event.target.value;for(const project of Object.keys(simpleOperator.contexts))if(simpleOperator.skills[project]?.task!==simpleOperator.task)delete simpleOperator.contexts[project];}});
+document.addEventListener("input",event=>{if(event.target.matches?.("[data-operator-task]")){const project=activeProject()?.id;if(!project)return;simpleOperator.drafts[project]=event.target.value;persistOperatorSkill(project);if(simpleOperator.skills[project]?.task!==operatorTask(project))delete simpleOperator.contexts[project];}});
 document.addEventListener("click",async event=>{
   const button=event.target.closest?.("[data-operator-action]");if(!button||button.disabled||simpleOperator.busy)return;
   const project=activeProject()?.id;simpleOperator.busy=true;simpleOperator.error="";button.disabled=true;
