@@ -93,3 +93,39 @@ def test_physical_domain_reads_existing_calibration_via_authenticated_node_GET_w
         path.write_bytes(path.read_bytes()+b' ')
         assert client.get('/api/transfer/geometry?model_job_id='+ident).status_code==409
     finally:server.shutdown();server.server_close();thread.join(2)
+
+
+def test_source_and_target_domains_are_separate_without_promoting_physical_calibration(tmp_path,monkeypatch):
+    from contextlib import contextmanager
+    from explorer import transfer_geometry_api as api
+    app,store,ident,envelope=configured(tmp_path,monkeypatch,source_kind='SO101_RECORDED_DEMONSTRATIONS')
+    reads=[]
+    class Metadata:
+        def calibration_artifact(self,role,expected_sha256):
+            reads.append((role,expected_sha256));return envelope
+    @contextmanager
+    def metadata(_):yield Metadata()
+    monkeypatch.setattr(api,'pi_metadata_connection',metadata)
+    client=TestClient(app.app);client.post('/api/login',json={'password':'fixture'})
+    csrf={'X-Explorer-CSRF':client.cookies['explorer_csrf']}
+    body=dict(model_job_id=ident,target_version=2,request_id=str(uuid.uuid4()),target_domain='simulation')
+    response=client.post('/api/transfer/calibration',json=body,headers=csrf);assert response.status_code==200,response.text
+    wizard=response.json();assert wizard['source_model_binding']['source_domain']=='PHYSICAL' and wizard['domain']=='simulation'
+    assert wizard['calibration_complete'] and not wizard['physical_calibration_ready'] and not wizard['physical_execution_authorized']
+    assert all(step['status']=='SIM_AUTO_GEOMETRY' for step in wizard['steps'])
+    assert client.post('/api/transfer/calibration',json=body,headers=csrf).json()['wizard_id']==wizard['wizard_id']
+    assert reads and all(role=='follower' and checksum==envelope['sha256'] for role,checksum in reads)
+    assert client.post('/api/transfer/calibration',json=dict(body,target_domain='guessed'),headers=csrf).status_code==400
+    assert client.post('/api/transfer/calibration',json=dict(body,target_domain='physical'),headers=csrf).status_code==409
+
+
+def test_simulation_source_physical_target_preparation_retains_all_physical_gates(tmp_path,monkeypatch):
+    app,store,ident,envelope=configured(tmp_path,monkeypatch)
+    client=TestClient(app.app);client.post('/api/login',json={'password':'fixture'})
+    csrf={'X-Explorer-CSRF':client.cookies['explorer_csrf']}
+    response=client.post('/api/transfer/calibration',json=dict(model_job_id=ident,target_version=2,
+        request_id=str(uuid.uuid4()),target_domain='physical'),headers=csrf)
+    assert response.status_code==200,response.text
+    wizard=response.json();assert wizard['source_model_binding']['source_domain']=='SIMULATION' and wizard['domain']=='physical'
+    assert not wizard['calibration_complete'] and not wizard['physical_calibration_ready'] and not wizard['physical_execution_authorized']
+    assert all(step['status']=='CAPTURE_REQUIRED' for step in wizard['steps'])

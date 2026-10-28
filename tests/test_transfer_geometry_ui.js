@@ -18,7 +18,7 @@ test("geometry stays available for technically ready source while object mastery
 test("explicit wizard create posts only model, advancing version and stable data request ID",async()=>{
   const {client,calls,row,cache}=fixture();client.select(row);await client.preview();const result=await client.create(2);await client.create(2);
   const posts=calls.filter(call=>call[0]==="POST");assert.equal(posts.length,2);assert.deepEqual(posts[0],posts[1]);
-  assert.deepEqual(Object.keys(posts[0][2]).sort(),["model_job_id","request_id","target_version"]);assert.equal(result.wizard_id,client.snapshot().savedWizardId);assert.equal(cache.size,1);
+  assert.deepEqual(Object.keys(posts[0][2]).sort(),["model_job_id","request_id","target_domain","target_version"]);assert.equal(result.wizard_id,client.snapshot().savedWizardId);assert.equal(cache.size,1);
   assert.ok(calls.every(call=>call[1].startsWith('/api/transfer/')));
 });
 
@@ -108,4 +108,21 @@ test('saved target models use exact wizard binding and only DEV model ID is subm
   await saved.evaluateModel('6'.repeat(32));assert.deepEqual(calls[0][1],{model_job_id:'6'.repeat(32)});
   assert.equal(saved.snapshot().targetEvalJob.kind,'transfer_target_eval');
   await assert.rejects(saved.evaluateModel('f'.repeat(32)),/совместимую/);
+});
+
+test('target domain is explicit and independent from the selected source domain',async()=>{
+  const row={...choice(),source_domain:'PHYSICAL'},calls=[];
+  const client=createTransferGeometryClient({get:async()=>response(row),post:async(path,body)=>{calls.push(body);return {...wizard(row),domain:body.target_domain};},randomUUID:()=> '88888888-8888-4888-8888-888888888888'});
+  client.select(row);assert.equal(client.snapshot().targetDomain,'physical');await client.preview();
+  client.setTargetDomain('simulation');await client.create(2);
+  assert.equal(calls[0].target_domain,'simulation');assert.equal(client.snapshot().wizard.domain,'simulation');
+  assert.equal(client.snapshot().choice.source_domain,'PHYSICAL');
+  assert.match(transferGeometryPanel(client.snapshot()),/Целевая среда/);
+});
+
+test('editing target domain retires old wizard data without touching source geometry',async()=>{
+  const {client}=targetFixture();await client.preview();await client.create(2);await client.loadDatasets();
+  client.setTargetDomain('physical');const view=client.snapshot();
+  assert.equal(view.wizard,null);assert.equal(view.datasets,null);assert.ok(view.geometry.geometry_preview_ready);
+  await assert.rejects(client.train(),/проверенный целевой/);
 });

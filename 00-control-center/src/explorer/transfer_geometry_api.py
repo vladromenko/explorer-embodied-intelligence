@@ -52,12 +52,15 @@ def install_router(app,get_store,get_config,get_actor):
     @app.post('/api/transfer/calibration')
     async def create(request:Request):
         body=await bounded_body(request)
-        if set(body)!={'model_job_id','target_version','request_id'}:
-            raise HTTPException(400,'Choose source model, advancing target version and request ID only')
+        required={'model_job_id','target_version','request_id'}
+        if not isinstance(body,dict) or set(body) not in (required,required|{'target_domain'}):
+            raise HTTPException(400,'Choose source model, advancing target version, target domain and request ID only')
+        if 'target_domain' in body and body['target_domain'] not in ('simulation','physical'):
+            raise HTTPException(400,'Explicit target domain must be simulation or physical')
         def prepare():
             result=current(body['model_job_id']);binding=result['source_model_binding']
             return wizard.create_session(get_store(),dict(skill_id=binding['skill_id'],source_version=binding['skill_version'],
-                target_version=body['target_version'],request_id=body['request_id'],domain=binding['source_domain'].lower()),
+                target_version=body['target_version'],request_id=body['request_id'],domain=body.get('target_domain',binding['source_domain'].lower())),
                 audit=result['audit'],source_model_binding=binding,authenticated_actor=get_actor(request))
         return await safe(prepare)
 

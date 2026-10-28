@@ -427,3 +427,20 @@ and original recorded actions shown.4Python7.90s+12Node141.5ms; refreshedactual
 UI pending, no optimizer replay warranted. NOTdeployed/livec82, source/target
 physical/master gates OPEN; E06PIPELINE continues original target producer/import/
 review and trusted cached metric capture/solve before whole06release/then01.
+
+
+06 independent target-domain correction: preparation previously forced target
+kind from immutable source kind, obstructing physical-source→SIM dry-run. New
+optional explicit enum target_domain +UI choice, source binding retained; old
+three-field requests preserve prior default for compatibility. Domain/target
+version edits retire old wizard-dependent data and fence late create replies.
+17Python17.71s +14Node141.5ms PASS: PHYSICAL-declared structural source→SIM uses
+GET-only original metadata/no measured registration; SIM source→physical prep
+retains allCAPTURE_REQUIRED/noauthority. These are metadata/fake-weight contract
+tests, not actual physical source skill/transfer acceptance. No newoptimizer.
+Actual current-domain-choice Firefox proof is next, then shared target producer.
+[Saved-model display](../_registry/evidence/experiment06-saved-target-model-display-UI-20261028.json):
+474 actual full app B1440/390/4PNG inspected/0JS/overflow, completedmodels2,
+incomplete jobs separately retained, native9 units/order/original actions visible;
+source/target result SHA exact, UI optimizer0/ownqueuedchecks cancelled data-only.
+E06PIPELINE remains current; code NOTdeployed/livec82, full06/master OPEN.

@@ -46,6 +46,7 @@ function handoverRuntimePanel() {
 }
 document.addEventListener("input", event=>{if(event.target.matches?.("[data-transfer-target-version]"))transferGeometry.setTargetVersion(event.target.value);});
 document.addEventListener("change", (event) => {
+  if(event.target.matches?.("[data-transfer-target-domain]"))transferGeometry.setTargetDomain(event.target.value);
   if(event.target.matches?.("[data-transfer-training]"))transferGeometry.setTraining(event.target.dataset.transferTraining,event.target.value);
   if(event.target.matches?.("[data-transfer-target-version]"))transferGeometry.setTargetVersion(event.target.value);
   if (event.target.id === "manipulation-task") workflow.task = event.target.value;

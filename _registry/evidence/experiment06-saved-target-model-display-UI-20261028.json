@@ -1,0 +1,36 @@
+{
+  "schema": "explorer06_saved_target_model_display_actual_UI_v1",
+  "code_commit": "4744873",
+  "status": "SCOPED_SOFTWARE_PASS_NOT_DEPLOYED",
+  "model_catalogue_only_completed_models": true,
+  "incomplete_training_preserved_separately": true,
+  "native9_units_order_and_recorded_action_visible": true,
+  "desktop_width": 1440,
+  "mobile_width": 390,
+  "all_four_PNG_visually_inspected": true,
+  "new_optimizer_updates": 0,
+  "actual_native_commands": 0,
+  "physical_acceptance": false,
+  "evidence": [
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-saved-target-models-actual-UI-20261028-b/receipt.json",
+      "sha256": "13a0ef0300193385d130c52d45b0b8900b91ef8acb805c970c30550cf9d171c3"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-saved-target-models-actual-UI-20261028-b/desktop-models.png",
+      "sha256": "f56cdf98f66d5cee702b9fddd4d8fbe238702f9056b0fbd21e429b2dd6626c22"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-saved-target-models-actual-UI-20261028-b/mobile-models.png",
+      "sha256": "d64be6ad7484a5685276640c9c6712b1d4d85041880132abc0e623dc4cb846a5"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-saved-target-models-actual-UI-20261028-b/desktop-offline-predictions.png",
+      "sha256": "0973d28dc45a30d966af7d9746faf7b9b20fcb268add623506c970da22420c11"
+    },
+    {
+      "path": "/mnt/explorer-data/explorer-work/06-saved-target-models-actual-UI-20261028-b/mobile-offline-predictions.png",
+      "sha256": "d73f56243b78cfc5d9e4a83a88f0458f347d4e0fd2c50fafe78b115800ed1703"
+    }
+  ]
+}
