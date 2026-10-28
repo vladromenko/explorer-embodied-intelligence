@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T03:59:00+03:00`
-Code commit: `15039b06ca9adf9d3eaa2707165cba72df79e554`
+Updated: `2026-10-28T04:16:00+03:00`
+Code commit: `e6e6fbb2fffe02a5f37754185dd6af8aa17c8c46`
 Current task: `E05-LEARNING`
 Next tasks: `E05-LEARNING`, `E05-RELEASE`, `E06-PIPELINE`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -228,3 +228,18 @@ All inputs GENERATED, actual physical inputs/real accepted experts0. Writer REAL
 physical source-profile declarations are explicitly not evidence of hardware.
 No optimizer yet in this component. Next bounded actual shared queued training/
 save/reload/DEV/shadow, learning UI, then one full05 regression/deploy.
+
+
+E05 actual shared queue c8: native9 ACT2 +native6 ACT2 both completed, weights
+changed/reload0. Initial pytest FAIL AFTER both trainers due wrong test budget
+assert4G vs existing source6 2G retained; corrected8f9, no optimizer replay.
+Post-stage recovery PASS: new worker DEV10/0optimizer/no sealed, source6 official
+saved-processors offline6D, checkpoints SHA exact. Original5+5 manifest/archive/
+current source approval audit PASS. [Actual evidence](../_registry/evidence/experiment05-actual-pair-learning-recovery-20261028.json).
+All generated inputs, real experts0; source6 SIMULATION only offline. New e6e6fbb
+readiness preflight exposes current source-model blockers without Torch/Source IO,
+UI disables blocked live shadow and labels simulation.14Python+282Node PASS.
+NOTdeployed/full05DONE. Next learning/model desktop/mobile UI, full frozen release.
+Actual GET probe confirms current Pi idle/disarmed/forwarded0/grantNone; new05
+capture fields absent; Nano WEB held-status404/reference409. These deploy gates
+are recorded, not bypassed; original runtimes/configs unchanged.

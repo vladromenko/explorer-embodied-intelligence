@@ -1,0 +1,103 @@
+{
+  "schema": "explorer05_actual_native_pair_queue_post_recovery_v1",
+  "training_execution_commit": "c8e50c6f4c851f0cfc389c7461ebe2c31c0bfa29",
+  "current_metadata_UI_commit": "e6e6fbb2fffe02a5f37754185dd6af8aa17c8c46",
+  "status": "SOFTWARE_TESTED_NOT_DEPLOYED",
+  "input_kind": "GENERATED_SOFTWARE_ONLY",
+  "real_expert_demonstrations": 0,
+  "physical_acceptance": false,
+  "actual_training": {
+    "giver": {
+      "job_id": "746ba7ccad084851b8cde25f44bb2c82",
+      "kind": "rosmaster_skill_train",
+      "optimizer_steps": 2,
+      "weights_changed": true,
+      "save_reload_passed": true,
+      "reload_max_abs_error": 0.0,
+      "checkpoint_sha256": {
+        "config.json": "98709dd1d8a9a7b8042b516c8da05c6e7bd850052d110e9bdb4ae2db6ce03d9b",
+        "explorer_preprocessing.json": "0af6df97a9c18619fc1368f4661cba98e3a167928bf7d4968572e7a885171c40",
+        "model.safetensors": "7ba08d4f4e39f2f13e24d47c959d8fab4e797b833e5cf16726abdc8401d4c601"
+      },
+      "CPU_cores": 2,
+      "memory_reservation_bytes": 4294967296
+    },
+    "receiver": {
+      "job_id": "eafde9639fb149588c1b600d63196983",
+      "kind": "so101_skill_train",
+      "optimizer_steps": 2,
+      "weights_changed": true,
+      "save_reload_passed": true,
+      "reload_max_abs_error": 0.0,
+      "checkpoint_sha256": {
+        "model.safetensors": "75a94e9881cdc335b0373e480b5b470db2edd9aebd2afce9212952cf11ca8dc9",
+        "policy_postprocessor.json": "327b0b67710cf503fc04785bd7d633e5f8654742ff1fd666b070427b564edc47",
+        "explorer_preprocessing.json": "47fa9d23779c96794c4bdc74a866f55933102965d12bf595371afd999d60f311",
+        "policy_preprocessor.json": "074d23879951914851bce2db401607ca243e304409fdaccf0c8b3e6c84b8f31a",
+        "config.json": "2527b10235bfce11fe649e0bfc62dbd24c623db6b8bab81c1914ce210843e178"
+      },
+      "CPU_cores": 2,
+      "memory_reservation_bytes": 2147483648
+    }
+  },
+  "initial_negative": {
+    "pytest_exit_code": 1,
+    "reason": "After both actual trainers completed, qualifier expected4GiB for source6; existing source6 reservation is2GiB. Test expectation corrected8f9ce8a; original failed run retained. Full corrected optimizer test not re-run."
+  },
+  "post_stage_recovery": {
+    "passed": true,
+    "actual_new_optimizer_updates": 0,
+    "seconds": 17.969861680001486,
+    "native9_DEV_samples": 10,
+    "native9_DEV_optimizer_steps": 0,
+    "native9_DEV_sealed_used": false,
+    "native6_offline_prediction_dimension": 6,
+    "official_saved_processors_executed": true,
+    "checkpoint_SHA_unchanged": true,
+    "all_workers_exited": true
+  },
+  "kernel": {
+    "initial_queue": {
+      "memory.peak": "2274328576",
+      "memory.swap.peak": "0",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+      "cpu.stat": "usage_usec 161211142\nuser_usec 141024999\nsystem_usec 20186143\nnr_periods 1520\nnr_throttled 1\nthrottled_usec 274275\nnr_bursts 0\nburst_usec 0"
+    },
+    "post_recovery": {
+      "memory.peak": "607870976",
+      "memory.swap.peak": "0",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  "original_data_audit": {
+    "native9_originals": 5,
+    "source6_originals": 5,
+    "raw_archive_and_manifest_SHA_preserved": true,
+    "current_source6_approval_pins_verified": true
+  },
+  "live_shadow_scope": "Source6 model kind SIMULATION: current normal live-shadow preflight correctly rejects before any insertion/Source GET. Offline inference explicitly allows only generated fixture. Never relabel a simulation model as physical.",
+  "metadata_UI": {
+    "Python_contracts_passed": 14,
+    "Node_passed": 282,
+    "Torch_or_Source_import_for_readiness": false,
+    "simulation_models_offline_labelled": true,
+    "preflight_blockers_visible": true
+  },
+  "raw_sha256": {
+    "/mnt/explorer-data/explorer-work/05-paired-queue-20261028-c8e50c6/result/qualification.json": "66fad9851949a55f748d8099ffbab232405450c82e054f31223894d699d220d1",
+    "/mnt/explorer-data/explorer-work/05-paired-queue-20261028-c8e50c6/result/pytest.log": "3f06e7f51d206ade4be5a9d7f497825cc890b9886395854e9a3c6d632bf52241",
+    "/mnt/explorer-data/explorer-work/05-paired-queue-post-recovery-20261028-a/receipt.json": "a862926e7719a67bfbfa03b7ef9285c100c70960742c25c2929c2946a3e18a6f",
+    "/mnt/explorer-data/explorer-work/05-paired-queue-post-recovery-20261028-a/original-data-audit.json": "36e5851d44369e9ce5f38aaa15efda26900850fa4819d72c4cf4a8a6e20462b6",
+    "/mnt/explorer-data/explorer-work/05-shadow-metadata-preflight-20261028-a.log": "590d0a9fc1e7abd32b1012a2689159beaf9aca2480c9d2ac893f5d10ecf93072",
+    "/mnt/explorer-data/explorer-work/05-shadow-metadata-all-Node-20261028-b.log": "ab3ee319c02b3bf586ee6a2f773d54d9a71db5bbb18971862cb68665192f07e4"
+  },
+  "actual_native_grants": 0,
+  "actual_native_commands": 0,
+  "production_state_used": false,
+  "remaining": [
+    "actual learning/model desktop/mobile UI qualification",
+    "one full frozen05 release regression/scoped deployment",
+    "Nano original WEB held-status404 and old own observer capture ABI update qualification",
+    "real demonstration/live model/physical task acceptance"
+  ]
+}
