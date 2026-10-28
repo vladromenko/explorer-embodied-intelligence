@@ -44,3 +44,12 @@ test("lost data reply preserves request identity and retained wizard can be rest
   client.select(row);await client.preview();await assert.rejects(client.create(2),/lost reply/);await client.create(2);assert.deepEqual(calls[0],calls[1]);
   await client.restore();assert.equal(client.snapshot().wizard.wizard_id,wizard(row).wizard_id);
 });
+
+
+test("restored target version remains the saved version and mismatched version replies are rejected",async()=>{
+  const row=choice(),saved={...wizard(row),target_version:4};
+  const {client}=fixture({post:async()=>saved,get:async path=>path.includes('/calibration/')?{...saved,current_geometry:response(row)}:response(row)});
+  client.select(row);await client.preview();await client.create(4);client.select(row);await client.restore();
+  assert.equal(client.snapshot().targetVersion,"4");assert.match(transferGeometryPanel(client.snapshot()),/value="4"/);
+  const wrong=fixture({post:async()=>saved}).client;wrong.select(row);await wrong.preview();await assert.rejects(wrong.create(2),/целевой версии/);
+});

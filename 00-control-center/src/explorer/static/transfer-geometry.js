@@ -31,17 +31,17 @@
       if(!Number.isSafeInteger(targetVersion)||targetVersion<=selected.choice.skill_version)throw new Error("Целевая версия должна быть больше исходной");
       if(!request||request.model_job_id!==selected.choice.job_id||request.target_version!==targetVersion)request={model_job_id:selected.choice.job_id,target_version:targetVersion,request_id:options.randomUUID()};
       const response=await options.post("/api/transfer/calibration",clone(request));
-      if(!bound(response?.source_model_binding,selected.choice))throw new Error("Сохранённая калибровка относится к другой исходной версии");
+      if(!bound(response?.source_model_binding,selected.choice)||response?.source_version!==selected.choice.skill_version||response?.target_version!==targetVersion)throw new Error("Сохранённая калибровка относится к другой исходной или целевой версии");
       if(current(selected)){
-        state.wizard=clone(response);state.savedWizardId=response.wizard_id;saved={model_job_id:selected.choice.job_id,wizard_id:response.wizard_id};
+        state.wizard=clone(response);state.targetVersion=String(response.target_version);state.savedWizardId=response.wizard_id;saved={model_job_id:selected.choice.job_id,wizard_id:response.wizard_id};
         try{options.storage?.setItem("explorer.transfer.geometry.v1",JSON.stringify(saved));}catch(_){}changed();
       }return clone(response);
     });}
     async function restore(){return perform(async selected=>{
       if(!state.savedWizardId)throw new Error("Нет сохранённого мастера этой модели");
       const response=await options.get("/api/transfer/calibration/"+encodeURIComponent(state.savedWizardId));
-      if(!bound(response?.source_model_binding,selected.choice)||!bound(response?.current_geometry?.source_model_binding,selected.choice))throw new Error("Сохранённая исходная версия изменилась");
-      if(current(selected)){state.wizard=clone(response);state.geometry=clone(response.current_geometry);changed();}return clone(response);
+      if(!bound(response?.source_model_binding,selected.choice)||!bound(response?.current_geometry?.source_model_binding,selected.choice)||response?.source_version!==selected.choice.skill_version||!Number.isSafeInteger(response?.target_version)||response.target_version<=response.source_version)throw new Error("Сохранённая исходная версия изменилась");
+      if(current(selected)){state.wizard=clone(response);state.targetVersion=String(response.target_version);state.geometry=clone(response.current_geometry);changed();}return clone(response);
     });}
     function refreshChoice(choice){const keys=["job_id","spec_sha256","source_calibration_sha256","checkpoint_content_sha256","aggregate_manifest_sha256","technical_source_ready"];if(keys.some(key=>state.choice?.[key]!==choice?.[key]))select(choice);}
     function setTargetVersion(value){state.targetVersion=String(value);}
