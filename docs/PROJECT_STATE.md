@@ -257,3 +257,24 @@ upgrade/actual GET/UI. OldNano startup HOME config remains enabled/original;
 source code skips HOME beyond boot window and startup guard checks that window,
 original6configs/STOP/manual0velocity. No actual restart/control performed yet.
 Physical/master OPEN; release infrastructure never implies physical acceptance.
+
+
+E05-RELEASE preflight b4ee397: immutable source staged on HB/Pi/Nano; own backups
+Pi102files65,529,426B/Nano1148files425,191,525B saved and SHA-verified on HB,
+original WEB selected source/config/reference backup retained. No service switched.
+Exact old-plan ancestry→one import-literal candidate prepared; current-boot pure
+restart guard PASS (uptime145941s >original180s window), original six configs exact.
+Current Pi3.13 fake buses/shared lab cold proof PASS0writes/1blocked idle hold;
+Nano3.12 isolated existing RGB/GET-only original reader PASS; 61 exact retained
+Web startup/persistence/continuity cases PASS31.41s, fresh boot blocked before owners.
+Full b4 launcher SETUP_FAILURE_INTERRUPTED: top-level pytest.main re-executed by
+multiprocessing spawn; wrong CAD environment also retained. No full PASS claimed.
+Narrow fixes: manual DATA test now accepts only explicit reference GET and sealed
+manifest GET in addition to prior capture/status endpoints. Original02/03/R7
+training receipts unchanged; exact inverse source-extension receipt binds ONLY
+one cooperative allowlist literal and optional generated fixture seams to original
+whole-file SHA. All math/runtime source pins remain exact; no optimizer replay.
+15 source/capture contracts PASS3.30s; corrected EGL/CAD +spawn6PASS6.34s.
+Next corrected subprocess-based full freeze with established original source/CAD
+inputs and isolated API config, then qualified source cutover/actual HTTPS05 UI.
+Live HB976/Pi+Nano c516/originalWEB4c unchanged; physical/master OPEN.

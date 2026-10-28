@@ -1,5 +1,6 @@
 """Current approved04 R7 controller plus immutable R6/PROFILE4 history."""
 import hashlib
+from qualification_source_extensions import assert_qualified_source
 import json
 from pathlib import Path
 
@@ -27,8 +28,8 @@ def test_actual_current_controller_resumes_both_official_CPU_backends_and_preser
     assert len({row['sha256'] for row in library['source_archives']})==1
     for name,expected in runtime['implementation_sha256'].items():
         assert tree[name]==expected
-        assert sha(ROOT/name)==expected
-    for name,expected in runtime['binding_files_sha256'].items():assert sha(ROOT/name)==expected
+        assert_qualified_source(ROOT,name,expected)
+    for name,expected in runtime['binding_files_sha256'].items():assert_qualified_source(ROOT,name,expected)
     active=json.loads((PROOFS/'DIFFUSION_NATIVE6_ACTIVE_BINDING.json').read_bytes())
     assert runtime['selector']['identity']['native6_qualification_sha256']==sha(PROOFS/active['qualification_result'])
     for name in ('ACT','DIFFUSION'):

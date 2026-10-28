@@ -1,5 +1,6 @@
 """Current official Dataset/native106 proof is distinct from historical PROFILE4."""
 import hashlib
+from qualification_source_extensions import assert_qualified_source
 import json
 from pathlib import Path
 
@@ -18,14 +19,14 @@ def test_current_official_Dataset_source_is_exactly_bound_to_actual_direct_and_q
     # Unchanged computational leaf bytes are covered by both independent paths.
     for name,expected in direct['qualified_source_files_sha256'].items():
         if name.startswith('shared/explorer_shared/learning/'):
-            assert sha(ROOT/name)==expected
+            assert_qualified_source(ROOT,name,expected)
             if name in queue['qualified_materialized_archive_sources_sha256']:
                 assert queue['qualified_materialized_archive_sources_sha256'][name]==expected
     assert len(queue['qualified_source_files_sha256'])==19
-    for name,expected in queue['qualified_source_files_sha256'].items():assert sha(ROOT/name)==expected
-    for name,expected in queue['qualified_materialized_archive_sources_sha256'].items():assert sha(ROOT/name)==expected
+    for name,expected in queue['qualified_source_files_sha256'].items():assert_qualified_source(ROOT,name,expected)
+    for name,expected in queue['qualified_materialized_archive_sources_sha256'].items():assert_qualified_source(ROOT,name,expected)
     assert set(queue['qualified_additional_source_files_sha256'])=={'00-control-center/src/explorer/mobile_dataset_evidence.py'}
-    for name,expected in queue['qualified_additional_source_files_sha256'].items():assert sha(ROOT/name)==expected
+    for name,expected in queue['qualified_additional_source_files_sha256'].items():assert_qualified_source(ROOT,name,expected)
     results=queue['results'];assert results['actual_popen_bootstrap_job_runner'] and results['authenticated_ASGI_queue_and_models']
     assert results['actual_optimizer_updates']==4 and results['save_reload_passed'] and results['weights_changed']
     assert results['feature_dimension']==106 and results['action_dimension']==9

@@ -1,0 +1,52 @@
+{
+  "schema": "explorer_exact_scoped_training_source_extensions_v1",
+  "scope": "COMPATIBILITY_ONLY_NO_NEW_OPTIMIZER_OR_PHYSICAL_ACCEPTANCE",
+  "code_commit": "b4ee3974a8a3e737ed02955d02ce3fd10f8def84",
+  "previous_source_commit": "c516de71c156b1d427f367be4a0754fe1b54bb81",
+  "extensions": {
+    "00-control-center/src/explorer/app.py": {
+      "previous_sha256": "d0bcff861179367c7a3d5f5277cfe72f33506051043f5631ac6b62bc43762434",
+      "current_sha256": "b8afeddcecd2fa7517743ad1931b5e8e4d86f16203f2cb3de9425d56b384d07d",
+      "inverse_replacements": [
+        {
+          "current": "'record_finish','record_reconcile','step'",
+          "previous": "'record_finish','step'"
+        }
+      ]
+    },
+    "tests/test_so101_approved_capture_cohort.py": {
+      "previous_sha256": "c51fb2f922f2052e5ea167d526f9bae8cfbd4e14e11d329046973364ebb58b9e",
+      "current_sha256": "b4baf45db3ded9749638ff1730d8a837f5b157d6b59fc02916ddce8e1e1e4368",
+      "inverse_replacements": [
+        {
+          "current": "def approved_cohort(tmp_path,*,store=None,chosen=None,session_for_variant=None,prepare_context=None):",
+          "previous": "def approved_cohort(tmp_path):"
+        },
+        {
+          "current": "    store=store if store is not None else Store(tmp_path/'state')\n    if chosen is None:\n        chosen=flow.propose(store,{'template_id':'pick_object_to_container'})\n        chosen=flow.confirm(store,chosen['spec']['skill_id'],1,{'spec_sha256':chosen['spec_sha256']})",
+          "previous": "    store=Store(tmp_path/'state');chosen=flow.propose(store,{'template_id':'pick_object_to_container'})\n    chosen=flow.confirm(store,chosen['spec']['skill_id'],1,{'spec_sha256':chosen['spec_sha256']})"
+        },
+        {
+          "current": "            session=(session_for_variant(index,deepcopy(variant)) if session_for_variant else\n                flow.create_session(store,chosen['spec']['skill_id'],1,{'scene_id':'GENERATED_SCENE_'+str(index),'split':variant['split']}))",
+          "previous": "            session=flow.create_session(store,chosen['spec']['skill_id'],1,{'scene_id':'GENERATED_SCENE_'+str(index),'split':variant['split']})"
+        },
+        {
+          "current": "            if prepare_context is not None:body=prepare_context(index,deepcopy(variant),deepcopy(session),deepcopy(body))\n",
+          "previous": ""
+        }
+      ]
+    }
+  },
+  "justification": {
+    "00-control-center/src/explorer/app.py": "Exactly one cooperative operation allowlist literal added; all02/03 routes, imports and other whole-module bytes unchanged. DATA reconciliation qualified separately.",
+    "tests/test_so101_approved_capture_cohort.py": "Only opt-in generated fixture injection seams; default02/04 captures and generated pair exercised with original producers. All production training/math bytes remain exact."
+  },
+  "default_producer_proof": {
+    "path": "_registry/evidence/experiment05-generated-paired-admission-20261028.json",
+    "raw_log_sha256": "2b7b3350486d21281a823b71cbde2051040fe0226a0ce1934c55812567dd334b",
+    "passed": 3
+  },
+  "original_receipts_rewritten": false,
+  "actual_physical_commands": 0,
+  "new_optimizer_updates": 0
+}

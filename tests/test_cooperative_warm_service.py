@@ -110,5 +110,10 @@ def test_both_manual_without_any_model_records_normally_and_never_creates_comput
         recorded=service.command('record_start',{'session_id':row['session_id'],'expected_epoch':row['epoch']},authenticated_actor='owner')['result']
         service.command('record_finish',{'session_id':row['session_id'],'expected_epoch':row['epoch'],
             'recording_id':recorded['recording_id'],'outcome':{'status':'unknown'}},authenticated_actor='owner')
-        assert not store.jobs() and all('/record/' in path or path.endswith('/status') or path.endswith('/capabilities') for _,_,path,_ in calls)
+        assert not store.jobs()
+        assert all('/record/' in path or path.endswith('/status') or path.endswith('/capabilities') or
+            (method=='GET' and path=='/legacy/explorer/retarget/reference') or
+            (method=='GET' and path.startswith(('/native-capture/recordings/','/so101-capture/recordings/')) and path.endswith('/manifest'))
+            for method,_,path,_ in calls)
+        assert sum(method=='GET' and path=='/legacy/explorer/retarget/reference' for method,_,path,_ in calls)==1
     finally:service.close();client.close()

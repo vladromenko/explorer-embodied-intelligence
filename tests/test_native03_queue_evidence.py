@@ -1,5 +1,6 @@
 """Exact current source03 CPU queue evidence; no model or hardware is constructed."""
 import hashlib
+from qualification_source_extensions import assert_qualified_source
 import json
 from pathlib import Path
 
@@ -11,7 +12,7 @@ def test_actual_native03_queue_proof_keeps_source_project_and_all_current_source
     assert r['schema']=='explorer_native03_queued_cpu_qualification_v1'
     assert len(r['qualified_source_files_sha256'])==21
     for group in ('qualified_source_files_sha256','qualified_materialized_archive_sources_sha256','qualified_additional_source_files_sha256'):
-        for name,checksum in r[group].items():assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==checksum
+        for name,checksum in r[group].items():assert_qualified_source(ROOT,name,checksum)
     assert set(r['qualified_additional_source_files_sha256'])=={'00-control-center/src/explorer/mobile_dataset_evidence.py'}
     old=r['previous_original_proof'];assert hashlib.sha256((ROOT/old['path']).read_bytes()).hexdigest()==old['sha256']
     result=r['result'];assert result['actual_train_and_eval_project_id']=='03' and result['actual_optimizer_updates']==4
