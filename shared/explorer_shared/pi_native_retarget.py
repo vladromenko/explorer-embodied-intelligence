@@ -65,6 +65,7 @@ class PiNativeRetargetService:
         self.begin_outcome_unknown=False
         self.gripper_alignment=None;self.packet_drops={};self.last_drop_reason=None
         self.last_lease_receipt=None;self.last_proposal=None;self.last_stop_receipt=None
+        self.operator_hold_deadline_ns=None;self.held_base_actions={};self.last_native_heartbeat_ns=None
         self.round_trips=deque(maxlen=64);self.last_source_age_ns=None;self.discarded_late_replies=0
         self.recorder=LegacyRawView(Path(state_dir)/'retarget-recordings');self.thread=None;self.calibration_wizard=None
 
@@ -329,6 +330,7 @@ class PiNativeRetargetService:
             first=self.mode=='CLUTCHED'
             if first and moving:raise ValueError('NEUTRAL_FIRST_HELD_FRAME_REQUIRED')
             self.last_lease_sequence=sequence;expected=self.epoch;target_epoch=self.target_epoch;authorization=self.authorization_id
+            self.operator_hold_deadline_ns=self.clock()+400_000_000;self.held_base_actions=deepcopy(actions)
             if first:self.mode='ACTIVATING';self.lifecycle_inflight=True
         if first:return self._first_held(expected,target_epoch,authorization)
         try:
@@ -339,6 +341,7 @@ class PiNativeRetargetService:
             result=self.client.keyboard_base(target_epoch,actions,observing=True,authorization_id=authorization)
             with self.lock:
                 if self.epoch==expected and self.mode=='ACTIVE':
+                    self.last_native_heartbeat_ns=self.clock()
                     if moving:self.chassis_requests+=1
                     self.last_lease_receipt={'target_receipt':deepcopy(result),'target_control_epoch':target_epoch,'native_dispatched':False}
                 else:self.discarded_late_replies+=1
@@ -379,6 +382,7 @@ class PiNativeRetargetService:
             with self.lock:
                 if self.epoch!=expected or self.mode!='ACTIVATING':raise ValueError('First held superseded after neutral lease')
                 self.mode='ACTIVE';self.estimate=estimate;self.last_source_stamp=measured['monotonic_ns'];self.error=None
+                self.operator_hold_deadline_ns=self.clock()+400_000_000;self.held_base_actions={};self.last_native_heartbeat_ns=self.clock()
                 self.last_lease_receipt={'target_receipt':deepcopy(result),'target_control_epoch':target_epoch,
                     'first_explicit_held':True,'recentered_at_explicit_held':True,'target_estimate_basis':basis,'native_dispatched':False}
             self.wake.set();return self.status()
@@ -427,6 +431,7 @@ class PiNativeRetargetService:
                 self.mode='CLOSED' if self.shutdown.is_set() else 'STOPPED'
                 self.target_epoch=None;self.stop_uncertain=False;self.error=None
                 self.chassis_authorized=False
+                self.operator_hold_deadline_ns=None;self.held_base_actions={};self.last_native_heartbeat_ns=None
                 self.begin_outcome_unknown=False
                 self.last_stop_receipt=cleanup
             return self.status()
@@ -553,10 +558,22 @@ class PiNativeRetargetService:
                     if self.epoch!=local_epoch or self.mode!='ACTIVE':
                         raise ValueError('Old source frame superseded before HTTP intent')
                     self.source_sequence+=1;sequence=self.source_sequence
+                    heartbeat_now=self.clock();heartbeat_due=(self.operator_hold_deadline_ns is not None and
+                        heartbeat_now<self.operator_hold_deadline_ns and (self.last_native_heartbeat_ns is None or
+                        heartbeat_now-self.last_native_heartbeat_ns>=100_000_000))
+                    held_actions=deepcopy(self.held_base_actions);authorization=self.authorization_id
                 evidence={**measured,'target_estimate_basis':basis,'target_boot_id':self.target_boot,
                           'registration_sha256':(getattr(self.geometry,'registration',None) or {}).get('sha256'),
                           'geometric_proposal':deepcopy(proposal),'cross_device_clock_mapping_assumed':False}
                 started=self.clock()
+                if heartbeat_due:
+                    heartbeat=self.client.keyboard_base(target_epoch,held_actions,observing=True,authorization_id=authorization)
+                    with self.lock:
+                        if self.epoch!=local_epoch or self.mode!='ACTIVE':
+                            raise ValueError('Old held heartbeat superseded before leader intent')
+                        self.last_native_heartbeat_ns=self.clock()
+                        self.last_lease_receipt={'target_receipt':deepcopy(heartbeat),'target_control_epoch':target_epoch,
+                            'relayed_from_fresh_explicit_operator_hold':True,'native_dispatched':False}
                 receipt=self.client.input(target_epoch,sequence,proposal['joint_velocity_deg_s'],evidence,
                     authorization_id=self.authorization_id)
                 ended=self.clock()

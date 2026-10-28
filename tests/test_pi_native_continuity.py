@@ -73,6 +73,16 @@ def test_actual_native_mux_unchanged_intents_across_jitter_then_original_expiry_
     source.close()
 
 
+def test_fresh_explicit_hold_is_relayed_inside_source_loop_before_original_lease_expires(tmp_path):
+    source,station,peer=service(tmp_path);start(source)
+    before=len([name for name,_ in peer.calls if name=='base'])
+    source.last_native_heartbeat_ns-=200_000_000;station.update(2);source._step_once()
+    assert len([name for name,_ in peer.calls if name=='base'])==before+1
+    assert source.last_lease_receipt['relayed_from_fresh_explicit_operator_hold'] is True
+    assert source.last_proposal['target_receipt']['accepted'] is True
+    source.close()
+
+
 def aligned_geometry(slope=1.):
     geometry=Geometry();geometry.gripper_mapper=lambda value:90.+slope*(value-50.)
     return geometry
