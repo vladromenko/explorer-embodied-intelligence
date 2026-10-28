@@ -52,6 +52,7 @@ class CooperativeService:
         self.root=Path(root or store.root/'cooperative05');self.root.mkdir(parents=True,exist_ok=True)
         self.capture_starts=CooperativeCaptureStarts(self)
         self.domain='nx:'+_boot();self.lock=threading.RLock();self.closed=False;self.model_errors={}
+        self._snapshot_local=threading.local()
         self.client=client or httpx.Client(timeout=3,trust_env=False,follow_redirects=False)
         self.own_client=client is None;self.models=model_adapters or {};self.transports={};self.native_bindings={}
         self.nodes={node['id']:deepcopy(node) for node in config.get('nodes',[]) if node.get('id') in ('nano','pi')}
@@ -326,7 +327,21 @@ class CooperativeService:
             # Capability describes this concrete binder; readiness still checks
             # current owner/model/observation and defaults authority to false.
             'native_dispatch_receipts':True,'authoritative_release_deadline':role=='giver'}
+    def _response_metadata(self,key,read):
+        """Deduplicate metadata reads in ONE response, never command preflight."""
+        cache=getattr(self._snapshot_local,'metadata',None)
+        if cache is None:return read()
+        if key not in cache:cache[key]=deepcopy(read())
+        return deepcopy(cache[key])
+    def _source_workflow(self,role,skill_id,version,*,project_id=None):
+        project_id=project_id or ('02' if role=='giver' else '04')
+        return self._response_metadata(('workflow',role,skill_id,version,project_id),lambda:
+            mobile.workflow(self.store,skill_id,version,project_id=project_id) if role=='giver'
+            else lab.state_for_skill(self.store,skill_id,version))
     def _models_for(self,role,skill_id,version,spec_sha):
+        return self._response_metadata(('models',role,skill_id,version,spec_sha),lambda:
+            self._read_models_for(role,skill_id,version,spec_sha))
+    def _read_models_for(self,role,skill_id,version,spec_sha):
         rows=[]
         for job in self.store.jobs(10000):
             config=job.get('config') or {};result=job.get('result') or {}
@@ -358,8 +373,8 @@ class CooperativeService:
                     with self.lock:self.model_errors[job['id']]=type(error).__name__+':'+str(error)
         return rows
     def _inspect_skill(self,role,reference):
-        state=(mobile.workflow(self.store,reference['skill_id'],reference['skill_version'],project_id='03' if reference['experiment_slug']=='rosmaster_leader_learning' else '02')
-               if role=='giver' else lab.state_for_skill(self.store,reference['skill_id'],reference['skill_version']))
+        state=self._source_workflow(role,reference['skill_id'],reference['skill_version'],
+            project_id='03' if reference['experiment_slug']=='rosmaster_leader_learning' else '02' if role=='giver' else '04')
         spec=state['spec'];models=self._models_for(role,spec['skill_id'],spec['version'],state['spec_sha256'])
         chosen=next((model for model in models if model['model_id']==reference.get('model_id')),None)
         return {'skill_id':spec['skill_id'],'skill_version':spec['version'],'spec_sha256':state['spec_sha256'],
@@ -411,7 +426,7 @@ class CooperativeService:
         report,context,raw=self._native_original(role,job)
         skill_id=context.get('skill_id') or (raw.get('skill') or {}).get('id')
         version=context.get('skill_version') or (raw.get('skill') or {}).get('version')
-        state=mobile.workflow(self.store,skill_id,version) if role=='giver' else lab.state_for_skill(self.store,skill_id,version)
+        state=self._source_workflow(role,skill_id,version)
         original=report.get('original_episode_id',report.get('episode_id'))
         decision=next((item for item in state['assignments'] if item['binding']['original_episode_id']==original),None)
         source_kind=report.get('source_kind') if role=='receiver' else (report.get('mobile_embodied') or {}).get('source_kind')
@@ -640,6 +655,12 @@ bound first; default construction cannot turn on policy execution.
         if not callable(callback):raise ValueError('Exact current manual giver native release boundary required')
         return callback(row,authorization)
     def snapshot(self,session_id=None):
+        previous=getattr(self._snapshot_local,'metadata',None)
+        if previous is not None:return self._snapshot(session_id)
+        self._snapshot_local.metadata={}
+        try:return self._snapshot(session_id)
+        finally:del self._snapshot_local.metadata
+    def _snapshot(self,session_id=None):
         workbench=self.workflow.snapshot();selected=self.workflow.snapshot(session_id) if session_id else None
         for row in workbench['sessions']:
             row['native_capture_recoveries']={role:self.capture_starts.projection(row,role) for role in ('giver','receiver')}
