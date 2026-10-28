@@ -12,7 +12,7 @@ software scope, не подтверждённую пользователем п�
 
 | Опыт | Текущий базовый путь / оставшиеся blockers |
 |---|---|
-|02–04|Упрощённый path deployed. Pi d901 активен. Реальный04 start/6-axis dispatch подтверждён, но pre-82d renewal истёк через~1s; page-level renewal82d deployed. Нужны USER reload и длительная04+recording проверка, затем02/03. Не повышать readiness по короткой попытке.|
+|02–04|Упрощённый path deployed exact de84b48 Homebrain+Pi. Реальные04 starts/6-axis dispatch подтверждены; добавленный2s web deadline был причиной сброса. de84 переводит начатый manual teleop в штатную долгую сессию до Disconnect/page leave/native source change. Нужны USER reload и длительная04+recording проверка, затем02/03. Не повышать readiness по deploy.|
 |03|Software/deploy MVP завершён; начат сразу после04 `2026-10-28T01:01:26+03:00`. USER continuity, fresh MCU/reference и scene остаются физическими gates.|
 |05|Software/deploy MVP завершён; USER shared-zone/hold/transfer acceptance OPEN.|
 |06|Соединить существующие native9 capture/review/import/aggregate с операторским API/UI; подключить существующий trusted calibration capture/solve; краткий сквозной smoke и deploy. Не создавать второй recorder/trainer.|
@@ -35,8 +35,8 @@ integrator. При отсутствии полезного software-действ
 
 | ID | Scope | Depends | Done / evidence | Status | Next action |
 |---|---|---|---|---|---|
-|E02-04-OPERATOR|02/03/04|none|Simple camera→Управлять→Записать навык; d798 preview/gamepad+ACK TTL, d901 retained03 cleanup, 82d render-independent04 renewal; targeted changed tests PASS|IN_PROGRESS|USER hard reload04, двигать>10s и начать/завершить запись; затем повторить02/03|
-|E02-04-DEPLOY|02/03/04|E02-04-OPERATOR|Homebrain82d deployed; Pi d901 active idle/0writes; Nano original unchanged|DONE|Сохранять точные commits/config; deploy не равен physical acceptance|
+|E02-04-OPERATOR|02/03/04|none|Simple camera→Управлять→Записать навык; de84 removes added2s web lease after explicit manual04 start, retains exact Disconnect/page cleanup/native source fences;27Py+targetNode PASS|IN_PROGRESS|USER hard reload04, двигать>10s и начать/завершить запись; затем повторить02/03|
+|E02-04-DEPLOY|02/03/04|E02-04-OPERATOR|Homebrain+Pi exact de84b48 active; Pi PID79747 idle/grantNone/available/fresh hands/0writes; Nano original unchanged|DONE|Сохранять точные commits/config; deploy не равен physical acceptance|
 |E02-04-USER-FEEDBACK|02/03/04|E02-04-DEPLOY|USER может нажать Управлять и Записать навык; реальные неисправности исправлены|OPEN|Не считать read-only UI или mocks подтверждением управления|
 |OPS-STATE|shared|none|AGENTS/state/backlog/function matrix/runbook/skill и лёгкий consistency check; verified original-doc backup|DONE|После отдельного организационного commit продолжить E04-IMPORT|
 |E03-CHECKPOINT|03|none|Central-only65 actual release/full regression/GET UI, physical path CLOSED; [proof](../_registry/evidence/experiment03-central-data-actual-65ae9d02-20261027.json)|DONE|Сохранять separate physical gates|

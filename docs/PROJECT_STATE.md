@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T11:50:00+03:00`
-Code commit: `82d550f0f6c55f99c7db7302897f3db919d4b268`
+Updated: `2026-10-28T15:07:21+03:00`
+Code commit: `de84b48334c920eb77d03c2525623039ae59d10d`
 Current task: `E02-04-OPERATOR`
 Next tasks: `E02-04-DEPLOY`, `E02-04-USER-FEEDBACK`, `E04-REAL`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -37,22 +37,25 @@ ROSMASTER teleop и frozen Station. Без новых research/hardening/tests s
 изменённых browser-contract source04 PASS. Frozen Station SHA
 `2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885` не менялся.
 
-Homebrain central/worker deployed **82d550f**; served static `no-store` exact.
-Pi runtime **d9015e0** активирован после очищенного target epoch, observer PID75510;
-idle/grantNone/0 configuration writes проверены. Nano original controller не изменён. Обе SO-101
-на Pi фактически доступны, exact calibration verified, ~29.93Hz, measurement age
-обычно<30ms, configuration writes0. Штатный gamepad Nano connected, DISARMED,
-ошибок нет, события свежие. Исходные6 controller configs/firmware/limits/
-watchdogs/feedbackOFF не менялись.
+Homebrain central/worker и Pi runtime deployed exact **de84b48**; Homebrain
+central/worker active, Pi observer PID79747, idle/grantNone/0 configuration writes.
+Pi cutover выполнен только после idle/no-grant/no-capture; без `Node.close`, STOP или
+native command. Предшествующий worker уже был idle с реальным servo read error;
+перезапуск восстановил обе руки: available, errorNone, свежие измерения <10ms.
+Exact calibration SHA прежние. Nano original controller не изменён. Исходные6
+controller configs/firmware/limits/watchdogs/feedbackOFF не менялись.
 
 Фактический USER запуск04 после `16102f7` выдал grant, вошёл в teleoperation и
 отправлял команды всем6 осям; третий привод получил requested103.45 и штатно
 ограниченный dispatched100.0. Ошибок шины/hold не было. Через~1s grant истёк:
 publication gate сохранил `OBSERVED_NATIVE_PERMISSION_REVOKED_EXPIRED_OR_SOURCE_CHANGED`
-и Station вернулась idle. Исправление `82d550f` вынесло renewal в page-level
-scheduler100ms с клиентским шагом300ms, независимый от render; целевые JS тесты
-PASS, Homebrain deployed. Повторная USER проверка длительного управления и записи
-ещё OPEN; не считать первую короткую попытку принятой.
+и Station вернулась idle. Последующие реальные старты доказали, что источником
+повторного сброса был добавленный двухсекундный `observation_deadline`, а не USB
+или штатный LeRobot. Исправление `de84b48` после явного USER start переводит
+source04 manual teleop в обычную долгоживущую сессию до точного Disconnect/ухода
+со страницы/native source change; browser renewal больше не ограничивает manual
+session. 27 Python contract tests и новый целевой Node contract PASS; frozen
+Station SHA не менялся. Повторная USER проверка >10s и записи ещё OPEN.
 
 Последний06 DATA checkpoint: recorder/review/import/dataset/model UI реализованы
 и deployed; actual software-generated whole-browser cycle прошёл.186 targeted
