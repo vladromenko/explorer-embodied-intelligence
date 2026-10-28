@@ -1,0 +1,37 @@
+{
+  "schema": "explorer06_capture_deployment_checkpoint_v1",
+  "status": "DEPLOYED_WITH_UNRESOLVED_PASSIVE_REQUEST",
+  "commit": "7932526b7e3725411bce97cb39f5914cfa9dcaad",
+  "own_nodes": {
+    "nano": "803299",
+    "pi": "71479"
+  },
+  "central_PIDs": {
+    "explorer-control-center": "2929596",
+    "explorer-worker": "2929598"
+  },
+  "original_Nano_shared_pin": "c82e6754a26194f3fd12533cce35153890ff5771",
+  "original_Nano_source_controller_reference_service_snapshot_exact": true,
+  "cutover_passive_counts": {
+    "/arm6_joints": 0,
+    "/explorer/request": 1
+  },
+  "cutover_request_payload_and_attribution": "UNKNOWN_NOT_RECORDED_BY_ORIGINAL_COUNTER",
+  "followup_passive_65s_messages": [],
+  "followup_does_not_explain_first_packet": true,
+  "HTTPS_receipt": "/mnt/explorer-data/explorer-work/06-capture-deployed-live-Firefox-20261028-7932526-b/receipt.json",
+  "HTTPS_pages": [
+    "06",
+    "04",
+    "03",
+    "05"
+  ],
+  "HTTPS_desktop_mobile": true,
+  "HTTPS_javascript_errors": 0,
+  "HTTPS_non_GET_requests": 0,
+  "HTTPS_all8_screenshots_inspected": true,
+  "production_current_source04_models": 0,
+  "physical_acceptance": false,
+  "raw_composite_script_failure_retained": "/mnt/explorer-data/explorer-work/06-capture-deploy-20261028-a/composite-activation.json",
+  "native_control_mutation_calls_issued_directly_by_tools": 0
+}

@@ -1,10 +1,9 @@
 # Explorer — атомарный backlog
 
-Приоритет владельца (последнее указание): **04 implemented +software-tested +deployed →03 software/deploy →05 →06 →01**.
-Checkpoint03 и05 software/deploy завершены scoped; текущий `E06-PIPELINE`. Physical03/04/05 OPEN.
-Физическое acceptance ведётся отдельно; требования не завершены одним checkpoint.
-Организационный checkpoint не меняет этот порядок. `DONE` относится только к
-конкретному критерию строки, не к целому опыту/master. Физические gates отдельны.
+Текущий прямой приоритет владельца: **ТОЛЬКО02–04: камера → Управлять → запись показа**.
+Текущий `E02-04-OPERATOR`.06/05/01 остановлены; история DONE означает прежний
+software scope, не подтверждённую пользователем пригодность. Не возвращаться
+к06 и deferred hardening до исправления фактически сообщённых blockers02–04.
 
 ## MVP BLOCKERS
 
@@ -13,7 +12,7 @@ Checkpoint03 и05 software/deploy завершены scoped; текущий `E06
 
 | Опыт | Текущий базовый путь / оставшиеся blockers |
 |---|---|
-|04|Software/deploy MVP завершён; известных blocking software defects по release evidence нет. Пункты1–10 и physical prerequisites — [MVP status](MVP_STATUS_RU.md). Питание OFF не доказывает текущую связь с моторами.|
+|02–04|USER: невозможно начать управление;02 permanent STOP_UNCONFIRMED,03 disabled Start/continuity,04 перегруженный permission/skill flow; камера04 размыта. Исправить реальный user path, не повышать readiness по mocks.|
 |03|Software/deploy MVP завершён; начат сразу после04 `2026-10-28T01:01:26+03:00`. USER continuity, fresh MCU/reference и scene остаются физическими gates.|
 |05|Software/deploy MVP завершён; USER shared-zone/hold/transfer acceptance OPEN.|
 |06|Соединить существующие native9 capture/review/import/aggregate с операторским API/UI; подключить существующий trusted calibration capture/solve; краткий сквозной smoke и deploy. Не создавать второй recorder/trainer.|
@@ -36,6 +35,9 @@ integrator. При отсутствии полезного software-действ
 
 | ID | Scope | Depends | Done / evidence | Status | Next action |
 |---|---|---|---|---|---|
+|E02-04-OPERATOR|02/03/04|none|Реальные USER screenshots: контроль не запускается; упростить камера→Управлять→Записать навык через existing core|IN_PROGRESS|Устранить STOP_UNCONFIRMED/continuity/default workflow blockers; скрыть исследовательские формы; камера/фокус; не двигать устройства агентом|
+|E02-04-DEPLOY|02/03/04|E02-04-OPERATOR|Минимальные проверки основного исправленного пути и deploy|OPEN|Без full sweep/новых гипотетических gates|
+|E02-04-USER-FEEDBACK|02/03/04|E02-04-DEPLOY|USER может нажать Управлять и Записать навык; реальные неисправности исправлены|OPEN|Не считать read-only UI или mocks подтверждением управления|
 |OPS-STATE|shared|none|AGENTS/state/backlog/function matrix/runbook/skill и лёгкий consistency check; verified original-doc backup|DONE|После отдельного организационного commit продолжить E04-IMPORT|
 |E03-CHECKPOINT|03|none|Central-only65 actual release/full regression/GET UI, physical path CLOSED; [proof](../_registry/evidence/experiment03-central-data-actual-65ae9d02-20261027.json)|DONE|Сохранять separate physical gates|
 |E03-BOOTSTRAP|03|E03-CHECKPOINT|Автоматический labelled existing-calibration/URDF bootstrap, command-estimate recenter, provisional gripper; [proof](../_registry/evidence/experiment03-bootstrap-existing-calibration-20261027.json)|DONE|Не требовать полного measured registration для software разработки|
@@ -56,7 +58,7 @@ integrator. При отсутствии полезного software-действ
 |E05-LEARNING|05/shared|E05-MANUAL|Two original clocks/actions/handshake/grasp/release/outcome→review/dataset/train/reload/shadow через shared02/04 core|DONE|Generated original-producer pair5/3train1DEV1sealed, current source rejection fences [admission](../_registry/evidence/experiment05-generated-paired-admission-20261028.json); actual ACT2/ACT2/reload0 +new DEV10/offline6D, original wrong-budget negative retained [learning](../_registry/evidence/experiment05-actual-pair-learning-recovery-20261028.json); full saved-model UI115GET/0POST/0JSerror/overflow and response-only metadata contracts [whole scope](../05-cooperative-handover/docs/WHOLE_LEARNING_FLOW_RU.md). Released c82; generated data/models remain isolated, real accepted experts0/physical OPEN|
 |E05-RELEASE|05|E05-LEARNING|Software/operator-ready flow deployed, software evidence полный; real hold/transfer gates остаются отдельными|DONE|Actual HB/Pi/NanoOWN/originalWEBpin c82; full2542/23skip +285Node, actual HTTPS1440/390/4PNG inspected/0JS/nonGET/overflow; two55s passiveROS0, original6configs/reference/otherPIDs exact, cold0/grantsNone. [Release](../05-cooperative-handover/docs/SCOPED_RELEASE_RU.md). Physical/master OPEN; перейти06|
 |E05-REAL|05|E05-RELEASE|Shared-zone visibility и independent hold/release/full handover observed acceptance|WAIT_USER|Максимум две реальные камеры; physical double-hold не выводить из receipts|
-|E06-PIPELINE|06|E04-COHORT,E05-LEARNING|Approved immutable04 source lineage, distinct domains, spatial/FK/object-relative→target registration/IK/reachable/SIM UI|IN_PROGRESS|Current: connect existing approved04 source metadata/known nominal geometry/durable calibration backend to operator API/UI and shared target9 adapter. Actual generated ACT2 source canonical object task/immutable calibration→geometry→whole app restore PASS; no-object-trace C gate preserved. Target9 corpus/common trainer ACT2/ACT2+default02/03 exact parity+whole target UI qualified on generated data. Saved-model/new-PID DEV exact+whole UI qualified; original native06 context/writer/import UNKNOWN contracts passed. Approved native06 generated original cohort/shared materializer/current late-review guard qualified; Official native06 generated original export PASS (3TRAIN/1DEV/1sealed, budget5 BLOCKED, optimizer0). Central DATA capture/review/import/aggregate API+UI implemented with shared-writer mainpath; Whole-browser native DATA cycle passed desktop/mobile with UNKNOWN preserved. Next MVP capture deployment and trusted metric registration path (still OPEN). NOTdeployed, physical/master OPEN|
+|E06-PIPELINE|06|E04-COHORT,E05-LEARNING|Approved immutable04 source lineage, distinct domains, spatial/FK/object-relative→target registration/IK/reachable/SIM UI|PARKED|USER остановил06 ради02–04. Current: connect existing approved04 source metadata/known nominal geometry/durable calibration backend to operator API/UI and shared target9 adapter. Actual generated ACT2 source canonical object task/immutable calibration→geometry→whole app restore PASS; no-object-trace C gate preserved. Target9 corpus/common trainer ACT2/ACT2+default02/03 exact parity+whole target UI qualified on generated data. Saved-model/new-PID DEV exact+whole UI qualified; original native06 context/writer/import UNKNOWN contracts passed. Approved native06 generated original cohort/shared materializer/current late-review guard qualified; Official native06 generated original export PASS (3TRAIN/1DEV/1sealed, budget5 BLOCKED, optimizer0). Central DATA capture/review/import/aggregate API+UI implemented with shared-writer mainpath; Whole-browser native DATA cycle passed desktop/mobile with UNKNOWN preserved. Next MVP capture deployment and trusted metric registration path (still OPEN). NOTdeployed, physical/master OPEN|
 |E06-ADAPT|06|E06-PIPELINE|5/10/25 target-demo UI; zero/adapt/target-only сравнения→save/reload/offline/shadow, no sealed optimizer leakage|OPEN|Один shared training/eval backend; physical transfer success отдельно|
 |E06-RELEASE|06|E06-ADAPT|Software/operator-ready pipeline deployed с provenance/unknown/failures; не фиктивный successful source/target skill|OPEN|Current regression и честный rollout checklist|
 |E06-REAL|06|E06-RELEASE,E04-REAL|Accepted real source, measured workspace/target calibration и observed independent transfer|WAIT_USER|Не переносить action head или считать camera domains одинаковыми|
