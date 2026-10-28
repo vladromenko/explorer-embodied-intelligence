@@ -183,10 +183,12 @@ async function operatorSourceControl(){
     }
   }
   if(!authorized)throw new Error(`Pi не подтвердил свежий кадр: ${lastHandshakeError?.message||"повторите запуск"}`);
-  // Start immediately from the just-returned idle grant.  An extra camera
-  // round trip here consumed the short observation lease before native start.
-  // start() schedules immediate renewal; the page-level loop keeps it alive.
+  // Start immediately from the just-returned idle grant.  The displayed
+  // challenge temporarily occupies the shared scene <img>; manual source04
+  // no longer renews challenge frames after start, so restore the ordinary
+  // live camera stream explicitly instead of leaving a revoked blob URL.
   await sourceDemonstration.start();
+  startCamera();
 }
 async function operatorRecord(project){
   if(project==="04"){await operatorSourceControl();await sourceDemonstration.captureStart();return;}

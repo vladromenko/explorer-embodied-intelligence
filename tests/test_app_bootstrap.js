@@ -152,6 +152,7 @@ test("04 one-click path starts immediately after authorization without a pre-sta
   rig.context.fetch=async(url,options={})=>options.method==="POST"&&url==="/api/operator/source-connect"
     ? {ok:true,status:200,json:async()=>({available:true,mode:"idle"})}:previous(url,options);
   rig.run(`globalThis.sourceSequence=[];globalThis.sourceOwner=null;
+    startCamera=()=>{globalThis.sourceSequence.push("camera");};
     simpleOperator.contexts["04"]={skill:{spec:{skill_id:"fixture-skill",version:1,title:"Ручной показ"}},context:{record_start_body:{}},phases:[]};
     sourceDemonstration.snapshot=()=>({owner:globalThis.sourceOwner,flags:{observing:false,robot_workspace_checked:false,user_observed_test_confirmed:false}});
     labSkills.select=async()=>{globalThis.sourceSequence.push("select");};
@@ -163,7 +164,7 @@ test("04 one-click path starts immediately after authorization without a pre-sta
     sourceDemonstration.watchOnce=async()=>{globalThis.sourceSequence.push("watch");};
     sourceDemonstration.start=async()=>{globalThis.sourceSequence.push("start");};`);
   await rig.run("operatorSourceControl()");
-  assert.deepEqual(JSON.parse(rig.run("JSON.stringify(globalThis.sourceSequence)")),["select","context","prepare","challenge","authorize","start"]);
+  assert.deepEqual(JSON.parse(rig.run("JSON.stringify(globalThis.sourceSequence)")),["select","context","prepare","challenge","authorize","start","camera"]);
 });
 
 async function pump(rig, rounds = 40) {
