@@ -1,7 +1,7 @@
 # Explorer — актуальное состояние
 
-Updated: `2026-10-28T11:12:16+03:00`
-Code commit: `069c516d52e6e462f36d8dd3c5cd6acd8e9557eb`
+Updated: `2026-10-28T11:50:00+03:00`
+Code commit: `82d550f0f6c55f99c7db7302897f3db919d4b268`
 Current task: `E02-04-OPERATOR`
 Next tasks: `E02-04-DEPLOY`, `E02-04-USER-FEEDBACK`, `E04-REAL`
 Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
@@ -15,7 +15,9 @@ Overall: **IN_PROGRESS; исходный master-prompt не завершён.**
 USER-проверки:02 локальный штатный gamepad отключался после единичной задержки
 camera preview/слишком редкого panel heartbeat;03 старая осиротевшая Pi-сессия
 `CLUTCHED` мешала новому observed authorization;04 обе SO-101 доступны, но
-observed grant истекал от времени старого кадра ещё до окончания сетевого start.
+observed grant сначала истекал от времени старого кадра, а после первого
+успешного реального запуска04 — из-за привязанного к перерисовываемой панели
+цикла продления.
 Предыдущие software PASS/deploy **не доказывают пригодность для пользователя**.
 
 Текущий scope: исправить запуск/камеры и упростить02–04, переиспользуя исходный
@@ -35,19 +37,22 @@ ROSMASTER teleop и frozen Station. Без новых research/hardening/tests s
 изменённых browser-contract source04 PASS. Frozen Station SHA
 `2d1915342cc96a9dd82b5364e24d083757c7beeaaeca7b0f77052c168f45a885` не менялся.
 
-Homebrain central/worker deployed **d798b97**, PIDs2965861/2965862; authenticated
-health и served static exact. Pi release d798 staged, но runtime остаётся53783ce:
-переключение намеренно ждёт USER-клик03, который закроет старый target epoch,
-чтобы не осиротить владельца Nano. Nano original controller не изменён. Обе SO-101
+Homebrain central/worker deployed **82d550f**; served static `no-store` exact.
+Pi runtime **d9015e0** активирован после очищенного target epoch, observer PID75510;
+idle/grantNone/0 configuration writes проверены. Nano original controller не изменён. Обе SO-101
 на Pi фактически доступны, exact calibration verified, ~29.93Hz, measurement age
 обычно<30ms, configuration writes0. Штатный gamepad Nano connected, DISARMED,
 ошибок нет, события свежие. Исходные6 controller configs/firmware/limits/
 watchdogs/feedbackOFF не менялись.
 
-Physical acceptance ещё OPEN: screenshot03 был сделан11:02 до central deploy11:06;
-USER должен reload страницы03 и одним кликом «Управлять» закрыть retained
-`CLUTCHED`, затем отключить управление. После этого переключить Pi d798 и выполнить
-наблюдаемые USER проверки03/04;02 повторно проверить keyboard/local gamepad.
+Фактический USER запуск04 после `16102f7` выдал grant, вошёл в teleoperation и
+отправлял команды всем6 осям; третий привод получил requested103.45 и штатно
+ограниченный dispatched100.0. Ошибок шины/hold не было. Через~1s grant истёк:
+publication gate сохранил `OBSERVED_NATIVE_PERMISSION_REVOKED_EXPIRED_OR_SOURCE_CHANGED`
+и Station вернулась idle. Исправление `82d550f` вынесло renewal в page-level
+scheduler100ms с клиентским шагом300ms, независимый от render; целевые JS тесты
+PASS, Homebrain deployed. Повторная USER проверка длительного управления и записи
+ещё OPEN; не считать первую короткую попытку принятой.
 
 Последний06 DATA checkpoint: recorder/review/import/dataset/model UI реализованы
 и deployed; actual software-generated whole-browser cycle прошёл.186 targeted
