@@ -448,7 +448,16 @@ class NativeTeleopMux:
 
     def stop(self, epoch):
         with self.teleop.lock:
-            self._check(epoch)
+            # A browser lease can expire after this mux retained its exact
+            # epoch. ManualTeleop then has no owner and has already cancelled
+            # the owned stream, but the old _check() rejected the user's
+            # explicit scoped STOP because the generation changed.  Allow the
+            # exact retained epoch to latch the original STOP when there is no
+            # newer owner; never let it stop a replacement keyboard/gamepad.
+            if (not self.active or epoch != self.epoch or
+                    self.teleop.owner is not None and
+                    (self.teleop.owner != 'keyboard' or self.generation != self.teleop.generation)):
+                raise ValueError('Old, stopped or preempted control epoch')
             self.active, self.state, self.latest = False, 'STOPPED', [0.] * 6
             self.intent_revision+=1
             return self.teleop.stop()

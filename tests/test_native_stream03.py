@@ -161,6 +161,23 @@ def test_global_stop_preemption_and_old_generations_cannot_restart_mirror():
     assert teleop.native_stop == 1
 
 
+def test_exact_scoped_stop_latches_after_owner_lease_expired_but_never_stops_replacement_owner():
+    mux,teleop,_,_,epoch,_ = setup_mux()
+    mux.resume(epoch,observing=True)
+    # ManualTeleop expiry/disconnect cancels its stream and clears the owner,
+    # while the native mux retains the exact epoch until its scoped STOP.
+    teleop.owner=None;teleop.generation+=1;teleop.inputs={}
+    result=mux.stop(epoch)
+    assert result['stop_latched'] is True and teleop.native_stop==1
+    assert mux.status()['active'] is False and mux.status()['state']=='STOPPED'
+
+    replacement,other,_,_,old_epoch,_=setup_mux()
+    other.owner='gamepad';other.generation+=1
+    with pytest.raises(ValueError,match='preempted'):
+        replacement.stop(old_epoch)
+    assert other.native_stop==0 and replacement.status()['active'] is True
+
+
 def test_out_of_order_samples_drop_without_fifo_or_lease_extension():
     mux,teleop,arm,_,epoch,_ = setup_mux()
     mux.resume(epoch,observing=True)
