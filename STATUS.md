@@ -22,7 +22,7 @@ MLflow SQLite/artifacts, реальные loop loss/LR/grad/throughput/resources
 
 ## Проверки
 
-- Полный набор до последнего улучшения artifact delivery: 35 passed; финальный прогон logs/final-tests.log.
+- Финальный полный набор: 35 passed за21.28s (logs/final-tests.log); отдельная проверка запрета inference checkpoint с0 updates пройдена.
 - 17 recorder/hardware tests, 11 SAM/geometry tests, 3 resource tests, 4 real tiny-SmolVLA tests.
 - Реальные HTTP+WebSocket: 51 сохраняется как 51, disconnect не останавливает запись, End/Re-record/Next/Stop, просмотр PNG; MLflow params/metric/artifact download+reload.
 - GPU job честно waiting_resources, Stop завершает очередь; аппаратный HTTP Start отказал busy до открытия; MLflow outage→spool→replay.
