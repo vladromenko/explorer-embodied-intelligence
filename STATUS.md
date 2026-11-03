@@ -15,6 +15,18 @@ ACT — настоящий установленный LeRobot ACT, offline ResNe
 
 HTTP: новая форма/catalog; неверные ACT/SmolVLA параметры422, synthetic production train422, соответствие DOM IDs проверено статически. Повторный реальный HTTP/WebSocket recorder smoke с End/Re-record/Next/Stop, MLflow artifact reload пройден; аварийный restart только собственного UI с synthetic записью — quarantine и без auto-resume. Browser inventory пуст, визуальный Safari тест по-прежнему остаётся. Документация: `docs/TRAINING_CONTROLS.md`, отчёты `validation/training-controls*.json`.
 
+## SO-101 Studio: исправление интерфейса и предпросмотра
+
+Обновлено 2026-11-03T21:06:42+03:00. Старый экран со служебным JSON заменён отдельными разделами: Запись / Датасеты / Обучение / Политика / Настройки. Основной экран светлый, камеры в центре, короткая форма новой записи рядом, понятные counters/elapsed/state и STOP. На узких окнах Mac боковая навигация компактная, форма перемещается под камеры. JSON оставлен только в закрытой диагностике.
+
+Причина пользовательского скриншота: старый select автоматически выбирал первый (мой технический) датасет, поэтому Start запускал synthetic_test с нарисованным кубиком. Исправлено: обычный выбор начинается с «Новый датасет», technical/synthetic данные и checkpoints скрыты; явное включение возможно только в настройках разработчика. Ничего не удалено; мой hardware preflight помечен purpose=technical_test. Новая запись по умолчанию только hardware.
+
+Добавлен отдельный явный camera-only preview: кнопка «Подключить камеры» открывает только камеры, не servo bus и не torque. До неё карточки сразу показывают доступность/занятость. Общий hardware lease с записью/inference; перед началом аппаратной записи собственный preview закрывается. В паузе между эпизодами показывается текущий кадр камеры, а не последняя сохранённая картинка. Неактивная сессия больше не отдаёт старый synthetic frame через live endpoint. При потере камеры видны placeholder и переподключение. Зависший reader не освобождает lease для параллельного открытия.
+
+Проверено: 8 DOM-сценариев (linkedom; не настоящий браузер), 26 Python/API/recording tests. Начальный выбор, скрытие тестов, busy state до Start, отсутствие auto acquisition, отдельный preview без record/start, count51, разделы, ACT submission/выборки, stale synthetic refusal, partial close/locks и live кадр в inter-episode pause. Все тесты camera acquisition используют fixtures. JS/compileall/diff checks пройдены. Сервис обновлён и отвечает; на startup камеры/моторы не открывались. Отчёт validation/ui-redesign.json.
+
+Обе настоящие камеры всё ещё заняты процессом параллельного эксперимента. Мы не перехватываем их и не останавливаем владельца. Визуальная проверка реального Safari недоступна: browser/app inventory пуст. Пользователю открыть тот же URL и обновить страницу ⌘R. Физический camera preview и запись остаются явным действием оператора после освобождения устройств.
+
 ## Открыть
 
 - UI LAN http://192.168.0.168:8020 · Tailscale http://100.95.83.3:8020

@@ -1,0 +1,1 @@
+{"name":"so101-studio-ui-tests","private":true,"scripts":{"test":"node --test tests/ui/*.test.cjs"},"devDependencies":{"linkedom":"0.18.12"}}

@@ -13,3 +13,5 @@ codex-events.jsonl
 codex-stderr.log
 *.db
 *.db-*
+
+node_modules/

@@ -1,0 +1,20 @@
+{
+  "ui_version": "studio-5",
+  "tests_ui": "\n> test\n> node --test tests/ui/*.test.cjs\n\n✔ ordinary library excludes synthetic and preflight; selector never chooses first dataset (77.905804ms)\n✔ busy cameras explain unavailability before any start and disable physical controls (26.928221ms)\n✔ explicit camera preview uses preview endpoint only, without starting teleoperation (33.005852ms)\n✔ new real dataset is explicitly created before recording, count 51 preserved (36.373464ms)\n✔ synthetic selection requires explicit developer setting (36.731909ms)\n✔ navigation separates training from recording and starts on recording (21.707805ms)\n✔ recording state formatter never exposes protocol JSON (0.634071ms)\n✔ ACT training form submits chosen policy and split, no raw JSON preview (62.005892ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 487.904505\n",
+  "tests_api": "..........................                                               [100%]\n26 passed in 1.79s\n",
+  "hardware_opened": false,
+  "torque_commands_sent": false,
+  "camera_owners": [
+    {
+      "pid": 1362032,
+      "name": "so101-pick-plac",
+      "devices": [
+        "/dev/video0",
+        "/dev/video2"
+      ]
+    }
+  ],
+  "inactive_frame_endpoint": 404,
+  "real_visual_browser_check": "unavailable: connected browser inventory is empty",
+  "note": "DOM tests use linkedom; preview API tests use camera fixtures, never real hardware"
+}

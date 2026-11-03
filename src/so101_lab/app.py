@@ -8,14 +8,20 @@ from .resources import ROOT,snapshot
 from . import jobs
 
 manager=None
+camera_preview=None
 @asynccontextmanager
 async def lifespan(app):
-    global manager
+    global manager,camera_preview
     from .recording import RecordingManager
     manager=RecordingManager(root=ROOT)
+    from .preview import CameraPreview
+    camera_preview=CameraPreview()
     yield
     try: manager.command('stop')
     except Exception: pass
+    if camera_preview:
+        try:camera_preview.stop()
+        except Exception:pass
 app=FastAPI(title='SO-101 Learning Lab',lifespan=lifespan)
 @app.middleware('http')
 async def origin_guard(request,call_next):
@@ -25,7 +31,7 @@ async def origin_guard(request,call_next):
         if origin and urlparse(origin).netloc!=request.headers.get('host'):return Response('Cross origin write rejected',403)
     return await call_next(request)
 def status():
-    return {'resources':snapshot(),'recording':manager.status() if manager else {},'jobs':jobs.list_jobs(),'datasets':manager.list_datasets() if manager else [],'checkpoints':[str((p.parent/'pretrained_model/config.json').relative_to(ROOT)) for p in (ROOT/'models').rglob('checkpoint.json') if (p.parent/'pretrained_model/config.json').is_file()],'policy_ready':False}
+    return {'resources':snapshot(),'recording':manager.status() if manager else {},'jobs':jobs.list_jobs(),'datasets':manager.list_datasets() if manager else [],'checkpoints':[str((p.parent/'pretrained_model/config.json').relative_to(ROOT)) for p in (ROOT/'models').rglob('checkpoint.json') if (p.parent/'pretrained_model/config.json').is_file()],'policy_ready':False,'preview':camera_preview.status() if camera_preview else {'active':False}}
 @app.get('/api/status')
 def api_status():return status()
 @app.post('/api/datasets')
@@ -35,7 +41,20 @@ async def create(request:Request):
 @app.post('/api/record/start')
 async def start(request:Request):
     data=await request.json()
-    try:return manager.start(data.pop('dataset_id'),explicit_user_start=True,**{k:v for k,v in data.items() if k!='explicit_user_start'})
+    try:
+        did=data.pop('dataset_id')
+        if manager.dataset_info(did)['source']=='hardware' and camera_preview:camera_preview.stop()
+        return manager.start(did,explicit_user_start=True,**{k:v for k,v in data.items() if k!='explicit_user_start'})
+    except Exception as e:raise HTTPException(409,str(e))
+
+@app.post('/api/preview/{action}')
+def preview_action(action:str):
+    if camera_preview is None:raise HTTPException(503,'Предпросмотр ещё запускается')
+    try:
+        if action=='stop':return camera_preview.stop()
+        if action!='start':raise ValueError('Неизвестная команда камер')
+        if manager.status().get('active'):raise ValueError('Камеры уже используются записью; предпросмотр идёт из неё')
+        return camera_preview.start(explicit_user_start=True)
     except Exception as e:raise HTTPException(409,str(e))
 @app.post('/api/record/{action}')
 def record_action(action:str):
@@ -43,9 +62,29 @@ def record_action(action:str):
     except Exception as e:raise HTTPException(409,str(e))
 @app.get('/api/frame/{camera}')
 def frame(camera:str):
-    data=manager.latest_frame(camera)
-    if data is None:raise HTTPException(404,'Камера не открыта; предпросмотр только во время запущенной сессии')
-    return Response(data,media_type='image/png',headers={'Cache-Control':'no-store'})
+    if camera not in ('top','wrist'):raise HTTPException(404)
+    try:
+        # Never present an old synthetic recording frame as a real live camera.
+        recording=manager.status()
+        data=None
+        if recording.get('active'):
+            # During the inter-episode pause keep the actual live view, not the last saved frame.
+            source=getattr(manager,'source',None)
+            cameras=getattr(source,'cameras',{})
+            cam=cameras.get(camera)
+            if cam is not None:
+                captured=cam.latest_before(time.monotonic_ns())
+                if captured is not None and time.monotonic_ns()-captured['timestamp_ns']<1_000_000_000:
+                    import io
+                    from PIL import Image
+                    encoded=io.BytesIO();Image.fromarray(captured['image']).save(encoded,format='JPEG',quality=78);data=encoded.getvalue()
+            else:data=manager.latest_frame(camera)
+        if data is None and camera_preview:data=camera_preview.latest_frame(camera)
+        if data is None:raise HTTPException(404,'Камеры не подключены. Нажмите «Подключить камеры»; моторы не включаются')
+        media='image/png' if data.startswith(b'\x89PNG') else 'image/jpeg'
+        return Response(data,media_type=media,headers={'Cache-Control':'no-store'})
+    except HTTPException:raise
+    except Exception as e:raise HTTPException(503,str(e))
 @app.get('/api/files/{path:path}')
 def data_file(path:str):
     p=(ROOT/'data'/path).resolve()
@@ -132,5 +171,5 @@ async def websocket(ws:WebSocket):
         while True:await ws.send_json(status());await asyncio.sleep(2)
     except (WebSocketDisconnect,RuntimeError):pass
 @app.get('/')
-def index():return FileResponse(ROOT/'static/index.html')
+def index():return FileResponse(ROOT/'static/index.html',headers={'Cache-Control':'no-store'})
 app.mount('/static',StaticFiles(directory=ROOT/'static'),name='static')
