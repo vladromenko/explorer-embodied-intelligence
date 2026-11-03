@@ -4,6 +4,13 @@ from pathlib import Path
 import httpx,websockets
 from so101_lab.telemetry import DurableMLflow
 ROOT=Path(__file__).resolve().parents[1];c=httpx.Client(base_url='http://127.0.0.1:8020',timeout=10)
+# Startup readiness retries are read-only; never retry record/motion commands.
+for _ in range(30):
+    try:
+        if c.get('/api/status').status_code==200:break
+    except httpx.HTTPError:pass
+    time.sleep(.5)
+else:raise RuntimeError('UI startup readiness timeout')
 def post(p,d):
     r=c.post(p,json=d);r.raise_for_status();return r.json()
 r=post('/api/datasets',{'name':'Техническая проверка 51 — не демонстрации','task':'service smoke no hardware','source':'synthetic_test'});did=r['dataset_id']

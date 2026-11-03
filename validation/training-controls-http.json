@@ -1,0 +1,9 @@
+{
+  "act_invalid_parameters": 422,
+  "smolvla_invalid_parameters": 422,
+  "synthetic_production_train_refused": 422,
+  "training_catalog": "passed",
+  "form_static_id_consistency": "passed",
+  "recording_hardware_open": false,
+  "visual_browser_validation": "unavailable"
+}

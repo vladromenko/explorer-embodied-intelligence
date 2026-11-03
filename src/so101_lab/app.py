@@ -56,17 +56,56 @@ def episodes(dataset_id:str):
     p=(ROOT/'data'/dataset_id).resolve()
     if not p.is_relative_to((ROOT/'data').resolve()):raise HTTPException(400)
     return [{'id':f.parent.name,'metadata':json.loads(f.read_text()),'frames':[json.loads(x) for x in (f.parent/'frames.jsonl').read_text().splitlines()]} for f in p.glob('episodes/*/episode.json')]
+def dataset_path(dataset_id):
+    return manager._dataset_path(dataset_id)
+
+@app.get('/api/training/catalog/{dataset_id}')
+def training_catalog(dataset_id:str):
+    from .training_options import catalog
+    try:
+        meta,episodes=catalog(dataset_path(dataset_id))
+        return {'source':meta.get('source'),'episodes':episodes}
+    except (ValueError,FileNotFoundError) as e:raise HTTPException(422,str(e))
+
+@app.post('/api/training/preview')
+async def training_preview(request:Request):
+    from .training_options import preview
+    from starlette.concurrency import run_in_threadpool
+    try:
+        d=await request.json()
+        return await run_in_threadpool(preview,dataset_path(d['dataset_id']),d.get('options',{}))
+    except (ValueError,FileNotFoundError,KeyError,TypeError) as e:raise HTTPException(422,str(e))
+
 @app.post('/api/jobs')
 async def submit(request:Request):
-    d=await request.json();p=(ROOT/'data'/d['dataset_id']).resolve()
-    if not p.is_relative_to((ROOT/'data').resolve()) or not (p/'dataset.json').exists():raise HTTPException(400,'Unknown dataset')
-    if d['kind'] not in ('train','annotate'):raise HTTPException(400)
-    return jobs.submit(d['kind'],p,d.get('options',{}))
+    from .training_options import preview
+    from starlette.concurrency import run_in_threadpool
+    try:
+        d=await request.json();p=dataset_path(d['dataset_id']);kind=d['kind'];opts=d.get('options',{})
+        if kind not in ('train','annotate'):raise ValueError('Неизвестный тип задачи')
+        if kind=='train':
+            if manager.status().get('active') and manager.status().get('dataset_id')==d['dataset_id']:raise ValueError('Сначала завершите запись выбранного датасета')
+            check=await run_in_threadpool(preview,p,opts)
+            opts=check['options'];opts['expected_split_sha256']=check['split']['sha256']
+            return jobs.submit(kind,p,opts)
+        # No train-only/technical options reach annotation model constructors.
+        from .annotations import SAM3Segmenter
+        allowed={'device','prompts','confidence_threshold'}
+        if set(opts)-allowed:raise ValueError('Неизвестные параметры SAM')
+        if opts.get('device','cuda') not in ('cpu','cuda'):raise ValueError('Device должен быть cpu или cuda')
+        if 'prompts' in opts and not isinstance(opts['prompts'],dict):raise ValueError('Подсказки SAM должны быть словарём cube/box')
+        import math
+        if not math.isfinite(float(opts.get('confidence_threshold',.5))):raise ValueError('SAM threshold должен быть конечным')
+        SAM3Segmenter(opts)  # validates only; no model load
+        return jobs.submit(kind,p,opts)
+    except (ValueError,FileNotFoundError,KeyError,TypeError) as e:raise HTTPException(422,str(e))
 @app.post('/api/jobs/{jid}/{action}')
 def job_command(jid:str,action:str):
     if len(jid)!=32 or not jid.isalnum():raise HTTPException(400)
-    if action=='stop':jobs.stop(jid);return {'requested':'stop'}
-    if action=='resume':return jobs.resume(jid)
+    try:
+        if action=='stop':jobs.stop(jid);return {'requested':'stop'}
+        if action=='resume':return jobs.resume(jid)
+    except (ValueError,FileNotFoundError) as e:raise HTTPException(422,str(e))
     raise HTTPException(400)
 @app.post('/api/policy/{action}')
 async def policy_action(action:str,request:Request):

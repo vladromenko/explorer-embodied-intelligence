@@ -38,7 +38,9 @@ class LoadedPolicy:
             image = np.asarray(images[cam])
             if image.ndim != 3 or image.shape[2] != 3 or image.dtype != np.uint8:
                 raise ValueError("Inference requires original uint8 RGB HWC input")
-            batch[f"observation.images.{cam}"] = torch.from_numpy(image.copy()).permute(2, 0, 1).float()/255
+            from .policies import image_tensor
+            size=self.policy.config.input_features[f"observation.images.{cam}"].shape[-1] if self.policy.name=="act" else None
+            batch[f"observation.images.{cam}"] = image_tensor(image,size=size)
         return self.preprocessor(batch)
 
     def predict(self, frame, images, annotation=None, task="", *, noise=None, allow_test=False):
@@ -48,7 +50,7 @@ class LoadedPolicy:
         prepared = self.prepare_observation(frame, images, annotation, task, allow_test=allow_test)
         with torch.inference_mode():
             self.policy.reset()  # queue never carries stale actions across fresh observations
-            normalized = self.policy.select_action(prepared, noise=noise)
+            normalized = self.policy.select_action(prepared) if self.policy.name=="act" else self.policy.select_action(prepared, noise=noise)
             action = self.postprocessor(normalized).detach().cpu()
         if action.shape != (1, 6) or not torch.isfinite(action).all():
             raise RuntimeError("Policy returned nonfinite/invalid action")
@@ -84,20 +86,19 @@ def load_checkpoint(path: Path, device="cpu", *, allow_technical=False, resource
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
     os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
-    from lerobot.policies.smolvla.configuration_smolvla import SmolVLAConfig
-    from lerobot.policies.smolvla.modeling_smolvla import SmolVLAPolicy
+    from .policies import components
     from lerobot.processor import PolicyProcessorPipeline
     from lerobot.processor.converters import policy_action_to_transition, transition_to_policy_action
-    cfg = SmolVLAConfig.from_pretrained(folder, local_files_only=True)
-    cfg.device = device
-    cfg.vlm_model_name = str(folder / "backbone")  # supports relocation of full folder
-    cfg.load_vlm_weights = False
-    cfg.rtc_config = None
-    cfg.n_action_steps = 1
-    policy = SmolVLAPolicy.from_pretrained(folder, config=cfg, local_files_only=True, strict=True)
-    pre = PolicyProcessorPipeline.from_pretrained(folder, config_filename="policy_preprocessor.json", local_files_only=True,
-          overrides={"device_processor": {"device": device},
-                     "tokenizer_processor": {"tokenizer_name": str(folder / "backbone")}})
+    kind=json.loads((folder/'config.json').read_text()).get('type','smolvla')
+    Config,Policy,_=components(kind)
+    cfg=Config.from_pretrained(folder,local_files_only=True);cfg.device=device;cfg.n_action_steps=1
+    overrides={'device_processor':{'device':device}}
+    if kind=='smolvla':
+        cfg.vlm_model_name=str(folder/'backbone');cfg.load_vlm_weights=False;cfg.rtc_config=None
+        overrides['tokenizer_processor']={'tokenizer_name':str(folder/'backbone')}
+    else:cfg.pretrained_backbone_weights=None
+    policy=Policy.from_pretrained(folder,config=cfg,local_files_only=True,strict=True)
+    pre=PolicyProcessorPipeline.from_pretrained(folder,config_filename='policy_preprocessor.json',local_files_only=True,overrides=overrides)
     post = PolicyProcessorPipeline.from_pretrained(folder, config_filename="policy_postprocessor.json", local_files_only=True,
              to_transition=policy_action_to_transition, to_output=transition_to_policy_action)
     policy.eval()

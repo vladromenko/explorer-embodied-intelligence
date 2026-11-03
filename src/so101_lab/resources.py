@@ -68,3 +68,8 @@ class ResourceLease:
         self.file.seek(0); self.file.truncate(); self.file.write(str(os.getpid())); self.file.flush(); return self
     def __exit__(self,*args):
         if self.file: fcntl.flock(self.file,fcntl.LOCK_UN); self.file.close(); self.file=None
+
+
+def dataset_lease(path):
+    import hashlib
+    return ResourceLease('dataset-'+hashlib.sha256(str(Path(path).resolve()).encode()).hexdigest()[:24])

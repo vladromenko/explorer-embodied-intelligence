@@ -2,6 +2,19 @@
 
 2026-11-03, homebrain. Программный этап реализован; новая физическая политика ещё не обучена и захват не проверен.
 
+
+## Обновление: параметры обучения и ACT (2026-11-03)
+
+Этап3 UI расширен: выбор SmolVLA/ACT, имя запуска, batch/steps/LR/Adam/AdamW/weight decay/clip/scheduler/warmup/AMP/gradient accumulation/DataLoader workers, интервалы метрик/validation/checkpoints, image/chunk, ACT KL/backbone LR, Smol denoising, augmentation, target/color, resume. Форма хранит настройки локально; сервер сохраняет реальные параметры в job/lineage/MLflow.
+
+Train/validation/test — автоматические доли или ручное назначение включённых эпизодов, разделение сессиями/эпизодами, seed, просмотр фактического состава перед очередью. Validation оценивается целиком, test только в конце; stats и аугментации используют train. Исключённый эпизод без SAM не блокирует обучение на выбранных размеченных эпизодах. Неверные параметры/пересечение выборок/несовместимый тип Resume возвращают ошибку до worker/model load. Запись и train одного датасета защищены общей lease; вторую копию активного train через Resume запустить нельзя.
+
+ACT — настоящий установленный LeRobot ACT, offline ResNet18 с нуля, без language input. Поддерживается тот же SAM state adapter и отдельный RGB+state baseline. Политика checkpoint загружается по config.type, preprocessing соответствует train. Общий детерминированный ACT letterbox. SmolVLA сохраняет cached pretrained и свой preprocessing. Checkpoint содержит GradScaler и полный training state; файлы fsync перед atomic finalize.
+
+Результаты: полный прогон 56 passed за51.59s (`logs/controls-release-suite.log`); после дополнительной проверки Resume — 17 passed/2 deselected в целевом preflight/API наборе (`logs/preflight-release-check.log`). Реальный ACT tiny CPU forward/backward loss21.15685, terminal test loss6.28071, state projection update0.00014894, save/reload/resume2→3. Технический checkpoint `models/technical_act_controls_20261103/checkpoints/step_00000002` явно запрещён для физического inference. SmolVLA tiny regression тоже проходит. Ни GPU train, ни настоящее SAM, ни аппаратные движения этими тестами не доказываются.
+
+HTTP: новая форма/catalog; неверные ACT/SmolVLA параметры422, synthetic production train422, соответствие DOM IDs проверено статически. Повторный реальный HTTP/WebSocket recorder smoke с End/Re-record/Next/Stop, MLflow artifact reload пройден; аварийный restart только собственного UI с synthetic записью — quarantine и без auto-resume. Browser inventory пуст, визуальный Safari тест по-прежнему остаётся. Документация: `docs/TRAINING_CONTROLS.md`, отчёты `validation/training-controls*.json`.
+
 ## Открыть
 
 - UI LAN http://192.168.0.168:8020 · Tailscale http://100.95.83.3:8020

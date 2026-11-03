@@ -11,6 +11,11 @@ def main():
         atomic(p,obj)
     lease=None
     try:
+        if obj['kind']=='train':
+            update(state='running',message='Проверка raw, аннотаций и выборок (CPU)')
+            from .training_options import preview
+            check=preview(Path(obj['dataset']),options,public=False)
+            if options.get('expected_split_sha256') and check['split']['sha256']!=options['expected_split_sha256']:raise ValueError('Выборки изменились после отправки, повторите проверку')
         while not stopped():
             try:
                 assert_compute_available(options.get('device','cuda'),minimum_available_gb=options.get('minimum_available_gb',7))

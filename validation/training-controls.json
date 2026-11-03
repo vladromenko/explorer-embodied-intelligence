@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-03",
+  "scope": "ACT/SmolVLA training controls",
+  "full_suite": "56 passed in 51.59s",
+  "additional_preflight_tests": ".................                                                        [100%]\n17 passed, 2 deselected in 3.49s",
+  "act": {
+    "real_cpu_forward_backward": true,
+    "loss": 21.156851768493652,
+    "test_loss": 6.280711491902669,
+    "state_projection_update_max_abs": 0.00014893710613250732,
+    "checkpoint": "/home/jetsonnx/Projects/so101_ai_learning/models/technical_act_controls_20261103/checkpoints/step_00000002",
+    "source": "synthetic_test",
+    "physical_policy_ready": false
+  },
+  "verified": [
+    "both policy factories and config-driven reload",
+    "ACT SAM state adapter affects actual projection",
+    "optimizer/scheduler/scaler checkpoint resume",
+    "three-way split and train-only stats",
+    "manual split session/episode leakage rejection",
+    "gradient accumulation and spawn DataLoader worker",
+    "invalid API request does not create worker",
+    "same dataset recording/training lock",
+    "HTTP/WebSocket synthetic recording and MLflow artifact reload",
+    "synthetic UI abrupt restart quarantine"
+  ],
+  "remaining": [
+    "operator hardware recording",
+    "actual GPU SAM/pretrained smoke when resources free",
+    "visual Safari test (no browser available)"
+  ]
+}

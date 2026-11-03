@@ -298,6 +298,8 @@ class RecordingManager:
                     return self.command('next')
                 raise RuntimeError('Уже есть активная запись; сначала Stop')
             path = self._dataset_path(dataset_id)
+            from .resources import dataset_lease
+            with dataset_lease(path):pass  # fail before opening hardware if training holds the data
             dataset = json.loads((path/'dataset.json').read_text())
             cfg = {**dataset.get('settings',{}),**settings}
             cfg['episode_count'] = integer(cfg.get('episode_count',1),'Число эпизодов',1,10000)
@@ -384,10 +386,14 @@ class RecordingManager:
         last_complete = None
         completed = 0
         final_state = 'stopped'
+        from .resources import dataset_lease
+        data_lease=dataset_lease(path)
+        data_acquired=False
         recording_lease = ResourceLease('recording')
         lease_acquired = False
         try:
             recording_lease.__enter__(); lease_acquired=True
+            data_lease.__enter__();data_acquired=True
             provenance = self.source.start(explicit_user_start=bool(cfg.get('explicit_user_start')))
             self._version(path,session_id,provenance=provenance)
             self._update(hardware_open=dataset['source']=='hardware',provenance=provenance)
@@ -477,6 +483,7 @@ class RecordingManager:
             except Exception as exc:
                 stop_errors = [f'source close failed: {type(exc).__name__}: {exc}']
                 final_state = 'failed'
+            if data_acquired:data_lease.__exit__(None,None,None)
             if lease_acquired: recording_lease.__exit__(None,None,None)
             self.writer = None
             self._update(state=final_state,active=False,hardware_open=False,completed_in_session=completed,
