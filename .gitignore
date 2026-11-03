@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.egg-info/
+data/
+models/
+logs/
+runtime/
+cache/
+vendor/
+!vendor/README.md
+codex-events.jsonl
+codex-stderr.log
+*.db
+*.db-*
