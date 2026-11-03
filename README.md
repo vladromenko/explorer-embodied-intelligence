@@ -1,0 +1,47 @@
+# SO-101 — обучение SmolVLA + SAM 3 + MLflow
+
+Самостоятельная лаборатория на homebrain. Исходники, среда, данные, модели и БД расположены только в `/home/jetsonnx/Projects/so101_ai_learning`. Внешние проекты используются только как read-only источник сведений/независимых снимков. Их программы, службы, камеры, VPN и калибровки не меняются.
+
+## Открыть с Mac
+
+- LAN: http://192.168.0.168:8020
+- Tailscale: http://100.95.83.3:8020
+- MLflow: http://192.168.0.168:5020 или http://100.95.83.3:5020
+
+UI получает изображения от сервера, не использует getUserMedia/mediaDevices. HTTP не требует secure context для камер браузера. WebSocket использует текущий host/protocol и переподключается, также есть HTTP polling. Safari на реальном Mac пока не проверен: в сессии нет доступного браузера. Доступ с внешнего Mac требует того же LAN или действующего Tailscale. Авторизация/VPN не менялись.
+
+## Один контрольный эпизод
+
+1. Убедиться, что оператор рядом с роботом, рабочая зона свободна, руки поддержаны при снятии torque. Проверить независимый снимок калибровки и аппаратный STOP. Другой эксперимент должен самостоятельно освободить камеры и обе шины: лаборатория не останавливает его.
+2. В UI указать новое имя и текст задачи. Источник «SO-101 + две USB-камеры». Создать датасет. Выбрать 1 эпизод, например 30 секунд.
+3. Нажать «Начать запись / телеоперацию». Только это действие разрешает открытие аппаратуры и torque. При конфликте UI объяснит отказ. Двигать leader; следить за follower, двумя кадрами и состоянием записи.
+4. End сохраняет эпизод, STOP завершает сессию и пытается снять torque один раз. Re-record сохраняет заменённый материал в quarantine. «Следующий / добавить» добавляет эпизод; старые чужие данные не включаются.
+5. Обновить список сохранённых эпизодов и просмотреть обе камеры. Проверить кадры, joints, actions и timestamps. Это первая физическая проверка, ещё не выполненная автоматически.
+6. Для обучения собрать минимум два целых эпизода, лучше независимые сессии. Нажать «Разметить SAM 3», дождаться готовности, затем «Обучить SmolVLA». При занятости памяти задача ожидает. Baseline RGB+state выбирается отдельно. Wrist-only экспериментален, stock SmolVLA не имеет заявленной памяти обзора.
+7. После обучения выбрать checkpoint, проверить загрузку без движения. Физический запуск политики — отдельная явная кнопка; при занятых ресурсах он отказывает сразу. Для безопасного запуска нужен оператор. Tiny test checkpoints запрещены для робота.
+
+Для проверки интерфейса без робота выбрать источник «Тест интерфейса». Эти записи явно synthetic_test, измерения и actions не считаются реальными; обычное обучение их отвергает.
+
+## Файлы и процессы
+
+- `data/ds_<id>/dataset.json`: произвольное исходное имя, task, source, calibration provenance.
+- `data/ds_<id>/episodes/<id>/`: lossless RGB PNG top/wrist и `frames.jsonl` с monotonic timestamps/sha256/validity/действительно переданными квантованными targets. Это собственный raw-формат, не заявляется штатным LeRobot v3 export.
+- `data/ds_<id>/quarantine/`: неполные/заменённые записи. Сбой и перезапуск не превращают их в валидные демонстрации.
+- `annotations/sam3-v1/`: точные frame/timestamp/hash, PNG masks и причинный heuristic tracking. XYZ/depth/размеры unknown без действительной геометрии.
+- `models/<job-id>/checkpoints/step_*/`: полный `pretrained_model` (weights/config/processors/tokenizer assets/object_adapter/lineage) и optimizer/scheduler/RNG training_state. Для переноса копировать всю папку шага.
+- `runtime/jobs/`, `runtime/recording.json`, `runtime/mlflow.db`, `runtime/mlflow-spool/`; `data/mlflow-artifacts/`; `logs/job-*.log`.
+- Службы `so101-ai-learning-ui`, `so101-ai-learning-mlflow`, timer `so101-ai-learning-mlflow-replay`. Собственные unit-файлы лежат в `config/systemd`, стандартные user-systemd ссылки указывают на них. Старт сервера не открывает аппаратуру. Worker subprocess не зависит от вкладки; после аварии не возобновляет движение сам.
+
+`systemctl --user status so101-ai-learning-ui so101-ai-learning-mlflow`
+
+`journalctl --user -u so101-ai-learning-ui -n 50`
+
+## Зависимости и воспроизводимость
+
+Python3.12, Torch2.11.0+cu130, torchvision0.26+cu130, LeRobot0.6.1, Transformers5.5.4. Среда получена независимым файловым снимком установленных пакетов без foreign .pth/editable/finders/symlinks; `config/environment-snapshot.json` содержит происхождение/hash metadata. Добавленные зависимости и итоговые версии закреплены `config/requirements.lock.txt`. Модельный HF cache используется только read-only/offline; аккаунты W&B/HF для локальной записи/обучения не требуются.
+
+SAM3 pinned `f1647e8d0c1d280991f4d1b7d974c2704537fe66`. Единственная локальная правка upstream — NumPy dependency metadata: SAM заявляет `<2`, LeRobot требует `>=2`. Выбрано NumPy2.2.6; импорт model_builder/processor и немодельные маски/цвет проверены. Настоящий SAM GPU forward ещё требует проверки. Происхождение и hash правки: `config/sam3-provenance.json`. Код SAM установлен своей копией в .venv. Официальные источники: https://github.com/facebookresearch/sam3 ; https://huggingface.co/docs/lerobot/smolvla ; https://mlflow.org/docs/latest/self-hosting/architecture/tracking-server/ .
+
+## Что доказано и что осталось
+
+Актуальные результаты в `STATUS.md`, `validation/` и логах. Синтетические тесты проверяют программу, не способность робота захватывать. Текущая установка камер, top geometry и wrist hand-eye не объявлены валидными. Требуются реальная запись с оператором, USB/frequency/STOP-проверка, настоящий SAM forward на записанных изображениях, full pretrained GPU smoke при свободной памяти, затем независимая оценка политики на новых физических демонстрациях. Чужой эксперимент не прерывается. Совместная SAM+SmolVLA inference может не поместиться в 16GB; guard честно откажет вместо подмены политики.

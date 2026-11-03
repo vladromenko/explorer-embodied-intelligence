@@ -1,0 +1,31 @@
+{
+  "timestamp_ns": 67923673923281,
+  "memory_available_bytes": 3758608384,
+  "memory_total_bytes": 16291921920,
+  "disk_free_bytes": 131338964992,
+  "hardware_owners": [
+    {
+      "pid": 1025988,
+      "name": "so101-pick-plac",
+      "devices": [
+        "/dev/video0",
+        "/dev/video2"
+      ]
+    }
+  ],
+  "compute_conflicts": [
+    {
+      "pid": 75501,
+      "name": "lelab",
+      "rss_bytes": 604991488,
+      "reason": "foreign high-memory process; unified GPU/RAM conflict"
+    },
+    {
+      "pid": 1025988,
+      "name": "so101-pick-plac",
+      "rss_bytes": 8170758144,
+      "reason": "foreign high-memory process; unified GPU/RAM conflict"
+    }
+  ],
+  "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+}

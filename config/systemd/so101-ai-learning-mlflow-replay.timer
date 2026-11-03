@@ -1,0 +1,7 @@
+[Unit]
+Description=Retry SO101 MLflow delivery every minute
+[Timer]
+OnBootSec=60
+OnUnitActiveSec=60
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,7 @@
+{
+  "upstream": "https://github.com/facebookresearch/sam3",
+  "commit": "f1647e8d0c1d280991f4d1b7d974c2704537fe66",
+  "snapshot_method": "independent copy of clean verified pinned official source",
+  "local_patch": "pyproject.toml numpy constraint changed >=1.26,<2 to >=2.0,<2.3 for LeRobot; imports+mask/color tests pass, GPU inference pending",
+  "pyproject_sha256": "7d9dc6ab8dada6d832f0bf4fc6f3cabf32ab94a39adb469d85809a640af0c90e"
+}

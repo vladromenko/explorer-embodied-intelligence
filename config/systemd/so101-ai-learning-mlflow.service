@@ -1,0 +1,11 @@
+[Unit]
+Description=Independent SO101 MLflow SQLite/artifact server
+After=network.target
+[Service]
+WorkingDirectory=/home/jetsonnx/Projects/so101_ai_learning
+ExecStart=/home/jetsonnx/Projects/so101_ai_learning/.venv/bin/python -m mlflow server --host 0.0.0.0 --port 5020 --workers 1 --backend-store-uri sqlite:////home/jetsonnx/Projects/so101_ai_learning/runtime/mlflow.db --artifacts-destination /home/jetsonnx/Projects/so101_ai_learning/data/mlflow-artifacts --allowed-hosts localhost:*,127.0.0.1:*,192.168.0.168:*,100.95.83.3:*,homebrain:*
+Environment=OMP_NUM_THREADS=1
+Restart=on-failure
+RestartSec=5
+[Install]
+WantedBy=default.target

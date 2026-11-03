@@ -1,0 +1,8 @@
+[Unit]
+Description=Replay SO101 durable MLflow spool
+[Service]
+Type=oneshot
+WorkingDirectory=/home/jetsonnx/Projects/so101_ai_learning
+ExecStart=/home/jetsonnx/Projects/so101_ai_learning/.venv/bin/python scripts/replay_mlflow.py
+Environment=MLFLOW_HTTP_REQUEST_TIMEOUT=3
+Environment=MLFLOW_HTTP_REQUEST_MAX_RETRIES=0

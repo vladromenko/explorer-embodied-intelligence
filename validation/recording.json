@@ -1,0 +1,14 @@
+{
+  "component": "recording/hardware",
+  "status": "software_checks_passed",
+  "tests": 17,
+  "command": "PYTHONPATH=src .venv/bin/python -m pytest -q tests/test_recording.py tests/test_recording_hardware.py",
+  "hardware_opened": false,
+  "torque_commands_sent": false,
+  "remaining": [
+    "operator controlled hardware episode when cameras/bus free",
+    "live calibration readback",
+    "real control rate, camera age/drops, hardware emergency stop"
+  ],
+  "updated_at": "2026-11-03T11:27:35.575359+00:00"
+}

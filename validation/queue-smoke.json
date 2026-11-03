@@ -1,0 +1,7 @@
+{
+  "queue_wait_stop": "passed",
+  "hardware_busy_api_refusal_before_open": "passed",
+  "mlflow_outage_replay": "passed",
+  "run_id": "51032d6267f4477fbab44bd422249401",
+  "physical_actions": false
+}

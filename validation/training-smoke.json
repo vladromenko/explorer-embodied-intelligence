@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-03",
+  "test_command": "PYTHONPATH=src .venv/bin/python -m pytest -q tests/test_training.py --basetemp=runtime/training-tests-final",
+  "result": "4 passed in 20.87s (final float32 CPU backbone; no warnings)",
+  "backend": "actual LeRobot0.6.1 SmolVLA flow-matching; reduced random CPU architecture; synthetic images and mask fixture; no hardware/SAM GPU evidence",
+  "gpu_used": false,
+  "hardware_used": false,
+  "raw_source": "synthetic_test",
+  "annotation_backend": "technical_test",
+  "real_sam_segmentation_verified": false,
+  "pretrained_gpu_training_verified": false,
+  "production_policy_trained": false,
+  "checkpoint": "/home/jetsonnx/Projects/so101_ai_learning/models/technical_smoke_cpu_float32_20261103/checkpoints/step_00000002",
+  "loss": 2.3305275440216064,
+  "state_projection_update_max_abs": 0.00015000998973846436,
+  "verified": [
+    "raw->lossless annotation fixture->32D state adapter->real forward/backward finite loss->optimizer update",
+    "complete checkpoint saved with config/processors/backbone assets/optimizer/scheduler/RNG",
+    "strict reload+fixed-noise inference repeat equality",
+    "object feature perturbation changes real state projection and fixed-noise forward loss",
+    "future time/hash misalignment rejected; action/success/done/track-ID perturbation does not enter observation",
+    "whole-session split and train-only normalization",
+    "resume from step2->step3"
+  ],
+  "physical_remaining": [
+    "new hardware demonstrations",
+    "real SAM3 segmentation GPU smoke when foreign GPU process releases resources",
+    "full cached pretrained SmolVLA GPU update and reload",
+    "physical inference with operator and latency/staleness checks"
+  ],
+  "mlflow_run_id": "4af61e533c514b838efaade536ffbf34",
+  "previous_checkpoints_retained": true
+}
