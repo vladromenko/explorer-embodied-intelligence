@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "hardware_opened": false,
+  "raw_recording_completed_during_outage": true,
+  "pending_before_restore": 7,
+  "pending_after_restore": 0,
+  "same_tracking_URI_restored_by_local_proxy": true,
+  "real_MLflow_run_id": "fbd43f09221a40d7839d05c4a51854a7",
+  "run_status": "FINISHED",
+  "metric_points": 3,
+  "artifact_readback_matches": true,
+  "dataset": "/home/jetsonnx/Projects/so101_ai_learning/runtime/recording-outage-1794008990625821948/data/ds_811e65052c1f4d67"
+}

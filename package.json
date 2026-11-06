@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "test": "node --test tests/ui/*.test.cjs",
-    "test:browser": "PLAYWRIGHT_BROWSERS_PATH=./cache/playwright LD_LIBRARY_PATH=./cache/browser-libs/extracted/usr/lib/aarch64-linux-gnu node scripts/browser_acceptance.cjs"
+    "test:browser": "PLAYWRIGHT_BROWSERS_PATH=./cache/playwright LD_LIBRARY_PATH=./cache/browser-libs/extracted/usr/lib/aarch64-linux-gnu node scripts/browser_acceptance.cjs",
+    "test:recording-browser": "PLAYWRIGHT_BROWSERS_PATH=./cache/playwright LD_LIBRARY_PATH=./cache/browser-libs/extracted/usr/lib/aarch64-linux-gnu node scripts/recording_browser_acceptance.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",

@@ -366,6 +366,7 @@ class SAM3Segmenter:
         checkpoint = _find_checkpoint(self.options.get("checkpoint_path"))
         configuration_hash = self.configuration_hash()
         import torch
+        torch.set_num_threads(2)
         import sam3
         from sam3.model_builder import build_sam3_image_model
         from sam3.model.sam3_image_processor import Sam3Processor

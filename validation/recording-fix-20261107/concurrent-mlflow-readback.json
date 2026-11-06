@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "run_id": "8765e35a228641a5857e5256c6e31742",
+  "run_status": "FINISHED",
+  "source": "synthetic_test",
+  "technical_test": "True",
+  "metrics": {
+    "recording/fps_observed": {
+      "points": 60,
+      "last": 30.650917224931437
+    },
+    "recording/frames_written": {
+      "points": 60,
+      "last": 871.0
+    },
+    "recording/final_frames_saved": {
+      "points": 1,
+      "last": 1796.0
+    },
+    "sam/preview_snapshots_completed": {
+      "points": 4,
+      "last": 2.0
+    },
+    "sam/objects_in_last_preview": {
+      "points": 4,
+      "last": 2.0
+    }
+  },
+  "artifacts": [
+    "summary.json"
+  ]
+}

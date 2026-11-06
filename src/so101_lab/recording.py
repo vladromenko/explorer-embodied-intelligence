@@ -16,10 +16,11 @@ import threading
 import time
 import traceback
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .hardware import JOINTS, ROOT, HardwareSource, calibration_snapshot, hardware_paths, hardware_settings
+from .hardware import JOINTS, ROOT, HardwareSource, calibration_snapshot, hardware_paths, hardware_settings,configure_cv
 from .resources import ResourceLease, assert_disk_space, assert_hardware_available
 
 SCHEMA = 'so101-raw-v1'
@@ -263,7 +264,8 @@ class SyntheticSource:
 
 class EpisodeWriter:
     """PNG encoding and fsync are isolated from the control thread; overflow stops recording."""
-    def __init__(self, dataset_path, metadata, *, queue_size=32, on_preview=None):
+    def __init__(self, dataset_path, metadata, *, queue_size=64, on_preview=None):
+        configure_cv()
         self.dataset_path = Path(dataset_path)
         self.metadata = dict(metadata)
         self.episode_id = metadata['episode_id']
@@ -285,6 +287,7 @@ class EpisodeWriter:
         self.dropped = {'top':0,'wrist':0}
         self.age_max_ms = {'top':0.,'wrist':0.}
         self._finish_requested = threading.Event()
+        self.performance={'bytes_written':0,'encode_write_seconds':0.,'peak_queue':0,'encoder':'opencv_png0_two_parallel_cameras'}
         self.thread = threading.Thread(target=self._run,name='so101-ai-raw-writer',daemon=True)
         self.thread.start()
         self.closed = False
@@ -295,26 +298,37 @@ class EpisodeWriter:
         try: self.queue.put_nowait(sample)
         except queue.Full: raise RuntimeError('Raw writer queue overflow: запись остановлена, motion не повторяется')
         self.enqueued += 1
+        self.performance['peak_queue']=max(self.performance['peak_queue'],self.queue.qsize())
+
+    def check_ready(self):
+        if self.error:raise RuntimeError('Raw writer failed: '+self.error)
+        if self.queue.full():raise RuntimeError('Накопитель не успевает сохранять raw. Запись остановлена до следующей команды; данные сохранены в архив')
+
+    def _encode_image(self,camera,frame,frame_id):
+        import cv2
+        before=time.monotonic()
+        ok,png=cv2.imencode('.png',cv2.cvtColor(frame['image'],cv2.COLOR_RGB2BGR),[cv2.IMWRITE_PNG_COMPRESSION,0])
+        if not ok:raise RuntimeError('PNG encoder failed: '+camera)
+        data=png.tobytes();path=Path('images')/camera/(f'{frame_id:08d}.png')
+        with (self.partial/path).open('wb') as image_file:
+            image_file.write(data);image_file.flush();os.fsync(image_file.fileno())
+        return path,data,time.monotonic()-before
 
     def _run(self):
         try:
-            from PIL import Image
-            while not self._finish_requested.is_set() or not self.queue.empty():
+            with ThreadPoolExecutor(max_workers=2,thread_name_prefix='so101-png') as encoders:
+              while not self._finish_requested.is_set() or not self.queue.empty():
                 try: sample = self.queue.get(timeout=.1)
                 except queue.Empty: sample = None
                 if sample is not None:
                     record = {k:v for k,v in sample.items() if k!='images'}
                     record['schema_version'] = SCHEMA
                     record['cameras'] = {}
+                    pending={camera:encoders.submit(self._encode_image,camera,frame,sample['frame_id']) for camera,frame in sample['images'].items()}
                     for camera,frame in sample['images'].items():
-                        path = Path('images')/camera/(f'{sample["frame_id"]:08d}.png')
-                        out = io.BytesIO()
-                        Image.fromarray(frame['image']).save(out,format='PNG',compress_level=1)
-                        data = out.getvalue()
-                        # This is decoded camera RGB, saved losslessly. Camera MJPEG transport is not raw Bayer.
-                        with (self.partial/path).open('wb') as image_file:
-                            image_file.write(data)
-                            image_file.flush(); os.fsync(image_file.fileno())
+                        path,data,duration=pending[camera].result()
+                        self.performance['bytes_written']+=len(data)
+                        self.performance['encode_write_seconds']+=duration
                         camera_meta = {k:v for k,v in frame.items() if k!='image'}
                         camera_meta.update(path=path.as_posix(),valid=True,sha256=hashlib.sha256(data).hexdigest(),
                                            encoding='png_rgb8_lossless',exposure_timestamp_valid=False)
@@ -373,6 +387,7 @@ class EpisodeWriter:
                              duration_s=((self.last_ns-self.first_ns)/1e9 if self.frames>1 else 0),
                              reused_camera_frames=self.reused,dropped_camera_frames=self.dropped,
                              max_camera_age_ms=self.age_max_ms,writer_enqueued=self.enqueued)
+        self.metadata['writer_performance']=dict(self.performance)
         if not self.thread.is_alive():
             self.metadata['frames_sha256'] = hashlib.sha256((self.partial/'frames.jsonl').read_bytes()).hexdigest()
         atomic_json(self.partial/'episode.json',self.metadata)
@@ -390,7 +405,7 @@ class EpisodeWriter:
 
 
 class RecordingManager:
-    def __init__(self, root=ROOT):
+    def __init__(self, root=ROOT, *, on_session_complete=None, telemetry_factory=None, on_session_start=None):
         self.root = Path(root).resolve()
         self.data_root = self.root/'data'
         self.data_root.mkdir(parents=True,exist_ok=True)
@@ -403,6 +418,9 @@ class RecordingManager:
         self.thread = None
         self.writer = None
         self.source = None
+        self.on_session_complete=on_session_complete
+        self.telemetry_factory=telemetry_factory
+        self.on_session_start=on_session_start
         self.preview = {}
         self.current = {'state':'idle','active':False,'hardware_open':False,'updated_at':utcnow()}
         recovered = self.recover_incomplete()
@@ -456,7 +474,8 @@ class RecordingManager:
     def list_datasets(self):
         datasets = []
         for path in self.data_root.glob('ds_*/dataset.json'):
-            try: datasets.append(self.dataset_info(path.parent.name))
+            try:
+                info=self.dataset_info(path.parent.name);info.pop('episode_list',None);datasets.append(info)
             except (OSError,ValueError,KeyError): pass
         return sorted(datasets,key=lambda d:d['created_at'],reverse=True)
 
@@ -472,12 +491,28 @@ class RecordingManager:
                 result['frames_written'] = self.writer.frames
                 result['writer_queue'] = self.writer.queue.qsize()
                 result['frames_enqueued'] = self.writer.enqueued
+                result['writer_performance']=dict(self.writer.performance)
+            if result.get('state')=='recording' and result.get('episode_start_monotonic_ns'):
+                result['episode_elapsed_s']=(time.monotonic_ns()-result['episode_start_monotonic_ns'])/1e9
+            if result.get('state')=='preparing':result['preparation_remaining_s']=max(0.,(result.get('preparation_deadline_ns',0)-time.monotonic_ns())/1e9)
+            mlflow=result.get('mlflow')
+            if mlflow and mlflow.get('spool'):
+                try:
+                    info=json.loads((Path(mlflow['spool'])/'run_info').read_text())
+                    result['mlflow']={**mlflow,**info,'state':'connected'}
+                except (OSError,ValueError):pass
+                spool=Path(mlflow['spool'])
+                result['mlflow']['pending_events']=len(list(spool.glob('*.json')))
+                try:
+                    result['mlflow']['delivery_error']=(spool/'last_error.txt').read_text()[-1200:]
+                    result['mlflow']['state']='buffering'
+                except OSError:pass
             return result
 
     def latest_frame(self,camera):
         with self.lock: return self.preview.get(camera)
 
-    def start(self,dataset_id,**settings):
+    def start(self,dataset_id,*,camera_provider=None,**settings):
         with self.lock:
             if self.thread and self.thread.is_alive():
                 if self.current.get('dataset_id')==dataset_id and self.current.get('state')=='ready':
@@ -496,6 +531,15 @@ class RecordingManager:
             cfg['idle_timeout_seconds'] = float(cfg.get('idle_timeout_seconds',120))
             if not 1<=cfg['idle_timeout_seconds']<=600: raise ValueError('Таймаут паузы: 1–600 секунд')
             cfg['minimum_free_gb'] = max(1.,float(cfg.get('minimum_free_gb',2.)))
+            cfg['preparation_seconds']=float(cfg.get('preparation_seconds',0))
+            if not 0<=cfg['preparation_seconds']<=120:raise ValueError('Подготовка сцены: 0–120 секунд')
+            cfg['auto_annotate']=cfg.get('auto_annotate',False)
+            if not isinstance(cfg['auto_annotate'],bool):raise ValueError('auto_annotate должен быть bool')
+            cfg['sam_live_preview']=cfg.get('sam_live_preview',False)
+            if not isinstance(cfg['sam_live_preview'],bool):raise ValueError('sam_live_preview должен быть bool')
+            cfg['auto_advance']=cfg.get('auto_advance',False)
+            if not isinstance(cfg['auto_advance'],bool):raise ValueError('auto_advance должен быть bool')
+            if not isinstance(cfg.get('keep_open',False),bool):raise ValueError('keep_open должен быть bool')
             assert_disk_space(int(cfg['minimum_free_gb']*1024**3),path)
             if dataset['source']=='hardware':
                 if not bool(cfg.get('explicit_user_start')):
@@ -503,7 +547,7 @@ class RecordingManager:
                 # Preflight before any device open, model import, or source thread creation.
                 hardware_settings(cfg)
                 assert_hardware_available(hardware_paths(cfg))
-                source = HardwareSource(cfg)
+                source = HardwareSource(cfg,camera_provider=camera_provider) if camera_provider is not None else HardwareSource(cfg)
             else: source = SyntheticSource(cfg)
             self.source = source
             self._source_closed = False
@@ -523,7 +567,7 @@ class RecordingManager:
             return self.status()
 
     def command(self,action):
-        if action not in ('end','rerecord','stop','next','abort'): raise ValueError('Неизвестная команда записи')
+        if action not in ('end','rerecord','stop','next','begin','abort'): raise ValueError('Неизвестная команда записи')
         with self.lock:
             if not self.thread or not self.thread.is_alive():
                 if action=='stop': return self.status()
@@ -548,7 +592,7 @@ class RecordingManager:
                     'calibration':dataset['calibration'],'operator_labels':{},'scan_history_available':False}
         writer = EpisodeWriter(path,metadata,on_preview=self._preview)
         self.writer = writer
-        self._update(state='recording',episode_id=episode_id,frames_written=0,frames_enqueued=0)
+        self._update(state='recording',episode_id=episode_id,frames_written=0,frames_enqueued=0,episode_start_monotonic_ns=time.monotonic_ns())
         return writer
 
     def _stop_source(self):
@@ -593,122 +637,127 @@ class RecordingManager:
         atomic_json(path/'dataset.json',meta)
 
     def _run(self,path,dataset,cfg,session_id):
-        writer = None
-        last_complete = None
-        completed = 0
-        final_state = 'stopped'
+        writer=None;last_complete=None;completed=0;final_state='stopped';telemetry=None
         from .resources import dataset_lease
-        data_lease=dataset_lease(path)
-        data_acquired=False
-        recording_lease = ResourceLease('recording')
-        lease_acquired = False
+        data_lease=dataset_lease(path);data_acquired=False
+        recording_lease=ResourceLease('recording');lease_acquired=False
+        frame_id=0;episode_start=None;idle_start=None;preparation_deadline=None
+        def prepare():
+            nonlocal preparation_deadline,idle_start
+            preparation_deadline=time.monotonic()+cfg['preparation_seconds'];idle_start=None
+            self._update(state='preparing',preparation_deadline_ns=int(preparation_deadline*1e9),
+                         preparation_seconds=cfg['preparation_seconds'],message='Подготовьте сцену. Пробел — начать сейчас')
+        def begin():
+            nonlocal writer,frame_id,episode_start,preparation_deadline,idle_start
+            writer=self._new_writer(path,dataset,session_id,cfg,provenance)
+            frame_id=0;episode_start=time.monotonic();preparation_deadline=None;idle_start=None
         try:
-            recording_lease.__enter__(); lease_acquired=True
+            recording_lease.__enter__();lease_acquired=True
             data_lease.__enter__();data_acquired=True
-            provenance = self.source.start(explicit_user_start=bool(cfg.get('explicit_user_start')),stop=self.stop_event.is_set)
+            provenance=self.source.start(explicit_user_start=bool(cfg.get('explicit_user_start')),stop=self.stop_event.is_set)
             self._version(path,session_id,provenance=provenance)
             self._update(hardware_open=dataset['source']=='hardware',provenance=provenance)
-            writer = self._new_writer(path,dataset,session_id,cfg,provenance)
-            frame_id = 0
-            episode_start = time.monotonic()
-            idle_start = None
-            deadline = time.monotonic()
+            if self.telemetry_factory:
+                telemetry=self.telemetry_factory(self,path,dataset,cfg,session_id);self.telemetry=telemetry
+            if self.on_session_start and cfg['sam_live_preview'] and dataset['source']=='hardware':
+                try:self._update(sam_observer=self.on_session_start(path,session_id))
+                except Exception as exc:self._update(annotation_error=str(exc))
+            if cfg['preparation_seconds']:prepare()
+            else:begin()
+            deadline=time.monotonic()
             while True:
-                action = None
-                try: action = self.commands.get_nowait()
-                except queue.Empty: pass
+                action=None
+                try:action=self.commands.get_nowait()
+                except queue.Empty:pass
                 if action in ('stop','abort') or self.stop_event.is_set():
-                    action = self.requested_stop_action or action
-                    self._update(state='stopping')
-                    self._stop_source()
+                    action=self.requested_stop_action or action
+                    self._update(state='stopping');self._stop_source()
                     if writer:
-                        result = self._finish_writer(writer,status='incomplete' if action=='abort' else 'complete',
-                                               reason='operator_abort' if action=='abort' else 'operator_stop')
-                        if result['status']=='complete': completed+=1
-                        self._version(path,session_id,result)
-                        self._update(last_episode=result)
-                        writer = None; self.writer = None
+                        result=self._finish_writer(writer,status='incomplete' if action=='abort' else 'complete',
+                            reason='operator_abort' if action=='abort' else 'operator_stop')
+                        if result['status']=='complete':completed+=1
+                        self._version(path,session_id,result);self._update(last_episode=result,frames_written=result['frames'],frames_enqueued=result.get('writer_enqueued',0),writer_queue=0,writer_performance=result.get('writer_performance',{}))
+                        writer=None;self.writer=None
                     break
                 if action=='rerecord':
                     if writer:
-                        result = self._finish_writer(writer,status='rerecorded',reason='operator_rerecord')
-                        self._version(path,session_id,result)
+                        result=self._finish_writer(writer,status='rerecorded',reason='operator_rerecord')
+                        self._version(path,session_id,result);writer=None;self.writer=None
                     elif last_complete:
-                        # Preserve rejected data, remove it from the default train membership.
-                        old = Path(last_complete['path'])
+                        old=Path(last_complete['path'])
                         if old.exists():
-                            info = json.loads((old/'episode.json').read_text())
+                            info=json.loads((old/'episode.json').read_text())
                             info.update(status='superseded',reason='operator_rerecord',superseded_at=utcnow())
-                            atomic_json(old/'episode.json',info)
-                            os.replace(old,path/'quarantine'/old.name)
-                            completed=max(0,completed-1)
-                            self._version(path,session_id,info)
-                    if self.stop_event.is_set():
-                        writer=None;self.writer=None
-                    else:
-                        writer = self._new_writer(path,dataset,session_id,cfg,provenance)
-                        frame_id=0; episode_start=time.monotonic(); idle_start=None; deadline=time.monotonic()
-                elif action=='next' and not writer:
-                    writer = self._new_writer(path,dataset,session_id,cfg,provenance)
-                    frame_id=0; episode_start=time.monotonic(); idle_start=None; deadline=time.monotonic()
+                            atomic_json(old/'episode.json',info);os.replace(old,path/'quarantine'/old.name)
+                            completed=max(0,completed-1);self._version(path,session_id,info)
+                            self._update(completed_in_session=completed)
+                        last_complete=None
+                    if not self.stop_event.is_set():
+                        if cfg['preparation_seconds']:prepare()
+                        else:begin()
+                elif action in ('next','begin') and writer is None:
+                    if completed>=cfg['episode_count']:
+                        cfg['episode_count']=completed+1;self._update(target_episodes=cfg['episode_count'])
+                    if action=='begin' or preparation_deadline is not None or not cfg['preparation_seconds']:begin()
+                    else:prepare()
                 elif action=='end' and writer:
-                    result = self._finish_writer(writer,status='complete',reason='operator_end')
-                    if result['status']=='complete': completed+=1; last_complete=result
-                    else: raise RuntimeError('Эпизод не завершён: '+str(result.get('reason')))
-                    self._version(path,session_id,result)
-                    writer=None; self.writer=None
-                    self._update(state='ready',completed_in_session=completed,last_episode=result)
-                    if completed>=cfg['episode_count']: break
-                    idle_start=time.monotonic()
-                if self.stop_event.is_set():
-                    pass  # Return to the STOP branch before any further capture or bus command.
-                elif writer is None:
-                    if idle_start and time.monotonic()-idle_start>cfg['idle_timeout_seconds']:
-                        self._update(message='Пауза превысила таймаут; hardware закрыт, нажмите Start для продолжения')
-                        break
-                    self.stop_event.wait(.02)
+                    self._update(state='saving')
+                    result=self._finish_writer(writer,status='complete',reason='operator_end')
+                    if result['status']!='complete':raise RuntimeError('Эпизод не завершён: '+str(result.get('reason')))
+                    completed+=1;last_complete=result;self._version(path,session_id,result)
+                    writer=None;self.writer=None;idle_start=time.monotonic()
+                    self._update(state='ready',completed_in_session=completed,last_episode=result,
+                                 frames_written=result['frames'],frames_enqueued=result.get('writer_enqueued',0),writer_queue=0,writer_performance=result.get('writer_performance',{}),episode_elapsed_s=result.get('duration_s',0),
+                                 message='Эпизод сохранён. Пробел — следующий; R — перезаписать; Esc — завершить сессию')
+                    if completed>=cfg['episode_count'] and not cfg.get('keep_open',False):break
+                    if completed<cfg['episode_count'] and cfg['auto_advance']:prepare()
+                if self.stop_event.is_set():pass
+                elif writer is None and preparation_deadline is not None and time.monotonic()>=preparation_deadline:begin()
+                elif writer is None and idle_start and time.monotonic()-idle_start>cfg['idle_timeout_seconds']:
+                    self._update(message='Сессия завершена по таймауту паузы');break
                 else:
-                    current = time.monotonic()
-                    if current<deadline:
-                        self.stop_event.wait(min(.05,deadline-current))
+                    current=time.monotonic()
+                    if current<deadline:self.stop_event.wait(min(.05,deadline-current))
                     else:
-                        frame_id+=1
-                        sample = self.source.sample(frame_id)
-                        sample['control_lateness_ms'] = max(0.,(current-deadline)*1000)
-                        writer.put(sample)
-                        period = 1/cfg['fps']
-                        finished = time.monotonic()
-                        # Slow samples never produce an immediate catch-up motion command.
-                        deadline = current+period if finished<current+period else finished+period
-                        if frame_id%max(1,int(cfg['fps']))==0:
-                            assert_disk_space(int(cfg['minimum_free_gb']*1024**3),path)
-                            self._update(frames_written=writer.frames,frames_enqueued=writer.enqueued,
-                                         episode_elapsed_s=time.monotonic()-episode_start)
-                        if time.monotonic()-episode_start>=cfg['episode_seconds']:
-                            self.commands.put('end')
+                        if writer:
+                            writer.check_ready()
+                            frame_id+=1;sample=self.source.sample(frame_id)
+                            sample['control_lateness_ms']=max(0.,(current-deadline)*1000);writer.put(sample)
+                            if frame_id%max(1,int(cfg['fps']))==0:
+                                assert_disk_space(int(cfg['minimum_free_gb']*1024**3),path)
+                                self._update(frames_written=writer.frames,frames_enqueued=writer.enqueued,episode_elapsed_s=time.monotonic()-episode_start)
+                            if time.monotonic()-episode_start>=cfg['episode_seconds']:self.commands.put('end')
+                        else:
+                            if hasattr(self.source,'control_sample'):self.source.control_sample()
+                            else:self.source.sample(0)
+                        deadline=current+1/cfg['fps']
         except Exception as exc:
-            final_state='failed'
-            self._stop_source()
-            error=traceback.format_exc()
-            log=self.root/'logs'/('recording-'+session_id+'.log'); log.parent.mkdir(exist_ok=True)
-            log.write_text(error)
-            self._update(error=f'{type(exc).__name__}: {exc}',traceback_path=str(log))
+            stopping=isinstance(exc,InterruptedError) and self.stop_event.is_set()
+            final_state='stopped' if stopping else 'failed';self._stop_source()
+            if not stopping:
+                log=self.root/'logs'/('recording-'+session_id+'.log');log.parent.mkdir(exist_ok=True);log.write_text(traceback.format_exc())
+                self._update(error=f'{type(exc).__name__}: {exc}',traceback_path=str(log))
             if writer:
                 try:
-                    result=writer.finish(status='incomplete',reason=str(exc),timeout=0 if writer.metadata.get('writer_pending') else 30)
-                    if not result.get('writer_pending'): self._version(path,session_id,result)
+                    result=writer.finish(status='complete' if stopping else 'incomplete',reason='operator_stop' if stopping else str(exc),timeout=0 if writer.metadata.get('writer_pending') else 30)
+                    if not result.get('writer_pending'):self._version(path,session_id,result)
+                    if result['status']=='complete':completed+=1
                     self._update(last_episode=result)
                 except Exception:
-                    with log.open('a') as out: out.write('\n'+traceback.format_exc())
+                    self._update(writer_error=traceback.format_exc())
         finally:
-            stop_errors = self._stop_source()
-            if stop_errors: final_state = 'failed'
+            stop_errors=self._stop_source()
+            if stop_errors:final_state='failed'
             if data_acquired:data_lease.__exit__(None,None,None)
-            if lease_acquired: recording_lease.__exit__(None,None,None)
-            self.writer = None
+            if lease_acquired:recording_lease.__exit__(None,None,None)
+            self.writer=None
             self._update(state=final_state,active=False,hardware_open=False,completed_in_session=completed,
-                         stopped_at=utcnow(),stop_errors=stop_errors,
-                         hardware_stop_state='torque_disable_unconfirmed_operator_check_required' if stop_errors else 'devices_closed')
+                stopped_at=utcnow(),stop_errors=stop_errors,
+                hardware_stop_state='torque_disable_unconfirmed_operator_check_required' if stop_errors else 'devices_closed')
+            if telemetry:telemetry.finish('FAILED' if final_state=='failed' else 'FINISHED')
+            if self.on_session_complete and cfg['auto_annotate'] and dataset['source']=='hardware' and any((path/'episodes').glob('*/episode.json')):
+                try:self._update(auto_annotation=self.on_session_complete(path,session_id))
+                except Exception as exc:self._update(annotation_error=str(exc))
 
     def recover_incomplete(self):
         recovered=[]
@@ -725,6 +774,13 @@ class RecordingManager:
                     except (OSError,ValueError,IndexError): pass
                 if not owner_active:
                     meta.update(status='incomplete',reason='server_restart_before_atomic_finalization',recovered_at=utcnow())
+                    frames=path/'frames.jsonl';rows=[];invalid_lines=0
+                    if frames.exists():
+                        for line in frames.read_text().splitlines():
+                            try:rows.append(json.loads(line))
+                            except ValueError:invalid_lines+=1
+                        meta.update(frames=len(rows),frames_sha256=_hash_file(frames),invalid_json_lines=invalid_lines)
+                        if rows:meta.update(first_timestamp_ns=rows[0].get('timestamp_ns'),last_timestamp_ns=rows[-1].get('timestamp_ns'))
                     atomic_json(meta_path,meta)
                     quarantine=path.parent.parent/'quarantine'; quarantine.mkdir(exist_ok=True)
                     target=quarantine/meta['episode_id']

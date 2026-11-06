@@ -146,7 +146,7 @@ def test_http_explicit_teleop_then_recording_transfer_order(manager, monkeypatch
     assert client.post("/api/preview/start", json={}).status_code == 200
     result = client.post("/api/record/start", json={"dataset_id": "fixture"})
     assert result.status_code == 200, result.text
-    assert calls == ["preview_start", "preview_stop", "record_start"]
+    assert calls == ["preview_start", "preview_start", "record_start"]
 
 
 def test_recording_blocks_another_controller(manager, monkeypatch):

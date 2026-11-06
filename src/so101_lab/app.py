@@ -30,7 +30,11 @@ def policy_is_active():
 async def lifespan(app):
     global manager,camera_preview,teleoperation
     from .recording import RecordingManager
-    manager=RecordingManager(root=ROOT)
+    from .recording_telemetry import RecordingTelemetry,recover_recording_telemetry
+    manager=RecordingManager(root=ROOT,on_session_complete=lambda path,sid:jobs.submit('annotate',path,{'device':'cuda'}),
+        telemetry_factory=lambda *args:RecordingTelemetry(ROOT,*args),
+        on_session_start=lambda path,sid:jobs.submit('sam_watch',path,{'device':'cuda','session_id':sid}))
+    recover_recording_telemetry(ROOT)
     from .preview import CameraPreview
     camera_preview=CameraPreview()
     from .teleoperation import TeleoperationManager
@@ -44,6 +48,8 @@ async def lifespan(app):
         manager.command('stop')
         from starlette.concurrency import run_in_threadpool
         await run_in_threadpool(manager.wait,15)
+        telemetry=getattr(manager,'telemetry',None)
+        if telemetry:await run_in_threadpool(telemetry.thread.join,5)
         if manager.status().get('active'):(ROOT/'logs/shutdown-warning.log').write_text('Recorder did not finish shutdown within15s; operator hardware STOP check required')
     except Exception as exc:(ROOT/'logs/shutdown-warning.log').write_text(str(exc))
     if camera_preview:
@@ -66,7 +72,7 @@ def status():
                 manifest=json.loads(manifest_path.read_text())
                 if manifest.get('status')=='complete':checkpoints[str(config.relative_to(ROOT))]={'technical_test':manifest.get('technical_test',True),'step':manifest.get('step',0),'policy_type':manifest.get('policy_type')}
             except (OSError,ValueError):pass
-    return {'resources':snapshot(),'recording':manager.status() if manager else {},'teleoperation':teleoperation.status() if teleoperation else {'active':False},'jobs':jobs.list_jobs(),'datasets':manager.list_datasets() if manager else [],'checkpoints':list(checkpoints),'checkpoint_details':checkpoints,'policy_ready':any(not m['technical_test'] and m['step']>0 for m in checkpoints.values()),'preview':camera_preview.status() if camera_preview else {'active':False}}
+    return {'hardware_stop_generation':hardware_stop_generation,'resources':snapshot(),'recording':manager.status() if manager else {},'teleoperation':teleoperation.status() if teleoperation else {'active':False},'jobs':jobs.list_jobs(),'datasets':manager.list_datasets() if manager else [],'checkpoints':list(checkpoints),'checkpoint_details':checkpoints,'policy_ready':any(not m['technical_test'] and m['step']>0 for m in checkpoints.values()),'preview':camera_preview.status() if camera_preview else {'active':False}}
 @app.get('/api/preflight')
 async def preflight_check():
     from .preflight import run_preflight
@@ -78,6 +84,26 @@ async def preflight_check():
 
 @app.get('/api/status')
 def api_status():return status()
+@app.post('/api/scene')
+def scene_preview():
+    try:
+        if manager.status().get('active'):raise ValueError('SAM снимка запускается до или после записи. Во время записи приоритет у raw')
+        from .scene import capture_scene
+        camera_preview.start(explicit_user_start=True)
+        return jobs.submit('scene',capture_scene(camera_preview),{'device':'cuda'})
+    except Exception as exc:raise HTTPException(409,str(exc))
+@app.get('/api/scenes/{sid}/{camera}/{kind}')
+def scene_file(sid:str,camera:str,kind:str):
+    if len(sid)!=32 or not all(c in '0123456789abcdef' for c in sid) or camera not in ('top','wrist') or kind not in ('raw','overlay'):raise HTTPException(404)
+    path=ROOT/'runtime/scenes'/sid/(camera+('-overlay.png' if kind=='overlay' else '.png'))
+    if kind=='raw':
+        request_file=path.parent/'request.json'
+        if request_file.is_file():
+            raw=json.loads(request_file.read_text())['frame']['cameras'][camera]['path']
+            path=(request_file.parent/raw).resolve()
+            if not path.is_relative_to(request_file.parent.resolve()):raise HTTPException(404)
+    if not path.is_file():raise HTTPException(404)
+    return FileResponse(path,headers={'Cache-Control':'no-store'})
 @app.post('/api/datasets')
 async def create(request:Request):
     try:return manager.create_dataset(**await request.json())
@@ -87,17 +113,18 @@ async def start(request:Request):
     data=await request.json()
     try:
         did=data.pop('dataset_id')
-        generation=hardware_stop_generation
+        generation=data.pop('expected_stop_generation',hardware_stop_generation)
+        if generation!=hardware_stop_generation:raise ValueError('Запуск отменён предыдущим STOP. Обновите статус перед новым нажатием')
         def begin():
             with hardware_control_lock:
                 if policy_is_active():raise ValueError('Сначала остановите политику кнопкой STOP рук перед записью')
                 hardware=manager.dataset_info(did)['source']=='hardware'
                 if teleoperation and (hardware or teleoperation.status().get('active')):
                     teleoperation.stop_for_recording()
-                if hardware and camera_preview:camera_preview.stop()
+                if hardware and camera_preview:camera_preview.start(explicit_user_start=True)
                 with hardware_start_guard:
                     if generation!=hardware_stop_generation:raise ValueError('Запуск отменён кнопкой STOP. Запись не началась')
-                    return manager.start(did,explicit_user_start=True,**{k:v for k,v in data.items() if k!='explicit_user_start'})
+                    return manager.start(did,explicit_user_start=True,camera_provider=camera_preview if hardware else None,**{k:v for k,v in data.items() if k!='explicit_user_start'})
         from starlette.concurrency import run_in_threadpool
         return await run_in_threadpool(begin)
     except Exception as e:raise HTTPException(409,str(e))
@@ -130,7 +157,9 @@ def preview_action(action:str):
     except Exception as e:raise HTTPException(409,str(e))
 @app.post('/api/record/{action}')
 def record_action(action:str):
-    try:return manager.command(action)
+    try:
+        if action=='stop':request_hardware_stop();return manager.status()
+        return manager.command(action)
     except Exception as e:raise HTTPException(409,str(e))
 @app.get('/api/frame/{camera}')
 def frame(camera:str):
@@ -164,10 +193,22 @@ def data_file(path:str):
     if not p.is_relative_to((ROOT/'data').resolve()) or not p.is_file():raise HTTPException(404)
     return FileResponse(p)
 @app.get('/api/episodes/{dataset_id}')
-def episodes(dataset_id:str):
+def episodes(dataset_id:str,include_frames:bool=True,episode_id:str|None=None):
     p=(ROOT/'data'/dataset_id).resolve()
     if not p.is_relative_to((ROOT/'data').resolve()):raise HTTPException(400)
-    return [{'id':f.parent.name,'metadata':json.loads(f.read_text()),'frames':[json.loads(x) for x in (f.parent/'frames.jsonl').read_text().splitlines()]} for f in p.glob('episodes/*/episode.json')]
+    result=[]
+    for storage in ('episodes','quarantine'):
+        for f in sorted(p.glob(storage+'/*/episode.json')):
+            if episode_id is None or f.parent.name==episode_id:
+                item={'id':f.parent.name,'storage':storage,'metadata':json.loads(f.read_text()),'annotation_available':(f.parent/'annotations/sam3-v1/frames.jsonl').is_file()}
+                if include_frames:
+                    rows=[]
+                    for line in (f.parent/'frames.jsonl').read_text().splitlines():
+                        try:rows.append(json.loads(line))
+                        except ValueError:item['warning']='Повреждённая строка неполной записи пропущена при просмотре'
+                    item['frames']=rows
+                result.append(item)
+    return result
 def dataset_path(dataset_id):
     return manager._dataset_path(dataset_id)
 

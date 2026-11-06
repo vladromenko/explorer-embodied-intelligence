@@ -5,7 +5,18 @@ from .hardware import CameraCapture,hardware_settings
 
 class CameraPreview:
     def __init__(self):
-        self.lock=threading.RLock();self.cameras={};self.lease=None;self.error=None;self.started_ns=None
+        self.lock=threading.RLock();self.cameras={};self.lease=None;self.error=None;self.started_ns=None;self.borrowers=set()
+    def acquire_for_recording(self,settings):
+        with self.lock:
+            if not self.cameras:raise RuntimeError('Сначала подключите камеры')
+            for name,cam in self.cameras.items():
+                if cam.error:raise RuntimeError(f'Камера {name}: {cam.error}')
+                cfg=getattr(cam,'cfg',settings)
+                if any(cfg.get(key)!=settings.get(key) for key in ('width','height','fps','camera_formats','cameras')):raise ValueError('Режим камер предпросмотра отличается от записи')
+            token=object();self.borrowers.add(token)
+            return token,dict(self.cameras)
+    def release_recording(self,token):
+        with self.lock:self.borrowers.discard(token)
     def start(self,*,explicit_user_start=False):
         if not explicit_user_start:raise PermissionError('Подключение камер требует явной кнопки в интерфейсе')
         with self.lock:
@@ -27,6 +38,7 @@ class CameraPreview:
                 self.error=str(e);self.stop();raise
     def stop(self):
         with self.lock:
+            if self.borrowers:raise RuntimeError('Камеры используются записью. Сначала остановите сессию')
             errors=[];remaining={}
             for name,cam in self.cameras.items():
                 try:cam.close()

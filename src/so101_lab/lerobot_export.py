@@ -323,6 +323,15 @@ def _source_unchanged(inspection: _Inspection) -> None:
 
 
 def verify_official_export(export_path: Path, *, verify_all_frames=True) -> dict:
+    import torch
+    previous=torch.get_num_threads()
+    try:
+        torch.set_num_threads(1)
+        return _verify_official_export(export_path,verify_all_frames=verify_all_frames)
+    finally:torch.set_num_threads(previous)
+
+
+def _verify_official_export(export_path: Path, *, verify_all_frames=True) -> dict:
     """Open official LeRobotDataset on CPU and verify arrays, timing and RGB pixels."""
     import numpy as np
     import torch

@@ -1,0 +1,474 @@
+{
+  "status": "PASS",
+  "technical_file_replay": true,
+  "physical_test": false,
+  "hardware_opened": false,
+  "elapsed_seconds": 94.95869713499269,
+  "peak_writer_queue": 1,
+  "dataset": "/home/jetsonnx/Projects/so101_ai_learning/runtime/recording-load-1794008566744558375/data/ds_705a67b1b371411e",
+  "frames": 1796,
+  "episodes": 2,
+  "sam_preview_job": {
+    "id": "c4ef96c0654e4d92a18311f9937b8068",
+    "kind": "sam_watch",
+    "dataset": "/home/jetsonnx/Projects/so101_ai_learning/runtime/recording-load-1794008566744558375/data/ds_705a67b1b371411e",
+    "options": {
+      "device": "cuda",
+      "session_id": "session_c8f1e85db0f84670",
+      "recording_status_path": "/home/jetsonnx/Projects/so101_ai_learning/runtime/recording-load-1794008566744558375/runtime/recording.json",
+      "technical_test": true,
+      "job_name": "technical concurrent RAW SAM"
+    },
+    "state": "completed",
+    "created_at": 1794008566.8250601,
+    "message": "",
+    "progress": {
+      "phase": "preview",
+      "sample_count": 3,
+      "detected_objects": 2,
+      "message": "SAM: отдельный сохранённый кадр, не синхронный live; полный датасет размечается после STOP"
+    },
+    "result": {
+      "status": "complete",
+      "scene_id": "ca11ddcbfa3142feba6860655b307be2",
+      "physical_actions": false,
+      "not_live": true,
+      "captured_at": 1794008626.1779618,
+      "frame": {
+        "frame_id": 874,
+        "timestamp_ns": 65550349343015,
+        "observation_timestamp_ns": 65550349343015,
+        "state_timestamp_ns": 65550349343015,
+        "state_read_start_ns": 65550349343015,
+        "state_read_end_ns": 65550349343015,
+        "observation.state": [
+          4.0,
+          5.0,
+          6.0,
+          7.0,
+          8.0,
+          50.0
+        ],
+        "action": [
+          4.1,
+          5.1,
+          6.1,
+          7.1,
+          8.1,
+          50.1
+        ],
+        "action_timestamp_ns": 65550349343016,
+        "action_send_start_ns": 65550349343016,
+        "action_send_end_ns": 65550349343016,
+        "state_valid": false,
+        "action_valid": false,
+        "action_acknowledged": false,
+        "state_provenance": "synthetic_test_fixture",
+        "action_provenance": "synthetic_test_fixture_no_motor_command",
+        "source": "synthetic_test",
+        "limits_applied": [],
+        "control_lateness_ms": 0.1401156623614952,
+        "schema_version": "so101-raw-v1",
+        "cameras": {
+          "top": {
+            "timestamp_ns": 65550349343015,
+            "read_start_ns": 65550349343015,
+            "read_end_ns": 65550349343015,
+            "sequence": 874,
+            "reused": false,
+            "dropped_since_previous": 0,
+            "historical_file_replay": true,
+            "path": "images/top/00000874.png",
+            "valid": true,
+            "sha256": "2bbd3ba8e238cf2c81915b9c734a3afd5b531b6af3e53e7b85f7da2238dfca84",
+            "encoding": "png_rgb8_lossless",
+            "exposure_timestamp_valid": false
+          },
+          "wrist": {
+            "timestamp_ns": 65550349343015,
+            "read_start_ns": 65550349343015,
+            "read_end_ns": 65550349343015,
+            "sequence": 874,
+            "reused": false,
+            "dropped_since_previous": 0,
+            "historical_file_replay": true,
+            "path": "images/wrist/00000874.png",
+            "valid": true,
+            "sha256": "3f220c548d93e234613c51b19f5e5506cbe24e59ce65b83f3b0e8578c010d71d",
+            "encoding": "png_rgb8_lossless",
+            "exposure_timestamp_valid": false
+          }
+        },
+        "feedback": {
+          "joint_position": {
+            "valid": false,
+            "units": [
+              "degrees",
+              "degrees",
+              "degrees",
+              "degrees",
+              "degrees",
+              "percent_calibrated_range"
+            ],
+            "timestamp_ns": 65550349343015,
+            "provenance": "synthetic_test_fixture"
+          },
+          "gripper_position": {
+            "valid": false,
+            "value": 50.0,
+            "unit": "percent_calibrated_range",
+            "provenance": "synthetic_test_fixture"
+          },
+          "velocity": {
+            "valid": false,
+            "value": null,
+            "reason": "not_sampled_to_preserve_control_frequency"
+          },
+          "current": {
+            "valid": false,
+            "value": null,
+            "reason": "not_sampled_to_preserve_control_frequency"
+          },
+          "load": {
+            "valid": false,
+            "value": null,
+            "reason": "not_sampled_to_preserve_control_frequency"
+          },
+          "force": {
+            "valid": false,
+            "value": null,
+            "reason": "no_force_sensor"
+          }
+        },
+        "labels": {
+          "phase": {
+            "valid": false,
+            "value": null
+          },
+          "success": {
+            "valid": false,
+            "value": null
+          },
+          "done": {
+            "valid": false,
+            "value": null
+          },
+          "grasp": {
+            "valid": false,
+            "value": null
+          }
+        },
+        "latency_ms": {
+          "state_read": 0.0,
+          "state_to_action": 1e-06,
+          "action_send": 0.0,
+          "writer_queue": 35.963496
+        }
+      },
+      "images": {
+        "top": {
+          "overlay_url": "/api/scenes/ca11ddcbfa3142feba6860655b307be2/top/overlay",
+          "raw_url": "/api/scenes/ca11ddcbfa3142feba6860655b307be2/top/raw",
+          "objects": [
+            {
+              "category": "box",
+              "score": 0.953125,
+              "bbox_xyxy": [
+                -0.25567054748535156,
+                146.3269805908203,
+                186.44351196289062,
+                343.3321838378906
+              ],
+              "center_xy": [
+                95.2217544343985,
+                243.8667955000345
+              ],
+              "area_px": 28978,
+              "visibility": "visible_mask",
+              "occlusion": {
+                "valid": false,
+                "value": null,
+                "reason": "Single RGB mask не определяет скрытую площадь"
+              },
+              "touches_image_border": true,
+              "color": {
+                "valid": false,
+                "label": "unknown",
+                "reason": "Недостаточная яркость для цвета; RGB/HSV измерены",
+                "rgb": [
+                  32.0,
+                  20.0,
+                  14.0
+                ],
+                "rgb_mad": [
+                  15.000000000000004,
+                  11.0,
+                  9.0
+                ],
+                "hsv": [
+                  0.05555555555555556,
+                  0.5625,
+                  0.12549019607843137
+                ],
+                "method": "visible_mask_median_RGB_HSV_v2_lowlight_invalid",
+                "pixel_count": 28978,
+                "confidence": "unvalidated_lighting_dependent",
+                "limitations": "Без color-chart калибровки; блики/тени меняют цвет"
+              },
+              "geometry": {
+                "valid": false,
+                "reason": "Нет проверенной актуальной геометрической калибровки",
+                "xyz_m": null,
+                "size_m": null,
+                "depth_m": null,
+                "grasp": null,
+                "surface": "unknown",
+                "uncertainty_m": null,
+                "provenance": "unobserved"
+              },
+              "mask_encoding": "png_binary_0_255_lossless",
+              "mask_path": "top-mask-0000.png",
+              "mask_sha256": "bbd15eb1225bc7c2d79826be4b77f5c091f9b6d15cc0df2373bc0dab4746f60b",
+              "category_ambiguous": false,
+              "category_candidates": [
+                "box"
+              ],
+              "cross_category_overlaps": [],
+              "tracking": {
+                "id": "top-000001",
+                "confidence": 0.0,
+                "status": "new",
+                "method": "causal_box_IoU_v1",
+                "identity_guaranteed": false
+              }
+            }
+          ],
+          "timestamp_ns": 65550349343015,
+          "raw_sha256": "2bbd3ba8e238cf2c81915b9c734a3afd5b531b6af3e53e7b85f7da2238dfca84"
+        },
+        "wrist": {
+          "overlay_url": "/api/scenes/ca11ddcbfa3142feba6860655b307be2/wrist/overlay",
+          "raw_url": "/api/scenes/ca11ddcbfa3142feba6860655b307be2/wrist/raw",
+          "objects": [
+            {
+              "category": "box",
+              "score": 0.8984375,
+              "bbox_xyxy": [
+                490.757568359375,
+                3.203730583190918,
+                576.457763671875,
+                97.09538269042969
+              ],
+              "center_xy": [
+                538.6925334800954,
+                52.03485598972666
+              ],
+              "area_px": 5451,
+              "visibility": "visible_mask",
+              "occlusion": {
+                "valid": false,
+                "value": null,
+                "reason": "Single RGB mask не определяет скрытую площадь"
+              },
+              "touches_image_border": false,
+              "color": {
+                "valid": true,
+                "label": "gray",
+                "reason": null,
+                "rgb": [
+                  87.0,
+                  83.0,
+                  79.0
+                ],
+                "rgb_mad": [
+                  32.99999999999999,
+                  37.99999999999999,
+                  19.000000000000004
+                ],
+                "hsv": [
+                  0.08333333333333333,
+                  0.09195402298850575,
+                  0.3411764705882353
+                ],
+                "method": "visible_mask_median_RGB_HSV_v2_lowlight_invalid",
+                "pixel_count": 5451,
+                "confidence": "unvalidated_lighting_dependent",
+                "limitations": "Без color-chart калибровки; блики/тени меняют цвет"
+              },
+              "geometry": {
+                "valid": false,
+                "reason": "Нет проверенной актуальной геометрической калибровки",
+                "xyz_m": null,
+                "size_m": null,
+                "depth_m": null,
+                "grasp": null,
+                "surface": "unknown",
+                "uncertainty_m": null,
+                "provenance": "unobserved"
+              },
+              "mask_encoding": "png_binary_0_255_lossless",
+              "mask_path": "wrist-mask-0000.png",
+              "mask_sha256": "4a02913368a6d6212db8d8e5df339c96bed33fe6cf19e4adad9c4f0d042e1aff",
+              "category_ambiguous": false,
+              "category_candidates": [
+                "box"
+              ],
+              "cross_category_overlaps": [],
+              "tracking": {
+                "id": "wrist-000001",
+                "confidence": 0.0,
+                "status": "new",
+                "method": "causal_box_IoU_v1",
+                "identity_guaranteed": false
+              }
+            }
+          ],
+          "timestamp_ns": 65550349343015,
+          "raw_sha256": "3f220c548d93e234613c51b19f5e5506cbe24e59ce65b83f3b0e8578c010d71d"
+        }
+      },
+      "detected_objects": 2,
+      "ambiguous_objects": 0,
+      "sample_count": 3,
+      "sparse_preview": true,
+      "source_episode_id": "ep_20261107T024316_644d54d138"
+    },
+    "pid": 901916
+  },
+  "raw_validation": {
+    "schema_version": "so101-raw-validation-v1",
+    "dataset_id": "ds_705a67b1b371411e",
+    "checked_at": "2026-11-06T23:43:49.597398+00:00",
+    "source": "synthetic_test",
+    "software_only": true,
+    "hardware_verification": "NOT_TESTED_BY_FILE_VALIDATOR",
+    "errors": [],
+    "warnings": [
+      "Технические данные: аппаратная работоспособность и успех политики не проверены",
+      "Меньше трёх эпизодов: полноценные train/validation/test могут быть недоступны"
+    ],
+    "episodes": [
+      {
+        "episode_id": "ep_20261107T024246_f3f433a2c4",
+        "session_id": "session_c8f1e85db0f84670",
+        "frames": 898,
+        "frames_sha256": "4c9836ada37ae490d4554903f489a218071a6f0970cf37d5f3b7d3480b41a743",
+        "duration_s": 29.99700448,
+        "fps_requested": 30.0,
+        "fps_observed": 29.902985833070755,
+        "max_sample_period_s": 0.035502417,
+        "max_camera_age_ms": 0.0,
+        "max_camera_pair_skew_ms": 0.0,
+        "max_state_to_action_ms": 1e-06,
+        "camera_dimensions": {
+          "top": [
+            640,
+            480
+          ],
+          "wrist": [
+            640,
+            480
+          ]
+        },
+        "reused_camera_frames": {
+          "top": 0,
+          "wrist": 0
+        },
+        "dropped_camera_frames": {
+          "top": 0,
+          "wrist": 0
+        }
+      },
+      {
+        "episode_id": "ep_20261107T024316_644d54d138",
+        "session_id": "session_c8f1e85db0f84670",
+        "frames": 898,
+        "frames_sha256": "2322a557e9cebfdf231aee750aff96197b7b4df8206d1bb4057dbdf4984ebb1a",
+        "duration_s": 30.016378359,
+        "fps_requested": 30.0,
+        "fps_observed": 29.883685142549744,
+        "max_sample_period_s": 0.037467872,
+        "max_camera_age_ms": 0.0,
+        "max_camera_pair_skew_ms": 0.0,
+        "max_state_to_action_ms": 1e-06,
+        "camera_dimensions": {
+          "top": [
+            640,
+            480
+          ],
+          "wrist": [
+            640,
+            480
+          ]
+        },
+        "reused_camera_frames": {
+          "top": 0,
+          "wrist": 0
+        },
+        "dropped_camera_frames": {
+          "top": 0,
+          "wrist": 0
+        }
+      }
+    ],
+    "frames": 1796,
+    "quarantine_episodes": 0,
+    "status": "valid",
+    "finalized": true,
+    "training_eligible": false,
+    "dataset_sha256": "aa925602b2d26e71e9e46efd0e470238a380c49ad76c394b96f6f57c8f133f2f",
+    "dataset_version": 2
+  },
+  "mlflow": {
+    "session_id": "session_c8f1e85db0f84670",
+    "owner_pid": 901896,
+    "owner_start_ticks": "6549071",
+    "status": "FINISHED",
+    "delivery_pid": 901919,
+    "spool": "/home/jetsonnx/Projects/so101_ai_learning/runtime/recording-load-1794008566744558375/runtime/mlflow-spool/d5ae0261-a982-4215-9c20-7dd060a1216f",
+    "run_id": "8765e35a228641a5857e5256c6e31742"
+  },
+  "official_export": {
+    "status": "complete",
+    "path": "/home/jetsonnx/Projects/so101_ai_learning/runtime/recording-load-1794008566744558375/data/ds_705a67b1b371411e/exports/lerobot_c92ccb7d5bbccbb1",
+    "repo_id": "so101-lab-technical-test/so101_c92ccb7d5bbccbb1fd661728",
+    "dataset_sha256": "c92ccb7d5bbccbb1fd66172888b7cdc9cb12db6f6397afad9739caadf2ef9c2c",
+    "source": "synthetic_test",
+    "test_only": true,
+    "total_frames": 1796,
+    "total_episodes": 2,
+    "nominal_fps": 30,
+    "official_verification": {
+      "status": "passed",
+      "loader": "lerobot.datasets.lerobot_dataset.LeRobotDataset",
+      "lerobot_version": "0.6.1",
+      "frames_opened_and_verified": 1796,
+      "total_frames": 1796,
+      "total_episodes": 2,
+      "image_shapes_chw": {
+        "top": [
+          3,
+          480,
+          640
+        ],
+        "wrist": [
+          3,
+          480,
+          640
+        ]
+      },
+      "rgb_pixels_bit_exact": true,
+      "image_comparison": "official image-backed float [0,1] decoded to exact uint8 via round(255*x), or native uint8",
+      "measured_timestamps_preserved": true,
+      "precise_monotonic_ns_preserved": true,
+      "task_and_episode_boundaries_verified": true,
+      "hardware_test": false,
+      "cuda_used": false
+    },
+    "warnings": [
+      "ep_20261107T024246_f3f433a2c4: наблюдаемый clock drift 97.00 ms превышает период nominal FPS; проверьте качество перед train",
+      "ep_20261107T024316_644d54d138: наблюдаемый clock drift 116.38 ms превышает период nominal FPS; проверьте качество перед train",
+      "ТЕХНИЧЕСКИЙ источник: joints/actions не являются измерениями/отправленными командами, успех робота не проверялся"
+    ]
+  }
+}

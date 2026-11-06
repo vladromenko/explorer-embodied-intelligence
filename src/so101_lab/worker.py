@@ -1,9 +1,13 @@
-import json,sys,time,traceback
+import json,sys,time,traceback,os,subprocess
 from pathlib import Path
 from .jobs import ROOT,DIR,atomic
 from .resources import ResourceBusy,ResourceLease,assert_compute_available
 
 def main():
+    os.environ.setdefault('TORCHINDUCTOR_CACHE_DIR',str(ROOT/'cache/torchinductor'))
+    os.environ.setdefault('TRITON_CACHE_DIR',str(ROOT/'cache/triton'))
+    os.nice(10)
+    subprocess.run(['ionice','-c','3','-p',str(os.getpid())],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
     jid=sys.argv[1];d=DIR/jid;p=d/'job.json';obj=json.loads(p.read_text());options=obj['options'];stopped=lambda:(d/'stop').exists()
     def update(data=None,**kw):
         obj.update(kw)
@@ -14,7 +18,9 @@ def main():
         dataset=Path(obj['dataset'])
         if obj['kind'] in ('export','validate','finalize'):
             while not stopped():
-                try:assert_compute_available('cpu',minimum_available_gb=1.5);break
+                try:
+                    with ResourceLease('recording'):pass
+                    assert_compute_available('cpu',minimum_available_gb=1.5);break
                 except ResourceBusy as e:update(state='waiting_resources',message=str(e));time.sleep(2)
             if stopped():update(state='stopped');return
             update(state='running',message='Проверка raw и подготовка LeRobot Dataset (CPU)')
@@ -34,6 +40,11 @@ def main():
             if options.get('expected_split_sha256') and check['split']['sha256']!=options['expected_split_sha256']:raise ValueError('Выборки изменились после отправки, повторите проверку')
         while not stopped():
             try:
+                if obj['kind']=='sam_watch':
+                    from .scene import watch_state
+                    if not watch_state(options):update(state='stopped',message='Сессия записи уже завершена');return
+                if obj['kind'] in ('scene','annotate'):
+                    with ResourceLease('recording'):pass
                 assert_compute_available(options.get('device','cuda'),minimum_available_gb=options.get('minimum_available_gb',7))
                 if obj['kind']=='annotate':
                     from .resources import dataset_lease
@@ -50,6 +61,12 @@ def main():
             if obj['kind']=='annotate':
                 from .annotations import annotate_dataset
                 result=annotate_dataset(dataset,options,progress=update,stop=stopped)
+            elif obj['kind']=='scene':
+                from .scene import annotate_scene
+                result=annotate_scene(dataset,options,progress=update,stop=stopped)
+            elif obj['kind']=='sam_watch':
+                from .scene import watch_recording
+                result=watch_recording(dataset,options,progress=update,stop=stopped,publish=lambda value:update(result=value))
             elif obj['kind']=='train':
                 from .training import train
                 output=Path(options['output_dir'])/jid if options.get('output_dir') else ROOT/'models'/jid

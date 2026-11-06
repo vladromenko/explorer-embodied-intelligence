@@ -210,7 +210,7 @@ def test_stop_during_slow_end_drain_closes_source_promptly(tmp_path,monkeypatch,
     import threading
     from PIL import Image
     saving,release,draining,closed=(threading.Event() for _ in range(4))
-    save_original=Image.Image.save
+    save_original=EpisodeWriter._encode_image
     close_original=SyntheticSource.close
     finish_original=EpisodeWriter.finish
     def slow_save(image,*args,**kwargs):
@@ -219,7 +219,7 @@ def test_stop_during_slow_end_drain_closes_source_promptly(tmp_path,monkeypatch,
         closed.set();return close_original(source)
     def finish(writer,**kwargs):
         draining.set();return finish_original(writer,**kwargs)
-    monkeypatch.setattr(Image.Image,'save',slow_save)
+    monkeypatch.setattr(EpisodeWriter,'_encode_image',slow_save)
     monkeypatch.setattr(SyntheticSource,'close',close)
     monkeypatch.setattr(EpisodeWriter,'finish',finish)
     manager=manager_at(tmp_path);dataset=manager.create_dataset('slow drain','fixture')
@@ -237,10 +237,10 @@ def test_writer_timeout_retains_live_partial_directory(tmp_path,monkeypatch):
     import threading
     from PIL import Image
     saving,release=threading.Event(),threading.Event()
-    original=Image.Image.save
+    original=EpisodeWriter._encode_image
     def slow_save(image,*args,**kwargs):
         saving.set();release.wait(3);return original(image,*args,**kwargs)
-    monkeypatch.setattr(Image.Image,'save',slow_save)
+    monkeypatch.setattr(EpisodeWriter,'_encode_image',slow_save)
     writer=EpisodeWriter(tmp_path,{'episode_id':'ep_timeout'})
     source=SyntheticSource({'width':160,'height':120});source.start()
     try:

@@ -1,6 +1,6 @@
 /* Pure display/state rules. No camera, browser or motor side effects. */
 (function(root){
- const labels={idle:'Готов к записи',starting:'Подключаем оборудование',recording:'Идёт запись',ready:'Эпизод сохранён',stopped:'Сессия завершена',failed:'Запись остановлена с ошибкой',running:'Выполняется',queued:'В очереди',waiting_resources:'Ожидает свободные ресурсы',completed:'Завершено',interrupted:'Прервано'};
+ const labels={idle:'Готов к записи',starting:'Подключаем оборудование',preparing:'Подготовка сцены',saving:'Сохраняем эпизод',recording:'Идёт запись',ready:'Эпизод сохранён',stopped:'Сессия завершена',failed:'Запись остановлена с ошибкой',running:'Выполняется',queued:'В очереди',waiting_resources:'Ожидает свободные ресурсы',completed:'Завершено',interrupted:'Прервано'};
  function technical(d){return d.source!=='hardware'||d.test_only===true||d.purpose==='technical_test'}
  function datasets(items,showTests){return (items||[]).filter(d=>showTests||!technical(d))}
  function selected(items,value){return items.some(d=>d.dataset_id===value)?value:''}

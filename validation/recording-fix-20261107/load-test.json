@@ -1,0 +1,146 @@
+{
+  "status": "PASS",
+  "technical_file_replay": true,
+  "physical_test": false,
+  "hardware_opened": false,
+  "elapsed_seconds": 173.71651959500014,
+  "peak_writer_queue": 29,
+  "dataset": "/home/jetsonnx/Projects/so101_ai_learning/runtime/recording-load-1794005732251816530/data/ds_1d08e22a74354718",
+  "frames": 3572,
+  "episodes": 2,
+  "raw_validation": {
+    "schema_version": "so101-raw-validation-v1",
+    "dataset_id": "ds_1d08e22a74354718",
+    "checked_at": "2026-11-06T22:57:32.524913+00:00",
+    "source": "synthetic_test",
+    "software_only": true,
+    "hardware_verification": "NOT_TESTED_BY_FILE_VALIDATOR",
+    "errors": [],
+    "warnings": [
+      "Технические данные: аппаратная работоспособность и успех политики не проверены",
+      "Меньше трёх эпизодов: полноценные train/validation/test могут быть недоступны"
+    ],
+    "episodes": [
+      {
+        "episode_id": "ep_20261107T015532_c64c885ed1",
+        "session_id": "session_0bef96491ff34661",
+        "frames": 1791,
+        "frames_sha256": "586e7cc5422153db62c4cabe9128516cb506806073e1801f460e14771706cf66",
+        "duration_s": 59.999007238,
+        "fps_requested": 30.0,
+        "fps_observed": 29.833826964828756,
+        "max_sample_period_s": 0.083112304,
+        "max_camera_age_ms": 0.0,
+        "max_camera_pair_skew_ms": 0.0,
+        "max_state_to_action_ms": 1e-06,
+        "camera_dimensions": {
+          "top": [
+            640,
+            480
+          ],
+          "wrist": [
+            640,
+            480
+          ]
+        },
+        "reused_camera_frames": {
+          "top": 0,
+          "wrist": 0
+        },
+        "dropped_camera_frames": {
+          "top": 0,
+          "wrist": 0
+        }
+      },
+      {
+        "episode_id": "ep_20261107T015632_79ef9d8ab0",
+        "session_id": "session_0bef96491ff34661",
+        "frames": 1781,
+        "frames_sha256": "693ce3c379e3079deb0edf6d27f351ef639db940723f080112e848dce4d25053",
+        "duration_s": 59.9923639,
+        "fps_requested": 30.0,
+        "fps_observed": 29.670442774467833,
+        "max_sample_period_s": 0.513242624,
+        "max_camera_age_ms": 0.0,
+        "max_camera_pair_skew_ms": 0.0,
+        "max_state_to_action_ms": 1e-06,
+        "camera_dimensions": {
+          "top": [
+            640,
+            480
+          ],
+          "wrist": [
+            640,
+            480
+          ]
+        },
+        "reused_camera_frames": {
+          "top": 0,
+          "wrist": 0
+        },
+        "dropped_camera_frames": {
+          "top": 0,
+          "wrist": 0
+        }
+      }
+    ],
+    "frames": 3572,
+    "quarantine_episodes": 0,
+    "status": "valid",
+    "finalized": true,
+    "training_eligible": false,
+    "dataset_sha256": "63725ca05951f89801e8f29a8cd9aee9139377651b893dce3aa3228369eb117d",
+    "dataset_version": 2
+  },
+  "mlflow": {
+    "session_id": "session_0bef96491ff34661",
+    "owner_pid": 856214,
+    "owner_start_ticks": "6265620",
+    "status": "FINISHED",
+    "spool": "/home/jetsonnx/Projects/so101_ai_learning/runtime/recording-load-1794005732251816530/runtime/mlflow-spool/867a5b1d-8bd5-4e9b-b3cd-f396e3755911",
+    "run_id": "e4006dcac06647f9a887a242a796698f"
+  },
+  "official_export": {
+    "status": "complete",
+    "path": "/home/jetsonnx/Projects/so101_ai_learning/runtime/recording-load-1794005732251816530/data/ds_1d08e22a74354718/exports/lerobot_9788d86b95c3fa7c",
+    "repo_id": "so101-lab-technical-test/so101_9788d86b95c3fa7c891ded84",
+    "dataset_sha256": "9788d86b95c3fa7c891ded8485623d07ef3c13600a91885a6aa80b132aaf81df",
+    "source": "synthetic_test",
+    "test_only": true,
+    "total_frames": 3572,
+    "total_episodes": 2,
+    "nominal_fps": 30,
+    "official_verification": {
+      "status": "passed",
+      "loader": "lerobot.datasets.lerobot_dataset.LeRobotDataset",
+      "lerobot_version": "0.6.1",
+      "frames_opened_and_verified": 3572,
+      "total_frames": 3572,
+      "total_episodes": 2,
+      "image_shapes_chw": {
+        "top": [
+          3,
+          480,
+          640
+        ],
+        "wrist": [
+          3,
+          480,
+          640
+        ]
+      },
+      "rgb_pixels_bit_exact": true,
+      "image_comparison": "official image-backed float [0,1] decoded to exact uint8 via round(255*x), or native uint8",
+      "measured_timestamps_preserved": true,
+      "precise_monotonic_ns_preserved": true,
+      "task_and_episode_boundaries_verified": true,
+      "hardware_test": false,
+      "cuda_used": false
+    },
+    "warnings": [
+      "ep_20261107T015532_c64c885ed1: наблюдаемый clock drift 332.34 ms превышает период nominal FPS; проверьте качество перед train",
+      "ep_20261107T015632_79ef9d8ab0: наблюдаемый clock drift 659.03 ms превышает период nominal FPS; проверьте качество перед train",
+      "ТЕХНИЧЕСКИЙ источник: joints/actions не являются измерениями/отправленными командами, успех робота не проверялся"
+    ]
+  }
+}

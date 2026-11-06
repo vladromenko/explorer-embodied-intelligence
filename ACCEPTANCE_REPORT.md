@@ -1,3 +1,11 @@
+# Дополнение7 ноября: запись и MLflow, релиз v13
+
+Текущая программная приёмка:139 Python +16 DOM PASS; Chromium/WebKit synthetic workflow и установленный UI/LAN/Tailscale/archive playback PASS.120s raw3572 кадра; повтор60s raw+настоящий SAM3 GPU1796 кадров, max queue1. Реальный MLflow RUNNING с метриками прочитан во время записи; Stop→FINISHED, outage/replay и crash/quarantine→FAILED проверены повторно. Новых движений аппаратуры тесты не выполняли.
+
+Доказательства и точные границы: `validation/recording-fix-20261107/release.json`, `RECORDING_RELIABILITY_REVIEW.md`. После исправлений остаётся1 физический контрольный эпизод оператором и проверка Safari на Mac. Подробности предыдущих train/save/reload проверок сохранены ниже.
+
+---
+
 # Финальная инженерная приёмка SO-101 Studio — 6–7 ноября 2026
 
 Статус: **READY_FOR_FIRST_OPERATOR_EPISODE**, не FULLY VERIFIED. Настоящие камеры, read-only serial, SAM GPU и полный pretrained SmolVLA GPU проверены. Реальная телеоперация/запись с torque и Safari ещё требуют оператора. Технические checkpoints не разрешены для управления роботом.

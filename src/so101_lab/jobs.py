@@ -20,7 +20,7 @@ def alive(jid,pid):
     except (OSError,IndexError):return False
 
 def submit(kind,dataset,options=None):
-    if kind not in ('train','annotate','policy','policy_load','validate','export','finalize'):raise ValueError('Неизвестный тип задачи')
+    if kind not in ('train','annotate','scene','sam_watch','policy','policy_load','validate','export','finalize'):raise ValueError('Неизвестный тип задачи')
     jid=uuid.uuid4().hex;d=DIR/jid;d.mkdir();obj={'id':jid,'kind':kind,'dataset':str(dataset),'options':copy.deepcopy(options or {}),'state':'queued','created_at':time.time()};atomic(d/'job.json',obj)
     try:
         with (ROOT/'logs'/('job-'+jid+'.log')).open('a') as log:

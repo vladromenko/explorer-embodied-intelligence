@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "hardware_opened": false,
+  "repeated_sessions": 6,
+  "saved_episodes_before_final_session": 6,
+  "rerecord_archives": 3,
+  "concurrent_Start_STOP_trials": 8,
+  "race_results": [
+    "cancelled_by_STOP",
+    "cancelled_by_STOP",
+    "cancelled_by_STOP",
+    "cancelled_by_STOP",
+    "cancelled_by_STOP",
+    "cancelled_by_STOP",
+    "cancelled_by_STOP",
+    "cancelled_by_STOP"
+  ],
+  "MLflow_metric_read_while_recording_active": true,
+  "MLflow_status_during_recording": "RUNNING",
+  "MLflow_run_id": "8933f7294cb449c896c8f3277971c516",
+  "MLflow_final_status": "FINISHED",
+  "dataset": "/home/jetsonnx/Projects/so101_ai_learning/runtime/recording-repeat-1794008812565067388/data/ds_87817158ca604c70"
+}

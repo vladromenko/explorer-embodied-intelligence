@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "hardware_opened": false,
+  "killed_only_child_QA_server": true,
+  "raw_frames_recovered": 30,
+  "archive_status": "incomplete",
+  "recording_after_restart": "idle",
+  "auto_motion_resume": false,
+  "real_MLflow_run_id": "a161de1793f54a8fb04bf2000a48ac6d",
+  "MLflow_status": "FAILED",
+  "dataset": "/home/jetsonnx/Projects/so101_ai_learning/runtime/recording-crash-1794008989410717339/data/ds_51bd0c6c0de24c2c"
+}

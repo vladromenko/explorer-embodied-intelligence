@@ -1,0 +1,22 @@
+{
+  "real_saved_RGB_no_hardware_open": true,
+  "opencv_threads": 8,
+  "encoders": {
+    "pil1": {
+      "ms_per_image_encode_write_fsync": 35.079555333504686,
+      "average_bytes": 358963.5
+    },
+    "pil0": {
+      "ms_per_image_encode_write_fsync": 18.571885133375567,
+      "average_bytes": 922446.0
+    },
+    "cv1": {
+      "ms_per_image_encode_write_fsync": 29.09559329976522,
+      "average_bytes": 361999.0
+    },
+    "cv0": {
+      "ms_per_image_encode_write_fsync": 14.704661999955231,
+      "average_bytes": 923622.0
+    }
+  }
+}

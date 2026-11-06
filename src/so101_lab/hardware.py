@@ -28,6 +28,17 @@ DEFAULT_CAMERAS = {
     'top': '/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D4EA612F-video-index0',
     'wrist': '/dev/v4l/by-id/usb-HD_USB_Camera_HD_USB_Camera-video-index0',
 }
+_cv_setup_lock=threading.Lock()
+_cv_ready=False
+
+def configure_cv():
+    """Avoid tiny-image CPU oversubscription; configure before starting CV threads."""
+    global _cv_ready
+    with _cv_setup_lock:
+        if not _cv_ready:
+            import cv2
+            cv2.setNumThreads(1)
+            _cv_ready=True
 
 
 def hardware_settings(settings: dict | None = None) -> dict:
@@ -109,6 +120,7 @@ class CameraCapture:
         self.info = {}
 
     def start(self):
+        configure_cv()
         import cv2
         assert_hardware_available([self.device])
         self.cap = cv2.VideoCapture(str(self.device), cv2.CAP_V4L2)
@@ -210,10 +222,12 @@ class HardwareSource:
     Constructing the object is inert. `start(explicit_user_start=True)` is mandatory.
     """
     source = 'hardware'
-    def __init__(self, settings: dict | None = None, *, teleoperate: bool = True, capture_cameras: bool = True):
+    def __init__(self, settings: dict | None = None, *, teleoperate: bool = True, capture_cameras: bool = True, camera_provider=None):
         self.cfg = hardware_settings(settings)
         self.teleoperate = teleoperate
         self.capture_cameras = capture_cameras
+        self.camera_provider=camera_provider
+        self.camera_borrow_token=None
         self.calibration = calibration_snapshot(self.cfg['calibration_dir'])
         self.cameras: dict[str,CameraCapture] = {}
         self.buses: dict[str,Any] = {}
@@ -229,12 +243,14 @@ class HardwareSource:
         self.startup_boundary_adjustments = {}
         self.last_teleop_target = None
         self.teleop_phase = 'aligning'
+        self._stop_requested=None
 
     def start(self, *, explicit_user_start: bool = False, stop=None):
         if not explicit_user_start: raise PermissionError('Нужен явный запуск записи/политики в UI')
         def check_cancelled():
             if stop and stop(): raise InterruptedError('Запуск hardware отменён пользователем до дальнейших команд')
         check_cancelled()
+        self._stop_requested=stop
         if self.started: raise RuntimeError('Source already started')
         self.closed = False
         self._close_errors = []
@@ -248,14 +264,16 @@ class HardwareSource:
         self.lease = lease
         try:
             assert_hardware_available(hardware_paths(self.cfg,leader=self.teleoperate,include_cameras=self.capture_cameras))
-            if self.capture_cameras:
+            if self.capture_cameras and self.camera_provider is not None:
+                self.camera_borrow_token,self.cameras=self.camera_provider.acquire_for_recording(self.cfg)
+            elif self.capture_cameras:
                 camera_lease=ResourceLease('cameras')
                 camera_lease.__enter__()
                 self.camera_lease=camera_lease
             # Imports resolve only to the laboratory .venv, never a foreign worktree.
             from lerobot.motors import Motor, MotorCalibration, MotorNormMode
             from lerobot.motors.feetech import FeetechMotorsBus
-            for name,device in (self.cfg['cameras'].items() if self.capture_cameras else []):
+            for name,device in (self.cfg['cameras'].items() if self.capture_cameras and self.camera_provider is None else []):
                 check_cancelled()
                 camera = CameraCapture(name,device,self.cfg)
                 self.cameras[name] = camera
@@ -349,13 +367,13 @@ class HardwareSource:
             if target!=value:self.startup_boundary_adjustments[name]={'measured_raw_ticks':value,'hold_raw_ticks':target,'difference_ticks':target-value,'calibration_changed':False}
         return targets
 
-    def observe(self):
+    def observe(self, *, require_images=True):
         if not self.started: raise RuntimeError('Hardware source is not started')
         read_start = time.monotonic_ns()
         state_dict = self.buses['follower'].sync_read('Present_Position',num_retry=1)
         read_end = time.monotonic_ns()
         images = {}
-        for name,camera in self.cameras.items():
+        for name,camera in (self.cameras.items() if require_images else []):
             frame = camera.latest_before(read_end)
             if frame is None: raise RuntimeError(f'Нет причинного кадра {name} до observation timestamp')
             age_ms = (read_end-frame['timestamp_ns'])/1e6
@@ -442,9 +460,10 @@ class HardwareSource:
                 'action_valid':True,'action_acknowledged':False,'action_provenance':'transmitted_quantized_goal_position',
                 'limits_applied':limited}
 
-    def sample(self, frame_id, *, stop=None):
+    def sample(self, frame_id, *, stop=None, require_images=True):
+        stop=stop or getattr(self,'_stop_requested',None)
         if stop and stop(): raise InterruptedError('Телеоперация остановлена до чтения')
-        observation = self.observe()
+        observation = self.observe() if require_images else self.observe(require_images=False)
         if not self.teleoperate: raise RuntimeError('sample only for leader teleoperation')
         leader_start = time.monotonic_ns()
         requested = self.buses['leader'].sync_read('Present_Position',num_retry=1)
@@ -458,6 +477,9 @@ class HardwareSource:
                 'leader_read_start_ns':leader_start,'leader_read_end_ns':leader_end,
                 'leader_action_requested':requested_vector,'teleoperation_phase':self.teleop_phase,
                 'tracking_error':[a-b for a,b in zip(requested_vector,observation['observation.state'])]}
+
+    def control_sample(self):
+        return self.sample(0,require_images=False)
 
     def close(self):
         if self.closed: return list(self._close_errors)
@@ -479,6 +501,11 @@ class HardwareSource:
                 try:
                     if bus.is_connected: bus.disconnect(disable_torque=False)
                 except Exception as exc: errors.append(f'{role} port close: {type(exc).__name__}: {exc}')
+        if getattr(self,'camera_borrow_token',None) is not None:
+            try:self.camera_provider.release_recording(self.camera_borrow_token)
+            except Exception as exc:errors.append(f'camera provider release: {exc}')
+            self.camera_borrow_token=None
+            self.cameras={}
         for camera in self.cameras.values():
             try: camera.close()
             except Exception as exc: errors.append(f'camera close: {exc}')

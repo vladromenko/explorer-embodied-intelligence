@@ -23,7 +23,9 @@ def snapshot():
     mem={}
     for line in Path('/proc/meminfo').read_text().splitlines():
         k,v=line.split(':',1); mem[k]=int(v.strip().split()[0])*1024
-    devices=['/dev/so101-leader','/dev/so101-follower','/dev/video0','/dev/video2']
+    from .hardware import DEFAULT_CAMERAS
+    device_paths={'leader':'/dev/so101-leader','follower':'/dev/so101-follower',**DEFAULT_CAMERAS}
+    devices=list(device_paths.values())
     gpu=[]
     for proc in Path('/proc').glob('[0-9]*'):
         if int(proc.name)==os.getpid(): continue
@@ -51,9 +53,9 @@ def snapshot():
         except OSError:pass
     held=owners(devices)
     inventory={}
-    for name,path in {'leader':'/dev/so101-leader','follower':'/dev/so101-follower','top':'/dev/video2','wrist':'/dev/video0'}.items():
+    for name,path in device_paths.items():
         resolved=str(Path(path).resolve());current=[o for o in held if resolved in o['devices']]
-        inventory[name]={'present':Path(path).exists(),'owners':current,'state':'BUSY' if current else 'AVAILABLE' if Path(path).exists() else 'MISSING'}
+        inventory[name]={'path':path,'resolved_path':resolved,'present':Path(path).exists(),'owners':current,'state':'BUSY' if current else 'AVAILABLE' if Path(path).exists() else 'MISSING'}
     return {'device_inventory':inventory,'timestamp_ns':time.monotonic_ns(),'memory_available_bytes':mem['MemAvailable'],'memory_total_bytes':mem['MemTotal'],'disk_free_bytes':shutil.disk_usage(ROOT).free,'hardware_owners':held,'compute_conflicts':gpu,'cuda_build':'2.11.0+cu130 (environment verified; server does not load torch)'}
 
 def assert_hardware_available(paths):

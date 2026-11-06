@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "hardware_commands_sent": 0,
+  "browsers": {
+    "chromium": {
+      "status": "PASS",
+      "checks": [
+        "deployed_v13",
+        "preparation15s_default",
+        "MLflow_link_visible",
+        "saved_real_archive_both_RGB_views",
+        "archive_not_trainable_label",
+        "saved_playback",
+        "ACT_SmolVLA_switch",
+        "LAN_websocket",
+        "offline_reconnect",
+        "Tailscale_websocket"
+      ],
+      "page_errors": []
+    },
+    "webkit": {
+      "status": "PASS",
+      "checks": [
+        "deployed_v13",
+        "preparation15s_default",
+        "MLflow_link_visible",
+        "saved_real_archive_both_RGB_views",
+        "archive_not_trainable_label",
+        "saved_playback",
+        "ACT_SmolVLA_switch",
+        "LAN_websocket",
+        "offline_reconnect",
+        "Tailscale_websocket"
+      ],
+      "page_errors": []
+    }
+  },
+  "hosts": {
+    "192.168.0.168": {
+      "UI": 200,
+      "MLflow": 200
+    },
+    "100.95.83.3": {
+      "UI": 200,
+      "MLflow": 200
+    }
+  }
+}

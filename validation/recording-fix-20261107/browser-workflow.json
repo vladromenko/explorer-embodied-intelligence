@@ -1,0 +1,84 @@
+{
+  "status": "PASS",
+  "hardware_opened": false,
+  "browsers": {
+    "chromium": {
+      "checks": [
+        "15s_preparation_no_frames",
+        "large_scene_automatic",
+        "space_begin_end",
+        "rerecord_quarantine",
+        "browser_disconnect_recording_survives",
+        "escape_stop",
+        "two_saved_episodes_one_quarantine",
+        "actual_recording_mlflow_status"
+      ],
+      "errors": [],
+      "dataset_id": "ds_2e571a6e69fe41ac",
+      "mlflow": {
+        "spool": "/home/jetsonnx/Projects/so101_ai_learning/runtime/recording-browser-qa/runtime/mlflow-spool/05e73a41-0e6a-4768-b8c9-09dc841b8835",
+        "run_id": "b79ca3bb03184ca38395f05113536d8d",
+        "experiment_id": "1",
+        "tracking_uri": "http://127.0.0.1:5020",
+        "state": "connected"
+      },
+      "frames": [
+        {
+          "storage": "episodes",
+          "count": 19,
+          "status": "complete"
+        },
+        {
+          "storage": "episodes",
+          "count": 50,
+          "status": "complete"
+        },
+        {
+          "storage": "quarantine",
+          "count": 23,
+          "status": "superseded"
+        }
+      ],
+      "status": "PASS"
+    },
+    "webkit": {
+      "checks": [
+        "15s_preparation_no_frames",
+        "large_scene_automatic",
+        "space_begin_end",
+        "rerecord_quarantine",
+        "browser_disconnect_recording_survives",
+        "escape_stop",
+        "two_saved_episodes_one_quarantine",
+        "actual_recording_mlflow_status"
+      ],
+      "errors": [],
+      "dataset_id": "ds_969f6a7a1ad247f6",
+      "mlflow": {
+        "spool": "/home/jetsonnx/Projects/so101_ai_learning/runtime/recording-browser-qa/runtime/mlflow-spool/f40f88b2-7ed1-48e2-a3e8-859808e61061",
+        "run_id": "917a9f4973f948729a07f1982440f3c5",
+        "experiment_id": "1",
+        "tracking_uri": "http://127.0.0.1:5020",
+        "state": "connected"
+      },
+      "frames": [
+        {
+          "storage": "episodes",
+          "count": 18,
+          "status": "complete"
+        },
+        {
+          "storage": "episodes",
+          "count": 118,
+          "status": "complete"
+        },
+        {
+          "storage": "quarantine",
+          "count": 19,
+          "status": "superseded"
+        }
+      ],
+      "status": "PASS"
+    }
+  }
+}

@@ -45,3 +45,5 @@ Homebrain: jetsonnx; LAN ранее 192.168.0.168, Tailscale 100.95.83.3. Обе
 Реальное операторское включение выявило слишком строгую проверку resting830/min834 shoulder_lift. Причина исправлена без новой калибровки; live read-only совпадение калибровок обеих рук доказано. Повтор физического Start — только кнопкой оператора.
 
 7 ноября: после операторского FAIL устранён постоянный feedback-delta limiter human-following; восстановлен проверенный контракт LeLab на прежней калибровке. Камеры отделены от отдельной телеоперации, добавлены сравнение всех осей со штатным SDK и диагностика requested/sent/measured. Новый физический follow-test — только оператором.
+
+7 ноября, релиз записи v13: устранён подтверждённый PNG queue overflow; reader камер общий с preview;15s prep/Space/R/Esc/большая сцена; настоящий SAM sparse preview и full annotation после сессии; MLflow во время записи в отдельном процессе.139 Python/16 DOM PASS, повторные load/browser/outage/crash/race проверки PASS. Текущий итог — STATUS.md и validation/recording-fix-20261107/release.json. Следующий аппаратный шаг только оператором:1 контрольный эпизод.
