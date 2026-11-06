@@ -14,7 +14,7 @@ class CameraPreview:
                 return self.status()
             cfg=hardware_settings()
             assert_hardware_available(list(cfg['cameras'].values()))
-            lease=ResourceLease('hardware');lease.__enter__();self.lease=lease
+            lease=ResourceLease('cameras');lease.__enter__();self.lease=lease
             self.error=None
             try:
                 # Check again under the common lease, before any camera opens.

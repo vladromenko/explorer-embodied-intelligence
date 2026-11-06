@@ -1,0 +1,16 @@
+{
+  "leader": {
+    "LeLab_saved_selection": "so101_leader.json",
+    "source": "/home/jetsonnx/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+    "source_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+    "our_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+    "byte_identical": true
+  },
+  "follower": {
+    "LeLab_saved_selection": "so101_follower.json",
+    "source": "/home/jetsonnx/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+    "source_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+    "our_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+    "byte_identical": true
+  }
+}

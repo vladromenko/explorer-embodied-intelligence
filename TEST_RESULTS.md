@@ -1,3 +1,11 @@
+# Прямое следование и независимые камеры — 7 ноября
+
+**128 passed за46.18s** (`logs/teleop-direct-final.log`), **14DOM passed** (`logs/teleop-direct-ui.log`), обновлённые Chromium/WebKit — PASS (`logs/teleop-direct-browser.log`). Дополнены: точное совпадение всех6 осей/знаков/raw goals со штатным SDK без открытия serial; корректный порядок имён независимо от dictionary order; продвижение alignment-команды при отстающем feedback; сохранение ограничений автономной политики; bus-only startup без камеры; независимость camera lease от servo lease.
+
+Прежняя пара калибровок подтверждена из сохранённого выбора LeLab; SDK normalize/unnormalize совпадают с прежним окружением. Physical follow старого профиля получил FAIL от оператора; новый профиль физически не запускался разработчиком и требует кнопки оператора. Артефакты: `validation/teleop-follow-20261107/`.
+
+---
+
 # Исправление отказа включения рук — 7 ноября
 
 Полный набор: **122 passed за45.08s**, `logs/arm-boundary-full-tests.log`; DOM: **14 passed**, `logs/arm-boundary-ui-tests.log`. Добавлено воспроизведение настоящего830/834, проверка ±8ticks, неизменности калибровки, строгих commanded limits, max_step и отказа при9ticks. UI сохраняет точные детали ошибки. Обе руки действительно прочитаны без register writes, сохранённые калибровки совпали; это не физический follow-test. Доказательства: `validation/arm-start-20261107/`.

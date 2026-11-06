@@ -1,0 +1,66 @@
+{
+  "schema_version": "so101.teleop.following.fix.v1",
+  "checked_at": "2026-11-07T01:25:44.379509+03:00",
+  "prior_operator_trial": "FAIL: user reports slow/unnatural following and reversed joints; backend also stopped for top frame age100ms",
+  "root_causes_confirmed": [
+    "continuous measured-state+small-delta limiter instead of standard direct leader action",
+    "standalone joint loop incorrectly depended on camera freshness"
+  ],
+  "calibration": "byte-identical to saved LeLab selections and live registers; unchanged",
+  "direction_evidence": "Actual installed stock SO101Leader.get_action→SO101Follower.send_action vs own HardwareSource.sample: all6 joints, both signs, reversed dictionary ordering, raw goals identical; inert SDK handlers, no serial opened",
+  "calibration_details": {
+    "leader": {
+      "LeLab_saved_selection": "so101_leader.json",
+      "source": "/home/jetsonnx/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+      "source_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+      "our_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+      "byte_identical": true
+    },
+    "follower": {
+      "LeLab_saved_selection": "so101_follower.json",
+      "source": "/home/jetsonnx/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+      "source_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+      "our_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+      "byte_identical": true
+    }
+  },
+  "old_LeLab_normalization_identical": {
+    "own_file": ".venv/lib/python3.12/site-packages/lerobot/motors/motors_bus.py",
+    "old_LeLab_files": [
+      {
+        "path": "/home/jetsonnx/Projects/lelab-system/.venv/lib/python3.12/site-packages/lerobot/motors/motors_bus.py",
+        "normalize_and_unnormalize_identical": true
+      }
+    ]
+  },
+  "new_profile": "command-space bounded initial alignment then direct calibrated leader targets; original absolute limits and STOP remain; autonomous policy retains bounded profile",
+  "standalone_control": "bus only; requested60Hz; camera preview independent; raw recording30FPS still requires synchronized cameras",
+  "new_diagnostics": [
+    "leader requested values",
+    "actually transmitted actions",
+    "measured follower state",
+    "tracking error",
+    "alignment/following phase",
+    "actual control Hz"
+  ],
+  "new_motor_register_writes_by_verification": 0,
+  "motor_PID_or_calibration_modified": false,
+  "python_tests": 128,
+  "python_test_seconds": 46.18,
+  "dom_tests": 14,
+  "browser_tests": {
+    "chromium": "PASS",
+    "webkit": "PASS"
+  },
+  "revised_physical_following": "NOT_TESTED explicit operator UI retry only",
+  "current_state": {
+    "teleoperation": "idle",
+    "recording": "idle",
+    "preview": true
+  },
+  "UI_PID": "827846",
+  "source_sha256": {
+    "src/so101_lab/hardware.py": "5d9628b7a37e2c3bde54a55fb87f71a24e32aef395326ad0bdf835bd7e6552e3",
+    "src/so101_lab/teleoperation.py": "4104f3fa26755727cf8fe0b357b72d8d17f24cec598f509b6f3c44f4f8decd29"
+  }
+}

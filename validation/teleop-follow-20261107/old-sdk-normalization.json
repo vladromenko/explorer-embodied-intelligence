@@ -1,0 +1,9 @@
+{
+  "own_file": ".venv/lib/python3.12/site-packages/lerobot/motors/motors_bus.py",
+  "old_LeLab_files": [
+    {
+      "path": "/home/jetsonnx/Projects/lelab-system/.venv/lib/python3.12/site-packages/lerobot/motors/motors_bus.py",
+      "normalize_and_unnormalize_identical": true
+    }
+  ]
+}

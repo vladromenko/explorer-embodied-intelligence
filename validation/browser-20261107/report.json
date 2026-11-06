@@ -1,6 +1,6 @@
 {
   "schema": "so101.browser.acceptance.v1",
-  "started_at": "2026-11-06T22:07:30.182Z",
+  "started_at": "2026-11-06T22:23:14.662Z",
   "url": "http://127.0.0.1:8020",
   "hardware_commands_sent": 0,
   "actual_Mac_Safari": false,
@@ -46,6 +46,6 @@
       "version": "26.0"
     }
   },
-  "finished_at": "2026-11-06T22:07:44.387Z",
+  "finished_at": "2026-11-06T22:23:30.654Z",
   "status": "PASS"
 }

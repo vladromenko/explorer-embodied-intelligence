@@ -279,7 +279,8 @@ def test_camera_rejects_unsupported_fps_before_reader_starts(monkeypatch):
     assert capture.released
 
 
-def test_partial_enable_failure_closes_all_motors_without_motion_retry(monkeypatch,tmp_path):
+@pytest.mark.parametrize('capture_cameras',[True,False])
+def test_partial_enable_failure_closes_all_motors_without_motion_retry(monkeypatch,tmp_path,capture_cameras):
     import serial
     from types import SimpleNamespace
     import lerobot.motors.feetech
@@ -294,7 +295,9 @@ def test_partial_enable_failure_closes_all_motors_without_motion_retry(monkeypat
         def __enter__(self):return self
         def __exit__(self,*args):self.closed=True
     class Camera:
-        def __init__(self,name,*args):self.info={};self.closed=False
+        def __init__(self,name,*args):
+            assert capture_cameras,'Bus-only startup must never construct a camera'
+            self.info={};self.closed=False
         def start(self):pass
         def close(self):self.closed=True
         def latest_before(self,now):return {'timestamp_ns':now}
@@ -318,7 +321,7 @@ def test_partial_enable_failure_closes_all_motors_without_motion_retry(monkeypat
     monkeypatch.setattr(module,'ResourceLease',Lease)
     monkeypatch.setattr(module,'CameraCapture',Camera)
     monkeypatch.setattr(lerobot.motors.feetech,'FeetechMotorsBus',Bus)
-    source=HardwareSource()
+    source=HardwareSource(capture_cameras=capture_cameras)
     with pytest.raises(OSError,match='partial Torque_Enable'):source.start(explicit_user_start=True)
     follower=instances[source.cfg['follower_port']]
     assert follower.enables==1 and len(follower.seed_writes)==1

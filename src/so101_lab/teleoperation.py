@@ -53,8 +53,8 @@ class TeleoperationManager:
             if self.current.get("hardware_stop_state") == "torque_disable_unconfirmed_operator_check_required":
                 raise RuntimeError("Снятие torque не подтверждено. Проверьте аппаратный STOP перед новым запуском")
             cfg = hardware_settings(settings)
-            assert_hardware_available(hardware_paths(cfg))
-            source = HardwareSource(cfg, teleoperate=True)
+            assert_hardware_available(hardware_paths(cfg,include_cameras=False))
+            source = HardwareSource(cfg, teleoperate=True, capture_cameras=False)
             self.source = source
             self.stop_event.clear()
             self.images = {}
@@ -120,13 +120,15 @@ class TeleoperationManager:
                 with self.lock:
                     self.images = sample["images"]
                     self.current.update(samples=samples, measured_joints=sample["observation.state"],
-                        sent_action=sample["action"], last_sample_ns=sample["timestamp_ns"])
+                        sent_action=sample["action"], last_sample_ns=sample["timestamp_ns"],
+                        leader_requested=sample.get('leader_action_requested'),tracking_error=sample.get('tracking_error'),
+                        limits_applied=sample.get('limits_applied'),phase=sample.get('teleoperation_phase'))
                 if time.monotonic() - last_persist >= 1:
                     self._update(observed_hz=samples / (time.monotonic() - started))
                     last_persist = time.monotonic()
                 # No catch-up commands after a slow USB read.
                 elapsed = time.monotonic() - before
-                self.stop_event.wait(1 / cfg["fps"] - elapsed if elapsed < 1 / cfg["fps"] else 1 / cfg["fps"])
+                self.stop_event.wait(max(0.,1 / cfg['teleoperation_control_hz'] - elapsed))
         except Exception as exc:
             if not (isinstance(exc, InterruptedError) and self.stop_event.is_set()):
                 state, error = "failed", f"{type(exc).__name__}: {exc}"

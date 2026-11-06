@@ -38,15 +38,17 @@ def hardware_settings(settings: dict | None = None) -> dict:
         'camera_formats': {'top':'MJPG','wrist':'YUYV'},
         'fps': 30, 'max_camera_age_ms': 100, 'max_step_degrees': 2.0,
         'max_gripper_step': 3.0, 'max_speed_degrees_s': 45.0,
+        'teleoperation_control_hz': 60,
         'calibration_dir': str(ROOT / 'config/calibration_snapshots'),
     }
     for key in result:
         if key in settings: result[key] = settings[key]
-    for key in ('fps','max_camera_age_ms','max_step_degrees','max_gripper_step','max_speed_degrees_s'):
+    for key in ('fps','max_camera_age_ms','max_step_degrees','max_gripper_step','max_speed_degrees_s','teleoperation_control_hz'):
         result[key] = float(result[key])
         if not math.isfinite(result[key]): raise ValueError(f'{key}: требуется конечное число')
     for key in ('width','height'): result[key] = int(result[key])
     if not 1 <= float(result['fps']) <= 30: raise ValueError('FPS должен быть в пределах 1–30')
+    if not 10<=result['teleoperation_control_hz']<=120:raise ValueError('Частота телеоперации: 10–120 Hz')
     if (int(result['width']),int(result['height'])) != (640,480):
         raise ValueError('Проверяемый режим записи: 640×480; другая геометрия требует отдельной проверки')
     if not 0 < float(result['max_step_degrees']) <= 2.0: raise ValueError('Шаг сустава должен быть 0–2°')
@@ -62,9 +64,10 @@ def hardware_settings(settings: dict | None = None) -> dict:
     return result
 
 
-def hardware_paths(settings: dict | None = None, leader: bool = True) -> list[str]:
+def hardware_paths(settings: dict | None = None, leader: bool = True, include_cameras: bool = True) -> list[str]:
     cfg = hardware_settings(settings)
-    paths = [cfg['follower_port'], *cfg['cameras'].values()]
+    paths = [cfg['follower_port']]
+    if include_cameras:paths.extend(cfg['cameras'].values())
     if leader: paths.append(cfg['leader_port'])
     return paths
 
@@ -207,13 +210,15 @@ class HardwareSource:
     Constructing the object is inert. `start(explicit_user_start=True)` is mandatory.
     """
     source = 'hardware'
-    def __init__(self, settings: dict | None = None, *, teleoperate: bool = True):
+    def __init__(self, settings: dict | None = None, *, teleoperate: bool = True, capture_cameras: bool = True):
         self.cfg = hardware_settings(settings)
         self.teleoperate = teleoperate
+        self.capture_cameras = capture_cameras
         self.calibration = calibration_snapshot(self.cfg['calibration_dir'])
         self.cameras: dict[str,CameraCapture] = {}
         self.buses: dict[str,Any] = {}
         self.lease = None
+        self.camera_lease = None
         self.started = False
         self.last_command_ns = None
         self.last_camera_sequences = {}
@@ -222,6 +227,8 @@ class HardwareSource:
         self._torque_touched = set()
         self._close_errors = []
         self.startup_boundary_adjustments = {}
+        self.last_teleop_target = None
+        self.teleop_phase = 'aligning'
 
     def start(self, *, explicit_user_start: bool = False, stop=None):
         if not explicit_user_start: raise PermissionError('Нужен явный запуск записи/политики в UI')
@@ -240,11 +247,15 @@ class HardwareSource:
         lease.__enter__()
         self.lease = lease
         try:
-            assert_hardware_available(hardware_paths(self.cfg,leader=self.teleoperate))
+            assert_hardware_available(hardware_paths(self.cfg,leader=self.teleoperate,include_cameras=self.capture_cameras))
+            if self.capture_cameras:
+                camera_lease=ResourceLease('cameras')
+                camera_lease.__enter__()
+                self.camera_lease=camera_lease
             # Imports resolve only to the laboratory .venv, never a foreign worktree.
             from lerobot.motors import Motor, MotorCalibration, MotorNormMode
             from lerobot.motors.feetech import FeetechMotorsBus
-            for name,device in self.cfg['cameras'].items():
+            for name,device in (self.cfg['cameras'].items() if self.capture_cameras else []):
                 check_cancelled()
                 camera = CameraCapture(name,device,self.cfg)
                 self.cameras[name] = camera
@@ -287,6 +298,8 @@ class HardwareSource:
             self._safe_targets(present,present,time.monotonic_ns())
             check_cancelled()
             follower.sync_write('Goal_Position',hold_raw,normalize=False,num_retry=0)
+            self.last_teleop_target=list(present)
+            self.teleop_phase='aligning'
             if self.teleoperate:
                 self._torque_touched.add('leader')
                 self.buses['leader'].disable_torque(num_retry=0)
@@ -308,6 +321,8 @@ class HardwareSource:
                 'feedback_unavailable':['velocity','current','load','force'],
                 'writes_acknowledgement':'Goal_Position sync_write has no per-motor ACK; actual transmitted targets, not measured achievement',
                 'encoder_boundary_tolerance_ticks':ENCODER_BOUNDARY_TOLERANCE_TICKS,
+                'camera_capture_enabled':self.capture_cameras,
+                'teleoperation_profile':'bounded command-space initial alignment, then direct calibrated LeRobot leader action' if self.teleoperate else None,
                 'startup_boundary_adjustments':self.startup_boundary_adjustments,
                 'motion_retry_count':0,'camera_geometry_valid':False,'wrist_hand_eye_valid':False}
 
@@ -385,12 +400,16 @@ class HardwareSource:
             if not self.teleoperate and not low <= value <= high:
                 raise ValueError(f'{name}: policy action вне абсолютных пределов; команда отклонена')
             bounded = max(low,min(high,value))
-            reference=max(low,min(high,measured[i]))
-            bounded = max(reference-delta,min(reference+delta,bounded))
-            # Deadband affects feedback only. Never transmit an out-of-range
-            # target; absolute motion step remains bounded from measured state.
-            max_step=self.cfg['max_gripper_step'] if name=='gripper' else self.cfg['max_step_degrees']
-            bounded=max(low,min(high,max(measured[i]-max_step,min(measured[i]+max_step,bounded))))
+            if not (self.teleoperate and self.teleop_phase=='following'):
+                previous=self.last_teleop_target[i] if self.teleoperate and self.last_teleop_target is not None else measured[i]
+                reference=max(low,min(high,previous))
+                bounded = max(reference-delta,min(reference+delta,bounded))
+                max_step=self.cfg['max_gripper_step'] if name=='gripper' else self.cfg['max_step_degrees']
+                bounded=max(low,min(high,max(previous-max_step,min(previous+max_step,bounded))))
+                # Initial alignment advances the commanded trajectory, rather
+                # than repeatedly pulling it back to a lagging servo reading.
+                if self.teleoperate and abs(bounded-measured[i])>10:
+                    raise RuntimeError(f'{name}: начальное выравнивание отстаёт более10 единиц; руки остановлены')
             result[name] = bounded
             if abs(value-bounded)>1e-6: limits.append(name)
         return result,limits
@@ -417,6 +436,7 @@ class HardwareSource:
         actual_by_id = bus._normalize(raw_by_id)
         actual = [float(actual_by_id[bus.motors[name].id]) for name in JOINTS]
         self.last_command_ns = end_ns
+        if self.teleoperate:self.last_teleop_target=list(actual)
         return {'action':actual,'action_raw_ticks':[raw[n] for n in JOINTS],
                 'action_timestamp_ns':end_ns,'action_send_start_ns':start_ns,'action_send_end_ns':end_ns,
                 'action_valid':True,'action_acknowledged':False,'action_provenance':'transmitted_quantized_goal_position',
@@ -430,10 +450,14 @@ class HardwareSource:
         requested = self.buses['leader'].sync_read('Present_Position',num_retry=1)
         leader_end = time.monotonic_ns()
         if stop and stop(): raise InterruptedError('Телеоперация остановлена до отправки команды')
-        action = self.send([float(requested[n]) for n in JOINTS],observation)
+        requested_vector=[float(requested[n]) for n in JOINTS]
+        if self.teleop_phase=='aligning' and all(abs(a-b)<=(3. if n=='gripper' else 2.) for n,a,b in zip(JOINTS,requested_vector,observation['observation.state'])):
+            self.teleop_phase='following'
+        action = self.send(requested_vector,observation)
         return {**observation,**action,'frame_id':frame_id,
                 'leader_read_start_ns':leader_start,'leader_read_end_ns':leader_end,
-                'leader_action_requested':[float(requested[n]) for n in JOINTS]}
+                'leader_action_requested':requested_vector,'teleoperation_phase':self.teleop_phase,
+                'tracking_error':[a-b for a,b in zip(requested_vector,observation['observation.state'])]}
 
     def close(self):
         if self.closed: return list(self._close_errors)
@@ -458,6 +482,14 @@ class HardwareSource:
         for camera in self.cameras.values():
             try: camera.close()
             except Exception as exc: errors.append(f'camera close: {exc}')
+        camera_lease=getattr(self,'camera_lease',None)
+        if camera_lease:
+            alive=any(getattr(camera,'thread',None) and camera.thread.is_alive() for camera in self.cameras.values())
+            if alive:errors.append('camera reader still alive; camera lease retained')
+            else:
+                try:camera_lease.__exit__(None,None,None)
+                except Exception as exc:errors.append(f'camera lease close: {exc}')
+                self.camera_lease=None
         self.started = False
         if self.lease:
             try: self.lease.__exit__(None,None,None)

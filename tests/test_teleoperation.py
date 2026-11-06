@@ -14,8 +14,9 @@ class Source:
     failure = None
     cleanup_errors = []
 
-    def __init__(self, settings, teleoperate):
+    def __init__(self, settings, teleoperate, capture_cameras=True):
         assert teleoperate is True
+        assert capture_cameras is False
         self.cameras = {}
         self.closed = False
         Source.calls.append("construct")
@@ -119,6 +120,9 @@ def test_http_explicit_teleop_then_recording_transfer_order(manager, monkeypatch
     class Preview:
         def stop(self):
             calls.append("preview_stop")
+        def start(self,**kwargs):
+            calls.append('preview_start')
+            return {'active':True}
 
     class Recorder:
         def status(self):
@@ -139,10 +143,10 @@ def test_http_explicit_teleop_then_recording_transfer_order(manager, monkeypatch
     client = TestClient(web.app)
     assert client.post("/api/teleoperation/start", json={}).status_code == 200
     wait_for(lambda: manager.status()["samples"] > 0)
-    assert client.post("/api/preview/start", json={}).status_code == 409
+    assert client.post("/api/preview/start", json={}).status_code == 200
     result = client.post("/api/record/start", json={"dataset_id": "fixture"})
     assert result.status_code == 200, result.text
-    assert calls == ["preview_stop", "preview_stop", "record_start"]
+    assert calls == ["preview_start", "preview_stop", "record_start"]
 
 
 def test_recording_blocks_another_controller(manager, monkeypatch):

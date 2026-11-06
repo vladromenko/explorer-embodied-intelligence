@@ -113,7 +113,6 @@ def teleoperation_action(action:str):
             if manager.status().get('active'):raise ValueError('Сначала остановите запись. Она уже управляет руками')
             if policy_is_active():raise ValueError('Сначала остановите политику кнопкой STOP рук перед телеоперацией')
             if teleoperation.status().get('active'):return teleoperation.status()
-            if camera_preview:camera_preview.stop()
             with hardware_start_guard:
                 if generation!=hardware_stop_generation:raise ValueError('Запуск рук отменён кнопкой STOP')
                 return teleoperation.start(explicit_user_start=True)
@@ -127,7 +126,6 @@ def preview_action(action:str):
         if action!='start':raise ValueError('Неизвестная команда камер')
         with hardware_control_lock:
             if manager.status().get('active'):raise ValueError('Камеры уже используются записью; предпросмотр идёт из неё')
-            if teleoperation and teleoperation.status().get('active'):raise ValueError('Камеры уже используются телеоперацией. Сначала остановите руки')
             return camera_preview.start(explicit_user_start=True)
     except Exception as e:raise HTTPException(409,str(e))
 @app.post('/api/record/{action}')

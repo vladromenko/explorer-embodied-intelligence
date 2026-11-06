@@ -56,7 +56,7 @@ def run_preflight(recording=None,preview=None,root=ROOT,teleoperation=None):
     stream_health={'status':'NOT TESTED','message':'Фактический FPS/чтение кадров проверяются только при явном подключении камер'}
     if preview_ours:
         stream_health={'status':'PASS' if all(c.get('connected') for c in pv.get('cameras',{}).values()) else 'FAIL','message':'Предпросмотр открыт пользователем; счётчики получены от реального reader','cameras':pv.get('cameras',{})}
-    if tp.get('hardware_open'):
+    if tp.get('hardware_open') and tp.get('cameras'):
         stream_health={'status':'PASS' if tp.get('cameras') and all(c.get('connected') for c in tp['cameras'].values()) else 'FAIL','message':'Камеры работают в телеоперации; датасет не записывается','cameras':tp.get('cameras',{})}
     actions=[]
     if not cleanup_ok:actions.append('Снятие torque после телеоперации не подтверждено. Проверьте аппаратный STOP; новый запуск заблокирован')

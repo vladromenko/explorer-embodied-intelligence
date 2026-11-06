@@ -1,0 +1,288 @@
+{
+  "state": "failed",
+  "active": false,
+  "hardware_open": false,
+  "recording": false,
+  "samples": 1793,
+  "settings": {
+    "leader_port": "/dev/so101-leader",
+    "follower_port": "/dev/so101-follower",
+    "cameras": {
+      "top": "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D4EA612F-video-index0",
+      "wrist": "/dev/v4l/by-id/usb-HD_USB_Camera_HD_USB_Camera-video-index0"
+    },
+    "width": 640,
+    "height": 480,
+    "camera_formats": {
+      "top": "MJPG",
+      "wrist": "YUYV"
+    },
+    "fps": 30.0,
+    "max_camera_age_ms": 100.0,
+    "max_step_degrees": 2.0,
+    "max_gripper_step": 3.0,
+    "max_speed_degrees_s": 45.0,
+    "calibration_dir": "/home/jetsonnx/Projects/so101_ai_learning/config/calibration_snapshots"
+  },
+  "message": "RuntimeError: Камера top stale: 100.0 ms",
+  "updated_at": 1794003047.5414865,
+  "provenance": {
+    "source": "hardware",
+    "lerobot_version": "0.6.1",
+    "joints": [
+      "shoulder_pan",
+      "shoulder_lift",
+      "elbow_flex",
+      "wrist_flex",
+      "wrist_roll",
+      "gripper"
+    ],
+    "units": [
+      "degrees",
+      "degrees",
+      "degrees",
+      "degrees",
+      "degrees",
+      "percent_calibrated_range"
+    ],
+    "calibration_snapshot": {
+      "schema_version": "so101-calibration-snapshot-v1",
+      "created_at": "2026-11-03T11:23:34.295695+00:00",
+      "status": "copied_unverified_until_hardware_readback",
+      "camera_geometry": {
+        "top": "unknown_camera_moved",
+        "wrist": "unknown_not_validated"
+      },
+      "files": {
+        "leader": {
+          "path": "leader.json",
+          "source": "/home/jetsonnx/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/so101_leader.json",
+          "sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c",
+          "source_mtime_ns": 1792974152947046030,
+          "lerobot_version": "0.6.1",
+          "verified_live": false
+        },
+        "follower": {
+          "path": "follower.json",
+          "source": "/home/jetsonnx/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json",
+          "sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354",
+          "source_mtime_ns": 1792974152947046030,
+          "lerobot_version": "0.6.1",
+          "verified_live": false
+        }
+      },
+      "values": {
+        "leader": {
+          "shoulder_pan": {
+            "id": 1,
+            "drive_mode": 0,
+            "homing_offset": -597,
+            "range_min": 752,
+            "range_max": 3469
+          },
+          "shoulder_lift": {
+            "id": 2,
+            "drive_mode": 0,
+            "homing_offset": -358,
+            "range_min": 837,
+            "range_max": 3201
+          },
+          "elbow_flex": {
+            "id": 3,
+            "drive_mode": 0,
+            "homing_offset": -385,
+            "range_min": 887,
+            "range_max": 3092
+          },
+          "wrist_flex": {
+            "id": 4,
+            "drive_mode": 0,
+            "homing_offset": 585,
+            "range_min": 861,
+            "range_max": 3208
+          },
+          "wrist_roll": {
+            "id": 5,
+            "drive_mode": 0,
+            "homing_offset": -156,
+            "range_min": 0,
+            "range_max": 4095
+          },
+          "gripper": {
+            "id": 6,
+            "drive_mode": 0,
+            "homing_offset": -1161,
+            "range_min": 2035,
+            "range_max": 3274
+          }
+        },
+        "follower": {
+          "shoulder_pan": {
+            "id": 1,
+            "drive_mode": 0,
+            "homing_offset": 1543,
+            "range_min": 853,
+            "range_max": 3475
+          },
+          "shoulder_lift": {
+            "id": 2,
+            "drive_mode": 0,
+            "homing_offset": -1852,
+            "range_min": 834,
+            "range_max": 3216
+          },
+          "elbow_flex": {
+            "id": 3,
+            "drive_mode": 0,
+            "homing_offset": 1722,
+            "range_min": 878,
+            "range_max": 3091
+          },
+          "wrist_flex": {
+            "id": 4,
+            "drive_mode": 0,
+            "homing_offset": 1410,
+            "range_min": 858,
+            "range_max": 3202
+          },
+          "wrist_roll": {
+            "id": 5,
+            "drive_mode": 0,
+            "homing_offset": 1607,
+            "range_min": 0,
+            "range_max": 4095
+          },
+          "gripper": {
+            "id": 6,
+            "drive_mode": 0,
+            "homing_offset": 970,
+            "range_min": 1389,
+            "range_max": 2900
+          }
+        }
+      }
+    },
+    "live_calibration": {
+      "leader": {
+        "verified_live": true,
+        "timestamp_ns": 59909479448234,
+        "snapshot_sha256": "9512a1d08ca9f4a8fcd55ac230df5fcf2636e3e1661e9c44ea0ba68a4b8de78c"
+      },
+      "follower": {
+        "verified_live": true,
+        "timestamp_ns": 59909516335781,
+        "snapshot_sha256": "da0032a29b7c0206b80df8aa3ada2eff8efb18e9f1a990126a5c83cfbdc66354"
+      }
+    },
+    "cameras": {
+      "top": {
+        "device": "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D4EA612F-video-index0",
+        "device_resolved": "/dev/video2",
+        "width": 640,
+        "height": 480,
+        "fps_reported": 30.0,
+        "pixel_format_requested": "MJPG",
+        "pixel_format_reported": "MJPG",
+        "timestamp_basis": "host_monotonic_capture_read_end; exposure timestamp unavailable",
+        "controls_written": [],
+        "camera_geometry_valid": false,
+        "stream_configuration_writes": [
+          "fourcc"
+        ],
+        "controls_readback_before": {
+          "AUTOFOCUS": 0.0,
+          "FOCUS": 0.0,
+          "AUTO_EXPOSURE": 1.0,
+          "EXPOSURE": 77.0,
+          "AUTO_WB": 1.0,
+          "WB_TEMPERATURE": 3732.0
+        },
+        "controls_readback_after": {
+          "AUTOFOCUS": 0.0,
+          "FOCUS": 0.0,
+          "AUTO_EXPOSURE": 1.0,
+          "EXPOSURE": 77.0,
+          "AUTO_WB": 1.0,
+          "WB_TEMPERATURE": 3732.0
+        },
+        "controls_changed_by_driver": [],
+        "controls_restored": false,
+        "capture_frames": 1168,
+        "fps_observed_recent": 16.199826957614107
+      },
+      "wrist": {
+        "device": "/dev/v4l/by-id/usb-HD_USB_Camera_HD_USB_Camera-video-index0",
+        "device_resolved": "/dev/video0",
+        "width": 640,
+        "height": 480,
+        "fps_reported": 30.0,
+        "pixel_format_requested": "YUYV",
+        "pixel_format_reported": "YUYV",
+        "timestamp_basis": "host_monotonic_capture_read_end; exposure timestamp unavailable",
+        "controls_written": [],
+        "camera_geometry_valid": false,
+        "stream_configuration_writes": [],
+        "controls_readback_before": {
+          "AUTOFOCUS": -1.0,
+          "FOCUS": -1.0,
+          "AUTO_EXPOSURE": 1.0,
+          "EXPOSURE": 80.0,
+          "AUTO_WB": 1.0,
+          "WB_TEMPERATURE": 4600.0
+        },
+        "controls_readback_after": {
+          "AUTOFOCUS": -1.0,
+          "FOCUS": -1.0,
+          "AUTO_EXPOSURE": 1.0,
+          "EXPOSURE": 80.0,
+          "AUTO_WB": 1.0,
+          "WB_TEMPERATURE": 4600.0
+        },
+        "controls_changed_by_driver": [],
+        "controls_restored": false,
+        "capture_frames": 1857,
+        "fps_observed_recent": 29.669234950082423
+      }
+    },
+    "feedback_unavailable": [
+      "velocity",
+      "current",
+      "load",
+      "force"
+    ],
+    "writes_acknowledgement": "Goal_Position sync_write has no per-motor ACK; actual transmitted targets, not measured achievement",
+    "encoder_boundary_tolerance_ticks": 8,
+    "startup_boundary_adjustments": {
+      "shoulder_lift": {
+        "measured_raw_ticks": 830,
+        "hold_raw_ticks": 834,
+        "difference_ticks": 4,
+        "calibration_changed": false
+      }
+    },
+    "motion_retry_count": 0,
+    "camera_geometry_valid": false,
+    "wrist_hand_eye_valid": false
+  },
+  "measured_joints": [
+    -7.472527472527473,
+    -102.94505494505495,
+    96.83516483516483,
+    53.18681318681319,
+    -6.637362637362638,
+    1.7207147584381206
+  ],
+  "sent_action": [
+    -7.736263736263736,
+    -103.2967032967033,
+    96.57142857142857,
+    53.27472527472528,
+    -6.285714285714286,
+    0.9927200529450696
+  ],
+  "last_sample_ns": 59971293895041,
+  "observed_hz": 26.82797576384132,
+  "error": "RuntimeError: Камера top stale: 100.0 ms",
+  "stop_errors": [],
+  "hardware_stop_state": "devices_closed"
+}
