@@ -8,7 +8,7 @@
 
 | Компонент | Реализация | Фактическая проверка | Результат | Ограничения |
 |---|---|---|---|---|
-| UI | Studio: запись/библиотека/обучение/политика, Preflight, playback | Реальные HTTP/WS по LAN и Tailnet + DOM-сценарии | PASS API/DOM | Реальная отрисовка в браузере не проверена: inventory пуст |
+| UI | Studio: запись/библиотека/обучение/политика, Preflight, playback | Реальные HTTP/WS по LAN и Tailnet + DOM-сценарии | PASS API/DOM | Chromium/WebKit реально проверены в дополнении ниже; Mac Safari NOT TESTED |
 | Safari | Серверные JPEG/PNG, без mediaDevices; WS по текущему host | Только проверка кода/API | NOT TESTED | Нужен checklist из RECORDING_GUIDE.md; DOM не считается Safari |
 | Top Camera | C920, MJPG 640×480 30 | Одновременно с wrist 5s, реальный JPEG через HTTP | PASS capture | ~29,4 FPS; движения/свет/длительная запись не проверены |
 | Wrist Camera | HD USB, YUYV 640×480 30 | Одновременно с top 5s, HTTP stop/reconnect | PASS capture | ~30,8 FPS; исправлен ошибочный запрос MJPG30 при поддержке MJPG120 |
@@ -58,3 +58,13 @@
 - LeRobot0.6.1; ACT/SmolVLA из этой же библиотеки; полный SmolVLA base revision `5e8d12a6e2975b0e5e5fce7c8caf47c371d257b6`. PyTorch2.11.0+cu130; torchvision0.26.0+cu130; Transformers5.5.4; MLflow3.6.0; SAM3 source0.1.0 pinned `f1647e8d0c1d280991f4d1b7d974c2704537fe66`, weights cache3c879f39826c281e95690f02c7821c4de09afae7. SAM имеет custom SAM License (не MIT), источник и hash в docs/SAM_ACCEPTANCE_20261106.json.
 - Финальные проверки:104pytest PASS/43.67s,10DOM PASS; pip/JS/compile checks PASS. Предпросмотр обоих настоящих камер включён без bus/torque, текущий Preflight `READY_FOR_OPERATOR_START`. LAN/Тailscale endpoints проверены с Jetson, а не с Mac.
 - Произвольные новые классы не подаются в adapter автоматически: поддерживаются semantic slots cube/box; общий SAM text API на других классах в этой приёмке NOT TESTED. FK/TCP/оптическая геометрия без проверенных актуальных transforms остаются unknown.
+
+## Дополнение 7 ноября: проверка рук отдельно от записи
+
+По уточнению пользователя добавлена отдельная серверная телеоперация без датасета: `POST /api/teleoperation/start`, кнопка «Включить телеоперацию», состояние подключения/следования, счётчик частоты, камеры и STOP. Конструктор и загрузка страницы инертны. Тот же единственный HardwareSource сохраняет калибровку/пределы/блокировки и не повторяет движения. Перед записью собственная телеоперация останавливается, cleanup подтверждается, только затем стартует recorder. STOP отменяет и ожидающую передачу владения; при неподтверждённом torque новый запуск блокируется. Закрытие браузера не владеет жизнью серверной сессии. Это программная проверка; физический Start остаётся за оператором.
+
+«Проверить модель и задержку» теперь загружает checkpoint и при наличии исходного raw выполняет два настоящих forward через текущий SAM/preprocessing/политику на сохранённом пригодном кадре. Исходные timestamps/hashes не меняются. Без raw веса остаются загружаемыми, но forward получает NOT_TESTED. Медленная проверка с тем же hash checkpoint блокирует физический Start до повторной проверки; live guard2000ms сохранён. Новая обвязка проверена CPU fixtures; новый совместный GPU SAM+VLA benchmark и физическое исполнение не объявлены пройденными. Прежние настоящие отдельные GPU SAM и полный pretrained update/reload остаются доказательствами своих этапов.
+
+Реальная браузерная проверка: Chromium141.0.7390.37 и WebKit26.0, 12 сценариев каждый, PASS. Обе настоящие камеры отображаются; переключение ACT/SmolVLA, 51 эпизод, Preflight, явный разрыв WebSocket/reconnect и ширины1024/768/390. Найден и исправлен overflow блока Preflight. Скриншоты локальны/исключены из Git, отчёт `validation/browser-20261107/report.json`. Настоящий Safari/Mac остаётся NOT_TESTED. Браузеры и недостающие .so установлены только в cache своего проекта; системные пакеты не менялись. Воспроизведение: `bash scripts/setup_browser_tests.sh`, затем `npm run test:browser`.
+
+Текущий выпуск:118pytest PASS,13DOM PASS. UI PID799786 на8020, MLflow parent PID2370 на5020. Адреса LAN/Tailscale прежние. Полный release proof: `validation/teleoperation-release-20261107.json`.

@@ -20,7 +20,7 @@ def device_inventory():
         inventory[name]={'path':path,'resolved':str(p.resolve()),'present':present,'accessible':accessible,'state':state,'owners':busy,'opened_by_check':False}
     return inventory
 
-def run_preflight(recording=None,preview=None,root=ROOT):
+def run_preflight(recording=None,preview=None,root=ROOT,teleoperation=None):
     root=Path(root);resources=snapshot();checks=[]
     inventory=device_inventory()
     checks.append({'id':'devices','name':'Камеры и руки','status':'PASS' if all(d['state']=='AVAILABLE' for d in inventory.values()) else 'BLOCKED','message':'Проверка файлов устройств и владельцев без открытия USB'})
@@ -44,17 +44,22 @@ def run_preflight(recording=None,preview=None,root=ROOT):
         models[name]={'cached':bool(files),'snapshots':[str(f.parent.name) for f in files],'status':'PASS' if files else 'FAIL','actual_forward':'NOT TESTED'}
     tracking=_health('http://127.0.0.1:5020/health');checks.append({'id':'mlflow','name':'MLflow','status':tracking['status'],'message':tracking.get('message','Локальный tracking server отвечает')})
     busy=any(d['owners'] for d in inventory.values());devices_ok=all(d['state']=='AVAILABLE' for d in inventory.values())
-    rec=recording or {};pv=preview or {};active=bool(rec.get('active'));preview_ours=bool(pv.get('active'))
+    rec=recording or {};pv=preview or {};tp=teleoperation or {};active=bool(rec.get('active'));preview_ours=bool(pv.get('active'))
     backend_ok=not(active and rec.get('state')=='failed')
-    can_start=devices_ok and disk_ok and cal['status']=='PASS' and backend_ok and not active
+    cleanup_ok=tp.get('hardware_stop_state')!='torque_disable_unconfirmed_operator_check_required'
+    can_start=devices_ok and disk_ok and cal['status']=='PASS' and backend_ok and not active and cleanup_ok
     compute_ready=not resources['compute_conflicts'] and resources['memory_available_bytes']>=8*1024**3
     training_ready=compute_ready and dependencies_ok and all(m['cached'] for m in models.values())
     if active:record_status='RECORDING' if rec.get('state')=='recording' else 'SESSION_ACTIVE'
+    elif tp.get('active'):record_status='TELEOPERATION_ACTIVE'
     else:record_status='READY_FOR_OPERATOR_START' if can_start else 'WAITING_FOR_HARDWARE' if busy or not devices_ok else 'BLOCKED'
     stream_health={'status':'NOT TESTED','message':'Фактический FPS/чтение кадров проверяются только при явном подключении камер'}
     if preview_ours:
         stream_health={'status':'PASS' if all(c.get('connected') for c in pv.get('cameras',{}).values()) else 'FAIL','message':'Предпросмотр открыт пользователем; счётчики получены от реального reader','cameras':pv.get('cameras',{})}
+    if tp.get('hardware_open'):
+        stream_health={'status':'PASS' if tp.get('cameras') and all(c.get('connected') for c in tp['cameras'].values()) else 'FAIL','message':'Камеры работают в телеоперации; датасет не записывается','cameras':tp.get('cameras',{})}
     actions=[]
+    if not cleanup_ok:actions.append('Снятие torque после телеоперации не подтверждено. Проверьте аппаратный STOP; новый запуск заблокирован')
     for name,d in inventory.items():
         if d['owners']:
             description=', '.join(f"{o['name']} (PID {o['pid']})" for o in d['owners'])

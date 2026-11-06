@@ -39,3 +39,5 @@ Homebrain: jetsonnx; LAN ранее 192.168.0.168, Tailscale 100.95.83.3. Обе
 
 ## Final acceptance tracking — 6–7 ноября2026
 Выполнены аудит/исправления/официальный LeRobot export/Preflight/full ACT CPU/full pretrained SmolVLA GPU/SAM GPU/newprocessreload/MLflow и программные проверки. Текущая сдача: ACCEPTANCE_REPORT.md, TEST_RESULTS.md, RECORDING_GUIDE.md, STATUS.md. Порты освобождены по более позднему явному разрешению пользователя. Не считать физическую запись или Safari проверенными до операторского действия в UI.
+
+7 ноября: по уточнению оператора сделана отдельная проверка Leader→Follower до создания датасета, собственный STOP и безопасная передача к recorder; проверены Chromium/WebKit и восстановление WebSocket. Физическую телеоперацию запускает только пользователь кнопкой нового UI.

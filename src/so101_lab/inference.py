@@ -13,6 +13,8 @@ from pathlib import Path
 
 from .features import FeatureContract, object_state, sha256_file, validate_raw_frame
 
+MAX_OBSERVATION_AGE_MS = 2000
+
 
 @dataclass
 class LoadedPolicy:
@@ -48,7 +50,7 @@ class LoadedPolicy:
     def predict(self, frame, images, annotation=None, task="", *, noise=None, allow_test=False):
         import torch
         if self.technical_test and not allow_test:
-            raise ValueError("Tiny random smoke checkpoint не разрешён для аппаратного inference")
+            raise ValueError("Технический checkpoint не разрешён для аппаратного inference")
         prepared = self.prepare_observation(frame, images, annotation, task, allow_test=allow_test)
         with torch.inference_mode():
             self.policy.reset()  # queue never carries stale actions across fresh observations
@@ -74,7 +76,7 @@ def load_checkpoint(path: Path, device="cpu", *, allow_technical=False, resource
         raise ValueError("Checkpoint ещё не содержит ни одного training update; разрешён только resume")
     technical = bool(manifest.get("technical_test"))
     if technical and not allow_technical:
-        raise ValueError("Это технический tiny checkpoint, не обученная политика для робота")
+        raise ValueError("Это технический checkpoint, не обученная политика для робота")
     contract = FeatureContract.from_dict(json.loads((folder / "object_adapter.json").read_text()))
     if contract.digest != manifest["feature_sha256"]:
         raise ValueError("Object adapter hash differs from trained checkpoint")
@@ -114,6 +116,93 @@ def load_checkpoint(path: Path, device="cpu", *, allow_technical=False, resource
     return LoadedPolicy(policy, pre, post, contract, checkpoint, technical, device,lineage.get("annotation_provenance"))
 
 
+def _load_segmenter(loaded):
+    if loaded.contract.mode != "sam_objects":
+        return None
+    from .annotations import SAM3Segmenter, validate_annotation_provenance
+    provenance = loaded.annotation_provenance or {}
+    if provenance.get("backend") != "sam3":
+        raise ValueError("Inference requires trained real SAM3 provenance")
+    segmenter = SAM3Segmenter({"device": loaded.device,
+        "checkpoint_path": provenance.get("checkpoint_path"), "prompts": provenance.get("prompts"),
+        "confidence_threshold": provenance.get("confidence_threshold", .5)}).load()
+    validate_annotation_provenance(segmenter.provenance, expected=provenance)
+    return segmenter
+
+
+def benchmark_observation(loaded, frame, images, task, segmenter=None, *, stop=None):
+    """A frozen recorded observation, two actual model forwards, zero device I/O.
+
+    First pass includes warmup; second is a latency estimate, not proof of live
+    control or grasp quality. Original timestamps/hashes stay unchanged.
+    """
+    samples = []
+    for index in range(2):
+        if stop and stop():return {"status": "stopped", "samples": samples, "physical_actions": False}
+        before = time.monotonic()
+        annotation = segmenter.annotate_observation(frame, images, {}) if segmenter else None
+        after_sam = time.monotonic()
+        if stop and stop():return {"status": "stopped", "samples": samples, "physical_actions": False}
+        action = loaded.predict(frame, images, annotation, task)
+        ended = time.monotonic()
+        samples.append({"warmup": index == 0, "sam_ms": (after_sam-before)*1000,
+                        "policy_ms": (ended-after_sam)*1000, "total_ms": (ended-before)*1000})
+    ready = samples[-1]["total_ms"] < MAX_OBSERVATION_AGE_MS
+    return {"status": "PASS" if ready else "LATENCY_EXCEEDS_LIMIT", "samples": samples,
+            "observation_age_limit_ms": MAX_OBSERVATION_AGE_MS, "latency_within_limit": ready,
+            "physical_actions": False, "last_prediction": action,
+            "limitations": "Архивный кадр: без USB/torque. Это оценка задержки моделей; live USB/STOP и качество захвата проверяются оператором"}
+
+
+def check_checkpoint(path, options, progress=None, stop=None):
+    """UI load check also runs the full SAM→policy chain on archived raw, if present."""
+    from .resources import ROOT, ResourceLease
+    from .features import safe_child
+    device = options.get("device", "cuda")
+    with ResourceLease("gpu_compute" if device.startswith("cuda") else "cpu_compute"):
+        loaded = load_checkpoint(path, device=device)
+        result = {"checkpoint": str(path), "loaded": True, "contract": loaded.contract.to_dict(),
+                  "physical_actions": False}
+        manifest=loaded.checkpoint/'checkpoint.json'
+        if manifest.is_file():result['checkpoint_manifest_sha256']=sha256_file(manifest)
+        if stop and stop():return {**result, "status": "stopped"}
+        folder = loaded.checkpoint / "pretrained_model"
+        lineage = json.loads((folder / "lineage.json").read_text())
+        dataset = Path(lineage.get("dataset_path", "")).resolve()
+        if not dataset.is_relative_to(ROOT / "data") or not dataset.is_dir():
+            return {**result, "latency_check": {"status": "NOT_TESTED", "reason": "Исходные raw-данные недоступны. Веса загружены; для проверки задержки нужен сохранённый эпизод"}}
+        episode_id = (lineage["split"].get("validation") or lineage["split"]["train"])[0]
+        episode = safe_child(dataset / "episodes", episode_id)
+        frames_file = episode / "frames.jsonl"
+        expected = lineage["dataset_hashes"].get(str(frames_file.relative_to(dataset)))
+        if expected != sha256_file(frames_file):raise ValueError("Raw-эпизод изменился после обучения; проверка checkpoint остановлена")
+        frame = None
+        rejected = 0
+        for line in frames_file.read_text().splitlines():
+            if line.strip():
+                candidate = json.loads(line)
+                try:validate_raw_frame(candidate, loaded.contract)
+                except (ValueError,KeyError,TypeError):rejected += 1
+                else:
+                    frame = candidate
+                    break
+        if frame is None:raise ValueError('В выбранном эпизоде нет пригодного observation для проверки политики')
+        result['sample_frame_id']=frame['frame_id']
+        result['rejected_observations_before_sample']=rejected
+        import numpy as np
+        from PIL import Image
+        images = {}
+        for camera in loaded.contract.cameras:
+            source = safe_child(episode, frame["cameras"][camera]["path"])
+            if sha256_file(source) != frame["cameras"][camera]["sha256"]:raise ValueError("Raw image hash mismatch")
+            with Image.open(source) as image:images[camera] = np.array(image.convert("RGB"), copy=True)
+        if progress:progress({"state": "checking_inference", "message": "Проверяем SAM → политику на сохранённом кадре. Руки не открываются"})
+        segmenter = _load_segmenter(loaded)
+        task = options.get("task") or json.loads((episode / "episode.json").read_text()).get("task", "")
+        result["latency_check"] = benchmark_observation(loaded, frame, images, task, segmenter, stop=stop)
+        return result
+
+
 def run_policy(checkpoint: Path, options: dict, progress=None, stop=None):
     """Explicit-start hardware worker: fresh observation -> real SAM -> policy action.
 
@@ -138,17 +227,7 @@ def _run_policy_loaded(loaded, options, progress, stop):
     segmenter = None
     associators = {}
     if loaded.contract.mode == "sam_objects":
-        from .annotations import SAM3Segmenter,validate_annotation_provenance
-        lineage = json.loads((loaded.checkpoint / "pretrained_model/lineage.json").read_text())
-        provenance = lineage.get("annotation_provenance") or {}
-        if provenance.get("backend") != "sam3":
-            raise ValueError("Inference requires trained real SAM3 provenance")
-        sam_options = {"device": loaded.device,
-                       "checkpoint_path": provenance.get("checkpoint_path"),
-                       "prompts": provenance.get("prompts"),
-                       "confidence_threshold": provenance.get("confidence_threshold", .5)}
-        segmenter = SAM3Segmenter(sam_options).load()  # before bus/torque
-        validate_annotation_provenance(segmenter.provenance,expected=provenance)
+        segmenter = _load_segmenter(loaded)  # before bus/torque
     settings = hardware_settings(options.get("hardware", {}))
     steps = 0
     max_steps = int(options.get("max_steps", 300))
@@ -174,7 +253,7 @@ def _run_policy_loaded(loaded, options, progress, stop):
             annotation = segmenter.annotate_observation(frame, images, associators) if segmenter else None
             action = loaded.predict(frame, images, annotation, task)
             elapsed = (time.monotonic_ns()-frame["timestamp_ns"])/1e6
-            if elapsed > float(options.get("max_observation_age_ms", 2000)):
+            if elapsed > float(options.get("max_observation_age_ms", MAX_OBSERVATION_AGE_MS)):
                 raise RuntimeError(f"Policy/SAM observation устарело на {elapsed:.0f} ms; действие не отправлено")
             if stop and stop():
                 break

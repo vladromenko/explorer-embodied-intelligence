@@ -390,12 +390,14 @@ class HardwareSource:
                 'action_valid':True,'action_acknowledged':False,'action_provenance':'transmitted_quantized_goal_position',
                 'limits_applied':limited}
 
-    def sample(self, frame_id):
+    def sample(self, frame_id, *, stop=None):
+        if stop and stop(): raise InterruptedError('Телеоперация остановлена до чтения')
         observation = self.observe()
         if not self.teleoperate: raise RuntimeError('sample only for leader teleoperation')
         leader_start = time.monotonic_ns()
         requested = self.buses['leader'].sync_read('Present_Position',num_retry=1)
         leader_end = time.monotonic_ns()
+        if stop and stop(): raise InterruptedError('Телеоперация остановлена до отправки команды')
         action = self.send([float(requested[n]) for n in JOINTS],observation)
         return {**observation,**action,'frame_id':frame_id,
                 'leader_read_start_ns':leader_start,'leader_read_end_ns':leader_end,

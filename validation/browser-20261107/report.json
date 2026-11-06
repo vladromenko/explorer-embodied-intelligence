@@ -1,0 +1,51 @@
+{
+  "schema": "so101.browser.acceptance.v1",
+  "started_at": "2026-11-06T21:58:28.210Z",
+  "url": "http://127.0.0.1:8020",
+  "hardware_commands_sent": 0,
+  "actual_Mac_Safari": false,
+  "browsers": {
+    "chromium": {
+      "checks": [
+        "actual_top_wrist_images_640px",
+        "websocket_connected",
+        "standalone_teleoperation_visible_without_dataset",
+        "no_auto_dataset_selection",
+        "episode_count_51_preserved",
+        "readonly_preflight_rendered",
+        "act_form_switch",
+        "smolvla_form_switch",
+        "network_reconnect",
+        "responsive_1024",
+        "responsive_768",
+        "responsive_390"
+      ],
+      "page_errors": [],
+      "blocked_unsafe_requests": [],
+      "status": "PASS",
+      "version": "141.0.7390.37"
+    },
+    "webkit": {
+      "checks": [
+        "actual_top_wrist_images_640px",
+        "websocket_connected",
+        "standalone_teleoperation_visible_without_dataset",
+        "no_auto_dataset_selection",
+        "episode_count_51_preserved",
+        "readonly_preflight_rendered",
+        "act_form_switch",
+        "smolvla_form_switch",
+        "network_reconnect",
+        "responsive_1024",
+        "responsive_768",
+        "responsive_390"
+      ],
+      "page_errors": [],
+      "blocked_unsafe_requests": [],
+      "status": "PASS",
+      "version": "26.0"
+    }
+  },
+  "finished_at": "2026-11-06T21:58:42.075Z",
+  "status": "PASS"
+}

@@ -58,9 +58,8 @@ def main():
                 from .inference import run_policy
                 result=run_policy(dataset,options,progress=update,stop=stopped)
             elif obj['kind']=='policy_load':
-                from .inference import load_checkpoint
-                policy=load_checkpoint(dataset,device=options.get('device','cpu'))
-                result={'checkpoint':str(dataset),'contract':policy.contract.to_dict(),'loaded':True,'physical_actions':False}
+                from .inference import check_checkpoint
+                result=check_checkpoint(dataset,options,progress=update,stop=stopped)
             else:raise ValueError('Unsupported job kind')
             update(state='stopped' if stopped() else 'completed',result=result)
         finally:

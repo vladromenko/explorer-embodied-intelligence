@@ -1,3 +1,15 @@
+# Дополнение 7 ноября — отдельная телеоперация и настоящий браузер
+
+- Финальный полный pytest: **118 passed за45.23s**, `logs/teleop-final-release.log`.
+- DOM: **13 passed**, `logs/teleop-dom-tests.log`.
+- Chromium141.0.7390.37 и WebKit26.0: по12 настоящих браузерных проверок PASS, реальные обе камеры/Preflight/ACT/Smol/51/обрыв WS/reconnect/ширины1440,1024,768,390. `validation/browser-20261107/report.json`, скриншоты в той же папке исключены из Git. Mac Safari этим не считается проверенным.
+- Телеоперация: явный start без датасета; STOP; cleanup при USB error; запрет рестарта после неподтверждённого torque; отсутствие send после STOP во время leader read; передача recorder только после закрытия источника; STOP отменяет ожидающую передачу; waiting policy останавливается. Только изолированные fixtures, реального моторного Start разработчик не отправлял.
+- Проверка модели: текущий saved raw/hash/schema, SAM→policy timing, отбрасывание невалидных observation как в train, NOT_TESTED при отсутствии raw, серверный запрет известного медленного checkpoint до открытия устройств. CPU fixtures новой обвязки; реальные GPU модельные проверки предыдущего этапа перечислены ниже.
+- Сервисы/порты/LAN/Tailscale/WS и safe cross-origin rejection — `validation/teleoperation-release-20261107.json`.
+- Воспроизведение браузерных тестов: `bash scripts/setup_browser_tests.sh` (всё в собственных node_modules/cache, без установки системных пакетов), `npm run test:browser`. Тест блокирует любые POST кроме безопасного Preflight и не нажимает Start рук. Первичная документация инструмента: [Playwright Browsers](https://playwright.dev/docs/browsers).
+
+---
+
 # Результаты приёмки — 6–7 ноября 2026
 
 ## Automated software tests
