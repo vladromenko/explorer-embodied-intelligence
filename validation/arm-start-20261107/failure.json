@@ -1,0 +1,32 @@
+{
+  "state": "failed",
+  "active": false,
+  "hardware_open": false,
+  "recording": false,
+  "samples": 0,
+  "settings": {
+    "leader_port": "/dev/so101-leader",
+    "follower_port": "/dev/so101-follower",
+    "cameras": {
+      "top": "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D4EA612F-video-index0",
+      "wrist": "/dev/v4l/by-id/usb-HD_USB_Camera_HD_USB_Camera-video-index0"
+    },
+    "width": 640,
+    "height": 480,
+    "camera_formats": {
+      "top": "MJPG",
+      "wrist": "YUYV"
+    },
+    "fps": 30.0,
+    "max_camera_age_ms": 100.0,
+    "max_step_degrees": 2.0,
+    "max_gripper_step": 3.0,
+    "max_speed_degrees_s": 45.0,
+    "calibration_dir": "/home/jetsonnx/Projects/so101_ai_learning/config/calibration_snapshots"
+  },
+  "message": "RuntimeError: shoulder_lift: present raw ticks вне calibration range; torque не включён",
+  "updated_at": 1794002604.7204802,
+  "error": "RuntimeError: shoulder_lift: present raw ticks вне calibration range; torque не включён",
+  "stop_errors": [],
+  "hardware_stop_state": "devices_closed"
+}

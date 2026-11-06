@@ -91,6 +91,48 @@ def test_measured_outside_limits_refuses_motion_instead_of_jumping():
     assert not bus.calls
 
 
+def test_existing_calibration_accepts_four_tick_resting_boundary_without_recalibration():
+    source=HardwareSource()
+    before=copy.deepcopy(source.calibration)
+    raw={n:int((c['range_min']+c['range_max'])/2) for n,c in source.calibration['values']['follower'].items()}
+    raw['shoulder_lift']=830  # Actual read-only reproduction: calibrated lower endpoint is834.
+    hold=source._startup_hold_raw(raw)
+    assert hold['shoulder_lift']==834
+    assert source.startup_boundary_adjustments['shoulder_lift']=={'measured_raw_ticks':830,'hold_raw_ticks':834,'difference_ticks':4,'calibration_changed':False}
+    assert source.calibration==before
+    for name,target in hold.items():
+        cal=source.calibration['values']['follower'][name]
+        assert cal['range_min']<=target<=cal['range_max']
+
+
+@pytest.mark.parametrize('delta',[-8,8])
+def test_boundary_feedback_tolerance_never_extends_commanded_limits(delta):
+    source=HardwareSource()
+    c=source.calibration['values']['follower']['shoulder_lift']
+    mid=(c['range_min']+c['range_max'])/2
+    measured=[0.]*5+[50.]
+    raw=c['range_min']+delta if delta<0 else c['range_max']+delta
+    measured[1]=(raw-mid)*360/4095
+    requested=[999.]*6
+    source.last_command_ns=time.monotonic_ns()-33_000_000
+    target,_=source._safe_targets(requested,measured,time.monotonic_ns())
+    low,high=(c['range_min']-mid)*360/4095,(c['range_max']-mid)*360/4095
+    assert low<=target['shoulder_lift']<=high
+    assert abs(target['shoulder_lift']-measured[1])<=source.cfg['max_step_degrees']+1e-8
+
+
+def test_large_excursion_still_refuses_and_small_step_budget_is_respected():
+    source=HardwareSource()
+    raw={n:int((c['range_min']+c['range_max'])/2) for n,c in source.calibration['values']['follower'].items()}
+    raw['shoulder_lift']=825  # 9ticks, beyond the fixed8tick feedback tolerance.
+    with pytest.raises(RuntimeError,match='9 тиков'):
+        source._startup_hold_raw(raw)
+    source=HardwareSource({'max_step_degrees':.1})
+    raw['shoulder_lift']=830
+    with pytest.raises(RuntimeError,match='допуск 1'):
+        source._startup_hold_raw(raw)
+
+
 def test_real_installed_sdk_quantization_without_serial_open(monkeypatch):
     import serial
     def forbidden(*args,**kwargs): pytest.fail('SDK test attempted to open serial')

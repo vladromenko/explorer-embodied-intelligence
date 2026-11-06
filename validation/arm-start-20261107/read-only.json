@@ -1,0 +1,101 @@
+{
+  "read_only": true,
+  "writes": 0,
+  "checked_at": 1794002480.3169155,
+  "roles": {
+    "leader": {
+      "calibration_matches": true,
+      "positions": {
+        "shoulder_pan": {
+          "raw": 2049,
+          "degrees_or_gripper_percent": -5.406593406593407,
+          "cal_min": 752,
+          "cal_max": 3469,
+          "torque": 0
+        },
+        "shoulder_lift": {
+          "raw": 843,
+          "degrees_or_gripper_percent": -103.38461538461539,
+          "cal_min": 837,
+          "cal_max": 3201,
+          "torque": 0
+        },
+        "elbow_flex": {
+          "raw": 3087,
+          "degrees_or_gripper_percent": 96.48351648351648,
+          "cal_min": 887,
+          "cal_max": 3092,
+          "torque": 0
+        },
+        "wrist_flex": {
+          "raw": 2640,
+          "degrees_or_gripper_percent": 53.23076923076923,
+          "cal_min": 861,
+          "cal_max": 3208,
+          "torque": 0
+        },
+        "wrist_roll": {
+          "raw": 2096,
+          "degrees_or_gripper_percent": 4.263736263736264,
+          "cal_min": 0,
+          "cal_max": 4095,
+          "torque": 0
+        },
+        "gripper": {
+          "raw": 2082,
+          "degrees_or_gripper_percent": 3.7933817594834545,
+          "cal_min": 2035,
+          "cal_max": 3274,
+          "torque": 0
+        }
+      }
+    },
+    "follower": {
+      "calibration_matches": true,
+      "positions": {
+        "shoulder_pan": {
+          "raw": 2073,
+          "degrees_or_gripper_percent": -8.0,
+          "cal_min": 853,
+          "cal_max": 3475,
+          "torque": 0
+        },
+        "shoulder_lift": {
+          "raw": 830,
+          "degrees_or_gripper_percent": -105.05494505494505,
+          "cal_min": 834,
+          "cal_max": 3216,
+          "torque": 0
+        },
+        "elbow_flex": {
+          "raw": 3089,
+          "degrees_or_gripper_percent": 97.0989010989011,
+          "cal_min": 878,
+          "cal_max": 3091,
+          "torque": 0
+        },
+        "wrist_flex": {
+          "raw": 2676,
+          "degrees_or_gripper_percent": 56.79120879120879,
+          "cal_min": 858,
+          "cal_max": 3202,
+          "torque": 0
+        },
+        "wrist_roll": {
+          "raw": 2003,
+          "degrees_or_gripper_percent": -3.912087912087912,
+          "cal_min": 0,
+          "cal_max": 4095,
+          "torque": 0
+        },
+        "gripper": {
+          "raw": 1462,
+          "degrees_or_gripper_percent": 4.831237590999338,
+          "cal_min": 1389,
+          "cal_max": 2900,
+          "torque": 0
+        }
+      }
+    }
+  }
+}

@@ -6,14 +6,15 @@
 - По разрешению пользователя освобождены ресурсы трёх соседних служб; их конфигурации не менялись. Камеры и обе руки проверены read-only; показан настоящий preview без servo bus/torque.
 - Оба видеопотока одновременно работают: topMJPG29.4FPS / wristYUYV30.8FPS, skew23ms. Live read-only calibration обеих рук совпала со снимками. Follower уже имел torque1, инженерные тесты его не меняли.
 - Настоящий SAM3 CUDA forward PASS; full pretrained SmolVLA CUDA update+новый процесс reload PASS; full ACT CPU update+новый процесс reload PASS. Технические checkpoint запрещены для физического inference.
-- 118 Python tests PASS,13 DOM tests PASS; настоящие Chromium141/WebKit26 — по12 сценариев PASS. Официальный LeRobot0.6.1 loader открывает экспорт; HTTP finalize/validation/export, MLflow spool/retry и реальные server-image/WS проверены.
+- 122 Python tests PASS,14 DOM tests PASS; настоящие Chromium141/WebKit26 — по12 сценариев PASS. Официальный LeRobot0.6.1 loader открывает экспорт; HTTP finalize/validation/export, MLflow spool/retry и реальные server-image/WS проверены.
 - Добавлены Preflight, finalize/LeRobot export jobs, raw playback, output directory; исправлены STOP до writer drain, частичный Torque_Enable failure, wristformat, реальные SAM bbox/ambiguity/color/provenance.
 - Отдельная кнопка «Включить телеоперацию» проверяет руки без датасета; STOP отменяет и ожидающую передачу к записи. Модель можно проверить на архивном кадре без USB с измерением SAM → policy latency.
+- Исправлен реальный отказ Start: сохранённые калибровки совпадают с регистрами обеих рук, но расслабленный shoulder_lift follower читался830 при нижней границе834. Введён фиксированный feedback-допуск8тиков с bounded hold внутри прежнего диапазона; калибровки не менялись. Большие отклонения блокируются. После исправления движение ещё не запускалось оператором.
 - **Остаток:** Safari на Mac, физическая телеоперация/направления/gripper/STOP с оператором и первый настоящий датасет; live SAM+VLA latency/качество. Никаких вымышленных успешных демонстраций. Геометрия top/wrist по-прежнему unknown без актуальной проверки.
 
 Основной отчёт: ACCEPTANCE_REPORT.md. Пошагово: RECORDING_GUIDE.md. Тесты: TEST_RESULTS.md. Доказательства: validation/acceptance-20261106. Сначала нужна отдельная проверка рук кнопкой UI, затем контрольный эпизод.
 
-Обновлено 2026-11-07T00:58:51.707656+03:00 .
+Обновлено 2026-11-07T01:07:59.537985+03:00 .
 
 ---
 

@@ -20,6 +20,9 @@ from typing import Any
 from .resources import ResourceLease, assert_hardware_available
 
 JOINTS = ('shoulder_pan','shoulder_lift','elbow_flex','wrist_flex','wrist_roll','gripper')
+# A relaxed joint can read a few ticks beyond an already calibrated end stop.
+# This is a feedback deadband, not an extension of commanded joint limits.
+ENCODER_BOUNDARY_TOLERANCE_TICKS = 8
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CAMERAS = {
     'top': '/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D4EA612F-video-index0',
@@ -218,6 +221,7 @@ class HardwareSource:
         self.verified_calibration = {}
         self._torque_touched = set()
         self._close_errors = []
+        self.startup_boundary_adjustments = {}
 
     def start(self, *, explicit_user_start: bool = False, stop=None):
         if not explicit_user_start: raise PermissionError('Нужен явный запуск записи/политики в UI')
@@ -277,15 +281,12 @@ class HardwareSource:
             self._torque_touched.add('follower')
             follower.disable_torque(num_retry=0)
             present_raw = follower.sync_read('Present_Position',normalize=False,num_retry=1)
-            for name,value in present_raw.items():
-                limits=self.calibration['values']['follower'][name]
-                if not limits['range_min']<=value<=limits['range_max']:
-                    raise RuntimeError(f'{name}: present raw ticks вне calibration range; torque не включён')
-            present_normalized=follower._normalize({follower.motors[name].id:value for name,value in present_raw.items()})
+            hold_raw = self._startup_hold_raw(present_raw)
+            present_normalized=follower._normalize({follower.motors[name].id:value for name,value in hold_raw.items()})
             present=[present_normalized[follower.motors[name].id] for name in JOINTS]
             self._safe_targets(present,present,time.monotonic_ns())
             check_cancelled()
-            follower.sync_write('Goal_Position',present_raw,normalize=False,num_retry=0)
+            follower.sync_write('Goal_Position',hold_raw,normalize=False,num_retry=0)
             if self.teleoperate:
                 self._torque_touched.add('leader')
                 self.buses['leader'].disable_torque(num_retry=0)
@@ -306,7 +307,32 @@ class HardwareSource:
                 'cameras':{n:c.info for n,c in self.cameras.items()},
                 'feedback_unavailable':['velocity','current','load','force'],
                 'writes_acknowledgement':'Goal_Position sync_write has no per-motor ACK; actual transmitted targets, not measured achievement',
+                'encoder_boundary_tolerance_ticks':ENCODER_BOUNDARY_TOLERANCE_TICKS,
+                'startup_boundary_adjustments':self.startup_boundary_adjustments,
                 'motion_retry_count':0,'camera_geometry_valid':False,'wrist_hand_eye_valid':False}
+
+    def _startup_hold_raw(self, present_raw):
+        """Keep calibrated registers intact; seed an in-range hold within ≤8 ticks.
+
+        Reject larger excursions. The operator's explicit Start authorizes this
+        small hold correction; subsequent targets still follow bounded leader
+        positions with no single jump to a distant starting pose.
+        """
+        if set(present_raw)!=set(JOINTS):raise ValueError('Нет положения одного из моторов follower')
+        targets={}
+        self.startup_boundary_adjustments={}
+        for name,value in present_raw.items():
+            cal=self.calibration['values']['follower'][name]
+            if isinstance(value,bool) or not isinstance(value,int) or not 0<=value<=4095:
+                raise RuntimeError(f'follower/{name}: невалидное показание энкодера {value}; включение отменено')
+            budget=self.cfg['max_gripper_step']*(cal['range_max']-cal['range_min'])/100 if name=='gripper' else self.cfg['max_step_degrees']*4095/360
+            tolerance=min(ENCODER_BOUNDARY_TOLERANCE_TICKS,math.floor(budget))
+            target=max(cal['range_min'],min(cal['range_max'],value))
+            if abs(target-value)>tolerance:
+                raise RuntimeError(f'follower/{name}: положение {value} вне сохранённого диапазона [{cal["range_min"]}, {cal["range_max"]}] на {abs(target-value)} тиков (допуск {tolerance}). Включение отменено; новая калибровка не запускалась')
+            targets[name]=target
+            if target!=value:self.startup_boundary_adjustments[name]={'measured_raw_ticks':value,'hold_raw_ticks':target,'difference_ticks':target-value,'calibration_changed':False}
+        return targets
 
     def observe(self):
         if not self.started: raise RuntimeError('Hardware source is not started')
@@ -352,13 +378,19 @@ class HardwareSource:
                 # Conservative additional software bound; live collision safety remains operator responsibility.
                 low,high = max(low,-175.),min(high,175.)
                 delta = step
-            if not math.isfinite(float(measured[i])) or not low-0.1 <= measured[i] <= high+0.1:
+            tolerance=min(ENCODER_BOUNDARY_TOLERANCE_TICKS*360/4095,self.cfg['max_step_degrees']) if name!='gripper' else min(ENCODER_BOUNDARY_TOLERANCE_TICKS*100/(cal['range_max']-cal['range_min']),self.cfg['max_gripper_step'])
+            if not math.isfinite(float(measured[i])) or not low-tolerance <= measured[i] <= high+tolerance:
                 raise RuntimeError(f'{name}: measured state вне безопасных абсолютных пределов; движение остановлено')
             value = float(requested[i])
             if not self.teleoperate and not low <= value <= high:
                 raise ValueError(f'{name}: policy action вне абсолютных пределов; команда отклонена')
             bounded = max(low,min(high,value))
-            bounded = max(measured[i]-delta,min(measured[i]+delta,bounded))
+            reference=max(low,min(high,measured[i]))
+            bounded = max(reference-delta,min(reference+delta,bounded))
+            # Deadband affects feedback only. Never transmit an out-of-range
+            # target; absolute motion step remains bounded from measured state.
+            max_step=self.cfg['max_gripper_step'] if name=='gripper' else self.cfg['max_step_degrees']
+            bounded=max(low,min(high,max(measured[i]-max_step,min(measured[i]+max_step,bounded))))
             result[name] = bounded
             if abs(value-bounded)>1e-6: limits.append(name)
         return result,limits

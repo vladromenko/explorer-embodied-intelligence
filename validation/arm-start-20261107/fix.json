@@ -1,0 +1,105 @@
+{
+  "cause": "Existing motor calibration matches; follower shoulder_lift resting830, lower bound834; previous guard rejected4ticks=0.351648degrees",
+  "calibration_modified": false,
+  "read_only_io_writes": 0,
+  "new_boundary_tolerance_ticks": 8,
+  "hold_targets_software_only": {
+    "shoulder_pan": 2073,
+    "shoulder_lift": 834,
+    "elbow_flex": 3089,
+    "wrist_flex": 2676,
+    "wrist_roll": 2003,
+    "gripper": 1462
+  },
+  "hold_adjustments": {
+    "shoulder_lift": {
+      "measured_raw_ticks": 830,
+      "hold_raw_ticks": 834,
+      "difference_ticks": 4,
+      "calibration_changed": false
+    }
+  },
+  "sdk_boundary_roundtrips_without_serial_open": {
+    "shoulder_pan": {
+      "range_min": {
+        "raw": 853,
+        "roundtrip": 853
+      },
+      "range_max": {
+        "raw": 3475,
+        "roundtrip": 3475
+      }
+    },
+    "shoulder_lift": {
+      "range_min": {
+        "raw": 834,
+        "roundtrip": 834
+      },
+      "range_max": {
+        "raw": 3216,
+        "roundtrip": 3216
+      }
+    },
+    "elbow_flex": {
+      "range_min": {
+        "raw": 878,
+        "roundtrip": 878
+      },
+      "range_max": {
+        "raw": 3091,
+        "roundtrip": 3091
+      }
+    },
+    "wrist_flex": {
+      "range_min": {
+        "raw": 858,
+        "roundtrip": 858
+      },
+      "range_max": {
+        "raw": 3202,
+        "roundtrip": 3202
+      }
+    },
+    "wrist_roll": {
+      "range_min": {
+        "raw": 0,
+        "roundtrip": 0
+      },
+      "range_max": {
+        "raw": 4095,
+        "roundtrip": 4095
+      }
+    },
+    "gripper": {
+      "range_min": {
+        "raw": 1389,
+        "roundtrip": 1389
+      },
+      "range_max": {
+        "raw": 2900,
+        "roundtrip": 2900
+      }
+    }
+  },
+  "first_follow_targets_software_only": {
+    "shoulder_pan": -6.514874675,
+    "shoulder_lift": -103.38461538461539,
+    "elbow_flex": 96.48351648351648,
+    "wrist_flex": 55.30608346620879,
+    "wrist_roll": -2.426962587087912,
+    "gripper": 3.7933817594834545
+  },
+  "first_follow_raw_software_only": {
+    "1": 2089,
+    "2": 849,
+    "3": 3082,
+    "4": 2659,
+    "5": 2019,
+    "6": 1446
+  },
+  "physical_commands_sent_by_this_verification": 0,
+  "operator_retry": "NOT_TESTED awaiting explicit UI start",
+  "python_tests": 122,
+  "dom_tests": 14,
+  "deployed_UI_PID": "810446"
+}
