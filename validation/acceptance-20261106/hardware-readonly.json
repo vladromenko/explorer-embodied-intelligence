@@ -1,0 +1,271 @@
+{
+  "torque_register_writes": 0,
+  "goal_position_writes": 0,
+  "user_authorized_read_only": true,
+  "resources_before": {
+    "timestamp_ns": 54608242229084,
+    "memory_available_bytes": 11301044224,
+    "memory_total_bytes": 16291917824,
+    "disk_free_bytes": 127788183552,
+    "hardware_owners": [],
+    "compute_conflicts": [],
+    "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+  },
+  "cameras": {
+    "top": {
+      "status": "PASS",
+      "frames_received": 66,
+      "measured_fps": 29.99854733536691,
+      "read_latency_ms": 31.909181,
+      "controls_before": "\nUser Controls\n\n                     brightness 0x00980900 (int)    : min=0 max=255 step=1 default=128 value=128\n                       contrast 0x00980901 (int)    : min=0 max=255 step=1 default=128 value=128\n                     saturation 0x00980902 (int)    : min=0 max=255 step=1 default=128 value=128\n        white_balance_automatic 0x0098090c (bool)   : default=1 value=1\n                           gain 0x00980913 (int)    : min=0 max=255 step=1 default=0 value=32\n           power_line_frequency 0x00980918 (menu)   : min=0 max=2 default=2 value=1 (50 Hz)\n      white_balance_temperature 0x0098091a (int)    : min=2000 max=6500 step=1 default=4000 value=3732 flags=inactive\n                      sharpness 0x0098091b (int)    : min=0 max=255 step=1 default=128 value=128\n         backlight_compensation 0x0098091c (int)    : min=0 max=1 step=1 default=0 value=0\n\nCamera Controls\n\n                  auto_exposure 0x009a0901 (menu)   : min=0 max=3 default=3 value=1 (Manual Mode)\n         exposure_time_absolute 0x009a0902 (int)    : min=3 max=2047 step=1 default=250 value=156\n     exposure_dynamic_framerate 0x009a0903 (bool)   : default=0 value=0\n                   pan_absolute 0x009a0908 (int)    : min=-36000 max=36000 step=3600 default=0 value=0\n                  tilt_absolute 0x009a0909 (int)    : min=-36000 max=36000 step=3600 default=0 value=0\n                 focus_absolute 0x009a090a (int)    : min=0 max=250 step=5 default=0 value=0\n     focus_automatic_continuous 0x009a090c (bool)   : default=1 value=0\n                  zoom_absolute 0x009a090d (int)    : min=100 max=500 step=1 default=100 value=100\n",
+      "controls_after": "\nUser Controls\n\n                     brightness 0x00980900 (int)    : min=0 max=255 step=1 default=128 value=128\n                       contrast 0x00980901 (int)    : min=0 max=255 step=1 default=128 value=128\n                     saturation 0x00980902 (int)    : min=0 max=255 step=1 default=128 value=128\n        white_balance_automatic 0x0098090c (bool)   : default=1 value=1\n                           gain 0x00980913 (int)    : min=0 max=255 step=1 default=0 value=32\n           power_line_frequency 0x00980918 (menu)   : min=0 max=2 default=2 value=1 (50 Hz)\n      white_balance_temperature 0x0098091a (int)    : min=2000 max=6500 step=1 default=4000 value=3732 flags=inactive\n                      sharpness 0x0098091b (int)    : min=0 max=255 step=1 default=128 value=128\n         backlight_compensation 0x0098091c (int)    : min=0 max=1 step=1 default=0 value=0\n\nCamera Controls\n\n                  auto_exposure 0x009a0901 (menu)   : min=0 max=3 default=3 value=1 (Manual Mode)\n         exposure_time_absolute 0x009a0902 (int)    : min=3 max=2047 step=1 default=250 value=38\n     exposure_dynamic_framerate 0x009a0903 (bool)   : default=0 value=0\n                   pan_absolute 0x009a0908 (int)    : min=-36000 max=36000 step=3600 default=0 value=0\n                  tilt_absolute 0x009a0909 (int)    : min=-36000 max=36000 step=3600 default=0 value=0\n                 focus_absolute 0x009a090a (int)    : min=0 max=250 step=5 default=0 value=0\n     focus_automatic_continuous 0x009a090c (bool)   : default=1 value=0\n                  zoom_absolute 0x009a090d (int)    : min=100 max=500 step=1 default=100 value=100\n",
+      "controls_equal": false,
+      "stream": {
+        "device": "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D4EA612F-video-index0",
+        "device_resolved": "/dev/video2",
+        "width": 640,
+        "height": 480,
+        "fps_reported": 30.0,
+        "timestamp_basis": "host_monotonic_capture_read_end; exposure timestamp unavailable",
+        "controls_written": [],
+        "camera_geometry_valid": false
+      },
+      "last_capture": {
+        "timestamp_ns": 54611173149302,
+        "read_start_ns": 54611141240121,
+        "read_end_ns": 54611173149302,
+        "sequence": 62,
+        "device": "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D4EA612F-video-index0",
+        "path": "top.png",
+        "width": 640,
+        "height": 480,
+        "encoding": "lossless PNG decoded RGB",
+        "sha256": "93cbf3508dccc59f1fbf652102703cac62ba2e87462d915e23f1bab7a360ab9e"
+      }
+    },
+    "wrist": {
+      "status": "PASS",
+      "frames_received": 2,
+      "measured_fps": 0.4999692333928475,
+      "read_latency_ms": 19.403149,
+      "controls_before": "\nUser Controls\n\n                     brightness 0x00980900 (int)    : min=-64 max=64 step=1 default=0 value=0\n                       contrast 0x00980901 (int)    : min=0 max=64 step=1 default=32 value=32\n                     saturation 0x00980902 (int)    : min=0 max=128 step=1 default=60 value=60\n                            hue 0x00980903 (int)    : min=-40 max=40 step=1 default=0 value=0\n        white_balance_automatic 0x0098090c (bool)   : default=1 value=1\n                          gamma 0x00980910 (int)    : min=72 max=500 step=1 default=100 value=100\n                           gain 0x00980913 (int)    : min=0 max=100 step=1 default=0 value=0\n           power_line_frequency 0x00980918 (menu)   : min=0 max=2 default=1 value=1 (50 Hz)\n      white_balance_temperature 0x0098091a (int)    : min=2800 max=6500 step=1 default=4600 value=4600 flags=inactive\n                      sharpness 0x0098091b (int)    : min=0 max=6 step=1 default=2 value=2\n         backlight_compensation 0x0098091c (int)    : min=0 max=2 step=1 default=1 value=1\n\nCamera Controls\n\n                  auto_exposure 0x009a0901 (menu)   : min=0 max=3 default=3 value=1 (Manual Mode)\n         exposure_time_absolute 0x009a0902 (int)    : min=1 max=5000 step=1 default=157 value=80\n     exposure_dynamic_framerate 0x009a0903 (bool)   : default=0 value=0\n",
+      "controls_after": "\nUser Controls\n\n                     brightness 0x00980900 (int)    : min=-64 max=64 step=1 default=0 value=0\n                       contrast 0x00980901 (int)    : min=0 max=64 step=1 default=32 value=32\n                     saturation 0x00980902 (int)    : min=0 max=128 step=1 default=60 value=60\n                            hue 0x00980903 (int)    : min=-40 max=40 step=1 default=0 value=0\n        white_balance_automatic 0x0098090c (bool)   : default=1 value=1\n                          gamma 0x00980910 (int)    : min=72 max=500 step=1 default=100 value=100\n                           gain 0x00980913 (int)    : min=0 max=100 step=1 default=0 value=0\n           power_line_frequency 0x00980918 (menu)   : min=0 max=2 default=1 value=1 (50 Hz)\n      white_balance_temperature 0x0098091a (int)    : min=2800 max=6500 step=1 default=4600 value=4600 flags=inactive\n                      sharpness 0x0098091b (int)    : min=0 max=6 step=1 default=2 value=2\n         backlight_compensation 0x0098091c (int)    : min=0 max=2 step=1 default=1 value=1\n\nCamera Controls\n\n                  auto_exposure 0x009a0901 (menu)   : min=0 max=3 default=3 value=1 (Manual Mode)\n         exposure_time_absolute 0x009a0902 (int)    : min=1 max=5000 step=1 default=157 value=80\n     exposure_dynamic_framerate 0x009a0903 (bool)   : default=0 value=0\n",
+      "controls_equal": true,
+      "stream": {
+        "device": "/dev/v4l/by-id/usb-HD_USB_Camera_HD_USB_Camera-video-index0",
+        "device_resolved": "/dev/video0",
+        "width": 640,
+        "height": 480,
+        "fps_reported": 120.10136452241716,
+        "timestamp_basis": "host_monotonic_capture_read_end; exposure timestamp unavailable",
+        "controls_written": [],
+        "camera_geometry_valid": false
+      },
+      "last_capture": {
+        "timestamp_ns": 54613253761121,
+        "read_start_ns": 54613234357972,
+        "read_end_ns": 54613253761121,
+        "sequence": 2,
+        "device": "/dev/v4l/by-id/usb-HD_USB_Camera_HD_USB_Camera-video-index0",
+        "path": "wrist.png",
+        "width": 640,
+        "height": 480,
+        "encoding": "lossless PNG decoded RGB",
+        "sha256": "7af61213cd106a4601ee8f38674e12a879f7ae80bdbed51f4371c6d52a936cb8"
+      }
+    }
+  },
+  "buses": {
+    "leader": {
+      "status": "PASS",
+      "read_only": true,
+      "present_raw_ticks": {
+        "shoulder_pan": 2134,
+        "shoulder_lift": 842,
+        "elbow_flex": 3067,
+        "wrist_flex": 2709,
+        "wrist_roll": 2099,
+        "gripper": 2084
+      },
+      "normalized_positions": {
+        "shoulder_pan": 2.065934065934066,
+        "shoulder_lift": -103.47252747252747,
+        "elbow_flex": 94.72527472527473,
+        "wrist_flex": 59.2967032967033,
+        "wrist_roll": 4.527472527472527,
+        "gripper": 3.954802259887006
+      },
+      "torque_enable_readback": {
+        "shoulder_pan": 0,
+        "shoulder_lift": 0,
+        "elbow_flex": 0,
+        "wrist_flex": 0,
+        "wrist_roll": 0,
+        "gripper": 0
+      },
+      "operating_mode_readback": {
+        "shoulder_pan": 0,
+        "shoulder_lift": 0,
+        "elbow_flex": 0,
+        "wrist_flex": 0,
+        "wrist_roll": 0,
+        "gripper": 0
+      },
+      "calibration_matches_snapshot": true,
+      "mismatches": [],
+      "live_calibration": {
+        "shoulder_pan": {
+          "id": 1,
+          "drive_mode": 0,
+          "homing_offset": -597,
+          "range_min": 752,
+          "range_max": 3469
+        },
+        "shoulder_lift": {
+          "id": 2,
+          "drive_mode": 0,
+          "homing_offset": -358,
+          "range_min": 837,
+          "range_max": 3201
+        },
+        "elbow_flex": {
+          "id": 3,
+          "drive_mode": 0,
+          "homing_offset": -385,
+          "range_min": 887,
+          "range_max": 3092
+        },
+        "wrist_flex": {
+          "id": 4,
+          "drive_mode": 0,
+          "homing_offset": 585,
+          "range_min": 861,
+          "range_max": 3208
+        },
+        "wrist_roll": {
+          "id": 5,
+          "drive_mode": 0,
+          "homing_offset": -156,
+          "range_min": 0,
+          "range_max": 4095
+        },
+        "gripper": {
+          "id": 6,
+          "drive_mode": 0,
+          "homing_offset": -1161,
+          "range_min": 2035,
+          "range_max": 3274
+        }
+      },
+      "units": [
+        "degrees",
+        "degrees",
+        "degrees",
+        "degrees",
+        "degrees",
+        "percent_calibrated_range"
+      ],
+      "movement_or_direction_test": "NOT TESTED"
+    },
+    "follower": {
+      "status": "PASS",
+      "read_only": true,
+      "present_raw_ticks": {
+        "shoulder_pan": 2658,
+        "shoulder_lift": 2675,
+        "elbow_flex": 1393,
+        "wrist_flex": 3127,
+        "wrist_roll": 2189,
+        "gripper": 2061
+      },
+      "normalized_positions": {
+        "shoulder_pan": 43.42857142857143,
+        "shoulder_lift": 57.142857142857146,
+        "elbow_flex": -52.0,
+        "wrist_flex": 96.43956043956044,
+        "wrist_roll": 12.43956043956044,
+        "gripper": 44.473858371939116
+      },
+      "torque_enable_readback": {
+        "shoulder_pan": 1,
+        "shoulder_lift": 1,
+        "elbow_flex": 1,
+        "wrist_flex": 1,
+        "wrist_roll": 1,
+        "gripper": 1
+      },
+      "operating_mode_readback": {
+        "shoulder_pan": 0,
+        "shoulder_lift": 0,
+        "elbow_flex": 0,
+        "wrist_flex": 0,
+        "wrist_roll": 0,
+        "gripper": 0
+      },
+      "calibration_matches_snapshot": true,
+      "mismatches": [],
+      "live_calibration": {
+        "shoulder_pan": {
+          "id": 1,
+          "drive_mode": 0,
+          "homing_offset": 1543,
+          "range_min": 853,
+          "range_max": 3475
+        },
+        "shoulder_lift": {
+          "id": 2,
+          "drive_mode": 0,
+          "homing_offset": -1852,
+          "range_min": 834,
+          "range_max": 3216
+        },
+        "elbow_flex": {
+          "id": 3,
+          "drive_mode": 0,
+          "homing_offset": 1722,
+          "range_min": 878,
+          "range_max": 3091
+        },
+        "wrist_flex": {
+          "id": 4,
+          "drive_mode": 0,
+          "homing_offset": 1410,
+          "range_min": 858,
+          "range_max": 3202
+        },
+        "wrist_roll": {
+          "id": 5,
+          "drive_mode": 0,
+          "homing_offset": 1607,
+          "range_min": 0,
+          "range_max": 4095
+        },
+        "gripper": {
+          "id": 6,
+          "drive_mode": 0,
+          "homing_offset": 970,
+          "range_min": 1389,
+          "range_max": 2900
+        }
+      },
+      "units": [
+        "degrees",
+        "degrees",
+        "degrees",
+        "degrees",
+        "degrees",
+        "percent_calibrated_range"
+      ],
+      "movement_or_direction_test": "NOT TESTED"
+    }
+  },
+  "resources_after": {
+    "timestamp_ns": 54620103943956,
+    "memory_available_bytes": 10966052864,
+    "memory_total_bytes": 16291917824,
+    "disk_free_bytes": 127787724800,
+    "hardware_owners": [],
+    "compute_conflicts": [],
+    "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+  }
+}

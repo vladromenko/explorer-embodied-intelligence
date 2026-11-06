@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "training_eligible": false,
+  "scope": "real SAM outputs/mask files vs individually timestamped real snapshots; not synchronized demonstration",
+  "postprocessing_forward_reexecuted": false,
+  "images": {
+    "top": {
+      "raw_sam_detections": 5,
+      "category_ambiguous_detections": 0,
+      "unambiguous_category_detections": 5,
+      "low_light_color_invalid_detections": 2,
+      "limitations": "raw category queries can overlap; color uncalibrated; occlusion/XYZ unknown",
+      "mask_and_lineage_validation": "PASS"
+    },
+    "wrist": {
+      "raw_sam_detections": 2,
+      "category_ambiguous_detections": 2,
+      "unambiguous_category_detections": 0,
+      "low_light_color_invalid_detections": 0,
+      "limitations": "raw category queries can overlap; color uncalibrated; occlusion/XYZ unknown",
+      "mask_and_lineage_validation": "PASS"
+    }
+  }
+}

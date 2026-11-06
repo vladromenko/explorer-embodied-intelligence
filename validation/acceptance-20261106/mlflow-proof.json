@@ -1,0 +1,134 @@
+{
+  "runs": [
+    {
+      "report": "pretrained/report.json",
+      "run_id": "d162cc0177cd4adc89bd4ebaa0cfc7ed",
+      "status": "FINISHED",
+      "params": {
+        "policy": "smolvla",
+        "technical_test": "True",
+        "model_is_tiny": "False",
+        "pretrained_revision": "5e8d12a6e2975b0e5e5fce7c8caf47c371d257b6",
+        "pretrained_sha256": "7cd549ac2351fb069c0ddb3c34ad2d09cfc92b56a15dccdfc2e41467aaca01eb",
+        "device": "cuda",
+        "batch_size": "1",
+        "chunk_size": "2",
+        "image_size": "128",
+        "state_dim": "32",
+        "use_amp": "False",
+        "steps": "1",
+        "target_semantics": "TECHNICAL repeat measured follower pose twice; NOT actually transmitted motor commands",
+        "dataset_sha256": "9a834c65900a275ca227f7064578e9ee437b4d383dc5386b26e0e38bdfaed278",
+        "code_commit": "db810a58bf0d6428472569cf969c114d3e79a127",
+        "feature_sha256": "d3ca1eccd1d1de98cb8016f591846ceb514532b4b7a5525d3ff8f07452f52ec9",
+        "sam_configuration_hash": "cccba40c4665995eddf68ae1bc7ea1e3274744f444114f9f8c24f68ff685ce02"
+      },
+      "metrics": {
+        "train/loss": 3.171788215637207,
+        "train/lr": 1e-05,
+        "train/grad_norm": 94.21460723876953,
+        "train/step_seconds": 1.59905237199564,
+        "train/samples_per_second": 0.6253703865571244,
+        "train/state_projection_update_max_abs": 1.0000541806221008e-05,
+        "resources/cuda_peak_allocated_bytes": 1929848832.0,
+        "resources/cuda_peak_reserved_bytes": 1977614336.0,
+        "resources/process_rss_bytes": 4708347904.0,
+        "resources/memory_available_bytes": 8189952000.0
+      },
+      "artifacts": [
+        "checkpoint.json",
+        "expected_inference.json",
+        "input_identity.json",
+        "lineage.json"
+      ]
+    },
+    {
+      "report": "pretrained/reload_report.json",
+      "run_id": "f32320de009541e4a1e0fdb316f3510c",
+      "status": "FINISHED",
+      "params": {
+        "policy": "smolvla",
+        "technical_test": "True",
+        "mode": "reload_new_process",
+        "device": "cuda",
+        "checkpoint": "/home/jetsonnx/Projects/so101_ai_learning/models/acceptance_pretrained_gpu_20261106/checkpoints/step_00000001"
+      },
+      "metrics": {
+        "reload/normalized_max_abs_difference": 0.0,
+        "reload/action_max_abs_difference": 0.0,
+        "reload/seconds": 36.22140130700427,
+        "resources/cuda_peak_allocated_bytes": 1258001920.0,
+        "resources/cuda_peak_reserved_bytes": 1293942784.0,
+        "resources/process_rss_bytes": 4152799232.0
+      },
+      "artifacts": [
+        "reload_report.json"
+      ]
+    },
+    {
+      "report": "act_cpu/report.json",
+      "run_id": "834b894b03544d3095362f470f23ad58",
+      "status": "FINISHED",
+      "params": {
+        "policy": "act",
+        "technical_test": "True",
+        "model_is_tiny": "False",
+        "initialization": "from_scratch",
+        "device": "cpu",
+        "batch_size": "1",
+        "chunk_size": "2",
+        "image_size": "128",
+        "state_dim": "32",
+        "steps": "1",
+        "use_amp": "False",
+        "optimizer": "adamw",
+        "architecture": "{\"dim_model\": 512, \"n_heads\": 8, \"dim_feedforward\": 3200, \"n_encoder_layers\": 4, \"n_decoder_layers\": 1, \"n_vae_encoder_layers\": 4, \"latent_dim\": 32, \"dropout\": 0.1, \"vision_backbone\": \"resnet18\", \"pretrained_backbone_weights\": null, \"use_vae\": true}",
+        "target_semantics": "TECHNICAL repeat measured follower pose twice; NOT actually transmitted motor commands",
+        "dataset_sha256": "88d70d0a9fcaf6e490bf278ca889d0051c5c6e2e81f775d3a5104dc5c56f6fb5",
+        "code_commit": "db810a58bf0d6428472569cf969c114d3e79a127",
+        "feature_sha256": "d3ca1eccd1d1de98cb8016f591846ceb514532b4b7a5525d3ff8f07452f52ec9"
+      },
+      "metrics": {
+        "train/loss": 57.61021041870117,
+        "train/l1_loss": 0.532644510269165,
+        "train/kld_loss": 5.707756519317627,
+        "train/grad_norm": 1311.8076171875,
+        "train/lr": 0.0001,
+        "train/state_projection_update_max_abs": 9.997934103012085e-05,
+        "train/step_seconds": 1.2557640130034997,
+        "train/samples_per_second": 0.7963279642074065,
+        "resources/process_rss_bytes": 1918496768.0,
+        "resources/memory_available_bytes": 9123549184.0
+      },
+      "artifacts": [
+        "checkpoint.json",
+        "expected_inference.json",
+        "input_identity.json",
+        "lineage.json"
+      ]
+    },
+    {
+      "report": "act_cpu/reload_report.json",
+      "run_id": "2e4c4f8b30dc429280825b53b9f9425a",
+      "status": "FINISHED",
+      "params": {
+        "policy": "act",
+        "technical_test": "True",
+        "model_is_tiny": "False",
+        "mode": "new_process_reload",
+        "device": "cpu",
+        "checkpoint": "/home/jetsonnx/Projects/so101_ai_learning/models/acceptance_act_cpu_20261106/checkpoints/step_00000001"
+      },
+      "metrics": {
+        "reload/normalized_max_abs_difference": 0.0,
+        "reload/action_max_abs_difference": 0.0,
+        "reload/seconds": 9.947011067000858,
+        "resources/process_rss_bytes": 1152188416.0
+      },
+      "artifacts": [
+        "reload_report.json"
+      ]
+    }
+  ],
+  "checkpoint_manifest_download_and_reload": "PASS"
+}

@@ -17,8 +17,12 @@ async def lifespan(app):
     from .preview import CameraPreview
     camera_preview=CameraPreview()
     yield
-    try: manager.command('stop')
-    except Exception: pass
+    try:
+        manager.command('stop')
+        from starlette.concurrency import run_in_threadpool
+        await run_in_threadpool(manager.wait,15)
+        if manager.status().get('active'):(ROOT/'logs/shutdown-warning.log').write_text('Recorder did not finish shutdown within15s; operator hardware STOP check required')
+    except Exception as exc:(ROOT/'logs/shutdown-warning.log').write_text(str(exc))
     if camera_preview:
         try:camera_preview.stop()
         except Exception:pass
@@ -31,7 +35,24 @@ async def origin_guard(request,call_next):
         if origin and urlparse(origin).netloc!=request.headers.get('host'):return Response('Cross origin write rejected',403)
     return await call_next(request)
 def status():
-    return {'resources':snapshot(),'recording':manager.status() if manager else {},'jobs':jobs.list_jobs(),'datasets':manager.list_datasets() if manager else [],'checkpoints':[str((p.parent/'pretrained_model/config.json').relative_to(ROOT)) for p in (ROOT/'models').rglob('checkpoint.json') if (p.parent/'pretrained_model/config.json').is_file()],'policy_ready':False,'preview':camera_preview.status() if camera_preview else {'active':False}}
+    checkpoints={}
+    for manifest_path in (ROOT/'models').rglob('checkpoint.json'):
+        folder=manifest_path.parent;config=folder/'pretrained_model/config.json'
+        if config.is_file():
+            try:
+                manifest=json.loads(manifest_path.read_text())
+                if manifest.get('status')=='complete':checkpoints[str(config.relative_to(ROOT))]={'technical_test':manifest.get('technical_test',True),'step':manifest.get('step',0),'policy_type':manifest.get('policy_type')}
+            except (OSError,ValueError):pass
+    return {'resources':snapshot(),'recording':manager.status() if manager else {},'jobs':jobs.list_jobs(),'datasets':manager.list_datasets() if manager else [],'checkpoints':list(checkpoints),'checkpoint_details':checkpoints,'policy_ready':any(not m['technical_test'] and m['step']>0 for m in checkpoints.values()),'preview':camera_preview.status() if camera_preview else {'active':False}}
+@app.get('/api/preflight')
+async def preflight_check():
+    from .preflight import run_preflight
+    from starlette.concurrency import run_in_threadpool
+    result=await run_in_threadpool(run_preflight,manager.status() if manager else {},camera_preview.status() if camera_preview else {})
+    from .jobs import atomic
+    atomic(ROOT/'runtime/preflight.json',result)
+    return result
+
 @app.get('/api/status')
 def api_status():return status()
 @app.post('/api/datasets')
@@ -138,6 +159,17 @@ async def submit(request:Request):
         SAM3Segmenter(opts)  # validates only; no model load
         return jobs.submit(kind,p,opts)
     except (ValueError,FileNotFoundError,KeyError,TypeError) as e:raise HTTPException(422,str(e))
+@app.post('/api/datasets/{dataset_id}/{action}')
+async def dataset_action(dataset_id:str,action:str,request:Request):
+    try:
+        path=dataset_path(dataset_id);options=await request.json()
+        if action not in ('validate','finalize','export'):raise ValueError('Неизвестная операция датасета')
+        if manager.status().get('active') and manager.status().get('dataset_id')==dataset_id:raise ValueError('Сначала завершите сессию записи')
+        if set(options)-{'allow_test_data'}:raise ValueError('Неизвестные параметры операции')
+        if not isinstance(options.get('allow_test_data',False),bool):raise ValueError('allow_test_data должен быть bool')
+        return jobs.submit(action,path,options)
+    except (ValueError,FileNotFoundError,KeyError,TypeError) as e:raise HTTPException(422,str(e))
+
 @app.post('/api/jobs/{jid}/{action}')
 def job_command(jid:str,action:str):
     if len(jid)!=32 or not jid.isalnum():raise HTTPException(400)
@@ -163,6 +195,7 @@ async def policy_action(action:str,request:Request):
         from .hardware import hardware_paths
         try: assert_hardware_available(hardware_paths());assert_compute_available('cuda')
         except Exception as e: raise HTTPException(409,str(e))
+        if camera_preview:camera_preview.stop()
     return jobs.submit('policy' if action=='start' else 'policy_load',checkpoint,opts)
 @app.websocket('/ws')
 async def websocket(ws:WebSocket):

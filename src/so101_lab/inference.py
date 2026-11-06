@@ -23,15 +23,17 @@ class LoadedPolicy:
     checkpoint: Path
     technical_test: bool
     device: str
+    annotation_provenance: dict | None = None
 
     def prepare_observation(self, frame: dict, images: dict, annotation: dict | None, task: str, *, allow_test=False):
         import numpy as np
         import torch
         validate_raw_frame(frame, self.contract, allow_test=allow_test)
         if self.contract.mode == "sam_objects":
-            from .annotations import validate_frame_annotations
+            from .annotations import validate_frame_annotations,validate_annotation_provenance
             validate_frame_annotations(annotation, frame, require_cameras=self.contract.cameras,
                                        allow_test=allow_test, verify_masks=False)
+            validate_annotation_provenance(annotation.get("provenance"),allow_test=allow_test,expected=self.annotation_provenance)
         state = object_state(frame, annotation, self.contract, allow_test=allow_test)
         batch = {"observation.state": torch.tensor(state, dtype=torch.float32), "task": task}
         for cam in self.contract.cameras:
@@ -78,6 +80,11 @@ def load_checkpoint(path: Path, device="cpu", *, allow_technical=False, resource
         raise ValueError("Object adapter hash differs from trained checkpoint")
     if sha256_file(folder / "model.safetensors") != manifest["model_sha256"]:
         raise ValueError("Policy weights checksum mismatch")
+    files=manifest.get('files_sha256')
+    if not files and not technical:raise ValueError('Checkpoint не содержит integrity manifest processors/config; требуется повторное сохранение')
+    for relative,digest in (files or {}).items():
+        component=(folder/relative).resolve()
+        if not component.is_relative_to(folder) or sha256_file(component)!=digest:raise ValueError('Checkpoint component checksum mismatch: '+relative)
     if resource_check:
         from .resources import assert_compute_available
         assert_compute_available(device, minimum_available_gb=.6 if technical else 5.0)
@@ -103,7 +110,8 @@ def load_checkpoint(path: Path, device="cpu", *, allow_technical=False, resource
              to_transition=policy_action_to_transition, to_output=transition_to_policy_action)
     policy.eval()
     policy.reset()
-    return LoadedPolicy(policy, pre, post, contract, checkpoint, technical, device)
+    lineage=json.loads((folder/"lineage.json").read_text())
+    return LoadedPolicy(policy, pre, post, contract, checkpoint, technical, device,lineage.get("annotation_provenance"))
 
 
 def run_policy(checkpoint: Path, options: dict, progress=None, stop=None):
@@ -130,7 +138,7 @@ def _run_policy_loaded(loaded, options, progress, stop):
     segmenter = None
     associators = {}
     if loaded.contract.mode == "sam_objects":
-        from .annotations import SAM3Segmenter
+        from .annotations import SAM3Segmenter,validate_annotation_provenance
         lineage = json.loads((loaded.checkpoint / "pretrained_model/lineage.json").read_text())
         provenance = lineage.get("annotation_provenance") or {}
         if provenance.get("backend") != "sam3":
@@ -140,18 +148,17 @@ def _run_policy_loaded(loaded, options, progress, stop):
                        "prompts": provenance.get("prompts"),
                        "confidence_threshold": provenance.get("confidence_threshold", .5)}
         segmenter = SAM3Segmenter(sam_options).load()  # before bus/torque
-        for key in ("checkpoint_sha256", "prompts", "confidence_threshold", "preprocessing", "source", "tracking"):
-            if segmenter.provenance.get(key) != provenance.get(key):
-                raise ValueError(f"Train/inference SAM {key} differs")
+        validate_annotation_provenance(segmenter.provenance,expected=provenance)
     settings = hardware_settings(options.get("hardware", {}))
     steps = 0
     max_steps = int(options.get("max_steps", 300))
     task = str(options.get("task", ""))
-    if not task.strip():
-        raise ValueError("Нужен текст задачи для inference")
+    if not task.strip() and loaded.policy.name=="smolvla":
+        raise ValueError("Нужен текст задачи для SmolVLA inference")
+    if stop and stop():return {"status":"stopped","steps":0,"checkpoint":str(loaded.checkpoint)}
     session = HardwareSource(settings, teleoperate=False)
     try:
-        session.start(explicit_user_start=True)
+        session.start(explicit_user_start=True,stop=stop)
         while steps < max_steps and not (stop and stop()):
             observed = session.observe()
             images = {cam: item["image"] for cam, item in observed["images"].items()}
@@ -176,11 +183,28 @@ def _run_policy_loaded(loaded, options, progress, stop):
             fresh = session.observe()
             if max(abs(a-b) for a,b in zip(fresh["observation.state"], frame["observation.state"])) > .5:
                 raise RuntimeError("Robot state changed during inference; action not sent")
+            validate_policy_target(action,session.calibration)
             sent = session.send(action, fresh)  # one send, no retry
             steps += 1
             if progress:
                 progress({"state": "inference", "steps": steps, "observation_age_ms": elapsed,
                           "action": sent["action"], "policy_checkpoint": str(loaded.checkpoint), "physical_actions": True})
     finally:
-        session.close()
+        stop_errors=session.close()
+        if stop_errors:raise RuntimeError("Снятие torque не подтверждено: проверьте аппаратный STOP. "+str(stop_errors))
     return {"status": "stopped" if stop and stop() else "completed", "steps": steps, "checkpoint": str(loaded.checkpoint)}
+
+
+def validate_policy_target(action,calibration):
+    """Reject an out-of-envelope learned prediction before any servo write."""
+    import math
+    from .hardware import JOINTS
+    if len(action)!=6 or not all(math.isfinite(float(x)) for x in action):raise ValueError('Политика вернула невалидные суставные команды')
+    limits=calibration['values']['follower']
+    for i,name in enumerate(JOINTS):
+        if name=='gripper':low,high=0.,100.
+        else:
+            cal=limits[name];mid=(cal['range_min']+cal['range_max'])/2
+            low=max(-175.,(cal['range_min']-mid)*360/4095);high=min(175.,(cal['range_max']-mid)*360/4095)
+        if not low<=float(action[i])<=high:raise ValueError(f'Предсказание политики {name}={action[i]:.3f} вне безопасного диапазона [{low:.3f},{high:.3f}]; команда отклонена')
+    return True

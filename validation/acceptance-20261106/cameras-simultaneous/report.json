@@ -1,0 +1,90 @@
+{
+  "status": "PASS",
+  "torque_commands": 0,
+  "goal_commands": 0,
+  "cameras": {
+    "top": {
+      "status": "PASS",
+      "measured_fps": 29.399551451024927,
+      "frames_received": 198,
+      "latest_age_ms": 33.622222,
+      "error": null,
+      "stream": {
+        "device": "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D4EA612F-video-index0",
+        "device_resolved": "/dev/video2",
+        "width": 640,
+        "height": 480,
+        "fps_reported": 30.0,
+        "pixel_format_requested": "MJPG",
+        "pixel_format_reported": "MJPG",
+        "timestamp_basis": "host_monotonic_capture_read_end; exposure timestamp unavailable",
+        "controls_written": [],
+        "camera_geometry_valid": false,
+        "stream_configuration_writes": [
+          "fourcc"
+        ],
+        "controls_readback_before": {
+          "AUTOFOCUS": 0.0,
+          "FOCUS": 0.0,
+          "AUTO_EXPOSURE": 1.0,
+          "EXPOSURE": 38.0,
+          "AUTO_WB": 1.0,
+          "WB_TEMPERATURE": 3732.0
+        },
+        "controls_readback_after": {
+          "AUTOFOCUS": 0.0,
+          "FOCUS": 0.0,
+          "AUTO_EXPOSURE": 1.0,
+          "EXPOSURE": 38.0,
+          "AUTO_WB": 1.0,
+          "WB_TEMPERATURE": 3732.0
+        },
+        "controls_changed_by_driver": [],
+        "controls_restored": false,
+        "capture_frames": 203,
+        "fps_observed_recent": 23.706617013631462
+      }
+    },
+    "wrist": {
+      "status": "PASS",
+      "measured_fps": 30.799530091549926,
+      "frames_received": 162,
+      "latest_age_ms": 10.563938,
+      "error": null,
+      "stream": {
+        "device": "/dev/v4l/by-id/usb-HD_USB_Camera_HD_USB_Camera-video-index0",
+        "device_resolved": "/dev/video0",
+        "width": 640,
+        "height": 480,
+        "fps_reported": 30.0,
+        "pixel_format_requested": "YUYV",
+        "pixel_format_reported": "YUYV",
+        "timestamp_basis": "host_monotonic_capture_read_end; exposure timestamp unavailable",
+        "controls_written": [],
+        "camera_geometry_valid": false,
+        "stream_configuration_writes": [],
+        "controls_readback_before": {
+          "AUTOFOCUS": -1.0,
+          "FOCUS": -1.0,
+          "AUTO_EXPOSURE": 1.0,
+          "EXPOSURE": 80.0,
+          "AUTO_WB": 1.0,
+          "WB_TEMPERATURE": 4600.0
+        },
+        "controls_readback_after": {
+          "AUTOFOCUS": -1.0,
+          "FOCUS": -1.0,
+          "AUTO_EXPOSURE": 1.0,
+          "EXPOSURE": 80.0,
+          "AUTO_WB": 1.0,
+          "WB_TEMPERATURE": 4600.0
+        },
+        "controls_changed_by_driver": [],
+        "controls_restored": false,
+        "capture_frames": 171,
+        "fps_observed_recent": 29.70894477843099
+      }
+    }
+  },
+  "camera_skew_ms": 23.058284
+}

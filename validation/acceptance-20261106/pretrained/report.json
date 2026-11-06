@@ -1,0 +1,180 @@
+{
+  "status": "PASS",
+  "phase": "complete",
+  "mode": "one_real_pretrained_CUDA_update",
+  "kind": "genuine_cached_pretrained_SmolVLA_CUDA_acceptance",
+  "model_is_tiny": false,
+  "technical_test": true,
+  "hardware_opened": false,
+  "torque_writes": 0,
+  "goal_position_writes": 0,
+  "physical_commands_sent": 0,
+  "recorded_demonstration_training": false,
+  "successful_policy_claim": false,
+  "cuda_allocator_fraction_limit": 0.55,
+  "minimum_available_gb": 9.0,
+  "started_unix_s": 1793998402.9779215,
+  "process_id": 721162,
+  "resource_preflight": {
+    "device_inventory": {
+      "leader": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "follower": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "top": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "wrist": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      }
+    },
+    "timestamp_ns": 55327234247484,
+    "memory_available_bytes": 10520580096,
+    "memory_total_bytes": 16291917824,
+    "disk_free_bytes": 127090421760,
+    "hardware_owners": [],
+    "compute_conflicts": [],
+    "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+  },
+  "torch_version": "2.11.0+cu130",
+  "cuda_device": "Orin",
+  "base_path": "/home/jetsonnx/.cache/huggingface/hub/models--lerobot--smolvla_base/snapshots/5e8d12a6e2975b0e5e5fce7c8caf47c371d257b6",
+  "base_revision": "5e8d12a6e2975b0e5e5fce7c8caf47c371d257b6",
+  "base_weights_sha256": "7cd549ac2351fb069c0ddb3c34ad2d09cfc92b56a15dccdfc2e41467aaca01eb",
+  "backbone_revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467",
+  "input_identity": "models/acceptance_pretrained_gpu_20261106/input_identity.json",
+  "options": {
+    "policy_type": "smolvla",
+    "device": "cuda",
+    "tiny_model": false,
+    "technical_tensor_smoke": true,
+    "mode": "sam_objects",
+    "camera_mode": "two_camera",
+    "image_size": 128,
+    "chunk_size": 2,
+    "denoising_steps": 2,
+    "batch_size": 1,
+    "steps": 1,
+    "use_amp": false,
+    "lr": 1e-05,
+    "optimizer": "adamw",
+    "seed": 19,
+    "freeze_vision_encoder": true,
+    "train_expert_only": true,
+    "train_state_proj": true
+  },
+  "model_constructed": true,
+  "pretrained_loading_strict": true,
+  "load_seconds": 23.67955590099882,
+  "total_parameters": 450046176,
+  "trainable_parameters": 99880992,
+  "metrics": {
+    "train/loss": 3.171788215637207,
+    "train/lr": 1e-05,
+    "train/grad_norm": 94.21460723876953,
+    "train/step_seconds": 1.59905237199564,
+    "train/samples_per_second": 0.6253703865571244,
+    "train/state_projection_update_max_abs": 1.0000541806221008e-05,
+    "resources/cuda_peak_allocated_bytes": 1929848832,
+    "resources/cuda_peak_reserved_bytes": 1977614336,
+    "resources/process_rss_bytes": 4708347904,
+    "resources/memory_available_bytes": 8189952000
+  },
+  "real_forward_backward_update": true,
+  "checkpoint": "/home/jetsonnx/Projects/so101_ai_learning/models/acceptance_pretrained_gpu_20261106/checkpoints/step_00000001",
+  "checkpoint_complete": true,
+  "inference_actions": [
+    [
+      43.05292510986328,
+      56.94640350341797,
+      -51.94050216674805,
+      96.12427520751953,
+      12.365145683288574,
+      44.27385711669922
+    ]
+  ],
+  "normalized_actions_sha256": "cdc3dc8a41780b39f25d250fe1a27c2ae943b5caaad7e86cdc612972f35453be",
+  "inference_actions_sha256": "5041924b7f6e9255c6b1985f523b5b238e8b85f860711d87fe73ace658114b4f",
+  "mlflow_spool": "/home/jetsonnx/Projects/so101_ai_learning/runtime/mlflow-spool/aea4ce67-1bf5-4ecc-a0c1-777926a4d0f6",
+  "resource_after_update_and_checkpoint": {
+    "device_inventory": {
+      "leader": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "follower": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "top": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "wrist": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      }
+    },
+    "timestamp_ns": 55370553043905,
+    "memory_available_bytes": 7856148480,
+    "memory_total_bytes": 16291917824,
+    "disk_free_bytes": 125462540288,
+    "hardware_owners": [],
+    "compute_conflicts": [],
+    "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+  },
+  "pretrained_GPU_update_verified": true,
+  "reload_new_process": "NOT_YET_RUN",
+  "mlflow_run_id": "d162cc0177cd4adc89bd4ebaa0cfc7ed",
+  "finished_unix_s": 1793998446.4928865,
+  "resource_after": {
+    "device_inventory": {
+      "leader": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "follower": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "top": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "wrist": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      }
+    },
+    "timestamp_ns": 55370718955456,
+    "memory_available_bytes": 7899217920,
+    "memory_total_bytes": 16291917824,
+    "disk_free_bytes": 125462487040,
+    "hardware_owners": [],
+    "compute_conflicts": [],
+    "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+  },
+  "memory_available_min_bytes": 7305383936,
+  "process_rss_peak_sampled_bytes": 5473259520,
+  "process_max_rss_bytes": 5472739328,
+  "cuda_peak_allocated_bytes": 1929848832,
+  "cuda_peak_reserved_bytes": 1977614336
+}

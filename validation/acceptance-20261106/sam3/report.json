@@ -1,0 +1,561 @@
+{
+  "status": "PASS",
+  "kind": "real_SAM3_CUDA_forward_on_real_camera_snapshots",
+  "hardware_opened_by_this_script": false,
+  "model_constructed": true,
+  "images": {
+    "top": {
+      "path": "validation/acceptance-20261106/cameras/top.png",
+      "sha256": "93cbf3508dccc59f1fbf652102703cac62ba2e87462d915e23f1bab7a360ab9e",
+      "width": 640,
+      "height": 480,
+      "forward_seconds": 10.317241905999254,
+      "detected_objects": 5,
+      "objects": [
+        {
+          "category": "cube",
+          "score": 0.5078125,
+          "bbox_xyxy": [
+            469.43792724609375,
+            286.7169494628906,
+            507.40301513671875,
+            319.2969055175781
+          ],
+          "center_xy": [
+            487.69539748953974,
+            302.4937238493724
+          ],
+          "area_px": 1195,
+          "mask_path": "validation/acceptance-20261106/sam3/masks/top/000.png",
+          "mask_sha256": "31dfd1859c3f1e086cb6db5f13bb2eefea408dd4a196fc7405b472bda4cde300",
+          "color": {
+            "valid": true,
+            "label": "red",
+            "rgb": [
+              49.0,
+              5.0,
+              5.0
+            ],
+            "rgb_mad": [
+              2.0,
+              1.0,
+              1.0
+            ],
+            "hsv": [
+              0.0,
+              0.8979591836734693,
+              0.19215686274509805
+            ],
+            "method": "visible_mask_median_RGB_HSV_v1",
+            "pixel_count": 1195,
+            "confidence": "unvalidated_lighting_dependent",
+            "limitations": "Без color-chart калибровки; блики/тени меняют цвет"
+          },
+          "visibility": "visible_mask",
+          "occlusion": {
+            "valid": false,
+            "value": null
+          },
+          "geometry": {
+            "valid": false,
+            "reason": "Нет проверенной актуальной геометрической калибровки",
+            "xyz_m": null,
+            "size_m": null,
+            "depth_m": null,
+            "grasp": null,
+            "surface": "unknown",
+            "uncertainty_m": null,
+            "provenance": "unobserved"
+          },
+          "tracking": {
+            "id": "top-000005",
+            "confidence": 0.0,
+            "status": "new",
+            "method": "causal_box_IoU_v1",
+            "identity_guaranteed": false
+          }
+        },
+        {
+          "category": "cube",
+          "score": 0.5078125,
+          "bbox_xyxy": [
+            268.7959289550781,
+            285.84710693359375,
+            301.8450622558594,
+            317.77398681640625
+          ],
+          "center_xy": [
+            284.6536926147705,
+            301.50998003992015
+          ],
+          "area_px": 1002,
+          "mask_path": "validation/acceptance-20261106/sam3/masks/top/001.png",
+          "mask_sha256": "b1aa822bb8ce9a4ddd4c6fc1f37b3d9bf4c1d618d6ac2b95b37edc335e3c9a9c",
+          "color": {
+            "valid": true,
+            "label": "black",
+            "rgb": [
+              3.0,
+              4.0,
+              11.0
+            ],
+            "rgb_mad": [
+              1.0,
+              1.0,
+              2.0
+            ],
+            "hsv": [
+              0.6458333333333334,
+              0.7272727272727273,
+              0.043137254901960784
+            ],
+            "method": "visible_mask_median_RGB_HSV_v1",
+            "pixel_count": 1002,
+            "confidence": "unvalidated_lighting_dependent",
+            "limitations": "Без color-chart калибровки; блики/тени меняют цвет"
+          },
+          "visibility": "visible_mask",
+          "occlusion": {
+            "valid": false,
+            "value": null
+          },
+          "geometry": {
+            "valid": false,
+            "reason": "Нет проверенной актуальной геометрической калибровки",
+            "xyz_m": null,
+            "size_m": null,
+            "depth_m": null,
+            "grasp": null,
+            "surface": "unknown",
+            "uncertainty_m": null,
+            "provenance": "unobserved"
+          },
+          "tracking": {
+            "id": "top-000004",
+            "confidence": 0.0,
+            "status": "new",
+            "method": "causal_box_IoU_v1",
+            "identity_guaranteed": false
+          }
+        },
+        {
+          "category": "cube",
+          "score": 0.53125,
+          "bbox_xyxy": [
+            327.593017578125,
+            285.857177734375,
+            363.2411193847656,
+            320.5680847167969
+          ],
+          "center_xy": [
+            344.81219272369714,
+            302.76302851524093
+          ],
+          "area_px": 1017,
+          "mask_path": "validation/acceptance-20261106/sam3/masks/top/002.png",
+          "mask_sha256": "46809f7a065640fc14e0cd9313e95ee0a1b6699870bbc1547045cfc258d4767e",
+          "color": {
+            "valid": true,
+            "label": "orange",
+            "rgb": [
+              81.0,
+              61.0,
+              25.0
+            ],
+            "rgb_mad": [
+              4.0,
+              2.9999999999999964,
+              3.0
+            ],
+            "hsv": [
+              0.10714285714285716,
+              0.6913580246913581,
+              0.3176470588235294
+            ],
+            "method": "visible_mask_median_RGB_HSV_v1",
+            "pixel_count": 1017,
+            "confidence": "unvalidated_lighting_dependent",
+            "limitations": "Без color-chart калибровки; блики/тени меняют цвет"
+          },
+          "visibility": "visible_mask",
+          "occlusion": {
+            "valid": false,
+            "value": null
+          },
+          "geometry": {
+            "valid": false,
+            "reason": "Нет проверенной актуальной геометрической калибровки",
+            "xyz_m": null,
+            "size_m": null,
+            "depth_m": null,
+            "grasp": null,
+            "surface": "unknown",
+            "uncertainty_m": null,
+            "provenance": "unobserved"
+          },
+          "tracking": {
+            "id": "top-000003",
+            "confidence": 0.0,
+            "status": "new",
+            "method": "causal_box_IoU_v1",
+            "identity_guaranteed": false
+          }
+        },
+        {
+          "category": "box",
+          "score": 0.9296875,
+          "bbox_xyxy": [
+            553.987548828125,
+            199.61769104003906,
+            642.3876342773438,
+            394.3200988769531
+          ],
+          "center_xy": [
+            602.3717017208413,
+            298.58608030592734
+          ],
+          "area_px": 13075,
+          "mask_path": "validation/acceptance-20261106/sam3/masks/top/003.png",
+          "mask_sha256": "a72e0b85230ecf1a96250afa5cc2062b7e0decb036526e0b884bed227a6099fc",
+          "color": {
+            "valid": true,
+            "label": "black",
+            "rgb": [
+              18.0,
+              11.0,
+              6.0
+            ],
+            "rgb_mad": [
+              9.0,
+              5.0,
+              3.0
+            ],
+            "hsv": [
+              0.06944444444444443,
+              0.6666666666666666,
+              0.07058823529411765
+            ],
+            "method": "visible_mask_median_RGB_HSV_v1",
+            "pixel_count": 13075,
+            "confidence": "unvalidated_lighting_dependent",
+            "limitations": "Без color-chart калибровки; блики/тени меняют цвет"
+          },
+          "visibility": "visible_mask",
+          "occlusion": {
+            "valid": false,
+            "value": null
+          },
+          "geometry": {
+            "valid": false,
+            "reason": "Нет проверенной актуальной геометрической калибровки",
+            "xyz_m": null,
+            "size_m": null,
+            "depth_m": null,
+            "grasp": null,
+            "surface": "unknown",
+            "uncertainty_m": null,
+            "provenance": "unobserved"
+          },
+          "tracking": {
+            "id": "top-000001",
+            "confidence": 0.0,
+            "status": "new",
+            "method": "causal_box_IoU_v1",
+            "identity_guaranteed": false
+          }
+        },
+        {
+          "category": "box",
+          "score": 0.90234375,
+          "bbox_xyxy": [
+            -0.43478965759277344,
+            155.385009765625,
+            235.12753295898438,
+            410.06195068359375
+          ],
+          "center_xy": [
+            85.35663190083547,
+            302.27150111942336
+          ],
+          "area_px": 36626,
+          "mask_path": "validation/acceptance-20261106/sam3/masks/top/004.png",
+          "mask_sha256": "d1f2d328cc32d8b3bae977697e2e43965bf5a38661aa8ca562f0bf1ac16ea786",
+          "color": {
+            "valid": true,
+            "label": "gray",
+            "rgb": [
+              54.0,
+              53.0,
+              56.0
+            ],
+            "rgb_mad": [
+              6.0,
+              6.9999999999999964,
+              7.0000000000000036
+            ],
+            "hsv": [
+              0.722222222222222,
+              0.053571428571428506,
+              0.2196078431372549
+            ],
+            "method": "visible_mask_median_RGB_HSV_v1",
+            "pixel_count": 36626,
+            "confidence": "unvalidated_lighting_dependent",
+            "limitations": "Без color-chart калибровки; блики/тени меняют цвет"
+          },
+          "visibility": "visible_mask",
+          "occlusion": {
+            "valid": false,
+            "value": null
+          },
+          "geometry": {
+            "valid": false,
+            "reason": "Нет проверенной актуальной геометрической калибровки",
+            "xyz_m": null,
+            "size_m": null,
+            "depth_m": null,
+            "grasp": null,
+            "surface": "unknown",
+            "uncertainty_m": null,
+            "provenance": "unobserved"
+          },
+          "tracking": {
+            "id": "top-000002",
+            "confidence": 0.0,
+            "status": "new",
+            "method": "causal_box_IoU_v1",
+            "identity_guaranteed": false
+          }
+        }
+      ],
+      "lost_track_ids": [],
+      "zero_detections_meaning": "not_detected_not_proven_absent",
+      "cuda_peak_allocated_bytes": 4067278336,
+      "cuda_peak_reserved_bytes": 4445962240,
+      "memory_available_bytes": 5344600064
+    },
+    "wrist": {
+      "path": "validation/acceptance-20261106/cameras/wrist.png",
+      "sha256": "7af61213cd106a4601ee8f38674e12a879f7ae80bdbed51f4371c6d52a936cb8",
+      "width": 640,
+      "height": 480,
+      "forward_seconds": 1.2620074720034609,
+      "detected_objects": 2,
+      "objects": [
+        {
+          "category": "cube",
+          "score": 0.65234375,
+          "bbox_xyxy": [
+            196.0843048095703,
+            -0.7031750679016113,
+            367.19091796875,
+            158.26803588867188
+          ],
+          "center_xy": [
+            282.54411525313367,
+            75.80917304248739
+          ],
+          "area_px": 24572,
+          "mask_path": "validation/acceptance-20261106/sam3/masks/wrist/000.png",
+          "mask_sha256": "3bb8c75a03f5a561490275b6d5234ac41234c0a20c5f3075c401e2d48b9913f6",
+          "color": {
+            "valid": true,
+            "label": "green",
+            "rgb": [
+              84.0,
+              90.0,
+              71.0
+            ],
+            "rgb_mad": [
+              20.999999999999996,
+              12.999999999999996,
+              25.000000000000004
+            ],
+            "hsv": [
+              0.2192982456140351,
+              0.21111111111111114,
+              0.35294117647058826
+            ],
+            "method": "visible_mask_median_RGB_HSV_v1",
+            "pixel_count": 24572,
+            "confidence": "unvalidated_lighting_dependent",
+            "limitations": "Без color-chart калибровки; блики/тени меняют цвет"
+          },
+          "visibility": "visible_mask",
+          "occlusion": {
+            "valid": false,
+            "value": null
+          },
+          "geometry": {
+            "valid": false,
+            "reason": "Нет проверенной актуальной геометрической калибровки",
+            "xyz_m": null,
+            "size_m": null,
+            "depth_m": null,
+            "grasp": null,
+            "surface": "unknown",
+            "uncertainty_m": null,
+            "provenance": "unobserved"
+          },
+          "tracking": {
+            "id": "wrist-000002",
+            "confidence": 0.0,
+            "status": "new",
+            "method": "causal_box_IoU_v1",
+            "identity_guaranteed": false
+          }
+        },
+        {
+          "category": "box",
+          "score": 0.7890625,
+          "bbox_xyxy": [
+            196.0289764404297,
+            -0.7832694053649902,
+            367.24237060546875,
+            158.23388671875
+          ],
+          "center_xy": [
+            282.58681757114357,
+            75.77425395920693
+          ],
+          "area_px": 24563,
+          "mask_path": "validation/acceptance-20261106/sam3/masks/wrist/001.png",
+          "mask_sha256": "f8181038febedcb13b0133f3d1870ed16f518694435f354ad2fa49897c1a0f93",
+          "color": {
+            "valid": true,
+            "label": "green",
+            "rgb": [
+              84.0,
+              90.0,
+              71.0
+            ],
+            "rgb_mad": [
+              20.999999999999996,
+              12.999999999999996,
+              25.000000000000004
+            ],
+            "hsv": [
+              0.2192982456140351,
+              0.21111111111111114,
+              0.35294117647058826
+            ],
+            "method": "visible_mask_median_RGB_HSV_v1",
+            "pixel_count": 24563,
+            "confidence": "unvalidated_lighting_dependent",
+            "limitations": "Без color-chart калибровки; блики/тени меняют цвет"
+          },
+          "visibility": "visible_mask",
+          "occlusion": {
+            "valid": false,
+            "value": null
+          },
+          "geometry": {
+            "valid": false,
+            "reason": "Нет проверенной актуальной геометрической калибровки",
+            "xyz_m": null,
+            "size_m": null,
+            "depth_m": null,
+            "grasp": null,
+            "surface": "unknown",
+            "uncertainty_m": null,
+            "provenance": "unobserved"
+          },
+          "tracking": {
+            "id": "wrist-000001",
+            "confidence": 0.0,
+            "status": "new",
+            "method": "causal_box_IoU_v1",
+            "identity_guaranteed": false
+          }
+        }
+      ],
+      "lost_track_ids": [],
+      "zero_detections_meaning": "not_detected_not_proven_absent",
+      "cuda_peak_allocated_bytes": 4067278336,
+      "cuda_peak_reserved_bytes": 4458545152,
+      "memory_available_bytes": 5287452672
+    }
+  },
+  "cuda_memory_fraction_limit": 0.65,
+  "minimum_available_gb": 10.0,
+  "segmentation_quality": "NOT_TESTED; operator must inspect actual outputs",
+  "started_at_unix_s": 1793997806.3172867,
+  "resource_preflight": {
+    "timestamp_ns": 54730661908342,
+    "memory_available_bytes": 11305168896,
+    "memory_total_bytes": 16291917824,
+    "disk_free_bytes": 127785234432,
+    "hardware_owners": [],
+    "compute_conflicts": [],
+    "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+  },
+  "capture_metadata": {
+    "top": {
+      "timestamp_ns": 54611173149302,
+      "read_start_ns": 54611141240121,
+      "read_end_ns": 54611173149302,
+      "sequence": 62,
+      "device": "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D4EA612F-video-index0",
+      "path": "top.png",
+      "width": 640,
+      "height": 480,
+      "encoding": "lossless PNG decoded RGB",
+      "sha256": "93cbf3508dccc59f1fbf652102703cac62ba2e87462d915e23f1bab7a360ab9e"
+    },
+    "wrist": {
+      "timestamp_ns": 54613253761121,
+      "read_start_ns": 54613234357972,
+      "read_end_ns": 54613253761121,
+      "sequence": 2,
+      "device": "/dev/v4l/by-id/usb-HD_USB_Camera_HD_USB_Camera-video-index0",
+      "path": "wrist.png",
+      "width": 640,
+      "height": 480,
+      "encoding": "lossless PNG decoded RGB",
+      "sha256": "7af61213cd106a4601ee8f38674e12a879f7ae80bdbed51f4371c6d52a936cb8"
+    }
+  },
+  "capture_timestamp_status": "recorded_by_capture_worker; see metadata",
+  "torch_version": "2.11.0+cu130",
+  "cuda_device": "Orin",
+  "phase": "complete",
+  "load_seconds": 33.80586682700232,
+  "provenance": {
+    "backend": "sam3",
+    "checkpoint_path": "/home/jetsonnx/.cache/huggingface/hub/models--facebook--sam3/snapshots/3c879f39826c281e95690f02c7821c4de09afae7/sam3.pt",
+    "checkpoint_sha256": "9999e2341ceef5e136daa386eecb55cb414446a00ac2b55eb2dfd2f7c3cf8c9e",
+    "source": {
+      "upstream": "https://github.com/facebookresearch/sam3",
+      "commit": "f1647e8d0c1d280991f4d1b7d974c2704537fe66",
+      "snapshot_method": "independent copy of clean verified pinned official source",
+      "local_patch": "pyproject.toml numpy constraint changed >=1.26,<2 to >=2.0,<2.3 for LeRobot; imports+mask/color tests pass, GPU inference pending",
+      "pyproject_sha256": "7d9dc6ab8dada6d832f0bf4fc6f3cabf32ab94a39adb469d85809a640af0c90e",
+      "runtime_sha256": "84f27d2d18b30ddf640a41831948d87711d02ba45158eb7eab78d57a904a9b08"
+    },
+    "prompts": {
+      "cube": "cube",
+      "box": "box"
+    },
+    "confidence_threshold": 0.5,
+    "preprocessing": "official_Sam3Processor_1008_RGB_v1",
+    "tracking": "causal_box_IoU_v1",
+    "processing_contract": {
+      "schema": "so101.annotations.v1",
+      "preprocessing": "official_Sam3Processor_1008_RGB_v1",
+      "tracking": "causal_box_IoU_v1",
+      "color": "visible_mask_median_RGB_HSV_v1",
+      "association_min_iou": 0.3,
+      "association_ambiguity_margin": 0.1,
+      "association_max_gap_ns": 1000000000
+    },
+    "device": "cuda",
+    "configuration_hash": "9f28ea399f65a27245dc47b2f5df8262301cb9da57ee4d8b9d917976bd34cae1"
+  },
+  "completed_images": 2,
+  "unified_memory_available_min_bytes": 4789137408,
+  "unified_memory_used_max_bytes": 11502780416,
+  "unified_memory_peak_increment_bytes": 6516031488,
+  "finished_at_unix_s": 1793997854.1442275,
+  "cuda_peak_allocated_bytes": 4067278336,
+  "cuda_peak_reserved_bytes": 4458545152
+}

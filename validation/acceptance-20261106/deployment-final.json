@@ -1,0 +1,113 @@
+{
+  "services": {
+    "so101-ai-learning-ui": 747477,
+    "so101-ai-learning-mlflow": 2370
+  },
+  "listeners": "LISTEN 0      2048         0.0.0.0:8020       0.0.0.0:*    users:((\"python\",pid=747477,fd=6))\nLISTEN 0      2048         0.0.0.0:5020       0.0.0.0:*    users:((\"python\",pid=2769,fd=6))  ",
+  "LAN_HTTP": 200,
+  "TAILSCALE_HTTP": 200,
+  "LAN_WS": true,
+  "TAILSCALE_WS": true,
+  "real_preview": {
+    "active": true,
+    "state": "connected",
+    "camera_only": true,
+    "torque_enabled": false,
+    "error": null,
+    "cameras": {
+      "top": {
+        "connected": true,
+        "error": null,
+        "frames_received": 54,
+        "last_frame_age_ms": 30.483586,
+        "observed_fps": 30.159228750279198,
+        "stream": {
+          "device": "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D4EA612F-video-index0",
+          "device_resolved": "/dev/video2",
+          "width": 640,
+          "height": 480,
+          "fps_reported": 30.0,
+          "pixel_format_requested": "MJPG",
+          "pixel_format_reported": "MJPG",
+          "timestamp_basis": "host_monotonic_capture_read_end; exposure timestamp unavailable",
+          "controls_written": [],
+          "camera_geometry_valid": false,
+          "stream_configuration_writes": [
+            "fourcc"
+          ],
+          "controls_readback_before": {
+            "AUTOFOCUS": 0.0,
+            "FOCUS": 0.0,
+            "AUTO_EXPOSURE": 1.0,
+            "EXPOSURE": 77.0,
+            "AUTO_WB": 1.0,
+            "WB_TEMPERATURE": 3732.0
+          },
+          "controls_readback_after": {
+            "AUTOFOCUS": 0.0,
+            "FOCUS": 0.0,
+            "AUTO_EXPOSURE": 1.0,
+            "EXPOSURE": 77.0,
+            "AUTO_WB": 1.0,
+            "WB_TEMPERATURE": 3732.0
+          },
+          "controls_changed_by_driver": [],
+          "controls_restored": false,
+          "capture_frames": 54,
+          "fps_observed_recent": 30.159228750279198
+        }
+      },
+      "wrist": {
+        "connected": true,
+        "error": null,
+        "frames_received": 33,
+        "last_frame_age_ms": 31.661775,
+        "observed_fps": 29.65065128248555,
+        "stream": {
+          "device": "/dev/v4l/by-id/usb-HD_USB_Camera_HD_USB_Camera-video-index0",
+          "device_resolved": "/dev/video0",
+          "width": 640,
+          "height": 480,
+          "fps_reported": 30.0,
+          "pixel_format_requested": "YUYV",
+          "pixel_format_reported": "YUYV",
+          "timestamp_basis": "host_monotonic_capture_read_end; exposure timestamp unavailable",
+          "controls_written": [],
+          "camera_geometry_valid": false,
+          "stream_configuration_writes": [],
+          "controls_readback_before": {
+            "AUTOFOCUS": -1.0,
+            "FOCUS": -1.0,
+            "AUTO_EXPOSURE": 1.0,
+            "EXPOSURE": 80.0,
+            "AUTO_WB": 1.0,
+            "WB_TEMPERATURE": 4600.0
+          },
+          "controls_readback_after": {
+            "AUTOFOCUS": -1.0,
+            "FOCUS": -1.0,
+            "AUTO_EXPOSURE": 1.0,
+            "EXPOSURE": 80.0,
+            "AUTO_WB": 1.0,
+            "WB_TEMPERATURE": 4600.0
+          },
+          "controls_changed_by_driver": [],
+          "controls_restored": false,
+          "capture_frames": 33,
+          "fps_observed_recent": 29.65065128248555
+        }
+      }
+    }
+  },
+  "actual_recording": {
+    "state": "idle",
+    "active": false,
+    "hardware_open": false,
+    "updated_at": "2026-11-06T21:14:57.585088+00:00"
+  },
+  "preflight_record_status": "READY_FOR_OPERATOR_START",
+  "checkpoint_manifests_hide_technical_models": true,
+  "python_tests": 104,
+  "dom_tests": 10,
+  "hardware_bus_or_torque_commands": 0
+}

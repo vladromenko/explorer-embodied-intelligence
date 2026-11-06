@@ -118,7 +118,7 @@ def validate_raw_frame(frame: dict, contract: FeatureContract, *, training: bool
 
 
 def _select(objects: list[dict], category: str, contract: FeatureContract):
-    candidates = [o for o in objects if o.get("category") == category]
+    candidates = [o for o in objects if o.get("category") == category and not o.get("category_ambiguous",False)]
     if contract.target_color and category == "cube":
         candidates = [o for o in candidates if o.get("color", {}).get("valid") and o["color"].get("label") == contract.target_color]
     candidates = [o for o in candidates if math.isfinite(float(o.get("score", -1))) and float(o.get("score", -1)) >= 0]
@@ -157,8 +157,12 @@ def object_state(frame: dict, annotation: dict | None, contract: FeatureContract
                 continue
             x0, y0, x1, y1 = map(float, selected["bbox_xyxy"])
             cx, cy = map(float, selected["center_xy"])
-            if not (0 <= x0 <= x1 <= width and 0 <= y0 <= y1 <= height and 0 <= cx <= width and 0 <= cy <= height):
+            if not all(math.isfinite(v) for v in (x0,y0,x1,y1,cx,cy)) or x1<=x0 or y1<=y0 or not (0<=cx<width and 0<=cy<height):
                 raise ValueError("Invalid SAM bbox/center")
+            # Real SAM box regression can extend a fraction of a pixel beyond the image.
+            # Preserve the original sidecar; clip only the numerical policy input.
+            x0,y0,x1,y1=max(0.,x0),max(0.,y0),min(width,x1),min(height,y1)
+            if x1<=x0 or y1<=y0:raise ValueError("SAM box has no intersection with image")
             score = float(selected["score"])
             if not 0 <= score <= 1:
                 raise ValueError("Invalid SAM score")

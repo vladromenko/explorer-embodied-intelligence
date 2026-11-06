@@ -44,6 +44,7 @@ class TrainingOptions(BaseModel):
     augment_images:bool=False
     job_name:str=Field(default='',max_length=120)
     resume_from:str|None=None
+    output_dir:str|None=None
     @model_validator(mode='after')
     def coherent(self):
         if self.validation_fraction+self.test_fraction>=1:raise ValueError('Train доля должна быть больше нуля')
@@ -72,6 +73,11 @@ def normalize_options(options,*,public=False):
         elif p.name=='pretrained_model':p=p.parent
         else:raise ValueError('Нужна полная папка checkpoint для resume')
         result['resume_from']=str(p)
+    if result['output_dir']:
+        root=Path(__file__).resolve().parents[2];p=Path(result['output_dir'])
+        p=(root/p).resolve() if not p.is_absolute() else p.resolve()
+        if not p.is_relative_to(root/'models'):raise ValueError('Output directory должен быть внутри models этой лаборатории')
+        result['output_dir']=str(p)
     result.update(internal)
     return result
 

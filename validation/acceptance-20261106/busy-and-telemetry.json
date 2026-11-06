@@ -1,0 +1,11 @@
+{
+  "gpu_busy_job": "PASS",
+  "raw_recording_during_gpu_busy": "PASS",
+  "frame_count_before": 2,
+  "frame_count_after": 7,
+  "job_id": "9aec090840f642cd85107398bd31214d",
+  "mlflow_durable_retry": "PASS",
+  "mlflow_run_id": "111fe74d757b45f8a2d48e3e2a0e4887",
+  "physical_hardware": false,
+  "GPU_model_loaded": false
+}

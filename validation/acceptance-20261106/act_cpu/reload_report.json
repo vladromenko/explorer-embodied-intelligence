@@ -1,0 +1,152 @@
+{
+  "status": "PASS",
+  "phase": "complete",
+  "mode": "new_process_reload",
+  "model_is_tiny": false,
+  "technical_test": true,
+  "hardware_opened": false,
+  "cuda_used": false,
+  "torque_writes": 0,
+  "goal_position_writes": 0,
+  "physical_commands_sent": 0,
+  "demonstration_training": false,
+  "successful_policy_claim": false,
+  "pid": 726585,
+  "started_unix_s": 1793998757.668016,
+  "resource_preflight": {
+    "device_inventory": {
+      "leader": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "follower": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "top": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "wrist": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      }
+    },
+    "timestamp_ns": 55681892919855,
+    "memory_available_bytes": 10549706752,
+    "memory_total_bytes": 16291917824,
+    "disk_free_bytes": 124840841216,
+    "hardware_owners": [],
+    "compute_conflicts": [],
+    "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+  },
+  "torch_version": "2.11.0+cu130",
+  "checkpoint": "/home/jetsonnx/Projects/so101_ai_learning/models/acceptance_act_cpu_20261106/checkpoints/step_00000001",
+  "checkpoint_reloaded": true,
+  "saved_processors_reloaded": true,
+  "full_production_ACT": true,
+  "finite_actions": true,
+  "actions_equal": true,
+  "normalized_max_abs_difference": 0.0,
+  "action_max_abs_difference": 0.0,
+  "normalized_actions_bitwise_equal": true,
+  "actions_bitwise_equal": true,
+  "normalized_actions_sha256": "989bed95a5e7b0c7f8f5b50d30a177a0426de488cf171a7c4a25cf735f960bcc",
+  "actions_sha256": "065db179bcdda6a6e305d565cf82c92f478cea51fe8aa2982b65566d0fd5e5be",
+  "actions": [
+    [
+      43.338233947753906,
+      56.855064392089844,
+      -48.17147445678711,
+      97.15176391601562,
+      10.007552146911621,
+      41.87715530395508
+    ]
+  ],
+  "checkpoint_technical_test": true,
+  "resource_after_reload": {
+    "device_inventory": {
+      "leader": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "follower": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "top": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "wrist": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      }
+    },
+    "timestamp_ns": 55694149891258,
+    "memory_available_bytes": 9884250112,
+    "memory_total_bytes": 16291917824,
+    "disk_free_bytes": 124840796160,
+    "hardware_owners": [],
+    "compute_conflicts": [],
+    "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+  },
+  "mlflow_run_id": "2e4c4f8b30dc429280825b53b9f9425a",
+  "finished_unix_s": 1793998770.476524,
+  "process_peak_rss_bytes": 1333047296,
+  "process_final_rss_bytes": 1125011456,
+  "resource_after": {
+    "device_inventory": {
+      "leader": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "follower": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "top": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "wrist": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      }
+    },
+    "timestamp_ns": 55694701816877,
+    "memory_available_bytes": 9892761600,
+    "memory_total_bytes": 16291917824,
+    "disk_free_bytes": 124840767488,
+    "hardware_owners": [],
+    "compute_conflicts": [],
+    "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+  },
+  "supervisor_guard": {
+    "status": "PASS",
+    "mode": "reload",
+    "cuda_used": false,
+    "hardware_opened": false,
+    "minimum_reserve_bytes": 2147483648,
+    "baseline_available_bytes": 10553692160,
+    "pid": 726585,
+    "exit_code": 0,
+    "elapsed_seconds": 15.059422903002996,
+    "minimum_available_bytes": 9863229440,
+    "peak_child_rss_bytes": 1173827584
+  },
+  "memory_available_min_bytes": 9863229440,
+  "process_peak_rss_sampled_bytes": 1173827584
+}

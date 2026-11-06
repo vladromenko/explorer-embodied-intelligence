@@ -1,0 +1,147 @@
+{
+  "dataset_id": "ds_e214e7ffaf654b0b",
+  "job_id": "f5479ddbc34e49c989a412bbe5aa05af",
+  "source": "synthetic_test",
+  "hardware_test": false,
+  "result": {
+    "id": "f5479ddbc34e49c989a412bbe5aa05af",
+    "kind": "finalize",
+    "dataset": "/home/jetsonnx/Projects/so101_ai_learning/data/ds_e214e7ffaf654b0b",
+    "options": {
+      "allow_test_data": true
+    },
+    "state": "completed",
+    "created_at": 1793998648.5828118,
+    "message": "Проверка raw и подготовка LeRobot Dataset (CPU)",
+    "progress": {
+      "state": "verifying_official_lerobot_loader",
+      "frames": 6
+    },
+    "result": {
+      "schema_version": "so101-raw-validation-v1",
+      "dataset_id": "ds_e214e7ffaf654b0b",
+      "checked_at": "2026-11-06T20:57:28.785456+00:00",
+      "source": "synthetic_test",
+      "software_only": true,
+      "hardware_verification": "NOT_TESTED_BY_FILE_VALIDATOR",
+      "errors": [],
+      "warnings": [
+        "Quarantine сохранён и исключён из train",
+        "Технические данные: аппаратная работоспособность и успех политики не проверены",
+        "Меньше трёх эпизодов: полноценные train/validation/test могут быть недоступны"
+      ],
+      "episodes": [
+        {
+          "episode_id": "ep_20261106T235649_ad93e23d0c",
+          "session_id": "session_bd88ca9108774a64",
+          "frames": 3,
+          "frames_sha256": "54f1f7ed3bac0062c925d82b5f3c884ad6be5b41e4e4f4adb009b8ebe1c0aa77",
+          "duration_s": 0.400225845,
+          "fps_requested": 5.0,
+          "fps_observed": 4.997178530536927,
+          "max_sample_period_s": 0.200170221,
+          "max_camera_age_ms": 0.0,
+          "max_camera_pair_skew_ms": 0.0,
+          "max_state_to_action_ms": 1e-06,
+          "camera_dimensions": {
+            "top": [
+              640,
+              480
+            ],
+            "wrist": [
+              640,
+              480
+            ]
+          },
+          "reused_camera_frames": {
+            "top": 0,
+            "wrist": 0
+          },
+          "dropped_camera_frames": {
+            "top": 0,
+            "wrist": 0
+          }
+        },
+        {
+          "episode_id": "ep_20261106T235650_0238176547",
+          "session_id": "session_bd88ca9108774a64",
+          "frames": 3,
+          "frames_sha256": "e988b02261549b5b8b1e05c97367b8ea48439f44adb809284eb7bcc860ffd08d",
+          "duration_s": 0.400206196,
+          "fps_requested": 5.0,
+          "fps_observed": 4.997423877965147,
+          "max_sample_period_s": 0.200121771,
+          "max_camera_age_ms": 0.0,
+          "max_camera_pair_skew_ms": 0.0,
+          "max_state_to_action_ms": 1e-06,
+          "camera_dimensions": {
+            "top": [
+              640,
+              480
+            ],
+            "wrist": [
+              640,
+              480
+            ]
+          },
+          "reused_camera_frames": {
+            "top": 0,
+            "wrist": 0
+          },
+          "dropped_camera_frames": {
+            "top": 0,
+            "wrist": 0
+          }
+        }
+      ],
+      "frames": 6,
+      "quarantine_episodes": 1,
+      "status": "valid",
+      "finalized": true,
+      "training_eligible": false,
+      "dataset_sha256": "48f287a290ab7809930c66d0ee21b2a09ca1a811cd531a1d1843bf0e3ca5e4ad",
+      "dataset_version": 4,
+      "lerobot_export": {
+        "status": "complete",
+        "path": "/home/jetsonnx/Projects/so101_ai_learning/data/ds_e214e7ffaf654b0b/exports/lerobot_45e4814dda0b1cf1",
+        "repo_id": "so101-lab-technical-test/so101_45e4814dda0b1cf1ad8345d5",
+        "dataset_sha256": "45e4814dda0b1cf1ad8345d50590f0ebd150368c6570078c2f9ab73de98a5606",
+        "source": "synthetic_test",
+        "test_only": true,
+        "total_frames": 6,
+        "total_episodes": 2,
+        "nominal_fps": 5,
+        "official_verification": {
+          "status": "passed",
+          "loader": "lerobot.datasets.lerobot_dataset.LeRobotDataset",
+          "lerobot_version": "0.6.1",
+          "frames_opened_and_verified": 6,
+          "total_frames": 6,
+          "total_episodes": 2,
+          "image_shapes_chw": {
+            "top": [
+              3,
+              480,
+              640
+            ],
+            "wrist": [
+              3,
+              480,
+              640
+            ]
+          },
+          "rgb_pixels_bit_exact": true,
+          "image_comparison": "official image-backed float [0,1] decoded to exact uint8 via round(255*x), or native uint8",
+          "measured_timestamps_preserved": true,
+          "precise_monotonic_ns_preserved": true,
+          "task_and_episode_boundaries_verified": true,
+          "hardware_test": false,
+          "cuda_used": false
+        },
+        "warnings": [
+          "ТЕХНИЧЕСКИЙ источник: joints/actions не являются измерениями/отправленными командами, успех робота не проверялся"
+        ]
+      }
+    }
+  }
+}

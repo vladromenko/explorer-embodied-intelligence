@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "mode": "train",
+  "cuda_used": false,
+  "hardware_opened": false,
+  "minimum_reserve_bytes": 2147483648,
+  "baseline_available_bytes": 10706190336,
+  "pid": 725453,
+  "exit_code": 0,
+  "elapsed_seconds": 16.97283771700313,
+  "minimum_available_bytes": 9113194496,
+  "peak_child_rss_bytes": 1896501248
+}

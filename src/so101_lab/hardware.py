@@ -5,7 +5,6 @@ A bus write is attempted once; a failure terminates the session, never retries m
 """
 from __future__ import annotations
 
-import dataclasses
 import fcntl
 import hashlib
 import importlib.metadata
@@ -33,19 +32,30 @@ def hardware_settings(settings: dict | None = None) -> dict:
     result = {
         'leader_port': '/dev/so101-leader', 'follower_port': '/dev/so101-follower',
         'cameras': dict(DEFAULT_CAMERAS), 'width': 640, 'height': 480,
-        'fps': 30, 'max_camera_age_ms': 150, 'max_step_degrees': 2.0,
+        'camera_formats': {'top':'MJPG','wrist':'YUYV'},
+        'fps': 30, 'max_camera_age_ms': 100, 'max_step_degrees': 2.0,
         'max_gripper_step': 3.0, 'max_speed_degrees_s': 45.0,
         'calibration_dir': str(ROOT / 'config/calibration_snapshots'),
     }
     for key in result:
         if key in settings: result[key] = settings[key]
+    for key in ('fps','max_camera_age_ms','max_step_degrees','max_gripper_step','max_speed_degrees_s'):
+        result[key] = float(result[key])
+        if not math.isfinite(result[key]): raise ValueError(f'{key}: требуется конечное число')
+    for key in ('width','height'): result[key] = int(result[key])
     if not 1 <= float(result['fps']) <= 30: raise ValueError('FPS должен быть в пределах 1–30')
     if (int(result['width']),int(result['height'])) != (640,480):
         raise ValueError('Проверяемый режим записи: 640×480; другая геометрия требует отдельной проверки')
     if not 0 < float(result['max_step_degrees']) <= 2.0: raise ValueError('Шаг сустава должен быть 0–2°')
     if not 0 < float(result['max_gripper_step']) <= 5: raise ValueError('Шаг gripper должен быть 0–5%')
     if not 0 < float(result['max_speed_degrees_s']) <= 60: raise ValueError('Скорость должна быть 0–60°/s')
+    if not 0 < result['max_camera_age_ms'] <= 500: raise ValueError('Допустимый возраст камеры: 0–500 ms')
     if set(result['cameras']) != {'top','wrist'}: raise ValueError('Raw recording требует top и wrist')
+    if set(result['camera_formats']) != {'top','wrist'} or any(value not in ('MJPG','YUYV') for value in result['camera_formats'].values()):
+        raise ValueError('Формат top/wrist должен быть MJPG или YUYV')
+    paths = [result['leader_port'],result['follower_port'],*result['cameras'].values()]
+    if len({str(Path(p).resolve()) for p in paths}) != len(paths):
+        raise ValueError('Leader, follower и камеры должны использовать разные устройства')
     return result
 
 
@@ -96,29 +106,53 @@ class CameraCapture:
         import cv2
         assert_hardware_available([self.device])
         self.cap = cv2.VideoCapture(str(self.device), cv2.CAP_V4L2)
-        if not self.cap.isOpened(): raise RuntimeError(f'Камера {self.name} не открылась: {self.device}')
         try:
+            if not self.cap.isOpened(): raise RuntimeError(f'Камера {self.name} не открылась: {self.device}')
             # Stream mode is selected only after explicit user start; no autofocus/controls writes.
-            self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
-            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, int(self.cfg['width']))
-            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, int(self.cfg['height']))
-            self.cap.set(cv2.CAP_PROP_FPS, float(self.cfg['fps']))
+            pixel_format=self.cfg.get('camera_formats',{'top':'MJPG','wrist':'YUYV'})[self.name]
+            mode_properties = [('fourcc',cv2.CAP_PROP_FOURCC,cv2.VideoWriter_fourcc(*pixel_format)),
+                               ('width',cv2.CAP_PROP_FRAME_WIDTH,int(self.cfg['width'])),
+                               ('height',cv2.CAP_PROP_FRAME_HEIGHT,int(self.cfg['height'])),
+                               ('fps',cv2.CAP_PROP_FPS,float(self.cfg['fps']))]
+            control_properties = {name:getattr(cv2,'CAP_PROP_'+name) for name in
+                                  ('AUTOFOCUS','FOCUS','AUTO_EXPOSURE','EXPOSURE','AUTO_WB','WB_TEMPERATURE')
+                                  if hasattr(cv2,'CAP_PROP_'+name)}
+            controls_before={name:self.cap.get(prop) for name,prop in control_properties.items()}
+            stream_writes=[]
+            for name,property_id,value in mode_properties:
+                current=self.cap.get(property_id)
+                if not math.isfinite(current) or abs(current-value)>(max(.5,abs(value)*.01) if name=='fps' else .1):
+                    self.cap.set(property_id,value)
+                    stream_writes.append(name)
+            controls_after={name:self.cap.get(prop) for name,prop in control_properties.items()}
+            actual_fourcc=int(self.cap.get(cv2.CAP_PROP_FOURCC))
             self.info = {
                 'device': self.device, 'device_resolved': str(Path(self.device).resolve()),
                 'width': int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
                 'height': int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
                 'fps_reported': self.cap.get(cv2.CAP_PROP_FPS),
+                'pixel_format_requested':pixel_format,
+                'pixel_format_reported':''.join(chr((actual_fourcc >> (8*i)) & 255) for i in range(4)),
                 'timestamp_basis': 'host_monotonic_capture_read_end; exposure timestamp unavailable',
                 'controls_written': [], 'camera_geometry_valid': False,
+                'stream_configuration_writes':stream_writes,'controls_readback_before':controls_before,
+                'controls_readback_after':controls_after,
+                'controls_changed_by_driver':[name for name in controls_before if controls_before[name]!=controls_after[name]],
+                'controls_restored':False,
             }
             if (self.info['width'],self.info['height']) != (self.cfg['width'],self.cfg['height']):
                 raise RuntimeError(f'Камера {self.name}: фактическое разрешение {self.info["width"]}x{self.info["height"]} не совпало')
+            if self.info['pixel_format_reported']!=pixel_format:
+                raise RuntimeError(f'Камера {self.name}: запрошен {pixel_format}, получен {self.info["pixel_format_reported"]}')
+            actual_fps=self.info['fps_reported']
+            if not math.isfinite(actual_fps) or abs(actual_fps-self.cfg['fps'])>max(.5,self.cfg['fps']*.05):
+                raise RuntimeError(f'Камера {self.name}: FPS readback {actual_fps:g} вместо {self.cfg["fps"]:g}; поток не запущен')
             self.thread = threading.Thread(target=self._run, name='so101-ai-camera-'+self.name, daemon=True)
             self.thread.start()
             deadline = time.monotonic()+3
-            while not self.frames and not self.error and time.monotonic()<deadline:
+            while self.sequence<2 and not self.error and time.monotonic()<deadline:
                 self.stop_event.wait(.01)
-            if not self.frames: raise RuntimeError(f'Нет кадров {self.name}: {self.error or "timeout"}')
+            if self.sequence<2: raise RuntimeError(f'Нет стабильного потока {self.name}: {self.error or "менее двух кадров за 3s"}')
         except Exception:
             self.close()
             raise
@@ -139,6 +173,10 @@ class CameraCapture:
                 frame = {'image':rgb,'timestamp_ns':read_end,'read_start_ns':read_start,
                          'read_end_ns':read_end,'sequence':self.sequence}
                 with self.lock: self.frames.append(frame)
+                self.info['capture_frames']=self.sequence
+                if len(self.frames)>1:
+                    duration=(read_end-self.frames[0]['timestamp_ns'])/1e9
+                    self.info['fps_observed_recent']=(len(self.frames)-1)/duration if duration>0 else None
         except Exception as exc:
             self.error = f'{type(exc).__name__}: {exc}'
             self.stop_event.set()
@@ -178,23 +216,37 @@ class HardwareSource:
         self.last_camera_sequences = {}
         self.closed = False
         self.verified_calibration = {}
+        self._torque_touched = set()
+        self._close_errors = []
 
-    def start(self, *, explicit_user_start: bool = False):
+    def start(self, *, explicit_user_start: bool = False, stop=None):
         if not explicit_user_start: raise PermissionError('Нужен явный запуск записи/политики в UI')
+        def check_cancelled():
+            if stop and stop(): raise InterruptedError('Запуск hardware отменён пользователем до дальнейших команд')
+        check_cancelled()
         if self.started: raise RuntimeError('Source already started')
         self.closed = False
-        self.lease = ResourceLease('hardware')
-        self.lease.__enter__()
+        self._close_errors = []
+        self._torque_touched = set()
+        self.buses = {}
+        self.cameras = {}
+        self.verified_calibration = {}
+        self.last_camera_sequences = {}
+        lease = ResourceLease('hardware')
+        lease.__enter__()
+        self.lease = lease
         try:
             assert_hardware_available(hardware_paths(self.cfg,leader=self.teleoperate))
             # Imports resolve only to the laboratory .venv, never a foreign worktree.
             from lerobot.motors import Motor, MotorCalibration, MotorNormMode
             from lerobot.motors.feetech import FeetechMotorsBus
             for name,device in self.cfg['cameras'].items():
+                check_cancelled()
                 camera = CameraCapture(name,device,self.cfg)
                 self.cameras[name] = camera
                 camera.start()
             for role in (('leader','follower') if self.teleoperate else ('follower',)):
+                check_cancelled()
                 device = self.cfg[role+'_port']
                 assert_hardware_available([device])
                 motors = {name:Motor(i,'sts3215',MotorNormMode.RANGE_0_100 if name=='gripper' else MotorNormMode.DEGREES)
@@ -215,12 +267,31 @@ class HardwareSource:
                 self.verified_calibration[role] = {'verified_live':True,'timestamp_ns':time.monotonic_ns(),
                                                   'snapshot_sha256':self.calibration['files'][role]['sha256']}
             # Explicit start authorizes torque. Seed the present raw position before enabling it.
+            check_cancelled()
+            now=time.monotonic_ns()
+            for name,camera in self.cameras.items():
+                latest=camera.latest_before(now)
+                if latest is None or now-latest['timestamp_ns']>self.cfg['max_camera_age_ms']*1e6:
+                    raise RuntimeError(f'Камера {name} stale до включения torque; Start отменён')
             follower = self.buses['follower']
+            self._torque_touched.add('follower')
             follower.disable_torque(num_retry=0)
             present_raw = follower.sync_read('Present_Position',normalize=False,num_retry=1)
+            for name,value in present_raw.items():
+                limits=self.calibration['values']['follower'][name]
+                if not limits['range_min']<=value<=limits['range_max']:
+                    raise RuntimeError(f'{name}: present raw ticks вне calibration range; torque не включён')
+            present_normalized=follower._normalize({follower.motors[name].id:value for name,value in present_raw.items()})
+            present=[present_normalized[follower.motors[name].id] for name in JOINTS]
+            self._safe_targets(present,present,time.monotonic_ns())
+            check_cancelled()
             follower.sync_write('Goal_Position',present_raw,normalize=False,num_retry=0)
-            if self.teleoperate: self.buses['leader'].disable_torque(num_retry=0)
+            if self.teleoperate:
+                self._torque_touched.add('leader')
+                self.buses['leader'].disable_torque(num_retry=0)
+            check_cancelled()
             follower.enable_torque(num_retry=0)
+            check_cancelled()
             self.started = True
             self.last_command_ns = time.monotonic_ns()
             return self.provenance()
@@ -260,9 +331,14 @@ class HardwareSource:
                 'state_timestamp_ns':read_end,'state_read_start_ns':read_start,'state_read_end_ns':read_end,
                 'observation.state':state,'images':images,'state_valid':True,'source':'hardware'}
 
+    def begin_episode(self):
+        """Frames intentionally ignored during an inter-episode pause are not capture drops."""
+        self.last_camera_sequences = {}
+
     def _safe_targets(self, requested, measured, now_ns):
         if len(requested)!=6 or not all(math.isfinite(float(v)) for v in requested):
             raise ValueError('Политика/leader вернула неверный action')
+        if len(measured)!=6: raise ValueError('State должен содержать шесть суставов')
         dt = min(.1,max(.001,(now_ns-(self.last_command_ns or now_ns))/1e9))
         step = min(float(self.cfg['max_step_degrees']),float(self.cfg['max_speed_degrees_s'])*dt)
         result = {}
@@ -279,6 +355,8 @@ class HardwareSource:
             if not math.isfinite(float(measured[i])) or not low-0.1 <= measured[i] <= high+0.1:
                 raise RuntimeError(f'{name}: measured state вне безопасных абсолютных пределов; движение остановлено')
             value = float(requested[i])
+            if not self.teleoperate and not low <= value <= high:
+                raise ValueError(f'{name}: policy action вне абсолютных пределов; команда отклонена')
             bounded = max(low,min(high,value))
             bounded = max(measured[i]-delta,min(measured[i]+delta,bounded))
             result[name] = bounded
@@ -288,7 +366,14 @@ class HardwareSource:
     def send(self, requested, observation):
         if not self.started: raise RuntimeError('Hardware source is not started')
         start_ns = time.monotonic_ns()
-        if start_ns-observation['state_timestamp_ns'] > 500_000_000:
+        state_timestamp = observation['state_timestamp_ns']
+        if isinstance(state_timestamp,bool) or not isinstance(state_timestamp,int) or state_timestamp <= 0:
+            raise ValueError('Некорректный state_timestamp_ns')
+        state_age = start_ns-state_timestamp
+        if state_age < 0: raise RuntimeError('State timestamp находится в будущем; команда отклонена')
+        if observation.get('state_valid',True) is not True:
+            raise RuntimeError('State invalid; команда отклонена')
+        if state_age > 500_000_000:
             raise RuntimeError('State слишком старый для движения (>500ms), нужна новая observation')
         safe,limited = self._safe_targets(requested,observation['observation.state'],start_ns)
         bus = self.buses['follower']
@@ -317,25 +402,38 @@ class HardwareSource:
                 'leader_action_requested':[float(requested[n]) for n in JOINTS]}
 
     def close(self):
-        if self.closed: return
+        if self.closed: return list(self._close_errors)
         self.closed = True
         errors = []
         for role,bus in reversed(list(self.buses.items())):
             try:
                 if bus.is_connected:
-                    try: bus.disable_torque(num_retry=0)
-                    except Exception as exc: errors.append(f'{role} torque disable: {exc}')
-                    finally: bus.disconnect(disable_torque=False)
+                    # The SDK disable_torque() stops at its first failed motor. A partially
+                    # enabled bus requires one independent best-effort attempt for every motor.
+                    if role in self._torque_touched or self.started:
+                        for motor in bus.motors:
+                            for register in ('Torque_Enable','Lock'):
+                                try: bus.write(register,motor,0,normalize=False,num_retry=0)
+                                except Exception as exc:
+                                    errors.append(f'{role}/{motor} {register} disable: {type(exc).__name__}: {exc}')
             except Exception as exc: errors.append(f'{role} disconnect: {exc}')
+            finally:
+                try:
+                    if bus.is_connected: bus.disconnect(disable_torque=False)
+                except Exception as exc: errors.append(f'{role} port close: {type(exc).__name__}: {exc}')
         for camera in self.cameras.values():
             try: camera.close()
             except Exception as exc: errors.append(f'camera close: {exc}')
         self.started = False
         if self.lease:
-            self.lease.__exit__(None,None,None)
-            self.lease = None
+            try: self.lease.__exit__(None,None,None)
+            except Exception as exc: errors.append(f'hardware lease close: {exc}')
+            finally: self.lease = None
+        self._close_errors = errors
         if errors:
-            directory = ROOT/'logs'; directory.mkdir(exist_ok=True)
-            with (directory/'hardware-stop-errors.jsonl').open('a') as out:
-                out.write(json.dumps({'timestamp_ns':time.monotonic_ns(),'errors':errors},ensure_ascii=False)+'\n')
-        return errors
+            try:
+                directory = ROOT/'logs'; directory.mkdir(exist_ok=True)
+                with (directory/'hardware-stop-errors.jsonl').open('a') as out:
+                    out.write(json.dumps({'timestamp_ns':time.monotonic_ns(),'errors':errors},ensure_ascii=False)+'\n')
+            except OSError as exc: errors.append(f'stop error log unavailable: {exc}')
+        return list(errors)

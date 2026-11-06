@@ -184,3 +184,128 @@ def test_no_second_recording_worker(tmp_path):
     manager.start(dataset['dataset_id'],fps=20,episode_seconds=10,width=160,height=120)
     with pytest.raises(RuntimeError,match='активная запись'): manager.start(dataset['dataset_id'])
     manager.command('stop'); manager.wait()
+
+
+def test_stop_closes_source_before_writer_drain(tmp_path,monkeypatch):
+    manager=manager_at(tmp_path);dataset=manager.create_dataset('stop order','fixture')
+    events=[]
+    original_close=SyntheticSource.close
+    original_finish=EpisodeWriter.finish
+    def close(source):
+        events.append('source_closed');return original_close(source)
+    def finish(writer,**kwargs):
+        assert events and events[0]=='source_closed'
+        events.append('writer_drain');return original_finish(writer,**kwargs)
+    monkeypatch.setattr(SyntheticSource,'close',close)
+    monkeypatch.setattr(EpisodeWriter,'finish',finish)
+    manager.start(dataset['dataset_id'],fps=30,episode_seconds=10,width=160,height=120)
+    wait_for(manager,lambda status:status.get('frames_written',0)>=2)
+    manager.command('stop');status=manager.wait()
+    assert status['state']=='stopped'
+    assert events==['source_closed','writer_drain']
+
+
+@pytest.mark.parametrize('finish_action',['end','rerecord'])
+def test_stop_during_slow_end_drain_closes_source_promptly(tmp_path,monkeypatch,finish_action):
+    import threading
+    from PIL import Image
+    saving,release,draining,closed=(threading.Event() for _ in range(4))
+    save_original=Image.Image.save
+    close_original=SyntheticSource.close
+    finish_original=EpisodeWriter.finish
+    def slow_save(image,*args,**kwargs):
+        saving.set();release.wait(3);return save_original(image,*args,**kwargs)
+    def close(source):
+        closed.set();return close_original(source)
+    def finish(writer,**kwargs):
+        draining.set();return finish_original(writer,**kwargs)
+    monkeypatch.setattr(Image.Image,'save',slow_save)
+    monkeypatch.setattr(SyntheticSource,'close',close)
+    monkeypatch.setattr(EpisodeWriter,'finish',finish)
+    manager=manager_at(tmp_path);dataset=manager.create_dataset('slow drain','fixture')
+    try:
+        manager.start(dataset['dataset_id'],fps=10,episode_count=2,episode_seconds=10,width=160,height=120)
+        assert saving.wait(2)
+        manager.command(finish_action);assert draining.wait(2)
+        manager.command('stop')
+        assert closed.wait(.5), 'STOP waited for PNG encoding instead of closing source'
+    finally:release.set()
+    assert manager.wait()['state']=='stopped'
+
+
+def test_writer_timeout_retains_live_partial_directory(tmp_path,monkeypatch):
+    import threading
+    from PIL import Image
+    saving,release=threading.Event(),threading.Event()
+    original=Image.Image.save
+    def slow_save(image,*args,**kwargs):
+        saving.set();release.wait(3);return original(image,*args,**kwargs)
+    monkeypatch.setattr(Image.Image,'save',slow_save)
+    writer=EpisodeWriter(tmp_path,{'episode_id':'ep_timeout'})
+    source=SyntheticSource({'width':160,'height':120});source.start()
+    try:
+        writer.put(source.sample(1));assert saving.wait(2)
+        started=time.monotonic();result=writer.finish(timeout=.05)
+        assert time.monotonic()-started<.5
+        assert result['status']=='incomplete' and result['writer_pending']
+        assert writer.partial.exists()
+        assert not (tmp_path/'episodes/ep_timeout').exists()
+    finally:release.set()
+    writer.thread.join(2)
+    result=writer.finish(timeout=1)
+    assert result['status']=='complete' and not result.get('writer_pending')
+
+
+def recorded_dataset(manager):
+    dataset=manager.create_dataset('validation fixture','fixture')
+    manager.start(dataset['dataset_id'],fps=30,episode_seconds=10,width=160,height=120)
+    wait_for(manager,lambda status:status.get('frames_written',0)>=2)
+    manager.command('stop');assert manager.wait()['state']=='stopped'
+    return dataset
+
+
+def test_finalize_files_test_source_guard_and_reopen(tmp_path):
+    manager=manager_at(tmp_path);dataset=recorded_dataset(manager)
+    rejected=manager.finalize_dataset(dataset['dataset_id'])
+    assert rejected['status']=='invalid' and not rejected['finalized']
+    report=manager.finalize_dataset(dataset['dataset_id'],allow_test_data=True)
+    assert report['status']=='valid' and report['finalized']
+    assert report['software_only'] and report['hardware_verification']=='NOT_TESTED_BY_FILE_VALIDATOR'
+    assert not report['training_eligible'] and report['frames']>=2
+    assert report['episodes'][0]['fps_observed']>0
+    assert (Path(dataset['path'])/'validation/raw-validation.json').is_file()
+    assert manager.dataset_info(dataset['dataset_id'])['lifecycle_status']=='finalized'
+    manager.start(dataset['dataset_id'],fps=30,episode_seconds=10,width=160,height=120)
+    wait_for(manager,lambda status:status.get('frames_written',0)>=2)
+    with pytest.raises(RuntimeError,match='остановите'):manager.finalize_dataset(dataset['dataset_id'],allow_test_data=True)
+    manager.command('stop');manager.wait()
+    current=manager.dataset_info(dataset['dataset_id'])
+    assert current['lifecycle_status']=='draft'
+    assert current['finalization']['status']=='stale_after_recording'
+
+
+def test_finalize_detects_corrupted_rgb_bytes(tmp_path):
+    manager=manager_at(tmp_path);dataset=recorded_dataset(manager)
+    image=next((Path(dataset['path'])/'episodes').glob('*/images/top/*.png'))
+    image.write_bytes(image.read_bytes()+b'corruption')
+    report=manager.finalize_dataset(dataset['dataset_id'],allow_test_data=True)
+    assert report['status']=='invalid'
+    assert any('raw image hash mismatch' in error for error in report['errors'])
+
+
+def test_finalize_rejects_future_camera_and_unknown_session(tmp_path):
+    manager=manager_at(tmp_path);dataset=recorded_dataset(manager)
+    path=Path(dataset['path']);episode=next((path/'episodes').glob('*'))
+    manifest=episode/'frames.jsonl'
+    rows=[json.loads(line) for line in manifest.read_text().splitlines()]
+    rows[0]['cameras']['top']['timestamp_ns']=rows[0]['timestamp_ns']+1
+    manifest.write_text(''.join(json.dumps(row)+'\n' for row in rows))
+    metadata=json.loads((episode/'episode.json').read_text())
+    metadata['frames_sha256']=hashlib.sha256(manifest.read_bytes()).hexdigest()
+    (episode/'episode.json').write_text(json.dumps(metadata))
+    report=manager.finalize_dataset(dataset['dataset_id'],allow_test_data=True)
+    assert report['status']=='invalid' and any('будущего' in error for error in report['errors'])
+    metadata['session_id']='missing_session'
+    (episode/'episode.json').write_text(json.dumps(metadata))
+    report=manager.finalize_dataset(dataset['dataset_id'],allow_test_data=True)
+    assert any('session_id' in error for error in report['errors'])

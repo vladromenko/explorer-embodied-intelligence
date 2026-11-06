@@ -15,3 +15,7 @@ codex-stderr.log
 *.db-*
 
 node_modules/
+validation/**/*.png
+validation/**/*.pt
+validation/**/REQUEST.txt
+validation/**/*.jpg

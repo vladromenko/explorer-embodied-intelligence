@@ -1,0 +1,26 @@
+{
+  "top": {
+    "timestamp_ns": 54611173149302,
+    "read_start_ns": 54611141240121,
+    "read_end_ns": 54611173149302,
+    "sequence": 62,
+    "device": "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D4EA612F-video-index0",
+    "path": "top.png",
+    "width": 640,
+    "height": 480,
+    "encoding": "lossless PNG decoded RGB",
+    "sha256": "93cbf3508dccc59f1fbf652102703cac62ba2e87462d915e23f1bab7a360ab9e"
+  },
+  "wrist": {
+    "timestamp_ns": 54613253761121,
+    "read_start_ns": 54613234357972,
+    "read_end_ns": 54613253761121,
+    "sequence": 2,
+    "device": "/dev/v4l/by-id/usb-HD_USB_Camera_HD_USB_Camera-video-index0",
+    "path": "wrist.png",
+    "width": 640,
+    "height": 480,
+    "encoding": "lossless PNG decoded RGB",
+    "sha256": "7af61213cd106a4601ee8f38674e12a879f7ae80bdbed51f4371c6d52a936cb8"
+  }
+}

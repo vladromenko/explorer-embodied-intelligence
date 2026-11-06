@@ -5,6 +5,12 @@ from so101_lab import preview as p
 from so101_lab import app as web
 from so101_lab.resources import ResourceBusy
 
+@pytest.fixture(autouse=True)
+def isolated_preview_lease(monkeypatch,tmp_path):
+    actual=p.ResourceLease
+    monkeypatch.setattr(p,'ResourceLease',lambda name:actual('test-preview-'+tmp_path.name))
+
+
 class FakeCamera:
     opened=[]
     def __init__(self,name,device,cfg):self.name=name;self.device=device;self.sequence=1;self.error=None

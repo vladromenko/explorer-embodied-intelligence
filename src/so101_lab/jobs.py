@@ -20,7 +20,7 @@ def alive(jid,pid):
     except (OSError,IndexError):return False
 
 def submit(kind,dataset,options=None):
-    if kind not in ('train','annotate','policy','policy_load'):raise ValueError('Неизвестный тип задачи')
+    if kind not in ('train','annotate','policy','policy_load','validate','export','finalize'):raise ValueError('Неизвестный тип задачи')
     jid=uuid.uuid4().hex;d=DIR/jid;d.mkdir();obj={'id':jid,'kind':kind,'dataset':str(dataset),'options':copy.deepcopy(options or {}),'state':'queued','created_at':time.time()};atomic(d/'job.json',obj)
     try:
         with (ROOT/'logs'/('job-'+jid+'.log')).open('a') as log:
@@ -49,7 +49,8 @@ def resume(jid):
     if (d/'pid').exists() and alive(jid,int((d/'pid').read_text())):raise ValueError('Задача ещё выполняется; сначала дождитесь остановки')
     opts=copy.deepcopy(obj['options']);checkpoint=obj.get('result',{}).get('checkpoint')
     if not checkpoint:
-        candidates=sorted((ROOT/'models'/jid/'checkpoints').glob('step_*/checkpoint.json'))
+        base=Path(opts['output_dir'])/jid if opts.get('output_dir') else ROOT/'models'/jid
+        candidates=sorted((base/'checkpoints').glob('step_*/checkpoint.json'))
         if candidates:checkpoint=str(candidates[-1].parent)
     if checkpoint:
         manifest=json.loads((Path(checkpoint)/'checkpoint.json').read_text())

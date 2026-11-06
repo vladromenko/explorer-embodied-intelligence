@@ -1,0 +1,144 @@
+{
+  "status": "PASS",
+  "phase": "complete",
+  "mode": "reload_new_process",
+  "kind": "genuine_cached_pretrained_SmolVLA_CUDA_acceptance",
+  "model_is_tiny": false,
+  "technical_test": true,
+  "hardware_opened": false,
+  "torque_writes": 0,
+  "goal_position_writes": 0,
+  "physical_commands_sent": 0,
+  "recorded_demonstration_training": false,
+  "successful_policy_claim": false,
+  "cuda_allocator_fraction_limit": 0.55,
+  "minimum_available_gb": 9.0,
+  "started_unix_s": 1793998469.462193,
+  "process_id": 721996,
+  "resource_preflight": {
+    "device_inventory": {
+      "leader": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "follower": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "top": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "wrist": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      }
+    },
+    "timestamp_ns": 55393701345868,
+    "memory_available_bytes": 10666196992,
+    "memory_total_bytes": 16291917824,
+    "disk_free_bytes": 125462450176,
+    "hardware_owners": [],
+    "compute_conflicts": [],
+    "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+  },
+  "torch_version": "2.11.0+cu130",
+  "cuda_device": "Orin",
+  "checkpoint": "/home/jetsonnx/Projects/so101_ai_learning/models/acceptance_pretrained_gpu_20261106/checkpoints/step_00000001",
+  "input_path": "/home/jetsonnx/Projects/so101_ai_learning/models/acceptance_pretrained_gpu_20261106/smoke_input_and_expected.pt",
+  "checkpoint_reloaded": true,
+  "saved_processors_reloaded": true,
+  "full_pretrained_checkpoint": true,
+  "fixed_noise_actions_equal": true,
+  "normalized_actions_bitwise_equal": true,
+  "actions_bitwise_equal": true,
+  "normalized_max_abs_difference": 0.0,
+  "action_max_abs_difference": 0.0,
+  "normalized_actions_sha256": "cdc3dc8a41780b39f25d250fe1a27c2ae943b5caaad7e86cdc612972f35453be",
+  "actions_sha256": "5041924b7f6e9255c6b1985f523b5b238e8b85f860711d87fe73ace658114b4f",
+  "finite_actions": true,
+  "actions": [
+    [
+      43.05292510986328,
+      56.94640350341797,
+      -51.94050216674805,
+      96.12427520751953,
+      12.365145683288574,
+      44.27385711669922
+    ]
+  ],
+  "resource_after_reload": {
+    "device_inventory": {
+      "leader": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "follower": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "top": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "wrist": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      }
+    },
+    "timestamp_ns": 55432396354930,
+    "memory_available_bytes": 8796819456,
+    "memory_total_bytes": 16291917824,
+    "disk_free_bytes": 125462413312,
+    "hardware_owners": [],
+    "compute_conflicts": [],
+    "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+  },
+  "checkpoint_technical_test": true,
+  "mlflow_run_id": "f32320de009541e4a1e0fdb316f3510c",
+  "finished_unix_s": 1793998508.730731,
+  "resource_after": {
+    "device_inventory": {
+      "leader": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "follower": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "top": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      },
+      "wrist": {
+        "present": true,
+        "owners": [],
+        "state": "AVAILABLE"
+      }
+    },
+    "timestamp_ns": 55432955630294,
+    "memory_available_bytes": 8782708736,
+    "memory_total_bytes": 16291917824,
+    "disk_free_bytes": 125462384640,
+    "hardware_owners": [],
+    "compute_conflicts": [],
+    "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+  },
+  "memory_available_min_bytes": 8547618816,
+  "process_rss_peak_sampled_bytes": 5438832640,
+  "process_max_rss_bytes": 5449392128,
+  "cuda_peak_allocated_bytes": 1258001920,
+  "cuda_peak_reserved_bytes": 1293942784
+}

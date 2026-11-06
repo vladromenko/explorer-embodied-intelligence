@@ -1,0 +1,18 @@
+{
+  "user_authorization": "2026-11-06: порты можно освобождать, соседняя работа приостановлена",
+  "stopped_for_acceptance": [
+    "user:so101-wristlab-web.service",
+    "system:so101-pick-place.service",
+    "system:lelab.service"
+  ],
+  "configuration_or_enablement_changed": false,
+  "after": {
+    "timestamp_ns": 54518002297410,
+    "memory_available_bytes": 11299590144,
+    "memory_total_bytes": 16291917824,
+    "disk_free_bytes": 127791742976,
+    "hardware_owners": [],
+    "compute_conflicts": [],
+    "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+  }
+}

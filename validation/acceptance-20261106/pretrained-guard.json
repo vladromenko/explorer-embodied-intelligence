@@ -1,0 +1,10 @@
+{
+  "kind": "pretrained",
+  "status": "PASS",
+  "baseline_available_bytes": 10535288832,
+  "hardware_opened": false,
+  "exit_code": 0,
+  "elapsed_seconds": 46.15113410799677,
+  "minimum_available_bytes": 7329882112,
+  "peak_child_rss_bytes": 5473259520
+}

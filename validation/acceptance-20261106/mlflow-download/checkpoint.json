@@ -1,0 +1,31 @@
+{
+  "status": "complete",
+  "step": 1,
+  "technical_test": true,
+  "policy_type": "smolvla",
+  "created_unix": 1793998443.50213,
+  "feature_sha256": "d3ca1eccd1d1de98cb8016f591846ceb514532b4b7a5525d3ff8f07452f52ec9",
+  "dataset_sha256": "9a834c65900a275ca227f7064578e9ee437b4d383dc5386b26e0e38bdfaed278",
+  "model_sha256": "ba8ecc1cf40a400a906d1451ecaae3465b88e190ff6bf5d172cd6f330cbae112",
+  "files_sha256": {
+    "backbone/added_tokens.json": "74135b8664b56088c0006f1c8e848d79a8eba003411f72ebf1dc2ee96227be3a",
+    "backbone/chat_template.json": "b585e3598909a5687f9f9d738d35223724dedef256b9b274e1cbfb32b13c74bf",
+    "backbone/config.json": "ea6bc1237e96247f6258de3e202e2e62b93d6f386dc47e7b36b5588bf3a15e17",
+    "backbone/generation_config.json": "34835060c9f0f74d1acb456cc72ca32746d3843d9eb5f578f9cbffac1d2eb840",
+    "backbone/merges.txt": "0b54e8aa4e53d5383e2e4bc635a56b43f9647f7b13832d5d9ecd8f82dac4f510",
+    "backbone/preprocessor_config.json": "149e315d9410368e5491455bb06e0f763426e9e56cca731c13b24404a29b6374",
+    "backbone/processor_config.json": "f3ad45028447b3562b4752be0d5916d6806c1ef589091a469608dcf0faa1737c",
+    "backbone/special_tokens_map.json": "2dfea2a426162316ff1567c82bc6d36d9690cd9f90455f075c77daca78b45c60",
+    "backbone/tokenizer.json": "5ece781dc8d2b2f3e2f289ca0ae50b17cfc27dd27bfe7971bb8241e0b964331a",
+    "backbone/tokenizer_config.json": "dd9ce2ab89a3dd881bd9378f1a79b943a064b9275a7e1706d5b7b47b68977913",
+    "backbone/vocab.json": "82b84012e3add4d01d12ba14442026e49b8cbbaead1f79ecf3d919784f82dc79",
+    "config.json": "f9fd31cb43decf730b0ac782fe0b42239a63a7621a724de9107ce7c75c58a894",
+    "lineage.json": "95ec8db1e0702d1e50e6f92633cdcb8229411ede65483cc0dc389877257eb159",
+    "model.safetensors": "ba8ecc1cf40a400a906d1451ecaae3465b88e190ff6bf5d172cd6f330cbae112",
+    "object_adapter.json": "ce91e9aa4b10673204d1f652356801e4492aad6be62a11b477f87aead8ec9e46",
+    "policy_postprocessor.json": "2b78bb742065288df2ec63b0ee35f97a1f6950171cf2272f7e34b1fe3873b17b",
+    "policy_postprocessor_step_0_unnormalizer_processor.safetensors": "a5c99fbc20d515cd545d230991401f614ef670a7267504f12fb28177186ae377",
+    "policy_preprocessor.json": "90bbb2b527fe5052cd15ab57cebb18849760f502a6a931c1ef619ff5a7f01068",
+    "policy_preprocessor_step_5_normalizer_processor.safetensors": "a5c99fbc20d515cd545d230991401f614ef670a7267504f12fb28177186ae377"
+  }
+}

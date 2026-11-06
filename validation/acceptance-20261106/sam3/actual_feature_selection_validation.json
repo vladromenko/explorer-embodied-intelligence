@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "scope": "CPU category selector on actual saved SAM outputs, no policy forward or fabricated jointstate",
+  "selected_scores": {
+    "top": {
+      "cube": 0.53125,
+      "box": 0.9296875
+    },
+    "wrist": {
+      "cube": null,
+      "box": null
+    }
+  },
+  "wrist_ambiguous_both_excluded": true
+}

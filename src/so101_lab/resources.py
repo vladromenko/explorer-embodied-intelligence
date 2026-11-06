@@ -40,7 +40,21 @@ def snapshot():
             if (rss>2*1024**3 or gpu_fd) and str(ROOT) not in cmd:
                 gpu.append({'pid':int(proc.name),'name':(proc/'comm').read_text().strip(),'rss_bytes':rss,'reason':'foreign high-memory process; unified GPU/RAM conflict'})
         except (OSError,ValueError,IndexError): pass
-    return {'timestamp_ns':time.monotonic_ns(),'memory_available_bytes':mem['MemAvailable'],'memory_total_bytes':mem['MemTotal'],'disk_free_bytes':shutil.disk_usage(ROOT).free,'hardware_owners':owners(devices),'compute_conflicts':gpu,'cuda_build':'2.11.0+cu130 (environment verified; server does not load torch)'}
+    compute_file=ROOT/'runtime/locks/gpu_compute.lock'
+    if compute_file.exists():
+        try:
+            with compute_file.open('r+') as lease:
+                try:fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB);fcntl.flock(lease,fcntl.LOCK_UN)
+                except BlockingIOError:
+                    owner=lease.read().strip();pid=int(owner) if owner.isdigit() else None
+                    if pid!=os.getpid():gpu.append({'pid':pid,'name':'SO101 GPU job','reason':'shared compute lease held'})
+        except OSError:pass
+    held=owners(devices)
+    inventory={}
+    for name,path in {'leader':'/dev/so101-leader','follower':'/dev/so101-follower','top':'/dev/video2','wrist':'/dev/video0'}.items():
+        resolved=str(Path(path).resolve());current=[o for o in held if resolved in o['devices']]
+        inventory[name]={'present':Path(path).exists(),'owners':current,'state':'BUSY' if current else 'AVAILABLE' if Path(path).exists() else 'MISSING'}
+    return {'device_inventory':inventory,'timestamp_ns':time.monotonic_ns(),'memory_available_bytes':mem['MemAvailable'],'memory_total_bytes':mem['MemTotal'],'disk_free_bytes':shutil.disk_usage(ROOT).free,'hardware_owners':held,'compute_conflicts':gpu,'cuda_build':'2.11.0+cu130 (environment verified; server does not load torch)'}
 
 def assert_hardware_available(paths):
     busy=owners(paths)

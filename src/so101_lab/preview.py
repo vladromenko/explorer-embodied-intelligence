@@ -41,8 +41,17 @@ class CameraPreview:
             return self.status()
     def status(self):
         with self.lock:
-            return {'active':bool(self.cameras),'state':'connected' if self.cameras else 'disconnected','camera_only':True,'torque_enabled':False,
-                    'error':self.error,'cameras':{name:{'connected':not cam.error,'error':cam.error,'frames_received':cam.sequence} for name,cam in self.cameras.items()}}
+            cameras={};now=time.monotonic_ns()
+            for name,cam in self.cameras.items():
+                error=cam.error;age=None
+                try:
+                    frame=cam.latest_before(now)
+                    if frame is not None:
+                        age=(now-frame['timestamp_ns'])/1e6
+                        if age>500:error='Нет свежих кадров более500ms'
+                except Exception as exc:error=str(exc)
+                cameras[name]={'connected':not error,'error':error,'frames_received':cam.sequence,'last_frame_age_ms':age,'observed_fps':getattr(cam,'info',{}).get('fps_observed_recent'),'stream':getattr(cam,'info',{})}
+            return {'active':bool(self.cameras),'state':'connected' if self.cameras else 'disconnected','camera_only':True,'torque_enabled':False,'error':self.error,'cameras':cameras}
     def latest_frame(self,name):
         with self.lock:
             cam=self.cameras.get(name)

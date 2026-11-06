@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-06",
+  "status": "PASS_TECHNICAL_FORMAT_CHECK",
+  "command": "PYTHONPATH=src .venv/bin/python -m pytest -q tests/test_lerobot_export.py -x --basetemp=runtime/acceptance-export-tests-2",
+  "result": "5 passed in 12.99s",
+  "log": "logs/acceptance-export-tests-2.log",
+  "official_export_path": "/home/jetsonnx/Projects/so101_ai_learning/runtime/acceptance-export-tests-2/test_official_lerobot_cpu_load0/official_lerobot",
+  "source_fixture_original_path": "/home/jetsonnx/Projects/so101_ai_learning/runtime/acceptance-export-tests-2/test_official_lerobot_cpu_load0/raw",
+  "source_fixture_current_path": "/home/jetsonnx/Projects/so101_ai_learning/runtime/acceptance-export-tests-2/test_official_lerobot_cpu_load0/raw_moved",
+  "source_renamed_intentionally_to_prove_self_contained_dataset": true,
+  "source": "synthetic_test",
+  "test_only": true,
+  "hardware_recording_verified": false,
+  "successful_demonstrations_verified": false,
+  "cuda_used": false,
+  "lerobot_version": "0.6.1",
+  "codebase_version": "v3.0",
+  "source_dataset_sha256": "f8922c381bfd9a3f7be23e182b3e18866f2412a4963a39999d9fdc306ed91f8c",
+  "nominal_fps": 30,
+  "timing": [
+    {
+      "source_episode_id": "ep_0",
+      "session_id": "technical_session_0",
+      "frames": 3,
+      "task": "technical task 0",
+      "timing": {
+        "nominal_fps": 30,
+        "observed_mean_fps": 26.666666666666668,
+        "interval_count": 2,
+        "interval_min_ms": 33.333333,
+        "interval_max_ms": 41.666667,
+        "interval_median_ms": 37.5,
+        "max_interval_deviation_from_nominal_ms": 8.333333666666665,
+        "max_nominal_clock_drift_ms": 8.333333333333332,
+        "timestamps_resampled": false,
+        "timestamp_semantics": "measured_observation_monotonic_ns_relative_to_episode_first_frame",
+        "single_frame_rate_unknown": false,
+        "camera_reused_frames": {
+          "top": 0,
+          "wrist": 0
+        },
+        "camera_reported_drops": {
+          "top": 0,
+          "wrist": 0
+        },
+        "max_camera_age_ms": {
+          "top": 1e-05,
+          "wrist": 1.1e-05
+        },
+        "max_camera_skew_ms": 1e-06,
+        "max_state_to_action_ms": 1.234567,
+        "fixed_rate_delta_query_note": "LeRobot delta_timestamps uses nominal FPS frame offsets; actual raw timing is retained and must be checked before interpreting chunks as uniform physical time"
+      }
+    },
+    {
+      "source_episode_id": "ep_1",
+      "session_id": "technical_session_1",
+      "frames": 3,
+      "task": "technical task 1",
+      "timing": {
+        "nominal_fps": 30,
+        "observed_mean_fps": 26.666666666666668,
+        "interval_count": 2,
+        "interval_min_ms": 33.333333,
+        "interval_max_ms": 41.666667,
+        "interval_median_ms": 37.5,
+        "max_interval_deviation_from_nominal_ms": 8.333333666666665,
+        "max_nominal_clock_drift_ms": 8.333333333333332,
+        "timestamps_resampled": false,
+        "timestamp_semantics": "measured_observation_monotonic_ns_relative_to_episode_first_frame",
+        "single_frame_rate_unknown": false,
+        "camera_reused_frames": {
+          "top": 0,
+          "wrist": 0
+        },
+        "camera_reported_drops": {
+          "top": 0,
+          "wrist": 0
+        },
+        "max_camera_age_ms": {
+          "top": 1e-05,
+          "wrist": 1.1e-05
+        },
+        "max_camera_skew_ms": 1e-06,
+        "max_state_to_action_ms": 1.234567,
+        "fixed_rate_delta_query_note": "LeRobot delta_timestamps uses nominal FPS frame offsets; actual raw timing is retained and must be checked before interpreting chunks as uniform physical time"
+      }
+    }
+  ],
+  "official_loader_verification": {
+    "status": "passed",
+    "loader": "lerobot.datasets.lerobot_dataset.LeRobotDataset",
+    "lerobot_version": "0.6.1",
+    "frames_opened_and_verified": 6,
+    "total_frames": 6,
+    "total_episodes": 2,
+    "image_shapes_chw": {
+      "top": [
+        3,
+        16,
+        24
+      ],
+      "wrist": [
+        3,
+        16,
+        24
+      ]
+    },
+    "rgb_pixels_bit_exact": true,
+    "image_comparison": "official image-backed float [0,1] decoded to exact uint8 via round(255*x), or native uint8",
+    "measured_timestamps_preserved": true,
+    "precise_monotonic_ns_preserved": true,
+    "task_and_episode_boundaries_verified": true,
+    "hardware_test": false,
+    "cuda_used": false
+  },
+  "checks": [
+    "default production export rejects technical source",
+    "official loader opens6frames/2episodes, correct task+episode boundaries",
+    "exact RGB and source state/transmitted-target fixture values",
+    "measured irregular timestamp .075s preserved (not2/30s); exact int64 monotonic timestamps retained",
+    "official image-backed export readable after raw folder rename",
+    "corrupt raw hash/future camera timestamps/mixed FPS/incomplete partial refused",
+    "Stop leaves hidden incomplete stage+traceback, no completed directory and raw episodes untouched"
+  ],
+  "remaining": [
+    "hardware new dataset export/open after operator records real demonstration"
+  ]
+}

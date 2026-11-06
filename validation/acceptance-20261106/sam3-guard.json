@@ -1,0 +1,10 @@
+{
+  "kind": "sam3",
+  "status": "PASS",
+  "baseline_available_bytes": 11319361536,
+  "hardware_opened": false,
+  "exit_code": 0,
+  "elapsed_seconds": 50.193261330001405,
+  "minimum_available_bytes": 4789309440,
+  "peak_child_rss_bytes": 8759541760
+}

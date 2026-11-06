@@ -200,8 +200,8 @@ class RawEpisodeDataset:
 
 
 def _annotation_identity(provenance):
-    selected = {key: provenance.get(key) for key in ("backend", "checkpoint_sha256", "prompts", "confidence_threshold", "preprocessing", "source", "configuration_hash")}
-    return json.dumps(selected, sort_keys=True)
+    from .annotations import annotation_provenance_identity
+    return json.dumps(annotation_provenance_identity(provenance),sort_keys=True)
 
 
 def _json_line(line):
@@ -263,14 +263,16 @@ def _code_revision():
 
 def _lineage(dataset, contract, split, options, base, backbone):
     import importlib.metadata
-    paths = [dataset.path / "dataset.json"] + [e["path"] / "frames.jsonl" for e in dataset.episodes]
+    paths = [e["path"] / "frames.jsonl" for e in dataset.episodes]
     if contract.mode == "sam_objects":
         paths += [e["path"] / "annotations" / contract.annotation_version / "frames.jsonl" for e in dataset.episodes]
     hashes = {str(p.relative_to(dataset.path)): sha256_file(p) for p in paths}
+    contract_meta={k:dataset.meta.get(k) for k in ('source','schema_version','joints','units','task','calibration','version','dataset_sha256')}
+    hashes['dataset.contract']=hashlib.sha256(json.dumps(contract_meta,sort_keys=True).encode()).hexdigest()
     digest = hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest()
     versions = {name: importlib.metadata.version(name) for name in ("torch", "torchvision", "lerobot", "transformers")}
     return {"schema_version": "so101.training.lineage.v1", "dataset_path": str(dataset.path),
-            "dataset_source": dataset.meta.get("source"), "dataset_hashes": hashes, "dataset_sha256": digest,
+            "dataset_source": dataset.meta.get("source"), "dataset_metadata_file_sha256":sha256_file(dataset.path/"dataset.json"),"dataset_hashes": hashes, "dataset_sha256": digest,
             "calibration": dataset.meta.get("calibration", {"valid": False}), "code_commit": _code_revision(),
             "code_files_sha256": {p.name: sha256_file(p) for p in sorted((ROOT / "src/so101_lab").glob("*.py"))},
             "feature_contract": contract.to_dict(), "feature_sha256": contract.digest,
@@ -323,7 +325,8 @@ def _save_checkpoint(policy, pre, post, optimizer, scheduler, output, step, cont
     _atomic_json(temp / "checkpoint.json", {"status": "complete", "step": step,
                   "technical_test": lineage["technical_test"], "policy_type":policy.name, "created_unix": time.time(),
                   "feature_sha256": contract.digest, "dataset_sha256": lineage["dataset_sha256"],
-                  "model_sha256": sha256_file(pretrained / "model.safetensors")})
+                  "model_sha256": sha256_file(pretrained / "model.safetensors"),
+                  "files_sha256":{str(p.relative_to(pretrained)):sha256_file(p) for p in sorted(pretrained.rglob("*")) if p.is_file()}})
     if final.exists():
         # Never overwrite completed scientific evidence.
         raise FileExistsError(f"Checkpoint exists: {final}")
@@ -420,7 +423,10 @@ def _train(dataset_path, output_path, options, progress, stop):
               "dataset_sha256": lineage["dataset_sha256"], "feature_sha256": contract.digest,
               "code_commit": lineage["code_commit"], "steps": steps, "batch_size": batch_size,
               "technical_test": tiny, "device": device, "base_revision": base.name if base else "tiny_random",
-              "lr": float(options.get("lr", 1e-4)), "split_unit": split["unit"]}
+              "lr": float(options.get("lr", 1e-4)), "split_unit": split["unit"],
+              "dataset_id":dataset.path.name,"dataset_version":dataset.meta.get("version",0),
+              "calibration_sha256":hashlib.sha256(json.dumps(lineage["calibration"],sort_keys=True).encode()).hexdigest(),
+              "policy_library_version":lineage["versions"]["lerobot"]}
     params.update({k:v for k,v in options.items() if isinstance(v,(str,int,float,bool)) and k not in ("resume_from",)})
     telemetry = DurableMLflow(ROOT, run_name=options.get("job_name") or output.name, params=params)
     for path in (output / "lineage.json", output / "split.json", output / "rejected_frames.json"):

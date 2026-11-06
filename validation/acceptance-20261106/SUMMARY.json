@@ -1,0 +1,24 @@
+{
+  "status": "READY_FOR_FIRST_OPERATOR_EPISODE",
+  "python_tests": 104,
+  "dom_tests": 10,
+  "GPU_pretrained_step": "PASS",
+  "GPU_SAM_forward": "PASS",
+  "full_ACT_CPU_step": "PASS",
+  "fresh_process_checkpoint_reload": "PASS both",
+  "official_LeRobot_loader": "PASS technical_export",
+  "real_camera_streams": "PASS",
+  "serial_readonly": "PASS",
+  "physical_teleop_and_recording": "NOT TESTED operator UI required",
+  "real_browser_Safari": "NOT TESTED",
+  "no_torque_or_goal_register_writes_by_acceptance": true,
+  "resources_freed_by_user_permission": true,
+  "deployment": {
+    "so101-ai-learning-ui": 747477,
+    "so101-ai-learning-mlflow": 2370
+  },
+  "ports": [
+    8020,
+    5020
+  ]
+}

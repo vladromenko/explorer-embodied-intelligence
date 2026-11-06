@@ -40,15 +40,17 @@ def check_applicability(calibration: dict | None, camera: dict) -> tuple[bool, s
         if not camera.get(key) or camera[key] != calibration[key]:
             return False, f"Не совпадает {key}"
     resolution = camera.get("resolution") or [camera.get("width"), camera.get("height")]
-    if list(resolution) != list(calibration["resolution"]):
-        return False, "Не совпадает разрешение"
     try:
+        if len(resolution) != 2 or any(isinstance(x, bool) or not isinstance(x, (int, float)) or not np.isfinite(x) or x <= 0 or int(x) != x for x in resolution):
+            return False, "Некорректное разрешение камеры"
+        if list(resolution) != list(calibration["resolution"]):
+            return False, "Не совпадает разрешение"
         K = np.asarray(calibration["intrinsics"], dtype=float)
         T = np.asarray(calibration["camera_to_world"], dtype=float)
         d = np.asarray(calibration["distortion"], dtype=float)
         if K.shape != (3, 3) or T.shape != (4, 4) or d.ndim != 1 or len(d) not in (0, 4, 5):
             return False, "Неподдерживаемый формат K/T/distortion"
-        if not np.isfinite(K).all() or not np.isfinite(T).all() or not np.isfinite(d).all() or min(K[0, 0], K[1, 1]) <= 0:
+        if not np.isfinite(K).all() or not np.isfinite(T).all() or not np.isfinite(d).all() or min(K[0, 0], K[1, 1]) <= 0 or not np.allclose(K[2], [0, 0, 1]) or abs(np.linalg.det(K)) < 1e-12:
             return False, "Некорректные числа в калибровке"
         R = T[:3, :3]
         if not np.allclose(R.T @ R, np.eye(3), atol=1e-4) or not np.isclose(np.linalg.det(R), 1., atol=1e-4) or not np.allclose(T[3], [0, 0, 0, 1]):
@@ -69,8 +71,9 @@ def _undistorted_ray(pixel_xy, calibration):
         radial = 1. + k1*r2 + k2*r2*r2 + k3*r2*r2*r2
         if abs(radial) < 1e-10:
             raise ValueError("Невозможно обратить distortion")
-        x = (x0 - (2*p1*x*y + p2*(r2 + 2*x*x))) / radial
-        y = (y0 - (p1*(r2 + 2*y*y) + 2*p2*x*y)) / radial
+        delta_x = 2*p1*x*y + p2*(r2 + 2*x*x)
+        delta_y = p1*(r2 + 2*y*y) + 2*p2*x*y
+        x, y = (x0 - delta_x) / radial, (y0 - delta_y) / radial
     ray = np.array([x, y, 1.])
     return ray / np.linalg.norm(ray)
 
@@ -84,6 +87,12 @@ def estimate_point_on_plane(pixel_xy, calibration: dict | None, camera: dict, *,
     valid, reason = check_applicability(calibration, camera)
     if not valid:
         return unknown_geometry(reason)
+    try:
+        pixels = np.asarray(pixel_xy, dtype=float)
+    except (ValueError, TypeError):
+        return unknown_geometry("Неверный формат pixel")
+    if pixels.shape != (2,) or not np.isfinite(pixels).all() or np.any(pixels < 0) or pixels[0] >= calibration["resolution"][0] or pixels[1] >= calibration["resolution"][1]:
+        return unknown_geometry("Pixel вне текущего изображения/невалиден")
     plane = calibration.get("planes", {}).get(surface)
     if surface not in ("table", "cube_top", "box_surface") or not plane:
         return unknown_geometry("Поверхность не имеет независимо измеренной плоскости")
@@ -108,12 +117,14 @@ def estimate_point_on_plane(pixel_xy, calibration: dict | None, camera: dict, *,
             if abs(denom) < 1e-6:
                 raise ValueError("Луч почти параллелен плоскости")
             distance = -(float(n @ origin) + offset) / denom
-            if distance <= 0:
+            if not np.isfinite(distance) or distance <= 0:
                 raise ValueError("Пересечение позади камеры")
             return origin + distance*ray
         point = intersect(pixel_xy)
         jac = np.stack([(intersect([pixel_xy[0]+.5, pixel_xy[1]]) - intersect([pixel_xy[0]-.5, pixel_xy[1]])), (intersect([pixel_xy[0], pixel_xy[1]+.5]) - intersect([pixel_xy[0], pixel_xy[1]-.5]))], axis=1)
         covariance = (jac @ jac.T) * float(pixel_sigma_px)**2 + np.eye(3)*(plane_sigma**2 + calibration_sigma**2)
+        if not np.isfinite(point).all() or not np.isfinite(covariance).all():
+            raise ValueError("Невалидная geometry/covariance")
     except (ValueError, KeyError, TypeError, np.linalg.LinAlgError) as exc:
         return unknown_geometry(str(exc))
     return {"valid": True, "xyz_m": point.tolist(), "size_m": None, "depth_m": None,
@@ -126,7 +137,7 @@ def estimate_point_on_plane(pixel_xy, calibration: dict | None, camera: dict, *,
 
 def forward_kinematics(joints, kinematics: dict | None, *, timestamp_ns: int, joint_calibration_sha256: str | None) -> dict:
     """FK only from explicitly calibrated DH parameters; no bundled guessed SO101 links."""
-    if not kinematics or not kinematics.get("verified_current") or not joint_calibration_sha256 or kinematics.get("joint_calibration_sha256") != joint_calibration_sha256:
+    if not kinematics or kinematics.get("verified_current") is not True or not joint_calibration_sha256 or kinematics.get("joint_calibration_sha256") != joint_calibration_sha256:
         return {"valid": False, "tcp_m": None, "reason": "Нет проверенной модели FK и совпадающих offsets", "timestamp_ns": timestamp_ns}
     if kinematics.get("joint_units") != "rad" or len(joints) != len(kinematics.get("dh", [])):
         return {"valid": False, "tcp_m": None, "reason": "FK требует радианы и полную таблицу DH", "timestamp_ns": timestamp_ns}
@@ -138,7 +149,7 @@ def forward_kinematics(joints, kinematics: dict | None, *, timestamp_ns: int, jo
             c, s, ca, sa = np.cos(theta), np.sin(theta), np.cos(alpha), np.sin(alpha)
             T = T @ np.array([[c, -s*ca, s*sa, a*c], [s, c*ca, -c*sa, a*s], [0, sa, ca, d], [0, 0, 0, 1]])
         tcp = np.asarray(kinematics["tcp_transform"], dtype=float)
-        if tcp.shape != (4,4) or not np.isfinite(tcp).all() or not np.isfinite(T).all():
+        if tcp.shape != (4,4) or not np.isfinite(tcp).all() or not np.isfinite(T).all() or not np.allclose(tcp[3], [0, 0, 0, 1]) or not np.allclose(tcp[:3,:3].T @ tcp[:3,:3], np.eye(3), atol=1e-4) or not np.isclose(np.linalg.det(tcp[:3,:3]), 1., atol=1e-4):
             raise ValueError("invalid FK transform")
         T = T @ tcp
         sigma = float(kinematics["tcp_sigma_m"])

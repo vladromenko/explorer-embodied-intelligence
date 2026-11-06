@@ -196,3 +196,152 @@ def test_busy_guard_runs_before_model_import_or_construction(monkeypatch):
     with pytest.raises(resources.ResourceBusy,match='busy'):
         segmenter.load()
     assert seen==[('cuda',8.)] and segmenter.model is None
+
+
+def test_progress_counts_are_durable_and_include_resumed_objects(tmp_path):
+    dataset = tmp_path/'dataset'
+    make_dataset(dataset)
+    events = []
+    first = annotate_dataset(dataset, {'allow_test': True, '_test_segmenter': TechnicalSegmenter()}, progress=events.append)
+    assert first['completed_frames'] == 3 and first['completed_images'] == 6
+    assert first['detected_objects'] == 6 and first['objects_by_category'] == {'cube': 6, 'box': 0}
+    assert first['objects_by_camera'] == {'top': 3, 'wrist': 3}
+    assert first['new_frames'] == 3 and first['resumed_frames'] == 0
+    assert events[0]['completed_frames'] == 0
+    again = annotate_dataset(dataset, {'allow_test': True, '_test_segmenter': TechnicalSegmenter()})
+    assert again['completed_frames'] == 3 and again['completed_images'] == 6
+    assert again['detected_objects'] == 6 and again['new_frames'] == 0 and again['resumed_frames'] == 3
+    assert json.loads((dataset/'annotation_status.json').read_text()) == again
+
+
+def test_missing_middle_annotation_replays_tracking_suffix(tmp_path):
+    dataset = tmp_path/'dataset'
+    episode, rows = make_dataset(dataset)
+    annotate_dataset(dataset, {'allow_test': True, '_test_segmenter': TechnicalSegmenter()})
+    output = episode/'annotations/sam3-v1/frames.jsonl'
+    lines = output.read_text().splitlines()
+    output.write_text(lines[0]+'\n'+lines[2]+'\n')
+    segmenter = TechnicalSegmenter()
+    result = annotate_dataset(dataset, {'allow_test': True, '_test_segmenter': segmenter})
+    assert segmenter.calls == 4  # middle and later frames, both cameras
+    assert result['resumed_frames'] == 1 and result['new_frames'] == 2
+    assert load_frame_annotations(episode, rows[-1], allow_test=True)['frame_id'] == rows[-1]['frame_id']
+
+
+def test_mask_statistics_are_checked_against_saved_pixels(tmp_path):
+    dataset = tmp_path/'dataset'
+    episode, rows = make_dataset(dataset, 1)
+    annotate_dataset(dataset, {'allow_test': True, '_test_segmenter': TechnicalSegmenter()})
+    record = load_frame_annotations(episode, rows[0], allow_test=True)
+    changed = copy.deepcopy(record)
+    changed['cameras']['top']['objects'][0]['center_xy'][0] += 1
+    with pytest.raises(AnnotationError, match='Mask center'):
+        validate_frame_annotations(changed, rows[0], episode, allow_test=True)
+    changed = copy.deepcopy(record)
+    changed['cameras']['top']['objects'][0]['area_px'] += 1
+    with pytest.raises(AnnotationError, match='Mask area'):
+        validate_frame_annotations(changed, rows[0], episode, allow_test=True)
+
+
+def sam_provenance_fixture():
+    from so101_lab.annotations import PREPROCESSING, PROCESSING_CONTRACT, TRACKING_METHOD
+    return {'backend': 'sam3', 'checkpoint_sha256': 'a'*64,
+            'checkpoint_path': '/technical/fixture/only',
+            'source': {'commit': 'b'*40, 'runtime_sha256': 'c'*64},
+            'prompts': {'cube': 'cube', 'box': 'box'}, 'confidence_threshold': .5,
+            'preprocessing': PREPROCESSING, 'tracking': TRACKING_METHOD,
+            'processing_contract': copy.deepcopy(PROCESSING_CONTRACT)}
+
+
+def test_production_provenance_complete_and_portable_identity():
+    from so101_lab.annotations import validate_annotation_provenance, annotation_provenance_identity
+    provenance = sam_provenance_fixture()
+    validate_annotation_provenance(provenance)
+    relocated = copy.deepcopy(provenance)
+    relocated.update(checkpoint_path='/different/cache/model.pt', device='cpu', configuration_hash='different_resume_hash')
+    validate_annotation_provenance(relocated, expected=provenance)
+    assert annotation_provenance_identity(relocated) == annotation_provenance_identity(provenance)
+    changed = copy.deepcopy(provenance)
+    changed['source']['runtime_sha256'] = 'd'*64
+    with pytest.raises(AnnotationError, match='differs'):
+        validate_annotation_provenance(changed, expected=provenance)
+    with pytest.raises(AnnotationError, match='SHA256'):
+        validate_annotation_provenance({'backend': 'sam3'})
+
+
+def test_configuration_identity_uses_content_not_checkpoint_path_or_mtime(tmp_path, monkeypatch):
+    from so101_lab import annotations
+    first = tmp_path/'model_a.pt'; first.write_bytes(b'fixture weights: not a real model')
+    second = tmp_path/'model_b.pt'; second.write_bytes(first.read_bytes())
+    monkeypatch.setattr(annotations, '_sam_source_provenance', lambda: sam_provenance_fixture()['source'])
+    a = annotations.SAM3Segmenter({'checkpoint_path': str(first)}).configuration_hash()
+    b = annotations.SAM3Segmenter({'checkpoint_path': str(second)}).configuration_hash()
+    assert a == b
+    second.write_bytes(b'different fixture weights')
+    assert annotations.SAM3Segmenter({'checkpoint_path': str(second)}).configuration_hash() != a
+    with pytest.raises(AnnotationError, match='device'):
+        annotations.SAM3Segmenter({'device': 'cuda:0'})
+
+
+def test_long_tracking_gap_invalidates_prior_identity():
+    tracker = CausalAssociator('top', max_gap_ns=100)
+    obj = lambda: {'category': 'cube', 'score': .9, 'bbox_xyxy': [0, 0, 10, 10]}
+    first, _ = tracker.update([obj()], 100, 'first')
+    after, lost = tracker.update([obj()], 201, 'after')
+    assert lost == [first[0]['tracking']['id']]
+    assert after[0]['tracking']['id'] != first[0]['tracking']['id']
+    assert after[0]['tracking']['status'] == 'new'
+
+
+def test_float_rgb_and_capture_time_reordering_fail_closed(tmp_path):
+    dataset = tmp_path/'dataset'
+    episode, rows = make_dataset(dataset)
+    images = {camera: np.asarray(Image.open(episode/info['path'])).astype(np.float32)/255 for camera, info in rows[0]['cameras'].items()}
+    with pytest.raises(AnnotationError, match='uint8'):
+        annotate_observation(rows[0], images, TechnicalSegmenter())
+    rows[1]['cameras']['top']['timestamp_ns'] = rows[0]['cameras']['top']['timestamp_ns']-1
+    (episode/'frames.jsonl').write_text(''.join(json.dumps(row)+'\n' for row in rows))
+    with pytest.raises(AnnotationError, match='Немонотонный'):
+        annotate_dataset(dataset, {'allow_test': True, '_test_segmenter': TechnicalSegmenter()})
+
+
+def test_geometry_nan_pixel_bad_intrinsics_and_nonrigid_tcp_invalid():
+    cal = calibration()
+    camera = {key: cal[key] for key in ('camera_serial', 'resolution', 'mount_fingerprint', 'joint_calibration_sha256')}
+    assert not estimate_point_on_plane([float('nan'), 1], cal, camera)['valid']
+    bad = copy.deepcopy(cal); bad['intrinsics'][2] = [0, 0, 0]
+    assert not check_applicability(bad, camera)[0]
+    fk = {'verified_current': True, 'joint_calibration_sha256': 'fixture', 'joint_units': 'rad',
+          'dh': [{'a_m': 0, 'alpha_rad': 0, 'd_m': 0, 'theta_offset_rad': 0}],
+          'tcp_transform': [[2,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]], 'tcp_sigma_m': .01}
+    assert not forward_kinematics([0], fk, timestamp_ns=1, joint_calibration_sha256='fixture')['valid']
+
+
+def test_dark_saturated_color_is_unknown_not_confident_black():
+    rgb = np.zeros((10, 10, 3), np.uint8)
+    rgb[:] = [3, 4, 11]  # actual acceptance blue mask median under low exposure
+    color = measure_color(rgb, np.ones((10, 10), bool))
+    assert color['valid'] is False and color['label'] == 'unknown'
+    assert color['rgb'] == [3., 4., 11.] and color['hsv'][1] > .7
+    assert 'яркость' in color['reason']
+
+
+def test_cross_category_duplicate_masks_preserve_raw_detections_but_flag_ambiguity(tmp_path):
+    class ConflictingSegmenter(TechnicalSegmenter):
+        def segment(self, rgb):
+            original = super().segment(rgb)
+            return original + [{**original[0], 'category': 'box', 'score': .8}]
+    dataset = tmp_path/'dataset'
+    episode, rows = make_dataset(dataset, 1)
+    result = annotate_dataset(dataset, {'allow_test': True, '_test_segmenter': ConflictingSegmenter()})
+    assert result['ambiguous_objects'] == 4 and result['usable_category_objects'] == 0
+    record = load_frame_annotations(episode, rows[0], allow_test=True)
+    objects = record['cameras']['top']['objects']
+    assert len(objects) == 2 and {o['category'] for o in objects} == {'cube', 'box'}
+    assert all(o['category_ambiguous'] for o in objects)
+    assert all(o['category_candidates'] == ['box', 'cube'] for o in objects)
+    assert objects[0]['cross_category_overlaps'][0]['mask_iou'] == 1.
+    changed = copy.deepcopy(record)
+    changed['cameras']['top']['objects'][0]['category_ambiguous'] = False
+    with pytest.raises(AnnotationError, match='ambiguity'):
+        validate_frame_annotations(changed, rows[0], episode, allow_test=True)

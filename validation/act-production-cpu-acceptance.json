@@ -1,0 +1,50 @@
+{
+  "status": "PASS_TECHNICAL_FULL_PRODUCTION_ACT_CPU",
+  "date": "2026-11-06",
+  "model_is_tiny": false,
+  "initialization": "ACT+ResNet18 from scratch, no downloaded backbone",
+  "architecture": {
+    "dim_model": 512,
+    "n_heads": 8,
+    "dim_feedforward": 3200,
+    "n_encoder_layers": 4,
+    "n_decoder_layers": 1,
+    "n_vae_encoder_layers": 4,
+    "latent_dim": 32,
+    "dropout": 0.1,
+    "vision_backbone": "resnet18",
+    "pretrained_backbone_weights": null,
+    "use_vae": true
+  },
+  "total_parameters": 51573638,
+  "trainable_parameters": 51573638,
+  "loss": 57.61021041870117,
+  "state_projection_update_max_abs": 9.997934103012085e-05,
+  "real_forward_backward_optimizer_update": true,
+  "checkpoint": "/home/jetsonnx/Projects/so101_ai_learning/models/acceptance_act_cpu_20261106/checkpoints/step_00000001",
+  "new_process_reload": "PASS",
+  "normalized_actions_bitwise_equal": true,
+  "actions_bitwise_equal": true,
+  "train_minimum_available_bytes": 9113194496,
+  "train_process_peak_rss_bytes": 1917906944,
+  "reload_minimum_available_bytes": 9863229440,
+  "reload_process_peak_rss_bytes": 1333047296,
+  "MLflow_train_run_id": "834b894b03544d3095362f470f23ad58",
+  "MLflow_reload_run_id": "2e4c4f8b30dc429280825b53b9f9425a",
+  "cuda_used": false,
+  "hardware_opened": false,
+  "physical_commands_sent": 0,
+  "successful_demonstration_or_policy_claim": false,
+  "limitations": [
+    "Individually captured real images+SAM and independently measured pose are not a synchronized demonstration",
+    "Technical target repeats measured pose, never transmitted actions",
+    "No task success/validation quality estimate from one engineering update"
+  ],
+  "reports": [
+    "validation/acceptance-20261106/act_cpu/report.json",
+    "validation/acceptance-20261106/act_cpu/reload_report.json",
+    "validation/acceptance-20261106/act_cpu/train_guard.json",
+    "validation/acceptance-20261106/act_cpu/reload_guard.json"
+  ],
+  "started_at_moscow": "2026-11-06T23:59:00.689172+03:00"
+}

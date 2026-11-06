@@ -1,0 +1,10 @@
+{
+  "kind": "pretrained_reload",
+  "status": "PASS",
+  "baseline_available_bytes": 10679357440,
+  "hardware_opened": false,
+  "exit_code": 0,
+  "elapsed_seconds": 41.75267051899573,
+  "minimum_available_bytes": 8554606592,
+  "peak_child_rss_bytes": 5180628992
+}

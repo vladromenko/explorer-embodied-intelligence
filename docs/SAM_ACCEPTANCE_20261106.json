@@ -1,0 +1,117 @@
+{
+  "checked_on": "2026-11-06",
+  "hostname": "homebrain",
+  "scope": "read-only model/source/cache/resource evidence; no SAM model or hardware opened",
+  "versions": {
+    "sam3": "0.1.0",
+    "torch": "2.11.0+cu130",
+    "torchvision": "0.26.0+cu130",
+    "lerobot": "0.6.1",
+    "transformers": "5.5.4",
+    "numpy": "2.2.6"
+  },
+  "sam_module_origin": "/home/jetsonnx/Projects/so101_ai_learning/.venv/lib/python3.12/site-packages/sam3/__init__.py",
+  "source": {
+    "upstream": "https://github.com/facebookresearch/sam3",
+    "commit": "f1647e8d0c1d280991f4d1b7d974c2704537fe66",
+    "snapshot_method": "independent copy of clean verified pinned official source",
+    "local_patch": "pyproject.toml numpy constraint changed >=1.26,<2 to >=2.0,<2.3 for LeRobot; imports+mask/color tests pass, GPU inference pending",
+    "pyproject_sha256": "7d9dc6ab8dada6d832f0bf4fc6f3cabf32ab94a39adb469d85809a640af0c90e",
+    "runtime_sha256": "84f27d2d18b30ddf640a41831948d87711d02ba45158eb7eab78d57a904a9b08"
+  },
+  "license": {
+    "name": "SAM License",
+    "last_updated": "November 19, 2025",
+    "path": "vendor/sam3/LICENSE",
+    "sha256": "4dea99bfaa016e21bc860d73f344236bd1e5c4977d1a9a8fd32f822b500ae1be"
+  },
+  "model": {
+    "repository": "facebook/sam3",
+    "snapshot_revision": "3c879f39826c281e95690f02c7821c4de09afae7",
+    "cache_path": "/home/jetsonnx/.cache/huggingface/hub/models--facebook--sam3/snapshots/3c879f39826c281e95690f02c7821c4de09afae7/sam3.pt",
+    "resolved_blob": "/home/jetsonnx/.cache/huggingface/hub/models--facebook--sam3/blobs/9999e2341ceef5e136daa386eecb55cb414446a00ac2b55eb2dfd2f7c3cf8c9e",
+    "bytes": 3450062241,
+    "sha256": "9999e2341ceef5e136daa386eecb55cb414446a00ac2b55eb2dfd2f7c3cf8c9e",
+    "blob_filename_matches_sha256": true,
+    "copied": false
+  },
+  "resources": {
+    "timestamp_ns": 54514773952283,
+    "memory_available_bytes": 5219233792,
+    "memory_total_bytes": 16291917824,
+    "disk_free_bytes": 127791759360,
+    "hardware_owners": [
+      {
+        "pid": 2785,
+        "name": "so101-pick-plac",
+        "devices": [
+          "/dev/video0",
+          "/dev/video2"
+        ]
+      }
+    ],
+    "compute_conflicts": [
+      {
+        "pid": 2777,
+        "name": "lelab",
+        "rss_bytes": 845488128,
+        "reason": "foreign high-memory process; unified GPU/RAM conflict"
+      },
+      {
+        "pid": 2785,
+        "name": "so101-pick-plac",
+        "rss_bytes": 7233413120,
+        "reason": "foreign high-memory process; unified GPU/RAM conflict"
+      }
+    ],
+    "cuda_build": "2.11.0+cu130 (environment verified; server does not load torch)"
+  },
+  "real_sam_forward": {
+    "status": "PASS",
+    "after_explicit_user_authorized_resource_release": true,
+    "report": "validation/acceptance-20261106/sam3/report.json",
+    "report_sha256": "008d89e63f7d27fcdb4da1fa44d5343442c789539abfba3dc52a2f5b666a1b24",
+    "real_images": 2,
+    "original_detected_objects": {
+      "top": 5,
+      "wrist": 2
+    },
+    "cuda_peak_allocated_bytes": 4067278336,
+    "cuda_peak_reserved_bytes": 4458545152,
+    "unified_memory_available_min_bytes": 4789137408,
+    "segmentation_quality": "NOT_FULLY_VERIFIED: wrist semantic ambiguity and lighting-dependent colors",
+    "postprocessing_report": "validation/acceptance-20261106/sam3/report_postprocessing.json",
+    "postprocessing_no_second_model_forward": true,
+    "diagnostics": {
+      "top": {
+        "raw_sam_detections": 5,
+        "category_ambiguous_detections": 0,
+        "unambiguous_category_detections": 5,
+        "low_light_color_invalid_detections": 2,
+        "limitations": "raw category queries can overlap; color uncalibrated; occlusion/XYZ unknown",
+        "mask_and_lineage_validation": "PASS"
+      },
+      "wrist": {
+        "raw_sam_detections": 2,
+        "category_ambiguous_detections": 2,
+        "unambiguous_category_detections": 0,
+        "low_light_color_invalid_detections": 0,
+        "limitations": "raw category queries can overlap; color uncalibrated; occlusion/XYZ unknown",
+        "mask_and_lineage_validation": "PASS"
+      }
+    },
+    "latency_limitations": "Firstview10.32s; warmview1.26s. Two-camera liveSAM+VLA latency not accepted yet; do not bypass observation age guard."
+  },
+  "torch_imported_for_this_check": false,
+  "model_constructed": false,
+  "tests": {
+    "command": ".venv/bin/python -m pytest -q tests/test_annotations.py",
+    "result": "21 passed",
+    "elapsed_seconds": 0.66,
+    "kind": "CPU array/file tests with explicitly technical fixtures; real SAM CUDA evidence stored separately"
+  },
+  "real_sam_forward_initial": {
+    "status": "BLOCKED",
+    "reason": "GPU/RAM занят другим экспериментом: [{\"pid\": 2777, \"name\": \"lelab\", \"rss_bytes\": 867885056, \"reason\": \"foreign high-memory process; unified GPU/RAM conflict\"}, {\"pid\": 2785, \"name\": \"so101-pick-plac\", \"rss_bytes\": 7247458304, \"reason\": \"foreign high-memory process; unified GPU/RAM conflict\"}]"
+  }
+}
