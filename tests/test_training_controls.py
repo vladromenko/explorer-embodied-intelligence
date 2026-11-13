@@ -99,10 +99,10 @@ def test_resume_wrong_policy_rejected_by_preview_before_model_load(tmp_path):
     with pytest.raises(ValueError,match='Тип модели'):
         preview(path,{'tiny_model':True,'allow_test_data':True,'device':'cpu','steps':2,'resume_from':str(checkpoint),'policy_type':'smolvla'},public=False)
 
-def test_action_execution_horizon_is_shorter_than_predicted_chunk():
-    options=normalize_options({'policy_type':'act','chunk_size':50,'n_action_steps':1})
-    assert options['chunk_size']==50 and options['n_action_steps']==1
-    assert options['temporal_ensemble_coeff']==pytest.approx(-.5)
+def test_action_execution_horizon_defaults_to_stock_full_chunk():
+    options=normalize_options({'policy_type':'act','chunk_size':50})
+    assert options['chunk_size']==50 and options['n_action_steps']==50
+    assert options['temporal_ensemble_coeff'] is None
     with pytest.raises(ValueError,match='сглаживания ACT'):
         normalize_options({'policy_type':'act','chunk_size':50,'n_action_steps':10,'temporal_ensemble_coeff':.01})
     with pytest.raises(ValueError,match='не больше'):

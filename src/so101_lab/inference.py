@@ -1000,19 +1000,9 @@ def _run_policy_loaded(loaded, options, progress, stop):
     if not task.strip() and loaded.policy.name=="smolvla":
         raise ValueError("Нужен текст задачи для SmolVLA inference")
     if stop and stop():return {"status":"stopped","steps":0,"checkpoint":str(loaded.checkpoint)}
-    ensemble_coeff = -.5 if loaded.policy.name == "act" else None
-    if loaded.policy.name == "act" and hasattr(loaded.policy, "config") and hasattr(loaded, "reset_actions"):
-        # Positive 0.01 over-weighted old chunks and missed the trajectory;
-        # no ensemble exposed frame-to-frame sign reversals as motor jitter.
-        # LeRobot documents that a negative coefficient weights newer chunks.
-        # Held-out sequential replay selected -0.5 as the smallest-error
-        # low-jitter profile for this checkpoint.
-        from lerobot.policies.act.modeling_act import ACTTemporalEnsembler
-        loaded.policy.config.temporal_ensemble_coeff = ensemble_coeff
-        loaded.policy.config.n_action_steps = 1
-        loaded.policy.temporal_ensembler = ACTTemporalEnsembler(
-            ensemble_coeff, loaded.policy.config.chunk_size)
-        loaded.reset_actions()
+    policy_config = getattr(loaded.policy, "config", None)
+    ensemble_coeff = getattr(policy_config, "temporal_ensemble_coeff", None)
+    act_action_steps = getattr(policy_config, "n_action_steps", None)
     if loaded.contract.mode == "wrist_color_object":
         # CUDA/cuDNN initialization takes hundreds of milliseconds in a fresh
         # worker. Warm it with a schema-valid inert observation before opening
@@ -1125,7 +1115,7 @@ def _run_policy_loaded(loaded, options, progress, stop):
                               "control_hz":control_hz,
                               "execution_mode":"learned",
                               "act_temporal_ensemble":ensemble_coeff if loaded.policy.name == "act" else None,
-                              "act_action_steps":1,
+                              "act_action_steps":act_action_steps,
                               "policy_checkpoint": str(loaded.checkpoint), "physical_actions": True})
                 deadline=cycle_started+action_period
                 while not (stop and stop()):

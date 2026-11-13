@@ -34,11 +34,10 @@ class TrainingOptions(BaseModel):
     keep_last_checkpoints:int=Field(default=0,ge=0,le=1000)
     image_size:int=Field(default=256,ge=32,le=512)
     chunk_size:int=Field(default=50,ge=1,le=200)
-    # Query every fresh wrist observation. A negative coefficient keeps the
-    # newest chunk dominant while suppressing frame-to-frame action reversals.
-    # The old +0.01 profile over-weighted stale chunks on this SO-101 dataset.
-    n_action_steps:int=Field(default=1,ge=1,le=200)
-    temporal_ensemble_coeff:float|None=Field(default=-.5,ge=-2,le=2)
+    # Stock ACT chunk execution: predict once, execute the chunk, then observe
+    # again. Temporal ensembling is optional and disabled by default.
+    n_action_steps:int=Field(default=50,ge=1,le=200)
+    temporal_ensemble_coeff:float|None=Field(default=None,ge=-2,le=2)
     act_pretrained_backbone:bool=True
     denoising_steps:int=Field(default=10,ge=1,le=100)
     kl_weight:float=Field(default=10,ge=0,le=1000)
