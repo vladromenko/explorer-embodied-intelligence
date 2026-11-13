@@ -1,4 +1,4 @@
-import json,time
+import json,os,time
 from pathlib import Path
 import numpy as np
 from PIL import Image
@@ -29,7 +29,34 @@ def test_fast_png_parallel_writer_preserves_exact_rgb(tmp_path):
  assert result['status']=='complete'
  row=json.loads((Path(result['path'])/'frames.jsonl').read_text())
  for raw in row['cameras'].values():assert np.array_equal(np.asarray(Image.open(Path(result['path'])/raw['path'])),rgb)
- assert result['writer_performance']['encoder']=='opencv_png0_two_parallel_cameras'
+ assert result['writer_performance']['encoder']=='opencv_png1_lossless'
+
+
+def test_image_write_does_not_fsync_each_frame(tmp_path,monkeypatch):
+ source=SyntheticSource({'width':160,'height':120});source.start();sample=source.sample(1)
+ writer=EpisodeWriter(tmp_path,{'episode_id':'no_per_frame_fsync'})
+ calls=[]
+ monkeypatch.setattr('so101_lab.recording.os.fsync',lambda fd:calls.append(fd))
+ writer.put(sample);result=writer.finish()
+ assert result['status']=='complete'
+ # Metadata/manifest/directory durability remains, but neither camera image
+ # invokes an additional synchronous flush in the high-rate writer path.
+ assert len(calls)<8
+
+
+def test_active_recording_never_fsyncs_manifest(tmp_path,monkeypatch):
+ source=SyntheticSource({'width':160,'height':120});source.start()
+ calls=[]
+ real_fsync=os.fsync
+ monkeypatch.setattr('so101_lab.recording.os.fsync',lambda fd:calls.append(fd))
+ writer=EpisodeWriter(tmp_path,{'episode_id':'no_live_manifest_fsync'})
+ calls.clear()  # Initial durable episode metadata is written before capture starts.
+ for frame_id in range(1,31):writer.put(source.sample(frame_id))
+ deadline=time.monotonic()+3
+ while writer.frames<30 and time.monotonic()<deadline:time.sleep(.01)
+ assert writer.frames==30 and calls==[]
+ monkeypatch.setattr('so101_lab.recording.os.fsync',real_fsync)
+ assert writer.finish()['status']=='complete'
 
 
 def test_borrowed_camera_readers_survive_source_cleanup():

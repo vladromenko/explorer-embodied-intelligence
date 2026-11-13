@@ -18,7 +18,7 @@ def test_latency_check_uses_fresh_segmentation_and_reports_slow_pipeline(monkeyp
             annotations.append(result)
             return result
     received = []
-    loaded = SimpleNamespace(predict=lambda frame, images, ann, task: received.append(ann) or [0.] * 6)
+    loaded = SimpleNamespace(predict=lambda frame, images, ann, task, **kwargs: received.append(ann) or [0.] * 6)
     result = inference.benchmark_observation(loaded, {}, {}, 'task', Segmenter())
     assert result['status'] == 'LATENCY_EXCEEDS_LIMIT'
     assert result['observation_age_limit_ms'] == 2000
@@ -28,7 +28,7 @@ def test_latency_check_uses_fresh_segmentation_and_reports_slow_pipeline(monkeyp
 
 
 def test_stopped_check_does_not_predict():
-    loaded = SimpleNamespace(predict=lambda *a: pytest.fail('Cancelled model check'))
+    loaded = SimpleNamespace(predict=lambda *a, **kw: pytest.fail('Cancelled model check'))
     result = inference.benchmark_observation(loaded, {}, {}, '', stop=lambda: True)
     assert result['status'] == 'stopped' and result['samples'] == []
 
@@ -48,7 +48,7 @@ def test_checkpoint_check_verifies_raw_files_and_never_opens_hardware(tmp_path, 
     (folder / 'lineage.json').write_text(json.dumps(lineage))
     calls = []
     loaded = SimpleNamespace(checkpoint=checkpoint, contract=FeatureContract(mode='rgb_state'),
-                             predict=lambda *args: calls.append(args) or [0.] * 6)
+                             predict=lambda *args, **kwargs: calls.append(args) or [0.] * 6)
     monkeypatch.setattr(resources, 'ROOT', tmp_path)
     monkeypatch.setattr(inference, 'load_checkpoint', lambda *a, **kw: loaded)
     monkeypatch.setattr(hardware, 'HardwareSource', lambda *a, **kw: pytest.fail('No hardware in model check'))

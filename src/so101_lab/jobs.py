@@ -1,5 +1,5 @@
 """Durable subprocess jobs; no browser owns a recording/training process."""
-import copy,json,os,re,subprocess,sys,time,traceback,uuid
+import copy,fcntl,json,os,re,subprocess,sys,time,traceback,uuid
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];DIR=ROOT/'runtime/jobs';DIR.mkdir(parents=True,exist_ok=True)
 ACTIVE={'running','waiting_resources','queued'}
@@ -21,14 +21,27 @@ def alive(jid,pid):
 
 def submit(kind,dataset,options=None):
     if kind not in ('train','annotate','scene','sam_watch','policy','policy_load','validate','export','finalize'):raise ValueError('Неизвестный тип задачи')
-    jid=uuid.uuid4().hex;d=DIR/jid;d.mkdir();obj={'id':jid,'kind':kind,'dataset':str(dataset),'options':copy.deepcopy(options or {}),'state':'queued','created_at':time.time()};atomic(d/'job.json',obj)
-    try:
-        with (ROOT/'logs'/('job-'+jid+'.log')).open('a') as log:
-            proc=subprocess.Popen([sys.executable,'-m','so101_lab.worker',jid],cwd=ROOT,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
-        (d/'pid').write_text(str(proc.pid));obj['pid']=proc.pid
-    except Exception as e:
-        obj.update(state='failed',error=str(e),traceback=traceback.format_exc());atomic(d/'job.json',obj);raise
-    return obj
+    dataset=str(dataset);options=copy.deepcopy(options or {})
+    # A slow public preflight can make a repeated click look unanswered. Serialize submission and
+    # return the existing identical training job instead of queueing another multi-hour run.
+    with (DIR/'.submit.lock').open('a') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX)
+        if kind=='train':
+            for path in DIR.glob('*/job.json'):
+                try:current=json.loads(path.read_text())
+                except (OSError,ValueError):continue
+                if current.get('kind')==kind and current.get('state') in ACTIVE and current.get('dataset')==dataset and current.get('options')==options:
+                    pid=path.parent/'pid'
+                    if pid.exists():current['pid']=int(pid.read_text())
+                    return current
+        jid=uuid.uuid4().hex;d=DIR/jid;d.mkdir();obj={'id':jid,'kind':kind,'dataset':dataset,'options':options,'state':'queued','created_at':time.time()};atomic(d/'job.json',obj)
+        try:
+            with (ROOT/'logs'/('job-'+jid+'.log')).open('a') as log:
+                proc=subprocess.Popen([sys.executable,'-m','so101_lab.worker',jid],cwd=ROOT,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+            (d/'pid').write_text(str(proc.pid));obj['pid']=proc.pid
+        except Exception as e:
+            obj.update(state='failed',error=str(e),traceback=traceback.format_exc());atomic(d/'job.json',obj);raise
+        return obj
 
 def list_jobs():
     result=[]

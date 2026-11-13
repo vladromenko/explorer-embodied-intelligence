@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from so101_lab import recording
-from so101_lab.recording import RecordingManager, EpisodeWriter, SyntheticSource, integer
+from so101_lab.recording import RecordingManager, EpisodeWriter, SyntheticSource, annotation_collection_progress, integer
 
 
 def wait_for(manager, predicate, timeout=6):
@@ -31,6 +31,14 @@ def test_integer_51_not_5():
         with pytest.raises(ValueError): integer(value,'episodes')
 
 
+def test_sam_auto_annotation_waits_for_dataset_target(tmp_path):
+    episodes=tmp_path/'episodes';episodes.mkdir()
+    for index in range(6):
+        folder=episodes/f'ep_{index}';folder.mkdir();(folder/'episode.json').write_text(json.dumps({'status':'complete'}))
+    assert annotation_collection_progress(tmp_path,50)==(6,50,False)
+    assert annotation_collection_progress(tmp_path,6)==(6,6,True)
+
+
 def test_unicode_name_and_no_path_injection(tmp_path):
     manager=manager_at(tmp_path)
     dataset=manager.create_dataset('../кубики 🦾 / вечер','Переложить красный кубик в коробку')
@@ -39,6 +47,14 @@ def test_unicode_name_and_no_path_injection(tmp_path):
     assert dataset['source']=='synthetic_test'
     assert dataset['test_only'] is True
     with pytest.raises(ValueError): manager.dataset_info('../other')
+
+
+def test_delete_dataset_moves_to_recoverable_trash(tmp_path):
+    manager=manager_at(tmp_path);dataset=manager.create_dataset('delete me','fixture')
+    result=manager.delete_dataset(dataset['dataset_id'])
+    assert result['status']=='deleted' and result['recoverable'] is True
+    assert not Path(dataset['path']).exists() and Path(result['trash_path']).is_dir()
+    with pytest.raises(FileNotFoundError):manager.dataset_info(dataset['dataset_id'])
 
 
 def test_lifecycle_end_next_stop_hashes_timestamps(tmp_path):
@@ -85,7 +101,39 @@ def test_lifecycle_end_next_stop_hashes_timestamps(tmp_path):
                 assert image.read_bytes().startswith(b'\x89PNG')
                 assert hashlib.sha256(image.read_bytes()).hexdigest()==camera['sha256']
     assert manager.latest_frame('top').startswith(b'\x89PNG')
+
+
+def test_recording_resume_preserves_total_progress_across_sessions(tmp_path):
+    manager=manager_at(tmp_path)
+    dataset=manager.create_dataset('resume total','fixture',target_episodes=3)
+    manager.start(dataset['dataset_id'],episode_count=3,target_episodes_total=3,fps=20,episode_seconds=10,width=160,height=120)
+    wait_for(manager,lambda s:s.get('frames_written',0)>=2)
+    manager.command('stop');manager.wait()
+    first=manager.dataset_info(dataset['dataset_id'])
+    assert first['episodes']==1 and first['target_episodes']==3
+    manager.start(dataset['dataset_id'],episode_count=2,target_episodes_total=3,fps=20,episode_seconds=10,width=160,height=120)
+    resumed=manager.status()
+    assert resumed['completed_before_session']==1
+    assert resumed['completed_in_session']==0
+    assert resumed['target_episodes']==2
+    assert resumed['target_episodes_total']==3
+    manager.command('stop');manager.wait()
     assert manager.latest_frame('wrist').startswith(b'\x89PNG')
+
+
+def test_wrist_only_dataset_records_validates_and_never_writes_top(tmp_path):
+    manager=manager_at(tmp_path)
+    dataset=manager.create_dataset('wrist only','fixture',source='synthetic_test',camera_mode='wrist_only')
+    assert dataset['camera_mode']=='wrist_only' and dataset['cameras']==['wrist']
+    manager.start(dataset['dataset_id'],fps=20,episode_seconds=10,width=160,height=120)
+    wait_for(manager,lambda s:s.get('frames_written',0)>=2)
+    manager.command('stop');manager.wait()
+    info=manager.dataset_info(dataset['dataset_id']);episode=Path(dataset['path'])/'episodes'/info['episode_list'][0]['episode_id']
+    rows=[json.loads(line) for line in (episode/'frames.jsonl').read_text().splitlines()]
+    assert rows and all(tuple(row['cameras'])==('wrist',) for row in rows)
+    assert (episode/'images/wrist').is_dir() and not (episode/'images/top').exists()
+    report=manager.finalize_dataset(dataset['dataset_id'],allow_test_data=True)
+    assert report['status']=='valid' and report['episodes'][0]['camera_dimensions']=={'wrist':[160,120]}
 
 
 def test_rerecord_preserves_rejected_raw_in_quarantine(tmp_path):

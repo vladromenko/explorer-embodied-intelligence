@@ -33,8 +33,8 @@ class FeatureContract:
     def __post_init__(self):
         if self.schema_version != FEATURE_SCHEMA:
             raise ValueError("Несовместимая версия объектного входа")
-        if self.mode not in ("sam_objects", "rgb_state"):
-            raise ValueError("Режим должен быть sam_objects или rgb_state")
+        if self.mode not in ("sam_objects", "rgb_state", "wrist_color_object"):
+            raise ValueError("Режим должен быть sam_objects, rgb_state или wrist_color_object")
         if self.camera_mode not in ("two_camera", "wrist_only_experimental"):
             raise ValueError("Неизвестный режим камер")
         if self.target_category not in CATEGORIES:
@@ -46,11 +46,18 @@ class FeatureContract:
 
     @property
     def state_dim(self):
-        return 32 if self.mode == "sam_objects" else 6
+        if self.mode == "sam_objects":
+            return 32
+        return 12 if self.mode == "wrist_color_object" else 6
 
     def to_dict(self):
         data = asdict(self)
-        data["state_layout"] = list(JOINTS) + ([f"{c}.{k}.{f}" for c in CAMERAS for k in CATEGORIES for f in SLOT_FIELDS] + ["target.cube", "target.box"] if self.mode == "sam_objects" else [])
+        extra = []
+        if self.mode == "sam_objects":
+            extra = [f"{c}.{k}.{f}" for c in CAMERAS for k in CATEGORIES for f in SLOT_FIELDS] + ["target.cube", "target.box"]
+        elif self.mode == "wrist_color_object":
+            extra = [f"wrist.target_cube.{field}" for field in SLOT_FIELDS]
+        data["state_layout"] = list(JOINTS) + extra
         data["id_handling"] = "tracking ids excluded; categorical slots only"
         data["selection"] = "highest score per camera/category, verified target_color filter for cube"
         data["causality"] = "current raw frame only; no future, action, success, phase or done input"
@@ -125,10 +132,71 @@ def _select(objects: list[dict], category: str, contract: FeatureContract):
     return sorted(candidates, key=lambda o: (-float(o["score"]), tuple(o.get("bbox_xyxy", ()))))[0] if candidates else None
 
 
-def object_state(frame: dict, annotation: dict | None, contract: FeatureContract, *, allow_test: bool = False) -> list[float]:
+def _wrist_color_features(image: Any, color: str | None, *, allow_dominant_nonconvex: bool = False) -> list[float]:
+    """Return causal target geometry from the same RGB wrist frame used by the policy.
+
+    This deliberately uses the inexpensive colour signal of the supported cubes,
+    not a second camera, SAM, tracking history or a hand-tuned robot coordinate.
+    Missing/occluded targets are represented explicitly by ``valid == 0``.
+    """
+    import cv2
+    import numpy as np
+
+    rgb = np.asarray(image)
+    if rgb.ndim != 3 or rgb.shape[2] != 3 or rgb.dtype != np.uint8:
+        raise ValueError("wrist_color_object requires original uint8 RGB wrist image")
+    ranges = {
+        "red": (((0, 90, 60), (10, 255, 255)), ((170, 90, 60), (179, 255, 255))),
+        "yellow": (((17, 75, 70), (38, 255, 255)),),
+        "green": (((38, 60, 35), (90, 255, 255)),),
+        "blue": (((90, 85, 35), (135, 255, 255)),),
+    }
+    if color not in ranges:
+        raise ValueError("wrist_color_object requires target_color: red, yellow, green or blue")
+    hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
+    mask = np.zeros(hsv.shape[:2], np.uint8)
+    for low, high in ranges[color]:
+        mask |= cv2.inRange(hsv, np.asarray(low, np.uint8), np.asarray(high, np.uint8))
+    kernel = np.ones((3, 3), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    height, width = mask.shape
+    minimum_area = max(36.0, width * height * 0.00012)
+    candidates = []
+    area_candidates = []
+    for contour in contours:
+        area = float(cv2.contourArea(contour))
+        if area < minimum_area:
+            continue
+        x, y, w, h = cv2.boundingRect(contour)
+        if w >= 5 and h >= 5:area_candidates.append((area,x,y,w,h))
+        hull_area = float(cv2.contourArea(cv2.convexHull(contour)))
+        solidity = area / max(hull_area, 1.0)
+        if solidity >= 0.55 and w >= 5 and h >= 5:
+            candidates.append((area, x, y, w, h))
+    if not candidates and allow_dominant_nonconvex and area_candidates:
+        ordered=sorted(area_candidates,reverse=True)
+        if ordered[0][0]>sum(item[0] for item in ordered[1:]):candidates.append(ordered[0])
+    if not candidates:
+        return [0.0] * 6
+    area, x, y, w, h = max(candidates)
+    return [1.0, (x + w / 2) / width, (y + h / 2) / height,
+            w / width, h / height, min(1.0, area / (width * height) * 20.0)]
+
+
+def object_state(frame: dict, annotation: dict | None, contract: FeatureContract, *, images: dict | None = None,
+                 allow_test: bool = False) -> list[float]:
     """Only explicitly whitelisted current observation values enter the network."""
     values = joint_state(frame)
     if contract.mode == "rgb_state":
+        return values
+    if contract.mode == "wrist_color_object":
+        if images is None or "wrist" not in images:
+            raise ValueError("wrist_color_object requires the matching current wrist image")
+        values.extend(_wrist_color_features(images["wrist"], contract.target_color))
+        if len(values) != 12 or not all(math.isfinite(v) for v in values):
+            raise ValueError("Wrist colour object state contract violation")
         return values
     if annotation is None:
         raise ValueError("SAM annotations missing: train/inference requires exact current frame")

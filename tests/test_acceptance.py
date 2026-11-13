@@ -66,13 +66,63 @@ def test_operational_finalization_does_not_invalidate_training_lineage(tmp_path)
     second=_lineage(ds2,contract,split,{'tiny_model':True},None,None)
     assert first['dataset_sha256']==second['dataset_sha256'];assert first['dataset_metadata_file_sha256']!=second['dataset_metadata_file_sha256']
 
-def test_policy_outside_absolute_envelope_rejected_not_clipped():
+def test_policy_finite_targets_are_saturated_and_invalid_values_rejected():
     from so101_lab.inference import validate_policy_target
     from so101_lab.hardware import JOINTS
     cal={'values':{'follower':{name:{'range_min':0,'range_max':4095} for name in JOINTS}}}
-    assert validate_policy_target([0,0,0,0,0,50],cal)
-    with pytest.raises(ValueError,match='отклонена'):validate_policy_target([10000,0,0,0,0,50],cal)
-    with pytest.raises(ValueError,match='отклонена'):validate_policy_target([0,0,0,0,0,-1],cal)
+    assert validate_policy_target([0,0,0,0,0,50],cal)==[0,0,0,0,0,50]
+    bounded=validate_policy_target([-180,0,0,0,0,101],cal)
+    assert bounded==[-175,0,0,0,0,100]
+    assert validate_policy_target([10000,0,0,0,0,-1],cal)==[175,0,0,0,0,0]
+    with pytest.raises(ValueError,match='невалидные'):validate_policy_target([float('nan'),0,0,0,0,50],cal)
+
+def test_loaded_policy_keeps_temporal_action_queue_until_explicit_reset(monkeypatch,tmp_path):
+    import torch
+    from so101_lab.inference import LoadedPolicy
+    from so101_lab.features import FeatureContract
+    class Policy:
+        name='smolvla'
+        def __init__(self):self.resets=0;self.calls=0
+        def reset(self):self.resets+=1
+        def select_action(self,prepared,noise=None):self.calls+=1;return torch.zeros((1,6))
+    policy=Policy()
+    loaded=LoadedPolicy(policy,lambda value:value,lambda value:value,FeatureContract(mode='rgb_state'),tmp_path,False,'cpu')
+    monkeypatch.setattr(loaded,'prepare_observation',lambda *args,**kwargs:{})
+    loaded.predict({}, {}, task='task')
+    loaded.predict({}, {}, task='task')
+    assert policy.calls==2 and policy.resets==0
+    loaded.predict({}, {}, task='task',reset_queue=True)
+    assert policy.resets==1
+
+def test_recording_profile_uses_actual_training_rate_and_typical_episode(tmp_path):
+    import json
+    from so101_lab.inference import _recording_profile
+    for episode,frames in [('one',262),('two',647)]:
+        path=tmp_path/'episodes'/episode;path.mkdir(parents=True)
+        (path/'episode.json').write_text(json.dumps({'fps_requested':30,'frames':frames}))
+    assert _recording_profile({'dataset_path':str(tmp_path),'split':{'train':['one','two']}})==(30.,454)
+
+def test_physical_command_uses_the_retained_lelab_smolvla_rtc_preset(tmp_path):
+    from so101_lab.inference import official_lerobot_command
+    command=official_lerobot_command(tmp_path,'put blue cube in the box',30.,20.,'cuda')
+    joined=' '.join(command)
+    assert '-m lerobot.scripts.lerobot_rollout' in joined
+    assert '--inference.type=rtc' in command
+    assert '--inference.rtc.execution_horizon=10' in command
+    assert '--inference.rtc.max_guidance_weight=10.0' in command
+    assert '--return_to_initial_position=true' in command
+    assert '--fps=30' in command
+    camera_arg=next(item for item in command if item.startswith('--robot.cameras='))
+    assert '"fps":30' in camera_arg and '"fps":30.0' not in camera_arg
+    assert not any('max_relative_target' in item for item in command)
+
+def test_physical_act_command_uses_official_sync_with_saved_letterbox_plugin(tmp_path):
+    from so101_lab.inference import official_lerobot_command
+    command=official_lerobot_command(tmp_path,'put blue cube in the box',30.,20.,'cuda',policy_type='act')
+    assert '--inference.type=sync' in command
+    assert '--discover_packages_path=so101_lab.lerobot_plugin' in command
+    assert not any('inference.rtc' in item for item in command)
+    assert not any('max_relative_target' in item for item in command)
 
 def test_inference_dispatch_wires_start_stop_and_learned_action_without_io(monkeypatch,tmp_path):
     import time,numpy as np
@@ -90,7 +140,28 @@ def test_inference_dispatch_wires_start_stop_and_learned_action_without_io(monke
         def close(self):calls.append('close');return []
     monkeypatch.setattr(hardware,'HardwareSource',Source)
     learned=[0,0,0,0,0,50]
-    loaded=SimpleNamespace(contract=SimpleNamespace(mode='rgb_state'),policy=SimpleNamespace(name='act'),checkpoint=tmp_path,device='cpu',predict=lambda *a:learned)
+    loaded=SimpleNamespace(contract=SimpleNamespace(mode='rgb_state',cameras=('top','wrist')),policy=SimpleNamespace(name='act'),checkpoint=tmp_path,device='cpu',predict=lambda *a:learned)
     result=inference._run_policy_loaded(loaded,{'explicit_user_start':True,'max_steps':1},None,lambda:False)
     assert result['steps']==1 and calls==['start',tuple(learned),'close']
     calls.clear();result=inference._run_policy_loaded(loaded,{'explicit_user_start':True},None,lambda:True);assert result['steps']==0 and not calls
+
+def test_inference_discards_changed_state_and_reobserves_before_send(monkeypatch,tmp_path):
+    import time,numpy as np
+    from types import SimpleNamespace
+    from so101_lab import inference,hardware
+    calls=[]
+    class Source:
+        def __init__(self,settings,teleoperate):
+            self.calibration={'values':{'follower':{n:{'range_min':0,'range_max':4095} for n in hardware.JOINTS}}};self.reads=0
+        def start(self,**kwargs):calls.append('start')
+        def observe(self):
+            self.reads+=1;t=time.monotonic_ns();state=[0,0,0,0,0,50] if self.reads==1 else [1,0,0,0,0,50]
+            return {'timestamp_ns':t,'state_timestamp_ns':t,'observation.state':state,'images':{c:{'image':np.zeros((16,16,3),np.uint8),'timestamp_ns':t} for c in ('top','wrist')}}
+        def send(self,action,fresh):calls.append(('send',list(action),fresh['observation.state']));return {'action':action}
+        def close(self):calls.append('close');return []
+    monkeypatch.setattr(hardware,'HardwareSource',Source)
+    progress=[];loaded=SimpleNamespace(contract=SimpleNamespace(mode='rgb_state',cameras=('top','wrist')),policy=SimpleNamespace(name='act'),checkpoint=tmp_path,device='cpu',predict=lambda *a:[0,0,0,0,0,50])
+    result=inference._run_policy_loaded(loaded,{'explicit_user_start':True,'max_steps':1},progress.append,lambda:False)
+    assert result['steps']==1
+    assert [p['state'] for p in progress]==['reobserving','inference']
+    assert len([c for c in calls if isinstance(c,tuple) and c[0]=='send'])==1

@@ -24,7 +24,10 @@ class RecordingTelemetry:
                 'dataset_name':self.dataset['name'],'task':self.dataset['task'],'source':self.dataset['source'],
                 'technical_test':self.dataset['source']!='hardware','code_commit':revision,
                 'dataset_version_start':self.dataset.get('version',0),'fps_requested':self.settings['fps'],
-                'preparation_seconds':self.settings['preparation_seconds'],'image_encoding':'lossless PNG0, two parallel camera writers'}
+                'camera_mode':self.settings.get('camera_mode',self.dataset.get('camera_mode','two_camera')),
+                'cameras':','.join(self.dataset.get('cameras') or ('top','wrist')),
+                'preparation_seconds':self.settings['preparation_seconds'],
+                'image_encoding':'lossless PNG0; one independent writer per selected camera'}
             params['recorder_runtime_code_sha256']=hashlib.sha256(marshal.dumps(self.manager._run.__func__.__code__)).hexdigest()
             for role,entry in self.dataset.get('calibration',{}).get('files',{}).items():params[role+'_calibration_sha256']=entry['sha256']
             telemetry=DurableMLflow(self.root,'Запись · '+self.dataset['name']+' · '+self.session_id,params=params,tracking_uri=self.uri,delivery_thread=False)

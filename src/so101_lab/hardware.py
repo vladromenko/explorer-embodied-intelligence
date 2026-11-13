@@ -47,17 +47,25 @@ def hardware_settings(settings: dict | None = None) -> dict:
         'leader_port': '/dev/so101-leader', 'follower_port': '/dev/so101-follower',
         'cameras': dict(DEFAULT_CAMERAS), 'width': 640, 'height': 480,
         'camera_formats': {'top':'MJPG','wrist':'YUYV'},
+        'camera_mode': 'two_camera',
         'fps': 30, 'max_camera_age_ms': 100, 'max_step_degrees': 2.0,
         'max_gripper_step': 3.0, 'max_speed_degrees_s': 45.0,
+        'smooth_recording_actions': False,
         'teleoperation_control_hz': 60,
         'calibration_dir': str(ROOT / 'config/calibration_snapshots'),
     }
     for key in result:
         if key in settings: result[key] = settings[key]
+    if result['camera_mode'] not in ('two_camera','wrist_only'):
+        raise ValueError('Режим камер должен быть two_camera или wrist_only')
+    expected_cameras = ('top','wrist') if result['camera_mode']=='two_camera' else ('wrist',)
+    result['cameras']={name:result['cameras'][name] for name in expected_cameras if name in result['cameras']}
+    result['camera_formats']={name:result['camera_formats'][name] for name in expected_cameras if name in result['camera_formats']}
     for key in ('fps','max_camera_age_ms','max_step_degrees','max_gripper_step','max_speed_degrees_s','teleoperation_control_hz'):
         result[key] = float(result[key])
         if not math.isfinite(result[key]): raise ValueError(f'{key}: требуется конечное число')
     for key in ('width','height'): result[key] = int(result[key])
+    if not isinstance(result['smooth_recording_actions'],bool):raise ValueError('smooth_recording_actions должен быть bool')
     if not 1 <= float(result['fps']) <= 30: raise ValueError('FPS должен быть в пределах 1–30')
     if not 10<=result['teleoperation_control_hz']<=120:raise ValueError('Частота телеоперации: 10–120 Hz')
     if (int(result['width']),int(result['height'])) != (640,480):
@@ -66,9 +74,9 @@ def hardware_settings(settings: dict | None = None) -> dict:
     if not 0 < float(result['max_gripper_step']) <= 5: raise ValueError('Шаг gripper должен быть 0–5%')
     if not 0 < float(result['max_speed_degrees_s']) <= 60: raise ValueError('Скорость должна быть 0–60°/s')
     if not 0 < result['max_camera_age_ms'] <= 500: raise ValueError('Допустимый возраст камеры: 0–500 ms')
-    if set(result['cameras']) != {'top','wrist'}: raise ValueError('Raw recording требует top и wrist')
-    if set(result['camera_formats']) != {'top','wrist'} or any(value not in ('MJPG','YUYV') for value in result['camera_formats'].values()):
-        raise ValueError('Формат top/wrist должен быть MJPG или YUYV')
+    if tuple(result['cameras']) != expected_cameras: raise ValueError('Для выбранного режима отсутствует камера: '+', '.join(expected_cameras))
+    if tuple(result['camera_formats']) != expected_cameras or any(value not in ('MJPG','YUYV') for value in result['camera_formats'].values()):
+        raise ValueError('Формат выбранных камер должен быть MJPG или YUYV')
     paths = [result['leader_port'],result['follower_port'],*result['cameras'].values()]
     if len({str(Path(p).resolve()) for p in paths}) != len(paths):
         raise ValueError('Leader, follower и камеры должны использовать разные устройства')
@@ -340,7 +348,7 @@ class HardwareSource:
                 'writes_acknowledgement':'Goal_Position sync_write has no per-motor ACK; actual transmitted targets, not measured achievement',
                 'encoder_boundary_tolerance_ticks':ENCODER_BOUNDARY_TOLERANCE_TICKS,
                 'camera_capture_enabled':self.capture_cameras,
-                'teleoperation_profile':'bounded command-space initial alignment, then direct calibrated LeRobot leader action' if self.teleoperate else None,
+                'teleoperation_profile':('bounded smooth calibrated LeRobot leader action' if self.cfg['smooth_recording_actions'] else 'bounded command-space initial alignment, then direct calibrated LeRobot leader action') if self.teleoperate else None,
                 'startup_boundary_adjustments':self.startup_boundary_adjustments,
                 'motion_retry_count':0,'camera_geometry_valid':False,'wrist_hand_eye_valid':False}
 
@@ -394,10 +402,13 @@ class HardwareSource:
         """Frames intentionally ignored during an inter-episode pause are not capture drops."""
         self.last_camera_sequences = {}
 
-    def _safe_targets(self, requested, measured, now_ns):
+    def _safe_targets(self, requested, measured, now_ns, allowed_measured_lead=None):
         if len(requested)!=6 or not all(math.isfinite(float(v)) for v in requested):
             raise ValueError('Политика/leader вернула неверный action')
         if len(measured)!=6: raise ValueError('State должен содержать шесть суставов')
+        if allowed_measured_lead is not None and (len(allowed_measured_lead)!=6 or
+                not all(math.isfinite(float(v)) and float(v)>=0 for v in allowed_measured_lead)):
+            raise ValueError('Допуск опережения replay должен содержать шесть неотрицательных значений')
         dt = min(.1,max(.001,(now_ns-(self.last_command_ns or now_ns))/1e9))
         step = min(float(self.cfg['max_step_degrees']),float(self.cfg['max_speed_degrees_s'])*dt)
         result = {}
@@ -418,21 +429,32 @@ class HardwareSource:
             if not self.teleoperate and not low <= value <= high:
                 raise ValueError(f'{name}: policy action вне абсолютных пределов; команда отклонена')
             bounded = max(low,min(high,value))
-            if not (self.teleoperate and self.teleop_phase=='following'):
+            if allowed_measured_lead is not None:
+                # A physically recorded replay needs the same load-dependent
+                # command lead and coordinated multi-joint timing which moved
+                # the follower during recording. The caller supplies only an
+                # immutable, physically observed demonstration trajectory; its
+                # samples are already time-parameterized and calibrated. Holding
+                # or independently rate-limiting one joint can overload the arm.
+                bounded=max(low,min(high,bounded))
+            elif not (self.teleoperate and self.teleop_phase=='following' and not self.cfg['smooth_recording_actions']):
                 previous=self.last_teleop_target[i] if self.teleoperate and self.last_teleop_target is not None else measured[i]
                 reference=max(low,min(high,previous))
                 bounded = max(reference-delta,min(reference+delta,bounded))
                 max_step=self.cfg['max_gripper_step'] if name=='gripper' else self.cfg['max_step_degrees']
                 bounded=max(low,min(high,max(previous-max_step,min(previous+max_step,bounded))))
-                # Initial alignment advances the commanded trajectory, rather
-                # than repeatedly pulling it back to a lagging servo reading.
-                if self.teleoperate and abs(bounded-measured[i])>10:
-                    raise RuntimeError(f'{name}: начальное выравнивание отстаёт более10 единиц; руки остановлены')
+                # During initial alignment the goal advances from the actual
+                # follower pose.  A slow servo must not turn an otherwise
+                # valid large leader/follower offset into an immediate fault:
+                # hold the commanded lead at the existing 10-unit bound and
+                # let the goal advance again as feedback catches up.
+                if self.teleoperate:
+                    bounded=max(measured[i]-10.,min(measured[i]+10.,bounded))
             result[name] = bounded
             if abs(value-bounded)>1e-6: limits.append(name)
         return result,limits
 
-    def send(self, requested, observation):
+    def send(self, requested, observation, *, allowed_measured_lead=None):
         if not self.started: raise RuntimeError('Hardware source is not started')
         start_ns = time.monotonic_ns()
         state_timestamp = observation['state_timestamp_ns']
@@ -444,7 +466,8 @@ class HardwareSource:
             raise RuntimeError('State invalid; команда отклонена')
         if state_age > 500_000_000:
             raise RuntimeError('State слишком старый для движения (>500ms), нужна новая observation')
-        safe,limited = self._safe_targets(requested,observation['observation.state'],start_ns)
+        safe,limited = self._safe_targets(requested,observation['observation.state'],start_ns,
+                                          allowed_measured_lead=allowed_measured_lead)
         bus = self.buses['follower']
         raw_by_id = bus._unnormalize({bus.motors[n].id:v for n,v in safe.items()})
         raw = {name:raw_by_id[bus.motors[name].id] for name in JOINTS}
@@ -454,7 +477,7 @@ class HardwareSource:
         actual_by_id = bus._normalize(raw_by_id)
         actual = [float(actual_by_id[bus.motors[name].id]) for name in JOINTS]
         self.last_command_ns = end_ns
-        if self.teleoperate:self.last_teleop_target=list(actual)
+        if self.teleoperate or allowed_measured_lead is not None:self.last_teleop_target=list(actual)
         return {'action':actual,'action_raw_ticks':[raw[n] for n in JOINTS],
                 'action_timestamp_ns':end_ns,'action_send_start_ns':start_ns,'action_send_end_ns':end_ns,
                 'action_valid':True,'action_acknowledged':False,'action_provenance':'transmitted_quantized_goal_position',

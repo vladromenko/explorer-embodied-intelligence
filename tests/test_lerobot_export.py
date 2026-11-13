@@ -1,5 +1,6 @@
 """CPU-only technical export fixtures, never successful hardware demonstrations."""
 import json
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -44,6 +45,18 @@ def raw_fixture(root: Path) -> Path:
         info = {"status": "complete", "source": "synthetic_test", "frames": len(records), "frames_sha256": sha256_file(frames),
                 "session_id": f"technical_session_{episode_index}", "fps_requested": 30.0, "task": f"technical task {episode_index}"}
         (episode / "episode.json").write_text(json.dumps(info))
+    return root
+
+
+def wrist_only_fixture(root: Path) -> Path:
+    root=raw_fixture(root)
+    metadata=json.loads((root/'dataset.json').read_text());metadata.update(camera_mode='wrist_only',cameras=['wrist']);metadata['settings']['camera_mode']='wrist_only';(root/'dataset.json').write_text(json.dumps(metadata))
+    for episode in (root/'episodes').iterdir():
+        rows=[json.loads(line) for line in (episode/'frames.jsonl').read_text().splitlines()]
+        for row in rows:row['cameras']={'wrist':row['cameras']['wrist']}
+        frames=episode/'frames.jsonl';frames.write_text(''.join(json.dumps(row)+'\n' for row in rows))
+        info=json.loads((episode/'episode.json').read_text());info.update(camera_mode='wrist_only',cameras=['wrist'],frames_sha256=sha256_file(frames));(episode/'episode.json').write_text(json.dumps(info))
+        shutil.rmtree(episode/'images/top')
     return root
 
 
@@ -104,6 +117,16 @@ def test_official_lerobot_cpu_loader_lossless_rgb_timestamps_boundaries(tmp_path
     raw.rename(old)
     independent = LeRobotDataset(result["repo_id"], root=final, video_backend="pyav", return_uint8=True)
     assert independent[0]["observation.images.wrist"].shape == (3, 16, 24)
+
+
+def test_wrist_only_export_contains_no_top_feature(tmp_path):
+    from lerobot.datasets.lerobot_dataset import LeRobotDataset
+    raw=wrist_only_fixture(tmp_path/'raw');report=validate_raw_dataset(raw,allow_test_data=True)
+    assert report['cameras']==['wrist'] and set(report['image_shapes_hwc'])=={'wrist'}
+    result=export_dataset(raw,tmp_path/'official_wrist',{'allow_test_data':True})
+    opened=LeRobotDataset(result['repo_id'],root=result['path'],video_backend='pyav')
+    assert 'observation.images.wrist' in opened.features
+    assert 'observation.images.top' not in opened.features
 
 
 def test_corrupt_image_future_timestamp_and_invalid_hardware_fail_closed(tmp_path):

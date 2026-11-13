@@ -59,12 +59,40 @@ def test_initial_alignment_advances_command_instead_of_feedback_clamping():
     assert previous>5  # Old measured+delta limiter stalled near1.5° with the same feedback.
 
 
+def test_initial_alignment_waits_for_slow_follower_without_aborting():
+    source=HardwareSource(capture_cameras=False)
+    source.last_teleop_target=[0.]*5+[50.]
+    target=[30.]*5+[80.]
+    measured=[0.]*5+[50.]
+    for _ in range(12):
+        source.last_command_ns=time.monotonic_ns()-33_000_000
+        command,_=source._safe_targets(target,measured,time.monotonic_ns())
+        source.last_teleop_target=[command[n] for n in JOINTS]
+    assert command['shoulder_pan']==pytest.approx(10.)
+    assert command['gripper']==pytest.approx(60.)
+    measured=[4.]*5+[56.]
+    source.last_command_ns=time.monotonic_ns()-33_000_000
+    command,_=source._safe_targets(target,measured,time.monotonic_ns())
+    assert 10.<command['shoulder_pan']<=12.
+    assert 60.<command['gripper']<=63.
+
+
 def test_policy_keeps_its_original_bounded_action_limits():
     source=HardwareSource(teleoperate=False,capture_cameras=False)
     source.last_command_ns=time.monotonic_ns()-33_000_000
     command,_=source._safe_targets([20.]*5+[70.],[0.]*5+[50.],time.monotonic_ns())
     assert all(abs(command[n])<=2 for n in JOINTS[:5])
     assert command['gripper']<=53
+
+
+def test_recording_profile_bounds_following_actions_for_learnable_smooth_targets():
+    source=HardwareSource({'smooth_recording_actions':True},capture_cameras=False)
+    source.teleop_phase='following';source.last_teleop_target=[0.]*5+[50.]
+    source.last_command_ns=time.monotonic_ns()-33_000_000
+    command,limited=source._safe_targets([20.]*5+[80.],[0.]*5+[50.],time.monotonic_ns())
+    assert all(0<command[name]<=2 for name in JOINTS[:5])
+    assert command['gripper']<=53
+    assert set(limited)==set(JOINTS)
 
 
 def test_bus_only_observation_has_no_camera_dependency():

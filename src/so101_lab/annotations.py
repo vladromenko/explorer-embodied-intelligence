@@ -675,7 +675,7 @@ def annotate_dataset(dataset_path: Path, options: dict | None = None, progress: 
                     resumed = False
                     if record and not replay_after_gap:
                         try:
-                            validate_frame_annotations(record, raw, episode, allow_test=allow_test)
+                            validate_frame_annotations(record, raw, episode, require_cameras=tuple(raw["cameras"]), allow_test=allow_test)
                             if record.get("provenance", {}).get("configuration_hash") != config_hash:
                                 raise AnnotationError("Изменилась конфигурация SAM/preprocessing/source")
                             for camera, ann in record["cameras"].items():
@@ -712,7 +712,7 @@ def annotate_dataset(dataset_path: Path, options: dict | None = None, progress: 
                             return {"mask_path": file.relative_to(episode).as_posix(), "mask_sha256": sha256_file(file)}
                         record = annotate_observation(raw, images, segmenter, associators=trackers, mask_writer=mask_writer)
                         record["provenance"]["configuration_hash"] = config_hash
-                        validate_frame_annotations(record, raw, episode, allow_test=allow_test)
+                        validate_frame_annotations(record, raw, episode, require_cameras=tuple(raw["cameras"]), allow_test=allow_test)
                         with output_path.open("a") as file:
                             file.write(json.dumps(record, ensure_ascii=False, allow_nan=False)+"\n")
                             file.flush()

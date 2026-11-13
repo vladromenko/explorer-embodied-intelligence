@@ -19,7 +19,15 @@ def request_hardware_stop():
     with hardware_start_guard:
         hardware_stop_generation+=1
         if teleoperation:teleoperation.stop()
-        if manager:manager.command('stop')
+        if manager:
+            try:
+                # The red STOP is not an implicit "save episode" action.
+                # It must stop motor commands immediately and keep a partial
+                # demonstration out of the training set. A completed episode
+                # is added only through the explicit Save button.
+                manager.command('abort')
+            except RuntimeError:
+                if manager.status().get('active'):raise
     for job in jobs.list_jobs():
         if job['kind']=='policy' and job['state'] in jobs.ACTIVE:jobs.stop(job['id'])
     return teleoperation.status() if teleoperation else {'active':False}
@@ -82,14 +90,31 @@ async def preflight_check():
     atomic(ROOT/'runtime/preflight.json',result)
     return result
 
+_status_cache={'at':0.0,'value':None}
+_status_cache_lock=threading.Lock()
+def cached_status(max_age=1.5):
+    """Общий снимок для всех WebSocket-клиентов.
+
+    status() обходит /proc и все fd процессов, читает все job.json и models/**: ~70 мс CPU.
+    Раньше он выполнялся прямо в event loop для каждого клиента каждые 2 с и тормозил превью камер/API.
+    """
+    with _status_cache_lock:
+        now=time.monotonic()
+        if _status_cache['value'] is None or now-_status_cache['at']>max_age:
+            _status_cache['value']=status();_status_cache['at']=time.monotonic()
+        return _status_cache['value']
+
 @app.get('/api/status')
 def api_status():return status()
 @app.post('/api/scene')
-def scene_preview():
+async def scene_preview(request:Request):
     try:
         if manager.status().get('active'):raise ValueError('SAM снимка запускается до или после записи. Во время записи приоритет у raw')
+        body=await request.body();data=json.loads(body) if body else {}
+        camera_mode=data.get('camera_mode','two_camera')
+        if camera_mode not in ('two_camera','wrist_only'):raise ValueError('Неизвестный режим камер')
         from .scene import capture_scene
-        camera_preview.start(explicit_user_start=True)
+        camera_preview.start(explicit_user_start=True,settings={'camera_mode':camera_mode})
         return jobs.submit('scene',capture_scene(camera_preview),{'device':'cuda'})
     except Exception as exc:raise HTTPException(409,str(exc))
 @app.get('/api/scenes/{sid}/{camera}/{kind}')
@@ -118,10 +143,11 @@ async def start(request:Request):
         def begin():
             with hardware_control_lock:
                 if policy_is_active():raise ValueError('Сначала остановите политику кнопкой STOP рук перед записью')
-                hardware=manager.dataset_info(did)['source']=='hardware'
+                dataset=manager.dataset_info(did)
+                hardware=dataset['source']=='hardware'
                 if teleoperation and (hardware or teleoperation.status().get('active')):
                     teleoperation.stop_for_recording()
-                if hardware and camera_preview:camera_preview.start(explicit_user_start=True)
+                if hardware and camera_preview:camera_preview.start(explicit_user_start=True,settings=dataset.get('settings',{}))
                 with hardware_start_guard:
                     if generation!=hardware_stop_generation:raise ValueError('Запуск отменён кнопкой STOP. Запись не началась')
                     return manager.start(did,explicit_user_start=True,camera_provider=camera_preview if hardware else None,**{k:v for k,v in data.items() if k!='explicit_user_start'})
@@ -256,6 +282,11 @@ async def submit(request:Request):
 async def dataset_action(dataset_id:str,action:str,request:Request):
     try:
         path=dataset_path(dataset_id);options=await request.json()
+        if action=='delete':
+            if options:raise ValueError('Удаление не принимает дополнительные параметры')
+            active=[job for job in jobs.list_jobs() if job.get('state') in jobs.ACTIVE and Path(job.get('dataset','')).resolve()==path.resolve()]
+            if active:raise ValueError('Сначала остановите активную задачу этого датасета')
+            return manager.delete_dataset(dataset_id)
         if action not in ('validate','finalize','export'):raise ValueError('Неизвестная операция датасета')
         if manager.status().get('active') and manager.status().get('dataset_id')==dataset_id:raise ValueError('Сначала завершите сессию записи')
         if set(options)-{'allow_test_data'}:raise ValueError('Неизвестные параметры операции')
@@ -282,7 +313,11 @@ async def policy_action(action:str,request:Request):
     if checkpoint.name=='config.json': checkpoint=checkpoint.parent
     if not checkpoint.is_relative_to(ROOT/'models') or not (checkpoint/'config.json').exists():raise HTTPException(400,'Выберите сохранённый checkpoint')
     if action not in ('load','start'):raise HTTPException(400)
-    opts={'device':'cuda','task':data.get('task',''),'explicit_user_start':action=='start'}
+    execution_mode=data.get('execution_mode','learned')
+    if execution_mode!='learned':
+        raise HTTPException(400,'Экспериментальный replay отключён: запускается только обученная политика')
+    opts={'device':'cuda','task':data.get('task',''),'explicit_user_start':action=='start',
+          'execution_mode':'learned'}
     if action=='start':
         from .resources import assert_hardware_available,assert_compute_available
         from .hardware import hardware_paths
@@ -295,15 +330,27 @@ async def policy_action(action:str,request:Request):
                 if job['kind']=='policy_load' and job['state']=='completed' and job.get('dataset')==str(checkpoint) and result.get('checkpoint_manifest_sha256')==sha256_file(manifest):
                     if result.get('latency_check',{}).get('latency_within_limit') is False:raise ValueError('Проверка SAM → политики превысила лимит 2 секунды. Движения не запущены. Проверьте ресурсы и повторите проверку либо обучите RGB+state baseline')
                     break
-            assert_hardware_available(hardware_paths());assert_compute_available('cuda')
+            # Camera-only preview belongs to this same application. Release it
+            # before checking device ownership, otherwise Start rejects its own
+            # wrist camera as "busy". A policy never needs the leader arm, and
+            # wrist-only checkpoints must not be blocked by the unused top camera.
+            if camera_preview:camera_preview.stop()
+            from .features import FeatureContract
+            contract=FeatureContract.from_dict(json.loads((checkpoint/'object_adapter.json').read_text()))
+            camera_mode='wrist_only' if contract.cameras==('wrist',) else 'two_camera'
+            assert_hardware_available(hardware_paths({'camera_mode':camera_mode},leader=False));assert_compute_available(opts['device'])
         except Exception as e: raise HTTPException(409,str(e))
-        if camera_preview:camera_preview.stop()
     return jobs.submit('policy' if action=='start' else 'policy_load',checkpoint,opts)
 @app.websocket('/ws')
 async def websocket(ws:WebSocket):
     await ws.accept()
+    from starlette.concurrency import run_in_threadpool
     try:
-        while True:await ws.send_json(status());await asyncio.sleep(2)
+        while True:
+            try:payload=await run_in_threadpool(cached_status)
+            except Exception:payload=None  # одна неудачная выборка (файл исчез между glob и read) не должна рвать соединение
+            if payload is not None:await ws.send_json(payload)
+            await asyncio.sleep(2)
     except (WebSocketDisconnect,RuntimeError):pass
 @app.get('/')
 def index():return FileResponse(ROOT/'static/index.html',headers={'Cache-Control':'no-store'})

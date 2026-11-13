@@ -7,7 +7,7 @@ from pydantic import BaseModel,ConfigDict,Field,model_validator
 class TrainingOptions(BaseModel):
     model_config=ConfigDict(extra='forbid',allow_inf_nan=False)
     policy_type:Literal['smolvla','act']='smolvla'
-    mode:Literal['sam_objects','rgb_state']='sam_objects'
+    mode:Literal['sam_objects','rgb_state','wrist_color_object']='sam_objects'
     camera_mode:Literal['two_camera','wrist_only_experimental']='two_camera'
     device:Literal['cuda','cpu']='cuda'
     steps:int=Field(default=1000,ge=1,le=1000000)
@@ -21,16 +21,31 @@ class TrainingOptions(BaseModel):
     warmup_steps:int=Field(default=0,ge=0,le=1000000)
     gradient_accumulation:int=Field(default=1,ge=1,le=64)
     use_amp:bool=False
-    num_workers:int=Field(default=0,ge=0,le=2)
+    # bf16 нативен для Orin (Ampere), не требует GradScaler и устойчивее fp16.
+    amp_dtype:Literal['bf16','fp16']='bf16'
+    num_workers:int=Field(default=0,ge=0,le=4)
     log_every:int=Field(default=1,ge=1,le=1000000)
     save_every:int=Field(default=500,ge=1,le=1000000)
     eval_every:int=Field(default=100,ge=1,le=1000000)
+    # Промежуточная validation считается по равномерной подвыборке (0 — все кадры).
+    # Итоговая validation на последнем шаге и test всегда используют все кадры.
+    eval_max_samples:int=Field(default=256,ge=0,le=1000000)
+    # 0 — хранить все checkpoints; N>0 — оставлять только N последних (resume-источник не трогается).
+    keep_last_checkpoints:int=Field(default=0,ge=0,le=1000)
     image_size:int=Field(default=256,ge=32,le=512)
     chunk_size:int=Field(default=50,ge=1,le=200)
+    # Query every fresh wrist observation. A negative coefficient keeps the
+    # newest chunk dominant while suppressing frame-to-frame action reversals.
+    # The old +0.01 profile over-weighted stale chunks on this SO-101 dataset.
+    n_action_steps:int=Field(default=1,ge=1,le=200)
+    temporal_ensemble_coeff:float|None=Field(default=-.5,ge=-2,le=2)
+    act_pretrained_backbone:bool=True
     denoising_steps:int=Field(default=10,ge=1,le=100)
     kl_weight:float=Field(default=10,ge=0,le=1000)
     act_lr_backbone:float=Field(default=.00001,gt=0,le=.1)
-    validation_fraction:float=Field(default=.2,gt=0,lt=1)
+    # 0 is an explicit final-fit mode: every selected episode is used for
+    # training and this run intentionally has no independent validation metric.
+    validation_fraction:float=Field(default=.2,ge=0,lt=1)
     test_fraction:float=Field(default=0,ge=0,lt=1)
     split_unit:Literal['auto','session','episode']='auto'
     split_mode:Literal['auto','manual']='auto'
@@ -42,6 +57,9 @@ class TrainingOptions(BaseModel):
     target_category:Literal['cube','box']='cube'
     target_color:str|None=None
     augment_images:bool=False
+    # Доля minibatch, взятая из окна подхода/закрытия захвата. Это меняет
+    # только выбор обучающих кадров; в observation по-прежнему нет action/phase.
+    grasp_oversample_fraction:float=Field(default=0,ge=0,le=.9)
     job_name:str=Field(default='',max_length=120)
     resume_from:str|None=None
     output_dir:str|None=None
@@ -51,8 +69,14 @@ class TrainingOptions(BaseModel):
         if self.warmup_steps>=self.steps:raise ValueError('Warmup должен быть меньше steps')
         if self.image_size%16:raise ValueError('Размер изображения должен быть кратен16')
         if self.device=='cpu' and self.use_amp:raise ValueError('AMP поддерживается только CUDA')
+        if self.use_amp and self.amp_dtype=='fp16' and self.policy_type=='smolvla':raise ValueError('fp16 + GradScaler несовместим с bf16-весами SmolVLA (torch не умеет unscale bf16-градиенты). Выберите bf16 или ACT')
         if self.split_mode=='manual' and (not self.train_episodes or not self.validation_episodes):raise ValueError('Вручную выберите train и validation эпизоды')
         if self.policy_type=='act' and self.camera_mode=='wrist_only_experimental' and self.image_size<64:raise ValueError('Для ACT выберите image_size ≥64')
+        if self.mode=='wrist_color_object' and self.target_color not in ('red','yellow','green','blue'):
+            raise ValueError('Для быстрого wrist object-входа выберите target_color: red, yellow, green или blue')
+        if self.n_action_steps>self.chunk_size:raise ValueError('Исполняемых действий должно быть не больше длины action chunk')
+        if self.policy_type=='act' and self.temporal_ensemble_coeff is not None and self.n_action_steps!=1:
+            raise ValueError('Для сглаживания ACT нужно исполнять ровно одно действие до нового wrist-кадра')
         for name in ('episodes','train_episodes','validation_episodes','test_episodes'):
             values=getattr(self,name)
             if values is not None and (len(values)!=len(set(values)) or any(not x or Path(x).name!=x or x in ('.','..') for x in values)):raise ValueError('Некорректные/повторяющиеся episode IDs')
@@ -64,7 +88,7 @@ def normalize_options(options,*,public=False):
     if public and internal:raise ValueError('Технические настройки запрещены в форме обычного обучения')
     # Tiny tests use 32px images and an abbreviated action horizon.
     if internal.get('tiny_model'):
-        options.setdefault('image_size',32);options.setdefault('chunk_size',2);options.setdefault('device','cpu')
+        options.setdefault('image_size',32);options.setdefault('chunk_size',2);options.setdefault('n_action_steps',min(2,int(options['chunk_size'])));options.setdefault('temporal_ensemble_coeff',None);options.setdefault('act_pretrained_backbone',False);options.setdefault('device','cpu')
     result=TrainingOptions.model_validate(options).model_dump()
     if result['resume_from']:
         p=Path(result['resume_from']).resolve();root=Path(__file__).resolve().parents[2]
@@ -107,10 +131,11 @@ def plan_split(episodes,options):
         groups=[sorted(v) for _,v in sorted(sessions.items())] if unit=='session' else [[k] for k in sorted(by_id)]
         random.Random(int(options.get('seed',42))).shuffle(groups)
         n=len(groups);v=float(options.get('validation_fraction',.2));t=float(options.get('test_fraction',0))
-        nv=max(1,math.floor(n*v+.5));nt=max(1,math.floor(n*t+.5)) if t else 0
+        nv=max(1,math.floor(n*v+.5)) if v else 0
+        nt=max(1,math.floor(n*t+.5)) if t else 0
         if n<nv+nt+1:raise ValueError(f'Недостаточно независимых {unit}: нужно минимум {nv+nt+1}, доступно {n}. Добавьте данные или измените split')
         parts={'validation':sum(groups[:nv],[]),'test':sum(groups[nv:nv+nt],[]),'train':sum(groups[nv+nt:],[])}
-    if not parts['train'] or not parts['validation']:raise ValueError('Train и validation должны быть непустыми')
+    if not parts['train']:raise ValueError('Train должен быть непустым')
     result={'unit':unit,'mode':options.get('split_mode','auto'),'seed':int(options.get('seed',42)),**{k:sorted(v) for k,v in parts.items()},'excluded':sorted(by_id.keys()-set(sum(parts.values(),[]))),
             'warning':None if unit=='session' else 'Split по эпизодам: соседние эпизоды одной сессии могут быть похожи; для оценки обобщения нужны независимые сессии'}
     for k,ids in parts.items():
@@ -132,7 +157,14 @@ def preview(dataset_path,options,*,public=True):
     if meta.get('source')!='hardware' and not opts.get('allow_test_data'):raise ValueError('Тестовый источник исключён из обычного обучения')
     plan=plan_split(episodes,opts)
     warnings=[plan['warning']] if plan['warning'] else []
-    if opts['policy_type']=='act':warnings.append('ACT обучается с нуля, ResNet18 без скачивания весов; текст задачи не является входом ACT')
+    if not plan['validation'] and not plan['test']:
+        warnings.append('Финальный fit на всех выбранных эпизодах: независимых validation/test метрик у этого запуска не будет')
+    if opts['policy_type']=='act':
+        if opts['act_pretrained_backbone']:
+            weights=Path.home()/'.cache/torch/hub/checkpoints/resnet18-f37072fd.pth'
+            if not weights.is_file():raise ValueError('Локальные ImageNet-веса ResNet18 отсутствуют; автоматическая загрузка отключена')
+            warnings.append('ACT использует локальный предобученный ResNet18; текст задачи не является входом ACT')
+        else:warnings.append('ACT visual backbone обучается с нуля; это не рекомендуется для небольшого wrist-only датасета')
     if opts['mode']=='sam_objects':
         for eid in plan['train']+plan['validation']+plan['test']:
             sidecar=Path(dataset_path)/'episodes'/eid/'annotations'/opts['annotation_version']/'frames.jsonl'
@@ -159,8 +191,30 @@ def preview(dataset_path,options,*,public=True):
         for part in ('train','validation','test'):
             if previous['split'].get(part,[])!=plan[part]:raise ValueError('Выборки Resume отличаются от исходных')
     if ds.rejections:warnings.append(f"Исключено невалидных observation frames: {len(ds.rejections)}")
+    disk=disk_estimate(opts)
+    if disk:
+        warnings.append(disk['message'])
+        if disk['enough'] is False:raise ValueError(disk['message']+' Увеличьте «Checkpoint каждые N шагов», задайте «Хранить последние N checkpoint» или освободите место.')
     return {'options':opts,'split':plan,'episodes':episodes,'warnings':warnings,'source':meta.get('source'),'rejected_frames':len(ds.rejections)}
 
+
+def disk_estimate(opts):
+    """Грубая оценка диска под checkpoints (+ одна копия финального в MLflow artifacts).
+
+    Один шаг SmolVLA ≈ веса + optimizer state (замер: ~1.6 ГБ). Оценка нужна, чтобы длинный
+    запуск не умер на середине из-за заполненного диска. Технические tiny-запуски не считаем.
+    """
+    if opts.get('tiny_model'):return None
+    import shutil
+    root=Path(__file__).resolve().parents[2]
+    per=int(1.7*1024**3) if opts['policy_type']=='smolvla' else int(.6*1024**3)
+    saves=max(1,opts['steps']//opts['save_every'])+1
+    kept=min(saves,opts['keep_last_checkpoints']) if opts['keep_last_checkpoints'] else saves
+    need=per*(kept+1)  # +1: финальная копия в MLflow
+    free=shutil.disk_usage(root).free
+    gb=lambda v:f'{v/1024**3:.1f} ГБ'
+    message=f'Диск: оценка checkpoints {gb(need)} (до {kept} шт.), свободно {gb(free)}.'
+    return {'need_bytes':need,'free_bytes':free,'enough':free>need*1.1+2*1024**3,'message':message}
 
 def selected_episode_ids(options):
     if options.get('split_mode')=='manual':

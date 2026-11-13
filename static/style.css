@@ -21,3 +21,6 @@ label{font-size:13px}.subtitle{font-size:13px}.button{font-size:13px}.camera-hea
 .sam-snapshots{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.sam-snapshots figure{margin:0;background:#f4f7fa;border:1px solid var(--line);border-radius:8px;overflow:hidden}.sam-snapshots img{display:block;width:100%;height:180px;object-fit:contain;background:#122937}.sam-snapshots figcaption{font-size:11px;padding:8px;text-align:center;color:#647b88}.capture-session .sam-snapshots img{height:140px}
 
 .capture-toolbar>a{font-size:11px;color:var(--accent);text-decoration:none;white-space:nowrap}
+@media(max-width:1250px){.setup-panel{display:block}.setup-panel>#newDatasetFields,.setup-panel>.form-two,.setup-panel>.field-hint,.setup-panel>#record,.setup-panel>.start-help,.setup-panel>label,.setup-panel>.existing-info,.setup-panel>.create-only,.setup-panel>.setup-bottom{grid-column:auto;grid-row:auto}}
+.camera-grid.wrist-only{grid-template-columns:minmax(0,1fr)}
+.protocol-card{background:#eef8f5;border:1px solid #d4ebe3;border-radius:8px;padding:12px 14px;margin:-3px 0 17px;color:#46665c;font-size:11px;line-height:1.55}.protocol-card strong{color:#275f50}.protocol-card ol{margin:7px 0 0;padding-left:18px}.protocol-card li+li{margin-top:3px}

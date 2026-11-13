@@ -33,6 +33,12 @@ def test_unsafe_settings_are_rejected():
         with pytest.raises(ValueError): hardware_settings(settings)
 
 
+def test_wrist_only_settings_require_and_open_only_wrist_camera():
+    settings=hardware_settings({'camera_mode':'wrist_only'})
+    assert tuple(settings['cameras'])==('wrist',)
+    assert tuple(settings['camera_formats'])==('wrist',)
+
+
 def test_limits_are_bounded_without_ordered_id_feature():
     source=HardwareSource()
     source.last_command_ns=time.monotonic_ns()-33_000_000

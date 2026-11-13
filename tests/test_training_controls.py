@@ -16,6 +16,13 @@ def test_split_three_way_deterministic_whole_sessions():
     for a,b in [('train','validation'),('train','test'),('validation','test')]:assert not set(p[a])&set(p[b])
     assert p['unit']=='session'
 
+def test_final_fit_uses_every_selected_episode_without_holdout():
+    o=normalize_options({'validation_fraction':0,'test_fraction':0,'seed':42})
+    p=plan_split(episodes(),o)
+    assert p['train']==[f'e{i}' for i in range(10)]
+    assert p['validation']==[] and p['test']==[]
+    assert p['train_samples']==sum(range(1,11))
+
 def test_manual_split_rejects_leakage_empty_unknown():
     o={'split_mode':'manual','train_episodes':['e0'],'validation_episodes':['e1'],'test_episodes':['e2']}
     p=plan_split(episodes(),o);assert len(p['excluded'])==7
@@ -51,7 +58,7 @@ def test_actual_act_update_reload_test_and_resume(tmp_path):
     opts={'policy_type':'act','tiny_model':True,'allow_test_data':True,'device':'cpu','mode':'sam_objects','steps':2,'chunk_size':2,'batch_size':1,'image_size':32,'eval_every':1,'test_fraction':.3,'validation_fraction':.3,'seed':17,'gradient_accumulation':2}
     r=train(path,tmp_path/'act',opts)
     assert np.isfinite(r['loss']) and np.isfinite(r['test_loss']);assert r['state_projection_update_max_abs']>0
-    ck=Path(r['checkpoint']);cfg=json.loads((ck/'pretrained_model/config.json').read_text());assert cfg['type']=='act'
+    ck=Path(r['checkpoint']);cfg=json.loads((ck/'pretrained_model/config.json').read_text());assert cfg['type']=='act' and cfg['n_action_steps']==2
     first=load_checkpoint(ck,allow_technical=True);second=load_checkpoint(ck,allow_technical=True)
     ep=path/'episodes/ep000';row=json.loads((ep/'frames.jsonl').read_text().splitlines()[0])
     from so101_lab.annotations import load_frame_annotations
@@ -91,3 +98,12 @@ def test_resume_wrong_policy_rejected_by_preview_before_model_load(tmp_path):
     (folder/'config.json').write_text(json.dumps({'type':'act','chunk_size':2}))
     with pytest.raises(ValueError,match='Тип модели'):
         preview(path,{'tiny_model':True,'allow_test_data':True,'device':'cpu','steps':2,'resume_from':str(checkpoint),'policy_type':'smolvla'},public=False)
+
+def test_action_execution_horizon_is_shorter_than_predicted_chunk():
+    options=normalize_options({'policy_type':'act','chunk_size':50,'n_action_steps':1})
+    assert options['chunk_size']==50 and options['n_action_steps']==1
+    assert options['temporal_ensemble_coeff']==pytest.approx(-.5)
+    with pytest.raises(ValueError,match='сглаживания ACT'):
+        normalize_options({'policy_type':'act','chunk_size':50,'n_action_steps':10,'temporal_ensemble_coeff':.01})
+    with pytest.raises(ValueError,match='не больше'):
+        normalize_options({'policy_type':'act','chunk_size':10,'n_action_steps':11,'temporal_ensemble_coeff':None})

@@ -12,7 +12,7 @@ def capture_scene(preview):
     folder=ROOT/'runtime/scenes'/uuid.uuid4().hex;folder.mkdir(parents=True)
     frame={'frame_id':folder.name,'timestamp_ns':time.monotonic_ns(),'cameras':{}}
     with preview.lock:
-        if set(preview.cameras)!={'top','wrist'}:raise ValueError('Подключите обе камеры для проверки SAM')
+        if not preview.cameras:raise ValueError('Подключите хотя бы одну камеру для проверки SAM')
         for camera,capture in preview.cameras.items():
             item=capture.latest_before(frame['timestamp_ns'])
             if item is None or frame['timestamp_ns']-item['timestamp_ns']>100_000_000:raise ValueError('Нет свежего кадра '+camera)

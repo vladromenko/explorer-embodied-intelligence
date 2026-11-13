@@ -30,6 +30,13 @@ SUPPORTED_LEROBOT = "0.6.1"
 CAMERAS = ("top", "wrist")
 
 
+def _dataset_cameras(metadata: dict) -> tuple[str, ...]:
+    mode=metadata.get("camera_mode",metadata.get("settings",{}).get("camera_mode","two_camera"))
+    if mode=="two_camera":return CAMERAS
+    if mode=="wrist_only":return ("wrist",)
+    raise ExportError("Неизвестный режим камер raw dataset")
+
+
 class ExportError(ValueError):
     """An invalid raw snapshot must never become a completed LeRobot dataset."""
 
@@ -87,7 +94,7 @@ def _nominal_fps(meta: dict, episodes: list[dict], override: Any = None) -> int:
     return int(chosen)
 
 
-def _timing_summary(rows: list[dict], fps: int) -> dict:
+def _timing_summary(rows: list[dict], fps: int, cameras: tuple[str, ...]) -> dict:
     times = [row["timestamp_ns"] for row in rows]
     intervals = [(b-a)/1e9 for a, b in zip(times, times[1:])]
     measured = (len(times)-1)/((times[-1]-times[0])/1e9) if len(times) > 1 else None
@@ -104,10 +111,10 @@ def _timing_summary(rows: list[dict], fps: int) -> dict:
         "timestamps_resampled": False,
         "timestamp_semantics": "measured_observation_monotonic_ns_relative_to_episode_first_frame",
         "single_frame_rate_unknown": len(times) == 1,
-        "camera_reused_frames": {cam: sum(int(bool(row["cameras"][cam].get("reused", False))) for row in rows) for cam in CAMERAS},
-        "camera_reported_drops": {cam: sum(int(row["cameras"][cam].get("dropped_since_previous", 0)) for row in rows) for cam in CAMERAS},
-        "max_camera_age_ms": {cam: max((row["timestamp_ns"]-row["cameras"][cam]["timestamp_ns"])/1e6 for row in rows) for cam in CAMERAS},
-        "max_camera_skew_ms": max(abs(row["cameras"]["top"]["timestamp_ns"]-row["cameras"]["wrist"]["timestamp_ns"])/1e6 for row in rows),
+        "camera_reused_frames": {cam: sum(int(bool(row["cameras"][cam].get("reused", False))) for row in rows) for cam in cameras},
+        "camera_reported_drops": {cam: sum(int(row["cameras"][cam].get("dropped_since_previous", 0)) for row in rows) for cam in cameras},
+        "max_camera_age_ms": {cam: max((row["timestamp_ns"]-row["cameras"][cam]["timestamp_ns"])/1e6 for row in rows) for cam in cameras},
+        "max_camera_skew_ms": max((max(row["cameras"][cam]["timestamp_ns"] for cam in cameras)-min(row["cameras"][cam]["timestamp_ns"] for cam in cameras))/1e6 for row in rows),
         "max_state_to_action_ms": max((row["action_timestamp_ns"]-row["state_timestamp_ns"])/1e6 for row in rows),
         "fixed_rate_delta_query_note": "LeRobot delta_timestamps uses nominal FPS frame offsets; actual raw timing is retained and must be checked before interpreting chunks as uniform physical time",
     }
@@ -125,6 +132,7 @@ class _Inspection:
     source_bytes: int
     source_digest: str
     warnings: list[str]
+    cameras: tuple[str, ...]
 
     def report(self) -> dict:
         return {
@@ -139,6 +147,7 @@ class _Inspection:
             "total_frames": self.total_frames,
             "total_episodes": len(self.episodes),
             "image_shapes_hwc": {cam: list(shape) for cam, shape in self.shapes.items()},
+            "cameras": list(self.cameras),
             "source_bytes": self.source_bytes,
             "episodes": [{"source_episode_id": ep["path"].name, "session_id": ep["metadata"].get("session_id"),
                           "frames": len(ep["rows"]), "task": ep["task"], "timing": ep["timing"]} for ep in self.episodes],
@@ -154,6 +163,7 @@ def _inspect_raw(dataset_path: Path, *, allow_test_data: bool, fps: Any = None, 
         raise ExportError("Raw dataset должен находиться внутри независимой лаборатории")
     meta_path = path / "dataset.json"
     meta = _read_json(meta_path)
+    cameras = _dataset_cameras(meta)
     source = meta.get("source")
     if source not in ("hardware", "synthetic_test"):
         raise ExportError("Неизвестный источник raw dataset")
@@ -178,6 +188,8 @@ def _inspect_raw(dataset_path: Path, *, allow_test_data: bool, fps: Any = None, 
             raise ExportError(f"Незавершённый эпизод нельзя экспортировать: {episode_path.name}")
         if info.get("source", source) != source:
             raise ExportError("Смешаны hardware и test episodes")
+        if tuple(info.get("cameras",cameras))!=cameras:
+            raise ExportError("Режим камер эпизода не совпадает с датасетом")
         frame_file = episode_path / "frames.jsonl"
         raw_lines = frame_file.read_text().splitlines()
         rows = [json.loads(line) for line in raw_lines if line.strip()]
@@ -220,7 +232,9 @@ def _inspect_raw(dataset_path: Path, *, allow_test_data: bool, fps: Any = None, 
                 raise ExportError("Источник кадра не совпадает с dataset source")
             if source == "hardware" and (row.get("state_valid") is not True or row.get("action_valid") is not True):
                 raise ExportError("Hardware frame содержит unmeasured/unsent state/action")
-            for cam in CAMERAS:
+            if tuple(row.get("cameras",{}))!=cameras:
+                raise ExportError("Raw frame содержит неверный набор камер")
+            for cam in cameras:
                 raw = row.get("cameras", {}).get(cam)
                 if not isinstance(raw, dict) or raw.get("valid") is not True:
                     raise ExportError(f"Отсутствует валидный кадр {cam}")
@@ -254,13 +268,13 @@ def _inspect_raw(dataset_path: Path, *, allow_test_data: bool, fps: Any = None, 
     nominal = _nominal_fps(meta, episodes, fps)
     warnings = []
     for episode in episodes:
-        episode["timing"] = _timing_summary(episode["rows"], nominal)
+        episode["timing"] = _timing_summary(episode["rows"], nominal, cameras)
         drift = episode["timing"]["max_nominal_clock_drift_ms"]
         if drift > 1000/nominal:
             warnings.append(f"{episode['path'].name}: наблюдаемый clock drift {drift:.2f} ms превышает период nominal FPS; проверьте качество перед train")
     if source != "hardware":
         warnings.append("ТЕХНИЧЕСКИЙ источник: joints/actions не являются измерениями/отправленными командами, успех робота не проверялся")
-    return _Inspection(path, meta, episodes, hashes, shapes, nominal, total_frames, source_bytes, _json_digest(hashes), warnings)
+    return _Inspection(path, meta, episodes, hashes, shapes, nominal, total_frames, source_bytes, _json_digest(hashes), warnings, cameras)
 
 
 def validate_raw_dataset(dataset_path: Path, *, allow_test_data=False, fps=None, progress=None, stop=None) -> dict:
@@ -282,7 +296,7 @@ def _features(inspection: _Inspection) -> dict:
         "raw.action_valid": {"dtype": "bool", "shape": (1,), "names": ["transmitted_action_valid"]},
         "raw.action_acknowledged": {"dtype": "bool", "shape": (1,), "names": ["per_motor_acknowledgement"]},
     }
-    for cam in CAMERAS:
+    for cam in inspection.cameras:
         features[f"observation.images.{cam}"] = {"dtype": "image", "shape": inspection.shapes[cam], "names": ["height", "width", "channels"]}
         features[f"raw.{cam}.timestamp_ns"] = {"dtype": "int64", "shape": (1,), "names": ["monotonic_ns"]}
     return features
@@ -306,7 +320,7 @@ def _episode_payload(inspection: _Inspection, episode: dict, episode_index: int,
             payload[feature].append(np.array([row[source_key]], dtype=np.int64))
         for feature, source_key in (("raw.state_valid", "state_valid"), ("raw.action_valid", "action_valid"), ("raw.action_acknowledged", "action_acknowledged")):
             payload[feature].append(np.array([row.get(source_key, False)], dtype=np.bool_))
-        for cam in CAMERAS:
+        for cam in inspection.cameras:
             raw = row["cameras"][cam]
             payload[f"observation.images.{cam}"].append(str(safe_child(episode["path"], raw["path"])))
             payload[f"raw.{cam}.timestamp_ns"].append(np.array([raw["timestamp_ns"]], dtype=np.int64))
@@ -367,7 +381,8 @@ def _verify_official_export(export_path: Path, *, verify_all_frames=True) -> dic
                 raise ExportError("Официальный loader: потеря точных ns timestamps")
         if abs(float(loaded["timestamp"])-sidecar["relative_timestamp_s"]) > max(2e-7, sidecar["relative_timestamp_s"]*2e-7):
             raise ExportError("Официальный loader: measured relative timestamp изменён")
-        for cam in CAMERAS:
+        cameras=tuple(lineage.get("cameras",CAMERAS))
+        for cam in cameras:
             with Image.open(safe_child(raw_root / sidecar["source_episode_relative"], raw["cameras"][cam]["path"])) as source:
                 expected = np.asarray(source)
             actual = loaded[f"observation.images.{cam}"].permute(1, 2, 0).cpu().numpy()
@@ -379,7 +394,7 @@ def _verify_official_export(export_path: Path, *, verify_all_frames=True) -> dic
                 raise ExportError(f"Официальный loader: RGB {cam} изменён или отсутствует")
     return {"status": "passed", "loader": "lerobot.datasets.lerobot_dataset.LeRobotDataset", "lerobot_version": importlib.metadata.version("lerobot"),
             "frames_opened_and_verified": len(selected), "total_frames": len(dataset), "total_episodes": dataset.num_episodes,
-            "image_shapes_chw": {cam: list(dataset[0][f"observation.images.{cam}"].shape) for cam in CAMERAS},
+            "image_shapes_chw": {cam: list(dataset[0][f"observation.images.{cam}"].shape) for cam in cameras},
             "rgb_pixels_bit_exact": True, "image_comparison": "official image-backed float [0,1] decoded to exact uint8 via round(255*x), or native uint8", "measured_timestamps_preserved": True, "precise_monotonic_ns_preserved": True,
             "task_and_episode_boundaries_verified": True, "hardware_test": False, "cuda_used": False}
 
@@ -474,7 +489,7 @@ def export_dataset(dataset_path: Path, output_path: Path | None = None, options:
             lineage.update(status="complete", official_verification=verification, frame_sidecar_sha256=sha256_file(provenance / "frames.jsonl"))
             _atomic_json(provenance / "export.json", lineage)
             readme = "# SO-101 local LeRobot Dataset\n\n" + ("ТЕХНИЧЕСКИЙ ТЕСТ: это не реальные демонстрации робота.\n\n" if inspection.metadata["source"] != "hardware" else "Источник: реальные hardware записи; успешность задачи экспортом не устанавливается.\n\n")
-            readme += "Оба исходных RGB ракурса без потерь; measured joints и transmitted action различаются. Точные monotonic ns находятся в raw.* features и provenance/frames.jsonl. Timestamp — измеренное относительное время, FPS — nominal/requested; observed FPS/jitter и калибровки находятся в provenance/export.json. Ничего не отправлено на Hugging Face.\n"
+            readme += ("Только исходный wrist RGB ракурс без потерь; " if inspection.cameras==("wrist",) else "Оба исходных RGB ракурса без потерь; ")+"measured joints и transmitted action различаются. Точные monotonic ns находятся в raw.* features и provenance/frames.jsonl. Timestamp — измеренное относительное время, FPS — nominal/requested; observed FPS/jitter и калибровки находятся в provenance/export.json. Ничего не отправлено на Hugging Face.\n"
             (temporary / "README.md").write_text(readme)
             _fsync_directory(provenance)
             _fsync_directory(temporary)

@@ -73,6 +73,21 @@ def test_numeric_features_causal_and_objects_change_input(tmp_path):
         object_state(row, ann, contract)
 
 
+def test_wrist_colour_object_features_are_causal_and_normalized():
+    image = np.zeros((100, 200, 3), np.uint8)
+    image[20:60, 50:110] = [0, 0, 255]  # RGB blue
+    frame = {"observation.state": [1, 2, 3, 4, 5, 6]}
+    contract = FeatureContract(mode="wrist_color_object",
+                               camera_mode="wrist_only_experimental", target_color="blue")
+    state = object_state(frame, None, contract, images={"wrist": image})
+    assert contract.state_dim == 12
+    assert state[:6] == [1, 2, 3, 4, 5, 6]
+    assert state[6] == 1.0
+    assert state[7:11] == pytest.approx([.4, .4, .3, .4], abs=.01)
+    missing = object_state(frame, None, contract, images={"wrist": np.zeros_like(image)})
+    assert missing[6:] == [0.0] * 6
+
+
 def test_split_stats_and_future_fail_closed(tmp_path):
     path = fixture_dataset(tmp_path / "data")
     ds = RawEpisodeDataset(path, FeatureContract(), chunk_size=4, allow_test_data=True)

@@ -1,63 +1,164 @@
-# SO-101 Studio — запись и обучение SmolVLA / ACT
+# SO-101 AI Learning Lab
 
-Релиз записи v13 (7 ноября):15s подготовки, большая сцена, Пробел/R/Esc, общий preview reader, асинхронный SAM и MLflow во время записи. Повторные проверки завершены;1 физический контрольный эпизод выполняет оператор. См. [инструкцию](RECORDING_GUIDE.md), [разбор надёжности](RECORDING_RELIABILITY_REVIEW.md) и [результат](validation/recording-fix-20261107/release.json).
+Независимая локальная лаборатория для записи демонстраций SO-101, разметки,
+обучения ACT/SmolVLA и запуска обученной политики на роботе. Приложение работает
+на Homebrain (Jetson), не открывает камеры или шины моторов при старте сервера и
+не использует LLM в цикле управления.
 
-Самостоятельная лаборатория на homebrain. Исходники, среда, данные, модели и БД расположены только в `/home/jetsonnx/Projects/so101_ai_learning`. Внешние проекты используются только как read-only источник сведений/независимых снимков. Их программы, службы, камеры, VPN и калибровки не меняются.
+Актуальный снимок проекта и история проблем описаны в
+[docs/HOMEBRAIN_FINAL_STATE_RU.md](docs/HOMEBRAIN_FINAL_STATE_RU.md). Краткий
+хронологический журнал сохранён в [STATUS.md](STATUS.md).
 
-## Фактическая приёмка 6–7 ноября2026
+## Текущее состояние
 
-См. [ACCEPTANCE_REPORT.md](ACCEPTANCE_REPORT.md), [TEST_RESULTS.md](TEST_RESULTS.md), [RECORDING_GUIDE.md](RECORDING_GUIDE.md). Камеры и serial проверены read-only, выполнены настоящий SAM GPU forward, full pretrained SmolVLA GPU update/reload и full ACT CPU update/reload. Это не доказательство успешного захвата. Следующий шаг —1контрольный эпизод оператора. На главном экране есть Preflight; в библиотеке — raw validation, finalize и официальный экспорт LeRobot.
+- Веб-интерфейс: `http://192.168.0.168:8020` по LAN или
+  `http://100.95.83.3:8020` через Tailscale.
+- MLflow: те же адреса, порт `5020`.
+- Запись: две камеры либо только wrist-камера, calibrated leader → follower,
+  lossless PNG и фактические состояния/команды суставов.
+- Датасет: 50 реальных wrist-only эпизодов задачи «синий кубик → белая коробка».
+- Обучение: ACT и SmolVLA, независимые train/validation/test-сессии,
+  checkpoints, resume и локальные метрики MLflow.
+- Запуск: предварительная загрузка checkpoint без движения и отдельный явный
+  физический Start через штатный LeRobot rollout.
+- Физический итог: rollout выполнялся и возвращал руку в исходную область, но
+  успешный автономный захват и укладка обученной политикой не подтверждены.
+  Завершение процесса с кодом `0` означает только штатное окончание программы.
 
-## Открыть с Mac
+Raw-данные, checkpoints, MLflow DB и логи остаются только на Homebrain и не
+входят в Git.
 
-- LAN: http://192.168.0.168:8020
-- Tailscale: http://100.95.83.3:8020
-- MLflow: http://192.168.0.168:5020 или http://100.95.83.3:5020
+## Что реализовано
 
-UI получает изображения от сервера, не использует getUserMedia/mediaDevices. HTTP не требует secure context для камер браузера. WebSocket использует текущий host/protocol и переподключается, также есть HTTP polling. Safari на реальном Mac пока не проверен: в сессии нет доступного браузера. Доступ с внешнего Mac требует того же LAN или действующего Tailscale. Авторизация/VPN не менялись.
+### Запись и управление
 
-## Настройка обучения
+- Предпросмотр камер не включает torque.
+- Телеоперация и запись используют сохранённые калибровки leader/follower.
+- Камеры открываются одним владельцем и переиспользуются preview/recording.
+- Wrist-only режим не записывает и не показывает фиктивную обзорную камеру.
+- STOP прекращает команды, а незавершённый эпизод переносит в quarantine. В
+  train попадает только явно сохранённый эпизод.
+- Сессию можно продолжить до сохранённого целевого числа эпизодов.
+- Удаление датасета, повтор эпизода, архивный просмотр и проверка raw доступны в
+  интерфейсе.
 
-В этапе3 теперь доступны SmolVLA и ACT, выбор эпизодов, автоматическое или ручное разделение train/validation/test, batch size/LR/optimizer/scheduler/AMP/накопление градиента и интервалы оценки/сохранения. До очереди сервер проверяет данные и параметры. Подробно: [docs/TRAINING_CONTROLS.md](docs/TRAINING_CONTROLS.md). ACT обучается с нуля и не использует текст задачи.
+### Данные и разметка
 
-## Камеры и новый экран
+- Каждый кадр содержит монотонные timestamps, актуальное состояние робота,
+  реально отправленную action-команду и хэши файлов.
+- PNG пишутся асинхронно с ограниченной очередью; полная синхронизация диска
+  выполняется при завершении эпизода, а не в 30 FPS контуре.
+- SAM3 работает как фоновая разметка сохранённых кадров и не находится в
+  realtime-контуре моторов.
+- Маски, категории, цвета, причинные track IDs и provenance привязаны к точному
+  исходному кадру.
+- Есть валидация raw и официальный экспорт, читаемый LeRobot 0.6.1.
 
-После открытия сразу видны карточки двух камер и состояние занятости. «Подключить камеры» включает только предпросмотр, без motor bus/torque. Если устройства заняты другим экспериментом, кнопка заблокирована с объяснением. Start записи — отдельное явное действие. В обычном выборе нет технических датасетов; первая опция — «Новый датасет». Библиотека, обучение и политика находятся в боковой навигации. Служебный JSON доступен только в закрытой диагностике.
+### Обучение и запуск
 
-## Один контрольный эпизод
+- Политики ACT и SmolVLA.
+- Разделение train/validation/test целыми сессиями, чтобы соседние эпизоды одной
+  записи не утекали в разные выборки.
+- Настраиваемые steps, batch size, LR, scheduler, AMP, gradient accumulation,
+  интервалы validation/checkpoint и число сохраняемых checkpoints.
+- Проверка памяти, диска и владения GPU/устройствами до запуска задачи.
+- Worker-процессы не зависят от вкладки; MLflow имеет durable spool и replay.
+- Для ACT зарегистрирован тот же centered letterbox 256×256, который использован
+  при обучении; скрипт исправляет старые checkpoints с неполным preprocessor.
+- Перед официальным rollout стартовая конфигурация выводится из train-сессий.
+- Диагностический plugin пишет action/state и редкие wrist-кадры, не меняя
+  командный путь LeRobot.
 
-1. Убедиться, что оператор рядом с роботом, рабочая зона свободна, руки поддержаны при снятии torque. Проверить независимый снимок калибровки и аппаратный STOP. Другой эксперимент должен самостоятельно освободить камеры и обе шины: лаборатория не останавливает его.
-2. В UI указать новое имя и текст задачи. Источник «SO-101 + две USB-камеры». Создать датасет. Выбрать 1 эпизод, например 30 секунд.
-3. Нажать «Начать запись / телеоперацию». Только это действие разрешает открытие аппаратуры и torque. При конфликте UI объяснит отказ. Двигать leader; следить за follower, двумя кадрами и состоянием записи.
-4. End сохраняет эпизод, STOP завершает сессию и пытается снять torque один раз. Re-record сохраняет заменённый материал в quarantine. «Следующий / добавить» добавляет эпизод; старые чужие данные не включаются.
-5. Обновить список сохранённых эпизодов и просмотреть обе камеры. Проверить кадры, joints, actions и timestamps. Это первая физическая проверка, ещё не выполненная автоматически.
-6. Для обучения собрать минимум два целых эпизода, лучше независимые сессии. Нажать «Разметить SAM 3», дождаться готовности, затем «Обучить SmolVLA». При занятости памяти задача ожидает. Baseline RGB+state выбирается отдельно. Wrist-only экспериментален, stock SmolVLA не имеет заявленной памяти обзора.
-7. После обучения выбрать checkpoint, проверить загрузку без движения. Физический запуск политики — отдельная явная кнопка; при занятых ресурсах он отказывает сразу. Для безопасного запуска нужен оператор. Tiny test checkpoints запрещены для робота.
+## Структура
 
-Для проверки интерфейса без робота открыть Настройки → Режим разработчика → Показать технические данные; только там доступен synthetic источник. Эти записи явно synthetic_test, измерения и actions не считаются реальными; обычное обучение их отвергает.
+```text
+src/so101_lab/
+  app.py                 FastAPI, REST/WebSocket, координация ресурсов
+  hardware.py            камеры, leader/follower, калибровки и шины
+  preview.py             camera-only preview
+  teleoperation.py       отдельное calibrated following
+  recording.py           датасеты, эпизоды, writer, recovery/quarantine
+  annotations.py         SAM3 и валидация разметки
+  lerobot_export.py      проверка и экспорт в официальный формат LeRobot
+  training_options.py    параметры и session-level split
+  training.py            ACT/SmolVLA, checkpoint/resume/evaluation
+  inference.py           проверка checkpoint и физический rollout
+  policies.py            конфигурация моделей и centered letterbox
+  jobs.py/resources.py   фоновые задачи и leases ресурсов
+  telemetry.py           MLflow со spool/replay
+  lerobot_plugin/        регистрация processor и rollout trace
+static/                   интерфейс Studio
+config/systemd/           user services UI, MLflow и replay timer
+scripts/                  запуск служб, обслуживание и проверки
+tests/                    Python и DOM-тесты без открытия аппаратуры
+```
 
-## Файлы и процессы
+## Службы
 
-- `data/ds_<id>/dataset.json`: произвольное исходное имя, task, source, calibration provenance.
-- `data/ds_<id>/episodes/<id>/`: lossless RGB PNG top/wrist и `frames.jsonl` с monotonic timestamps/sha256/validity/действительно переданными квантованными targets. Это собственный raw-формат, не заявляется штатным LeRobot v3 export.
-- `data/ds_<id>/quarantine/`: неполные/заменённые записи. Сбой и перезапуск не превращают их в валидные демонстрации.
-- `annotations/sam3-v1/`: точные frame/timestamp/hash, PNG masks и причинный heuristic tracking. XYZ/depth/размеры unknown без действительной геометрии.
-- `models/<job-id>/checkpoints/step_*/`: полный `pretrained_model` (weights/config/processors/tokenizer assets/object_adapter/lineage) и optimizer/scheduler/RNG training_state. Для переноса копировать всю папку шага.
-- `runtime/jobs/`, `runtime/recording.json`, `runtime/mlflow.db`, `runtime/mlflow-spool/`; `data/mlflow-artifacts/`; `logs/job-*.log`.
-- Службы `so101-ai-learning-ui`, `so101-ai-learning-mlflow`, timer `so101-ai-learning-mlflow-replay`. Собственные unit-файлы лежат в `config/systemd`, стандартные user-systemd ссылки указывают на них. Старт сервера не открывает аппаратуру. Worker subprocess не зависит от вкладки; после аварии не возобновляет движение сам.
+```bash
+cd /home/jetsonnx/Projects/so101_ai_learning
+./scripts/start_services.sh
+curl -fsS http://127.0.0.1:8020/api/status
+curl -fsS http://127.0.0.1:5020/
+```
 
-`systemctl --user status so101-ai-learning-ui so101-ai-learning-mlflow`
+Для диагностики:
 
-`journalctl --user -u so101-ai-learning-ui -n 50`
+```bash
+systemctl --user status so101-ai-learning-ui so101-ai-learning-mlflow
+journalctl --user -u so101-ai-learning-ui -n 100
+```
 
-## Зависимости и воспроизводимость
+Сервер стартует без подключения к моторам. Камеры, torque, запись и политика
+включаются только отдельными действиями пользователя в UI.
 
-Python3.12, Torch2.11.0+cu130, torchvision0.26+cu130, LeRobot0.6.1, Transformers5.5.4. Среда получена независимым файловым снимком установленных пакетов без foreign .pth/editable/finders/symlinks; `config/environment-snapshot.json` содержит происхождение/hash metadata. Добавленные зависимости и итоговые версии закреплены `config/requirements.lock.txt`. Модельный HF cache используется только read-only/offline; аккаунты W&B/HF для локальной записи/обучения не требуются.
+## Проверка кода без робота
 
-SAM3 pinned `f1647e8d0c1d280991f4d1b7d974c2704537fe66`. Единственная локальная правка upstream — NumPy dependency metadata: SAM заявляет `<2`, LeRobot требует `>=2`. Выбрано NumPy2.2.6; импорт model_builder/processor и немодельные маски/цвет проверены. Настоящий SAM GPU forward ещё требует проверки. Происхождение и hash правки: `config/sam3-provenance.json`. Код SAM установлен своей копией в .venv. Официальные источники: https://github.com/facebookresearch/sam3 ; https://huggingface.co/docs/lerobot/smolvla ; https://mlflow.org/docs/latest/self-hosting/architecture/tracking-server/ .
+```bash
+cd /home/jetsonnx/Projects/so101_ai_learning
+PYTHONPATH=src .venv/bin/pytest -q
+npm test
+node --check static/app.js
+```
 
-## Что доказано и что осталось
+Эти команды не должны открывать USB-камеры и motor bus. Физическую проверку
+выполняют только из интерфейса при освобождённых устройствах.
 
-Текущие результаты и остаточные ограничения указаны в ACCEPTANCE_REPORT.md и STATUS.md. Первые версии отчётов сохраняются как история. Реальная операторская запись, Safari и качество физического исполнения ещё не проверены. Изображения камер и modelTensor engineering tests не выдаются за успешные демонстрации.
+## Локальные артефакты
 
-Отдельно проверить руки: на странице «Запись» нажмите **«Включить телеоперацию»** без создания датасета; **«STOP рук»** завершает следование. Затем создайте датасет и запускайте запись отдельно. Настоящие браузерные проверки Chromium/WebKit описаны в TEST_RESULTS.md; Mac Safari и физическое следование подтверждает оператор.
+```text
+data/ds_<id>/              raw episodes, quarantine, annotations, exports
+models/<job-id>/           checkpoints, split, lineage, result
+runtime/jobs/              состояние фоновых задач
+runtime/mlflow.db          локальная база MLflow
+runtime/mlflow-spool/      недоставленные метрики
+data/mlflow-artifacts/     MLflow artifacts
+logs/                      worker и rollout logs/traces
+```
+
+Эти каталоги исключены через `.gitignore`. Для переноса работающей модели нужно
+копировать всю папку checkpoint, а не только файл весов.
+
+## Ограничения
+
+- Текущий wrist-only датасет покрывает одну сцену и одну формулировку задачи;
+  он недостаточен для универсальных команд, сортировки и новых предметов.
+- Коробка не видна wrist-камере в начале части эпизодов и появляется после
+  поворота руки. Явная метрическая геометрия цели в baseline не подаётся.
+- SAM3 полезен для контроля данных и object features, но сам по себе не
+  гарантирует захват и не исправляет недостаточное разнообразие демонстраций.
+- В физических rollout наблюдались промахи, дрожание/запаздывание и периодические
+  провалы частоты цикла. Следующий этап — сопоставить wrist-наблюдение, action
+  trace и train-распределение в момент промаха.
+- Геометрическая автономная система Wristlab и этот imitation-learning проект —
+  разные репозитории и разные исполнительные контуры.
+
+## Дополнительные материалы
+
+- [Финальное состояние Homebrain](docs/HOMEBRAIN_FINAL_STATE_RU.md)
+- [Настройки обучения](docs/TRAINING_CONTROLS.md)
+- [Инструкция записи](RECORDING_GUIDE.md)
+- [Надёжность записи](RECORDING_RELIABILITY_REVIEW.md)
+- [Контракт данных](docs/CONTRACT.md)
+- [Экспорт LeRobot](docs/LEROBOT_EXPORT.md)
+- [Разметка](docs/ANNOTATIONS.md)

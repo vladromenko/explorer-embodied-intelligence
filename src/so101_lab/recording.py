@@ -24,6 +24,13 @@ from .hardware import JOINTS, ROOT, HardwareSource, calibration_snapshot, hardwa
 from .resources import ResourceLease, assert_disk_space, assert_hardware_available
 
 SCHEMA = 'so101-raw-v1'
+CAMERA_MODES = {'two_camera':('top','wrist'),'wrist_only':('wrist',)}
+
+
+def dataset_cameras(metadata):
+    mode=metadata.get('camera_mode',metadata.get('settings',{}).get('camera_mode','two_camera'))
+    if mode not in CAMERA_MODES:raise ValueError('Неизвестный режим камер датасета')
+    return CAMERA_MODES[mode]
 
 
 def utcnow(): return datetime.now(timezone.utc).isoformat()
@@ -42,6 +49,11 @@ def fsync_dir(path):
     fd = os.open(path,os.O_DIRECTORY)
     try: os.fsync(fd)
     finally: os.close(fd)
+
+
+def annotation_collection_progress(path, target_total):
+    completed=len([p for p in (Path(path)/'episodes').glob('*/episode.json') if json.loads(p.read_text()).get('status')=='complete'])
+    return completed,int(target_total),completed>=int(target_total)
 
 
 def integer(value, name, minimum=1, maximum=10000):
@@ -89,13 +101,14 @@ def _validate_episode_raw(path, dataset, *, allow_test_data=False, stop=None):
             live = metadata.get('provenance',{}).get('live_calibration',{}).get(role,{})
             if not expected or snapshot_hash!=expected or live.get('verified_live') is not True or live.get('snapshot_sha256')!=expected:
                 raise ValueError(f'Нет согласованного calibration readback: {role}')
-    contract = FeatureContract(mode='rgb_state')
+    cameras=dataset_cameras(dataset)
+    contract = FeatureContract(mode='rgb_state',camera_mode='two_camera' if cameras==('top','wrist') else 'wrist_only_experimental')
     count,first_time,last_time,last_id = 0,None,None,None
     last_action_time = None
     previous_sequences = {}
     dimensions = {}
-    reused = {'top':0,'wrist':0}
-    dropped = {'top':0,'wrist':0}
+    reused = {camera:0 for camera in cameras}
+    dropped = {camera:0 for camera in cameras}
     max_camera_age,max_pair_skew,max_period,max_state_to_action = 0.,0.,0.,0.
     with manifest.open() as source:
         for line in source:
@@ -119,9 +132,9 @@ def _validate_episode_raw(path, dataset, *, allow_test_data=False, stop=None):
                 raise ValueError('Нарушен причинный порядок state/observation/action timestamps')
             if last_time is not None and (timestamp<=last_time or action_time<=last_action_time):
                 raise ValueError('Немонoтонные observation/action timestamps')
-            if set(row.get('cameras',{}))!={'top','wrist'}: raise ValueError('Raw требует обе камеры')
+            if tuple(row.get('cameras',{}))!=cameras: raise ValueError('Raw не соответствует режиму камер датасета')
             camera_times=[]
-            for camera in ('top','wrist'):
+            for camera in cameras:
                 info = row['cameras'][camera]
                 camera_time = _positive_timestamp(info['timestamp_ns'],camera+' timestamp')
                 capture_start = _positive_timestamp(info['read_start_ns'],camera+' read_start')
@@ -151,7 +164,7 @@ def _validate_episode_raw(path, dataset, *, allow_test_data=False, stop=None):
                         raise ValueError(f'{camera}: hardware schema требует 640×480')
                 camera_times.append(camera_time)
                 max_camera_age=max(max_camera_age,(observation_time-camera_time)/1e6)
-            max_pair_skew=max(max_pair_skew,(max(camera_times)-min(camera_times))/1e6)
+            max_pair_skew=max(max_pair_skew,(max(camera_times)-min(camera_times))/1e6 if len(camera_times)>1 else 0.)
             max_state_to_action=max(max_state_to_action,(action_time-state_time)/1e6)
             if last_time is not None: max_period=max(max_period,(timestamp-last_time)/1e9)
             first_time=first_time or timestamp;last_time=timestamp;last_id=frame_id;last_action_time=action_time;count+=1
@@ -229,6 +242,8 @@ class SyntheticSource:
     source = 'synthetic_test'
     def __init__(self, settings=None):
         self.cfg = {'width':640,'height':480,**(settings or {})}
+        self.cameras=CAMERA_MODES.get(self.cfg.get('camera_mode','two_camera'))
+        if self.cameras is None:raise ValueError('Неизвестный режим камер датасета')
         self.started = False
     def start(self, **kwargs):
         self.started = True
@@ -241,7 +256,7 @@ class SyntheticSource:
         if not self.started: raise RuntimeError('Synthetic source is not started')
         timestamp = time.monotonic_ns()
         images = {}
-        for camera in ('top','wrist'):
+        for camera in self.cameras:
             im = Image.new('RGB',(int(self.cfg['width']),int(self.cfg['height'])),(28,35,44))
             draw = ImageDraw.Draw(im)
             offset = (frame_id*4)%max(1,self.cfg['width']-120)
@@ -263,15 +278,17 @@ class SyntheticSource:
 
 
 class EpisodeWriter:
-    """PNG encoding and fsync are isolated from the control thread; overflow stops recording."""
-    def __init__(self, dataset_path, metadata, *, queue_size=64, on_preview=None):
+    """PNG encoding and disk writes are isolated from control; overflow stops recording."""
+    def __init__(self, dataset_path, metadata, *, queue_size=600, on_preview=None):
         configure_cv()
         self.dataset_path = Path(dataset_path)
         self.metadata = dict(metadata)
+        self.cameras=tuple(metadata.get('cameras') or CAMERA_MODES.get(metadata.get('camera_mode','two_camera'),()))
+        if not self.cameras:raise ValueError('Эпизод не содержит допустимый режим камер')
         self.episode_id = metadata['episode_id']
         self.partial = self.dataset_path/'.partial'/(self.episode_id+'.partial')
         self.partial.mkdir(parents=True,exist_ok=False)
-        for camera in ('top','wrist'): (self.partial/'images'/camera).mkdir(parents=True)
+        for camera in self.cameras: (self.partial/'images'/camera).mkdir(parents=True)
         self.metadata.update(status='recording',frames=0,started_at=utcnow(),schema_version=SCHEMA,
                              writer_pid=os.getpid(),writer_process_start_ticks=Path('/proc/self/stat').read_text().split()[21])
         atomic_json(self.partial/'episode.json',self.metadata)
@@ -283,11 +300,16 @@ class EpisodeWriter:
         self.first_ns = None
         self.last_ns = None
         self.on_preview = on_preview
-        self.reused = {'top':0,'wrist':0}
-        self.dropped = {'top':0,'wrist':0}
-        self.age_max_ms = {'top':0.,'wrist':0.}
+        self.reused = {camera:0 for camera in self.cameras}
+        self.dropped = {camera:0 for camera in self.cameras}
+        self.age_max_ms = {camera:0. for camera in self.cameras}
+        self.previous_action = None
+        self.previous_action_ns = None
+        self.max_joint_action_delta = 0.
+        self.max_joint_action_speed = 0.
+        self.max_gripper_action_delta = 0.
         self._finish_requested = threading.Event()
-        self.performance={'bytes_written':0,'encode_write_seconds':0.,'peak_queue':0,'encoder':'opencv_png0_two_parallel_cameras'}
+        self.performance={'bytes_written':0,'encode_write_seconds':0.,'peak_queue':0,'encoder':'opencv_png1_lossless','cameras':list(self.cameras)}
         self.thread = threading.Thread(target=self._run,name='so101-ai-raw-writer',daemon=True)
         self.thread.start()
         self.closed = False
@@ -307,11 +329,20 @@ class EpisodeWriter:
     def _encode_image(self,camera,frame,frame_id):
         import cv2
         before=time.monotonic()
-        ok,png=cv2.imencode('.png',cv2.cvtColor(frame['image'],cv2.COLOR_RGB2BGR),[cv2.IMWRITE_PNG_COMPRESSION,0])
+        # Level 0 produced ~0.92 MB per 640x480 frame. During a long capture
+        # burst the kernel eventually throttled dirty-page writes for several
+        # seconds and the robot session was aborted even though the NVMe and
+        # cameras were healthy. Level 1 remains byte-exact lossless RGB while
+        # reducing the measured wrist stream from ~26 to ~10 MB/s.
+        ok,png=cv2.imencode('.png',cv2.cvtColor(frame['image'],cv2.COLOR_RGB2BGR),[cv2.IMWRITE_PNG_COMPRESSION,1])
         if not ok:raise RuntimeError('PNG encoder failed: '+camera)
         data=png.tobytes();path=Path('images')/camera/(f'{frame_id:08d}.png')
         with (self.partial/path).open('wb') as image_file:
-            image_file.write(data);image_file.flush();os.fsync(image_file.fileno())
+            # A synchronous flush for every ~1 MB image can stall NVMe for
+            # seconds and must never hold up teleoperation.  Closing the file
+            # submits the complete PNG; episode metadata and directories are
+            # fsynced once the writer has drained.
+            image_file.write(data)
         return path,data,time.monotonic()-before
 
     def _run(self):
@@ -349,6 +380,14 @@ class EpisodeWriter:
                     }
                     record['labels'] = {'phase':{'valid':False,'value':None},'success':{'valid':False,'value':None},
                                         'done':{'valid':False,'value':None},'grasp':{'valid':False,'value':None}}
+                    if self.previous_action is not None:
+                        dt=(record['action_timestamp_ns']-self.previous_action_ns)/1e9
+                        if dt>0:
+                            deltas=[abs(float(a)-float(b)) for a,b in zip(record['action'],self.previous_action)]
+                            self.max_joint_action_delta=max(self.max_joint_action_delta,*deltas[:5])
+                            self.max_joint_action_speed=max(self.max_joint_action_speed,*(value/dt for value in deltas[:5]))
+                            self.max_gripper_action_delta=max(self.max_gripper_action_delta,deltas[5])
+                    self.previous_action=list(record['action']);self.previous_action_ns=record['action_timestamp_ns']
                     record['latency_ms'] = {'state_read':(record['state_read_end_ns']-record['state_read_start_ns'])/1e6,
                                            'state_to_action':(record['action_timestamp_ns']-record['state_timestamp_ns'])/1e6,
                                            'action_send':(record['action_send_end_ns']-record['action_send_start_ns'])/1e6,
@@ -358,7 +397,13 @@ class EpisodeWriter:
                     self.first_ns = self.first_ns or record['timestamp_ns']
                     self.last_ns = record['timestamp_ns']
                     if self.frames%15==0:
-                        self.file.flush(); os.fsync(self.file.fileno())
+                        # Do not force an NVMe cache flush while the robot is
+                        # following the leader.  A single multi-second fsync
+                        # used to fill the bounded image queue and abort an
+                        # otherwise healthy hardware session.  The manifest,
+                        # images and directories are synchronised once the
+                        # episode has stopped and the writer has drained.
+                        self.file.flush()
         except Exception:
             self.error = traceback.format_exc()
             with (self.partial/'writer-traceback.log').open('w') as out: out.write(self.error)
@@ -388,10 +433,13 @@ class EpisodeWriter:
                              reused_camera_frames=self.reused,dropped_camera_frames=self.dropped,
                              max_camera_age_ms=self.age_max_ms,writer_enqueued=self.enqueued)
         self.metadata['writer_performance']=dict(self.performance)
+        self.metadata['motion_quality']={'max_joint_action_delta_degrees':self.max_joint_action_delta,
+            'max_joint_action_speed_degrees_s':self.max_joint_action_speed,
+            'max_gripper_action_delta_percent':self.max_gripper_action_delta}
         if not self.thread.is_alive():
             self.metadata['frames_sha256'] = hashlib.sha256((self.partial/'frames.jsonl').read_bytes()).hexdigest()
         atomic_json(self.partial/'episode.json',self.metadata)
-        for camera in ('top','wrist'): fsync_dir(self.partial/'images'/camera)
+        for camera in self.cameras: fsync_dir(self.partial/'images'/camera)
         fsync_dir(self.partial/'images')
         fsync_dir(self.partial)
         parent = self.dataset_path/('episodes' if status=='complete' else 'quarantine')
@@ -447,13 +495,18 @@ class RecordingManager:
         if not name or len(name)>200: raise ValueError('Имя датасета: 1–200 символов')
         if not task or len(task)>2000: raise ValueError('Текст задачи: 1–2000 символов')
         if source not in ('hardware','synthetic_test'): raise ValueError('Неизвестный источник записи')
+        camera_mode=settings.get('camera_mode','two_camera')
+        if camera_mode not in CAMERA_MODES:raise ValueError('Режим камер должен быть two_camera или wrist_only')
+        settings['camera_mode']=camera_mode
+        target_episodes=integer(settings.pop('target_episodes',1),'Целевое число эпизодов',1,10000)
         dataset_id = 'ds_'+uuid.uuid4().hex[:16]
         path = self.data_root/dataset_id
         path.mkdir(exist_ok=False)
         calibration = calibration_snapshot() if source=='hardware' else {'valid':False,'source':'synthetic_test'}
         meta = {'dataset_id':dataset_id,'name':name,'task':task,'source':source,'schema_version':SCHEMA,
                 'created_at':utcnow(),'sessions':[],'joints':list(JOINTS),'units':['degrees']*5+['percent_calibrated_range'],
-                'calibration':calibration,'settings':settings,'version':0,'episodes':0,'test_only':source=='synthetic_test'}
+                'calibration':calibration,'camera_mode':camera_mode,'cameras':list(CAMERA_MODES[camera_mode]),
+                'target_episodes':target_episodes,'settings':settings,'version':0,'episodes':0,'test_only':source=='synthetic_test'}
         atomic_json(path/'dataset.json',meta)
         (path/'episodes').mkdir(); (path/'quarantine').mkdir()
         return self.dataset_info(dataset_id)
@@ -461,6 +514,8 @@ class RecordingManager:
     def dataset_info(self,dataset_id):
         path = self._dataset_path(dataset_id)
         meta = json.loads((path/'dataset.json').read_text())
+        meta.setdefault('camera_mode',meta.get('settings',{}).get('camera_mode','two_camera'))
+        meta.setdefault('cameras',list(CAMERA_MODES.get(meta['camera_mode'],())))
         episodes = []
         for item in sorted((path/'episodes').glob('*/episode.json')):
             try: episodes.append(json.loads(item.read_text()))
@@ -478,6 +533,17 @@ class RecordingManager:
                 info=self.dataset_info(path.parent.name);info.pop('episode_list',None);datasets.append(info)
             except (OSError,ValueError,KeyError): pass
         return sorted(datasets,key=lambda d:d['created_at'],reverse=True)
+
+    def delete_dataset(self,dataset_id):
+        if self.status().get('active') and self.status().get('dataset_id')==dataset_id:
+            raise RuntimeError('Сначала завершите запись этого датасета')
+        path=self._dataset_path(dataset_id)
+        from .resources import dataset_lease
+        with dataset_lease(path):
+            trash=self.data_root/'.trash';trash.mkdir(exist_ok=True)
+            target=trash/(dataset_id+'_'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'_'+uuid.uuid4().hex[:8])
+            os.replace(path,target);fsync_dir(trash);fsync_dir(self.data_root)
+        return {'status':'deleted','dataset_id':dataset_id,'recoverable':True,'trash_path':str(target)}
 
     def finalize_dataset(self,dataset_id,allow_test_data=False,progress=None,stop=None):
         if self.status().get('active') and self.status().get('dataset_id')==dataset_id:
@@ -523,7 +589,20 @@ class RecordingManager:
             with dataset_lease(path):pass  # fail before opening hardware if training holds the data
             dataset = json.loads((path/'dataset.json').read_text())
             cfg = {**dataset.get('settings',{}),**settings}
+            cfg['camera_mode']=dataset.get('camera_mode',dataset.get('settings',{}).get('camera_mode','two_camera'))
             cfg['episode_count'] = integer(cfg.get('episode_count',1),'Число эпизодов',1,10000)
+            completed_before_session=len([p for p in (path/'episodes').glob('*/episode.json') if json.loads(p.read_text()).get('status')=='complete'])
+            if 'target_episodes_total' in settings:
+                target_episodes_total=integer(settings['target_episodes_total'],'Общее целевое число эпизодов',1,10000)
+                if target_episodes_total<=completed_before_session:raise ValueError('В датасете уже достигнуто выбранное число эпизодов')
+                cfg['episode_count']=target_episodes_total-completed_before_session
+            elif 'episode_count' not in settings and dataset.get('target_episodes',0)>completed_before_session:
+                target_episodes_total=integer(dataset['target_episodes'],'Общее целевое число эпизодов',1,10000)
+                cfg['episode_count']=target_episodes_total-completed_before_session
+            else:target_episodes_total=completed_before_session+cfg['episode_count']
+            cfg['target_episodes_total']=target_episodes_total
+            if dataset.get('target_episodes')!=target_episodes_total:
+                dataset['target_episodes']=target_episodes_total;atomic_json(path/'dataset.json',dataset)
             cfg['fps'] = float(cfg.get('fps',30))
             if not 1<=cfg['fps']<=30: raise ValueError('FPS: 1–30')
             cfg['episode_seconds'] = float(cfg.get('episode_seconds',30))
@@ -558,7 +637,8 @@ class RecordingManager:
             session_id = 'session_'+uuid.uuid4().hex[:16]
             self.current = {'state':'starting','active':True,'dataset_id':dataset_id,'name':dataset['name'],
                             'session_id':session_id,'source':dataset['source'],'task':dataset['task'],
-                            'hardware_open':False,'completed_in_session':0,'target_episodes':cfg['episode_count'],
+                            'hardware_open':False,'completed_before_session':completed_before_session,
+                            'completed_in_session':0,'target_episodes':cfg['episode_count'],'target_episodes_total':target_episodes_total,
                             'started_at':utcnow(),'updated_at':utcnow(),'settings':cfg}
             self._persist()
             self.thread = threading.Thread(target=self._run,args=(path,dataset,cfg,session_id),
@@ -586,10 +666,14 @@ class RecordingManager:
     def _new_writer(self,path,dataset,session_id,cfg,provenance):
         if hasattr(self.source,'begin_episode'): self.source.begin_episode()
         episode_id = 'ep_'+time.strftime('%Y%m%dT%H%M%S')+'_'+uuid.uuid4().hex[:10]
+        cameras=dataset_cameras(dataset)
         metadata = {'episode_id':episode_id,'dataset_id':dataset['dataset_id'],'session_id':session_id,
                     'source':dataset['source'],'task':dataset['task'],'test_only':dataset['source']=='synthetic_test',
-                    'fps_requested':cfg['fps'],'camera_mode':'two_camera_raw','provenance':provenance,
-                    'calibration':dataset['calibration'],'operator_labels':{},'scan_history_available':False}
+                    'fps_requested':cfg['fps'],'camera_mode':dataset.get('camera_mode','two_camera'),'cameras':list(cameras),'provenance':provenance,
+                    'calibration':dataset['calibration'],'operator_labels':{},'scan_history_available':False,
+                    'recording_protocol':dataset.get('settings',{}).get('recording_protocol','standard'),
+                    'smooth_recording_actions':bool(cfg.get('smooth_recording_actions',False)),
+                    'max_speed_degrees_s':float(cfg.get('max_speed_degrees_s',45.))}
         writer = EpisodeWriter(path,metadata,on_preview=self._preview)
         self.writer = writer
         self._update(state='recording',episode_id=episode_id,frames_written=0,frames_enqueued=0,episode_start_monotonic_ns=time.monotonic_ns())
@@ -725,7 +809,11 @@ class RecordingManager:
                             sample['control_lateness_ms']=max(0.,(current-deadline)*1000);writer.put(sample)
                             if frame_id%max(1,int(cfg['fps']))==0:
                                 assert_disk_space(int(cfg['minimum_free_gb']*1024**3),path)
-                                self._update(frames_written=writer.frames,frames_enqueued=writer.enqueued,episode_elapsed_s=time.monotonic()-episode_start)
+                                # status() reads these counters directly from
+                                # the live writer.  Persisting runtime JSON on
+                                # the control thread used to issue an fsync
+                                # once per second and could freeze commands
+                                # behind a busy image writer.
                             if time.monotonic()-episode_start>=cfg['episode_seconds']:self.commands.put('end')
                         else:
                             if hasattr(self.source,'control_sample'):self.source.control_sample()
@@ -755,9 +843,13 @@ class RecordingManager:
                 stopped_at=utcnow(),stop_errors=stop_errors,
                 hardware_stop_state='torque_disable_unconfirmed_operator_check_required' if stop_errors else 'devices_closed')
             if telemetry:telemetry.finish('FAILED' if final_state=='failed' else 'FINISHED')
-            if self.on_session_complete and cfg['auto_annotate'] and dataset['source']=='hardware' and any((path/'episodes').glob('*/episode.json')):
-                try:self._update(auto_annotation=self.on_session_complete(path,session_id))
-                except Exception as exc:self._update(annotation_error=str(exc))
+            if self.on_session_complete and cfg['auto_annotate'] and dataset['source']=='hardware':
+                target_total=cfg.get('target_episodes_total',cfg['episode_count'])
+                completed_total,target_total,annotation_due=annotation_collection_progress(path,target_total)
+                if annotation_due:
+                    try:self._update(auto_annotation=self.on_session_complete(path,session_id),annotation_deferred=None)
+                    except Exception as exc:self._update(annotation_error=str(exc))
+                else:self._update(annotation_deferred={'completed_episodes':completed_total,'target_episodes':target_total,'reason':'collection_in_progress'})
 
     def recover_incomplete(self):
         recovered=[]

@@ -187,7 +187,7 @@ def test_stop_cancels_pending_transfer_before_recorder_start(manager, monkeypatc
     assert not thread.is_alive()
     assert responses[0].status_code == 409
     assert "STOP" in responses[0].json()["detail"]
-    assert calls == ["stop"]
+    assert calls == ["abort"]
 
 
 def test_hardware_stop_also_stops_waiting_policy(manager, monkeypatch):
@@ -202,7 +202,7 @@ def test_hardware_stop_also_stops_waiting_policy(manager, monkeypatch):
     monkeypatch.setattr(web.jobs, "stop", lambda jid: calls.append(("job", jid)))
     response = TestClient(web.app).post("/api/teleoperation/stop", json={})
     assert response.status_code == 200
-    assert calls == [("record", "stop"), ("job", "own-policy")]
+    assert calls == [("record", "abort"), ("job", "own-policy")]
 
 
 def test_queued_policy_blocks_teleoperation_before_camera_release(manager, monkeypatch):

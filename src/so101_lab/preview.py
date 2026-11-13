@@ -9,21 +9,26 @@ class CameraPreview:
     def acquire_for_recording(self,settings):
         with self.lock:
             if not self.cameras:raise RuntimeError('Сначала подключите камеры')
-            for name,cam in self.cameras.items():
+            requested=tuple(settings['cameras'])
+            if any(name not in self.cameras for name in requested):raise RuntimeError('Не подключена камера для записи: '+', '.join(name for name in requested if name not in self.cameras))
+            for name in requested:
+                cam=self.cameras[name]
                 if cam.error:raise RuntimeError(f'Камера {name}: {cam.error}')
                 cfg=getattr(cam,'cfg',settings)
-                if any(cfg.get(key)!=settings.get(key) for key in ('width','height','fps','camera_formats','cameras')):raise ValueError('Режим камер предпросмотра отличается от записи')
+                if any(cfg.get(key)!=settings.get(key) for key in ('width','height','fps')) or cfg.get('camera_formats',{}).get(name)!=settings.get('camera_formats',{}).get(name) or cfg.get('cameras',{}).get(name)!=settings.get('cameras',{}).get(name):raise ValueError('Режим камеры предпросмотра отличается от записи: '+name)
             token=object();self.borrowers.add(token)
-            return token,dict(self.cameras)
+            return token,{name:self.cameras[name] for name in requested}
     def release_recording(self,token):
         with self.lock:self.borrowers.discard(token)
-    def start(self,*,explicit_user_start=False):
+    def start(self,*,explicit_user_start=False,settings=None):
         if not explicit_user_start:raise PermissionError('Подключение камер требует явной кнопки в интерфейсе')
         with self.lock:
+            cfg=hardware_settings(settings)
             if self.cameras:
                 if self.error:raise RuntimeError('Сначала отключите предпросмотр: '+self.error)
-                return self.status()
-            cfg=hardware_settings()
+                if tuple(self.cameras)==tuple(cfg['cameras']):return self.status()
+                if self.borrowers:raise RuntimeError('Камеры используются записью; режим нельзя изменить')
+                self.stop()
             assert_hardware_available(list(cfg['cameras'].values()))
             lease=ResourceLease('cameras');lease.__enter__();self.lease=lease
             self.error=None

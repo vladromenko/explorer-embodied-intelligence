@@ -34,3 +34,13 @@ def test_duplicate_resume_of_live_job_refused(tmp_path,monkeypatch):
     d=tmp_path/('b'*32);d.mkdir();(d/'job.json').write_text('{"kind":"train","options":{},"state":"running"}');(d/'pid').write_text('123')
     monkeypatch.setattr(jobs,'alive',lambda *a:True)
     with pytest.raises(ValueError,match='выполняется'):jobs.resume('b'*32)
+
+def test_identical_active_training_submission_is_deduplicated(tmp_path,monkeypatch):
+    from so101_lab import jobs
+    monkeypatch.setattr(jobs,'DIR',tmp_path)
+    jid='c'*32;folder=tmp_path/jid;folder.mkdir()
+    existing={'id':jid,'kind':'train','dataset':'dataset','options':{'seed':42},'state':'waiting_resources','created_at':1}
+    jobs.atomic(folder/'job.json',existing)
+    returned=jobs.submit('train','dataset',{'seed':42})
+    assert returned['id']==jid
+    assert len(list(tmp_path.glob('*/job.json')))==1
